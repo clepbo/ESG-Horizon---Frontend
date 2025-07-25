@@ -1,7 +1,9 @@
+import TestComponent from "./components/TestComponent";
+
 export default function Home() {
   return (
     <>
-      <p>Hello World</p>
+      <TestComponent />
     </>
   );
 }
