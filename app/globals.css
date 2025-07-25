@@ -1,26 +1,46 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-primary: #006400;
+  --color-secondary: #8b4513;
+  --color-accent: #f59e0b;
+
+  --font-sans: Poppins, ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Inter, ui-serif, Georgia, serif;
+  --font-mono: JetBrains Mono, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    font-family: var(--font-poppins);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-inter);
+  }
+
+  h1 {
+    @apply text-4xl font-bold;
+  }
+  h2 {
+    @apply text-3xl font-semibold;
+  }
+  h3 {
+    @apply text-2xl font-medium;
+  }
+  h4 {
+    @apply text-xl font-medium;
+  }
+  h5 {
+    @apply text-lg font-medium;
+  }
+  h6 {
+    @apply text-base font-medium;
+  }
 }
