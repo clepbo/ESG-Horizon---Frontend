@@ -1,9 +1,9 @@
-import LoginPage from "@/app/login/page";
+import TestComponent from "./components/TestComponent";
 
 export default function Home() {
   return (
     <>
-      <LoginPage />
+      <TestComponent />
     </>
   );
 }
