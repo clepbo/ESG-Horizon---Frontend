@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 
+import ClientToaster from "@/app/components/ClientToaster";
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
@@ -26,7 +28,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`font-sans ${poppins.variable} ${inter.variable} antialiased`}>
+      <body className={`${poppins.variable} antialiased`}>
+        <ClientToaster />
         {children}
       </body>
     </html>
