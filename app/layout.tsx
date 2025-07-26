@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 
-import ClientToaster from "@/Components/ClientToaster";
+import ClientToaster from "@/app/components/ClientToaster";
 
 const poppins = Poppins({
   variable: "--font-poppins",

@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import LoginPage from "../app/login/page";
-import ClientToaster from "@/Components/ClientToaster";
+import ClientToaster from "@/app/components/ClientToaster";
 
 // Mock Next.js Image to avoid hydration issues
 jest.mock("next/image", () => (props: any) => (

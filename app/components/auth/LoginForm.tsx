@@ -43,8 +43,11 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       {/* Email Field */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-black">
-          Email <span className="text-red-500">*</span>
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-neutral-1000"
+        >
+          Email <span className="text-neutral-1000">*</span>
         </label>
         <input
           id="email"
@@ -74,9 +77,9 @@ export default function LoginForm() {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-neutral-800"
+          className="block text-sm font-medium text-neutral-1000"
         >
-          Password <span className="text-red-500">*</span>
+          Password <span className="text-neutral-1000">*</span>
         </label>
         <input
           id="password"
@@ -104,7 +107,7 @@ export default function LoginForm() {
 
       {/* Forgot password */}
       <div className="text-right">
-        <a href="#" className="text-sm text-black hover:underline">
+        <a href="#" className="text-sm text-neutral-1000 hover:underline">
           Forgot Password?
         </a>
       </div>
@@ -116,7 +119,7 @@ export default function LoginForm() {
         className={`w-full py-2 px-4 rounded text-sm font-semibold transition ${
           loading
             ? "bg-gray-400 cursor-not-allowed"
-            : "bg-green-700 hover:bg-green-600 text-white"
+            : "bg-green-500 hover:bg-green-600 text-neutral-50"
         } focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {loading ? "Loading..." : "Login"}

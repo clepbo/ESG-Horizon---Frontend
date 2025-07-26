@@ -1,6 +1,6 @@
 "use client";
 
-import LoginForm from "@/Components/auth/LoginForm";
+import LoginForm from "@/app/components/auth/LoginForm";
 import Image from "next/image";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,9 +10,9 @@ export default function LoginPage() {
     <>
       <ToastContainer />
 
-      <div className="min-h-screen flex flex-col md:flex-row">
+      <div className="min-h-screen flex flex-col lg:flex-row">
         {/* Left image */}
-        <div className="hidden md:block md:w-1/2">
+        <div className="hidden lg:block md:w-1/2">
           <Image
             src="/login-image.png"
             alt="Login background"
@@ -35,12 +35,16 @@ export default function LoginPage() {
               />
             </div>
 
-            <h2 className="text-center text-2xl md:text-3xl font-semibold text-neutral-900">
-              Login to your account
-            </h2>
+            <div className="rounded-xl border border-gray-200 shadow-lg bg-white p-8">
+              <div className="space-y-6">
+                <h2 className="text-center text-2xl md:text-3xl font-semibold text-neutral-1000">
+                  Login to your account
+                </h2>
 
-            {/* Login Form */}
-            <LoginForm />
+                {/* Login Form */}
+                <LoginForm />
+              </div>
+            </div>
           </div>
         </div>
       </div>
