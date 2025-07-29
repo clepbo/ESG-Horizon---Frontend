@@ -3,6 +3,7 @@ import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 
 import ClientToaster from "@/app/components/ClientToaster";
+import ReactQueryProvider from "@/app/providers/ReactQueryProvider";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -19,6 +20,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Horizon For ESG Evaluation",
   description: "Your first-step into ESG evaluation",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -29,8 +33,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased`}>
-        <ClientToaster />
-        {children}
+        <ReactQueryProvider>
+          <ClientToaster />
+          {children}
+        </ReactQueryProvider>
       </body>
     </html>
   );
