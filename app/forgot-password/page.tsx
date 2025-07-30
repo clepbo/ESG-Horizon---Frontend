@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       // Simulate async OTP send
-      await new Promise((res) => setTimeout(res, 1000));
+      await new Promise((res) => setTimeout(res, 500));
       toast.success("OTP sent to your email!");
       reset();
       router.push("/verify-email"); // ✅ redirect here
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 px-4 text-sm font-semibold rounded-md transition text-white ${
+              className={`w-full py-2 px-4 text-sm font-semibold rounded-md transition text-white cursor-pointer ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-green-500 hover:bg-green-600"

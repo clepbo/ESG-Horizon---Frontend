@@ -106,7 +106,7 @@ export default function VerifyEmailPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 px-4 text-sm font-semibold rounded-md text-white transition ${
+              className={`w-full py-2 px-4 text-sm font-semibold rounded-md text-white transition cursor-pointer ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-green-500 hover:bg-green-600"

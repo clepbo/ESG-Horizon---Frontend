@@ -14,9 +14,8 @@ type FormFields = {
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState({ password: false, confirm: false });
 
   const {
     register,
@@ -26,13 +25,14 @@ export default function ResetPasswordPage() {
     formState: { errors },
   } = useForm<FormFields>();
 
-  const onSubmit: SubmitHandler<FormFields> = async (data) => {
+  const onSubmit: SubmitHandler<FormFields> = async () => {
     setLoading(true);
     try {
       await new Promise((res) => setTimeout(res, 1000));
       toast.success("Password reset successful!");
+
+      setTimeout(() => router.push("/login"), 1000);
       reset();
-      router.push("/login"); // ✅ redirect here
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -40,10 +40,73 @@ export default function ResetPasswordPage() {
     }
   };
 
+  const renderPasswordInput = ({
+    label,
+    name,
+    isShown,
+    toggle,
+    placeholder,
+    validate,
+  }: {
+    label: string;
+    name: keyof FormFields;
+    isShown: boolean;
+    toggle: () => void;
+    placeholder: string;
+    validate?: (val: string) => string | boolean;
+  }) => (
+    <div>
+      <label
+        htmlFor={name}
+        className="block text-sm font-medium text-neutral-900 mb-1"
+      >
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <div className="relative">
+        <input
+          id={name}
+          type={isShown ? "text" : "password"}
+          autoComplete="new-password"
+          placeholder={placeholder}
+          {...register(name, {
+            required: `${label} is required`,
+            ...(name === "password"
+              ? {
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                }
+              : {}),
+            ...(validate ? { validate } : {}),
+          })}
+          className={`w-full border px-4 py-2 text-sm rounded-md outline-none text-black placeholder:text-neutral-400 ${
+            errors[name]
+              ? "border-red-500"
+              : "border-neutral-300 focus:border-esg-green focus:ring-1 focus:ring-esg-green"
+          }`}
+        />
+        <button
+          type="button"
+          onClick={toggle}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500"
+          aria-label={isShown ? "Hide password" : "Show password"}
+        >
+          {isShown ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
+      {errors[name] && (
+        <p className="text-sm text-red-500 mt-1" role="alert">
+          {errors[name]?.message}
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-white">
       <div className="w-full max-w-md space-y-6">
-        {/* Back Button */}
+        {/* Back Link */}
         <Link
           href="/login"
           className="inline-flex items-center gap-2 text-sm text-neutral-900 border border-neutral-300 rounded px-3 py-1 hover:bg-neutral-100 transition"
@@ -54,82 +117,38 @@ export default function ResetPasswordPage() {
 
         {/* Card */}
         <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm space-y-6">
-          <div>
+          <header>
             <h2 className="text-2xl font-bold text-neutral-900 mb-1">
               Create a secure password
             </h2>
             <p className="text-sm text-neutral-600">
-              Please enter strong password and keep it well
+              Please enter a strong password and keep it safe.
             </p>
-          </div>
+          </header>
 
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6"
             noValidate
           >
-            {/* Password */}
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-neutral-900 mb-1"
-            >
-              Confirm Password <span className="text-red-500">*</span>
-            </label>
-            <input
-              id="confirmPassword" // ✅ Add this
-              autoComplete="new-password"
-              type={showConfirm ? "text" : "password"}
-              placeholder="Confirm your new password"
-              {...register("confirmPassword", {
-                required: "Please confirm your password",
-                validate: (val) =>
-                  val === watch("password") || "Passwords do not match",
-              })}
-              className={`w-full border px-4 py-2 text-sm rounded-md outline-none text-black placeholder:text-neutral-400 ${
-                errors.confirmPassword
-                  ? "border-red-500"
-                  : "border-neutral-300 focus:border-esg-green focus:ring-1 focus:ring-esg-green"
-              }`}
-            />
+            {renderPasswordInput({
+              label: "New Password",
+              name: "password",
+              isShown: show.password,
+              toggle: () => setShow((s) => ({ ...s, password: !s.password })),
+              placeholder: "Enter your new password",
+            })}
 
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-neutral-900 mb-1">
-                Confirm Password <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  autoFocus
-                  autoComplete="new-password"
-                  type={showConfirm ? "text" : "password"}
-                  placeholder="Confirm your new password"
-                  {...register("confirmPassword", {
-                    required: "Please confirm your password",
-                    validate: (val) =>
-                      val === watch("password") || "Passwords do not match",
-                  })}
-                  className={`w-full border px-4 py-2 text-sm rounded-md outline-none text-black placeholder:text-neutral-400 ${
-                    errors.confirmPassword
-                      ? "border-red-500"
-                      : "border-neutral-300 focus:border-esg-green focus:ring-1 focus:ring-esg-green"
-                  }`}
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500"
-                  onClick={() => setShowConfirm((prev) => !prev)}
-                >
-                  {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-500 mt-1" role="alert">
-                  {errors.confirmPassword.message}
-                </p>
-              )}
-            </div>
+            {renderPasswordInput({
+              label: "Confirm Password",
+              name: "confirmPassword",
+              isShown: show.confirm,
+              toggle: () => setShow((s) => ({ ...s, confirm: !s.confirm })),
+              placeholder: "Confirm your new password",
+              validate: (val) =>
+                val === watch("password") || "Passwords do not match",
+            })}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
