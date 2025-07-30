@@ -1,57 +1,163 @@
 "use client";
 
-const mockData = [
-  {
-    company: "Company A",
-    plan: "Pro",
-    status: "Active",
-    amount: "₦50,000",
-    dueDate: "Aug 10, 2025",
-  },
-  {
-    company: "Company B",
-    plan: "Basic",
-    status: "Pending",
-    amount: "₦20,000",
-    dueDate: "Aug 12, 2025",
-  },
-];
+import { useMemo, useState } from "react";
+import { Eye, Download } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { billingData } from "@/mockData/billingData";
+import Pagination from "@/app/components/Pagination";
+import SearchInput from "@/app/components/ui/SearchInput";
+import SelectFilter from "@/app/components/ui/SearchFilter";
+import Spinner from "@/app/components/ui/Spinner";
+
+const statusColorMap: Record<string, string> = {
+  Active: "bg-green-500 text-white",
+  Pending: "bg-yellow-400 text-white",
+  Expired: "bg-red-500 text-white",
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const classes = statusColorMap[status] || "bg-gray-200 text-gray-700";
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${classes}`}>
+      {status}
+    </span>
+  );
+};
 
 export default function BillingTable() {
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+
+  const filteredData = useMemo(() => {
+    return billingData.filter((item) =>
+      item.company.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(start, start + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
+
+  const totalItems = filteredData.length;
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+  const handleItemsPerPageChange = (limit: number) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow mt-4">
-      <table className="min-w-full text-sm">
-        <thead className="bg-gray-100 text-left">
-          <tr>
-            <th className="p-3 font-medium">Company</th>
-            <th className="p-3 font-medium">Plan</th>
-            <th className="p-3 font-medium">Status</th>
-            <th className="p-3 font-medium">Amount</th>
-            <th className="p-3 font-medium">Due Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mockData.map((row, i) => (
-            <tr key={i} className="border-t">
-              <td className="p-3">{row.company}</td>
-              <td className="p-3">{row.plan}</td>
-              <td className="p-3">
-                <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    row.status === "Active"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {row.status}
-                </span>
-              </td>
-              <td className="p-3">{row.amount}</td>
-              <td className="p-3">{row.dueDate}</td>
+    <div className="space-y-4">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <SearchInput
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="flex gap-2">
+          <SelectFilter
+            value="All Plans"
+            onChange={() => {}}
+            options={["All Plans"]}
+          />
+          <SelectFilter
+            value="All Status"
+            onChange={() => {}}
+            options={["All Status"]}
+          />
+        </div>
+      </div>
+
+      <div className="relative overflow-x-auto bg-white shadow rounded-xl">
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
+            <Spinner />
+          </div>
+        )}
+
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-100 text-left text-xs font-semibold text-gray-700">
+            <tr>
+              <th className="px-4 py-3">Company</th>
+              <th className="px-4 py-3">Plan</th>
+              <th className="px-4 py-3">Cycle</th>
+              <th className="px-4 py-3">Amount</th>
+              <th className="px-4 py-3">Last Payment</th>
+              <th className="px-4 py-3">Next Payment</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {paginatedData.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3">{item.company}</td>
+                <td className="px-4 py-3">{item.plan}</td>
+                <td className="px-4 py-3">{item.cycle}</td>
+                <td className="px-4 py-3">{item.amount}</td>
+                <td className="px-4 py-3">{item.last}</td>
+                <td className="px-4 py-3">{item.next}</td>
+                <td className="px-4 py-3">
+                  <StatusBadge status={item.status} />
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="inline-flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/billing/${item.id}`)}
+                      className="w-8 h-8 flex items-center justify-center border rounded-md hover:bg-gray-100 transition"
+                    >
+                      <Eye className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      type="button"
+                      className="w-8 h-8 flex items-center justify-center border rounded-md hover:bg-gray-100 transition"
+                    >
+                      <Download className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between px-2 pt-2">
+        <div className="flex items-center gap-2 text-sm">
+          <span>Rows per page</span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            {[10, 25, 50].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mt-4 px-4 pb-4">
+          <Pagination
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
+        </div>
+      </div>
     </div>
   );
 }

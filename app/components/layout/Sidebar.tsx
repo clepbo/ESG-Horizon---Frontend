@@ -36,14 +36,18 @@ export default function Sidebar() {
               alt="ESG Horizon Logo"
               width={120}
               height={60}
+              priority
               className="object-contain hidden md:block"
+              style={{ width: "auto", height: "auto" }}
             />
+
             <Image
               src="/favicon.ico"
               alt="Logo Icon"
               width={28}
               height={28}
-              className="md:hidden"
+              className="md:hidden object-contain"
+              style={{ width: "auto", height: "auto" }}
             />
           </div>
         </Link>

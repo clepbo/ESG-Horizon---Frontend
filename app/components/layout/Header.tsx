@@ -7,7 +7,7 @@ export default function Header() {
     <header className="flex justify-start lg:justify-end items-center p-2 bg-white rounded-xl shadow-sm w-full">
       <div className="flex items-center gap-3">
         <Image
-          src="/image.png" // Replace with your actual user avatar path
+          src="/image.png"
           alt="Admin Avatar"
           width={36}
           height={36}

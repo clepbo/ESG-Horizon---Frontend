@@ -3,6 +3,15 @@ import ReportsAnalyticsPage from "@/app/(dashboard)/reports/page";
 import "@testing-library/jest-dom";
 
 // Mock dependent components
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    refresh: jest.fn(),
+  }),
+}));
+
 jest.mock("../app/components/layout/Header", () => () => (
   <div data-testid="header">Header</div>
 ));
@@ -28,7 +37,7 @@ jest.mock("../app/components/reports/ReportTab", () => ({
     </div>
   ),
 }));
-jest.mock("../app/components/dashboard/MostRecentUser", () => () => (
+jest.mock("../app/components/reports/ReportActivityTable", () => () => (
   <div data-testid="users-table">Users Table</div>
 ));
 

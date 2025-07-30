@@ -18,6 +18,13 @@ interface UserDetailsCardProps {
     phone: string;
     permission: string;
     avatar?: string;
+    website?: string;
+    address?: string;
+    companyPhone?: string;
+    companyEmail?: string;
+    registrationNumber?: string;
+    staffStrength?: string;
+    industry?: string;
   };
 }
 
@@ -28,35 +35,27 @@ export default function UserDetailsCard({ user }: UserDetailsCardProps) {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  console.log("Company logo:", user.companyLogo);
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <section className="rounded-xl border border-gray-200 shadow p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white">
+      {/* User Header */}
+      <section className="rounded-xl border border-gray-200 shadow p-4 md:p-6 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
-          {/* Logo + Avatar Stack */}
           <div className="relative w-20 h-12">
-            {/* Company Logo */}
             <Image
               src={user.companyLogo || "/images/image2.png"}
-              alt={`${user.name} Company Logo`}
+              alt="Company Logo"
               width={48}
               height={48}
-              className="rounded-full object-cover border border-gray-200 absolute top-0 left-0 z-0"
+              className="rounded-full border border-gray-200 absolute top-0 left-0 z-0"
             />
-
-            {/* User Avatar - overlapping */}
             <Image
               src={user.avatar || "/images/image.png"}
-              alt={`${user.name} Avatar`}
+              alt="User Avatar"
               width={48}
               height={48}
-              className="rounded-full object-cover border-2 border-white shadow absolute top-0 left-8 z-10"
+              className="rounded-full border-2 border-white shadow absolute top-0 left-8 z-10"
             />
           </div>
-
-          {/* User Info */}
           <div>
             <h2 className="text-lg font-semibold text-gray-900">{user.name}</h2>
             <div className="flex items-center gap-3 mt-1">
@@ -68,10 +67,9 @@ export default function UserDetailsCard({ user }: UserDetailsCardProps) {
           </div>
         </div>
 
-        {/* Edit Button */}
         <button
           onClick={openModal}
-          className="inline-flex items-center gap-2 border border-gray-300 text-sm px-4 py-2 rounded-md hover:bg-gray-100 transition cursor-pointer"
+          className="inline-flex items-center gap-2 border border-gray-300 text-sm px-4 py-2 rounded-md hover:bg-gray-100 transition"
         >
           <Edit className="w-4 h-4" />
           Edit
@@ -79,69 +77,118 @@ export default function UserDetailsCard({ user }: UserDetailsCardProps) {
       </section>
 
       {/* Personal Info */}
-      <section className="rounded-xl border border-gray-200 shadow bg-white p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 font-semibold text-gray-900 text-base">
-            <Image
-              src="/images/image.png"
-              alt="User Icon"
-              width={28}
-              height={28}
-              className="rounded-full"
-            />
-            Personal Information
-          </div>
-          <button
-            onClick={openModal}
-            className="inline-flex items-center gap-2 border border-gray-300 text-sm px-4 py-2 rounded-md hover:bg-gray-100 transition cursor-pointer"
-          >
-            <Edit className="w-4 h-4" />
-            Edit
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-          <InfoItem label="First Name" value={firstName} />
-          <InfoItem label="Last Name" value={lastName} />
-          <InfoItem label="Email Address" value={user.email} />
-          <InfoItem label="Phone Number" value={user.phone} />
-          <InfoItem label="Role" value="Sustainability Officer" />
-          <InfoItem label="Permission" value={user.permission} />
-        </div>
-      </section>
+      <SectionCard
+        title="Personal Information"
+        onEdit={openModal}
+        icon="/images/image.png"
+      >
+        <InfoGrid
+          items={[
+            { label: "First Name", value: firstName },
+            { label: "Last Name", value: lastName },
+            { label: "Email Address", value: user.email },
+            { label: "Phone Number", value: user.phone },
+            { label: "Role", value: user.role || "Sustainability Officer" },
+            { label: "Permission", value: user.permission },
+          ]}
+        />
+      </SectionCard>
 
       {/* Company Info */}
-      <section className="rounded-xl border border-gray-200 shadow bg-white p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 font-semibold text-gray-900 text-base">
-            <Image
-              src="/images/image.png"
-              alt="Company Logo"
-              width={28}
-              height={28}
-              className="rounded"
-            />
-            Company Information
-          </div>
-          <button
-            onClick={openModal}
-            className="inline-flex items-center gap-2 border border-gray-300 text-sm px-4 py-2 rounded-md hover:bg-gray-100 transition cursor-pointer"
-          >
-            <Edit className="w-4 h-4" />
-            Edit
-          </button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-          <InfoItem label="Company Name" value={user.company} />
-          <InfoItem label="Industry Type" value="Consulting" />
-        </div>
-      </section>
+      <SectionCard
+        title="Company Information"
+        onEdit={openModal}
+        icon={user.companyLogo || "/images/image2.png"}
+      >
+        <InfoGrid
+          items={[
+            { label: "Company Name", value: user.company },
+            { label: "Industry Type", value: user.industry || "Consulting" },
+            {
+              label: "Email Address",
+              value: user.companyEmail || "info@teasooconsulting.com",
+            },
+            {
+              label: "Contact Phone Number",
+              value: user.companyPhone || user.phone,
+            },
+            {
+              label: "Website Address",
+              value: user.website || "www.teasooconsulting.com",
+            },
+            {
+              label: "Company Address",
+              value:
+                user.address || "4, Oghosa Crescent, Off Ihama, GRA Benin City",
+            },
+            {
+              label: "Company Registration Number",
+              value: user.registrationNumber || "555-0102",
+            },
+            {
+              label: "Staff Strength",
+              value: user.staffStrength || "20",
+            },
+          ]}
+        />
+      </SectionCard>
 
-      {/* Edit Modal */}
+      {/* Modal */}
       {isModalOpen && <EditUserModal user={user} onClose={closeModal} />}
     </div>
   );
 }
 
+// Section wrapper with edit button
+function SectionCard({
+  title,
+  icon,
+  onEdit,
+  children,
+}: {
+  title: string;
+  icon: string;
+  onEdit: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-gray-200 shadow bg-white p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3 font-semibold text-gray-900 text-base">
+          <Image
+            src={icon}
+            alt={`${title} Icon`}
+            width={28}
+            height={28}
+            className="rounded-full"
+          />
+          {title}
+        </div>
+        <button
+          onClick={onEdit}
+          className="inline-flex items-center gap-2 border border-gray-300 text-sm px-4 py-2 rounded-md hover:bg-gray-100 transition"
+        >
+          <Edit className="w-4 h-4" />
+          Edit
+        </button>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+// Displays a grid of InfoItem components
+function InfoGrid({ items }: { items: { label: string; value: string }[] }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+      {items.map((item, idx) => (
+        <InfoItem key={idx} label={item.label} value={item.value} />
+      ))}
+    </div>
+  );
+}
+
+// Label + Value item
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div>

@@ -58,7 +58,7 @@ export default function UsersTable() {
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center ">
             <SelectFilter
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={setStatusFilter}
               options={[
                 "All Status",
                 "Pending",
@@ -69,8 +69,8 @@ export default function UsersTable() {
             />
             <SelectFilter
               value={personaFilter}
-              onChange={(e) => setPersonaFilter(e.target.value)}
-              options={["All Persona", "Admin", "Manager", "Investor"]}
+              onChange={setPersonaFilter}
+              options={["All Persona", "Investor", "ESG Company", "Regulator"]}
             />
           </div>
         </div>

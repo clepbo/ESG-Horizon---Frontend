@@ -1,84 +1,120 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useDebounce } from "use-debounce";
+import { useUsers } from "@/hooks/useUsers";
 
 import SearchInput from "@/app/components/ui/SearchInput";
 import SelectFilter from "@/app/components/ui/SearchFilter";
-
-import { useUsers } from "@/hooks/useUsers";
-import UserTable from "@/app/components/users/UserTable";
 import Spinner from "@/app/components/ui/Spinner";
+import UserTable from "@/app/components/users/UserTable";
+import AdminUserTable from "@/app/components/users/AdminUserTable";
+import AddAdminModal from "@/app/components/users/AddAdminModal";
+
+const PERSONA_DISPLAY = [
+  "All Users",
+  "Admins",
+  "Investor",
+  "ESG Company",
+  "Regulator",
+];
+
+const PERSONA_MAP: Record<string, string> = {
+  "All Users": "all",
+  Admins: "admin",
+  Investor: "investor",
+  "ESG Company": "esg company",
+  Regulator: "regulator",
+};
 
 export default function UsersTable() {
-  const router = useRouter();
   const { data: users = [], isLoading, error } = useUsers();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState("All Status");
-  const [personaFilter, setPersonaFilter] = useState("All Persona");
+  const [personaFilter, setPersonaFilter] = useState("All Users");
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+
+  const normalizedPersona = PERSONA_MAP[personaFilter];
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       debouncedSearchTerm === "" ||
       user.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      user.company.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      user.company?.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+
     const matchesStatus =
-      statusFilter === "All Status" || user.status === statusFilter;
+      statusFilter === "All Status" ||
+      user.status?.trim().toLowerCase() === statusFilter.trim().toLowerCase();
+
     const matchesPersona =
-      personaFilter === "All Persona" || user.category === personaFilter;
+      normalizedPersona === "all" ||
+      user.category?.toLowerCase() === normalizedPersona;
+
     return matchesSearch && matchesStatus && matchesPersona;
   });
 
-  if (isLoading)
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center ">
+      <div className="flex items-center justify-center h-40">
         <Spinner />
       </div>
     );
-  if (error)
+  }
+
+  if (error) {
     return <p className="text-center text-red-500">Failed to load users.</p>;
+  }
 
   return (
-    <section className="mt-6">
-      <div className="py-2">
+    <section className="mt-6 space-y-4">
+      <div className="flex items-center justify-between">
         <SelectFilter
           value={personaFilter}
-          onChange={(e) => setPersonaFilter(e.target.value)}
-          options={["All Users", "Investor", "ESG Company", "Regulator"]}
+          onChange={setPersonaFilter}
+          options={PERSONA_DISPLAY}
         />
+
+        {normalizedPersona === "admin" && (
+          <button
+            onClick={() => setShowAddAdminModal(true)}
+            className="bg-green-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors cursor-pointer"
+          >
+            + Add Admin
+          </button>
+        )}
       </div>
 
       <div className="rounded-md border border-black/10 bg-white p-6 shadow">
-        {/* Filters */}
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <SearchInput
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <div className="flex items-center gap-2">
-            <SelectFilter
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              options={["All Status", "Pending", "Suspended", "Under Review"]}
-            />
-            <SelectFilter
-              value={personaFilter}
-              onChange={(e) => setPersonaFilter(e.target.value)}
-              options={["All Persona", "Investor", "ESG Company", "Regulator"]}
-            />
-          </div>
+          <SelectFilter
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              "All Status",
+              "Approved",
+              "Pending",
+              "Suspended",
+              "Under Review",
+            ]}
+          />
         </div>
 
-        {/* Table */}
-        {/* <UserTable
-          users={filteredUsers}
-          onEdit={(user) => router.push(`/users/${user.name.toLowerCase()}`)}
-        /> */}
-        <UserTable users={filteredUsers} />
+        {normalizedPersona === "admin" ? (
+          <AdminUserTable users={filteredUsers} />
+        ) : (
+          <UserTable users={filteredUsers} />
+        )}
       </div>
+
+      {showAddAdminModal && (
+        <AddAdminModal onClose={() => setShowAddAdminModal(false)} />
+      )}
     </section>
   );
 }

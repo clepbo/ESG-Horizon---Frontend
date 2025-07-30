@@ -1,27 +1,26 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Eye, Edit, Ban } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Edit } from "lucide-react";
-
-import StatusBadge from "@/app/components/ui/StatusBadge";
 import Pagination from "@/app/components/Pagination";
 import Spinner from "@/app/components/ui/Spinner";
+import StatusBadge from "@/app/components/ui/StatusBadge";
 
 type User = {
   id: string;
   name: string;
-  company: string;
-  category: string;
+  email: string;
   role: string;
-  status: string;
+  recentActivity?: string;
+  status: "Approved" | "Pending" | "Suspended" | string;
 };
 
 type UserTableProps = {
   users: User[];
 };
 
-export default function UserTable({ users }: UserTableProps) {
+export default function AdminUserTable({ users }: UserTableProps) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -40,7 +39,7 @@ export default function UserTable({ users }: UserTableProps) {
     setTimeout(() => {
       setCurrentPage(page);
       setLoading(false);
-    }, 300);
+    }, 400);
   };
 
   const handleItemsPerPageChange = (limit: number) => {
@@ -57,36 +56,51 @@ export default function UserTable({ users }: UserTableProps) {
       )}
 
       <table className="min-w-full text-sm">
-        <thead className="bg-gray-100 text-left text-xs font-semibold text-gray-700">
-          <tr>
-            <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Company</th>
-            <th className="px-4 py-3">Category</th>
-            <th className="px-4 py-3">Role</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+        <thead className="bg-[#FAFAFA] text-gray-700 text-xs font-semibold">
+          <tr className="border-b">
+            <th className="px-6 py-4 text-left">Name</th>
+            <th className="px-6 py-4 text-left">Email</th>
+            <th className="px-6 py-4 text-left">Role</th>
+            <th className="px-6 py-4 text-left">Recent Activities</th>
+            <th className="px-6 py-4 text-left">Status</th>
+            <th className="px-6 py-4 text-left">Quick Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {paginatedUsers.map((user) => (
-            <tr key={user.id}>
-              <td className="px-4 py-3 font-medium text-gray-900">
+            <tr key={user.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4 font-medium text-gray-900 cursor-pointer">
                 {user.name}
               </td>
-              <td className="px-4 py-3">{user.company}</td>
-              <td className="px-4 py-3">{user.category}</td>
-              <td className="px-4 py-3">{user.role}</td>
-              <td className="px-4 py-3">
+              <td className="px-6 py-4">{user.email}</td>
+              <td className="px-6 py-4">{user.role}</td>
+              <td className="px-6 py-4">{user.recentActivity}</td>
+
+              <td className="px-6 py-4">
                 <StatusBadge status={user.status} />
               </td>
-              <td className="px-4 py-3 text-right">
+
+              <td className="px-6 py-4 space-x-2">
                 <button
-                  type="button"
+                  className="text-gray-600 hover:text-gray-900 cursor-pointer"
+                  title="View"
                   onClick={() => router.push(`/users/${user.id}`)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500 text-white text-sm hover:bg-green-600 transition-colors cursor-pointer"
                 >
-                  <Edit className="w-4 h-4" />
-                  View/Edit
+                  <Eye size={16} />
+                </button>
+                <button
+                  className="text-blue-600 hover:text-blue-900 cursor-pointer"
+                  title="Edit"
+                  onClick={() => router.push(`/users/${user.id}/edit`)}
+                >
+                  <Edit size={16} />
+                </button>
+                <button
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
+                  title="Suspend"
+                  onClick={() => console.log("Open suspend modal for", user)}
+                >
+                  <Ban size={16} />
                 </button>
               </td>
             </tr>
