@@ -7,11 +7,27 @@ import clsx from "clsx";
 import PhotoUploadButton from "./PhotoUploadButton";
 import BackButton from "../BackButton";
 
+type User = {
+  name: string;
+  email: string;
+  phone: string;
+  avatar?: string;
+  permission: string;
+  company: string;
+  companyEmail?: string;
+  companyPhone?: string;
+  website?: string;
+  registrationNumber?: string;
+  staffStrength?: string;
+  address?: string;
+  companyLogo?: string;
+};
+
 export default function EditUserModal({
   user,
   onClose,
 }: {
-  user: any;
+  user: User;
   onClose: () => void;
 }) {
   const [firstName, lastName] = user.name.split(" ");
@@ -21,7 +37,6 @@ export default function EditUserModal({
   return (
     <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
       <div className="relative w-full bg-white rounded-2xl shadow-2xl p-6 md:p-10 max-h-[90vh] overflow-y-auto max-w-5xl">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-red-500 hover:text-red-600 transition"
@@ -29,15 +44,12 @@ export default function EditUserModal({
           <CircleX size={28} />
         </button>
 
-        {/* Back Button */}
         <BackButton />
 
-        {/* === Personal Info === */}
         <h2 className="text-xl font-semibold text-gray-900 mb-6">
           Personal Information
         </h2>
 
-        {/* User Image */}
         <div className="flex items-center gap-4 mb-8 relative w-max">
           <Image
             src={userImage || user.avatar || "/images/image.png"}
@@ -64,12 +76,10 @@ export default function EditUserModal({
           <InputField label="Permission" value={user.permission} required />
         </div>
 
-        {/* === Company Info === */}
         <h2 className="text-xl font-semibold text-gray-900 mt-10 mb-6">
           Company Information
         </h2>
 
-        {/* Company Logo */}
         <div className="flex items-center gap-4 mb-8 relative w-max">
           <Image
             src={companyImage || user.companyLogo || "/images/image2.png"}
@@ -124,7 +134,6 @@ export default function EditUserModal({
           />
         </div>
 
-        {/* Action Buttons */}
         <div className="flex justify-end gap-4 mt-10">
           <button
             onClick={onClose}
@@ -141,7 +150,6 @@ export default function EditUserModal({
   );
 }
 
-// InputField component
 import { Info } from "lucide-react";
 
 function InputField({
@@ -186,7 +194,6 @@ function InputField({
   );
 }
 
-// TextAreaField component
 function TextAreaField({
   label,
   value,
@@ -197,7 +204,7 @@ function TextAreaField({
   required?: boolean;
 }) {
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col">
       <label className="text-sm font-medium text-gray-800 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </label>

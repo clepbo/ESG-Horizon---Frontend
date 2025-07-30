@@ -1,8 +1,10 @@
-import { useState } from "react";
-import PhotoUploadButton from "@/app/components/users/PhotoUploadButton";
-import Image from "next/image";
+"use client";
 
-export default function UserAvatarUpload({ user }: { user: any }) {
+import { useState } from "react";
+import Image from "next/image";
+import PhotoUploadButton from "@/app/components/users/PhotoUploadButton";
+
+export default function UserAvatarUpload() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
 
   return (

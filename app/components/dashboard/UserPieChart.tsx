@@ -8,6 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import type { PieLabelRenderProps } from "recharts/types/polar/Pie";
 
 const mockUserMetrics = [
   { name: "Admins", value: 4 },
@@ -18,7 +19,8 @@ const mockUserMetrics = [
 
 const COLORS = ["#8884d8", "#facc15", "#60a5fa", "#94a3b8"];
 
-const renderLabel = ({ percent }: any) => `${(percent * 100).toFixed(0)}%`;
+const renderLabel = ({ percent }: PieLabelRenderProps) =>
+  `${(percent ?? 0).toFixed(0)}%`;
 
 export default function UserPieChart() {
   return (

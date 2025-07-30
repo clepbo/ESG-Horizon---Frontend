@@ -4,12 +4,11 @@ import Header from "@/app/components/layout/Header";
 import { ReportSummaryCard } from "@/app/components/reports/ReportSummaryCard";
 import SubscriptionLineChart from "@/app/components/billing/SubscriptionLineChart";
 import BillingActivityFeed from "@/app/components/billing/BillingActivityFeed";
-import PlanFilters from "@/app/components/billing/PlanFilters";
 
-import ExportBillingButton from "@/app/components/billing/ExportBillingButton";
 import GenerateInvoiceButton from "@/app/components/billing/GenerateInvoiceButton";
 import { BadgePercent, Building2, FileWarning, Users } from "lucide-react";
 import BillingTable from "@/app/components/billing/BillingTable";
+import ExportAllButton from "@/app/components/billing/ExportBillingButton";
 
 export default function SubscriptionBillingPage() {
   return (
@@ -29,7 +28,7 @@ export default function SubscriptionBillingPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            {/* <ExportBillingButton /> */}
+            <ExportAllButton />
             <GenerateInvoiceButton />
           </div>
         </div>
