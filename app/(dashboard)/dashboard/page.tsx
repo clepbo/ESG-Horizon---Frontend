@@ -1,9 +1,9 @@
-import Header from "@/app/components/layout/Header";
 import { Building, Scale, DollarSign, ShieldUser } from "lucide-react";
 import StatCard from "@/app/components/dashboard/StatCard";
 import UserPieChart from "@/app/components/dashboard/UserPieChart";
 import MostRecentUsers from "../../components/dashboard/MostRecentUser";
 import { RecentActivities } from "@/app/components/dashboard/RecentActivities";
+import Header from "@/app/components/layout/Header";
 
 export default function DashboardPage() {
   return (
@@ -36,7 +36,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Users Metrics Card */}
-          <div className="pt-9">
+          <div className="mt-9">
             <UserPieChart />
           </div>
         </section>

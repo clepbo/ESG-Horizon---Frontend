@@ -1,12 +1,19 @@
 "use client";
 
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-const data = [
+const mockUserMetrics = [
   { name: "Admins", value: 4 },
-  { name: "ESG Company", value: 25 },
-  { name: "Regulators", value: 5 },
-  { name: "Investor", value: 10 },
+  { name: "Managers", value: 8 },
+  { name: "Investors", value: 6 },
+  { name: "Guests", value: 2 },
 ];
 
 const COLORS = ["#8884d8", "#facc15", "#60a5fa", "#94a3b8"];
@@ -19,22 +26,30 @@ export default function UserPieChart() {
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Users Metrics
       </h3>
-      <PieChart width={400} height={310}>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          dataKey="value"
-          label={renderLabel}
-        >
-          {data.map((_, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
+
+      <div className="w-full h-[280px] md:h-[310px]">
+        <ResponsiveContainer>
+          <PieChart>
+            <Pie
+              data={mockUserMetrics}
+              dataKey="value"
+              cx="50%"
+              cy="50%"
+              outerRadius="80%"
+              label={renderLabel}
+            >
+              {mockUserMetrics.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

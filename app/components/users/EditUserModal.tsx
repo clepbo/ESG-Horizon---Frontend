@@ -4,6 +4,7 @@ import { CircleX } from "lucide-react";
 import Image from "next/image";
 import clsx from "clsx";
 import PhotoUploadButton from "./PhotoUploadButton";
+import BackButton from "../BackButton";
 
 export default function EditUserModal({
   user,
@@ -29,12 +30,7 @@ export default function EditUserModal({
         </button>
 
         {/* Back Button */}
-        <button
-          onClick={onClose}
-          className="inline-flex items-center gap-2 border border-gray-300 text-sm px-4 py-2 rounded-md hover:bg-gray-100 transition"
-        >
-          ← Back
-        </button>
+        <BackButton />
 
         {/* Personal Info Section */}
         <h2 className="text-xl font-semibold text-gray-900 mb-6">

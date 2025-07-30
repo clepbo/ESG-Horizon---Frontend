@@ -5,7 +5,7 @@ import { Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import Pagination from "@/app/components/Pagination";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/app/components/ui/Spinner";
 
 type User = {
   id: string;
@@ -104,3 +104,53 @@ export default function UserTable({ users }: UserTableProps) {
     </div>
   );
 }
+
+// import { Eye, Edit, Ban } from "lucide-react";
+
+// export default function UserTable({ users, onEdit }: any) {
+//   return (
+//     <div className="overflow-x-auto">
+//       <table className="min-w-full table-auto text-sm">
+//         <thead className="bg-gray-100">
+//           <tr>
+//             <th className="px-4 py-2 text-left">Name</th>
+//             <th className="px-4 py-2 text-left">Email</th>
+//             <th className="px-4 py-2 text-left">Role</th>
+//             <th className="px-4 py-2 text-left">Recent Activities</th>
+//             <th className="px-4 py-2 text-left">Status</th>
+//             <th className="px-4 py-2 text-left">Quick Actions</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           {users.map((user: any, index: number) => (
+//             <tr key={index} className="border-b">
+//               <td className="px-4 py-2">{user.name}</td>
+//               <td className="px-4 py-2">{user.email}</td>
+//               <td className="px-4 py-2">{user.role}</td>
+//               <td className="px-4 py-2">{user.activity || "N/A"}</td>
+//               <td className="px-4 py-2">
+//                 <span className={`px-2 py-1 rounded text-white text-xs
+//                   ${user.status === "Approved" ? "bg-green-500"
+//                     : user.status === "Pending" ? "bg-yellow-500"
+//                     : "bg-red-500"}`}>
+//                   {user.status}
+//                 </span>
+//               </td>
+//               <td className="px-4 py-2 space-x-2">
+//                 <button className="text-gray-600 hover:text-gray-900">
+//                   <Eye size={16} />
+//                 </button>
+//                 <button onClick={() => onEdit(user)} className="text-blue-600 hover:text-blue-900">
+//                   <Edit size={16} />
+//                 </button>
+//                 <button className="text-red-600 hover:text-red-900">
+//                   <Ban size={16} />
+//                 </button>
+//               </td>
+//             </tr>
+//           ))}
+//         </tbody>
+//       </table>
+//     </div>
+//   );
+// }

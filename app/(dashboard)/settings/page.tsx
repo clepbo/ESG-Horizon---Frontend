@@ -26,43 +26,50 @@ export default function SettingsPage() {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <section className="flex flex-col gap-6 w-full p-4 md:p-6">
-      <Header />
-      <div className="space-y-6">
-        {/* Profile Section */}
-        <section className="rounded-xl border border-gray-200 shadow p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center bg-white">
-          <div className="flex items-center gap-4">
-            <Image
-              src={user.avatar}
-              alt={`${user.name} Avatar`}
-              width={64}
-              height={64}
-              className="rounded-full object-cover border border-gray-200"
-            />
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {user.name}
-              </h2>
-              <StatusBadge status={user.permission} />
+    <>
+      {/* Main Content */}
+      <section className="flex flex-col gap-6 w-full p-4 md:p-6">
+        <Header />
+
+        <div className="space-y-6">
+          {/* Profile Section */}
+          <section className="rounded-xl border border-gray-200 shadow p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center bg-white">
+            <div className="flex items-center gap-4">
+              <Image
+                src={user.avatar}
+                alt={`${user.name} Avatar`}
+                width={64}
+                height={64}
+                className="rounded-full object-cover border border-gray-200"
+              />
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {user.name}
+                </h2>
+                <StatusBadge status={user.permission} />
+              </div>
             </div>
-          </div>
 
-          <EditButton onClick={openModal} />
-        </section>
+            <EditButton onClick={openModal} />
+          </section>
 
-        {/* Personal Info */}
-        <SectionCard title="Personal Information" onEdit={openModal}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-            <InfoItem label="First Name" value={firstName} />
-            <InfoItem label="Last Name" value={lastName} />
-            <InfoItem label="Email Address" value={user.email} />
-            <InfoItem label="Phone Number" value={user.phone} />
-            <InfoItem label="Role" value="Junior Associate - Digital" />
-            <InfoItem label="Permission" value={user.permission} />
-          </div>
-        </SectionCard>
-      </div>
-    </section>
+          {/* Personal Info Section */}
+          <SectionCard title="Personal Information" onEdit={openModal}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              <InfoItem label="First Name" value={firstName} />
+              <InfoItem label="Last Name" value={lastName} />
+              <InfoItem label="Email Address" value={user.email} />
+              <InfoItem label="Phone Number" value={user.phone} />
+              <InfoItem label="Role" value="Junior Associate - Digital" />
+              <InfoItem label="Permission" value={user.permission} />
+            </div>
+          </SectionCard>
+        </div>
+      </section>
+
+      {/* Modal */}
+      {isModalOpen && <EditUserModal onClose={closeModal} user={user} />}
+    </>
   );
 }
 

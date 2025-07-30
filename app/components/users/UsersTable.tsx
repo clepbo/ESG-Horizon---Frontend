@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useDebounce } from "use-debounce";
 
 import SearchInput from "@/app/components/ui/SearchInput";
-import SelectFilter from "@/app/components/ui/SelectFilter";
+import SelectFilter from "@/app/components/ui/SearchFilter";
 
 import { useUsers } from "@/hooks/useUsers";
 import UserTable from "@/app/components/users/UserTable";
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/app/components/ui/Spinner";
 
 export default function UsersTable() {
   const router = useRouter();
