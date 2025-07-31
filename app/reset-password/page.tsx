@@ -34,6 +34,7 @@ export default function ResetPasswordPage() {
       setTimeout(() => router.push("/login"), 1000);
       reset();
     } catch (error) {
+      console.error(error);
       toast.error("Something went wrong.");
     } finally {
       setLoading(false);
