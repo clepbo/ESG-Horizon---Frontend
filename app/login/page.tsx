@@ -35,7 +35,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="rounded-xl border border-gray-200 shadow-lg bg-white p-8">
+            <div className=" bg-white p-8">
               <div className="space-y-6">
                 <h2 className="text-center text-2xl md:text-3xl font-semibold text-neutral-1000">
                   Login to your account

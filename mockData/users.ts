@@ -1,146 +1,44 @@
 export interface User {
-  id: string;
-  name: string;
-  company: string;
-  companyLogo: string;
-  category: string;
-  role: string;
-  permission: string;
-  email: string;
-  phone: string;
-  status: string;
-  recentActivity: string;
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    status: string;
+    recentActivities: {
+        id: number;
+        action: string;
+        timestamp: string;
+    }[];
 }
 
 export const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Darlene Robertson",
-    company: "Teasoo Consulting",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Admin",
-    permission: "Admin",
-    email: "deanna.curtis@example.com",
-    phone: "(684) 555-0102",
-    status: "Approved",
-    recentActivity: "Logged in",
-  },
-  {
-    id: "2",
-    name: "Joe John",
-    company: "Teasoo Consulting",
-    companyLogo: "/images/image2.png",
-    category: "ESG Company",
-    role: "Editor",
-    permission: "Admin",
-    email: "joe.john@example.com",
-    phone: "(684) 555-0102",
-    status: "Suspended",
-    recentActivity: "Changed password",
-  },
-  {
-    id: "3",
-    name: "Aisha Bello",
-    company: "GreenTech",
-    companyLogo: "/images/image2.png",
-    category: "Investor",
-    role: "Viewer",
-    permission: "Admin",
-    email: "aisha.bello@example.com",
-    phone: "(684) 555-0102",
-    status: "Under Review",
-    recentActivity: "Requested access",
-  },
-  {
-    id: "4",
-    name: "Mike Stone",
-    company: "EcoSoft",
-    companyLogo: "/images/image2.png",
-    category: "Regulator",
-    role: "Admin",
-    permission: "Admin",
-    email: "mike.stone@example.com",
-    phone: "(684) 555-0102",
-    status: "Approved",
-    recentActivity: "Added new user",
-  },
-  {
-    id: "5",
-    name: "Sarah Connor",
-    company: "CarbonData",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Viewer",
-    permission: "Admin",
-    email: "sarah.connor@example.com",
-    phone: "(684) 555-0102",
-    status: "Suspended",
-    recentActivity: "Updated company profile",
-  },
-  {
-    id: "6",
-    name: "Ahmed Musa",
-    company: "Teasoo Consulting",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Editor",
-    permission: "Admin",
-    email: "ahmed.musa@example.com",
-    phone: "(684) 555-0102",
-    status: "Pending",
-    recentActivity: "Logged in",
-  },
-  {
-    id: "7",
-    name: "Maria Garcia",
-    company: "GreenTech",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Editor",
-    permission: "Admin",
-    email: "maria.garcia@example.com",
-    phone: "(684) 555-0102",
-    status: "Under Review",
-    recentActivity: "Requested access",
-  },
-  {
-    id: "8",
-    name: "John Doe",
-    company: "EcoSoft",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Admin",
-    permission: "Admin",
-    email: "john.doe@example.com",
-    phone: "(684) 555-0102",
-    status: "Approved",
-    recentActivity: "Added new user",
-  },
-  {
-    id: "9",
-    name: "Lilian Nwankwo",
-    company: "CarbonData",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Admin",
-    permission: "Admin",
-    email: "lilian.nwankwo@example.com",
-    phone: "(684) 555-0102",
-    status: "Suspended",
-    recentActivity: "Changed password",
-  },
-  {
-    id: "10",
-    name: "Victor Okoye",
-    company: "Teasoo Consulting",
-    companyLogo: "/images/image2.png",
-    category: "Admin",
-    role: "Admin",
-    permission: "Admin",
-    email: "victor.okoye@example.com",
-    phone: "(684) 555-0102",
-    status: "Pending",
-    recentActivity: "Logged in",
-  },
+    {
+        id: "1",
+        name: "Jane Doe",
+        email: "jane@example.com",
+        role: "Admin",
+        status: "Active",
+        recentActivities: [
+            { id: 1, action: "Logged in", timestamp: "2025-07-30T08:00:00Z" },
+            {
+                id: 2,
+                action: "Updated profile",
+                timestamp: "2025-07-30T09:00:00Z",
+            },
+        ],
+    },
+    {
+        id: "2",
+        name: "John Smith",
+        email: "john@example.com",
+        role: "User",
+        status: "Suspended",
+        recentActivities: [
+            {
+                id: 1,
+                action: "Submitted report",
+                timestamp: "2025-07-29T10:00:00Z",
+            },
+        ],
+    },
 ];
