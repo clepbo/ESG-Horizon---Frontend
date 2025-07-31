@@ -114,7 +114,6 @@ export default function LoginForm() {
 
       {/* Submit Button */}
       <button
-        type="submit"
         disabled={loading}
         className={`w-full py-2 px-4 rounded text-sm font-semibold transition ${
           loading

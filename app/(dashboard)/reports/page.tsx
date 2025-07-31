@@ -1,6 +1,5 @@
 "use client";
 
-import UsersTable from "@/app/components/dashboard/MostRecentUser";
 import Header from "@/app/components/layout/Header";
 
 import BarChartCard from "@/app/components/reports/BarChartCard";

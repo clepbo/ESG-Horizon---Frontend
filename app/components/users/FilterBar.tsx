@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, ChevronDown } from "lucide-react";
+import { Search } from "lucide-react";
 
 export function FilterBar() {
   return (
