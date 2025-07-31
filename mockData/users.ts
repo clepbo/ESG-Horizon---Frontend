@@ -4,6 +4,8 @@ export interface User {
     email: string;
     role: string;
     status: string;
+    company?: string;
+    category?: string;
     recentActivities: {
         id: number;
         action: string;

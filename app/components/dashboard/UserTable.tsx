@@ -4,15 +4,7 @@ import { Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import Spinner from "@/app/components/ui/Spinner";
-
-type User = {
-  id: string;
-  name: string;
-  company: string;
-  category: string;
-  role: string;
-  status: string;
-};
+import { User } from "@/mockData/users";
 
 type UserTableProps = {
   users: User[];
