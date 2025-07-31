@@ -58,6 +58,7 @@ export default function BillingTable() {
   const handleItemsPerPageChange = (limit: number) => {
     setItemsPerPage(limit);
     setCurrentPage(1);
+    setLoading(false);
   };
 
   return (
