@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   output: 'export',
   trailingSlash: true,
+  images: {
+    loader: 'custom',
+    loaderFile: './image-loader.ts',
+  },
 };
 
 export default nextConfig;
