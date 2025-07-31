@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       await new Promise((res) => setTimeout(res, 500));
       toast.success("OTP sent to your email!");
       reset();
-      router.push("/verify-email"); // ✅ redirect here
+      router.push("/esg-verify-email"); // ✅ redirect here
     } catch (err) {
       console.error(err);
       toast.error("Failed to send OTP");
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-green-500">
       <div className="w-full max-w-md space-y-6">
         {/* Back Button */}
         <Link

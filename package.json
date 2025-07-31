@@ -10,7 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.7",
+    "@hookform/resolvers": "^5.2.1",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.83.0",
+    "class-variance-authority": "^0.7.1",
     "lucide-react": "^0.532.0",
     "next": "15.4.2",
     "postcss": "^8.5.6",
@@ -23,7 +28,8 @@
     "tailwind-merge": "^3.3.1",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tw-animate-css": "^1.3.6",
-    "use-debounce": "^10.0.5"
+    "use-debounce": "^10.0.5",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
