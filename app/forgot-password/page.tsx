@@ -27,6 +27,7 @@ export default function ForgotPasswordPage() {
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    console.log(data);
     setLoading(true);
     try {
       // Simulate async OTP send
@@ -35,6 +36,7 @@ export default function ForgotPasswordPage() {
       reset();
       router.push("/verify-email"); // ✅ redirect here
     } catch (err) {
+      console.error(err);
       toast.error("Failed to send OTP");
     } finally {
       setLoading(false);

@@ -39,6 +39,7 @@ export default function LoginForm() {
       // ✅ Redirect after success
       router.push("/dashboard");
     } catch (error) {
+      console.error(error);
       toast.error("Something went wrong");
       setError("root", { message: "An unexpected error occurred" });
     } finally {

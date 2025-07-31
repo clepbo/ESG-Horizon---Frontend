@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import React from "react";
 
 type DateRangeSelectProps = {
   value: string;
@@ -22,7 +23,7 @@ export default function DateRangeSelect({
     <div className="relative">
       <select
         value={value}
-        onChange={(e: any) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
         className="text-sm font-medium text-gray-800 bg-transparent border-none appearance-none"
       >
         {options.map((opt) => (

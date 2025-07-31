@@ -161,6 +161,10 @@ export default function ReportActivityTable() {
 
   const handlePageChange = (page: number) => setCurrentPage(page);
   const handleItemsPerPageChange = (limit: number) => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 300);
     setItemsPerPage(limit);
     setCurrentPage(1);
   };
