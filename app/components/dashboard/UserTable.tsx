@@ -38,7 +38,7 @@ export default function UserTable({ users, loading = false }: UserTableProps) {
             <th className="px-4 py-3 whitespace-nowrap">Category</th>
             <th className="px-4 py-3 whitespace-nowrap">Role</th>
             <th className="px-4 py-3 whitespace-nowrap">Status</th>
-            <th className="px-4 py-3 text-right whitespace-nowrap">Actions</th>
+            <th className="px-4 py-3 whitespace-nowrap">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -53,13 +53,15 @@ export default function UserTable({ users, loading = false }: UserTableProps) {
               <td className="px-4 py-3">
                 <StatusBadge status={user.status} />
               </td>
-              <td className="px-4 py-3 text-right">
+              <td className="px-4 py-3 ">
                 <button
                   onClick={() => router.push(`/users/${user.id}`)}
                   className="cursor-pointer inline-flex items-center gap-2 rounded-md bg-[var(--color-green-500)] hover:bg-[var(--color-green-600)] px-4 py-2 text-sm text-white hover:bg-opacity-90"
                 >
                   <Edit className="h-4 w-4" />
-                  <span className="hidden sm:inline">View/Edit</span>
+                  <span className="hidden sm:inline cursor-pointer">
+                    View/Edit
+                  </span>
                 </button>
               </td>
             </tr>

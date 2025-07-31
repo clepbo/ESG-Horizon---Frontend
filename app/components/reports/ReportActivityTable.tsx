@@ -171,7 +171,9 @@ export default function ReportActivityTable() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearch(e.target.value)
+          }
         />
         <div className="flex gap-2">
           <SelectFilter
@@ -218,7 +220,6 @@ export default function ReportActivityTable() {
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button
-                    type="button"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500 text-white text-sm hover:bg-green-600 transition-colors cursor-pointer"
                     onClick={() => router.push(`/reports/${report.id}`)}
                   >

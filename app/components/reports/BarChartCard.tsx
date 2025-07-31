@@ -104,7 +104,7 @@ export default function ProfitBarChart() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-4 w-full h-[330px]">
+    <div className="bg-white rounded-2xl shadow p-4 w-full h-[340px]">
       <div className="flex justify-between items-start mb-2">
         <div>
           <p className="text-xs text-gray-500">Profitability</p>

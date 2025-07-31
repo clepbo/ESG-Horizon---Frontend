@@ -10,21 +10,24 @@ import {
 } from "recharts";
 import type { PieLabelRenderProps } from "recharts/types/polar/Pie";
 
-const mockUserMetrics = [
+const USER_METRICS_DATA = [
   { name: "Admins", value: 4 },
   { name: "Managers", value: 8 },
   { name: "Investors", value: 6 },
   { name: "Guests", value: 2 },
 ];
 
-const COLORS = ["#8884d8", "#facc15", "#60a5fa", "#94a3b8"];
+const CHART_COLORS = ["#8884d8", "#facc15", "#60a5fa", "#94a3b8"];
 
-const renderLabel = ({ percent }: PieLabelRenderProps) =>
-  `${(percent ?? 0).toFixed(0)}%`;
+const renderPercentageLabel = ({ percent }: PieLabelRenderProps) =>
+  `${(percent ?? 0) * 100}%`;
 
 export default function UserPieChart() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <section
+      className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+      aria-label="User distribution pie chart"
+    >
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Users Metrics
       </h3>
@@ -33,17 +36,18 @@ export default function UserPieChart() {
         <ResponsiveContainer>
           <PieChart>
             <Pie
-              data={mockUserMetrics}
+              data={USER_METRICS_DATA}
               dataKey="value"
               cx="50%"
               cy="50%"
               outerRadius="80%"
-              label={renderLabel}
+              label={renderPercentageLabel}
+              isAnimationActive={false}
             >
-              {mockUserMetrics.map((_, index) => (
+              {USER_METRICS_DATA.map((_, index) => (
                 <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
+                  key={`slice-${index}`}
+                  fill={CHART_COLORS[index % CHART_COLORS.length]}
                 />
               ))}
             </Pie>
@@ -52,6 +56,6 @@ export default function UserPieChart() {
           </PieChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </section>
   );
 }

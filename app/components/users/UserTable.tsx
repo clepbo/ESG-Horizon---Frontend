@@ -64,7 +64,7 @@ export default function UserTable({ users }: UserTableProps) {
             <th className="px-4 py-3">Category</th>
             <th className="px-4 py-3">Role</th>
             <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-4 py-3 ">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -79,9 +79,8 @@ export default function UserTable({ users }: UserTableProps) {
               <td className="px-4 py-3">
                 <StatusBadge status={user.status} />
               </td>
-              <td className="px-4 py-3 text-right">
+              <td className="px-4 py-3 ">
                 <button
-                  type="button"
                   onClick={() => router.push(`/users/${user.id}`)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500 text-white text-sm hover:bg-green-600 transition-colors cursor-pointer"
                 >

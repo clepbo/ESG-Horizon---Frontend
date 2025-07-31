@@ -19,7 +19,7 @@ export default function SelectFilter({
   return (
     <div className="relative w-[140px] text-sm cursor-pointer">
       <Listbox value={value} onChange={onChange}>
-        {({ open }) => (
+        {({ open }: { open: boolean }) => (
           <div className="relative">
             <Listbox.Button className="w-full bg-white rounded-md py-2 pl-3 pr-9 text-left shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary relative">
               {value}
@@ -47,7 +47,7 @@ export default function SelectFilter({
                   <Listbox.Option
                     key={option}
                     value={option}
-                    className={({ active }) =>
+                    className={({ active }: { active: boolean }) =>
                       clsx(
                         "cursor-pointer select-none px-4 py-2",
                         active ? "bg-gray-100 text-black" : "text-gray-900"

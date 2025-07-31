@@ -53,7 +53,9 @@ export default function UsersTable() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <SearchInput
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchTerm(e.target.value)
+            }
           />
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center ">
             <SelectFilter

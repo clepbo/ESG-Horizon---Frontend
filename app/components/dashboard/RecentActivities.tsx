@@ -1,4 +1,7 @@
+"use client";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import DateRangeSelect from "../ui/DateRangeSelect";
 
 const activities = [
   {
@@ -32,6 +35,7 @@ const activities = [
 ];
 
 export function RecentActivities() {
+  const [selectedRange, setSelectedRange] = useState("today");
   return (
     <section className="w-full">
       {/* Title outside card */}
@@ -47,8 +51,10 @@ export function RecentActivities() {
           {/* Today header inside timeline, aligned with dot */}
           <div className="flex items-center gap-2 mb-4 relative ml-[5.25rem] z-10">
             <div className="h-2 w-2 rounded-full bg-yellow-500" />
-            <span className="text-sm font-medium text-gray-800">Today</span>
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <DateRangeSelect
+              value={selectedRange}
+              onChange={setSelectedRange}
+            />
           </div>
 
           {/* Activity timeline */}
@@ -56,7 +62,7 @@ export function RecentActivities() {
             {activities.map((activity, index) => (
               <div key={index} className="flex items-start gap-4 relative">
                 {/* Time */}
-                <div className="w-16 text-right text-xs text-gray-500 pt-1">
+                <div className="w-16 text-right text-xs text-gray-800 pt-1">
                   {activity.time}
                 </div>
 
@@ -75,7 +81,7 @@ export function RecentActivities() {
                     {activity.title}
                   </p>
                   {activity.description && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       {activity.description}
                     </p>
                   )}

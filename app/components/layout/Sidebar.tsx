@@ -9,7 +9,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
 
@@ -23,6 +23,11 @@ const navLinks = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    router.push("/login");
+  };
 
   return (
     <aside className="h-screen bg-white shadow-sm flex flex-col p-4 rounded-r-2xl w-16 md:w-64 transition-all duration-300">
@@ -81,7 +86,10 @@ export default function Sidebar() {
 
       {/* Bottom section: Logout button */}
       <div className="mt-auto">
-        <button className="flex items-center gap-2 text-sm text-red-500">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 text-sm text-red-500"
+        >
           <LogOut className="w-5 h-5" />
           <span className="hidden md:inline">Logout</span>
         </button>
