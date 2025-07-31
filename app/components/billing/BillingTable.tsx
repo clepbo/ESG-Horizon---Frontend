@@ -28,15 +28,24 @@ const StatusBadge = ({ status }: { status: string }) => {
 export default function BillingTable() {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState("All Plans");
+  const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
 
   const filteredData = useMemo(() => {
-    return billingData.filter((item) =>
-      item.company.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
+    return billingData.filter((item) => {
+      const matchesSearch = item.company
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesPlan =
+        selectedPlan === "All Plans" || item.plan === selectedPlan;
+      const matchesStatus =
+        selectedStatus === "All Status" || item.status === selectedStatus;
+      return matchesSearch && matchesPlan && matchesStatus;
+    });
+  }, [search, selectedPlan, selectedStatus]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -57,18 +66,26 @@ export default function BillingTable() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <SearchInput
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearch(e.target.value)
+          }
         />
         <div className="flex gap-2">
           <SelectFilter
-            value="All Plans"
-            onChange={() => {}}
-            options={["All Plans"]}
+            value={selectedPlan}
+            onChange={(val: string) => {
+              setSelectedPlan(val);
+              setCurrentPage(1);
+            }}
+            options={["All Plans", "Free", "Basic", "Premium", "Enterprise"]}
           />
           <SelectFilter
-            value="All Status"
-            onChange={() => {}}
-            options={["All Status"]}
+            value={selectedStatus}
+            onChange={(val: string) => {
+              setSelectedStatus(val);
+              setCurrentPage(1);
+            }}
+            options={["All Status", "Active", "Pending", "Expired"]}
           />
         </div>
       </div>
@@ -90,7 +107,7 @@ export default function BillingTable() {
               <th className="px-4 py-3">Last Payment</th>
               <th className="px-4 py-3">Next Payment</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3 ">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -105,19 +122,15 @@ export default function BillingTable() {
                 <td className="px-4 py-3">
                   <StatusBadge status={item.status} />
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 ">
                   <div className="inline-flex gap-2">
                     <button
-                      type="button"
                       onClick={() => router.push(`/billing/${item.id}`)}
                       className="w-8 h-8 flex items-center justify-center border rounded-md hover:bg-gray-100 transition"
                     >
                       <Eye className="w-4 h-4 text-gray-600" />
                     </button>
-                    <button
-                      type="button"
-                      className="w-8 h-8 flex items-center justify-center border rounded-md hover:bg-gray-100 transition"
-                    >
+                    <button className="w-8 h-8 flex items-center justify-center border rounded-md hover:bg-gray-100 transition">
                       <Download className="w-4 h-4 text-gray-600" />
                     </button>
                   </div>
@@ -134,7 +147,7 @@ export default function BillingTable() {
           <span>Rows per page</span>
           <select
             value={itemsPerPage}
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setItemsPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
