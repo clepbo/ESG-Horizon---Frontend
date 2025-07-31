@@ -3,6 +3,8 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation"; 
+import Link from "next/link";
 
 type FormFields = {
   email: string;
@@ -11,6 +13,8 @@ type FormFields = {
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter(); 
+
   const {
     register,
     handleSubmit,
@@ -27,10 +31,13 @@ export default function LoginForm() {
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setLoading(true);
     try {
-      await new Promise((res) => setTimeout(res, 1000));
+      await new Promise((res) => setTimeout(res, 1000)); // mock login
       console.log(data);
       toast.success("Login successful!");
       reset();
+
+      // ✅ Redirect after success
+      router.push("/dashboard");
     } catch (error) {
       toast.error("Something went wrong");
       setError("root", { message: "An unexpected error occurred" });
@@ -107,15 +114,18 @@ export default function LoginForm() {
 
       {/* Forgot password */}
       <div className="text-right">
-        <a href="#" className="text-sm text-neutral-1000 hover:underline">
+        <Link
+          href="/forgot-password"
+          className="text-sm text-neutral-1000 hover:underline"
+        >
           Forgot Password?
-        </a>
+        </Link>
       </div>
 
       {/* Submit Button */}
       <button
         disabled={loading}
-        className={`w-full py-2 px-4 rounded text-sm font-semibold transition ${
+        className={`w-full py-2 px-4 rounded text-sm font-semibold transition cursor-pointer ${
           loading
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-green-500 hover:bg-green-600 text-neutral-50"
