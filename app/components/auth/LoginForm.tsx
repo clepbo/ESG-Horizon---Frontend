@@ -24,7 +24,7 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
-    reset,
+    // reset,
     setError,
     formState: { errors },
   } = useForm<FormFields>({
