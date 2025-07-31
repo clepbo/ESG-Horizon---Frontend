@@ -7,15 +7,7 @@ import { Edit } from "lucide-react";
 import StatusBadge from "@/app/components/ui/StatusBadge";
 import Pagination from "@/app/components/Pagination";
 import Spinner from "@/app/components/ui/Spinner";
-
-type User = {
-  id: string;
-  name: string;
-  company: string;
-  category: string;
-  role: string;
-  status: string;
-};
+import { User } from "@/mockData/users";
 
 type UserTableProps = {
   users: User[];
