@@ -39,7 +39,7 @@ export default function Sidebar() {
             <Image
               src="/logo-new.png"
               alt="ESG Horizon Logo"
-              width={120}
+              width={150}
               height={60}
               priority
               className="object-contain hidden md:block"
@@ -47,7 +47,7 @@ export default function Sidebar() {
             />
 
             <Image
-              src="/favicon.ico"
+              src="/iconlogo.png"
               alt="Logo Icon"
               width={28}
               height={28}

@@ -1,0 +1,42 @@
+export const teamUsers = [
+  {
+    id: "1",
+    name: "Kristin Watson",
+    email: "sara.cruz@example.com",
+    role: "Admin",
+    status: "Pending",
+    activity: "N/A",
+  },
+  {
+    id: "2",
+    name: "Albert Flores",
+    email: "tim.jennings@example.com",
+    role: "Admin",
+    status: "Suspended",
+    activity: "Edited user permissions",
+  },
+  {
+    id: "3",
+    name: "Jenny Wilson",
+    email: "nevaeh.simmons@example.com",
+    role: "Editor",
+    status: "Approved",
+    activity: "Suspended ESG Company user",
+  },
+  {
+    id: "4",
+    name: "Cody Fisher",
+    email: "debbie.baker@example.com",
+    role: "Viewer",
+    status: "Pending",
+    activity: "N/A",
+  },
+  {
+    id: "5",
+    name: "Arlene McCoy",
+    email: "alma.lawson@example.com",
+    role: "Editor",
+    status: "Approved",
+    activity: "Added new ESG company",
+  },
+];
