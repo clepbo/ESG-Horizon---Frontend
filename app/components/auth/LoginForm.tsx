@@ -66,7 +66,7 @@ export default function LoginForm() {
       // Smooth transition delay before redirect
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1500); // 1.5 seconds for smooth transition
+      }, 1000); // 1 seconds for smooth transition
     } catch (error) {
       console.error(error);
       if (error instanceof Error && error.message === "Invalid credentials") {
