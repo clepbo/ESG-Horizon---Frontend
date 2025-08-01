@@ -46,11 +46,11 @@ export default function VerifyEmailPage() {
       // Simulate async verification
       await new Promise((res) => setTimeout(res, 1000));
       toast.success("Email verified!");
-      router.push("/dashboard"); // or home page
+      router.push("/dashboard-esg");
     } catch {
       toast.error("Invalid code.");
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
