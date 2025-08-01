@@ -44,7 +44,7 @@ export default function VerifyEmailPage() {
     setLoading(true);
     try {
       // Simulate async verification
-      await new Promise((res) => setTimeout(res, 1000));
+      await new Promise((res) => setTimeout(res, 500));
       toast.success("Email verified!");
       router.push("/dashboard-esg");
     } catch {
