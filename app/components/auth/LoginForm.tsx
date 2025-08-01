@@ -36,11 +36,11 @@ export default function LoginForm() {
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setLoading(true);
-    
+
     try {
       // Simulate API delay
       await new Promise((res) => setTimeout(res, 800));
-      
+
       // Check if user exists and credentials match
       const user = validUsers.find(
         (u) => u.email === data.email && u.password === data.password
@@ -51,29 +51,29 @@ export default function LoginForm() {
       }
 
       console.log("Login successful for:", user);
-      
+
       // Show success message
       toast.success(`Welcome back, ${user.role}!`);
-      
+
       // Start transition
       setIsTransitioning(true);
-      
+
       // Store user info (you can use localStorage, context, or your preferred state management)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('currentUser', JSON.stringify(user));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("currentUser", JSON.stringify(user));
       }
-      
+
       // Smooth transition delay before redirect
       setTimeout(() => {
         router.push("/dashboard");
       }, 1500); // 1.5 seconds for smooth transition
-
     } catch (error) {
       console.error(error);
       if (error instanceof Error && error.message === "Invalid credentials") {
         toast.error("Invalid email or password. Please try again.");
-        setError("root", { 
-          message: "Invalid email or password. Use admin@horizon.com or esg@horizon.com with password 'password'" 
+        setError("root", {
+          message:
+            "Invalid email or password. Use admin@horizon.com or esg@horizon.com with password 'password'",
         });
       } else {
         toast.error("Something went wrong. Please try again.");

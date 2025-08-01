@@ -1,12 +1,12 @@
 "use client";
-import React, { JSX } from "react"
+import React, { JSX } from "react";
 export default function BackButton(): JSX.Element {
-    return (
-        <button
-            onClick={() => window.history.back()}
-            className="text-sm text-gray-800 shadow rounded px-4 py-2 w-fit hover:bg-gray-100 cursor-pointer"
-        >
-            ← Back
-        </button>
-    );
+  return (
+    <button
+      onClick={() => window.history.back()}
+      className="text-sm text-gray-800 shadow rounded px-4 py-2 w-fit hover:bg-gray-100 cursor-pointer"
+    >
+      ← Back
+    </button>
+  );
 }
