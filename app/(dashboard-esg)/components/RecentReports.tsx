@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "@/app/(dashboard-esg)/components/ui/card";
 import { Badge } from "@/app/(dashboard-esg)/components/ui/badge";
 import { Button } from "@/components/ui/button";
