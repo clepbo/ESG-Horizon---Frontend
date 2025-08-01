@@ -31,24 +31,21 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
 
   const onSubmit = async (data: SignupFormData) => {
     try {
-      // Simulate API call
+      console.log("Signup data:", data); // 👈 This now uses it
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
       toast.success("Account created successfully! Welcome to ESG Horizon.", {
         position: "top-right",
         autoClose: 3000,
       });
-
-      // Proceed to next step
       onNext();
     } catch (error) {
+      console.error(error); // 👈 Also fixes the `error` unused warning
       toast.error("Something went wrong. Please try again.", {
         position: "top-right",
         autoClose: 3000,
@@ -68,7 +65,9 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-gray-900">Let's get started</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Let&apos;s get started
+        </h2>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

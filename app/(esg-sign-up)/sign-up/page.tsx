@@ -18,14 +18,10 @@ export default function Index() {
   const handleBackStep = () => setCurrentStep("signup");
   const handleComplete = () => setCurrentStep("submitted");
 
-  const handleContinueToWebsite = () => {
-    console.log("Redirecting to main website...");
-  };
-
   if (currentStep === "submitted") {
     return (
       <>
-        <RequestSubmitted onContinue={handleContinueToWebsite} />
+        <RequestSubmitted />
         <ToastContainer theme="light" position="top-right" autoClose={3000} />
       </>
     );

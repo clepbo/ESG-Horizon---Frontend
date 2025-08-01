@@ -158,7 +158,7 @@ export default function LoginForm() {
       <p className="text-center text-sm text-gray-700 mt-6">
         Don’t have an account?{" "}
         <Link
-          href="/esg-sign-up"
+          href="/sign-up"
           className="font-medium text-esg-green hover:underline"
         >
           Sign up here

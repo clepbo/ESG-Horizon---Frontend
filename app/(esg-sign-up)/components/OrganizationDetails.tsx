@@ -36,14 +36,13 @@ export const OrganizationDetails = ({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
   });
 
   const onSubmit = async (data: OrganizationFormData) => {
     try {
-      // Simulate API call
+      console.log("Form submitted with:", data); // 👈 Now using `data`
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast.success("Organization details saved successfully!", {
@@ -51,9 +50,9 @@ export const OrganizationDetails = ({
         autoClose: 3000,
       });
 
-      // Proceed to next step
       onNext();
     } catch (error) {
+      console.error("Error saving organization details:", error); // 👈 Now using `error`
       toast.error("Something went wrong. Please try again.", {
         position: "top-right",
         autoClose: 3000,

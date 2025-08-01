@@ -63,7 +63,7 @@ export default function VerifyEmailPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Back */}
         <Link
-          href="/loginpage"
+          href="/esg-forgot-password"
           className="inline-flex items-center gap-2 text-sm text-neutral-900 border border-neutral-300 rounded px-3 py-1 hover:bg-neutral-100 transition"
         >
           <ArrowLeft className="w-4 h-4" />
