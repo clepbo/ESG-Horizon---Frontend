@@ -100,13 +100,13 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
-  
+
   /* Use your original primary color for shadcn components */
   --color-shadcn-primary: var(--shadcn-primary);
   --color-shadcn-primary-foreground: var(--shadcn-primary-foreground);
   --color-shadcn-secondary: var(--shadcn-secondary);
   --color-shadcn-secondary-foreground: var(--shadcn-secondary-foreground);
-  
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
@@ -138,13 +138,13 @@
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  
+
   /* Map shadcn colors to your original colors */
   --shadcn-primary: #1e8a3d; /* Your original primary green */
   --shadcn-primary-foreground: #ffffff;
   --shadcn-secondary: #dca54b; /* Your original secondary gold */
   --shadcn-secondary-foreground: #333333;
-  
+
   --muted: oklch(0.968 0.007 247.896);
   --muted-foreground: oklch(0.554 0.046 257.417);
   --accent: oklch(0.968 0.007 247.896);
@@ -175,13 +175,13 @@
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
   --popover-foreground: oklch(0.984 0.003 247.858);
-  
+
   /* Dark mode versions using your colors */
   --shadcn-primary: #2fb856; /* Lighter version of your green for dark mode */
   --shadcn-primary-foreground: #ffffff;
   --shadcn-secondary: #ecd49b; /* Lighter version of your gold for dark mode */
   --shadcn-secondary-foreground: #333333;
-  
+
   --muted: oklch(0.279 0.041 260.031);
   --muted-foreground: oklch(0.704 0.04 256.788);
   --accent: oklch(0.279 0.041 260.031);
@@ -247,7 +247,7 @@
   .shadcn-component * {
     @apply border-border outline-ring/50;
   }
-  
+
   /* Only apply shadcn body styles if no custom background is set */
   body:not([class*="bg-"]) {
     @apply bg-background text-foreground;
