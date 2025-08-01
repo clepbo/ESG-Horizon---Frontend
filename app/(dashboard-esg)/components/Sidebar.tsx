@@ -42,7 +42,7 @@ export default function Sidebar() {
   const router = useRouter();
 
   const handleLogout = () => {
-    router.push("/login"); // basic redirect
+    router.push("/loginpage"); // basic redirect
   };
 
   return (
