@@ -122,14 +122,9 @@ export default function Index() {
   >("signup");
 
   const [personalData, setPersonalData] = useState<SignupFormData | null>(null);
-  const [orgData, setOrgData] = useState<OrganizationFormData | null>(null);
+
   const { signup } = useAuth();
 
-  // Step 1 → save personal info
-  // const handlePersonalNext = (data: SignupFormData) => {
-  //   setPersonalData(data);
-  //   setCurrentStep("organization");
-  // };
   const handlePersonalNext = (data: SignupFormData) => {
     setPersonalData(data);
     setCurrentStep("organization");

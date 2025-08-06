@@ -1,109 +1,3 @@
-// "use client";
-
-// import { createContext, useContext, useState, useEffect } from "react";
-// import { useRouter } from "next/navigation";
-
-// type User = {
-//   id: number;
-//   email: string;
-//   first_name: string;
-//   last_name: string;
-//   role: string;
-//   company: string;
-// };
-
-// type AuthContextType = {
-//   user: User | null;
-//   login: (email: string, password: string) => Promise<void>;
-//   logout: () => void;
-// };
-
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// export function AuthProvider({ children }: { children: React.ReactNode }) {
-//   const [user, setUser] = useState<User | null>(null);
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     const storedUser = localStorage.getItem("currentUser");
-//     if (storedUser) {
-//       setUser(JSON.parse(storedUser));
-//     }
-//   }, []);
-
-//   const login = async (email: string, password: string) => {
-//     try {
-//       const res = await fetch(
-//         "https://esghorizon-engine.up.railway.app/auth/login",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({ email, password }),
-//         }
-//       );
-
-//       if (!res.ok) {
-//         throw new Error("Invalid credentials");
-//       }
-
-//       const data = await res.json();
-
-//       const { accessToken, refreshToken, user } = data;
-
-//       // Save tokens and user info
-//       localStorage.setItem("accessToken", accessToken);
-//       localStorage.setItem("refreshToken", refreshToken);
-//       localStorage.setItem("currentUser", JSON.stringify(user));
-
-//       // Set cookie for middleware auth check
-//       document.cookie = `token=${accessToken}; path=/; max-age=86400`; // 1 day
-
-//       setUser(user);
-
-//       // Route by role
-//       const lastVisited = localStorage.getItem("lastVisited");
-//       if (lastVisited) {
-//         router.push(lastVisited);
-//       } else {
-//         if (user.role === "SUPER_ADMIN") {
-//           router.push("/dashboard");
-//         } else if (user.role === "ESG_Manager") {
-//           router.push("/dashboard-esg");
-//         } else {
-//           router.push("/login");
-//         }
-//       }
-//     } catch (error: any) {
-//       throw new Error(error?.message || "Login failed");
-//     }
-//   };
-
-//   const logout = () => {
-//     setUser(null);
-//     localStorage.removeItem("currentUser");
-//     localStorage.removeItem("accessToken");
-//     localStorage.removeItem("refreshToken");
-
-//     // Clear cookie
-//     document.cookie = "token=; Max-Age=0; path=/";
-
-//     router.push("/login");
-//   };
-
-//   return (
-//     <AuthContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// }
-
-// export function useAuth() {
-//   const ctx = useContext(AuthContext);
-//   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-//   return ctx;
-// }
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
@@ -146,23 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem("currentUser");
-  //   if (storedUser) {
-  //     setUser(JSON.parse(storedUser));
-  //   }
-  // }, []);
-  // useEffect(() => {
-  //   try {
-  //     const storedUser = localStorage.getItem("currentUser");
-  //     if (storedUser) {
-  //       setUser(JSON.parse(storedUser));
-  //     }
-  //   } catch (error) {
-  //     console.error("Error parsing currentUser from localStorage:", error);
-  //     localStorage.removeItem("currentUser"); // clear corrupted data
-  //   }
-  // }, []);
   useEffect(() => {
     const loadUserFromStorage = () => {
       try {
@@ -239,7 +116,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       );
 
-      if (!res.ok) throw new Error("Signup failed");
+      if (!res.ok) {
+        // Handle specific status codes
+        if (res.status === 409) {
+          throw new Error("User already exists. Please log in instead.");
+        }
+        if (res.status === 400) {
+          throw new Error("Invalid signup details. Please check your input.");
+        }
+
+        throw new Error("Signup failed. Please try again.");
+      }
 
       const { accessToken, refreshToken, user } = await res.json();
       handleAuthSuccess(accessToken, refreshToken, user);

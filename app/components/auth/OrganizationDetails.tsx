@@ -497,7 +497,7 @@ export const OrganizationDetails = ({
   onNext,
 }: {
   onBack: () => void;
-  onNext: (data: OrganizationFormData) => void; // ✅ Now receives form data
+  onNext: (data: OrganizationFormData) => void;
 }) => {
   const {
     register,
