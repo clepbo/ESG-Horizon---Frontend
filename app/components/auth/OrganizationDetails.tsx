@@ -7,6 +7,7 @@ import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { toast } from "react-toastify";
 import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
 
 const organizationSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
@@ -36,28 +37,54 @@ export const OrganizationDetails = ({
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
   });
+  const [loading, setLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // const onSubmit = async (data: OrganizationFormData) => {
+  //   try {
+  //     console.log("Form submitted with:", data);
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  //     toast.success("Organization details saved successfully!", {
+  //       position: "top-right",
+  //       autoClose: 3000,
+  //     });
+
+  //     onNext();
+  //   } catch (error) {
+  //     console.error("Error saving organization details:", error);
+  //     toast.error("Something went wrong. Please try again.", {
+  //       position: "top-right",
+  //       autoClose: 3000,
+  //     });
+  //   }
+  // };
   const onSubmit = async (data: OrganizationFormData) => {
+    setLoading(true);
+    setIsTransitioning(true);
+
     try {
-      console.log("Form submitted with:", data);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      toast.success("Organization details saved successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.success("Organization details saved successfully!");
 
-      onNext();
+      setTimeout(() => {
+        onNext();
+      }, 700);
     } catch (error) {
-      console.error("Error saving organization details:", error);
-      toast.error("Something went wrong. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      const errorMessage =
+        error instanceof Error ? error.message : "Submission failed";
+
+      toast.error(errorMessage);
+      setError("root", { message: errorMessage });
+      setIsTransitioning(false);
+    } finally {
+      setLoading(false);
     }
   };
 

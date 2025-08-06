@@ -3,7 +3,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -14,7 +14,7 @@ type FormFields = {
 
 export default function LoginForm() {
   const { login } = useAuth();
-  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -32,11 +32,8 @@ export default function LoginForm() {
     setIsTransitioning(true);
 
     try {
-      await login(data.email, data.password);
+      await login(data.email, data.password); // 👈 Already does redirection by role
       toast.success("Welcome back!");
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 700); // small delay to show transition
     } catch (error) {
       setIsTransitioning(false);
       const errorMessage =
@@ -147,7 +144,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading || isTransitioning}
-          className={`w-full py-3 px-4 rounded text-sm font-semibold transition-all duration-300 ${
+          className={`w-full py-3 px-4 rounded text-sm font-semibold transition-all duration-300 cursor-pointer ${
             loading || isTransitioning
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-green-500 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"

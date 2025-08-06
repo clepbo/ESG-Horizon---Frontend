@@ -6,6 +6,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { useState } from "react";
 
 const signupSchema = z
   .object({
@@ -31,26 +32,62 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
   });
+  const [loading, setLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // const onSubmit = async (data: SignupFormData) => {
+  //   try {
+  //     console.log("Signup data:", data); // 👈 This now uses it
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+  //     toast.success("Account created successfully! Welcome to ESG Horizon.", {
+  //       position: "top-right",
+  //       autoClose: 3000,
+  //     });
+  //     onNext();
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Something went wrong. Please try again.", {
+  //       position: "top-right",
+  //       autoClose: 3000,
+  //     });
+  //   }
+  // };
   const onSubmit = async (data: SignupFormData) => {
+    setLoading(true);
+    setIsTransitioning(true);
+
+    if (data.password !== data.confirmPassword) {
+      setError("confirmPassword", {
+        message: "Passwords don't match",
+      });
+      setIsTransitioning(false);
+      setLoading(false);
+      return;
+    }
+
     try {
-      console.log("Signup data:", data); // 👈 This now uses it
+      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Account created successfully! Welcome to ESG Horizon.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      onNext();
+
+      toast.success("Account created successfully! Welcome to ESG Horizon.");
+
+      setTimeout(() => {
+        onNext(); // or router.push('/dashboard') if you'd prefer redirect
+      }, 700);
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      const errorMessage =
+        error instanceof Error ? error.message : "Signup failed";
+
+      toast.error(errorMessage);
+      setError("root", { message: errorMessage });
+      setIsTransitioning(false);
+    } finally {
+      setLoading(false);
     }
   };
 

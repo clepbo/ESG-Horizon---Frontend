@@ -1,12 +1,19 @@
 import api from "./axios";
 
-export interface SignupData {
+type SignupData = {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  // Add more fields as needed
-}
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  company_name: string;
+  reg_number: string;
+  industry_type: string;
+  address: string;
+  contact_email: string;
+  contact_phone: string;
+  company_website: string;
+};
 
 export const loginUser = async (data: { email: string; password: string }) => {
   const response = await api.post("/auth/login", data);
