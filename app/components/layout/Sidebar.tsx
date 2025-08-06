@@ -27,10 +27,10 @@ export default function Sidebar() {
   const router = useRouter();
   const { logout } = useAuth();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
-      await logout(); //
-      router.push("/login");
+      logout(); // clears auth state
+      router.push("/login"); // redirect
     } catch (error) {
       console.error("Logout failed:", error);
     }
