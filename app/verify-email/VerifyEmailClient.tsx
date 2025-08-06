@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import BackButton from "@/app/components/BackButton";
 
-export default function VerifyEmailPage() {
+export default function VerifyEmailClient() {
   const router = useRouter();
-  const [code, setCode] = useState<string[]>(Array(6).fill(""));
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
+
+  const [code, setCode] = useState<string[]>(Array(4).fill(""));
   const [loading, setLoading] = useState(false);
-  //   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (value: string, index: number) => {
@@ -19,8 +22,7 @@ export default function VerifyEmailPage() {
       newCode[index] = value;
       setCode(newCode);
 
-      // Move to next input if value is entered
-      if (value && index < 5) {
+      if (value && index < 3) {
         inputsRef.current[index + 1]?.focus();
       }
     }
@@ -36,21 +38,20 @@ export default function VerifyEmailPage() {
     e.preventDefault();
     const otp = code.join("");
 
-    if (otp.length !== 6) {
-      toast.error("Please enter the 6-digit code.");
+    if (otp.length !== 4) {
+      toast.error("Please enter the 4-digit code.");
       return;
     }
 
     setLoading(true);
     try {
-      // Simulate async verification
-      await new Promise((res) => setTimeout(res, 500));
+      await new Promise((res) => setTimeout(res, 1000));
       toast.success("Email verified!");
-      router.push("/dashboard-esg");
+      router.push("/reset-password");
     } catch {
       toast.error("Invalid code.");
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -59,30 +60,29 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-green-500">
-      <div className="w-full max-w-md space-y-6">
-        {/* Back */}
-        <Link
-          href="/esg-forgot-password"
-          className="inline-flex items-center gap-2 text-sm text-neutral-900 border border-neutral-300 rounded px-3 py-1 hover:bg-neutral-100 transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
+    <div className="min-h-screen flex items-center justify-center px-4 relative bg-white">
+      <Image
+        src="/login-flow-background-image.png"
+        alt="Login background"
+        fill
+        sizes="(min-width: 1024px) 45vw, 100vw"
+        className="absolute inset-0 z-0 object-cover"
+        priority
+      />
+      <div className="w-full max-w-md space-y-6 z-10">
+        <BackButton />
 
-        {/* Card */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm">
+        <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm relative z-10">
           <h2 className="text-2xl font-semibold text-neutral-900 mb-2">
             Email Verification
           </h2>
           <p className="text-sm text-neutral-600 mb-6">
-            Enter the 6-digit code sent to{" "}
-            <span className="font-medium">ex********@email.com</span>
+            Enter the 4-digit code sent to{" "}
+            <span className="font-medium break-all">{email}</span>
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* OTP Fields */}
-            <div className="flex justify-between gap-2">
+            <div className="flex gap-2 items-center justify-center">
               {code.map((digit, index) => (
                 <input
                   key={index}
@@ -92,17 +92,14 @@ export default function VerifyEmailPage() {
                   value={digit}
                   onChange={(e) => handleChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  //   ref={(el) => (inputsRef.current[index] = el)}
-
                   ref={(el) => {
-                    inputsRef.current[index] = el;
+                    if (el) inputsRef.current[index] = el;
                   }}
                   className="w-12 h-12 border border-neutral-300 rounded text-center text-lg outline-none text-black focus:ring-1 focus:ring-esg-green focus:border-esg-green"
                 />
               ))}
             </div>
 
-            {/* Button */}
             <button
               type="submit"
               disabled={loading}
@@ -116,7 +113,6 @@ export default function VerifyEmailPage() {
             </button>
           </form>
 
-          {/* Bottom links */}
           <div className="text-sm text-neutral-600 mt-4 space-y-1 text-center">
             <p>
               Didn’t receive code?{" "}

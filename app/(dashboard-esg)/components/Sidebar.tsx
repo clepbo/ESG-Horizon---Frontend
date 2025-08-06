@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
+import { useAuth } from "@/context/AuthContext"; // 👈 adjust path as needed
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
@@ -30,9 +31,15 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    router.push("/loginpage");
+    try {
+      logout(); // clears auth state
+      router.push("/login"); // redirect
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -61,7 +68,7 @@ export default function Sidebar() {
           </div>
         </Link>
 
-        {/* Company Info (Static) */}
+        {/* Company Info */}
         <div className="mb-4 hidden md:flex items-center space-x-2 bg-[#B4EDBC] rounded-md px-3 py-2">
           <Image
             src="/total.png"
@@ -103,7 +110,7 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Logout */}
+      {/* Logout Button */}
       <div className="px-2 md:px-4 pb-4">
         <button
           onClick={handleLogout}

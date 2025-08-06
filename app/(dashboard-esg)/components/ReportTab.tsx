@@ -5,9 +5,9 @@ import { Eye, Pencil } from "lucide-react";
 
 import { reportData } from "@/mockData/reportData";
 import Pagination from "@/app/components/Pagination";
-import SearchInput from "@/app/components/ui/SearchInput";
-import SelectFilter from "@/app/components/ui/SearchFilter";
-import Spinner from "@/app/components/ui/Spinner";
+import SearchInput from "@/app/components/SearchInput";
+import SelectFilter from "@/app/components/SearchFilter";
+import Spinner from "@/app/components/Spinner";
 
 const statusStyles: Record<string, string> = {
   Published: "bg-green-500 text-white",

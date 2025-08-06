@@ -3,82 +3,43 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 type FormFields = {
   email: string;
   password: string;
 };
 
-const validUsers = [
-  { email: "admin@horizon.com", password: "password", role: "Admin" },
-  { email: "esg@horizon.com", password: "password", role: "ESG Manager" },
-];
-
 export default function LoginForm() {
+  const { login } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    // reset,
     setError,
     formState: { errors },
   } = useForm<FormFields>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setLoading(true);
+    setIsTransitioning(true);
 
     try {
-      // Simulate API delay
-      await new Promise((res) => setTimeout(res, 800));
-
-      // Check if user exists and credentials match
-      const user = validUsers.find(
-        (u) => u.email === data.email && u.password === data.password
-      );
-
-      if (!user) {
-        throw new Error("Invalid credentials");
-      }
-
-      console.log("Login successful for:", user);
-
-      // Show success message
-      toast.success(`Welcome back, ${user.role}!`);
-
-      // Start transition
-      setIsTransitioning(true);
-
-      // Store user info (you can use localStorage, context, or your preferred state management)
-      if (typeof window !== "undefined") {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-      }
-
-      // Smooth transition delay before redirect
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000); // 1 seconds for smooth transition
+      await login(data.email, data.password);
+      toast.success("Welcome back!");
     } catch (error) {
-      console.error(error);
-      if (error instanceof Error && error.message === "Invalid credentials") {
-        toast.error("Invalid email or password. Please try again.");
-        setError("root", {
-          message:
-            "Invalid email or password. Use admin@horizon.com or esg@horizon.com with password 'password'",
-        });
-      } else {
-        toast.error("Something went wrong. Please try again.");
-        setError("root", { message: "An unexpected error occurred" });
-      }
+      setIsTransitioning(false);
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
+      toast.error(errorMessage);
+      setError("root", { message: errorMessage || "Invalid credentials" });
     } finally {
       setLoading(false);
     }
@@ -92,9 +53,9 @@ export default function LoginForm() {
           <div className="text-center">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex gap-2">
-                <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce"></div>
-                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-100"></div>
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200"></div>
+                <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" />
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce delay-100" />
+                <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce delay-200" />
               </div>
             </div>
             <p className="text-lg text-gray-600 font-medium animate-pulse">
@@ -132,9 +93,7 @@ export default function LoginForm() {
             disabled={loading || isTransitioning}
           />
           {errors.email && (
-            <p className="text-sm text-red-500 mt-1" role="alert">
-              {errors.email.message}
-            </p>
+            <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
           )}
         </div>
 
@@ -165,13 +124,13 @@ export default function LoginForm() {
             disabled={loading || isTransitioning}
           />
           {errors.password && (
-            <p className="text-sm text-red-500 mt-1" role="alert">
+            <p className="text-sm text-red-500 mt-1">
               {errors.password.message}
             </p>
           )}
         </div>
 
-        {/* Forgot password */}
+        {/* Forgot Password */}
         <div className="text-right">
           <Link
             href="/forgot-password"
@@ -188,12 +147,12 @@ export default function LoginForm() {
           className={`w-full py-3 px-4 rounded text-sm font-semibold transition-all duration-300 cursor-pointer ${
             loading || isTransitioning
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-          } focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
+              : "bg-green-500 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+          }`}
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               Signing in...
             </div>
           ) : isTransitioning ? (
@@ -206,12 +165,27 @@ export default function LoginForm() {
         {/* Root Error */}
         {errors.root && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <p className="text-sm text-red-700 text-center" role="alert">
+            <p className="text-sm text-red-700 text-center">
               {errors.root.message}
             </p>
           </div>
         )}
       </form>
+
+      {/* Signup Link */}
+      <div className="mt-6 text-center text-sm text-neutral-600">
+        <p>
+          Don’t have an account?{" "}
+          <Link
+            href="/esg/auth/signup"
+            className="text-neutral-900 font-medium hover:underline"
+          >
+            Sign up here
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
+
+//

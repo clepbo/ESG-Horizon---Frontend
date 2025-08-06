@@ -133,9 +133,9 @@ import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import { useUsers } from "@/hooks/useUsers";
 
-import SearchInput from "@/app/components/ui/SearchInput";
-import SelectFilter from "@/app/components/ui/SearchFilter";
-import Spinner from "@/app/components/ui/Spinner";
+import SearchInput from "@/app/components/SearchInput";
+import SelectFilter from "@/app/components/SearchFilter";
+import Spinner from "@/app/components/Spinner";
 import UserTable from "@/app/components/users/UserTable";
 import AdminUserTable from "@/app/components/users/AdminUserTable";
 import AddAdminModal from "@/app/components/users/AddAdminModal";

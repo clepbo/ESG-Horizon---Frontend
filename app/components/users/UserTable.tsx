@@ -4,9 +4,9 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Edit } from "lucide-react";
 
-import StatusBadge from "@/app/components/ui/StatusBadge";
+import StatusBadge from "@/app/components/StatusBadge";
 import Pagination from "@/app/components/Pagination";
-import Spinner from "@/app/components/ui/Spinner";
+import Spinner from "@/app/components/Spinner";
 import { User } from "@/mockData/users";
 
 type UserTableProps = {

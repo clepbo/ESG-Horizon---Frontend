@@ -1,9 +1,6 @@
 import * as React from "react";
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/app/(esg-sign-up)/components/ui/toast";
+import type { ToastActionElement, ToastProps } from "@/app/components/ui/toast";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;

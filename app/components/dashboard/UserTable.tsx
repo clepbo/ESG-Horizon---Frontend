@@ -2,8 +2,8 @@
 
 import { Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
-import StatusBadge from "@/app/components/ui/StatusBadge";
-import Spinner from "@/app/components/ui/Spinner";
+import StatusBadge from "@/app/components/StatusBadge";
+import Spinner from "@/app/components/Spinner";
 import { User } from "@/mockData/users";
 
 type UserTableProps = {

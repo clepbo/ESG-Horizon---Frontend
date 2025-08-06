@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import BackButton from "@/app/components/BackButton";
 
 type FormFields = {
   password: string;
@@ -30,7 +31,6 @@ export default function ResetPasswordPage() {
     try {
       await new Promise((res) => setTimeout(res, 1000));
       toast.success("Password reset successful!");
-
       setTimeout(() => router.push("/login"), 1000);
       reset();
     } catch (error) {
@@ -74,8 +74,8 @@ export default function ResetPasswordPage() {
             ...(name === "password"
               ? {
                   minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
+                    value: 4,
+                    message: "Password must be at least 4 characters",
                   },
                 }
               : {}),
@@ -105,19 +105,23 @@ export default function ResetPasswordPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white">
-      <div className="w-full max-w-md space-y-6">
-        {/* Back Link */}
-        <Link
-          href="/login"
-          className="inline-flex items-center gap-2 text-sm text-neutral-900 border border-neutral-300 rounded px-3 py-1 hover:bg-neutral-100 transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
+    <div className="min-h-screen flex items-center justify-center px-4 relative bg-white">
+      {/* ✅ Background image */}
+      <Image
+        src="/login-flow-background-image.png"
+        alt="Background"
+        fill
+        sizes="(min-width: 1024px) 45vw, 100vw"
+        className="absolute inset-0 z-0 object-cover"
+        priority
+      />
+
+      <div className="w-full max-w-md space-y-6 z-10">
+        {/* ✅ Reusable Back Button */}
+        <BackButton />
 
         {/* Card */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm space-y-6">
+        <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm space-y-6 relative z-10">
           <header>
             <h2 className="text-2xl font-bold text-neutral-900 mb-1">
               Create a secure password
@@ -153,7 +157,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-2 px-4 text-sm font-semibold rounded-md transition text-white ${
+              className={`w-full py-2 px-4 text-sm font-semibold rounded-md transition text-white cursor-pointer ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-green-500 hover:bg-green-600"

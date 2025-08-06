@@ -10,7 +10,7 @@ import {
   ChartOptions,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import Spinner from "@/app/components/ui/Spinner";
+import Spinner from "@/app/components/Spinner";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 

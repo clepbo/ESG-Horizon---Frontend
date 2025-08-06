@@ -57,7 +57,7 @@
 
 import { Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
-import StatusBadge from "@/app/components/ui/StatusBadge";
+import StatusBadge from "@/app/components/StatusBadge";
 import type { User } from "@/mockData/users";
 
 type UserTableProps = {

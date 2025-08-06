@@ -10,7 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import Spinner from "@/app/components/ui/Spinner";
+import Spinner from "@/app/components/Spinner";
 
 ChartJS.register(
   LineElement,

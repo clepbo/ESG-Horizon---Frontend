@@ -3,9 +3,9 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
+import BackButton from "@/app/components/BackButton";
 
 type FormFields = {
   email: string;
@@ -27,36 +27,43 @@ export default function ForgotPasswordPage() {
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
-    console.log(data);
     setLoading(true);
     try {
       // Simulate async OTP send
       await new Promise((res) => setTimeout(res, 500));
-      toast.success("OTP sent to your email!");
+      toast.success("OTP sent to your email!", { position: "top-center" });
       reset();
-      router.push("/verify-email"); // ✅ redirect here
+      // router.push("/verify-email");
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to send OTP");
+      toast.error("Failed to send OTP. Please try again.", {
+        position: "top-center",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white">
-      <div className="w-full max-w-md space-y-6">
+    <div className="relative min-h-screen flex items-center justify-center px-4 bg-white overflow-hidden">
+      {/* Background Image */}
+      <Image
+        src="/login-flow-background-image.png"
+        alt="Background"
+        fill
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        className="absolute inset-0 object-cover z-0"
+        priority
+      />
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Back Button */}
-        <Link
-          href="/login"
-          className="inline-flex items-center gap-2 text-sm text-neutral-900 border border-neutral-300 rounded px-3 py-1 hover:bg-neutral-100 transition"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
+        <BackButton />
 
         {/* Form Card */}
-        <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm">
+        <div className="bg-white rounded-lg border border-neutral-200 p-8 shadow-sm backdrop-blur-md">
           <h2 className="text-2xl font-semibold text-neutral-900 mb-2">
             Forgot your password
           </h2>
@@ -111,7 +118,7 @@ export default function ForgotPasswordPage() {
                   : "bg-green-500 hover:bg-green-600"
               }`}
             >
-              {loading ? "Sending..." : "Sent OTP"}
+              {loading ? "Sending..." : "Send OTP"}
             </button>
           </form>
         </div>
