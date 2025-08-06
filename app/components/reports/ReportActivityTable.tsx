@@ -5,9 +5,9 @@ import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import Pagination from "@/app/components/Pagination";
-import SearchInput from "@/app/components/ui/SearchInput";
-import SelectFilter from "@/app/components/ui/SearchFilter";
-import Spinner from "../ui/Spinner";
+import SearchInput from "@/app/components/SearchInput";
+import SelectFilter from "@/app/components/SearchFilter";
+import Spinner from "../Spinner";
 
 // Custom status badge styles based on status text
 const statusStyles: Record<string, string> = {

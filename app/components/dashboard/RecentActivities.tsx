@@ -1,7 +1,7 @@
 "use client";
 // import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import DateRangeSelect from "../ui/DateRangeSelect";
+import DateRangeSelect from "../DateRangeSelect";
 
 const activities = [
   {

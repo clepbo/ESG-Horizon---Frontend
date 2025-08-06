@@ -185,11 +185,11 @@ import { useMemo, useState } from "react";
 import { Eye, Edit, Ban, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import SearchInput from "@/app/components/ui/SearchInput";
-import SelectFilter from "@/app/components/ui/SearchFilter";
+import SearchInput from "@/app/components/SearchInput";
+import SelectFilter from "@/app/components/SearchFilter";
 import Pagination from "@/app/components/Pagination";
-import Spinner from "@/app/components/ui/Spinner";
-import StatusBadge from "@/app/components/ui/StatusBadge";
+import Spinner from "@/app/components/Spinner";
+import StatusBadge from "@/app/components/StatusBadge";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import InviteUserModal from "../components/InviteUserModal";

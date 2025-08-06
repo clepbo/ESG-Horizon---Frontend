@@ -4,8 +4,8 @@ import { useState, useMemo } from "react";
 import { Eye, Edit, Ban } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Pagination from "@/app/components/Pagination";
-import Spinner from "@/app/components/ui/Spinner";
-import StatusBadge from "@/app/components/ui/StatusBadge";
+import Spinner from "@/app/components/Spinner";
+import StatusBadge from "@/app/components/StatusBadge";
 
 type User = {
   id: string;

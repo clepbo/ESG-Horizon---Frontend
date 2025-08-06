@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Bell } from "lucide-react";
 import Image from "next/image";
-import SearchInput from "@/app/components/ui/SearchInput";
+import SearchInput from "@/app/components/SearchInput";
 
 export default function Header() {
   const [search, setSearch] = useState("");

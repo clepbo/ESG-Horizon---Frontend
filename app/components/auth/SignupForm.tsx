@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/app/(esg-sign-up)/components/ui/button";
-import { Input } from "@/app/(esg-sign-up)/components/ui/input";
-import { Label } from "@/app/(esg-sign-up)/components/ui/label";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 const signupSchema = z
   .object({
@@ -45,7 +46,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
       });
       onNext();
     } catch (error) {
-      console.error(error); // 👈 Also fixes the `error` unused warning
+      console.error(error);
       toast.error("Something went wrong. Please try again.", {
         position: "top-right",
         autoClose: 3000,
@@ -74,7 +75,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">
-              First Name <span className="text-red-500">*</span>
+              First Name <span className="text-neutral-1000">*</span>
             </Label>
             <Input
               id="firstName"
@@ -89,7 +90,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="lastName">
-              Last Name <span className="text-red-500">*</span>
+              Last Name <span className="text-neutral-1000">*</span>
             </Label>
             <Input
               id="lastName"
@@ -106,7 +107,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="workEmail">
-              Work Email <span className="text-red-500">*</span>
+              Work Email <span className="text-neutral-1000">*</span>
             </Label>
             <Input
               id="workEmail"
@@ -122,7 +123,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="phoneNumber">
-              Phone Number <span className="text-red-500">*</span>
+              Phone Number <span className="text-neutral-1000">*</span>
             </Label>
             <Input
               id="phoneNumber"
@@ -141,7 +142,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="password">
-              Create Password <span className="text-red-500">*</span>
+              Create Password <span className="text-neutral-1000">*</span>
             </Label>
             <Input
               id="password"
@@ -157,7 +158,7 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">
-              Confirm Password <span className="text-red-500">*</span>
+              Confirm Password <span className="text-neutral-1000">*</span>
             </Label>
             <Input
               id="confirmPassword"
@@ -183,12 +184,15 @@ export const SignupForm = ({ onNext }: SignupFormProps) => {
         </Button>
       </form>
 
-      <div className="text-center">
-        <p className="text-sm text-gray-600 cursor-pointer">
-          Already have an account?{" "}
-          <a href="#" className="text-primary font-medium hover:underline">
+      <div className="mt-6 text-center text-sm text-neutral-600">
+        <p>
+          Don’t have an account?{"  "}
+          <Link
+            href="/login"
+            className="text-neutral-900 font-medium hover:underline  "
+          >
             Login here
-          </a>
+          </Link>
         </p>
       </div>
     </div>

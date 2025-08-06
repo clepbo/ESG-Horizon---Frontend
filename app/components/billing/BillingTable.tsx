@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 
 import { billingData } from "@/mockData/billingData";
 import Pagination from "@/app/components/Pagination";
-import SearchInput from "@/app/components/ui/SearchInput";
-import SelectFilter from "@/app/components/ui/SearchFilter";
-import Spinner from "@/app/components/ui/Spinner";
+import SearchInput from "@/app/components/SearchInput";
+import SelectFilter from "@/app/components/SearchFilter";
+import Spinner from "@/app/components/Spinner";
 
 const statusColorMap: Record<string, string> = {
   Active: "bg-green-500 text-white",

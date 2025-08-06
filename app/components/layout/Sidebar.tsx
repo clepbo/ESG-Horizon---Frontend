@@ -12,6 +12,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -24,9 +25,15 @@ const navLinks = [
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      await logout(); //
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -35,7 +42,7 @@ export default function Sidebar() {
       <div>
         {/* Logo */}
         <Link href="/dashboard">
-          <div className="mb-6 flex justify-center ">
+          <div className="mb-6 flex justify-center">
             <Image
               src="/logo-new.png"
               alt="ESG Horizon Logo"
@@ -88,7 +95,7 @@ export default function Sidebar() {
       <div className="mt-auto">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 text-sm text-red-500"
+          className="flex items-center gap-2 text-sm text-red-500 cursor-pointer"
         >
           <LogOut className="w-5 h-5" />
           <span className="hidden md:inline">Logout</span>

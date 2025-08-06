@@ -1,7 +1,7 @@
 "use client";
 
 import { useLeaderboard } from "@/hooks/useLeaderboard";
-import Spinner from "@/app/components/ui/Spinner";
+import Spinner from "@/app/components/Spinner";
 
 export function IndustryLeaderboard() {
   const { data: leaderboardData = [], isLoading, error } = useLeaderboard();

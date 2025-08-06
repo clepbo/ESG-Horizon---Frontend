@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Edit } from "lucide-react";
-import StatusBadge from "@/app/components/ui/StatusBadge";
+import StatusBadge from "@/app/components/StatusBadge";
 import EditUserModal from "@/app/components/users/EditUserModal";
 
 interface UserDetailsCardProps {

@@ -5,7 +5,7 @@ import { CheckCircle, XCircle, ArrowUpCircle, Clock, Ban } from "lucide-react";
 
 import { useActivities } from "@/hooks/useActivities";
 import type { ActivityType } from "@/mockData/recentActivities";
-import Spinner from "@/app/components/ui/Spinner";
+import Spinner from "@/app/components/Spinner";
 
 // Icon map
 const iconMap: Record<ActivityType, React.ReactNode> = {

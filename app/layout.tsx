@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 import ClientToaster from "@/app/components/ClientToaster";
 import ReactQueryProvider from "@/app/providers/ReactQueryProvider";
@@ -14,9 +15,6 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Horizon For ESG Evaluation",
   description: "Your first-step into ESG evaluation",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
@@ -29,7 +27,10 @@ export default function RootLayout({
       <body className={`${poppins.variable} antialiased`}>
         <ReactQueryProvider>
           <ClientToaster />
-          {children}
+          <AuthProvider>
+            {/* <TrackLastPath /> */}
+            {children}
+          </AuthProvider>
         </ReactQueryProvider>
       </body>
     </html>
