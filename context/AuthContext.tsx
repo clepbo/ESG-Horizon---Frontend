@@ -125,7 +125,7 @@ type SignupData = {
   last_name: string;
   phone_number: string;
   company_name: string;
-  reg_number: string;
+  registration_number: string;
   industry_type: string;
   address: string;
   contact_email: string;
@@ -146,11 +146,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("currentUser");
+  //   if (storedUser) {
+  //     setUser(JSON.parse(storedUser));
+  //   }
+  // }, []);
+  // useEffect(() => {
+  //   try {
+  //     const storedUser = localStorage.getItem("currentUser");
+  //     if (storedUser) {
+  //       setUser(JSON.parse(storedUser));
+  //     }
+  //   } catch (error) {
+  //     console.error("Error parsing currentUser from localStorage:", error);
+  //     localStorage.removeItem("currentUser"); // clear corrupted data
+  //   }
+  // }, []);
   useEffect(() => {
-    const storedUser = localStorage.getItem("currentUser");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const loadUserFromStorage = () => {
+      try {
+        const storedUser = localStorage.getItem("currentUser");
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser); // Optionally cast: setUser(parsedUser as UserType);
+        }
+      } catch (error) {
+        console.error("Error parsing currentUser from localStorage:", error);
+        localStorage.removeItem("currentUser");
+      }
+    };
+
+    loadUserFromStorage();
   }, []);
 
   const handleAuthSuccess = (

@@ -32,7 +32,7 @@ export default function LoginForm() {
     setIsTransitioning(true);
 
     try {
-      await login(data.email, data.password); // 👈 Already does redirection by role
+      await login(data.email, data.password);
       toast.success("Welcome back!");
     } catch (error) {
       setIsTransitioning(false);
