@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  LayoutDashboard,
-  BarChart,
-  CreditCard,
-  Settings,
-  LogOut,
-  Home,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { Settings, LogOut, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
@@ -18,10 +9,18 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 
 const navLinks = [
-  { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { name: "Company", icon: Home, href: "/company" },
-  { name: "Reports & Analytics", icon: BarChart, href: "/reports" },
-  { name: "Subscription & Billing", icon: CreditCard, href: "/billing" },
+  { name: "Dashboard", icon: "/icons/Dashboard.svg", href: "/dashboard" },
+  { name: "Company", icon: "/icons/company.svg", href: "/company" },
+  {
+    name: "Reports & Analytics",
+    icon: "/icons/Analytics.svg",
+    href: "/reports",
+  },
+  {
+    name: "Subscription & Billing",
+    icon: "/icons/SubscriptionBilling.svg",
+    href: "/billing",
+  },
 ];
 
 const settingsSubLinks = [
@@ -82,7 +81,6 @@ export default function Sidebar() {
         {navLinks.map((link) => {
           const isActive =
             pathname === link.href || pathname.startsWith(link.href + "/");
-          const Icon = link.icon;
 
           return (
             <Link
@@ -95,7 +93,18 @@ export default function Sidebar() {
                   : "text-gray-700 hover:bg-emerald-50"
               )}
             >
-              <Icon className="w-5 h-5" />
+              <Image
+                src={link.icon}
+                alt={`${link.name} icon`}
+                width={20}
+                height={20}
+                className={clsx(
+                  "w-5 h-5",
+                  isActive
+                    ? "bg-emerald-100 text-emerald-700 font-semibold"
+                    : "text-gray-700 hover:bg-emerald-50"
+                )}
+              />
               <span className="hidden md:inline">{link.name}</span>
             </Link>
           );

@@ -32,7 +32,6 @@ export default function EditUserModal({
 }) {
   const [firstName, lastName] = user.name.split(" ");
   const [userImage, setUserImage] = useState<string | null>(null);
-  const [companyImage, setCompanyImage] = useState<string | null>(null);
 
   return (
     <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
@@ -74,64 +73,6 @@ export default function EditUserModal({
           <InputField label="Phone Number" value={user.phone} required />
           <InputField label="Role" value="Sustainability Officer" required />
           <InputField label="Permission" value={user.permission} required />
-        </div>
-
-        <h2 className="text-xl font-semibold text-gray-900 mt-10 mb-6">
-          Company Information
-        </h2>
-
-        <div className="flex items-center gap-4 mb-8 relative w-max">
-          <Image
-            src={companyImage || user.companyLogo || "/images/image2.png"}
-            alt="Company Logo"
-            width={72}
-            height={72}
-            className="rounded object-cover border border-gray-200"
-            unoptimized
-          />
-          <PhotoUploadButton
-            onUpload={(file) => {
-              const imageUrl = URL.createObjectURL(file);
-              setCompanyImage(imageUrl);
-            }}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField label="Company Name" value={user.company} required />
-          <InputField label="Industry Type" value="Consulting" required />
-          <InputField
-            label="Email"
-            value={user.companyEmail || "info@teasooconsulting.com"}
-            required
-          />
-          <InputField
-            label="Contact Phone Number"
-            value={user.companyPhone || user.phone}
-            required
-          />
-          <InputField
-            label="Website Address"
-            value={user.website || "www.teasooconsulting.com"}
-            required
-          />
-          <InputField
-            label="Registration Number"
-            value={user.registrationNumber || "555-0102"}
-            info="CAC issued company registration number"
-          />
-          <InputField
-            label="Staff Strength"
-            value={user.staffStrength || "20"}
-            required
-          />
-          <TextAreaField
-            label="Company Address"
-            value={
-              user.address || "4, Oghosa Crescent, Off Ihama, GRA Benin City"
-            }
-            required
-          />
         </div>
 
         <div className="flex justify-end gap-4 mt-10">
@@ -188,32 +129,6 @@ function InputField({
           "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm transition",
           "text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-esg-green",
           "hover:shadow-sm"
-        )}
-      />
-    </div>
-  );
-}
-
-function TextAreaField({
-  label,
-  value,
-  required = false,
-}: {
-  label: string;
-  value: string;
-  required?: boolean;
-}) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-800 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <textarea
-        defaultValue={value}
-        rows={3}
-        className={clsx(
-          "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm resize-none",
-          "text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-esg-green"
         )}
       />
     </div>
