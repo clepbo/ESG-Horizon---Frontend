@@ -182,7 +182,7 @@ export default function DepartmentTeamUsersPage() {
 
       {/* Members Table */}
       <div className="overflow-x-auto shadow rounded-lg bg-white">
-        <TeamMembersTable members={paginatedMembers} />
+        <TeamMembersTable members={paginatedMembers} users={teamUsers} />
       </div>
 
       {/* Pagination */}
