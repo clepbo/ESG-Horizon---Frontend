@@ -76,64 +76,6 @@ export default function EditUserModal({
           <InputField label="Permission" value={user.permission} required />
         </div>
 
-        <h2 className="text-xl font-semibold text-gray-900 mt-10 mb-6">
-          Company Information
-        </h2>
-
-        <div className="flex items-center gap-4 mb-8 relative w-max">
-          <Image
-            src={companyImage || user.companyLogo || "/images/image2.png"}
-            alt="Company Logo"
-            width={72}
-            height={72}
-            className="rounded object-cover border border-gray-200"
-            unoptimized
-          />
-          <PhotoUploadButton
-            onUpload={(file) => {
-              const imageUrl = URL.createObjectURL(file);
-              setCompanyImage(imageUrl);
-            }}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField label="Company Name" value={user.company} required />
-          <InputField label="Industry Type" value="Consulting" required />
-          <InputField
-            label="Email"
-            value={user.companyEmail || "info@teasooconsulting.com"}
-            required
-          />
-          <InputField
-            label="Contact Phone Number"
-            value={user.companyPhone || user.phone}
-            required
-          />
-          <InputField
-            label="Website Address"
-            value={user.website || "www.teasooconsulting.com"}
-            required
-          />
-          <InputField
-            label="Registration Number"
-            value={user.registrationNumber || "555-0102"}
-            info="CAC issued company registration number"
-          />
-          <InputField
-            label="Staff Strength"
-            value={user.staffStrength || "20"}
-            required
-          />
-          <TextAreaField
-            label="Company Address"
-            value={
-              user.address || "4, Oghosa Crescent, Off Ihama, GRA Benin City"
-            }
-            required
-          />
-        </div>
-
         <div className="flex justify-end gap-4 mt-10">
           <button
             onClick={onClose}
