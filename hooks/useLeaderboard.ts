@@ -13,6 +13,6 @@ export function useLeaderboard() {
   return useQuery<LeaderboardEntry[]>({
     queryKey: ["leaderboard"],
     queryFn: fetchMockLeaderboard,
-    staleTime: 1000 * 60 * 5, // cache for 5 min
+    staleTime: 1000 * 60 * 5,
   });
 }

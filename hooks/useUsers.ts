@@ -1,4 +1,3 @@
-// hooks/useUsers.ts
 import { useQuery } from "@tanstack/react-query";
 import { mockUsers as users } from "@/mockData/users";
 import type { User } from "@/mockData/users";

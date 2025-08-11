@@ -52,3 +52,34 @@ export const mockActivities: Activity[] = [
     type: "cancelled",
   },
 ];
+
+export const recentActivities = [
+  {
+    time: "3:35pm",
+    title: "New Persona Submitted",
+    description:
+      'ESG Company "GreenFlow Inc." submitted a new persona for approval.',
+  },
+  {
+    time: "2:15pm",
+    title: "Access Suspended",
+    description: 'Persona "Ngozi Okoro" (Investor) was suspended by Admin.',
+  },
+  {
+    time: "2:01pm",
+    title: "Data Locked",
+    description:
+      "Regulator data for Q2 2025 was reviewed and locked by Supervisor.",
+  },
+  {
+    time: "12:00pm",
+    title: "Persona Approved",
+    description:
+      'Persona "Michael Adeniran" from EcoBank was approved and granted access.',
+  },
+  {
+    time: "10:50am",
+    title: "Organization Added",
+    description: "",
+  },
+];

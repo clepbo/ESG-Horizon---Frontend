@@ -2,24 +2,33 @@
 
 import {
   LayoutDashboard,
-  Users,
   BarChart,
   CreditCard,
   Settings,
   LogOut,
+  Home,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
 
 const navLinks = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { name: "Users", icon: Users, href: "/users" },
+  { name: "Company", icon: Home, href: "/company" },
   { name: "Reports & Analytics", icon: BarChart, href: "/reports" },
   { name: "Subscription & Billing", icon: CreditCard, href: "/billing" },
-  { name: "Settings", icon: Settings, href: "/settings" },
+];
+
+const settingsSubLinks = [
+  { name: "Account", href: "/settings/account" },
+  { name: "Company", href: "/settings/company" },
+  { name: "Teams", href: "/settings/teams" },
+  { name: "Departments", href: "/settings/departments" },
 ];
 
 export default function Sidebar() {
@@ -27,10 +36,17 @@ export default function Sidebar() {
   const router = useRouter();
   const { logout } = useAuth();
 
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Open settings menu if route matches
+  useEffect(() => {
+    setSettingsOpen(pathname.startsWith("/settings"));
+  }, [pathname]);
+
   const handleLogout = () => {
     try {
-      logout(); // clears auth state
-      router.push("/login"); // redirect
+      logout();
+      router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -38,60 +54,100 @@ export default function Sidebar() {
 
   return (
     <aside className="h-screen bg-white shadow-sm flex flex-col p-4 rounded-r-2xl w-16 md:w-64 transition-all duration-300">
-      {/* Top section: Logo + Navigation */}
-      <div>
-        {/* Logo */}
-        <Link href="/dashboard">
-          <div className="mb-6 flex justify-center">
-            <Image
-              src="/logo-new.png"
-              alt="ESG Horizon Logo"
-              width={150}
-              height={60}
-              priority
-              className="object-contain hidden md:block"
-              style={{ width: "auto", height: "auto" }}
-            />
+      {/* Logo */}
+      <Link href="/dashboard">
+        <div className="mb-6 flex justify-center">
+          <Image
+            src="/logo-new.png"
+            alt="ESG Horizon Logo"
+            width={150}
+            height={60}
+            priority
+            className="object-contain hidden md:block"
+            style={{ width: "auto", height: "auto" }}
+          />
+          <Image
+            src="/iconlogo.png"
+            alt="Logo Icon"
+            width={28}
+            height={28}
+            className="md:hidden object-contain"
+            style={{ width: "auto", height: "auto" }}
+          />
+        </div>
+      </Link>
 
-            <Image
-              src="/iconlogo.png"
-              alt="Logo Icon"
-              width={28}
-              height={28}
-              className="md:hidden object-contain"
-              style={{ width: "auto", height: "auto" }}
-            />
-          </div>
-        </Link>
+      {/* Main Links */}
+      <nav className="flex flex-col gap-1">
+        {navLinks.map((link) => {
+          const isActive =
+            pathname === link.href || pathname.startsWith(link.href + "/");
+          const Icon = link.icon;
 
-        {/* Navigation */}
-        <nav className="flex flex-col gap-1">
-          {navLinks.map((link) => {
-            const isActive =
-              pathname === link.href || pathname.startsWith(link.href + "/");
+          return (
+            <Link
+              key={link.name}
+              href={link.href}
+              className={clsx(
+                "flex items-center gap-3 text-sm rounded p-2 transition-all group",
+                isActive
+                  ? "bg-emerald-100 text-emerald-700 font-semibold"
+                  : "text-gray-700 hover:bg-emerald-50"
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="hidden md:inline">{link.name}</span>
+            </Link>
+          );
+        })}
 
-            const Icon = link.icon;
+        {/* Settings Dropdown */}
+        <div>
+          <button
+            onClick={() => setSettingsOpen((prev) => !prev)}
+            className={clsx(
+              "w-full flex items-center gap-3 text-sm rounded p-2 transition-all cursor-pointer",
+              pathname.startsWith("/settings")
+                ? "bg-emerald-100 text-emerald-700 font-semibold"
+                : "text-gray-700 hover:bg-emerald-50"
+            )}
+          >
+            <Settings className="w-5 h-5" />
+            <span className="hidden md:inline">Settings</span>
+            {settingsOpen ? (
+              <ChevronUp className="ml-auto w-4 h-4 md:block hidden" />
+            ) : (
+              <ChevronDown className="ml-auto w-4 h-4 md:block hidden" />
+            )}
+          </button>
 
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={clsx(
-                  "flex items-center gap-3 text-sm rounded p-2 transition-all group",
-                  isActive
-                    ? "bg-emerald-100 text-emerald-700 font-semibold"
-                    : "text-gray-700 hover:bg-emerald-50"
-                )}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="hidden md:inline">{link.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+          {settingsOpen && (
+            <div className="ml-6 mt-1 space-y-1">
+              {settingsSubLinks.map((sub) => {
+                const isSubActive =
+                  pathname === sub.href || pathname.startsWith(sub.href + "/");
 
-      {/* Bottom section: Logout button */}
+                return (
+                  <Link
+                    key={sub.name}
+                    href={sub.href}
+                    className={clsx(
+                      "block text-sm rounded px-2 py-1 transition-all",
+                      isSubActive
+                        ? "bg-emerald-100 text-emerald-700 font-medium"
+                        : "text-gray-700 hover:bg-emerald-50"
+                    )}
+                  >
+                    {sub.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </nav>
+
+      {/* Logout */}
       <div className="mt-auto">
         <button
           onClick={handleLogout}

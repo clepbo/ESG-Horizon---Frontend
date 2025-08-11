@@ -11,4 +11,5 @@ export const mockLeaderboard: LeaderboardEntry[] = [
   { rank: 3, organization: "Org C", score: "83%", reports: 21 },
   { rank: 4, organization: "Your Company", score: "70%", reports: 11 },
   { rank: 5, organization: "Org G", score: "68%", reports: 5 },
+  { rank: 6, organization: "Org G", score: "68%", reports: 5 },
 ];

@@ -1,11 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/app/(dashboard-esg)/components/ui/card";
-import { Badge } from "@/app/(dashboard-esg)/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/app/(dashboard-esg)/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
+import { Badge } from "@/app/components/ui/badge";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
 import {
   Table,
   TableBody,
@@ -13,14 +9,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/app/(dashboard-esg)/components/ui/table";
+} from "@/app/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/app/(dashboard-esg)/components/ui/select";
+} from "@/app/components/ui/select";
 import { Search, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 
 const reportTabs = [

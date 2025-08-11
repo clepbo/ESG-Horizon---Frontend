@@ -22,8 +22,11 @@ export default function DateRangeSelect({
   return (
     <div className="relative">
       <select
+        id="date-range-select"
         value={value}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          onChange(e.target.value)
+        }
         className="text-sm font-medium text-gray-800 bg-transparent border-none appearance-none"
       >
         {options.map((opt) => (

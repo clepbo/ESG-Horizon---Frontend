@@ -1,30 +1,22 @@
-"use client";
-
-type StatusType =
-  | "Pending"
-  | "Suspended"
-  | "Under Review"
-  | "Approved"
-  | string;
-
-const STATUS_STYLES: Record<string, string> = {
-  Pending: "bg-[var(--color-warning)] text-white",
-  Suspended: "bg-[var(--color-danger)] text-white",
-  "Under Review": "bg-[var(--color-info)] text-white",
-
-  Approved: "bg-[var(--color-success)] text-white",
+type StatusProps = {
+  status: string;
 };
 
-interface StatusBadgeProps {
-  status: StatusType;
-}
+const statusStyles: Record<string, string> = {
+  Pending: "bg-yellow-400 text-white",
+  Approved: "bg-green-500 text-white",
+  Suspended: "bg-red-500 text-white",
+  "Under Review": "bg-blue-500 text-white",
+  Active: "bg-green-500 text-white",
+  Inactive: "bg-yellow-500 text-white",
+};
 
-export default function StatusBadge({ status }: StatusBadgeProps) {
-  const badgeStyle = STATUS_STYLES[status] || "bg-gray-200 text-gray-800";
+export default function StatusBadge({ status }: StatusProps) {
+  const badgeClass = statusStyles[status] || "bg-gray-300 text-gray-800";
 
   return (
     <span
-      className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${badgeStyle}`}
+      className={`px-3 py-1 text-xs rounded-full font-medium ${badgeClass}`}
     >
       {status}
     </span>

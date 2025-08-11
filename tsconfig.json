@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/(dashboard-esg)/teams"
+    "app/(dashboard-esg)/teams-esg"
   ],
   "exclude": ["node_modules"]
 }
