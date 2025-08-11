@@ -32,7 +32,6 @@ export default function EditUserModal({
 }) {
   const [firstName, lastName] = user.name.split(" ");
   const [userImage, setUserImage] = useState<string | null>(null);
-  const [companyImage, setCompanyImage] = useState<string | null>(null);
 
   return (
     <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
@@ -130,32 +129,6 @@ function InputField({
           "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm transition",
           "text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-esg-green",
           "hover:shadow-sm"
-        )}
-      />
-    </div>
-  );
-}
-
-function TextAreaField({
-  label,
-  value,
-  required = false,
-}: {
-  label: string;
-  value: string;
-  required?: boolean;
-}) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-800 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <textarea
-        defaultValue={value}
-        rows={3}
-        className={clsx(
-          "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm resize-none",
-          "text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-esg-green"
         )}
       />
     </div>
