@@ -1,98 +1,100 @@
-// import { ArrowUp, ArrowDown } from "lucide-react";
+"use client";
 
-// type StatCardProps = {
-//   icon: React.ReactNode;
-//   label: string;
-//   value: number;
-//   change?: number;
-// };
-
-// export default function StatCard({
-//   icon,
-//   label,
-//   value,
-//   change,
-// }: StatCardProps) {
-//   const isPositive = change === undefined || change >= 0;
-
-//   return (
-//     <div className="h-40 rounded-lg border border-black/10 bg-white px-4 py-3 shadow-sm flex flex-col justify-between">
-//       {/* Icon */}
-//       <div className="flex items-start">
-//         <div className="rounded-full bg-gray-100 p-3 text-primary">{icon}</div>
-//       </div>
-
-//       {/* Label + Value */}
-//       <div className="flex flex-col items-start">
-//         <span className="text-sm text-gray-500 font-medium">{label}</span>
-//       </div>
-
-//       {/* Bottom-right Change Badge */}
-//       {change !== undefined && (
-//         <div className="flex justify-between">
-//           <p className="text-3xl font-extrabold text-gray-900 leading-tight">
-//             {value}
-//           </p>
-//           <div
-//             className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${
-//               isPositive
-//                 ? "bg-success-200 text-green-600"
-//                 : "bg-danger-100 text-danger-600"
-//             }`}
-//           >
-//             {isPositive ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
-//             {Math.abs(change)}%
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import Spinner from "@/app/components/Spinner"; // Make sure you have this
 
-type StatCardProps = {
-  icon: React.ReactNode;
-  label: string;
+interface StatCardProps {
+  title: string;
   value: number;
-  change?: number; // Optional, supports positive or negative
-};
+  trend: "up" | "down";
+  trendValue: string;
+  icon?: React.ReactNode;
+  iconSrc?: string;
+  gradientClass: string;
+  bottomBarColor?: string;
+}
 
-export default function StatCard({
-  icon,
-  label,
+export function StatCard({
+  title,
   value,
-  change,
+  trend,
+  trendValue,
+  icon,
+  iconSrc,
+  gradientClass,
+  bottomBarColor = "",
 }: StatCardProps) {
-  const isPositive = change === undefined || change >= 0;
+  const isTrendUp = trend === "up";
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate data fetching
+    const timer = setTimeout(() => setLoading(false), 700);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="h-40 rounded-lg border border-black/10 bg-white px-4 py-3 shadow-sm flex flex-col justify-between">
-      {/* Icon */}
-      <div className="flex items-start">
-        <div className="rounded-full bg-gray-100 p-3 text-primary">{icon}</div>
-      </div>
-
-      {/* Label */}
-      <div className="text-sm text-gray-500 font-medium">{label}</div>
-
-      {/* Value & Change */}
-      <div className="flex justify-between items-center mt-1">
-        <p className="text-3xl font-extrabold text-gray-900 leading-tight">
-          {value}
-        </p>
-        {change !== undefined && (
+    <motion.div
+      className="rounded-xl overflow-hidden shadow-md w-full h-[190px] bg-white"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+    >
+      {loading ? (
+        <div className="flex items-center justify-center h-full">
+          <Spinner />
+        </div>
+      ) : (
+        <>
           <div
-            className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${
-              isPositive
-                ? "bg-success-200 text-green-600"
-                : "bg-danger-100 text-danger-600"
-            }`}
+            className={`p-4 h-[145px] flex flex-col justify-between bg-gradient-to-b ${gradientClass} text-white`}
           >
-            {isPositive ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
-            {Math.abs(change)}%
+            <div className="flex items-start justify-between p-2">
+              <div>
+                <h4 className="text-sm font-medium">{title}</h4>
+                <p className="text-4xl font-bold mt-1">{value}</p>
+              </div>
+              <div className="p-3 bg-green-200 rounded-lg flex items-center justify-center">
+                {iconSrc ? (
+                  <Image
+                    src={iconSrc}
+                    alt={`${title} icon`}
+                    width={25}
+                    height={25}
+                    className="object-contain"
+                  />
+                ) : (
+                  icon
+                )}
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-    </div>
+
+          <div
+            className={`px-6 py-3 text-white text-xs flex items-center justify-between ${bottomBarColor}`}
+          >
+            <p className="font-medium">From last report</p>
+            <div
+              className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
+                isTrendUp
+                  ? "bg-green-200 text-green-600"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              {isTrendUp ? (
+                <ArrowUp className="w-3 h-4" />
+              ) : (
+                <ArrowDown className="w-3 h-4" />
+              )}
+              <span>{trendValue}</span>
+            </div>
+          </div>
+        </>
+      )}
+    </motion.div>
   );
 }

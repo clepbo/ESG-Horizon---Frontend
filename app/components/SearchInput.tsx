@@ -12,6 +12,8 @@ export default function SearchInput({
   return (
     <div className="relative w-full max-w-3xl">
       <input
+        id="search-input"
+        name="search"
         type="text"
         value={value}
         onChange={onChange}

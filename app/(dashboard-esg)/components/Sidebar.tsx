@@ -24,7 +24,7 @@ const navItems = [
     icon: BarChart3,
   },
   { name: "Ranking", href: "/ranking", icon: TrendingUp },
-  { name: "Teams", href: "/teams", icon: Users },
+  { name: "Teams", href: "/teams-esg", icon: Users },
   { name: "Settings", href: "/settings-esg", icon: Settings },
 ];
 

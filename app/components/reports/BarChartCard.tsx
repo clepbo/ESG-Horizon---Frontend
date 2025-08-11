@@ -11,11 +11,13 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import Spinner from "@/app/components/Spinner";
+import { TimeRangeDropdown } from "../dashboard/TimeRangeDropdown";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function ProfitBarChart() {
   const [isLoading, setIsLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState("weekly");
 
   useEffect(() => {
     // simulate async load
@@ -110,10 +112,7 @@ export default function ProfitBarChart() {
           <p className="text-xs text-gray-500">Profitability</p>
           <p className="text-sm font-semibold text-gray-800">Sept, 2023</p>
         </div>
-        <select className="text-xs font-medium text-gray-600 border border-gray-200 rounded-md px-2 py-1">
-          <option>This Week</option>
-          <option>This Month</option>
-        </select>
+        <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
       </div>
 
       <div className="relative h-[260px]">

@@ -1,0 +1,186 @@
+"use client";
+
+import { useState, useMemo, useEffect, ReactNode } from "react";
+import { RotateCw, Ban, CircleCheckBig } from "lucide-react";
+
+import StatusBadge from "@/app/components/StatusBadge";
+import Pagination from "@/app/components/Pagination";
+import Spinner from "@/app/components/Spinner";
+import ConfirmModal from "@/app/components/modals/ConfirmModal";
+import { User } from "@/mockData/users";
+
+type UserTableProps = {
+  users: User[];
+};
+
+export default function UserTable({ users }: UserTableProps) {
+  const [userList, setUserList] = useState(users);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
+
+  // Modal states
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [targetStatus, setTargetStatus] = useState<User["status"] | null>(null);
+
+  useEffect(() => {
+    setUserList(users);
+  }, [users]);
+
+  const totalItems = userList.length;
+
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return userList.slice(start, end);
+  }, [userList, currentPage, itemsPerPage]);
+
+  const handlePageChange = (page: number) => {
+    setLoading(true);
+    setTimeout(() => {
+      setCurrentPage(page);
+      setLoading(false);
+    }, 300);
+  };
+
+  const handleItemsPerPageChange = (limit: number) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1);
+  };
+
+  const updateStatus = (id: string, newStatus: User["status"]) => {
+    setUserList((prev) =>
+      prev.map((user) =>
+        user.id === id ? { ...user, status: newStatus } : user
+      )
+    );
+    setModalOpen(false);
+  };
+
+  const openModal = (id: string, newStatus: User["status"]) => {
+    setSelectedUserId(id);
+    setTargetStatus(newStatus);
+    setModalOpen(true);
+  };
+
+  const statusActions: Record<
+    User["status"],
+    {
+      icon: ReactNode;
+      color: string;
+      newStatus: User["status"];
+      title: string;
+    }
+  > = {
+    Pending: {
+      icon: <CircleCheckBig className="w-4 h-4" />,
+      color: "border-green-500 text-green-500 hover:bg-green-50",
+      newStatus: "Approved",
+      title: "Approve",
+    },
+    Suspended: {
+      icon: <RotateCw className="w-4 h-4" />,
+      color: "border-yellow-500 text-yellow-500 hover:bg-yellow-50",
+      newStatus: "Pending",
+      title: "Restore",
+    },
+    Approved: {
+      icon: <Ban className="w-4 h-4" />,
+      color: "border-red-500 text-red-500 hover:bg-red-50",
+      newStatus: "Suspended",
+      title: "Suspend",
+    },
+    "Under Review": {
+      icon: <CircleCheckBig className="w-4 h-4" />,
+      color: "border-green-500 text-green-500 hover:bg-green-50",
+      newStatus: "Approved",
+      title: "Approve",
+    },
+  };
+
+  return (
+    <div className="relative overflow-x-auto bg-white shadow rounded-xl">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 z-10">
+          <Spinner />
+        </div>
+      )}
+
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-left">
+          <tr className="text-gray-700">
+            <th className="p-4">Name</th>
+            <th className="p-4">Email</th>
+            <th className="p-4">Role</th>
+            <th className="p-4">Recent Activities</th>
+            <th className="p-4">Status</th>
+            <th className="p-4">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedUsers.map((user) => (
+            <tr
+              key={user.id}
+              className="border-t border-gray-200 hover:bg-gray-50"
+            >
+              <td className="p-4">{user.name}</td>
+              <td className="p-4">{user.email}</td>
+              <td className="p-4">{user.role}</td>
+              <td className="p-4">
+                {user.recentActivities?.[0]?.action || "N/A"}
+              </td>
+              <td className="p-4">
+                <StatusBadge status={user.status} />
+              </td>
+              <td className="p-4">
+                {statusActions[user.status] && (
+                  <button
+                    className={`inline-flex items-center gap-1 border rounded px-3 py-1 cursor-pointer ${
+                      statusActions[user.status].color
+                    }`}
+                    onClick={() =>
+                      openModal(user.id, statusActions[user.status].newStatus)
+                    }
+                    title={statusActions[user.status].title}
+                  >
+                    {statusActions[user.status].icon}
+                    {statusActions[user.status].title}
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="mt-4 px-4 pb-4">
+        <Pagination
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
+      </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        open={modalOpen}
+        title="Confirm Status Change"
+        message={
+          <>
+            Are you sure you want to change this user&apos;s status to{" "}
+            <span className="font-bold">{targetStatus}</span>?
+          </>
+        }
+        onCancel={() => setModalOpen(false)}
+        onConfirm={() =>
+          selectedUserId &&
+          targetStatus &&
+          updateStatus(selectedUserId, targetStatus)
+        }
+      />
+    </div>
+  );
+}

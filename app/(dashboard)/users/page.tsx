@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/app/components/layout/Header";
-import UsersTable from "@/app/components/users/UsersTable";
+import UsersTable from "@/app/components/users/Users";
 
 export default function UsersPage() {
   return (
@@ -10,7 +10,7 @@ export default function UsersPage() {
         <Header />
 
         <header>
-          <h2 className="text-2xl font-semibold">Users</h2>
+          <h2 className="text-2xl font-semibold">Company</h2>
           <p className="text-sm text-muted-foreground">
             Manage platform users and their access permissions
           </p>

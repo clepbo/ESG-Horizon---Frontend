@@ -34,6 +34,11 @@ export default function BillingTable() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
 
+  const handleItemsPerPageChange = (limit: number) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1);
+  };
+
   const filteredData = useMemo(() => {
     return billingData.filter((item) => {
       const matchesSearch = item.company
@@ -49,16 +54,18 @@ export default function BillingTable() {
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(start, start + itemsPerPage);
+    const end = start + itemsPerPage;
+    return filteredData.slice(start, end);
   }, [filteredData, currentPage, itemsPerPage]);
 
   const totalItems = filteredData.length;
 
-  const handlePageChange = (page: number) => setCurrentPage(page);
-  const handleItemsPerPageChange = (limit: number) => {
-    setItemsPerPage(limit);
-    setCurrentPage(1);
-    setLoading(false);
+  const handlePageChange = (page: number) => {
+    setLoading(true);
+    setTimeout(() => {
+      setCurrentPage(page);
+      setLoading(false);
+    }, 300);
   };
 
   return (
@@ -143,34 +150,15 @@ export default function BillingTable() {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-2 pt-2">
-        <div className="flex items-center gap-2 text-sm">
-          <span>Rows per page</span>
-          <select
-            value={itemsPerPage}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border rounded px-2 py-1 text-sm"
-          >
-            {[10, 25, 50].map((num) => (
-              <option key={num} value={num}>
-                {num}
-              </option>
-            ))}
-          </select>
-        </div>
 
-        <div className="mt-4 px-4 pb-4">
-          <Pagination
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            onItemsPerPageChange={handleItemsPerPageChange}
-          />
-        </div>
+      <div className="mt-4 px-4 pb-4">
+        <Pagination
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
       </div>
     </div>
   );

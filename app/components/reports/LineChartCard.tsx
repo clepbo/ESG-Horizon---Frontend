@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import Spinner from "@/app/components/Spinner";
+import { TimeRangeDropdown } from "../dashboard/TimeRangeDropdown";
 
 ChartJS.register(
   LineElement,
@@ -23,7 +24,7 @@ ChartJS.register(
 
 export default function ReportLineChart() {
   const [isLoading, setIsLoading] = useState(true);
-
+  const [timeRange, setTimeRange] = useState("daily");
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
     return () => clearTimeout(timer);
@@ -119,10 +120,7 @@ export default function ReportLineChart() {
     <div className="w-full bg-white rounded-xl shadow px-5 py-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-gray-800">Analytics</h3>
-        <select className="text-sm text-gray-700 border border-gray-200 rounded-md px-2 py-1 focus:outline-none">
-          <option>This Week</option>
-          <option>This Month</option>
-        </select>
+        <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
       </div>
       <div className="h-64">
         {isLoading ? (

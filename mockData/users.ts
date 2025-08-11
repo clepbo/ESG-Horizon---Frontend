@@ -17,6 +17,8 @@ export interface User {
   registrationNumber?: string;
   staffStrength?: string;
   industry?: string;
+  activity?: string;
+  contactPersonName?: string;
   recentActivities: {
     id: number;
     action: string;
@@ -30,7 +32,7 @@ export const mockUsers: User[] = [
     name: "Jane Doe",
     email: "jane@example.com",
     role: "Admin",
-    status: "Active",
+    status: "Approved",
     company: "ESG Solutions Inc",
     companyLogo: "/images/image2.png",
     phone: "+1 (555) 123-4567",
@@ -44,6 +46,7 @@ export const mockUsers: User[] = [
     registrationNumber: "ESG-001",
     staffStrength: "150",
     industry: "Environmental Consulting",
+    contactPersonName: "Jane Doe",
     recentActivities: [
       { id: 1, action: "Logged in", timestamp: "2025-07-30T08:00:00Z" },
       {
@@ -57,7 +60,7 @@ export const mockUsers: User[] = [
     id: "2",
     name: "John Smith",
     email: "john@example.com",
-    role: "User",
+    role: "Editor",
     status: "Suspended",
     company: "Green Investments Ltd",
     companyLogo: "/images/image2.png",
@@ -71,7 +74,64 @@ export const mockUsers: User[] = [
     companyEmail: "contact@greeninvestments.com",
     registrationNumber: "GI-002",
     staffStrength: "75",
-    industry: "Financial Services",
+    industry: "Finance",
+    contactPersonName: "John Smith",
+    recentActivities: [
+      {
+        id: 1,
+        action: "Submitted report",
+        timestamp: "2025-07-29T10:00:00Z",
+      },
+    ],
+  },
+  {
+    id: "3",
+    name: "Joan Smith",
+    email: "john@example.com",
+    role: "Editor",
+    status: "Under Review",
+    company: "Yellow Investments Ltd",
+    companyLogo: "/images/image2.png",
+    phone: "+1 (555) 987-6543",
+    permission: "Read Only",
+    category: "Investor",
+    avatar: "/images/image.png",
+    website: "www.greeninvestments.com",
+    address: "456 Investment Avenue, Finance District, FD 67890",
+    companyPhone: "+1 (555) 987-6500",
+    companyEmail: "contact@yellowinvestments.com",
+    registrationNumber: "GI-002",
+    staffStrength: "75",
+    industry: "Oil & Gas",
+    contactPersonName: "Joan Smith",
+    recentActivities: [
+      {
+        id: 1,
+        action: "Submitted report",
+        timestamp: "2025-07-29T10:00:00Z",
+      },
+    ],
+  },
+  {
+    id: "4",
+    name: "Nancy Smith",
+    email: "nancy@example.com",
+    role: "Viewer",
+    status: "Pending",
+    company: "Blue Investments Ltd",
+    companyLogo: "/images/image2.png",
+    phone: "+1 (555) 987-6543",
+    permission: "Read Only",
+    category: "Regulator",
+    avatar: "/images/image.png",
+    website: "www.greeninvestments.com",
+    address: "456 Investment Avenue, Finance District, FD 67890",
+    companyPhone: "+1 (555) 987-6500",
+    companyEmail: "contact@greeninvestments.com",
+    registrationNumber: "GI-002",
+    staffStrength: "75",
+    industry: "Retail",
+    contactPersonName: "Nancy Smith",
     recentActivities: [
       {
         id: 1,

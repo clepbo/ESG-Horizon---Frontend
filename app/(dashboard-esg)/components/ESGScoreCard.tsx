@@ -1,5 +1,3 @@
-import { Card, CardContent } from "@/app/(dashboard-esg)/components/ui/card";
-import { Badge } from "@/app/(dashboard-esg)/components/ui/badge";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 interface ESGScoreCardProps {
@@ -8,8 +6,9 @@ interface ESGScoreCardProps {
   maxScore: number;
   trend: "up" | "down";
   trendValue: string;
-  bgColor: string;
   icon: React.ReactNode;
+  bgColor: string; // Background color class for the top section
+  bottomBarColor?: string; // Optional footer background color
 }
 
 export function ESGScoreCard({
@@ -18,51 +17,49 @@ export function ESGScoreCard({
   maxScore,
   trend,
   trendValue,
-  bgColor,
   icon,
+  bgColor,
+  bottomBarColor = "bg-[#2c2c2c]",
 }: ESGScoreCardProps) {
-  const percentage = (score / maxScore) * 100;
+  const isTrendUp = trend === "up";
 
   return (
-    <Card className={`${bgColor} border-0 text-white relative overflow-hidden`}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
+    <div className="rounded-xl overflow-hidden shadow-md w-full">
+      {/* Card Top */}
+      <div
+        className={`p-4 h-[150px] flex flex-col justify-between ${bgColor} text-white`}
+      >
+        <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-sm font-medium opacity-90">{title}</h3>
-            <div className="flex items-baseline gap-1 mt-1">
-              <span className="text-3xl font-bold">{score}</span>
-              <span className="text-lg opacity-75">/{maxScore}</span>
-            </div>
+            <h4 className="text-sm font-medium">{title}</h4>
+            <p className="text-3xl font-bold mt-1">
+              {score} / {maxScore}
+            </p>
           </div>
-          <div className="p-2 bg-white/20 rounded-lg">{icon}</div>
+          <div className="p-2 bg-white/30 rounded-lg">{icon}</div>
         </div>
+      </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs opacity-90">From last report</span>
-            <Badge
-              variant="secondary"
-              className="bg-white/20 text-white border-0 text-xs px-2 py-0.5"
-            >
-              {trendValue}%
-            </Badge>
-          </div>
-
-          {trend === "up" ? (
-            <TrendingUp className="w-4 h-4 opacity-80" />
+      {/* Card Bottom */}
+      <div
+        className={`px-4 py-3 text-white text-xs flex items-center justify-between ${bottomBarColor}`}
+      >
+        <p className="font-medium">From last report</p>
+        <div
+          className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
+            isTrendUp
+              ? "bg-green-100 text-green-600"
+              : "bg-red-100 text-red-600"
+          }`}
+        >
+          {isTrendUp ? (
+            <TrendingUp className="w-3 h-3" />
           ) : (
-            <TrendingDown className="w-4 h-4 opacity-80" />
+            <TrendingDown className="w-3 h-3" />
           )}
+          <span>{trendValue}</span>
         </div>
-
-        {/* Progress bar */}
-        <div className="mt-4 w-full bg-white/20 rounded-full h-1.5">
-          <div
-            className="bg-white rounded-full h-1.5 transition-all duration-300"
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

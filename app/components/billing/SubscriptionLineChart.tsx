@@ -9,8 +9,17 @@ import {
   Legend,
   Tooltip,
 } from "chart.js";
-import { ChevronDown } from "lucide-react";
 import { Line } from "react-chartjs-2";
+import { useState } from "react";
+
+// ✅ shadcn/ui Select components
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 
 ChartJS.register(
   LineElement,
@@ -100,23 +109,29 @@ const chartOptions = {
 };
 
 export default function SubscriptionLineChart() {
+  const [timeRange, setTimeRange] = useState("monthly");
+
   return (
-    <div className="bg-white rounded-xl shadow p-4 h-[450px] flex flex-col">
+    <div className="bg-white rounded-xl shadow p-4 flex flex-col">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h3 className="text-gray-800 font-semibold text-base">Analytics</h3>
           <p className="text-xs text-gray-500 mt-0.5">Subscription Tier</p>
         </div>
-        <div className="text-sm text-gray-500 flex items-center gap-1">
-          This Week{" "}
-          <span className="text-xs">
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          </span>
-        </div>
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Select range" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="daily">Daily</SelectItem>
+            <SelectItem value="weekly">Weekly</SelectItem>
+            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="yearly">Yearly</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex-1">
-        {/* Chart fills remaining vertical space */}
         <Line data={chartData} options={chartOptions} />
       </div>
     </div>

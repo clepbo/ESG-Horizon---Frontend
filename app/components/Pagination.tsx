@@ -28,6 +28,7 @@ const Pagination = ({
         <span className="text-gray-700">Rows per page</span>
         {onItemsPerPageChange && (
           <select
+            id="itemsPerPage"
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
             className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 border-[var(--color-green-500)] text-gray-800 focus:ring-[var(--color-green-500)]"
