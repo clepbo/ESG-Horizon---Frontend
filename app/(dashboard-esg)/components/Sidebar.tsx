@@ -8,12 +8,15 @@ import {
   Users,
   Settings,
   LogOut,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext"; // 👈 adjust path as needed
+import { useState } from "react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
@@ -25,13 +28,20 @@ const navItems = [
   },
   { name: "Ranking", href: "/ranking", icon: TrendingUp },
   { name: "Teams", href: "/teams-esg", icon: Users },
-  { name: "Settings", href: "/settings-esg", icon: Settings },
+];
+
+const settingsSubLinks = [
+  { name: "Account", href: "/settings/account" },
+  { name: "Company", href: "/settings/company" },
+  { name: "Teams", href: "/settings/teams" },
+  { name: "Departments", href: "/settings/departments" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleLogout = () => {
     try {
@@ -107,6 +117,51 @@ export default function Sidebar() {
               </Link>
             );
           })}
+          {/* Settings Dropdown */}
+          <div>
+            <button
+              onClick={() => setSettingsOpen((prev) => !prev)}
+              className={clsx(
+                "w-full flex items-center gap-3 text-sm rounded p-2 transition-all cursor-pointer",
+                pathname.startsWith("/settings")
+                  ? "bg-emerald-100 text-emerald-700 font-semibold"
+                  : "text-gray-700 hover:bg-emerald-50"
+              )}
+            >
+              <Settings className="w-5 h-5" />
+              <span className="hidden md:inline">Settings</span>
+              {settingsOpen ? (
+                <ChevronUp className="ml-auto w-4 h-4 md:block hidden" />
+              ) : (
+                <ChevronDown className="ml-auto w-4 h-4 md:block hidden" />
+              )}
+            </button>
+
+            {settingsOpen && (
+              <div className="ml-6 mt-1 space-y-1">
+                {settingsSubLinks.map((sub) => {
+                  const isSubActive =
+                    pathname === sub.href ||
+                    pathname.startsWith(sub.href + "/");
+
+                  return (
+                    <Link
+                      key={sub.name}
+                      href={sub.href}
+                      className={clsx(
+                        "block text-sm rounded px-2 py-1 transition-all",
+                        isSubActive
+                          ? "bg-emerald-100 text-emerald-700 font-medium"
+                          : "text-gray-700 hover:bg-emerald-50"
+                      )}
+                    >
+                      {sub.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
       </div>
 
