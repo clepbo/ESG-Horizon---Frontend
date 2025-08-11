@@ -11,7 +11,16 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import Spinner from "@/app/components/Spinner";
-import { TimeRangeDropdown } from "../dashboard/TimeRangeDropdown";
+
+import { Card, CardContent } from "@/app/components/ui/card";
+
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/app/components/ui/select";
 
 ChartJS.register(
   LineElement,
@@ -25,6 +34,7 @@ ChartJS.register(
 export default function ReportLineChart() {
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("daily");
+
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 500);
     return () => clearTimeout(timer);
@@ -117,20 +127,32 @@ export default function ReportLineChart() {
   };
 
   return (
-    <div className="w-full bg-white rounded-xl shadow px-5 py-4">
-      <div className="flex justify-between items-center mb-4">
+    <Card className="bg-white border-none shadow rounded-xl h-[340px]">
+      <div className="flex justify-between items-center mb-4 px-5 pt-4">
         <h3 className="text-lg font-semibold text-gray-800">Analytics</h3>
-        <TimeRangeDropdown value={timeRange} onChange={setTimeRange} />
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Select range" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="daily">Daily</SelectItem>
+            <SelectItem value="weekly">Weekly</SelectItem>
+            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="yearly">Yearly</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="h-64">
-        {isLoading ? (
-          <div className="flex justify-center items-center">
-            <Spinner />
-          </div>
-        ) : (
-          <Line data={data} options={options} />
-        )}
-      </div>
-    </div>
+      <CardContent>
+        <div className="h-64">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <Spinner />
+            </div>
+          ) : (
+            <Line data={data} options={options} />
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

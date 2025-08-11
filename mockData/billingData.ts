@@ -1,103 +1,44 @@
-// mock/billingData.ts
-export const billingData = [
+// /mockData/billingData.ts
+export interface BillingRecord {
+  id: string;
+  company: string;
+  plan: string;
+  cycle: string;
+  amount: string;
+  last: string;
+  next: string;
+  status: string;
+}
+
+export const mockBillingData: BillingRecord[] = [
   {
-    id: 1,
-    company: "EcoFriendly Manufacturing",
-    plan: "Enterprise",
-    cycle: "Yearly",
-    amount: "₦38,800",
-    last: "2021-01-01",
-    next: "2021-01-01",
+    id: "1",
+    company: "EcoCorp Ltd.",
+    plan: "Premium",
+    cycle: "Monthly",
+    amount: "₦50,000",
+    last: "2025-07-01",
+    next: "2025-08-01",
     status: "Active",
   },
   {
-    id: 2,
+    id: "2",
+    company: "FinTech Innovations",
+    plan: "Enterprise",
+    cycle: "Yearly",
+    amount: "₦500,000",
+    last: "2025-01-10",
+    next: "2026-01-10",
+    status: "Pending",
+  },
+  {
+    id: "3",
     company: "GreenTech Solutions",
-    plan: "Premium",
-    cycle: "Yearly",
-    amount: "₦15,600",
-    last: "2020-08-08",
-    next: "2020-08-08",
-    status: "Active",
-  },
-  {
-    id: 3,
-    company: "Clean Energy Corp",
-    plan: "Premium",
-    cycle: "Monthly",
-    amount: "₦13,500",
-    last: "2025-12-12",
-    next: "2025-12-12",
-    status: "Pending",
-  },
-  {
-    id: 4,
-    company: "Sustain Invest Capital",
-    plan: "Free",
-    cycle: "N/A",
-    amount: "N/A",
-    last: "N/A",
-    next: "N/A",
-    status: "Active",
-  },
-  {
-    id: 5,
-    company: "ClearWatts Energy",
-    plan: "Enterprise",
-    cycle: "Yearly",
-    amount: "₦33,600",
-    last: "2022-10-10",
-    next: "2022-10-10",
-    status: "Active",
-  },
-  {
-    id: 6,
-    company: "BlueEarth Corp",
     plan: "Basic",
-    cycle: "Monthly",
-    amount: "₦7,500",
-    last: "2022-10-10",
-    next: "2022-10-10",
-    status: "Active",
-  },
-  {
-    id: 7,
-    company: "RenewAble Futures Ltd.",
-    plan: "Premium",
-    cycle: "Monthly",
-    amount: "₦12,900",
-    last: "2022-10-10",
-    next: "2022-10-10",
-    status: "Pending",
-  },
-  {
-    id: 8,
-    company: "SafeGrid Alliance",
-    plan: "Premium",
-    cycle: "Yearly",
-    amount: "₦15,000",
-    last: "2020-08-08",
-    next: "2020-08-08",
-    status: "Active",
-  },
-  {
-    id: 9,
-    company: "UrbanRenewal Group",
-    plan: "Free",
-    cycle: "N/A",
-    amount: "N/A",
-    last: "N/A",
-    next: "N/A",
-    status: "Active",
-  },
-  {
-    id: 10,
-    company: "EcoVista Investments",
-    plan: "Basic",
-    cycle: "N/A",
-    amount: "₦9,000",
-    last: "2025-12-12",
-    next: "2025-12-12",
+    cycle: "Quarterly",
+    amount: "₦120,000",
+    last: "2025-06-15",
+    next: "2025-09-15",
     status: "Expired",
   },
 ];

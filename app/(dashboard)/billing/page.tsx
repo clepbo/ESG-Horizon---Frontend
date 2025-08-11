@@ -1,14 +1,14 @@
 "use client";
 
 import Header from "@/app/components/layout/Header";
-import { ReportSummaryCard } from "@/app/components/reports/ReportSummaryCard";
+import { BillingTabs } from "@/app/components/billing/BillingTabs";
 import SubscriptionLineChart from "@/app/components/billing/SubscriptionLineChart";
 import BillingActivityFeed from "@/app/components/billing/BillingActivityFeed";
 
 import GenerateInvoiceButton from "@/app/components/billing/GenerateInvoiceButton";
-import { BadgePercent, Building2, FileWarning, Users } from "lucide-react";
 import BillingTable from "@/app/components/billing/BillingTable";
 import ExportAllButton from "@/app/components/billing/ExportBillingButton";
+import BillingSummaryCard from "@/app/components/billing/BillingSummaryCard";
 
 export default function SubscriptionBillingPage() {
   return (
@@ -35,48 +35,46 @@ export default function SubscriptionBillingPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <ReportSummaryCard
+          <BillingSummaryCard
             label="Monthly Revenue"
             value="₦150,000"
-            icon={<BadgePercent className="w-5 h-5" />}
-            iconBgColor="bg-green-100"
-            change={5}
+            iconSrc="/icons/investor.svg"
+            iconBgColor="bg-green-200"
           />
-          <ReportSummaryCard
+          <BillingSummaryCard
             label="Active Subscriptions"
             value={7}
-            icon={<Users className="w-5 h-5" />}
+            iconSrc="/icons/Users.svg"
             iconBgColor="bg-blue-100"
-            change={2}
           />
-          <ReportSummaryCard
+          <BillingSummaryCard
             label="Pending Payments"
             value={3}
-            icon={<FileWarning className="w-5 h-5" />}
+            iconSrc="/icons/Error.svg"
             iconBgColor="bg-gray-100"
-            change={0}
           />
-          <ReportSummaryCard
+          <BillingSummaryCard
             label="Growth Rate"
             value="+12%"
-            icon={<Building2 className="w-5 h-5" />}
+            iconSrc="/icons/Analytics.svg"
             iconBgColor="bg-yellow-100"
-            change={12}
           />
         </div>
 
         {/* Analytics & Recent Activities */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="flex flex-col h-full">
-            <SubscriptionLineChart />
-          </div>
-          <div className="flex flex-col h-full">
-            <BillingActivityFeed />
-          </div>
+          <SubscriptionLineChart />
+          <BillingActivityFeed />
         </div>
 
-        {/* Billing Table */}
-        <BillingTable />
+        {/* Activity Table */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Recent Activities
+          </h2>
+          <BillingTabs />
+          <BillingTable />
+        </div>
       </main>
     </section>
   );
