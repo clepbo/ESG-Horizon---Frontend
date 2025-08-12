@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Spinner from "@/app/components/Spinner";
-import {  ArrowUp, ArrowDown } from "lucide-react";
+import {  ArrowUp, ArrowDown, TrendingUp, TrendingDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
@@ -15,61 +15,63 @@ interface ESGScoreCardProps {
   bottomBarColor?: string; 
   gradientClass?: string;
   height?: string;
-  main?: boolean
+  main?: boolean;
+  bgColor?: string;
+  
 }
 
-// export function ESGScoreCard({
-//   title,
-//   score,
-//   maxScore,
-//   trend,
-//   trendValue,
-//   icon,
-//   bgColor,
-//   bottomBarColor = "bg-[#2c2c2c]",
-// }: ESGScoreCardProps) {
-//   const isTrendUp = trend === "up";
+export function ESGScoreCard({
+  title,
+  score,
+  maxScore,
+  trend,
+  trendValue,
+  icon,
+  bgColor,
+  bottomBarColor = "bg-[#2c2c2c]",
+}: ESGScoreCardProps) {
+  const isTrendUp = trend === "up";
 
-//   return (
-//     <div className="rounded-xl overflow-hidden shadow-md w-full">
-//       {/* Card Top */}
-//       <div
-//         className={`p-4 h-[150px] flex flex-col justify-between ${bgColor} text-white`}
-//       >
-//         <div className="flex items-start justify-between">
-//           <div>
-//             <h4 className="text-sm font-medium">{title}</h4>
-//             <p className="text-3xl font-bold mt-1">
-//               {score} / {maxScore}
-//             </p>
-//           </div>
-//           <div className="p-2 bg-white/30 rounded-lg">{icon}</div>
-//         </div>
-//       </div>
+  return (
+    <div className="rounded-xl overflow-hidden shadow-md w-full">
+      {/* Card Top */}
+      <div
+        className={`p-4 h-[150px] flex flex-col justify-between ${bgColor} text-white`}
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <h4 className="text-sm font-medium">{title}</h4>
+            <p className="text-3xl font-bold mt-1">
+              {score} / {maxScore}
+            </p>
+          </div>
+          <div className="p-2 bg-white/30 rounded-lg">{icon}</div>
+        </div>
+      </div>
 
-//       {/* Card Bottom */}
-//       <div
-//         className={`px-4 py-3 text-white text-xs flex items-center justify-between ${bottomBarColor}`}
-//       >
-//         <p className="font-medium">From last report</p>
-//         <div
-//           className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
-//             isTrendUp
-//               ? "bg-green-100 text-green-600"
-//               : "bg-red-100 text-red-600"
-//           }`}
-//         >
-//           {isTrendUp ? (
-//             <TrendingUp className="w-3 h-3" />
-//           ) : (
-//             <TrendingDown className="w-3 h-3" />
-//           )}
-//           <span>{trendValue}</span>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+      {/* Card Bottom */}
+      <div
+        className={`px-4 py-3 text-white text-xs flex items-center justify-between ${bottomBarColor}`}
+      >
+        <p className="font-medium">From last report</p>
+        <div
+          className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
+            isTrendUp
+              ? "bg-green-100 text-green-600"
+              : "bg-red-100 text-red-600"
+          }`}
+        >
+          {isTrendUp ? (
+            <TrendingUp className="w-3 h-3" />
+          ) : (
+            <TrendingDown className="w-3 h-3" />
+          )}
+          <span>{trendValue}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 
 export function ESGCard({
