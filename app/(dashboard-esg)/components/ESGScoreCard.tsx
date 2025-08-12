@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 interface ESGScoreCardProps {
   title: string;
   score: number;
-  iconSrc: string;
+  iconSrc?: string;
   maxScore: number;
   trend: "up" | "down";
   trendValue: string;
