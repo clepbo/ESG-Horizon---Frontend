@@ -8,12 +8,15 @@ import {
   Users,
   Settings,
   LogOut,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext"; // 👈 adjust path as needed
+import { useState } from "react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
@@ -25,13 +28,20 @@ const navItems = [
   },
   { name: "Ranking", href: "/ranking", icon: TrendingUp },
   { name: "Teams", href: "/teams-esg", icon: Users },
-  { name: "Settings", href: "/settings-esg", icon: Settings },
+];
+
+const settingsSubLinks = [
+  { name: "Account", href: "/settings-esg/account" },
+  { name: "Company", href: "/settings-esg/company" },
+  { name: "Teams", href: "/settings-esg/teams" },
+  { name: "Departments", href: "/settings-esg/departments" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleLogout = () => {
     try {
@@ -107,6 +117,59 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Settings Dropdown */}
+          <div>
+            <button
+              onClick={() => setSettingsOpen((prev) => !prev)}
+              className={clsx(
+                "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
+                pathname.startsWith("/settings-esg")
+                  ? "bg-[#DFFAE5] text-[#007A4D]"
+                  : "text-[#001D34] hover:bg-[#E8F5EE]"
+              )}
+            >
+              <Settings
+                className={clsx(
+                  "h-5 w-5 flex-shrink-0",
+                  pathname.startsWith("/settings-esg")
+                    ? "text-[#007A4D]"
+                    : "text-[#001D34]"
+                )}
+              />
+              <span className="hidden md:inline ml-3">Settings</span>
+              {settingsOpen ? (
+                <ChevronUp className="ml-auto w-4 h-4 md:block hidden" />
+              ) : (
+                <ChevronDown className="ml-auto w-4 h-4 md:block hidden" />
+              )}
+            </button>
+
+            {settingsOpen && (
+              <div className="ml-6 mt-1 space-y-1">
+                {settingsSubLinks.map((sub) => {
+                  const isSubActive =
+                    pathname === sub.href ||
+                    pathname.startsWith(sub.href + "/");
+
+                  return (
+                    <Link
+                      key={sub.name}
+                      href={sub.href}
+                      className={clsx(
+                        "block text-sm rounded px-2 py-1 transition-all",
+                        isSubActive
+                          ? "bg-[#DFFAE5] text-[#007A4D]"
+                          : "text-[#001D34] hover:bg-[#E8F5EE]"
+                      )}
+                    >
+                      {sub.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
       </div>
 

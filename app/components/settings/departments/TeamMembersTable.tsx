@@ -7,7 +7,7 @@ import {
 } from "@/app/components/ui/avatar";
 import { SquarePen, Trash2 } from "lucide-react";
 import StatusBadge from "@/app/components/StatusBadge";
-import EditUserModal from "../../users/EditUserModal";
+import EditDepartmentTeam from "@/app/components/modals/EditDepartmentTeam";
 import { useState } from "react";
 import type { TeamUser } from "@/mockData/mockDepartment";
 
@@ -94,7 +94,7 @@ export default function TeamMembersTable({ members, users }: Props) {
 
       {/* Edit User Modal */}
       {editModalOpen && selectedUser && (
-        <EditUserModal
+        <EditDepartmentTeam
           user={selectedUser}
           onClose={() => {
             setEditModalOpen(false);

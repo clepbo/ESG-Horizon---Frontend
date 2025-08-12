@@ -1,4 +1,3 @@
-// app/components/RoleDefinitions.tsx
 "use client";
 
 export default function RoleDefinitions() {

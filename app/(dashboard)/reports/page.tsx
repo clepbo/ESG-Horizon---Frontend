@@ -1,16 +1,12 @@
 "use client";
 
+import { ReportSubmittedChart } from "@/app/components/dashboard/ReportSubmittedChart";
 import Header from "@/app/components/layout/Header";
-
-import BarChartCard from "@/app/components/reports/BarChartCard";
 import ExportAllButton from "@/app/components/reports/ExportAllButton";
 import LineChartCard from "@/app/components/reports/LineChartCard";
 import ReportActivityTable from "@/app/components/reports/ReportActivityTable";
-
 import { ReportSummaryCard } from "@/app/components/reports/ReportSummaryCard";
 import { ReportTabs } from "@/app/components/reports/ReportTab";
-
-import { Building2, BarChart2, ClipboardList, FileSearch } from "lucide-react";
 
 export default function ReportsAnalyticsPage() {
   return (
@@ -29,44 +25,49 @@ export default function ReportsAnalyticsPage() {
           </div>
           <ExportAllButton />
         </div>
+        {/* Report Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <ReportSummaryCard
             label="Reports Generated"
             value={10}
+            iconSrc="/icons/Analytics.svg"
+            iconBgColor="bg-green-200"
             change={12}
-            icon={<BarChart2 className="w-5 h-5" />}
-            iconBgColor="bg-blue-100"
+            changeText="from last month"
           />
 
           <ReportSummaryCard
             label="Published"
             value={3}
-            change={2}
-            icon={<ClipboardList className="w-5 h-5" />}
+            iconSrc="/icons/Report.svg"
             iconBgColor="bg-blue-100"
+            change={2}
+            changeText="new this week"
           />
 
           <ReportSummaryCard
             label="Under Review"
             value={7}
+            iconSrc="/icons/UnderReview.svg"
+            iconBgColor="bg-gray-100"
             change={4}
-            icon={<FileSearch className="w-5 h-5" />}
-            iconBgColor="bg-gray-200"
+            changeText="new this week"
           />
 
           <ReportSummaryCard
             label="Active Companies"
             value={6}
-            change={8}
-            icon={<Building2 className="w-5 h-5" />}
+            iconSrc="/icons/Company.svg"
             iconBgColor="bg-yellow-100"
+            change={8}
+            changeText="growth rate"
           />
         </div>
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <LineChartCard />
-          <BarChartCard />
+          <ReportSubmittedChart />
         </div>
 
         {/* Activity Table */}

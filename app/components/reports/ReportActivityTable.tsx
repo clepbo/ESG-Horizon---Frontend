@@ -1,15 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Eye, Search } from "lucide-react";
 
 import Pagination from "@/app/components/Pagination";
-import SearchInput from "@/app/components/SearchInput";
-import SelectFilter from "@/app/components/SearchFilter";
 import Spinner from "../Spinner";
+import { fetchReports } from "@/lib/api/reportsApi";
+import { Report } from "@/mockData/mockReports";
 
-// Custom status badge styles based on status text
+import { Input } from "@/app/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+
+// Status badge styles
 const statusStyles: Record<string, string> = {
   Published: "bg-green-500 text-white",
   Rejected: "bg-red-500 text-white",
@@ -28,91 +36,8 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-const allReports = [
-  {
-    id: 1,
-    title: "Q3 2024 ESG Performance Report",
-    company: "GreenTech Solutions",
-    type: "Quarterly",
-    submissionDate: "2021-01-01",
-    status: "Published",
-  },
-  {
-    id: 2,
-    title: "2024 Sustainability Snapshot",
-    company: "EcoBuild Limited",
-    type: "Annual",
-    submissionDate: "2020-08-08",
-    status: "Rejected",
-  },
-  {
-    id: 3,
-    title: "H1 2024 Social Impact Report",
-    company: "BlueEarth Corp",
-    type: "Bi-Annual",
-    submissionDate: "2025-12-12",
-    status: "Under Review",
-  },
-  {
-    id: 4,
-    title: "Q2 2024 Environmental Data Submission",
-    company: "ClearWater Technologies",
-    type: "Sustainability",
-    submissionDate: "2020-08-08",
-    status: "Approved",
-  },
-  {
-    id: 5,
-    title: "2023 Governance and Compliance Summary",
-    company: "SafeGrid Partners",
-    type: "Compliance",
-    submissionDate: "2022-10-10",
-    status: "Draft",
-  },
-  {
-    id: 6,
-    title: "Q1 2024 Investor ESG Disclosure",
-    company: "EcoVista Holdings",
-    type: "Quarterly",
-    submissionDate: "2022-10-10",
-    status: "Approved",
-  },
-  {
-    id: 7,
-    title: "Q4 2023 ESG Overview",
-    company: "NexaGreen Industries",
-    type: "Annual",
-    submissionDate: "2022-10-10",
-    status: "Published",
-  },
-  {
-    id: 8,
-    title: "Mid-Year Regulatory ESG Filing",
-    company: "UrbanRenew Group",
-    type: "Bi-Annual",
-    submissionDate: "2020-08-08",
-    status: "Under Review",
-  },
-  {
-    id: 9,
-    title: "2024 ESG Baseline Metrics Submission",
-    company: "RenewAble Futures Ltd.",
-    type: "Sustainability",
-    submissionDate: "2022-10-10",
-    status: "Published",
-  },
-  {
-    id: 10,
-    title: "Q3 2024 Impact & Risk Summary",
-    company: "VerdeTech Innovations",
-    type: "Compliance",
-    submissionDate: "2025-12-12",
-    status: "Rejected",
-  },
-];
-
 const typeOptions = [
-  "All",
+  "Type",
   "Annual",
   "Quarterly",
   "Bi-Annual",
@@ -121,7 +46,7 @@ const typeOptions = [
 ];
 
 const statusOptions = [
-  "All",
+  "Status",
   "Published",
   "Rejected",
   "Under Review",
@@ -130,41 +55,55 @@ const statusOptions = [
 ];
 
 export default function ReportActivityTable() {
-  const router = useRouter();
-
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [typeFilter, setTypeFilter] = useState("Type");
+  const [statusFilter, setStatusFilter] = useState("Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [loading, setLoading] = useState(false);
 
-  const filtered = useMemo(() => {
-    return allReports.filter((report) => {
+  // Load data
+  const loadReports = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await fetchReports();
+      setReports(data);
+    } catch (error) {
+      console.error("Error fetching reports:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadReports();
+  }, [loadReports]);
+
+  // Filter logic
+  const filteredReports = useMemo(() => {
+    return reports.filter((report) => {
       const matchesSearch =
         report.title.toLowerCase().includes(search.toLowerCase()) ||
         report.company.toLowerCase().includes(search.toLowerCase());
-      const matchesType = typeFilter === "All" || report.type === typeFilter;
+      const matchesType = typeFilter === "Type" || report.type === typeFilter;
       const matchesStatus =
-        statusFilter === "All" || report.status === statusFilter;
+        statusFilter === "Status" || report.status === statusFilter;
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [search, typeFilter, statusFilter]);
+  }, [reports, search, typeFilter, statusFilter]);
 
-  const totalItems = filtered.length;
-
+  // Pagination
+  const totalItems = filteredReports.length;
   const paginatedReports = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filtered.slice(start, end);
-  }, [filtered, currentPage, itemsPerPage]);
+    return filteredReports.slice(start, start + itemsPerPage);
+  }, [filteredReports, currentPage, itemsPerPage]);
 
   const handlePageChange = (page: number) => setCurrentPage(page);
   const handleItemsPerPageChange = (limit: number) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 300);
+    setTimeout(() => setLoading(false), 300);
     setItemsPerPage(limit);
     setCurrentPage(1);
   };
@@ -173,68 +112,88 @@ export default function ReportActivityTable() {
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <SearchInput
-          value={search}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setSearch(e.target.value)
-          }
-        />
+        <div className="relative w-full">
+          <Input
+            id="search-input"
+            placeholder="Search by Reports or Company"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+            <Search className="h-3.5 w-3.5" />
+            Search
+          </button>
+        </div>
+
         <div className="flex gap-2">
-          <SelectFilter
-            value={typeFilter}
-            onChange={setTypeFilter}
-            options={typeOptions}
-          />
-          <SelectFilter
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={statusOptions}
-          />
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Type" />
+            </SelectTrigger>
+            <SelectContent>
+              {typeOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
+
+      {/* Table */}
       <div className="relative overflow-x-auto bg-white shadow rounded-xl">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 z-10">
             <Spinner />
           </div>
         )}
-
-        {/* Table */}
-
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-100 text-left text-xs font-semibold text-gray-700">
-            <tr>
-              <th className="px-4 py-3">Report Title</th>
-              <th className="px-4 py-3">Company</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Submission Date</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {paginatedReports.map((report) => (
-              <tr key={report.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">{report.title}</td>
-                <td className="px-4 py-3">{report.company}</td>
-                <td className="px-4 py-3">{report.type}</td>
-                <td className="px-4 py-3">{report.submissionDate}</td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={report.status} />
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500 text-white text-sm hover:bg-green-600 transition-colors cursor-pointer"
-                    onClick={() => router.push(`/reports/${report.id}`)}
-                  >
-                    <Eye className="w-4 h-4" />
-                    View
-                  </button>
-                </td>
+        {!loading && (
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100 text-left text-xs font-semibold text-gray-700">
+              <tr>
+                <th className="px-4 py-3">Report Title</th>
+                <th className="px-4 py-3">Company</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Submission Date</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {paginatedReports.map((report) => (
+                <tr key={report.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">{report.title}</td>
+                  <td className="px-4 py-3">{report.company}</td>
+                  <td className="px-4 py-3">{report.type}</td>
+                  <td className="px-4 py-3">{report.submissionDate}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={report.status} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500 text-white text-sm hover:bg-green-600 transition-colors cursor-pointer">
+                      <Eye className="w-4 h-4" />
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Pagination */}

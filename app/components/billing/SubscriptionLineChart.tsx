@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   LineElement,
@@ -10,7 +11,7 @@ import {
   Tooltip,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { useState } from "react";
+import Spinner from "@/app/components/Spinner";
 
 // ✅ shadcn/ui Select components
 import {
@@ -110,6 +111,12 @@ const chartOptions = {
 
 export default function SubscriptionLineChart() {
   const [timeRange, setTimeRange] = useState("monthly");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow p-4 flex flex-col">
@@ -132,7 +139,13 @@ export default function SubscriptionLineChart() {
       </div>
 
       <div className="flex-1">
-        <Line data={chartData} options={chartOptions} />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Spinner />
+          </div>
+        ) : (
+          <Line data={chartData} options={chartOptions} />
+        )}
       </div>
     </div>
   );
