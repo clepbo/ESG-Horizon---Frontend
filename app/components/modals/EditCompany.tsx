@@ -15,6 +15,7 @@ export interface Company {
   address: string;
   staffStrength: number;
   logo?: string;
+  permission: string;
 }
 
 export default function EditCompanyModal({
@@ -54,11 +55,11 @@ export default function EditCompanyModal({
           Edit Company Information
         </h2>
 
-        {/* Logo Upload */}
+        {/* Logo Upload with Permission Badge */}
         <div className="flex items-center gap-4 mb-8">
           <div className="relative w-20 h-20">
             <Image
-              src={companyLogo || formData.logo || "/images/image.png"}
+              src={companyLogo || formData.logo || "/image.png"}
               alt="Company Logo"
               width={80}
               height={80}
@@ -79,6 +80,19 @@ export default function EditCompanyModal({
               />
             </label>
           </div>
+
+          {/* Dynamic Permission Badge */}
+          <span
+            className={`text-xs font-medium px-3 py-1 rounded-full ${
+              formData.permission === "Approved"
+                ? "bg-green-200 text-green-700"
+                : formData.permission === "Pending"
+                ? "bg-yellow-400 text-white"
+                : "bg-red-400 text-white"
+            }`}
+          >
+            {formData.permission}
+          </span>
         </div>
 
         {/* Form */}

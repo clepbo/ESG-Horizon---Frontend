@@ -31,10 +31,10 @@ const navItems = [
 ];
 
 const settingsSubLinks = [
-  { name: "Account", href: "/settings/account" },
-  { name: "Company", href: "/settings/company" },
-  { name: "Teams", href: "/settings/teams" },
-  { name: "Departments", href: "/settings/departments" },
+  { name: "Account", href: "/settings-esg/account" },
+  { name: "Company", href: "/settings-esg/company" },
+  { name: "Teams", href: "/settings-esg/teams" },
+  { name: "Departments", href: "/settings-esg/departments" },
 ];
 
 export default function Sidebar() {
@@ -117,19 +117,27 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
           {/* Settings Dropdown */}
           <div>
             <button
               onClick={() => setSettingsOpen((prev) => !prev)}
               className={clsx(
-                "w-full flex items-center gap-3 text-sm rounded p-2 transition-all cursor-pointer",
-                pathname.startsWith("/settings")
-                  ? "bg-emerald-100 text-emerald-700 font-semibold"
-                  : "text-gray-700 hover:bg-emerald-50"
+                "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
+                pathname.startsWith("/settings-esg")
+                  ? "bg-[#DFFAE5] text-[#007A4D]"
+                  : "text-[#001D34] hover:bg-[#E8F5EE]"
               )}
             >
-              <Settings className="w-5 h-5" />
-              <span className="hidden md:inline">Settings</span>
+              <Settings
+                className={clsx(
+                  "h-5 w-5 flex-shrink-0",
+                  pathname.startsWith("/settings-esg")
+                    ? "text-[#007A4D]"
+                    : "text-[#001D34]"
+                )}
+              />
+              <span className="hidden md:inline ml-3">Settings</span>
               {settingsOpen ? (
                 <ChevronUp className="ml-auto w-4 h-4 md:block hidden" />
               ) : (
@@ -151,8 +159,8 @@ export default function Sidebar() {
                       className={clsx(
                         "block text-sm rounded px-2 py-1 transition-all",
                         isSubActive
-                          ? "bg-emerald-100 text-emerald-700 font-medium"
-                          : "text-gray-700 hover:bg-emerald-50"
+                          ? "bg-[#DFFAE5] text-[#007A4D]"
+                          : "text-[#001D34] hover:bg-[#E8F5EE]"
                       )}
                     >
                       {sub.name}

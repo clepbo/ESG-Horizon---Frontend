@@ -68,7 +68,7 @@ export default function EditUserModal({
               />
             </label>
           </div>
-          <span className="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
+          <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
             {formData.permission}
           </span>
         </div>

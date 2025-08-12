@@ -4,10 +4,11 @@ import { Ban, CircleCheckBig, RotateCcw, SquarePen } from "lucide-react";
 import StatusBadge from "@/app/components/StatusBadge";
 import Image from "next/image";
 import ConfirmModal from "../modals/ConfirmModal";
-import RoleDefinitions from "../settings/RoleDefinitions";
+
 import Pagination from "@/app/components/Pagination";
 import type { TeamUser, TeamUserStatus } from "@/mockData/teamUsers";
 import EditUserModal from "../users/EditUserModal";
+import RoleDefinitions from "../settings/RoleDefinitions";
 
 type Props = {
   users: TeamUser[];
