@@ -1,7 +1,7 @@
 "use client";
 
 import { Leaf, Users, Building, BarChart3 } from "lucide-react";
-import Sidebar from "../components/Sidebar";
+
 import Header from "../components/Header";
 import { ESGScoreCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
@@ -13,9 +13,6 @@ import ReportTable from "../components/ReportTab";
 export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar />
-
       {/* Main Content */}
       <main className="flex-1 h-full overflow-y-auto p-6 mb-4">
         {/* Header */}

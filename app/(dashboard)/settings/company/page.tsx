@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Edit } from "lucide-react";
 import EditCompanyModal, { Company } from "@/app/components/modals/EditCompany";
+import Header from "@/app/components/layout/Header";
 
 const INITIAL_COMPANY: Company = {
   name: "Teasoo Consulting",
@@ -15,6 +16,7 @@ const INITIAL_COMPANY: Company = {
   address: "4, Oghosa Crescent, Off Ihama, GRA Benin City",
   staffStrength: 20,
   logo: "/image.png",
+  permission: "Approved",
 };
 
 export default function CompanyPage() {
@@ -29,6 +31,7 @@ export default function CompanyPage() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
+      <Header />
       <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Image
