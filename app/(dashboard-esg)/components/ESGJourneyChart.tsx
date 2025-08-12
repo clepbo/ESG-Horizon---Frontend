@@ -28,7 +28,7 @@ const data = [
 
 export function ESGJourneyChart() {
   return (
-    <Card className="bg-white border-none rounded-xl h-[340px]">
+    <Card className="bg-white border-none rounded-xl h-auto">
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-gray-900">
@@ -51,25 +51,27 @@ export function ESGJourneyChart() {
 
       <CardContent className="flex-grow pt-8">
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data} barCategoryGap={20}>
+          <BarChart data={data} barCategoryGap={10}>
             <XAxis
               dataKey="month"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: "#4B5563" }}
+              tick={{ fontSize: 10, fill: "#4B5563" , radius: 1}}
+              width={30}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: "#4B5563" }}
+              tick={{ fontSize: 16, fill: "#4B5563" }}
               domain={[0, 100]}
               interval={0}
             />
             <Bar
               dataKey="score"
               fill="url(#colorGradient)"
-              radius={[6, 6, 0, 0]}
-              maxBarSize={32}
+              radius={[4, 4, 0, 0]}
+              maxBarSize={60}
+              
             />
             <defs>
               {/* Gradient for bars */}

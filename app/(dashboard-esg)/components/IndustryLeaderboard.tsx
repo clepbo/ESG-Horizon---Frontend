@@ -2,18 +2,18 @@
 
 import { useLeaderboard } from "@/hooks/useLeaderboard";
 import Spinner from "@/app/components/Spinner";
-import { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/components/ui/select";
+// import { useState } from "react";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/app/components/ui/select";
 
 export function IndustryLeaderboard() {
   const { data: leaderboardData = [], isLoading, error } = useLeaderboard();
-  const [timeRange, setTimeRange] = useState("Overall");
+  // const [timeRange, setTimeRange] = useState("Overall");
 
   if (isLoading) {
     return (
@@ -33,11 +33,11 @@ export function IndustryLeaderboard() {
     <div>
       <div className="h-full flex flex-col">
         {/* Header */}
-        <div className=" mb-1 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+        <div className=" flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
           <h2 className="text-lg font-semibold text-gray-900">
             Industry Leaderboard
           </h2>
-          <Select value={timeRange} onValueChange={setTimeRange}>
+          {/* <Select value={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select time range" />
             </SelectTrigger>
@@ -46,11 +46,11 @@ export function IndustryLeaderboard() {
               <SelectItem value="Overall">Overall ESG Score</SelectItem>
               <SelectItem value="yearly">Yearly</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100 h-full">
+          <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100 flex-1">
           {leaderboardData.length > 0 ? (
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-green-200">
