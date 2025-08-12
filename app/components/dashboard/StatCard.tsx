@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import Spinner from "@/app/components/Spinner"; // Make sure you have this
 
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
   value: number;
   trend: "up" | "down";

@@ -43,19 +43,19 @@ export default function RecentActivities() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="mb-4">
+      <div className="">
         <h2 className="text-lg font-semibold text-gray-900">
           Recent Activities
         </h2>
       </div>
 
       {/* Activity List */}
-      <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 flex-1">
         <ul className="flex-1 overflow-y-auto pr-1">
-          {activities.map((activity) => (
+          {activities.map((activity, i) => (
             <li
               key={activity.id}
-              className="flex items-center justify-between rounded-lg hover:bg-gray-50 transition-colors p-2"
+              className={`flex items-center ${i !== activities.length - 1 && "border-b"}  justify-between border-gray-200 hover:bg-gray-50 transition-colors p-2`}
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5">{iconMap[activity.type]}</div>
