@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useRouter } from "next/navigation";
 
 type User = {
@@ -27,12 +33,22 @@ type SignupData = {
   company_website: string;
 };
 
+type InviteUserData = {
+  password: string;
+  first_name: string;
+  last_name: string;
+};
+
 type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (formData: SignupData) => Promise<void>;
+  inviteUser: (formData: InviteUserData & { token: string }) => Promise<void>;
+  validateInviteToken: (token: string) => Promise<boolean>;
   logout: () => void;
 };
+
+const API_BASE = "https://esghorizon-engine.up.railway.app";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -40,115 +56,159 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
+  /** 🔹 Load user from localStorage on mount */
   useEffect(() => {
-    const loadUserFromStorage = () => {
-      try {
-        const storedUser = localStorage.getItem("currentUser");
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          setUser(parsedUser); // Optionally cast: setUser(parsedUser as UserType);
-        }
-      } catch (error) {
-        console.error("Error parsing currentUser from localStorage:", error);
-        localStorage.removeItem("currentUser");
+    try {
+      const storedUser = localStorage.getItem("currentUser");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
       }
-    };
-
-    loadUserFromStorage();
+    } catch (error) {
+      console.error("Error loading user from localStorage:", error);
+      localStorage.removeItem("currentUser");
+    }
   }, []);
 
+  /** 🔹 Unified API request helper */
+  const apiRequest = async (endpoint: string, options?: RequestInit) => {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options?.headers || {}),
+      },
+      ...options,
+    });
+
+    if (!res.ok) {
+      const errorMsg = await res.text();
+      throw new Error(errorMsg || `Request failed: ${res.status}`);
+    }
+
+    return res.json();
+  };
+
+  /** 🔹 Token expiration check */
+  const isTokenExpired = (token: string) => {
+    try {
+      const { exp } = JSON.parse(atob(token.split(".")[1]));
+      return Date.now() >= exp * 1000;
+    } catch {
+      return true;
+    }
+  };
+
+  /** 🔹 Refresh token logic */
+  const refreshAccessToken = useCallback(async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) return logout();
+
+    try {
+      const { accessToken } = await apiRequest("/auth/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refreshToken }),
+      });
+      localStorage.setItem("accessToken", accessToken);
+      document.cookie = `token=${accessToken}; path=/; max-age=86400`;
+      return accessToken;
+    } catch {
+      logout();
+    }
+  }, []);
+
+  /** 🔹 Handle successful login/signup */
   const handleAuthSuccess = (
     accessToken: string,
     refreshToken: string,
     user: User
   ) => {
-    // Save tokens and user info
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("currentUser", JSON.stringify(user));
-
-    // Set cookie for middleware auth check
-    document.cookie = `token=${accessToken}; path=/; max-age=86400`; // 1 day
+    document.cookie = `token=${accessToken}; path=/; max-age=86400`;
 
     setUser(user);
 
-    // Route by role
     const lastVisited = localStorage.getItem("lastVisited");
     if (lastVisited) {
       router.push(lastVisited);
     } else {
-      if (user.role === "SUPER_ADMIN") {
-        router.push("/dashboard");
-      } else {
-        router.push("/dashboard-esg");
-      }
+      router.push(
+        user.role === "SUPER_ADMIN" ? "/dashboard" : "/dashboard-esg"
+      );
     }
   };
 
+  /** 🔹 Login */
   const login = async (email: string, password: string) => {
-    try {
-      const res = await fetch(
-        "https://esghorizon-engine.up.railway.app/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      if (!res.ok) throw new Error("Invalid credentials");
-
-      const { accessToken, refreshToken, user } = await res.json();
-      handleAuthSuccess(accessToken, refreshToken, user);
-    } catch (error: any) {
-      throw new Error(error?.message || "Login failed");
-    }
-  };
-
-  const signup = async (formData: SignupData) => {
-    try {
-      const res = await fetch(
-        "https://esghorizon-engine.up.railway.app/esg/auth/signup",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!res.ok) {
-        // Handle specific status codes
-        if (res.status === 409) {
-          throw new Error("User already exists. Please log in instead.");
-        }
-        if (res.status === 400) {
-          throw new Error("Invalid signup details. Please check your input.");
-        }
-
-        throw new Error("Signup failed. Please try again.");
+    const { accessToken, refreshToken, user } = await apiRequest(
+      "/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
       }
+    );
+    handleAuthSuccess(accessToken, refreshToken, user);
+  };
 
-      const { accessToken, refreshToken, user } = await res.json();
-      handleAuthSuccess(accessToken, refreshToken, user);
-    } catch (error: any) {
-      throw new Error(error?.message || "Signup failed");
+  /** 🔹 Signup */
+  const signup = async (formData: SignupData) => {
+    const { accessToken, refreshToken, user } = await apiRequest(
+      "/esg/auth/signup",
+      {
+        method: "POST",
+        body: JSON.stringify(formData),
+      }
+    );
+    handleAuthSuccess(accessToken, refreshToken, user);
+  };
+
+  /** 🔹 Invite user */
+  const inviteUser = async (formData: InviteUserData & { token: string }) => {
+    const { accessToken, refreshToken, user } = await apiRequest(
+      "/esg/auth/invite-user",
+      {
+        method: "POST",
+        body: JSON.stringify(formData),
+      }
+    );
+    handleAuthSuccess(accessToken, refreshToken, user);
+  };
+
+  /** 🔹 Validate invite token */
+  const validateInviteToken = async (token: string): Promise<boolean> => {
+    try {
+      const { valid } = await apiRequest(
+        `/esg/auth/validate-invite?token=${token}`
+      );
+      return valid;
+    } catch {
+      return false;
     }
   };
 
+  /** 🔹 Logout */
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("currentUser");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-
-    // Clear cookie
+    localStorage.clear();
     document.cookie = "token=; Max-Age=0; path=/";
-
     router.push("/login");
   };
 
+  /** 🔹 Auto-refresh token if expired before requests */
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (token && isTokenExpired(token)) {
+        await refreshAccessToken();
+      }
+    };
+    checkToken();
+  }, [refreshAccessToken]);
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, login, signup, inviteUser, validateInviteToken, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
