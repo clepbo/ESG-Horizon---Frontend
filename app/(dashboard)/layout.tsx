@@ -1,4 +1,6 @@
 import Sidebar from "@/app/components/layout/Sidebar";
+import LayoutContent from "../(dashboard-esg)/components/LayoutContent";
+import { USER_TYPES } from "../constants/userTypes";
 
 export default function DashboardLayout({
   children,
@@ -8,7 +10,7 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-grey-50">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-gray-50">{children}</main>
+      <LayoutContent role={USER_TYPES.SUPER_ADMIN}>{children}</LayoutContent>
     </div>
   );
 }
