@@ -1,4 +1,6 @@
+import { User } from "@/types/user";
 import api from "./axios";
+import { Company } from "@/context/AuthContext";
 
 type SignupData = {
   email: string;
@@ -15,8 +17,18 @@ type SignupData = {
   company_website: string;
 };
 
+// export const loginUser = async (data: { email: string; password: string }) => {
+//   const response = await api.post("/auth/login", data);
+//   return response.data;
+// };
 export const loginUser = async (data: { email: string; password: string }) => {
   const response = await api.post("/auth/login", data);
+
+  // If the backend sends the token here, store it
+  if (response.data?.access_token) {
+    localStorage.setItem("token", response.data.token);
+  }
+
   return response.data;
 };
 
@@ -31,6 +43,16 @@ export const forgotPassword = async (data: { email: string }) => {
 };
 
 export const getUserProfile = async () => {
-  const response = await api.get("/auth/me");
+  const response = await api.get("/user/me");
+  return response.data;
+};
+export const updateUserProfile = async (data: Partial<User>) => {
+  console.log("Updating profile with:", data);
+  const response = await api.patch("/user/me", data);
+  return response.data;
+};
+export const updateCompanyProfile = async (data: Partial<Company>) => {
+  console.log("Updating profile with:", data);
+  const response = await api.patch("/user/me", data);
   return response.data;
 };
