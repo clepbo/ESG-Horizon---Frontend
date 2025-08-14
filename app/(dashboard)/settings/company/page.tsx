@@ -2,22 +2,32 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { Edit } from "lucide-react";
 import EditCompanyModal from "@/app/components/modals/EditCompany";
 import Header from "@/app/components/layout/Header";
-import { Company, useAuth } from "@/context/AuthContext";
+import { Company } from "@/context/AuthContext";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import Spinner from "@/app/components/Spinner";
+import { getCompanyProfile } from "@/lib/api/auth";
 
 export default function CompanyPage() {
-  const { user: authUser } = useAuth();
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (authUser?.company) {
-      setCompanyData(authUser.company);
-    }
-  }, [authUser]);
+    const fetchCompany = async () => {
+      try {
+        const companies = await getCompanyProfile();
+        if (Array.isArray(companies) && companies.length > 0) {
+          setCompanyData(companies[0]); // ✅ first company
+        }
+      } catch (err) {
+        console.error("Error fetching company:", err);
+      }
+    };
+
+    fetchCompany();
+  }, []);
 
   const handleUpdateCompany = (updatedCompany: Company) => {
     setCompanyData(updatedCompany);
@@ -41,7 +51,7 @@ export default function CompanyPage() {
       <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Image
-            src={companyData.logo ?? "/image.png"}
+            src={companyData.company_logo_url ?? "/image.png"}
             alt={companyData.name}
             width={50}
             height={50}
@@ -54,6 +64,13 @@ export default function CompanyPage() {
             </p>
           </div>
         </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 cursor-pointer"
+        >
+          <Edit className="w-4 h-4" />
+          Edit
+        </button>
       </div>
 
       {/* Info Card */}

@@ -30,7 +30,7 @@ export default function EditUserModal({
       setLoading(true);
       const payload = {
         ...formData,
-        avatar: userImage || formData.avatar,
+        avatar: userImage || formData.profile_photo_url,
       };
       const updated = await updateUserProfile(payload);
       onUpdate(updated);
@@ -62,7 +62,9 @@ export default function EditUserModal({
         <div className="flex items-center gap-4 mb-8">
           <div className="relative w-20 h-20">
             <Image
-              src={userImage || formData.avatar || "/images/image.png"}
+              src={
+                userImage || formData.profile_photo_url || "/images/image.png"
+              }
               alt="User Avatar"
               width={80}
               height={80}

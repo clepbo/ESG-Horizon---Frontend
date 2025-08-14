@@ -7,7 +7,9 @@ export default function Header() {
   const { user } = useAuth();
 
   const avatarSrc =
-    user?.avatar && user.avatar.trim() !== "" ? user.avatar : "/image.png";
+    user?.profile_photo_url && user.profile_photo_url.trim() !== ""
+      ? user.profile_photo_url
+      : "/image.png";
   console.log(user);
   return (
     <header className="flex justify-start lg:justify-end items-center p-2 bg-white rounded-xl shadow-sm w-full">

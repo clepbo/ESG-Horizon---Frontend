@@ -14,7 +14,7 @@ export default function ProfileCard({ user, onEdit }: ProfileCardProps) {
     <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-between">
       <div className="flex items-center gap-4">
         <Image
-          src={user.avatar || "/image.png"}
+          src={user.profile_photo_url || "/image.png"}
           alt={`${user.first_name} ${user.last_name}`}
           width={40}
           height={40}

@@ -28,18 +28,22 @@ export default function EditCompanyModal({
   const handleUpdate = async () => {
     try {
       setLoading(true);
-      const payload = {
+      const payload: Partial<Company> = {
         ...formData,
-        logo: companyLogo || formData.logo,
+        company_logo_url: companyLogo || formData.company_logo_url,
       };
-      const updated = await updateCompanyProfile(payload);
+
+      // ✅ Pass id and payload
+      const updated = await updateCompanyProfile(company.id, payload);
+
       onUpdate(updated);
     } catch (error) {
-      console.error("Error updating user profile:", error);
+      console.error("Error updating company profile:", error);
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
       <div className="relative w-full bg-white rounded-2xl shadow-2xl p-6 md:p-10 max-h-[90vh] overflow-y-auto max-w-4xl">
@@ -61,7 +65,7 @@ export default function EditCompanyModal({
         <div className="flex items-center gap-4 mb-8">
           <div className="relative w-20 h-20">
             <Image
-              src={companyLogo || formData.logo || "/image.png"}
+              src={companyLogo || formData.company_logo_url || "/image.png"}
               alt="Company Logo"
               width={80}
               height={80}
@@ -92,9 +96,9 @@ export default function EditCompanyModal({
             onChange={(v) => handleChange("name", v)}
           />
           <InputField
-            label="Industry Type"
-            value={formData.industry_type}
-            onChange={(v) => handleChange("industry_type", v)}
+            label="Industry"
+            value={formData.industry}
+            onChange={(v) => handleChange("industry", v)}
           />
           <InputField
             label="Email"

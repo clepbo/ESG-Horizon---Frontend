@@ -37,10 +37,10 @@ export default function Index() {
       password: personalData.password,
       first_name: personalData.firstName,
       last_name: personalData.lastName,
-      phone_number: personalData.phoneNumber, // Ensure includes +234 if required
+      phone_number: personalData.phoneNumber,
       company_name: orgData.companyName,
-      registration_number: orgData.registrationNumber, // ✅ fixed key
-      industry_type: orgData.industry, // ✅ fixed key
+      registration_number: orgData.registrationNumber,
+      industry_type: orgData.industry,
       address: orgData.address,
       contact_email: orgData.contactEmail,
       contact_phone: orgData.contactPhone,

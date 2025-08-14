@@ -1,4 +1,4 @@
-import { User } from "@/types/user";
+import { User } from "@/context/AuthContext";
 import api from "./axios";
 import { Company } from "@/context/AuthContext";
 
@@ -17,10 +17,6 @@ type SignupData = {
   company_website: string;
 };
 
-// export const loginUser = async (data: { email: string; password: string }) => {
-//   const response = await api.post("/auth/login", data);
-//   return response.data;
-// };
 export const loginUser = async (data: { email: string; password: string }) => {
   const response = await api.post("/auth/login", data);
 
@@ -33,7 +29,7 @@ export const loginUser = async (data: { email: string; password: string }) => {
 };
 
 export const signupUser = async (data: SignupData) => {
-  const response = await api.post("/esg/auth/signup", data);
+  const response = await api.post("/company/esg/signup", data);
   return response.data;
 };
 
@@ -46,13 +42,46 @@ export const getUserProfile = async () => {
   const response = await api.get("/user/me");
   return response.data;
 };
-export const updateUserProfile = async (data: Partial<User>) => {
-  console.log("Updating profile with:", data);
-  const response = await api.patch("/user/me", data);
+export const getCompanyProfile = async () => {
+  const response = await api.get("/company/esg/all");
   return response.data;
 };
-export const updateCompanyProfile = async (data: Partial<Company>) => {
-  console.log("Updating profile with:", data);
-  const response = await api.patch("/user/me", data);
+
+export const updateUserProfile = async (data: Partial<User>) => {
+  const payload = {
+    first_name: data.first_name,
+    last_name: data.last_name,
+    phone_number: data.phone_number,
+    profile_photo_url: data.profile_photo_url,
+    department: data.department,
+    job_title: data.job_title,
+  };
+
+  console.log("Updating user profile with:", payload);
+  const response = await api.patch("/user/me", payload);
+  return response.data;
+};
+// Company profile update
+export const updateCompanyProfile = async (
+  id: number,
+  data: Partial<Company>
+) => {
+  const payload = {
+    name: data.name,
+    registration_number: data.registration_number,
+    industry: data.industry,
+    address: data.address,
+    contact_email: data.contact_email,
+    contact_phone: data.contact_phone,
+    website: data.website,
+    company_logo_url: data.company_logo_url,
+    country: data.country,
+  };
+
+  console.log("Updating company profile with:", payload);
+
+  // ✅ interpolate id
+  const response = await api.patch(`/company/esg/${id}`, payload);
+
   return response.data;
 };

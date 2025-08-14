@@ -31,7 +31,9 @@ export default function AccountPage() {
     if (authUser) {
       setUserData({
         ...authUser,
-        avatar: authUser.avatar?.trim() ? authUser.avatar : "/image.png",
+        profile_photo_url: authUser.profile_photo_url?.trim()
+          ? authUser.profile_photo_url
+          : "/image.png",
       });
     }
   }, [authUser]);
