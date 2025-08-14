@@ -98,7 +98,6 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* RecentUsersTable component (to build) */}
         <MostRecentCompany />
       </main>
     </div>

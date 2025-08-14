@@ -1,34 +1,35 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import Image from "next/image";
-import { Calendar, Mail, Phone, RotateCcw } from "lucide-react";
-import { User } from "@/mockData/users";
-import ConfirmModal from "@/app/components/modals/ConfirmModal";
+import { Mail, Phone } from "lucide-react";
+// import { User } from "@/mockData/users";
+// import ConfirmModal from "@/app/components/modals/ConfirmModal";
+import { Company } from "@/lib/api/companyApi";
 
 type Props = {
-  company: User;
+  company: Company;
 };
 
 export default function CompanyInfo({ company }: Props) {
-  const [status, setStatus] = useState(company.status || "Suspended");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [targetStatus, setTargetStatus] = useState<User["status"]>();
+  // const [status, setStatus] = useState(company.status || "Suspended");
+  // const [modalOpen, setModalOpen] = useState(false);
+  // const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  // const [targetStatus, setTargetStatus] = useState<User["status"]>();
 
-  const openModal = (id: string, newStatus: User["status"]) => {
-    setSelectedUserId(id);
-    setTargetStatus(newStatus);
-    setModalOpen(true);
-  };
+  // const openModal = (id: string, newStatus: User["status"]) => {
+  //   setSelectedUserId(id);
+  //   setTargetStatus(newStatus);
+  //   setModalOpen(true);
+  // };
 
-  const handleConfirmStatusChange = () => {
-    if (selectedUserId && targetStatus) {
-      // Replace with actual API call
-      setStatus(targetStatus);
-    }
-    setModalOpen(false);
-  };
+  // const handleConfirmStatusChange = () => {
+  //   if (selectedUserId && targetStatus) {
+  //     // Replace with actual API call
+  //     setStatus(targetStatus);
+  //   }
+  //   setModalOpen(false);
+  // };
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -41,22 +42,25 @@ export default function CompanyInfo({ company }: Props) {
         <div className="md:col-span-2">
           <div className="flex items-start gap-4 mb-6">
             <Image
-              src={company.companyLogo || "/icons/default-company.svg"}
-              alt={company.company || "Company Logo"}
+              src={company.company_logo_url || "/icons/default-company.svg"}
+              alt={company.name || "Company Logo"}
               width={48}
               height={48}
               className="rounded-full object-contain"
             />
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <Info label="Company Name" value={company.company} />
+              <Info label="Company Name" value={company.name} />
               <Info label="Industry Type" value={company.industry} />
-              <Info label="Email Address" value={company.companyEmail} />
-              <Info label="Contact Phone Number" value={company.companyPhone} />
+              <Info label="Email Address" value={company.contact_email} />
+              <Info
+                label="Contact Phone Number"
+                value={company.contact_phone}
+              />
               <Info label="Website Address" value={company.website} />
-              <Info label="Staff Strength" value={company.staffStrength} />
+              <Info label="Staff Strength" value={company.staff} />
               <Info
                 label="Company Registration Number"
-                value={company.registrationNumber}
+                value={company.registration_number}
               />
               <Info label="Company Address" value={company.address} />
             </div>
@@ -70,30 +74,36 @@ export default function CompanyInfo({ company }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="text-sm font-medium text-gray-900">
-                {company.contactPersonName || "N/A"}
+                {company.name || "N/A"}
               </div>
-              <div className="text-xs text-gray-500">
+              {/* <div className="text-xs text-gray-500">
                 {company.role || "N/A"}
-              </div>
+              </div> */}
             </div>
-            <ContactInfo icon={<Mail size={16} />} value={company.email} />
-            <ContactInfo icon={<Phone size={16} />} value={company.phone} />
+            <ContactInfo
+              icon={<Mail size={16} />}
+              value={company.contact_email}
+            />
+            <ContactInfo
+              icon={<Phone size={16} />}
+              value={company.contact_phone}
+            />
           </div>
         </div>
 
         {/* Right Column */}
         <div className="space-y-4">
           {/* Registration Details */}
-          <DetailCard
+          {/* <DetailCard
             title="Registration Details"
             icon={<Calendar size={14} />}
           >
-            <Info label="Registration Date" value={company.activity} />
-            <Info
+            <Info label="Registration Date" value={company.activity } />
+             <Info
               label="Days Since Registration"
               value={`${company.recentActivities?.length || 0} days`}
-            />
-          </DetailCard>
+            /> 
+          </DetailCard> */}
 
           {/* Company Status */}
           <DetailCard
@@ -112,7 +122,7 @@ export default function CompanyInfo({ company }: Props) {
                 label="Current Status"
                 value={<StatusBadge status={status} />}
               />
-              <button
+              {/* <button
                 onClick={() =>
                   openModal(
                     company.id,
@@ -134,14 +144,14 @@ export default function CompanyInfo({ company }: Props) {
                     <RotateCcw size={14} /> Restore
                   </>
                 )}
-              </button>
+              </button> */}
             </div>
           </DetailCard>
         </div>
       </div>
 
       {/* Confirm Modal */}
-      <ConfirmModal
+      {/* <ConfirmModal
         open={modalOpen}
         title="Confirm Status Change"
         message={
@@ -152,7 +162,7 @@ export default function CompanyInfo({ company }: Props) {
         }
         onCancel={() => setModalOpen(false)}
         onConfirm={handleConfirmStatusChange}
-      />
+      /> */}
     </div>
   );
 }
