@@ -9,13 +9,32 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-type User = {
+export type User = {
   id: number;
   email: string;
   first_name: string;
   last_name: string;
-  role: string;
-  company: string;
+  role?: { name: string };
+  company: Company;
+  avatar: string;
+  phone_number: string;
+  department: string;
+  job_title: string;
+};
+
+export type Company = {
+  id: number;
+  name: string;
+  industry_type: string;
+  logo: string;
+  address: string;
+  country: string;
+  website?: string;
+  contact_email: string;
+  contact_phone: string;
+  description?: string;
+  registration_number: string;
+  staff: string;
 };
 
 type SignupData = {
@@ -41,6 +60,7 @@ type InviteUserData = {
 
 type AuthContextType = {
   user: User | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (formData: SignupData) => Promise<void>;
   inviteUser: (formData: InviteUserData & { token: string }) => Promise<void>;
@@ -49,64 +69,44 @@ type AuthContextType = {
 };
 
 const API_BASE = "https://esghorizon-engine.up.railway.app";
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  /** 🔹 Load user from localStorage on mount */
-  useEffect(() => {
+  /** Get tokens from storage */
+  const getAccessToken = () => localStorage.getItem("accessToken");
+  const getRefreshToken = () => localStorage.getItem("refreshToken");
+
+  /** Decode JWT */
+  const decodeToken = (token: string) => {
     try {
-      const storedUser = localStorage.getItem("currentUser");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-    } catch (error) {
-      console.error("Error loading user from localStorage:", error);
-      localStorage.removeItem("currentUser");
-    }
-  }, []);
-
-  /** 🔹 Unified API request helper */
-  const apiRequest = async (endpoint: string, options?: RequestInit) => {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(options?.headers || {}),
-      },
-      ...options,
-    });
-
-    if (!res.ok) {
-      const errorMsg = await res.text();
-      throw new Error(errorMsg || `Request failed: ${res.status}`);
-    }
-
-    return res.json();
-  };
-
-  /** 🔹 Token expiration check */
-  const isTokenExpired = (token: string) => {
-    try {
-      const { exp } = JSON.parse(atob(token.split(".")[1]));
-      return Date.now() >= exp * 1000;
+      return JSON.parse(atob(token.split(".")[1]));
     } catch {
-      return true;
+      return null;
     }
   };
 
-  /** 🔹 Refresh token logic */
+  /** Check if token is expired */
+  const isTokenExpired = (token: string) => {
+    const decoded = decodeToken(token);
+    return !decoded || Date.now() >= decoded.exp * 1000;
+  };
+
+  /** Refresh access token */
   const refreshAccessToken = useCallback(async () => {
-    const refreshToken = localStorage.getItem("refreshToken");
+    const refreshToken = getRefreshToken();
     if (!refreshToken) return logout();
 
     try {
-      const { accessToken } = await apiRequest("/auth/refresh", {
+      const { accessToken } = await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
-      });
+      }).then((r) => r.json());
+
       localStorage.setItem("accessToken", accessToken);
       document.cookie = `token=${accessToken}; path=/; max-age=86400`;
       return accessToken;
@@ -115,66 +115,137 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  /** 🔹 Handle successful login/signup */
-  const handleAuthSuccess = (
+  /** API request helper with token refresh */
+  const apiRequest = async (endpoint: string, options?: RequestInit) => {
+    let token = getAccessToken();
+    if (token && isTokenExpired(token)) {
+      token = await refreshAccessToken();
+    }
+
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options?.headers || {}),
+      },
+      ...options,
+    });
+
+    if (!res.ok) {
+      let errorMessage = `Request failed: ${res.status}`;
+
+      try {
+        // Try to parse JSON
+        const errorData = await res.json();
+        if (errorData?.message) {
+          errorMessage = errorData.message;
+        }
+        console.error("API Error:", errorData); // Debug log
+      } catch {
+        // Fallback if response is not JSON
+        const text = await res.text();
+        if (text) errorMessage = text;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    return res.json();
+  };
+
+  /** Fetch logged-in user profile */
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+      if (isTokenExpired(token)) await refreshAccessToken();
+
+      const profile = await apiRequest("/user/me");
+      setUser(profile);
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  }, [refreshAccessToken]);
+
+  /** Handle successful auth (login/signup/invite) */
+  const handleAuthSuccess = async (
     accessToken: string,
-    refreshToken: string,
-    user: User
+    refreshToken: string
   ) => {
+    // Save tokens
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("currentUser", JSON.stringify(user));
     document.cookie = `token=${accessToken}; path=/; max-age=86400`;
 
-    setUser(user);
-
     const lastVisited = localStorage.getItem("lastVisited");
-    if (lastVisited) {
-      router.push(lastVisited);
-    } else {
-      router.push(
-        user.role === "SUPER_ADMIN" ? "/dashboard" : "/dashboard-esg"
-      );
+
+    try {
+      // Make sure we have a fresh token if needed
+      const token = getAccessToken();
+      if (isTokenExpired(token!)) {
+        await refreshAccessToken();
+      }
+
+      // Get profile and set user
+      const profile = await apiRequest("/user/me");
+      setUser(profile);
+
+      // Role-based redirect
+      const roleName = profile?.role?.name;
+      if (roleName === "SUPER_ADMIN") {
+        router.push(lastVisited || "/dashboard");
+      } else {
+        router.push(lastVisited || "/dashboard-esg");
+      }
+    } catch (err) {
+      console.error("Error fetching profile after auth:", err);
+
+      // Fallback to decoding token if profile fails
+      const decoded = decodeToken(accessToken);
+      const roleName = decoded?.role?.name || decoded?.role || "UNKNOWN_ROLE";
+
+      if (roleName === "SUPER_ADMIN") {
+        router.push(lastVisited || "/dashboard");
+      } else {
+        router.push(lastVisited || "/dashboard-esg");
+      }
     }
   };
 
-  /** 🔹 Login */
+  /** Login */
   const login = async (email: string, password: string) => {
-    const { accessToken, refreshToken, user } = await apiRequest(
-      "/auth/login",
-      {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      }
-    );
-    handleAuthSuccess(accessToken, refreshToken, user);
+    const { accessToken, refreshToken } = await apiRequest("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    handleAuthSuccess(accessToken, refreshToken);
   };
 
-  /** 🔹 Signup */
+  /** Signup */
   const signup = async (formData: SignupData) => {
-    const { accessToken, refreshToken, user } = await apiRequest(
-      "/esg/auth/signup",
-      {
-        method: "POST",
-        body: JSON.stringify(formData),
-      }
-    );
-    handleAuthSuccess(accessToken, refreshToken, user);
+    const { accessToken, refreshToken } = await apiRequest("/esg/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(formData),
+    });
+    handleAuthSuccess(accessToken, refreshToken);
   };
 
-  /** 🔹 Invite user */
+  /** Invite user signup */
   const inviteUser = async (formData: InviteUserData & { token: string }) => {
-    const { accessToken, refreshToken, user } = await apiRequest(
+    const { accessToken, refreshToken } = await apiRequest(
       "/esg/auth/invite-user",
       {
         method: "POST",
         body: JSON.stringify(formData),
       }
     );
-    handleAuthSuccess(accessToken, refreshToken, user);
+    handleAuthSuccess(accessToken, refreshToken);
   };
 
-  /** 🔹 Validate invite token */
+  /** Validate invite token */
   const validateInviteToken = async (token: string): Promise<boolean> => {
     try {
       const { valid } = await apiRequest(
@@ -186,28 +257,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  /** 🔹 Logout */
+  /** Logout */
   const logout = () => {
     setUser(null);
-    localStorage.clear();
+    setLoading(false);
+
+    // Remove only auth-related items
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+
+    // Optionally clear lastVisited if you don't want it saved
+    localStorage.removeItem("lastVisited");
+
+    // Clear auth cookie
     document.cookie = "token=; Max-Age=0; path=/";
+
     router.push("/login");
   };
 
-  /** 🔹 Auto-refresh token if expired before requests */
+  /** On mount, fetch profile */
   useEffect(() => {
-    const checkToken = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (token && isTokenExpired(token)) {
-        await refreshAccessToken();
-      }
-    };
-    checkToken();
-  }, [refreshAccessToken]);
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   return (
     <AuthContext.Provider
-      value={{ user, login, signup, inviteUser, validateInviteToken, logout }}
+      value={{
+        user,
+        loading,
+        login,
+        signup,
+        inviteUser,
+        validateInviteToken,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

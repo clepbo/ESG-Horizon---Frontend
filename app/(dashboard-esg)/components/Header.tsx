@@ -4,9 +4,15 @@ import { useState } from "react";
 import { Bell } from "lucide-react";
 import Image from "next/image";
 import SearchInput from "@/app/components/SearchInput";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [search, setSearch] = useState("");
+  const { user } = useAuth();
+
+  const avatarSrc =
+    user?.avatar && user.avatar.trim() !== "" ? user.avatar : "/image.png";
+  console.log(user);
 
   return (
     <header className="w-full flex items-center justify-between mb-4">
@@ -27,16 +33,19 @@ export default function Header() {
 
         <div className="flex items-center gap-2">
           <Image
-            src="/images/image.png"
-            alt="User Avatar"
-            width={32}
-            height={32}
-            className="rounded-full"
+            src={avatarSrc}
+            alt={`${user?.first_name || "N/A"}`}
+            width={36}
+            height={36}
+            className="rounded-full object-cover"
           />
           <div className="flex flex-col justify-center items-center text-sm">
-            <span className="text-gray-900 font-medium ">Israel Oni</span>
+            <span className="text-gray-900 font-medium ">
+              {" "}
+              {user ? `${user.first_name} ${user.last_name}` : "Loading..."}
+            </span>
             <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-lg">
-              Admin
+              {user?.role?.name || "N/A"}
             </span>
           </div>
         </div>

@@ -7,4 +7,5 @@ export type User = {
   jobTitle: string;
   permission: string;
   avatar?: string;
+  role?: { name: string };
 };

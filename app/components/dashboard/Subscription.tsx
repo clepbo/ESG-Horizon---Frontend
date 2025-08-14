@@ -31,7 +31,7 @@ export default function Subscription({
   stats,
 }: SubscriptionProps) {
   return (
-    <div className="bg-white rounded-2xl shadow p-4 space-y-6 ">
+    <div className="bg-white rounded-2xl shadow p-2 space-y-6 ">
       {/* Top Row: Monthly Revenue & Icon */}
       <div className="flex items-start justify-between">
         <div>
@@ -67,7 +67,7 @@ export default function Subscription({
                   </h4>
                 </div>
                 <div className="flex justify-between">
-                  <p className="text-2xl font-bold mt-2">{stat.value}</p>
+                  <p className="text-xl font-bold mt-2">{stat.value}</p>
                   <span
                     className={`p-2 rounded-lg ${stat.iconBg} flex items-center justify-center`}
                   >
