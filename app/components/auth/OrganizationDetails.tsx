@@ -19,7 +19,7 @@ const organizationSchema = z.object({
     .url("Please enter a valid website URL")
     .or(z.string().min(0)),
   registrationNumber: z.string().min(1, "Registration number is required"),
-  country: z.string().min(2, "Country is required"),
+  isoCountryCode: z.string().min(2, "Country is required"),
   address: z.string().min(10, "Please enter a complete address"),
 });
 
@@ -148,8 +148,8 @@ export const OrganizationDetails = ({
             label="Country"
             required
             as="select"
-            {...register("country")}
-            error={errors.country}
+            {...register("isoCountryCode")}
+            error={errors.isoCountryCode}
             options={[
               { label: "Nigeria", value: "Nigeria" },
               { label: "Ghana", value: "Ghana" },
