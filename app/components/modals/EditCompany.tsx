@@ -4,19 +4,9 @@ import { useState } from "react";
 import { CircleX, Camera } from "lucide-react";
 import Image from "next/image";
 import BackButton from "../BackButton";
-
-export interface Company {
-  name: string;
-  regNo: string;
-  industry: string;
-  email: string;
-  phone: string;
-  website: string;
-  address: string;
-  staffStrength: number;
-  logo?: string;
-  permission: string;
-}
+import { Company } from "@/context/AuthContext";
+import { InputField } from "@/app/components/forms/FormField";
+import { updateCompanyProfile } from "@/lib/api/auth";
 
 export default function EditCompanyModal({
   company,
@@ -29,19 +19,35 @@ export default function EditCompanyModal({
 }) {
   const [formData, setFormData] = useState<Company>(company);
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: keyof Company, value: string | number) => {
+  const handleChange = (field: keyof Company, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleUpdate = () => {
-    onUpdate({ ...formData, logo: companyLogo || formData.logo });
+  const handleUpdate = async () => {
+    try {
+      setLoading(true);
+      const payload: Partial<Company> = {
+        ...formData,
+        company_logo_url: companyLogo || formData.company_logo_url,
+      };
+
+      // ✅ Pass id and payload
+      const updated = await updateCompanyProfile(company.id, payload);
+
+      onUpdate(updated);
+    } catch (error) {
+      console.error("Error updating company profile:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
       <div className="relative w-full bg-white rounded-2xl shadow-2xl p-6 md:p-10 max-h-[90vh] overflow-y-auto max-w-4xl">
-        {/* Close */}
+        {/* Close Icon */}
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-red-500 hover:text-red-600 transition cursor-pointer"
@@ -55,11 +61,11 @@ export default function EditCompanyModal({
           Edit Company Information
         </h2>
 
-        {/* Logo Upload with Permission Badge */}
+        {/* Logo Upload */}
         <div className="flex items-center gap-4 mb-8">
           <div className="relative w-20 h-20">
             <Image
-              src={companyLogo || formData.logo || "/image.png"}
+              src={companyLogo || formData.company_logo_url || "/image.png"}
               alt="Company Logo"
               width={80}
               height={80}
@@ -80,19 +86,6 @@ export default function EditCompanyModal({
               />
             </label>
           </div>
-
-          {/* Dynamic Permission Badge */}
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full ${
-              formData.permission === "Approved"
-                ? "bg-green-200 text-green-700"
-                : formData.permission === "Pending"
-                ? "bg-yellow-400 text-white"
-                : "bg-red-400 text-white"
-            }`}
-          >
-            {formData.permission}
-          </span>
         </div>
 
         {/* Form */}
@@ -103,23 +96,23 @@ export default function EditCompanyModal({
             onChange={(v) => handleChange("name", v)}
           />
           <InputField
-            label="Industry Type"
+            label="Industry"
             value={formData.industry}
             onChange={(v) => handleChange("industry", v)}
           />
           <InputField
             label="Email"
-            value={formData.email}
-            onChange={(v) => handleChange("email", v)}
+            value={formData.contact_email}
+            onChange={(v) => handleChange("contact_email", v)}
           />
           <InputField
             label="Phone Number"
-            value={formData.phone}
-            onChange={(v) => handleChange("phone", v)}
+            value={formData.contact_phone}
+            onChange={(v) => handleChange("contact_phone", v)}
           />
           <InputField
             label="Website"
-            value={formData.website}
+            value={formData.website || ""}
             onChange={(v) => handleChange("website", v)}
           />
           <InputField
@@ -128,14 +121,14 @@ export default function EditCompanyModal({
             onChange={(v) => handleChange("address", v)}
           />
           <InputField
-            label="Registration Number"
-            value={formData.regNo}
-            onChange={(v) => handleChange("regNo", v)}
+            label="Country"
+            value={formData.isoCountryCode}
+            onChange={(v) => handleChange("isoCountryCode", v)}
           />
           <InputField
-            label="Staff Strength"
-            value={formData.staffStrength.toString()}
-            onChange={(v) => handleChange("staffStrength", Number(v))}
+            label="Description"
+            value={formData.description || ""}
+            onChange={(v) => handleChange("description", v)}
           />
         </div>
 
@@ -149,34 +142,13 @@ export default function EditCompanyModal({
           </button>
           <button
             onClick={handleUpdate}
-            className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer"
+            disabled={loading}
+            className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
           >
-            Update
+            {loading ? "Updating..." : "Update"}
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function InputField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-800 mb-1">{label}</label>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
-      />
     </div>
   );
 }

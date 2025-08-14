@@ -4,7 +4,9 @@ import { useState } from "react";
 import { CircleX, Camera } from "lucide-react";
 import Image from "next/image";
 import BackButton from "../BackButton";
-import { User } from "@/types/user"; //
+import { User } from "@/context/AuthContext";
+import { updateUserProfile } from "@/lib/api/auth";
+import { InputField, SelectField } from "@/app/components/forms/FormField";
 
 export default function EditUserModal({
   user,
@@ -17,13 +19,26 @@ export default function EditUserModal({
 }) {
   const [formData, setFormData] = useState<User>(user);
   const [userImage, setUserImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field: keyof User, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleUpdate = () => {
-    onUpdate({ ...formData, avatar: userImage || formData.avatar });
+  const handleUpdate = async () => {
+    try {
+      setLoading(true);
+      const payload = {
+        ...formData,
+        avatar: userImage || formData.profile_photo_url,
+      };
+      const updated = await updateUserProfile(payload);
+      onUpdate(updated);
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,7 +62,9 @@ export default function EditUserModal({
         <div className="flex items-center gap-4 mb-8">
           <div className="relative w-20 h-20">
             <Image
-              src={userImage || formData.avatar || "/images/image.png"}
+              src={
+                userImage || formData.profile_photo_url || "/images/image.png"
+              }
               alt="User Avatar"
               width={80}
               height={80}
@@ -69,7 +86,7 @@ export default function EditUserModal({
             </label>
           </div>
           <span className="text-sm bg-blue-500 text-white px-3 py-1 rounded-full">
-            {formData.permission}
+            {formData.role?.name}
           </span>
         </div>
 
@@ -77,13 +94,13 @@ export default function EditUserModal({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <InputField
             label="First Name"
-            value={formData.firstName}
-            onChange={(v) => handleChange("firstName", v)}
+            value={formData.first_name}
+            onChange={(v) => handleChange("first_name", v)}
           />
           <InputField
             label="Last Name"
-            value={formData.lastName}
-            onChange={(v) => handleChange("lastName", v)}
+            value={formData.last_name}
+            onChange={(v) => handleChange("last_name", v)}
           />
           <InputField
             label="Email"
@@ -92,8 +109,8 @@ export default function EditUserModal({
           />
           <InputField
             label="Phone Number"
-            value={formData.phone}
-            onChange={(v) => handleChange("phone", v)}
+            value={formData.phone_number}
+            onChange={(v) => handleChange("phone_number", v)}
           />
           <SelectField
             label="Department"
@@ -103,14 +120,19 @@ export default function EditUserModal({
           />
           <InputField
             label="Job Title"
-            value={formData.jobTitle}
-            onChange={(v) => handleChange("jobTitle", v)}
+            value={formData.job_title}
+            onChange={(v) => handleChange("job_title", v)}
           />
           <SelectField
             label="Permission"
-            value={formData.permission}
+            value={formData.role?.name || ""}
             options={["Super Admin", "Admin", "User"]}
-            onChange={(v) => handleChange("permission", v)}
+            onChange={(v) =>
+              setFormData((prev) => ({
+                ...prev,
+                role: { name: v }, // ✅ update nested role
+              }))
+            }
           />
         </div>
 
@@ -124,63 +146,13 @@ export default function EditUserModal({
           </button>
           <button
             onClick={handleUpdate}
-            className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer"
+            disabled={loading}
+            className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
           >
-            Update
+            {loading ? "Updating..." : "Update"}
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function InputField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-800 mb-1">{label}</label>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
-      />
-    </div>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="flex flex-col">
-      <label className="text-sm font-medium text-gray-800 mb-1">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }
