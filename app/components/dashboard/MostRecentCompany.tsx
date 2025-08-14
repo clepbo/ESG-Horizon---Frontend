@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import { useUsers } from "@/hooks/useUsers";
 import Spinner from "@/app/components/Spinner";
 import CompanyTable from "@/app/components/dashboard/CompanyTable";
-import type { User } from "@/mockData/users";
+import { Company } from "@/lib/api/companyApi";
+import { useCompanies } from "@/hooks/useCompanies";
 import { Input } from "@/app/components/ui/input";
 import {
   Select,
@@ -16,37 +16,35 @@ import {
 } from "@/app/components/ui/select";
 import { Search } from "lucide-react";
 
-export default function UsersTable() {
-  const { data: users = [], isLoading, error } = useUsers();
+export default function CompaniesTableSection() {
+  const { data: companies = [], isLoading, error } = useCompanies();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [categoryFilter, setCategoryFilter] = useState("All Category");
 
-  const filteredUsers = users.filter((user: User) => {
+  const filteredCompanies = companies.filter((company: Company) => {
     const matchesSearch = (() => {
       if (!debouncedSearchTerm.trim()) return true;
 
       const searchLower = debouncedSearchTerm.toLowerCase();
-      const nameMatches = (user?.name || "")
-        .toLowerCase()
+      const nameMatches = company.name?.toLowerCase().includes(searchLower);
+      const industryMatches = company.industry
+        ?.toLowerCase()
         .includes(searchLower);
-      const companyMatches = (user?.company || "")
-        .toLowerCase()
-        .includes(searchLower);
-      const emailMatches = (user?.email || "")
-        .toLowerCase()
+      const emailMatches = company.contact_email
+        ?.toLowerCase()
         .includes(searchLower);
 
-      return nameMatches || companyMatches || emailMatches;
+      return nameMatches || industryMatches || emailMatches;
     })();
 
     const matchesStatus =
-      statusFilter === "All Status" || user?.status === statusFilter;
+      statusFilter === "All Status" || company.status === statusFilter;
 
     const matchesCategory =
-      categoryFilter === "All Category" || user?.category === categoryFilter;
+      categoryFilter === "All Category" || company.category === categoryFilter;
 
     return matchesSearch && matchesStatus && matchesCategory;
   });
@@ -60,7 +58,9 @@ export default function UsersTable() {
   }
 
   if (error) {
-    return <p className="text-center text-red-500">Failed to load users.</p>;
+    return (
+      <p className="text-center text-red-500">Failed to load companies.</p>
+    );
   }
 
   return (
@@ -74,7 +74,7 @@ export default function UsersTable() {
           <div className="relative w-full">
             <Input
               id="search-input"
-              placeholder="Search by name, company, or email"
+              placeholder="Search by company name, industry, or email"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -115,20 +115,22 @@ export default function UsersTable() {
         </div>
 
         {/* Table */}
-        <CompanyTable users={filteredUsers} loading={isLoading} />
+        <CompanyTable companies={filteredCompanies} loading={isLoading} />
 
         {/* No results message */}
-        {!isLoading && filteredUsers.length === 0 && users.length > 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <p>No companies found matching your search criteria.</p>
-            <p className="text-sm mt-2">
-              Try adjusting your filters or search term.
-            </p>
-          </div>
-        )}
+        {!isLoading &&
+          filteredCompanies.length === 0 &&
+          companies.length > 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p>No companies found matching your search criteria.</p>
+              <p className="text-sm mt-2">
+                Try adjusting your filters or search term.
+              </p>
+            </div>
+          )}
 
         {/* Empty state */}
-        {!isLoading && users.length === 0 && (
+        {!isLoading && companies.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <p>No companies available.</p>
           </div>

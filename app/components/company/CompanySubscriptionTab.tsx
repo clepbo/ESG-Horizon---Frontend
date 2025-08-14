@@ -17,7 +17,7 @@ import { paymentHistory } from "@/mockData/paymentHistory";
 
 type Company = {
   company: string;
-  industry?: string;
+  industry?: string | null;
 };
 
 type Props = { company: Company };

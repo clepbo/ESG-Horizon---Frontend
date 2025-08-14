@@ -1,11 +1,11 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import Header from "@/app/components/layout/Header";
 import BackButton from "@/app/components/BackButton";
 import { ESGJourneyChart } from "@/app/(dashboard-esg)/components/ESGJourneyChart";
 import { CompanyIdStat } from "@/app/components/company/CompanyIdStat";
 import UsersTable from "@/app/components/company/UsersTable";
-
 import {
   ESGCard,
   ESGOverallCard,
@@ -13,7 +13,8 @@ import {
 import CompanySubscriptionTab from "@/app/components/company/CompanySubscriptionTab";
 import CompanyActivities from "@/app/components/company/CompanyActivities";
 import CompanyInfo from "@/app/components/company/CompanyInfo";
-import { User } from "@/mockData/users";
+import { getCompanyById, Company } from "@/lib/api/companyApi";
+import Spinner from "@/app/components/Spinner";
 
 const PERSONA_TABS = [
   { label: "Overview", value: "overview" },
@@ -24,12 +25,31 @@ const PERSONA_TABS = [
 ];
 
 type Props = {
-  company: User;
-  users: User[];
+  id: number;
 };
 
-export default function CompanyDetailsClient({ company }: Props) {
+export default function CompanyDetailsClient({ id }: Props) {
   const [activePersona, setActivePersona] = useState("overview");
+  const [company, setCompany] = useState<Company | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const data = await getCompanyById(id);
+        setCompany(data);
+      } catch (err) {
+        console.error("Error fetching company:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCompany();
+  }, [id]);
+
+  if (loading) return <Spinner />;
+  if (!company)
+    return <div className="p-6 text-red-500">Company not found</div>;
 
   return (
     <section className="w-full p-4 md:p-6 space-y-6">
@@ -37,7 +57,7 @@ export default function CompanyDetailsClient({ company }: Props) {
       <div className="flex gap-4">
         <BackButton />
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">{company.company}</h1>
+          <h1 className="text-2xl font-bold">{company.name}</h1>
           <p className="text-gray-600">{company.industry}</p>
         </div>
       </div>
@@ -107,7 +127,7 @@ export default function CompanyDetailsClient({ company }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <CompanyIdStat
               label="Staff Strength"
-              value={4}
+              value={company.staff || "N/A"} // ✅ company data
               iconSrc="/icons/leaf.svg"
               iconBgColor="bg-green-200"
             />
@@ -131,20 +151,24 @@ export default function CompanyDetailsClient({ company }: Props) {
             />
           </div>
 
+          {/* ✅ Still using mock UsersTable */}
           <UsersTable />
         </>
       )}
 
       {activePersona === "subscription" && (
-        <CompanySubscriptionTab company={company} />
+        <CompanySubscriptionTab
+          company={{
+            company: company.name,
+            industry: company.industry,
+          }}
+        />
       )}
 
-      {/* Other tabs (assessment, activities, etc.) */}
       {activePersona === "assessment & reports" && (
         <div>Assessment Reports Coming Soon...</div>
       )}
       {activePersona === "activities" && <CompanyActivities />}
-
       {activePersona === "company-info" && <CompanyInfo company={company} />}
     </section>
   );
