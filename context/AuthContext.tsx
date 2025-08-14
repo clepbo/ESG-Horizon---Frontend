@@ -28,7 +28,7 @@ export type Company = {
   industry: string;
   company_logo_url: string;
   address: string;
-  country: string;
+  isoCountryCode: string;
   website?: string;
   contact_email: string;
   contact_phone: string;
@@ -43,13 +43,14 @@ type SignupData = {
   first_name: string;
   last_name: string;
   phone_number: string;
-  company_name: string;
+  name: string;
   registration_number: string;
-  industry_type: string;
+  industry: string;
   address: string;
   contact_email: string;
   contact_phone: string;
-  company_website: string;
+  website: string;
+  role: string;
 };
 
 type InviteUserData = {
@@ -226,10 +227,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /** Signup */
   const signup = async (formData: SignupData) => {
-    const { accessToken, refreshToken } = await apiRequest("/esg/auth/signup", {
-      method: "POST",
-      body: JSON.stringify(formData),
-    });
+    const { accessToken, refreshToken } = await apiRequest(
+      "/company/esg/signup",
+      {
+        method: "POST",
+        body: JSON.stringify(formData),
+      }
+    );
     handleAuthSuccess(accessToken, refreshToken);
   };
 

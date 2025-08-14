@@ -122,8 +122,8 @@ export default function EditCompanyModal({
           />
           <InputField
             label="Country"
-            value={formData.country}
-            onChange={(v) => handleChange("country", v)}
+            value={formData.isoCountryCode}
+            onChange={(v) => handleChange("isoCountryCode", v)}
           />
           <InputField
             label="Description"

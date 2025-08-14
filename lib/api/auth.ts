@@ -75,7 +75,8 @@ export const updateCompanyProfile = async (
     contact_phone: data.contact_phone,
     website: data.website,
     company_logo_url: data.company_logo_url,
-    country: data.country,
+    isoCountryCode: data.isoCountryCode,
+    role: "",
   };
 
   console.log("Updating company profile with:", payload);

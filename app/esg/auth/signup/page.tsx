@@ -31,20 +31,21 @@ export default function Index() {
       toast.error("Missing personal data");
       return;
     }
-
     const payload = {
       email: personalData.workEmail,
       password: personalData.password,
       first_name: personalData.firstName,
       last_name: personalData.lastName,
       phone_number: personalData.phoneNumber,
-      company_name: orgData.companyName,
+      name: orgData.companyName,
       registration_number: orgData.registrationNumber,
-      industry_type: orgData.industry,
+      industry: orgData.industry,
+      isoCountryCode: orgData.isoCountryCode,
       address: orgData.address,
       contact_email: orgData.contactEmail,
       contact_phone: orgData.contactPhone,
-      company_website: orgData.website || "",
+      website: orgData.website || "",
+      role: "",
     };
 
     signup(payload)
