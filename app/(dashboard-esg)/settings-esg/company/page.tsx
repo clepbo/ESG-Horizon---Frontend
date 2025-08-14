@@ -6,11 +6,10 @@ import EditCompanyModal from "@/app/components/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
 import Spinner from "@/app/components/Spinner";
-import { useAuth } from "@/context/AuthContext";
 import { Company } from "@/context/AuthContext";
+import { getCompanyProfile } from "@/lib/api/auth";
 
 export default function CompanyPage() {
-  const { user: authUser } = useAuth();
   const [companyData, setCompanyData] = useState<Company | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -19,10 +18,19 @@ export default function CompanyPage() {
   const [gri, setGri] = useState(false);
 
   useEffect(() => {
-    if (authUser?.company) {
-      setCompanyData(authUser.company);
-    }
-  }, [authUser]);
+    const fetchCompany = async () => {
+      try {
+        const companies = await getCompanyProfile();
+        if (Array.isArray(companies) && companies.length > 0) {
+          setCompanyData(companies[0]); // ✅ first company
+        }
+      } catch (err) {
+        console.error("Error fetching company:", err);
+      }
+    };
+
+    fetchCompany();
+  }, []);
 
   const handleUpdateCompany = (updatedCompany: Company) => {
     setCompanyData(updatedCompany);

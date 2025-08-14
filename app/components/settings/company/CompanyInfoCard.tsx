@@ -25,7 +25,7 @@ export default function CompanyInfoCard({
 
       <div className="flex items-start gap-4">
         <Image
-          src={company.logo ?? "/image.png"}
+          src={company.company_logo_url ?? "/image.png"}
           alt={company.name}
           width={50}
           height={50}
@@ -33,7 +33,7 @@ export default function CompanyInfoCard({
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 w-full">
           <InfoField label="Company Name" value={company.name} />
-          <InfoField label="Industry Type" value={company.industry_type} />
+          <InfoField label="Industry Type" value={company.industry} />
           <InfoField label="Email Address" value={company.contact_email} />
           <InfoField
             label="Contact Phone Number"

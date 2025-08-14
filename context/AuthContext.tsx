@@ -15,8 +15,8 @@ export type User = {
   first_name: string;
   last_name: string;
   role?: { name: string };
-  company: Company;
-  avatar: string;
+  company?: string;
+  profile_photo_url: string | null;
   phone_number: string;
   department: string;
   job_title: string;
@@ -25,8 +25,8 @@ export type User = {
 export type Company = {
   id: number;
   name: string;
-  industry_type: string;
-  logo: string;
+  industry: string;
+  company_logo_url: string;
   address: string;
   country: string;
   website?: string;
@@ -195,7 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Role-based redirect
       const roleName = profile?.role?.name;
-      if (roleName === "SUPER_ADMIN") {
+      if (roleName === "super_admin") {
         router.push(lastVisited || "/dashboard");
       } else {
         router.push(lastVisited || "/dashboard-esg");
