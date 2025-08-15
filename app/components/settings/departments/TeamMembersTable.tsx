@@ -6,10 +6,10 @@ import {
   AvatarImage,
 } from "@/app/components/ui/avatar";
 import { SquarePen, Trash2 } from "lucide-react";
-import StatusBadge from "@/app/components/StatusBadge";
-import EditDepartmentTeam from "@/app/components/modals/EditDepartmentTeam";
+import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
+import EditDepartmentTeam from "@/app/components/ui/modals/EditDepartmentTeam";
 import { useState } from "react";
-import type { TeamUser } from "@/mockData/mockDepartment";
+import type { TeamUser } from "@/lib/mockData/mockDepartment";
 
 type Member = {
   id: string;

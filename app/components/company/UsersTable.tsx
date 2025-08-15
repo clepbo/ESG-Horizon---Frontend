@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 
-import Spinner from "@/app/components/Spinner";
+import Spinner from "@/app/components/ui/reusables/Spinner";
 import UserTable from "@/app/components/company/UserTable";
 import { Search } from "lucide-react";
 

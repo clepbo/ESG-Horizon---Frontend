@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { mockLeaderboard } from "@/mockData/leaderBoard";
+import { mockLeaderboard } from "@/lib/mockData/leaderBoard";
 
-import type { LeaderboardEntry } from "@/mockData/leaderBoard";
+import type { LeaderboardEntry } from "@/lib/mockData/leaderBoard";
 
 export async function fetchMockLeaderboard(): Promise<LeaderboardEntry[]> {
   return new Promise((resolve) => {

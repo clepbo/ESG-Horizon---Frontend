@@ -7,7 +7,7 @@ import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toastify";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { FormField } from "@/app/components/FormFields";
+import { FormField } from "@/app/components/ui/reusables/FormFields";
 
 const organizationSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),

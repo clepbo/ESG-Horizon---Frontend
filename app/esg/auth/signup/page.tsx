@@ -7,7 +7,7 @@ import { OrganizationDetails } from "@/app/components/auth/OrganizationDetails";
 import { RequestSubmitted } from "@/app/components/auth/RequestSubmitted";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { SecuritySlider } from "@/app/components/SecuritySlider";
+import { SecuritySlider } from "@/app/components/ui/reusables/SecuritySlider";
 import { useAuth } from "@/context/AuthContext";
 import type { SignupFormData } from "@/app/components/auth/SignupForm";
 import type { OrganizationFormData } from "@/app/components/auth/OrganizationDetails";

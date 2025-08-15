@@ -1,4 +1,4 @@
-import TestComponent from "./components/TestComponent";
+import TestComponent from "./components/ui/reusables/TestComponent";
 
 export default function Home() {
   return (

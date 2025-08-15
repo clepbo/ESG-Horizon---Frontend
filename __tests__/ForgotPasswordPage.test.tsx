@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import ForgotPasswordPage from "@/app/forgot-password/page";
-import ClientToaster from "@/app/components/ClientToaster";
+import ForgotPasswordPage from "@/app/(auth)/forgot-password/page";
+import ClientToaster from "@/app/components/ui/reusables/ClientToaster";
 import { useRouter } from "next/navigation";
 
 // Mock Next.js router

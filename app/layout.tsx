@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
-import ClientToaster from "@/app/components/ClientToaster";
+import ClientToaster from "@/app/components/ui/reusables/ClientToaster";
 import ReactQueryProvider from "@/app/providers/ReactQueryProvider";
 
 const poppins = Poppins({

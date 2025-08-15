@@ -1,5 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import ReportsAnalyticsPage from "@/app/(dashboard)/reports/page";
+import ReportsAnalyticsPage from "@/app/(admin)/reports/page";
 import "@testing-library/jest-dom";
 
 // Mock dependent components

@@ -3,11 +3,11 @@
 import { useState, useMemo, useEffect, ReactNode } from "react";
 import { RotateCw, Ban, CircleCheckBig } from "lucide-react";
 
-import StatusBadge from "@/app/components/StatusBadge";
-import Pagination from "@/app/components/Pagination";
-import Spinner from "@/app/components/Spinner";
-import ConfirmModal from "@/app/components/modals/ConfirmModal";
-import { User } from "@/mockData/users";
+import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
+import Pagination from "@/app/components/ui/reusables/Pagination";
+import Spinner from "@/app/components/ui/reusables/Spinner";
+import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
+import { User } from "@/lib/mockData/users";
 
 type UserTableProps = {
   users: User[];

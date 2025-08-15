@@ -1,7 +1,7 @@
 // /hooks/useActivities.ts
 import { useEffect, useState } from "react";
-import type { Activity } from "@/mockData/recentActivities";
-import { mockActivities } from "@/mockData/recentActivities";
+import type { Activity } from "@/lib/mockData/recentActivities";
+import { mockActivities } from "@/lib/mockData/recentActivities";
 
 export function useActivities() {
   const [data, setData] = useState<Activity[]>([]);

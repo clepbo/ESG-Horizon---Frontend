@@ -6,7 +6,7 @@ import {
   waitFor,
   act,
 } from "@testing-library/react";
-import ResetPasswordPage from "@/app/reset-password/page";
+import ResetPasswordPage from "@/app/(auth)/reset-password/page";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 

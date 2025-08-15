@@ -3,7 +3,7 @@
  */
 
 import { render, screen, fireEvent } from "@testing-library/react";
-import SettingsPage from "@/app/(dashboard)/settings/page"; // Adjust path as needed
+import SettingsPage from "@/app/(admin)/settings/page"; // Adjust path as needed
 
 // ✅ Mocks
 jest.mock("next/image", () => ({

@@ -1,5 +1,5 @@
 // lib/api/usersApi.ts
-import { mockUsers, User } from "@/mockData/users";
+import { mockUsers, User } from "@/lib/mockData/users";
 
 const USE_MOCK = true;
 
