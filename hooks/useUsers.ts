@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { mockUsers as users } from "@/mockData/users";
-import type { User } from "@/mockData/users";
+import { mockUsers as users } from "@/lib/mockData/users";
+import type { User } from "@/lib/mockData/users";
 
 export async function fetchMockUsers(): Promise<User[]> {
   return new Promise((resolve) => {

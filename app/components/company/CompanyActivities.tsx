@@ -13,11 +13,11 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { cn } from "@/lib/utils";
-import { activityData } from "@/mockData/companyActivities";
+import { activityData } from "@/lib/mockData/companyActivities";
 
 import CompanyActivitiesTable from "@/app/components/company/CompanyActivitiesTable";
-import Pagination from "@/app/components/Pagination";
-import Spinner from "../Spinner";
+import Pagination from "@/app/components/ui/reusables/Pagination";
+import Spinner from "../ui/reusables/Spinner";
 
 export default function CompanyActivities() {
   // Filters & Search

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import Image from "next/image";
-import { Checkmark } from "../CheckMark";
+import { Checkmark } from "../ui/reusables/CheckMark";
 
 export const RequestSubmitted = () => {
   const router = useRouter();

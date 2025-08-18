@@ -3,7 +3,7 @@ import {
   mockTeamUsers,
   Department,
   TeamUser,
-} from "@/mockData/mockDepartment";
+} from "@/lib/mockData/mockDepartment";
 
 const USE_MOCK = true;
 

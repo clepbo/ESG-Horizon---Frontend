@@ -1,4 +1,4 @@
-import { mockBillingData, BillingRecord } from "@/mockData/billingData";
+import { mockBillingData, BillingRecord } from "@/lib/mockData/billingData";
 
 export async function fetchBillingData(): Promise<BillingRecord[]> {
   return new Promise((resolve) => {

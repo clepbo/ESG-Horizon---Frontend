@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import DashboardPage from "@/app/(dashboard)/dashboard/page";
+import DashboardPage from "@/app/(admin)/dashboard/page";
 
 // Mock lucide-react icons and child components used in Dashboard
 jest.mock("lucide-react", () => ({

@@ -13,7 +13,7 @@ import {
 import { Search } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import PaymentHistoryTable from "@/app/components/company/PaymentHistoryTable";
-import { paymentHistory } from "@/mockData/paymentHistory";
+import { paymentHistory } from "@/lib/mockData/paymentHistory";
 
 type Company = {
   company: string;

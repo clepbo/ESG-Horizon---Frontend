@@ -1,4 +1,4 @@
-import { mockReports, Report } from "@/mockData/mockReports";
+import { mockReports, Report } from "@/lib/mockData/mockReports";
 
 const USE_MOCK = true;
 

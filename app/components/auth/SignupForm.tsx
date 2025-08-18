@@ -7,7 +7,7 @@ import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { useState } from "react";
-import { FormField } from "@/app/components/FormFields";
+import { FormField } from "@/app/components/ui/reusables/FormFields";
 
 const signupSchema = z
   .object({

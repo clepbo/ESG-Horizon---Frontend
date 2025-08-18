@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import LoginPage from "../app/login/page";
-import ClientToaster from "@/app/components/ClientToaster";
+import LoginPage from "../app/(auth)/login/page";
+import ClientToaster from "@/app/components/ui/reusables/ClientToaster";
 
 // 🧠 Step 1: Mock next/navigation
 const push = jest.fn();
