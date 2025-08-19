@@ -145,6 +145,7 @@ import clsx from "clsx";
 import PhotoUploadButton from "./PhotoUploadButton";
 import BackButton from "../../ui/reusables/BackButton";
 import { User } from "@/services/user.service";
+
 interface EditUserModalProps {
   user: User;
   onClose: () => void;

@@ -14,7 +14,6 @@ export default function Header() {
     user?.profile_photo_url && user.profile_photo_url.trim() !== ""
       ? user.profile_photo_url
       : "/image.png";
-  console.log(user);
 
   return (
     <header className="w-full flex items-center justify-between mb-4">

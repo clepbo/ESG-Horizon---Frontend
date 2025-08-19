@@ -4,9 +4,8 @@ import { useState } from "react";
 import { CircleX, Camera } from "lucide-react";
 import Image from "next/image";
 import BackButton from "../reusables/BackButton";
-import { User } from "@/context/AuthContext";
-import { updateUserProfile } from "@/lib/api/auth";
 import { InputField, SelectField } from "@/app/components/common/forms/FormField";
+import { User, userService } from "@/services/user.service";
 
 export default function EditUserModal({
   user,
@@ -30,9 +29,9 @@ export default function EditUserModal({
       setLoading(true);
       const payload = {
         ...formData,
-        avatar: userImage || formData.profile_photo_url,
+        // avatar: userImage || formData.profile_photo_url,
       };
-      const updated = await updateUserProfile(payload);
+      const updated = await userService.editCurrent(payload as User);
       onUpdate(updated);
     } catch (error) {
       console.error("Error updating user profile:", error);
@@ -109,19 +108,14 @@ export default function EditUserModal({
           />
           <InputField
             label="Phone Number"
-            value={formData.phone_number}
+            value={String(formData.phone_number)}
             onChange={(v) => handleChange("phone_number", v)}
           />
           <SelectField
             label="Department"
-            value={formData.department}
+            value={String(formData.department)}
             options={["Digital", "Operations", "HR", "Finance"]}
             onChange={(v) => handleChange("department", v)}
-          />
-          <InputField
-            label="Job Title"
-            value={formData.job_title}
-            onChange={(v) => handleChange("job_title", v)}
           />
           <SelectField
             label="Permission"

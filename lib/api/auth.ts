@@ -38,29 +38,29 @@ export const forgotPassword = async (data: { email: string }) => {
   return response.data;
 };
 
-export const getUserProfile = async () => {
-  const response = await api.get("/user/me");
-  return response.data;
-};
+// export const getUserProfile = async () => {
+//   const response = await api.get("/user/me");
+//   return response.data;
+// };
 export const getCompanyProfile = async () => {
   const response = await api.get("/company/esg/all");
   return response.data;
 };
 
-export const updateUserProfile = async (data: Partial<User>) => {
-  const payload = {
-    first_name: data.first_name,
-    last_name: data.last_name,
-    phone_number: data.phone_number,
-    profile_photo_url: data.profile_photo_url,
-    department: data.department,
-    job_title: data.job_title,
-  };
+// export const updateUserProfile = async (data: Partial<User>) => {
+//   const payload = {
+//     first_name: data.first_name,
+//     last_name: data.last_name,
+//     phone_number: data.phone_number,
+//     profile_photo_url: data.profile_photo_url,
+//     department: data.department,
+//     job_title: data.job_title,
+//   };
 
-  console.log("Updating user profile with:", payload);
-  const response = await api.patch("/user/me", payload);
-  return response.data;
-};
+//   console.log("Updating user profile with:", payload);
+//   const response = await api.patch("/user/me", payload);
+//   return response.data;
+// };
 // Company profile update
 export const updateCompanyProfile = async (
   id: number,

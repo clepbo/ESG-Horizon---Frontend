@@ -26,17 +26,17 @@ export interface User {
 
 export const userService = {
     getCurrent: async () => {
-        const { data } = await api.get("/users/me");
+        const data = await api.get("/users/me");
         return data;
     },
 
-    editCurrent: async (payload: User) => {
-        const { data } = await api.patch("/users/me", payload);
+    editCurrent: async (payload: Partial<User>) => {
+        const data = await api.patch("/users/me", payload);
         return data;
     },
 
     getAll: async (params?: User) => {
-        const { data } = await api.get("/users/all", { params });
+        const data = await api.get("/users/all", { params });
         return data;
     },
 };

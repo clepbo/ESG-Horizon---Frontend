@@ -38,7 +38,6 @@ export default function LoginForm() {
             setTimeout(() => {
                 toast.success("Welcome back!");
             }, 1000);
-            setIsTransitioning(false);
         } catch (error) {
             setIsTransitioning(false);
             setLoading(false);
@@ -52,9 +51,11 @@ export default function LoginForm() {
             setError("root", {
                 message: errorMessage || "Invalid credentials",
             });
-        } finally {
+            setIsTransitioning(false);
             setLoading(false);
+            return;
         }
+
     };
 
     return (

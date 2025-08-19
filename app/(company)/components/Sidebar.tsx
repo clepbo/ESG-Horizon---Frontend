@@ -39,15 +39,16 @@ const settingsSubLinks = [
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const router = useRouter();
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     const [settingsOpen, setSettingsOpen] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            localStorage.setItem("lastVisitedPage", pathname);
+        if (typeof window !== "undefined" && user) {
+            localStorage.setItem("lastVisitedPage_name", user.email || "");
+            localStorage.setItem("lastVisitedPage_role", user.role?.name || "");
+            localStorage.setItem("lastVisitedPage_page", pathname);
         }
-    }, [pathname]);
+    }, [pathname, user]);
 
     const handleLogout = () => {
         try {

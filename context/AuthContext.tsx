@@ -10,19 +10,21 @@ import React, {
 import { useRouter } from "next/navigation";
 import api from "../lib/api/axios";
 import { registerLogout } from "@/lib/utils";
+import { toast } from "react-toastify";
+import { User } from "@/services/user.service";
 
-export type User = {
-    id: number;
-    email: string;
-    first_name: string;
-    last_name: string;
-    role?: { name: string };
-    company?: string;
-    profile_photo_url: string | null;
-    phone_number: string;
-    department: string;
-    job_title: string;
-};
+// export type User = {
+//     id: number;
+//     email: string;
+//     first_name: string;
+//     last_name: string;
+//     role?: { name: string };
+//     company?: string;
+//     profile_photo_url: string | null;
+//     phone_number: string;
+//     department: string;
+//     job_title: string;
+// };
 type SignupData = {
     id: number;
     name: string;
@@ -81,19 +83,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const profile = await api.get<User>("/users/me");
             setUser(profile);
 
-            let redirectTo = localStorage.getItem("lastVisitedPage") || "";
+            // const roleName = profile.role?.name;
+            // const redirectTo =
+            //     roleName === "super_admin" ? "/dashboard" : "/dashboard-esg";
 
-            localStorage.removeItem("lastVisitedPage");
-
-            if (!redirectTo) {
-                redirectTo =
-                    profile.role?.name === "super_admin"
-                        ? "/dashboard"
-                        : "/dashboard-esg";
+            let storedName = "",
+                storedRole = "",
+                storedPage = "";
+            if (typeof window !== "undefined") {
+                storedName = localStorage.getItem("lastVisitedPage_name") || "";
+                storedRole = localStorage.getItem("lastVisitedPage_role") || "";
+                storedPage = localStorage.getItem("lastVisitedPage_page") || "";
             }
 
-            router.push(redirectTo);
-        } catch {
+            let redirectTo = "";
+
+            if (
+                storedName === profile.email &&
+                storedRole === profile.role?.name
+            ) {
+                redirectTo = storedPage || "";
+            } else {
+                if (typeof window !== "undefined") {
+                    localStorage.removeItem("lastVisitedPage_name");
+                    localStorage.removeItem("lastVisitedPage_role");
+                    localStorage.removeItem("lastVisitedPage_page");
+                }
+            }
+
+            if (!redirectTo) {
+                const platformRoles = [
+                    "super_admin",
+                    "platform_subadmin",
+                    "platform_data_officer",
+                    "platform_viewer",
+                ];
+                const companyRoles = [
+                    "company_esg_admin",
+                    "company_esg_subadmin",
+                    "company_esg_data_officer",
+                    "company_esg_viewer",
+                ];
+
+                if (platformRoles.includes(profile.role?.name || "")) {
+                    redirectTo = "/dashboard";
+                } else if (companyRoles.includes(profile.role?.name || "")) {
+                    redirectTo = "/dashboard-esg";
+                } else {
+                    redirectTo = "/";
+                }
+            }
+
+            await router.push(redirectTo);
+        } catch (error) {
+            console.error("handleAuthSuccess error:", error);
             setUser(null);
         }
     };
@@ -131,6 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const logout = useCallback(async () => {
         await api.post("/auth/logout");
         setUser(null);
+        toast.info("You have been logged out.");
         router.push("/login");
     }, [router]);
 
