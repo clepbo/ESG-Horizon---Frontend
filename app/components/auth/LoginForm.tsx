@@ -3,9 +3,10 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "react-toastify";
-
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
 
 type FormFields = {
   email: string;
@@ -14,9 +15,11 @@ type FormFields = {
 
 export default function LoginForm() {
   const { login } = useAuth();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -33,7 +36,14 @@ export default function LoginForm() {
 
     try {
       await login(data.email, data.password);
-      toast.success("Welcome back!");
+
+      // Navigate first
+      router.push("/dashboard");
+
+      // Delay toast until after navigation completes
+      setTimeout(() => {
+        toast.success("Welcome back!");
+      }, 1000); // small delay so it shows on new page
     } catch (error) {
       setIsTransitioning(false);
       const errorMessage =
@@ -98,31 +108,49 @@ export default function LoginForm() {
         </div>
 
         {/* Password Field */}
-        <div>
+        <div className="relative">
           <label
             htmlFor="password"
             className="block text-sm font-medium text-neutral-1000"
           >
             Password <span className="text-neutral-1000">*</span>
           </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 4,
-                message: "Password must be at least 4 characters",
-              },
-            })}
-            className={`mt-1 w-full rounded border px-4 py-2 text-sm text-black outline-none transition-colors ${
-              errors.password
-                ? "border-red-500"
-                : "border-neutral-300 focus:border-esg-green focus:ring-1 focus:ring-esg-green"
-            }`}
-            disabled={loading || isTransitioning}
-          />
+
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 4,
+                  message: "Password must be at least 4 characters",
+                },
+              })}
+              className={`mt-1 w-full rounded border px-4 py-2 pr-10 text-sm text-black outline-none transition-colors ${
+                errors.password
+                  ? "border-red-500"
+                  : "border-neutral-300 focus:border-esg-green focus:ring-1 focus:ring-esg-green"
+              }`}
+              disabled={loading || isTransitioning}
+            />
+
+            {/* Toggle Eye Button */}
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+
           {errors.password && (
             <p className="text-sm text-red-500 mt-1">
               {errors.password.message}
@@ -187,5 +215,3 @@ export default function LoginForm() {
     </div>
   );
 }
-
-//
