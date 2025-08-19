@@ -144,30 +144,14 @@ import Image from "next/image";
 import clsx from "clsx";
 import PhotoUploadButton from "./PhotoUploadButton";
 import BackButton from "../../ui/reusables/BackButton";
-
-type User = {
-  name: string;
-  email: string;
-  phone: string;
-  avatar?: string;
-  permission: string;
-  company: string;
-  companyEmail?: string;
-  companyPhone?: string;
-  website?: string;
-  registrationNumber?: string;
-  staffStrength?: string;
-  address?: string;
-  companyLogo?: string;
-};
-
+import { User } from "@/services/user.service";
 interface EditUserModalProps {
   user: User;
   onClose: () => void;
 }
 
 export default function EditUserModal({ user, onClose }: EditUserModalProps) {
-  const [firstName, lastName] = user.name.split(" ");
+  const [firstName, lastName] = user.first_name.split(" ");
   const [userImage, setUserImage] = useState<string | null>(null);
 
   return (
@@ -190,7 +174,7 @@ export default function EditUserModal({ user, onClose }: EditUserModalProps) {
         {/* Avatar + Upload */}
         <div className="flex items-center gap-4 mb-8 relative w-max">
           <Image
-            src={userImage || user.avatar || "/images/image.png"}
+            src={userImage || user.profile_photo_url || "/images/image.png"}
             alt="User Avatar"
             width={72}
             height={72}
@@ -210,9 +194,9 @@ export default function EditUserModal({ user, onClose }: EditUserModalProps) {
           <InputField label="First Name" value={firstName} required />
           <InputField label="Last Name" value={lastName} required />
           <InputField label="Email" value={user.email} required />
-          <InputField label="Phone Number" value={user.phone} required />
+          <InputField label="Phone Number" value={String(user.phone_number)} required />
           <InputField label="Role" value="Sustainability Officer" required />
-          <InputField label="Permission" value={user.permission} required />
+          <InputField label="Permission" value={String(user.role?.name)} required />
         </div>
 
         {/* Actions */}

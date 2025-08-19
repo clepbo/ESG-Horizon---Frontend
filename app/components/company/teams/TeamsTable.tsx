@@ -6,14 +6,14 @@ import Image from "next/image";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 
 import Pagination from "@/app/components/ui/reusables/Pagination";
-import type { TeamUser, TeamUserStatus } from "@/lib/mockData/teamUsers";
 import EditUserModal from "../../common/users/EditUserModal";
 import RoleDefinitions from "../../settings/RoleDefinitions";
+import { TeamUserStatus, User } from "@/services/user.service";
 
 type Props = {
-  users: TeamUser[];
+  users: User[];
   onStatusUpdate: (id: string, newStatus: TeamUserStatus) => void;
-  onUserUpdate?: (user: TeamUser) => void;
+  onUserUpdate?: (user: User) => void;
 };
 
 export default function TeamsTable({ users, onStatusUpdate }: Props) {
@@ -22,7 +22,7 @@ export default function TeamsTable({ users, onStatusUpdate }: Props) {
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<TeamUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -50,28 +50,34 @@ export default function TeamsTable({ users, onStatusUpdate }: Props) {
     TeamUserStatus,
     { icon: ReactNode; color: string; newStatus: TeamUserStatus; title: string }
   > = {
-    Pending: {
+    pending: {
       icon: <CircleCheckBig className="w-4 h-4 text-green-600" />,
       color: "border-green-500 hover:bg-green-200",
-      newStatus: "Approved",
+      newStatus: "approved",
       title: "Approve",
     },
-    Suspended: {
+    suspended: {
       icon: <RotateCcw className="w-4 h-4 text-yellow-600" />,
       color: "border-yellow-500 hover:bg-yellow-100",
-      newStatus: "Approved",
+      newStatus: "approved",
       title: "Restart",
     },
-    Approved: {
+    active: {
       icon: <Ban className="w-4 h-4 text-red-600" />,
       color: "border-red-500 hover:bg-red-100",
-      newStatus: "Suspended",
+      newStatus: "suspended",
       title: "Suspend",
     },
-    "Under Review": {
+    approved: {
+      icon: <Ban className="w-4 h-4 text-red-600" />,
+      color: "border-red-500 hover:bg-red-100",
+      newStatus: "suspended",
+      title: "Suspend",
+    },
+    "disabled": {
       icon: <CircleCheckBig className="w-4 h-4 text-green-600" />,
       color: "border-green-500 hover:bg-green-200",
-      newStatus: "Approved",
+      newStatus: "approved",
       title: "Approve",
     },
   };
@@ -94,19 +100,19 @@ export default function TeamsTable({ users, onStatusUpdate }: Props) {
               <tr key={user.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 flex items-center gap-3">
                   <Image
-                    src={user.avatar?.trim() || "/image.png"}
-                    alt={user.name}
+                    src={user.profile_photo_url?.trim() || "/image.png"}
+                    alt={user.first_name}
                     width={32}
                     height={32}
                     className="rounded-full object-cover"
                   />
                   <div>
-                    <p className="font-medium">{user.name}</p>
+                    <p className="font-medium">{user.first_name}</p>
                     <p className="text-xs text-gray-500">{user.email}</p>
                   </div>
                 </td>
                 <td className="px-4 py-3">{user.department}</td>
-                <td className="px-4 py-3">{user.role}</td>
+                <td className="px-4 py-3">{user.role?.name}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={user.status} />
                 </td>

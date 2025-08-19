@@ -5,10 +5,6 @@ import { Plus, Search } from "lucide-react";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import TeamsTable from "@/app/components/company/teams/TeamsTable";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
-import {
-    teamUsers as initialUsers,
-    TeamUserStatus,
-} from "@/lib/mockData/teamUsers";
 import { Input } from "@/app/components/ui/input";
 import {
     Select,
@@ -19,10 +15,10 @@ import {
 } from "@/app/components/ui/select";
 import Header from "../../components/Header";
 import { companyService } from "@/services/company.service";
+import { TeamUserStatus, User } from "@/services/user.service";
 
 export default function TeamsPage() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("Status");
@@ -34,6 +30,7 @@ export default function TeamsPage() {
             setLoading(true);
             try {
                 const companyUsers = await companyService.getUsers(5);
+                console.log("Fetched users:", companyUsers);
                 setUsers(companyUsers);
             } catch (err) {
                 console.error("Failed to fetch users:", err);
@@ -48,12 +45,13 @@ export default function TeamsPage() {
     const filteredData = useMemo(() => {
         return users.filter((user) => {
             const matchesSearch =
-                user.name.toLowerCase().includes(search.toLowerCase()) ||
+                user.first_name.toLowerCase().includes(search.toLowerCase()) ||
+                user.last_name.toLowerCase().includes(search.toLowerCase()) ||
                 user.email.toLowerCase().includes(search.toLowerCase());
             const matchesStatus =
                 statusFilter === "Status" || user.status === statusFilter;
             const matchesRole =
-                roleFilter === "Roles" || user.role === roleFilter;
+                roleFilter === "Roles" || user.role?.name === roleFilter;
             return matchesSearch && matchesStatus && matchesRole;
         });
     }, [users, search, statusFilter, roleFilter]);

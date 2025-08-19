@@ -9,6 +9,22 @@ const api = axios.create({
     withCredentials: true,
 });
 
+// api.interceptors.request.use(
+//     (config) => {
+//         console.log("Starting Request", {
+//             url: config.url,
+//             method: config.method,
+//             data: config.data,
+//             headers: config.headers,
+//         });
+//         return config;
+//     },
+//     (error) => {
+//         console.error("Request error:", error);
+//         return Promise.reject(error);
+//     }
+// );
+
 let isRefreshing = false;
 let failedQueue: Array<{
     resolve: (value?: any) => void;
@@ -27,7 +43,14 @@ const processQueue = (error: any, token: string | null = null) => {
 };
 
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // console.log("Response:", {
+        //     url: response.config.url,
+        //     status: response.status,
+        //     data: response.data,
+        // });
+        return response;
+    },
     async (error) => {
         const originalRequest = error.config;
 
@@ -65,16 +88,10 @@ api.interceptors.response.use(
 
 const get = <T = any>(url: string, config?: AxiosRequestConfig) =>
     api.get<T>(url, config).then((res) => res.data);
-const post = <D = any>(
-    url: string,
-    data?: D,
-    config?: AxiosRequestConfig
-) => api.post(url, data, config).then((res) => res.data);
-const patch = <D = any>(
-    url: string,
-    data?: D,
-    config?: AxiosRequestConfig
-) => api.patch(url, data, config).then((res) => res.data);
+const post = <D = any>(url: string, data?: D, config?: AxiosRequestConfig) =>
+    api.post(url, data, config).then((res) => res.data);
+const patch = <D = any>(url: string, data?: D, config?: AxiosRequestConfig) =>
+    api.patch(url, data, config).then((res) => res.data);
 const del = (url: string, config?: AxiosRequestConfig) =>
     api.delete(url, config).then((res) => res.data);
 

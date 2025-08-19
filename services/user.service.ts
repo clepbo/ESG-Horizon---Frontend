@@ -1,5 +1,12 @@
 import api from "@/lib/api/axios";
 
+export type TeamUserStatus =
+    | "pending"
+    | "active"
+    | "approved"
+    | "suspended"
+    | "disabled";
+
 export interface User {
     id: string;
     email: string;
@@ -7,13 +14,13 @@ export interface User {
     last_name: string;
     phone_number?: string;
     profile_photo_url?: string;
-    status: string;
-    company: {
-        name: string;
+    status: TeamUserStatus;
+    company?: {
+        name?: string;
     };
     department?: string;
-    role: {
-        name: string;
+    role?: {
+        name?: string;
     };
 }
 
