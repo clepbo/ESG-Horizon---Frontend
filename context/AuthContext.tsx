@@ -82,8 +82,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const roleName = user.role?.name;
         router.push(
             roleName === "super_admin"
-                ? "/admin/dashboard"
-                : "/company/dashboard"
+                ? "/dashboard"
+                : "/dashboard-esg"
         );
     };
 

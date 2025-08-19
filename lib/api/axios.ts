@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosRequestConfig } from "axios";
 import { triggerLogout } from "../utils";
 
@@ -10,11 +11,11 @@ const api = axios.create({
 
 let isRefreshing = false;
 let failedQueue: Array<{
-    resolve: (value?: unknown) => void;
-    reject: (error: unknown) => void;
+    resolve: (value?: any) => void;
+    reject: (error: any) => void;
 }> = [];
 
-const processQueue = (error: unknown, token: string | null = null) => {
+const processQueue = (error: any, token: string | null = null) => {
     failedQueue.forEach((prom) => {
         if (error) {
             prom.reject(error);
@@ -62,14 +63,14 @@ api.interceptors.response.use(
     }
 );
 
-const get = <T = unknown>(url: string, config?: AxiosRequestConfig) =>
+const get = <T = any>(url: string, config?: AxiosRequestConfig) =>
     api.get<T>(url, config).then((res) => res.data);
-const post = <D = unknown>(
+const post = <D = any>(
     url: string,
     data?: D,
     config?: AxiosRequestConfig
 ) => api.post(url, data, config).then((res) => res.data);
-const patch = <D = unknown>(
+const patch = <D = any>(
     url: string,
     data?: D,
     config?: AxiosRequestConfig
@@ -85,36 +86,3 @@ const apiUtil = {
 };
 
 export default apiUtil;
-
-// import axios, { AxiosRequestConfig } from "axios";
-
-// const api = axios.create({
-//     baseURL:
-//         process.env.NEXT_PUBLIC_API_BASE_URL ||
-//         "https://esghorizon-engine.up.railway.app",
-//     withCredentials: true,
-// });
-
-// const get = <T = unknown>(url: string, config?: AxiosRequestConfig) =>
-//     api.get<T>(url, config).then((res) => res.data);
-// const post = <D = unknown>(
-//     url: string,
-//     data?: D,
-//     config?: AxiosRequestConfig
-// ) => api.post(url, data, config).then((res) => res.data);
-// const patch = <D = unknown>(
-//     url: string,
-//     data?: D,
-//     config?: AxiosRequestConfig
-// ) => api.patch(url, data, config).then((res) => res.data);
-// const del = (url: string, config?: AxiosRequestConfig) =>
-//     api.delete(url, config).then((res) => res.data);
-
-// const apiUtil = {
-//     get,
-//     post,
-//     patch,
-//     delete: del,
-// };
-
-// export default apiUtil;

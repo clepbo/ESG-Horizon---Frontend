@@ -13,8 +13,8 @@ import {
 import CompanySubscriptionTab from "@/app/components/company/CompanySubscriptionTab";
 import CompanyActivities from "@/app/components/company/CompanyActivities";
 import CompanyInfo from "@/app/components/company/CompanyInfo";
-import { getCompanyById, Company } from "@/lib/api/companyApi";
 import Spinner from "@/app/components/ui/reusables/Spinner";
+import { Company, companyService } from "@/services/company.service";
 
 const PERSONA_TABS = [
   { label: "Overview", value: "overview" },
@@ -36,7 +36,7 @@ export default function CompanyDetailsClient({ id }: Props) {
   useEffect(() => {
     const fetchCompany = async () => {
       try {
-        const data = await getCompanyById(id);
+        const data = await companyService.getDetails(id);
         setCompany(data);
       } catch (err) {
         console.error("Error fetching company:", err);

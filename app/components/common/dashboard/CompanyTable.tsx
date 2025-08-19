@@ -9,6 +9,7 @@ import { useState } from "react";
 import { updateCompanyStatus, Company } from "@/lib/api/companyApi";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { companyService } from "@/services/company.service";
 
 interface CompanyTableProps {
   companies: Company[];
@@ -74,7 +75,8 @@ export default function CompanyTable({
 
     if (companyId && newStatus) {
       try {
-        await updateCompanyStatus(companyId, newStatus);
+        // await updateCompanyStatus(companyId, newStatus);
+        await companyService.updateStatus(companyId, newStatus);
 
         queryClient.setQueryData<Company[]>(["companies"], (prev) =>
           prev?.map((company) =>

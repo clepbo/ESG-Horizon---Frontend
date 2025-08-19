@@ -1,21 +1,35 @@
 import api from "@/lib/api/axios";
 
+export interface User {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_number?: string;
+    profile_photo_url?: string;
+    status: string;
+    company: {
+        name: string;
+    };
+    department?: string;
+    role: {
+        name: string;
+    };
+}
+
 export const userService = {
-  // Get current logged-in user
-  getCurrent: async () => {
-    const { data } = await api.get("/users/me");
-    return data;
-  },
+    getCurrent: async () => {
+        const { data } = await api.get("/users/me");
+        return data;
+    },
 
-  // Edit current logged-in user
-  editCurrent: async (payload: Record<string, any>) => {
-    const { data } = await api.patch("/users/me", payload);
-    return data;
-  },
+    editCurrent: async (payload: User) => {
+        const { data } = await api.patch("/users/me", payload);
+        return data;
+    },
 
-  // Get all users (with optional query params)
-  getAll: async (params?: Record<string, any>) => {
-    const { data } = await api.get("/users/all", { params });
-    return data;
-  },
+    getAll: async (params?: User) => {
+        const { data } = await api.get("/users/all", { params });
+        return data;
+    },
 };

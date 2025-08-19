@@ -11,7 +11,7 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-grey-50">
       <Sidebar />
-     <LayoutContent role={USER_TYPES.ESG_ADMIN}>
+     <LayoutContent role={USER_TYPES.COMPANY_ESG_ADMIN}>
       
         {children}
       </LayoutContent> 
