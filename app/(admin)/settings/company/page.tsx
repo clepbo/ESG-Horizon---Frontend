@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { Edit } from "lucide-react";
 import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import Header from "@/app/components/layout/Header";
-import { Company } from "@/context/AuthContext";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import { getCompanyProfile } from "@/lib/api/auth";
+import { Company } from "@/services/company.service";
 
 export default function CompanyPage() {
   const [companyData, setCompanyData] = useState<Company | null>(null);

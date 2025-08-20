@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useMemo, useState } from "react";
@@ -126,12 +127,12 @@ export default function TeamsPage() {
         )}
 
         {/* Pass only filteredData — pagination happens in TeamsTable */}
-        <TeamsTable users={filteredData} onStatusUpdate={handleStatusUpdate} />
+        {/* <TeamsTable users={filteredData} onStatusUpdate={handleStatusUpdate} /> */}
       </main>
 
-      {showInviteModal && (
+      {/* {showInviteModal && (
         <InviteUserModal onClose={() => setShowInviteModal(false)} />
-      )}
+      )} */}
     </div>
   );
 }

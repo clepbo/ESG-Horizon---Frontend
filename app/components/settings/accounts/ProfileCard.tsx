@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Edit } from "lucide-react";
-import { User } from "@/context/AuthContext";
+import { User } from "@/services/user.service";
 
 interface ProfileCardProps {
   user: User;

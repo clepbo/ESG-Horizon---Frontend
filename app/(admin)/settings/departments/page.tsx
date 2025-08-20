@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Plus, Search } from "lucide-react";
@@ -127,18 +128,18 @@ export default function DepartmentsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">
-            <DepartmentsTable departments={filteredDepartments} />
+            {/* <DepartmentsTable departments={filteredDepartments} /> */}
           </div>
         )}
       </main>
 
       {/* Modal */}
-      {showAddDepartmentModal && (
+      {/* {showAddDepartmentModal && (
         <AddDepartmentModal
           onClose={() => setShowAddDepartmentModal(false)}
           onAddDepartment={handleAddDepartment}
         />
-      )}
+      )} */}
     </div>
   );
 }

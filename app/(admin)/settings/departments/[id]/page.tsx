@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
@@ -13,10 +14,10 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import Spinner from "@/app/components/ui/reusables/Spinner";
-import TeamMembersTable from "@/app/components/settings/departments/TeamMembersTable";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import Header from "@/app/components/layout/Header";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
+import TeamMembersTable from "@/app/components/settings/departments/TeamMembersTable";
 import EditDepartmentModal from "@/app/components/ui/modals/EditDepartment";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import { useParams } from "next/navigation";
@@ -77,10 +78,10 @@ export default function DepartmentTeamUsersPage() {
     });
   }, [search, statusFilter, roleFilter, teamUsers]);
 
-  const paginatedMembers = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredMembers.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredMembers, currentPage, itemsPerPage]);
+  // const paginatedMembers = useMemo(() => {
+  //   const startIndex = (currentPage - 1) * itemsPerPage;
+  //   return filteredMembers.slice(startIndex, startIndex + itemsPerPage);
+  // }, [filteredMembers, currentPage, itemsPerPage]);
 
   const handleEditClick = (dept: Department) => {
     setSelectedDepartment(dept);
@@ -182,7 +183,7 @@ export default function DepartmentTeamUsersPage() {
 
       {/* Members Table */}
       <div className="overflow-x-auto shadow rounded-lg bg-white">
-        <TeamMembersTable members={paginatedMembers} users={teamUsers} />
+        {/* <TeamMembersTable members={paginatedMembers} users={teamUsers} /> */}
       </div>
 
       {/* Pagination */}
@@ -200,7 +201,7 @@ export default function DepartmentTeamUsersPage() {
       </div>
 
       {/* Modals */}
-      {showInviteModal && (
+      {/* {showInviteModal && (
         <InviteUserModal onClose={() => setShowInviteModal(false)} />
       )}
 
@@ -209,7 +210,7 @@ export default function DepartmentTeamUsersPage() {
           department={selectedDepartment}
           onClose={() => setIsEditOpen(false)}
         />
-      )}
+      )} */}
     </div>
   );
 }

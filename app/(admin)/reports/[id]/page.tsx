@@ -1,6 +1,6 @@
 import { mockUsers } from "@/lib/mockData/users";
 import Header from "@/app/components/layout/Header";
-import UserDetailsCard from "@/app/components/common/users/UserDetailsCard";
+// import UserDetailsCard from "@/app/components/common/users/UserDetailsCard";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 
 type PageProps = {
@@ -26,7 +26,7 @@ export default async function UserDetailsPage({ params }: PageProps) {
       <Header />
       <BackButton />
       <h2 className="text-2xl font-semibold">User Details</h2>
-      <UserDetailsCard user={user} />
+      {/* <UserDetailsCard user={user} /> */}
     </section>
   );
 }

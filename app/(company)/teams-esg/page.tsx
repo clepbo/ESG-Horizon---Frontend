@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useMemo, useState } from "react";
@@ -181,9 +182,9 @@ export default function TeamsPage() {
         </div>
       </main>
 
-      {showInviteModal && (
+      {/* {showInviteModal && (
         <InviteUserModal onClose={() => setShowInviteModal(false)} />
-      )}
+      )} */}
     </div>
   );
 }

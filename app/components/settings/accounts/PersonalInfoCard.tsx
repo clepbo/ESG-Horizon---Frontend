@@ -1,6 +1,7 @@
 "use client";
 
-import { User } from "@/context/AuthContext";
+import { User } from "@/services/user.service";
+// import { User } from "@/context/AuthContext";
 import InfoField from "./InfoField";
 
 interface PersonalInfoCardProps {

@@ -1,7 +1,6 @@
 "use client";
 
 import { Edit, Eye } from "lucide-react";
-import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import EditDepartmentModal from "@/app/components/ui/modals/EditDepartment";
 

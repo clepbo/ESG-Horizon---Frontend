@@ -1,8 +1,8 @@
 "use client";
 
-import { User } from "@/context/AuthContext";
 import ProfileCard from "./ProfileCard";
 import PersonalInfoCard from "./PersonalInfoCard";
+import { User } from "@/services/user.service";
 
 interface ProfileTabProps {
   user: User;

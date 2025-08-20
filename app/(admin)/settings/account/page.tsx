@@ -6,11 +6,11 @@ import SettingsAndPassword from "@/app/components/settings/SettingsAndPassword";
 import Header from "@/app/components/layout/Header";
 import NotificationsSettings from "@/app/components/settings/NotificationsSettings";
 import DataManagement from "@/app/components/settings/DataManagement";
-import { User } from "@/context/AuthContext";
 import { useAuth } from "@/context/AuthContext";
 import TabBar from "@/app/components/settings/accounts/TopBar";
 import ProfileTab from "@/app/components/settings/accounts/ProfileTab";
 import Spinner from "@/app/components/ui/reusables/Spinner";
+import { User } from "@/services/user.service";
 
 const TABS = ["Profile", "Security & Password", "Notifications", "Data"];
 
