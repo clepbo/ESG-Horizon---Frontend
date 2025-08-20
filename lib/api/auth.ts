@@ -1,41 +1,40 @@
-import { User } from "@/context/AuthContext";
+import { Company } from "@/services/company.service";
 import api from "./axios";
-import { Company } from "@/context/AuthContext";
 
 type SignupData = {
-  email: string;
-  password: string;
-  first_name: string;
-  last_name: string;
-  phone_number: string;
-  company_name: string;
-  reg_number: string;
-  industry_type: string;
-  address: string;
-  contact_email: string;
-  contact_phone: string;
-  company_website: string;
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    company_name: string;
+    reg_number: string;
+    industry_type: string;
+    address: string;
+    contact_email: string;
+    contact_phone: string;
+    company_website: string;
 };
 
 export const loginUser = async (data: { email: string; password: string }) => {
-  const response = await api.post("/auth/login", data);
+    const response = await api.post("/auth/login", data);
 
-  // If the backend sends the token here, store it
-  if (response.data?.access_token) {
-    localStorage.setItem("token", response.data.token);
-  }
+    // If the backend sends the token here, store it
+    if (response.data?.access_token) {
+        localStorage.setItem("token", response.data.token);
+    }
 
-  return response.data;
+    return response.data;
 };
 
 export const signupUser = async (data: SignupData) => {
-  const response = await api.post("/company/esg/signup", data);
-  return response.data;
+    const response = await api.post("/company/esg/signup", data);
+    return response.data;
 };
 
 export const forgotPassword = async (data: { email: string }) => {
-  const response = await api.post("/auth/forgot-password", data);
-  return response.data;
+    const response = await api.post("/auth/forgot-password", data);
+    return response.data;
 };
 
 // export const getUserProfile = async () => {
@@ -43,8 +42,8 @@ export const forgotPassword = async (data: { email: string }) => {
 //   return response.data;
 // };
 export const getCompanyProfile = async () => {
-  const response = await api.get("/company/esg/all");
-  return response.data;
+    const response = await api.get("/company/esg/all");
+    return response.data;
 };
 
 // export const updateUserProfile = async (data: Partial<User>) => {
@@ -63,26 +62,26 @@ export const getCompanyProfile = async () => {
 // };
 // Company profile update
 export const updateCompanyProfile = async (
-  id: number,
-  data: Partial<Company>
+    id: number,
+    data: Partial<Company>
 ) => {
-  const payload = {
-    name: data.name,
-    registration_number: data.registration_number,
-    industry: data.industry,
-    address: data.address,
-    contact_email: data.contact_email,
-    contact_phone: data.contact_phone,
-    website: data.website,
-    company_logo_url: data.company_logo_url,
-    isoCountryCode: data.isoCountryCode,
-    role: "",
-  };
+    const payload = {
+        name: data.name,
+        registration_number: data.registration_number,
+        industry: data.industry,
+        address: data.address,
+        contact_email: data.contact_email,
+        contact_phone: data.contact_phone,
+        website: data.website,
+        company_logo_url: data.company_logo_url,
+        isoCountryCode: data.isoCountryCode,
+        role: "",
+    };
 
-  console.log("Updating company profile with:", payload);
+    console.log("Updating company profile with:", payload);
 
-  // ✅ interpolate id
-  const response = await api.patch(`/company/esg/${id}`, payload);
+    // ✅ interpolate id
+    const response = await api.patch(`/company/esg/${id}`, payload);
 
-  return response.data;
+    return response.data;
 };

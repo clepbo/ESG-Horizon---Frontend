@@ -12,7 +12,7 @@ import {
     ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext"; // 👈 adjust path as needed

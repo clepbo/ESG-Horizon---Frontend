@@ -2,7 +2,6 @@ import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import VerifyEmailPage from "@/app/(auth)/verify-email/page";
-import ClientToaster from "@/app/components/ui/reusables/ClientToaster";
 import { useRouter } from "next/navigation";
 
 jest.mock("next/navigation", () => ({
@@ -18,7 +17,6 @@ describe("VerifyEmailPage", () => {
     render(
       <>
         <VerifyEmailPage />
-        <ClientToaster />
       </>
     );
   });

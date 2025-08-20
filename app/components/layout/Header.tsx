@@ -10,7 +10,7 @@ export default function Header() {
     user?.profile_photo_url && user.profile_photo_url.trim() !== ""
       ? user.profile_photo_url
       : "/image.png";
-  console.log(user);
+
   return (
     <header className="flex justify-start lg:justify-end items-center p-2 bg-white rounded-xl shadow-sm w-full">
       <div className="flex items-center gap-3">

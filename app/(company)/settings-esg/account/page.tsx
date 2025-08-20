@@ -17,7 +17,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/app/components/ui/select";
-import { User, userService } from "@/services/user.service";
+import { User } from "@/services/user.service";
 
 const TABS = ["Profile", "Security & Password", "Notifications", "Data"];
 

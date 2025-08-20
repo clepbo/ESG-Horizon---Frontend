@@ -6,7 +6,7 @@ import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
 import { useState } from "react";
-import { updateCompanyStatus, Company } from "@/lib/api/companyApi";
+import { Company } from "@/lib/api/companyApi";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { companyService } from "@/services/company.service";

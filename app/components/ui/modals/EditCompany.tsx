@@ -4,9 +4,9 @@ import { useState } from "react";
 import { CircleX, Camera } from "lucide-react";
 import Image from "next/image";
 import BackButton from "../reusables/BackButton";
-import { Company } from "@/context/AuthContext";
 import { InputField } from "@/app/components/common/forms/FormField";
-import { updateCompanyProfile } from "@/lib/api/auth";
+import { Company, companyService } from "@/services/company.service";
+import { toast } from "react-toastify";
 
 export default function EditCompanyModal({
   company,
@@ -33,9 +33,8 @@ export default function EditCompanyModal({
         company_logo_url: companyLogo || formData.company_logo_url,
       };
 
-      // ✅ Pass id and payload
-      const updated = await updateCompanyProfile(company.id, payload);
-
+      const updated = await companyService.updateDetails(company.id, payload);
+      toast.info("Company profile updated successfully!");
       onUpdate(updated);
     } catch (error) {
       console.error("Error updating company profile:", error);

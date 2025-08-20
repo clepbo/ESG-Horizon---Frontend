@@ -6,6 +6,7 @@ import Image from "next/image";
 import BackButton from "../reusables/BackButton";
 import { InputField, SelectField } from "@/app/components/common/forms/FormField";
 import { User, userService } from "@/services/user.service";
+import { toast } from "react-toastify";
 
 export default function EditUserModal({
   user,
@@ -32,6 +33,7 @@ export default function EditUserModal({
         // avatar: userImage || formData.profile_photo_url,
       };
       const updated = await userService.editCurrent(payload as User);
+      toast.success("Profile Updated Successfully!")
       onUpdate(updated);
     } catch (error) {
       console.error("Error updating user profile:", error);

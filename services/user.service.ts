@@ -18,7 +18,9 @@ export interface User {
     company?: {
         name?: string;
     };
-    department?: string;
+    department?: {
+        name?: string;
+    };
     role?: {
         name?: string;
     };

@@ -3,14 +3,14 @@
 import LoginForm from "@/app/components/auth/LoginForm";
 
 import Image from "next/image";
-import { ToastContainer } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import { SecuritySlider } from "../../components/ui/reusables/SecuritySlider";
 
 export default function LoginPage() {
   return (
     <>
-      <ToastContainer />
+      
 
       <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
         {/* Left side with background image + green overlay + slider */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
@@ -181,7 +181,6 @@ export default function InviteUserPage() {
           </p>
         </form>
       </div>
-      <ToastContainer theme="light" position="top-right" autoClose={3000} />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import InviteUserForm from "@/app/components/auth/InviteUserForm";
 import { Suspense } from "react";
 import Image from "next/image";
-import { ToastContainer } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 import { SecuritySlider } from "../../components/ui/reusables/SecuritySlider";
 import Spinner from "../../components/ui/reusables/Spinner";
@@ -11,7 +11,7 @@ import Spinner from "../../components/ui/reusables/Spinner";
 export default function InviteUserPage() {
   return (
     <>
-      <ToastContainer />
+      
 
       <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
         {/* Left side with background image + green overlay + slider */}

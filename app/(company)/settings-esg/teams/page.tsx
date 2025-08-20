@@ -16,6 +16,7 @@ import {
 import Header from "../../components/Header";
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
+import { Department, departmentService } from "@/services/department.service";
 
 export default function TeamsPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -24,12 +25,25 @@ export default function TeamsPage() {
     const [statusFilter, setStatusFilter] = useState("Status");
     const [roleFilter, setRoleFilter] = useState("Roles");
     const [loading, setLoading] = useState(false);
+    const [departments, setDepartments] = useState<Department[]>([]);
 
     useEffect(() => {
         async function fetchUsers() {
             setLoading(true);
+            const yourCompany = await companyService.getDetails();
+            if (!yourCompany) {
+                console.error("No company details found");
+                setLoading(false);
+                return;
+            }
             try {
-                const companyUsers = await companyService.getUsers(5);
+                const depts = await departmentService.getAll(yourCompany.id);
+                console.log("Fetched departments:", depts);
+                setDepartments(depts);
+
+                const companyUsers = await companyService.getUsers(
+                    yourCompany.id
+                );
                 console.log("Fetched users:", companyUsers);
                 setUsers(companyUsers);
             } catch (err) {
@@ -170,12 +184,31 @@ export default function TeamsPage() {
                 {/* Pass only filteredData — pagination happens in TeamsTable */}
                 <TeamsTable
                     users={filteredData}
+                    setUsers={setUsers}
                     onStatusUpdate={handleStatusUpdate}
                 />
             </main>
 
             {showInviteModal && (
-                <InviteUserModal onClose={() => setShowInviteModal(false)} />
+                <InviteUserModal
+                    departments={departments}
+                    onClose={() => setShowInviteModal(false)}
+                    onInvite={() => {
+                        (async () => {
+                            setLoading(true);
+                            const yourCompany =
+                                await companyService.getDetails();
+                            if (yourCompany) {
+                                const companyUsers =
+                                    await companyService.getUsers(
+                                        yourCompany.id
+                                    );
+                                setUsers(companyUsers);
+                            }
+                            setLoading(false);
+                        })();
+                    }}
+                />
             )}
         </div>
     );

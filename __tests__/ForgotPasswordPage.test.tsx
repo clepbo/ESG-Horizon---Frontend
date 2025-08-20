@@ -2,7 +2,6 @@ import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ForgotPasswordPage from "@/app/(auth)/forgot-password/page";
-import ClientToaster from "@/app/components/ui/reusables/ClientToaster";
 import { useRouter } from "next/navigation";
 
 // Mock Next.js router
@@ -11,9 +10,9 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock Next.js Image (if used)
-jest.mock("next/image", () => (props: any) => (
-  <img {...props} alt={props.alt || "mocked-image"} />
-));
+// jest.mock("next/image", () => (props: any) => (
+//   <img {...props} alt={props.alt || "mocked-image"} />
+// ));
 
 describe("ForgotPasswordPage", () => {
   const push = jest.fn();
@@ -23,7 +22,6 @@ describe("ForgotPasswordPage", () => {
     render(
       <>
         <ForgotPasswordPage />
-        <ClientToaster />
       </>
     );
   });

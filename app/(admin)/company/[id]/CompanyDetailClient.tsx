@@ -36,7 +36,7 @@ export default function CompanyDetailsClient({ id }: Props) {
   useEffect(() => {
     const fetchCompany = async () => {
       try {
-        const data = await companyService.getDetails(id);
+        const data = await companyService.getDetails();
         setCompany(data);
       } catch (err) {
         console.error("Error fetching company:", err);

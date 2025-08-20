@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { fetchTeamUsers, fetchDepartments } from "@/lib/api/departmentsApi";
-import { TeamUser, Department } from "@/lib/mockData/mockDepartment";
-import { Input } from "@/app/components/ui/input";
+import { useParams } from "next/navigation";
 import { Plus, Search, Edit } from "lucide-react";
+
+import Header from "@/app/components/layout/Header";
+import BackButton from "@/app/components/ui/reusables/BackButton";
+import { Input } from "@/app/components/ui/input";
 import {
   Select,
   SelectTrigger,
@@ -14,48 +16,83 @@ import {
 } from "@/app/components/ui/select";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import TeamMembersTable from "@/app/components/settings/departments/TeamMembersTable";
-import BackButton from "@/app/components/ui/reusables/BackButton";
-import Header from "@/app/components/layout/Header";
+import Pagination from "@/app/components/ui/reusables/Pagination";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
 import EditDepartmentModal from "@/app/components/ui/modals/EditDepartment";
-import Pagination from "@/app/components/ui/reusables/Pagination";
-import { useParams } from "next/navigation";
+
+import { departmentService, Department } from "@/services/department.service";
+import { companyService } from "@/services/company.service";
+import { TeamUserStatus, User } from "@/services/user.service";
 
 export default function DepartmentTeamUsersPage() {
-  const { id } = useParams(); // department id from URL
+  const { id } = useParams();
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [roleFilter, setRoleFilter] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<Department | null>(null); // ✅ FIX
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
 
-  // pagination
+  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // data state
-  const [teamUsers, setTeamUsers] = useState<TeamUser[]>([]);
+  // Data state
+  const [teamUsers, setTeamUsers] = useState<Partial<User>[]>([]);
   const [department, setDepartment] = useState<Department | null>(null);
 
-  /** Fetch all departments and team users */
+  // Fetch department details and its users
   const loadData = useCallback(async () => {
+    const rawId = id;
+    const cleanId = Array.isArray(rawId) ? rawId[0] : rawId;
+
+    if (!cleanId) return;
+
     try {
       setLoading(true);
+      setError(null);
+
+      const yourCompany = await companyService.getDetails();
+      if (!yourCompany) throw new Error("No company details found");
+
       const [departmentsData, teamData] = await Promise.all([
-        fetchDepartments(),
-        fetchTeamUsers(),
+        departmentService.getAll(yourCompany.id),
+        departmentService.getUsers(cleanId),
       ]);
 
-      const dept = departmentsData.find((d) => d.id === id) || null;
+      const safeDepartmentsData = Array.isArray(departmentsData) ? departmentsData : [];
+      const safeTeamData = Array.isArray(teamData) ? teamData : [];
+
+      // Find department in safe list
+      const dept = safeDepartmentsData.find((d: Department) => String(d.id) === String(cleanId)) || null;
+
+      function mapStatus(statusStr: string): TeamUserStatus | undefined {
+        const validStatuses = ["Approved", "Pending", "Suspended"];
+        if (validStatuses.includes(statusStr)) {
+          return statusStr as TeamUserStatus;
+        }
+        return undefined;
+      }
+
+      const normalizedTeamUsers: Partial<User>[] = safeTeamData.map((user) => ({
+        ...user,
+        id: String(user.id),
+        status: mapStatus(user.status),
+        role: { name: user.role },
+      }));
+
+      setDepartments(safeDepartmentsData);
       setDepartment(dept);
-      setTeamUsers(teamData);
+      setSelectedDepartment(dept);
+      setTeamUsers(normalizedTeamUsers);
     } catch (err) {
       console.error("Error fetching department/team users:", err);
+      setError("Failed to load department data");
     } finally {
       setLoading(false);
     }
@@ -66,13 +103,21 @@ export default function DepartmentTeamUsersPage() {
   }, [loadData]);
 
   const filteredMembers = useMemo(() => {
+    const searchLower = search.toLowerCase();
+
     return teamUsers.filter((user) => {
+      const firstName = user.first_name ?? "";
+      const lastName = user.last_name ?? "";
+      const email = user.email ?? "";
+
       const matchesSearch =
-        user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === "All" || user.status === statusFilter;
-      const matchesRole = roleFilter === "All" || user.role === roleFilter;
+        firstName.toLowerCase().includes(searchLower) ||
+        lastName.toLowerCase().includes(searchLower) ||
+        email.toLowerCase().includes(searchLower);
+
+      const matchesStatus = statusFilter === "All" || user.status === statusFilter;
+      const matchesRole = roleFilter === "All" || user.role?.name === roleFilter;
+
       return matchesSearch && matchesStatus && matchesRole;
     });
   }, [search, statusFilter, roleFilter, teamUsers]);
@@ -87,11 +132,74 @@ export default function DepartmentTeamUsersPage() {
     setIsEditOpen(true);
   };
 
-  if (loading || !department) {
+  useEffect(() => {
+    async function loadDepartments() {
+      const yourCompany = await companyService.getDetails();
+      if (!yourCompany) return;
+      const depts = await departmentService.getAll(yourCompany.id);
+      setDepartments(depts);
+    }
+    loadDepartments();
+  }, []);
+
+  async function handleInvite() {
+    setLoading(true);
+    const rawId = id;
+    const cleanId = Array.isArray(rawId) ? rawId[0] : rawId;
+
+    if (!cleanId) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const yourCompany = await companyService.getDetails();
+      if (yourCompany) {
+        const updatedUsers = await departmentService.getUsers(cleanId);
+
+        const safeUpdatedUsers = Array.isArray(updatedUsers) ? updatedUsers : [];
+
+        function mapStatus(statusStr: string): TeamUserStatus | undefined {
+          const validStatuses = ["Approved", "Pending", "Suspended"];
+          if (validStatuses.includes(statusStr)) {
+            return statusStr as TeamUserStatus;
+          }
+          return undefined;
+        }
+
+        const normalizedTeamUsers: Partial<User>[] = safeUpdatedUsers.map((user) => ({
+          ...user,
+          id: String(user.id),
+          status: mapStatus(user.status),
+          role: { name: user.role },
+        }));
+
+        setTeamUsers(normalizedTeamUsers);
+      }
+    } catch (err) {
+      console.error("Error inviting user:", err);
+      setError("Failed to invite user");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64 text-red-500">{error}</div>
+    );
+  }
+
+  if (!department) {
+    return (
+      <div className="flex justify-center items-center h-64">Department not found.</div>
     );
   }
 
@@ -106,7 +214,7 @@ export default function DepartmentTeamUsersPage() {
           <h2 className="text-xl font-semibold">{department.name}</h2>
           <button
             className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 cursor-pointer"
-            onClick={() => handleEditClick(department)} // ✅ Use handler
+            onClick={() => handleEditClick(department)}
           >
             <Edit className="w-4 h-4" />
             Edit
@@ -115,14 +223,17 @@ export default function DepartmentTeamUsersPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 text-sm">
           <InfoRow label="Department Name" value={department.name} />
-          <InfoRow label="Description" value={department.description} />
-          <InfoRow label="Department Lead" value={department.lead} />
-          <InfoRow label="Email" value={department.email} />
+          <InfoRow label="Description" value={department.description || "-"} />
           <InfoRow
-            label="Team Members"
-            value={department.teamSize?.toString() || "0"}
+            label="Department Lead"
+            value={
+              department.lead
+                ? `${department.lead.first_name} ${department.lead.last_name}`
+                : "-"
+            }
           />
-          <InfoRow label="Status" value={department.status} />
+          <InfoRow label="Email" value={department.contact_email || "-"} />
+          <InfoRow label="Team Members" value={String(teamUsers.length)} />
         </div>
       </div>
 
@@ -182,7 +293,7 @@ export default function DepartmentTeamUsersPage() {
 
       {/* Members Table */}
       <div className="overflow-x-auto shadow rounded-lg bg-white">
-        <TeamMembersTable members={paginatedMembers} users={teamUsers} />
+        <TeamMembersTable users={paginatedMembers} />
       </div>
 
       {/* Pagination */}
@@ -201,7 +312,11 @@ export default function DepartmentTeamUsersPage() {
 
       {/* Modals */}
       {showInviteModal && (
-        <InviteUserModal onClose={() => setShowInviteModal(false)} />
+        <InviteUserModal
+          departments={departments}
+          onClose={() => setShowInviteModal(false)}
+          onInvite={handleInvite}
+        />
       )}
 
       {isEditOpen && selectedDepartment && (

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { SignupForm } from "@/app/components/auth/SignupForm";
 import { OrganizationDetails } from "@/app/components/auth/OrganizationDetails";
 import { RequestSubmitted } from "@/app/components/auth/RequestSubmitted";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SecuritySlider } from "@/app/components/ui/reusables/SecuritySlider";
 import { useAuth } from "@/context/AuthContext";
@@ -32,6 +32,7 @@ export default function Index() {
       return;
     }
     const payload = {
+      id: 0,
       email: personalData.workEmail,
       password: personalData.password,
       first_name: personalData.firstName,
@@ -44,6 +45,8 @@ export default function Index() {
       address: orgData.address,
       contact_email: orgData.contactEmail,
       contact_phone: orgData.contactPhone,
+      company_logo_url: "",
+      staff: "",
       website: orgData.website || "",
       role: "",
     };
@@ -62,7 +65,6 @@ export default function Index() {
     return (
       <>
         <RequestSubmitted />
-        <ToastContainer theme="light" position="top-right" autoClose={3000} />
       </>
     );
   }
@@ -120,7 +122,6 @@ export default function Index() {
           </div>
         </div>
       </div>
-      <ToastContainer theme="light" position="top-right" autoClose={3000} />
     </>
   );
 }
