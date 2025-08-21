@@ -35,6 +35,7 @@ export default function LoginForm() {
 
         try {
             await login(data.email, data.password);
+
             setTimeout(() => {
                 toast.success("Welcome back!");
             }, 1000);
@@ -55,7 +56,6 @@ export default function LoginForm() {
             setLoading(false);
             return;
         }
-
     };
 
     return (
@@ -213,7 +213,7 @@ export default function LoginForm() {
             {/* Signup Link */}
             <div className="mt-6 text-center text-sm text-neutral-600">
                 <p>
-                    Don’t have an account?{" "}
+                    Dont have an account?{" "}
                     <Link
                         href="/esg/auth/signup"
                         className="text-neutral-900 font-medium hover:underline"

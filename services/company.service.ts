@@ -5,7 +5,6 @@ export interface Company {
     id: number;
     name: string;
     registration_number: string;
-    sicsCode?: string;
     isinCode?: string | null;
     isoCountryCode?: string;
     sector?: string | null;

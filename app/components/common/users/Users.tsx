@@ -5,7 +5,7 @@ import { useDebounce } from "use-debounce";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import CompanyTable from "@/app/components/common/dashboard/CompanyTable";
 import ESGCompanyTable from "../../company/ESGCompanyTable";
-import { Company } from "@/lib/api/companyApi";
+import { Company } from "@/services/company.service";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Input } from "@/app/components/ui/input";
 import {

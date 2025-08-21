@@ -75,8 +75,6 @@ export default function TeamsPage() {
         newStatus: TeamUserStatus
     ) => {
         try {
-            // await companyService.updateUserStatus(id, newStatus);
-            console.log("updating user with:", id, newStatus);
             setUsers((prev) =>
                 prev.map((user) =>
                     user.id === id ? { ...user, status: newStatus } : user

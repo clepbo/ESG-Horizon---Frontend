@@ -53,7 +53,6 @@ export default function DepartmentsPage() {
             const yourCompany = await companyService.getDetails();
             if (!yourCompany) throw new Error("No company details found");
 
-            // Assuming you have a service method to get all company users
             const companyUsers = await companyService.getUsers(yourCompany.id);
             setUsers(companyUsers);
         } catch (error) {
@@ -71,7 +70,7 @@ export default function DepartmentsPage() {
     const handleAddDepartment = async (newDept: {
         name: string;
         description?: string;
-        lead?: Partial<User> | null; // modal returns full or partial user object or null
+        lead?: Partial<User> | null;
         contact_email: string;
     }) => {
         try {
@@ -79,7 +78,6 @@ export default function DepartmentsPage() {
             const yourCompany = await companyService.getDetails();
             if (!yourCompany) throw new Error("Company not found");
 
-            // Prepare payload matching backend CreateDepartmentDto
             const createPayload: CreateDepartment = {
                 name: newDept.name,
                 description: newDept.description,
@@ -176,7 +174,6 @@ export default function DepartmentsPage() {
                     </div>
                 </div>
 
-                {/* Loading State */}
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
                         <Spinner />

@@ -13,22 +13,10 @@ import { registerLogout } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { User } from "@/services/user.service";
 
-// export type User = {
-//     id: number;
-//     email: string;
-//     first_name: string;
-//     last_name: string;
-//     role?: { name: string };
-//     company?: string;
-//     profile_photo_url: string | null;
-//     phone_number: string;
-//     department: string;
-//     job_title: string;
-// };
 type SignupData = {
-    id: number;
+    id?: number;
     name: string;
-    industry: string;
+    industryId: number;
     company_logo_url: string;
     address: string;
     isoCountryCode: string;
@@ -38,6 +26,11 @@ type SignupData = {
     description?: string;
     registration_number: string;
     staff: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    password: string;
 };
 type InviteUserData = {
     first_name: string;
@@ -83,10 +76,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             const profile = await api.get<User>("/users/me");
             setUser(profile);
 
-            // const roleName = profile.role?.name;
-            // const redirectTo =
-            //     roleName === "super_admin" ? "/dashboard" : "/dashboard-esg";
-
             let storedName = "",
                 storedRole = "",
                 storedPage = "";
@@ -96,13 +85,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 storedPage = localStorage.getItem("lastVisitedPage_page") || "";
             }
 
+            const platformRoles = [
+                "super_admin",
+                "platform_subadmin",
+                "platform_data_officer",
+                "platform_viewer",
+            ];
+            const companyRoles = [
+                "company_esg_admin",
+                "company_esg_subadmin",
+                "company_esg_data_officer",
+                "company_esg_viewer",
+            ];
+
+            const platformPagePrefixes = [
+                "/dashboard",
+                "/billing",
+                "/company",
+                "/reports",
+                "/settings",
+            ];
+
+            const companyPagePrefixes = [
+                "/dashboard-esg",
+                "/assessments",
+                "/ranking",
+                "/settings-esg",
+                "/reports-and-analytics",
+                "/teams-esg",
+            ];
+
+            const isPageValidForRole = (
+                page: string,
+                role: string
+            ): boolean => {
+                if (platformRoles.includes(role)) {
+                    return platformPagePrefixes.some((prefix) =>
+                        page.startsWith(prefix)
+                    );
+                }
+                if (companyRoles.includes(role)) {
+                    return companyPagePrefixes.some((prefix) =>
+                        page.startsWith(prefix)
+                    );
+                }
+                return false;
+            };
+
             let redirectTo = "";
 
             if (
                 storedName === profile.email &&
-                storedRole === profile.role?.name
+                storedRole === profile.role?.name &&
+                storedPage &&
+                isPageValidForRole(storedPage, storedRole)
             ) {
-                redirectTo = storedPage || "";
+                redirectTo = storedPage;
             } else {
                 if (typeof window !== "undefined") {
                     localStorage.removeItem("lastVisitedPage_name");
@@ -112,29 +150,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }
 
             if (!redirectTo) {
-                const platformRoles = [
-                    "super_admin",
-                    "platform_subadmin",
-                    "platform_data_officer",
-                    "platform_viewer",
-                ];
-                const companyRoles = [
-                    "company_esg_admin",
-                    "company_esg_subadmin",
-                    "company_esg_data_officer",
-                    "company_esg_viewer",
-                ];
-
                 if (platformRoles.includes(profile.role?.name || "")) {
                     redirectTo = "/dashboard";
                 } else if (companyRoles.includes(profile.role?.name || "")) {
                     redirectTo = "/dashboard-esg";
                 } else {
-                    redirectTo = "/";
+                    redirectTo = "/login";
                 }
             }
 
-            await router.push(redirectTo);
+            router.push(redirectTo);
         } catch (error) {
             console.error("handleAuthSuccess error:", error);
             setUser(null);
@@ -151,8 +176,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     const signup = async (formData: SignupData) => {
-        await api.post("/company/esg/signup", formData);
-        await handleAuthSuccess();
+        try {
+            await api.post("/company/esg/signup", formData);
+        } catch (err) {
+            throw err;
+        }
     };
 
     const inviteUser = async (formData: InviteUserData & { token: string }) => {
@@ -174,6 +202,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const logout = useCallback(async () => {
         await api.post("/auth/logout");
         setUser(null);
+
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("lastVisitedPage_name");
+            localStorage.removeItem("lastVisitedPage_role");
+            localStorage.removeItem("lastVisitedPage_page");
+        }
+
         toast.info("You have been logged out.");
         router.push("/login");
     }, [router]);

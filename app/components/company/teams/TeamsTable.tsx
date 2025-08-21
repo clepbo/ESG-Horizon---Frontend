@@ -17,7 +17,11 @@ type Props = {
     onUserUpdate?: (user: User) => void;
 };
 
-export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
+export default function TeamsTable({
+    users,
+    setUsers,
+    onStatusUpdate,
+}: Props) {
     const [statusModalOpen, setStatusModalOpen] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(
@@ -191,7 +195,6 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                     }}
                 />
 
-                {/* Edit User Modal */}
                 {editModalOpen && selectedUser && (
                     <EditUserModal
                         user={selectedUser}
@@ -207,7 +210,6 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                 )}
             </div>
 
-            {/* Pagination */}
             <div className="mt-4 px-4 pb-4">
                 <Pagination
                     totalItems={users.length}

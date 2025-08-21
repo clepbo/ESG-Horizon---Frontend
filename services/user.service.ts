@@ -41,4 +41,9 @@ export const userService = {
         const data = await api.get("/users/all", { params });
         return data;
     },
+
+    getAllUserRoles: async () => {
+        const data = await api.get("users/user-roles");
+        return data;
+    },
 };

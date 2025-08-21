@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Mail, Phone } from "lucide-react";
 // import { User } from "@/mockData/users";
 // import ConfirmModal from "@/app/components/modals/ConfirmModal";
-import { Company } from "@/lib/api/companyApi";
+import { Company } from "@/services/company.service";
 
 type Props = {
   company: Company;

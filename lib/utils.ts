@@ -15,3 +15,9 @@ export const registerLogout = (fn: () => void) => {
 export const triggerLogout = () => {
     if (logoutFunc) logoutFunc();
 };
+
+export const formatRole = (role: string) => {
+    if (!role) return;
+    const role_strings = role.split("_");
+    return role_strings.forEach((role) => role.charAt(0).toUpperCase());
+};
