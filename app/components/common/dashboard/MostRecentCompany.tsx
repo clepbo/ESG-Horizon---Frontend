@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import Spinner from "@/app/components/ui/reusables/Spinner";
-import CompanyTable from "@/app/components/common/dashboard/CompanyTable";
+// import CompanyTable from "@/app/components/common/dashboard/CompanyTable";
 import { Company } from "@/services/company.service";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Input } from "@/app/components/ui/input";
@@ -115,7 +115,7 @@ export default function CompaniesTableSection() {
         </div>
 
         {/* Table */}
-        <CompanyTable companies={filteredCompanies} loading={isLoading} />
+        {/* <CompanyTable companies={filteredCompanies} loading={isLoading} /> */}
 
         {/* No results message */}
         {!isLoading &&

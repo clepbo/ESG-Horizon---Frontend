@@ -35,28 +35,46 @@ export default function LoginForm() {
 
         try {
             await login(data.email, data.password);
-
-            setTimeout(() => {
-                toast.success("Welcome back!");
-            }, 1000);
+            await toast.success("Welcome back!");
+            setLoading(false);
+            setIsTransitioning(false);
         } catch (error) {
-            setIsTransitioning(false);
+            const message = (error as Error).message || "Login failed";
+            toast.error(message);
+            setError("root", { message });
             setLoading(false);
-            const axiosError = error as AxiosError;
-            const data = axiosError?.response?.data as
-                | { message: string; error?: string; statusCode?: number }
-                | undefined;
-
-            const errorMessage = data?.message ?? "Login failed";
-            toast.error(errorMessage);
-            setError("root", {
-                message: errorMessage || "Invalid credentials",
-            });
             setIsTransitioning(false);
-            setLoading(false);
-            return;
         }
     };
+
+    // const onSubmit: SubmitHandler<FormFields> = async (data) => {
+    //     setLoading(true);
+    //     setIsTransitioning(true);
+
+    //     try {
+    //         await login(data.email, data.password);
+
+    //         setTimeout(() => {
+    //             toast.success("Welcome back!");
+    //         }, 1000);
+    //     } catch (error) {
+    //         setIsTransitioning(false);
+    //         setLoading(false);
+    //         const axiosError = error as AxiosError;
+    //         const data = axiosError?.response?.data as
+    //             | { message: string; error?: string; statusCode?: number }
+    //             | undefined;
+
+    //         const errorMessage = data?.message ?? "Login failed";
+    //         toast.error(errorMessage);
+    //         setError("root", {
+    //             message: errorMessage || "Invalid credentials",
+    //         });
+    //         setIsTransitioning(false);
+    //         setLoading(false);
+    //         return;
+    //     }
+    // };
 
     return (
         <div className="relative">
