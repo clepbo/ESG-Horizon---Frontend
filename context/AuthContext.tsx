@@ -13,7 +13,7 @@ import { registerLogout } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { User } from "@/services/user.service";
 
-type SignupData = {
+export type SignupData = {
     id?: number;
     name: string;
     industryId: number;
