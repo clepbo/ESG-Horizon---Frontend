@@ -20,7 +20,7 @@ export default function AddSubsidiaryModal({
   const [industry, setIndustry] = useState("");
   const [address, setAddress] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
       id: Date.now(),
@@ -30,7 +30,7 @@ export default function AddSubsidiaryModal({
       address,
       status: "active",
     };
-    const res = subsidiariesService.createSubsidiaries(data);
+    await subsidiariesService.createSubsidiaries(data);
     onAddSubsidiary(data);
     toast.success(`Subsidiary "${name}" added successfully`);
 

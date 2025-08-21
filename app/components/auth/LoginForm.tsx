@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
-import { AxiosError } from "axios";
 
 type FormFields = {
     email: string;
