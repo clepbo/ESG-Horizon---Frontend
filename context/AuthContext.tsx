@@ -12,6 +12,7 @@ import api from "../lib/api/axios";
 import { registerLogout } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { User } from "@/services/user.service";
+import { AxiosError } from "axios";
 
 export type SignupData = {
     id?: number;
@@ -168,10 +169,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const login = async (email: string, password: string) => {
         try {
-            await api.post("/auth/login", { email, password });
-            await handleAuthSuccess();
+            const res = await api.post("/auth/login", { email, password });
+
+            if (res && res.user?.email && res.user.email === email) {
+                await handleAuthSuccess();
+            } else {
+                throw new Error("Invalid login response");
+            }
         } catch (error) {
-            throw error;
+            const axiosError = error as AxiosError<{ message: string }>;
+            console.log("Login error caught in AuthContext:", axiosError?.response?.data); 
+            console.log(
+                "Axios error response data:",
+                axiosError?.response?.data
+            );
+            const message =
+                axiosError?.response?.data?.message || "Login failed";
+            throw new Error(message);
         }
     };
 

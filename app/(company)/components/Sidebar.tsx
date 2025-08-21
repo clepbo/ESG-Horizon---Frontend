@@ -5,21 +5,23 @@ import {
     ClipboardList,
     BarChart3,
     TrendingUp,
-    Users,
+    // Users,
     Settings,
     LogOut,
     ChevronUp,
     ChevronDown,
+    Building2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
-import { useAuth } from "@/context/AuthContext"; // 👈 adjust path as needed
+import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 
 const navItems = [
     { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
+    { name: "Subsidiaries", href: "/subsidiaries", icon: Building2 },
     { name: "Assessments", href: "/assessments", icon: ClipboardList },
     {
         name: "Reports & Analytics",
@@ -27,7 +29,7 @@ const navItems = [
         icon: BarChart3,
     },
     { name: "Ranking", href: "/ranking", icon: TrendingUp },
-    { name: "Teams", href: "/teams-esg", icon: Users },
+    // { name: "Teams", href: "/teams-esg", icon: Users },
 ];
 
 const settingsSubLinks = [
