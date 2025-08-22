@@ -65,6 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
             const profile = await api.get<User>("/users/me");
             setUser(profile);
+            return profile;
         } catch {
             setUser(null);
         } finally {
@@ -74,8 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const handleAuthSuccess = async () => {
         try {
-            const profile = await api.get<User>("/users/me");
-            setUser(profile);
+            const profile = await fetchUserProfile();
 
             let storedName = "",
                 storedRole = "",
@@ -136,8 +136,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             let redirectTo = "";
 
             if (
-                storedName === profile.email &&
-                storedRole === profile.role?.name &&
+                storedName === profile?.email &&
+                storedRole === profile?.role?.name &&
                 storedPage &&
                 isPageValidForRole(storedPage, storedRole)
             ) {
@@ -151,9 +151,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }
 
             if (!redirectTo) {
-                if (platformRoles.includes(profile.role?.name || "")) {
+                if (platformRoles.includes(profile?.role?.name || "")) {
                     redirectTo = "/dashboard";
-                } else if (companyRoles.includes(profile.role?.name || "")) {
+                } else if (companyRoles.includes(profile?.role?.name || "")) {
                     redirectTo = "/dashboard-esg";
                 } else {
                     redirectTo = "/login";
@@ -223,7 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.removeItem("lastVisitedPage_page");
         }
 
-        toast.info("You have been logged out.");
+        toast.dark("Logged out");
         router.push("/login");
     }, [router]);
 
