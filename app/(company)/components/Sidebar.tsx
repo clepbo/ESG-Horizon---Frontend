@@ -89,14 +89,14 @@ export default function Sidebar() {
                 {/* Company Info */}
                 <div className="mb-4 hidden md:flex items-center space-x-2 bg-[#B4EDBC] rounded-md px-3 py-2">
                     <Image
-                        src="/total.png"
-                        alt="Total Energies"
+                        src={user?.company?.company_logo_url || "/logo.png"}
+                        alt="Company Logo"
                         width={28}
                         height={20}
                         className="object-contain rounded-2xl"
                     />
                     <span className="text-sm font-medium text-[#001D34]">
-                        Total Energies
+                        {user?.company?.name || "Company Name"}
                     </span>
                 </div>
 

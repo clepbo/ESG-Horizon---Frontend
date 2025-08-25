@@ -17,6 +17,7 @@ export interface User {
     status: TeamUserStatus;
     company?: {
         name?: string;
+        company_logo_url?: string;
     };
     department?: {
         name?: string;
