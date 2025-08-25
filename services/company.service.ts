@@ -7,9 +7,9 @@ export interface Company {
     registration_number: string;
     isinCode?: string | null;
     isoCountryCode?: string;
-    sector?: string | null;
-    subSector?: string | null;
-    industry?: string | null;
+    industry?: {
+        industry?: string;
+    };
     address?: string;
     country?: string;
     contact_email?: string;

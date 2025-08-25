@@ -34,14 +34,13 @@ export default function Companies() {
   const [industryFilter, setIndustryFilter] = useState("All Industry");
   const [activePersona, setActivePersona] = useState("all");
 
-  // --- Filtering logic (adapted from CompaniesTableSection) ---
   const filteredCompanies = companies.filter((company: Company) => {
     const matchesSearch = (() => {
       if (!debouncedSearchTerm.trim()) return true;
 
       const searchLower = debouncedSearchTerm.toLowerCase();
       const nameMatches = company.name?.toLowerCase().includes(searchLower);
-      const industryMatches = company.industry
+      const industryMatches = company.industry?.industry
         ?.toLowerCase()
         .includes(searchLower);
       const emailMatches = company.contact_email
@@ -56,7 +55,7 @@ export default function Companies() {
 
     const matchesIndustry =
       industryFilter === "All Industry" ||
-      company.industry?.trim().toLowerCase() ===
+      (company?.industry?.industry?.trim()?.toLowerCase() ?? "") ===
         industryFilter.trim().toLowerCase();
 
     const matchesPersona =
@@ -66,7 +65,6 @@ export default function Companies() {
     return matchesSearch && matchesStatus && matchesIndustry && matchesPersona;
   });
 
-  // --- Loading/Error states ---
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-10">
