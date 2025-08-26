@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/app/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -21,9 +16,9 @@ import {
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
-interface ElectricityHeatFormProps {
+interface MarineAviationProps {
     onBack: () => void;
-    onNext: () => void;
+    onSubmit: () => void;
     stepIndex: number;
     totalSteps: number;
     percent: number;
@@ -35,55 +30,43 @@ interface FileMetadata {
     lastModified: number;
 }
 
+const fuelTypes = ["Jet Fuel", "Marine Diesel", "Bunker Fuel"];
 const uploadFields = [
-    "Gas supply invoices from suppliers",
-    "Calibrated gas meter readings (scm or scf logs)",
-    "Turbine operation logs (hours, efficiency)",
-    "Fuel purchase receipts for diesel generators",
-    "Generator capacity certificates (kVA rating)",
-    "On-site storage/fuel tank logs",
+    "Fuel consumption logs",
+    "Vessel/aircraft maintenance records",
+    "Emission compliance reports",
 ];
 
-export function ElectricityHeatForm({
+export function MarineAviation({
     onBack,
-    onNext,
+    onSubmit,
     stepIndex,
     totalSteps,
     percent,
-}: ElectricityHeatFormProps) {
+}: MarineAviationProps) {
     const { state, dispatch } = useAssessment();
-    const [dieselFuelType, setDieselFuelType] = useState(
-        "Diesel (Automotive Gas Oil - AGO)"
-    );
-    const [dieselVolume, setDieselVolume] = useState("");
-    const [gasFuelType, setGasFuelType] = useState("Natural Gas");
-    const [gasVolume, setGasVolume] = useState("");
+    const [selectedFuelType, setSelectedFuelType] = useState("");
+    const [fuelVolume, setFuelVolume] = useState("");
     const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
         Object.fromEntries(uploadFields.map((field) => [field, null]))
     );
     const [isSaving, setIsSaving] = useState(false);
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
     const [errors, setErrors] = useState<{
-        dieselVolume?: string;
-        gasVolume?: string;
+        fuelType?: string;
+        fuelVolume?: string;
         files?: string;
     }>({});
 
     useEffect(() => {
         const existingData =
-            state.assessmentData.stationarySources?.electricityHeat ||
+            state.assessmentData.mobileSources?.marineAviation ||
             JSON.parse(
-                localStorage.getItem("stationarySources.electricityHeat") ||
-                    "{}"
+                localStorage.getItem("mobileSources.marineAviation") || "{}"
             );
         if (existingData) {
-            setDieselFuelType(
-                existingData.dieselFuelType ||
-                    "Diesel (Automotive Gas Oil - AGO)"
-            );
-            setDieselVolume(existingData.dieselVolume || "");
-            setGasFuelType(existingData.gasFuelType || "Natural Gas");
-            setGasVolume(existingData.gasVolume || "");
+            setSelectedFuelType(existingData.selectedFuelType || "");
+            setFuelVolume(existingData.fuelVolume || "");
             setFiles(
                 existingData.files ||
                     Object.fromEntries(
@@ -91,26 +74,21 @@ export function ElectricityHeatForm({
                     )
             );
         }
-    }, [state.assessmentData.stationarySources?.electricityHeat]);
+    }, [state.assessmentData.mobileSources?.marineAviation]);
 
     const validateForm = () => {
         const newErrors: {
-            dieselVolume?: string;
-            gasVolume?: string;
+            fuelType?: string;
+            fuelVolume?: string;
             files?: string;
         } = {};
-        if (!dieselVolume && !gasVolume) {
-            newErrors.dieselVolume = "At least one volume field must be filled";
-            newErrors.gasVolume = "At least one volume field must be filled";
+        if (!selectedFuelType) {
+            newErrors.fuelType = "Please select a fuel type";
         }
-        if (
-            dieselVolume &&
-            (isNaN(Number(dieselVolume)) || Number(dieselVolume) < 0)
-        ) {
-            newErrors.dieselVolume = "Please enter a valid positive number";
-        }
-        if (gasVolume && (isNaN(Number(gasVolume)) || Number(gasVolume) < 0)) {
-            newErrors.gasVolume = "Please enter a valid positive number";
+        if (!fuelVolume) {
+            newErrors.fuelVolume = "Please enter the fuel volume";
+        } else if (isNaN(Number(fuelVolume)) || Number(fuelVolume) < 0) {
+            newErrors.fuelVolume = "Please enter a valid positive number";
         }
         if (!Object.values(files).some((file) => file !== null)) {
             newErrors.files = "Please upload at least one document";
@@ -146,24 +124,18 @@ export function ElectricityHeatForm({
         }
     };
 
-    const handleSaveAndContinue = async () => {
+    const handleSaveAndContinue = () => {
         if (!validateForm()) return;
 
         setIsSaving(true);
-        const payload = {
-            dieselFuelType,
-            dieselVolume,
-            gasFuelType,
-            gasVolume,
-            files,
-        };
+        const payload = { selectedFuelType, fuelVolume, files };
         dispatch({
-            type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+            type: "UPDATE_MOBILE_MARINE_AVIATION",
             payload,
         });
         dispatch({ type: "SAVE_PROGRESS" });
         localStorage.setItem(
-            "stationarySources.electricityHeat",
+            "mobileSources.marineAviation",
             JSON.stringify(payload)
         );
         setIsSaving(false);
@@ -171,29 +143,17 @@ export function ElectricityHeatForm({
         setTimeout(() => setShowSaveSuccess(false), 2000);
     };
 
-    const handleNext = () => {
+    const handleSubmit = () => {
         if (!validateForm()) return;
         dispatch({
-            type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-            payload: {
-                dieselFuelType,
-                dieselVolume,
-                gasFuelType,
-                gasVolume,
-                files,
-            },
+            type: "UPDATE_MOBILE_MARINE_AVIATION",
+            payload: { selectedFuelType, fuelVolume, files },
         });
         localStorage.setItem(
-            "stationarySources.electricityHeat",
-            JSON.stringify({
-                dieselFuelType,
-                dieselVolume,
-                gasFuelType,
-                gasVolume,
-                files,
-            })
+            "mobileSources.marineAviation",
+            JSON.stringify({ selectedFuelType, fuelVolume, files })
         );
-        onNext();
+        onSubmit();
     };
 
     return (
@@ -210,12 +170,12 @@ export function ElectricityHeatForm({
                         Back
                     </Button>
                     <div>
-                        <h3 className="text-2xl font-semibold text-foreground">
-                            Stationary Sources
+                        <h3 className="text-2xl font-bold text-foreground">
+                            Mobile Sources
                         </h3>
                         <p className="text-muted-foreground text-base">
-                            Emissions from fixed facilities or equipment, such
-                            as power plants or boilers
+                            Emissions from mobile sources such as vessels and
+                            aircraft used in marine and aviation transport.
                         </p>
                     </div>
                 </div>
@@ -240,150 +200,99 @@ export function ElectricityHeatForm({
                         </div>
 
                         <div>
-                            <h4 className="text-xl font-medium text-foreground">
-                                Electricity and Heat Generation
-                            </h4>
-                            <p className="text-muted-foreground text-base">
-                                Emissions from producing electricity or heat,
-                                whether for your own use or for sale to others.
-                            </p>
-                        </div>
-
-                        {/* 1.1 Diesel-Powered Generators */}
-                        <div>
-                            <Label className="text-md font-medium mb-2 block">
-                                1.1 Diesel-Powered Generators
+                            <Label className="text-md font-semibold mb-2 block">
+                                1.1 Marine & Aviation
                             </Label>
-                            <div className="space-y-2 ml-6">
+                            <div className="space-y-4 ml-6">
                                 <Label>Type of Fuel</Label>
                                 <RadioGroup
-                                    value={dieselFuelType}
-                                    onValueChange={setDieselFuelType}
-                                    className="flex items-center space-x-4 mt-2"
-                                >
-                                    <div className="flex items-center space-x-2 mb-5">
-                                        <RadioGroupItem
-                                            className="border border-gray-400"
-                                            value="Diesel (Automotive Gas Oil - AGO)"
-                                            id="diesel-ago"
-                                            checked={
-                                                dieselFuelType ===
-                                                "Diesel (Automotive Gas Oil - AGO)"
-                                            }
-                                        />
-                                        <Label htmlFor="diesel-ago" className="text-gray-700">
-                                            Diesel (Automotive Gas Oil - AGO)
-                                        </Label>
-                                    </div>
-                                </RadioGroup>
-                                <Label htmlFor="diesel-volume">
-                                    Volume of Diesel Consumed (Litres)
-                                </Label>
-                                <Input
-                                    id="diesel-volume"
-                                    type="number"
-                                    placeholder="Enter volume in litres"
-                                    value={dieselVolume}
-                                    onChange={(e) => {
-                                        setDieselVolume(e.target.value);
-                                        if (errors.dieselVolume) {
+                                    value={selectedFuelType}
+                                    onValueChange={(value) => {
+                                        setSelectedFuelType(value);
+                                        if (errors.fuelType) {
                                             setErrors((prev) => ({
                                                 ...prev,
-                                                dieselVolume: undefined,
+                                                fuelType: undefined,
                                             }));
                                         }
                                     }}
-                                    className={`w-full border-gray-400 ${
-                                        errors.dieselVolume
-                                            ? "border-red-500 focus:border-red-500"
+                                    className={`flex flex-col space-y-2 ${
+                                        errors.fuelType
+                                            ? "border-red-500 p-2 rounded"
                                             : ""
                                     }`}
-                                    aria-describedby={
-                                        errors.dieselVolume
-                                            ? "diesel-volume-error"
-                                            : undefined
-                                    }
-                                />
-                                {errors.dieselVolume && (
-                                    <p
-                                        id="diesel-volume-error"
-                                        className="text-sm text-red-500"
-                                    >
-                                        {errors.dieselVolume}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* 1.2 Gas-Fired Turbines */}
-                        <div>
-                            <Label className="text-md font-medium mb-2 block">
-                                1.2 Gas-Fired Turbines
-                            </Label>
-                            <div className="space-y-2 ml-6">
-                                <Label>Type of Fuel</Label>
-                                <RadioGroup
-                                    value={gasFuelType}
-                                    onValueChange={setGasFuelType}
-                                    className="flex items-center space-x-4 mt-2"
                                 >
-                                    <div className="flex items-center space-x-2 mb-5">
-                                        <RadioGroupItem
-                                            className="border border-gray-400"
-                                            value="Natural Gas"
-                                            id="natural-gas"
-                                            checked={
-                                                gasFuelType === "Natural Gas"
-                                            }
-                                        />
-                                        <Label htmlFor="natural-gas" className="text-gray-700">
-                                            Natural Gas
-                                        </Label>
-                                    </div>
+                                    {fuelTypes.map((fuel) => (
+                                        <div
+                                            key={fuel}
+                                            className="flex items-center space-x-2"
+                                        >
+                                            <RadioGroupItem
+                                                value={fuel}
+                                                id={fuel
+                                                    .replace(/\s/g, "-")
+                                                    .toLowerCase()}
+                                            />
+                                            <Label
+                                                htmlFor={fuel
+                                                    .replace(/\s/g, "-")
+                                                    .toLowerCase()}
+                                            >
+                                                {fuel}
+                                            </Label>
+                                        </div>
+                                    ))}
                                 </RadioGroup>
-                                <Label htmlFor="gas-volume" className="mt-2">
-                                    Volume of Gas Consumed (m³)
-                                </Label>
-                                <Input
-                                    id="gas-volume"
-                                    type="number"
-                                    placeholder="Enter volume in cubic meters"
-                                    value={gasVolume}
-                                    onChange={(e) => {
-                                        setGasVolume(e.target.value);
-                                        if (errors.gasVolume) {
-                                            setErrors((prev) => ({
-                                                ...prev,
-                                                gasVolume: undefined,
-                                            }));
-                                        }
-                                    }}
-                                    className={`w-full border-gray-400 ${
-                                        errors.gasVolume
-                                            ? "border-red-500 focus:border-red-500"
-                                            : ""
-                                    }`}
-                                    aria-describedby={
-                                        errors.gasVolume
-                                            ? "gas-volume-error"
-                                            : undefined
-                                    }
-                                />
-                                {errors.gasVolume && (
-                                    <p
-                                        id="gas-volume-error"
-                                        className="text-sm text-red-500"
-                                    >
-                                        {errors.gasVolume}
+                                {errors.fuelType && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.fuelType}
                                     </p>
                                 )}
+
+                                <div className="space-y-2 mt-4">
+                                    <Label htmlFor="fuel-volume">
+                                        Volume of Fuel Consumed (Litres)
+                                    </Label>
+                                    <Input
+                                        id="fuel-volume"
+                                        type="number"
+                                        placeholder="Enter volume in litres"
+                                        value={fuelVolume}
+                                        onChange={(e) => {
+                                            setFuelVolume(e.target.value);
+                                            if (errors.fuelVolume) {
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    fuelVolume: undefined,
+                                                }));
+                                            }
+                                        }}
+                                        className={`w-full border-gray-400 ${
+                                            errors.fuelVolume
+                                                ? "border-red-500 focus:border-red-500"
+                                                : ""
+                                        }`}
+                                        aria-describedby={
+                                            errors.fuelVolume
+                                                ? "fuel-volume-error"
+                                                : undefined
+                                        }
+                                    />
+                                    {errors.fuelVolume && (
+                                        <p
+                                            id="fuel-volume-error"
+                                            className="text-sm text-red-500"
+                                        >
+                                            {errors.fuelVolume}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* 1.3 Document/Evidence Upload */}
                         <div>
-                            <Label className="text-md font-medium mb-2 block">
-                                1.3 Document/Evidence Upload
+                            <Label className="text-md font-semibold mb-2 block">
+                                1.2 Document/Evidence Upload
                             </Label>
                             <div className="ml-6">
                                 {errors.files && (
@@ -397,7 +306,7 @@ export function ElectricityHeatForm({
                                             key={field}
                                             className="flex flex-col gap-2"
                                         >
-                                            <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
+                                            <Label className="text-sm font-medium mb-1 ml-1">
                                                 {field}
                                             </Label>
                                             <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all">
@@ -480,12 +389,12 @@ export function ElectricityHeatForm({
                             </Button>
                             <Button
                                 variant="outline"
-                                onClick={handleNext}
+                                onClick={handleSubmit}
                                 disabled={isSaving}
                                 className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
-                                aria-label="Next step"
+                                aria-label="Submit form"
                             >
-                                Next
+                                Submit
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
                         </div>

@@ -11,6 +11,7 @@ import {
 } from "@/app/components/ui/accordion";
 import { ArrowLeft, ChevronRight, Info } from "lucide-react";
 import { StationarySourcesForm } from "./scope1/stationary-sources";
+import { MobileSourcesForm } from "./scope1/mobile-sources";
 
 interface GhgEmissionsAssessmentProps {
     onBack: () => void;
@@ -114,16 +115,23 @@ export function GhgEmissionsAssessment({
     };
 
     if (currentView === "stationary-sources") {
-        return <StationarySourcesForm onBack={handleBackToOverview} />;
+        return (
+            <StationarySourcesForm
+                onBack={handleBackToOverview}
+                onContinueToNextAssessment={() =>
+                    setCurrentView("mobile-sources")
+                }
+            />
+        );
     }
     if (currentView === "mobile-sources") {
-        return <StationarySourcesForm onBack={handleBackToOverview} />;
+        return <MobileSourcesForm onBack={handleBackToOverview} />;
     }
     if (currentView === "process-emissions") {
-        return <StationarySourcesForm onBack={handleBackToOverview} />;
+        return <MobileSourcesForm onBack={handleBackToOverview} />;
     }
     if (currentView === "fugitive-emissions") {
-        return <StationarySourcesForm onBack={handleBackToOverview} />;
+        return <MobileSourcesForm onBack={handleBackToOverview} />;
     }
 
     return (
@@ -154,7 +162,8 @@ export function GhgEmissionsAssessment({
                                     Greenhouse Gas Emissions
                                 </h3>
                                 <p className="text-muted-foreground text-md">
-                                    Total emissions from Subsidiaries and supply chains, measured in CO2-equivalent
+                                    Total emissions from Subsidiaries and supply
+                                    chains, measured in CO2-equivalent
                                 </p>
                             </div>
                             <Button className="bg-green-600 hover:bg-green-700 text-white">
@@ -206,7 +215,9 @@ export function GhgEmissionsAssessment({
                                                                     {card.title}
                                                                 </h5>
                                                                 <p className="text-sm text-muted-foreground">
-                                                                    {card.subtitle}
+                                                                    {
+                                                                        card.subtitle
+                                                                    }
                                                                 </p>
                                                             </div>
                                                             <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" />

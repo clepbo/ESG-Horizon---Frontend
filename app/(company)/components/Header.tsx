@@ -5,6 +5,7 @@ import { Bell } from "lucide-react";
 import Image from "next/image";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { useAuth } from "@/context/AuthContext";
+import { formatRoleName } from "@/lib/utils";
 
 export default function Header() {
   const [search, setSearch] = useState("");
@@ -46,7 +47,7 @@ export default function Header() {
               {user ? `${user.first_name} ${user.last_name}` : "Loading..."}
             </span>
             <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-lg">
-              {user?.role?.name || "N/A"}
+              {formatRoleName(user?.role?.name || "N/A")}
             </span>
           </div>
         </div>
