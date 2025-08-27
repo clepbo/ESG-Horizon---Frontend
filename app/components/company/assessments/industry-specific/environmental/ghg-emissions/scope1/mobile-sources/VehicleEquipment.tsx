@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -35,12 +33,12 @@ interface FileMetadata {
   lastModified: number;
 }
 
-const fuelTypes = ["Diesel", "Petrol", "Electric"]; // Placeholder
 const uploadFields = [
-  "Equipment fuel logs",
-  "Maintenance schedules",
-  "Emission test reports",
-]; // Placeholder
+  "Refueling logs or farm storage tank logs",
+  "LPG cylinder replacement records",
+  "Operational hours log per equipment",
+  "Land area serviced (for tractors)",
+];
 
 export function VehicleEquipment({
   onBack,
@@ -50,45 +48,81 @@ export function VehicleEquipment({
   percent,
 }: VehicleEquipmentProps) {
   const { state, dispatch } = useAssessment();
-  const [selectedFuelType, setSelectedFuelType] = useState("");
-  const [fuelVolume, setFuelVolume] = useState("");
+  const [forkliftFuelType, setForkliftFuelType] = useState("");
+  const [forkliftVolume, setForkliftVolume] = useState("");
+  const [heavyDutyFuelType, setHeavyDutyFuelType] = useState("Diesel");
+  const [heavyDutyVolume, setHeavyDutyVolume] = useState("");
+  const [tractorFuelType, setTractorFuelType] = useState("Diesel");
+  const [tractorVolume, setTractorVolume] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
-    fuelType?: string;
-    fuelVolume?: string;
+    forkliftFuelType?: string;
+    forkliftVolume?: string;
+    heavyDutyFuelType?: string;
+    heavyDutyVolume?: string;
+    tractorFuelType?: string;
+    tractorVolume?: string;
     files?: string;
   }>({});
 
   useEffect(() => {
     const existingData =
       state.assessmentData.mobileSources?.vehicleEquipment ||
-      JSON.parse(localStorage.getItem("mobileSources.vehicleEquipment") || "{}");
+      JSON.parse(localStorage.getItem("esg-assessment-data") || "{}").mobileSources?.vehicleEquipment ||
+      {};
     if (existingData) {
-      setSelectedFuelType(existingData.selectedFuelType || "");
-      setFuelVolume(existingData.fuelVolume || "");
-      setFiles(
-        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
-      );
+      setForkliftFuelType(existingData.forkliftFuelType || "");
+      setForkliftVolume(existingData.forkliftVolume || "");
+      setHeavyDutyFuelType(existingData.heavyDutyFuelType || "Diesel");
+      setHeavyDutyVolume(existingData.heavyDutyVolume || "");
+      setTractorFuelType(existingData.tractorFuelType || "Diesel");
+      setTractorVolume(existingData.tractorVolume || "");
+      setFiles(existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null])));
     }
   }, [state.assessmentData.mobileSources?.vehicleEquipment]);
 
   const validateForm = () => {
-    const newErrors: { fuelType?: string; fuelVolume?: string; files?: string } = {};
-    if (!selectedFuelType) {
-      newErrors.fuelType = "Please select a fuel type";
+    const newErrors: {
+      forkliftFuelType?: string;
+      forkliftVolume?: string;
+      heavyDutyFuelType?: string;
+      heavyDutyVolume?: string;
+      tractorFuelType?: string;
+      tractorVolume?: string;
+      files?: string;
+    } = {};
+
+    if (!forkliftFuelType) {
+      newErrors.forkliftFuelType = "Please select a fuel type for forklifts";
     }
-    if (!fuelVolume) {
-      newErrors.fuelVolume = "Please enter the fuel volume";
-    } else if (isNaN(Number(fuelVolume)) || Number(fuelVolume) < 0) {
-      newErrors.fuelVolume = "Please enter a valid positive number";
+    if (!forkliftVolume) {
+      newErrors.forkliftVolume = "Please enter the fuel volume for forklifts";
+    } else if (isNaN(Number(forkliftVolume)) || Number(forkliftVolume) < 0) {
+      newErrors.forkliftVolume = "Please enter a valid positive number";
     }
-    if (!Object.values(files).some((file) => file !== null)) {
-      newErrors.files = "Please upload at least one document";
+
+    if (!heavyDutyFuelType) {
+      newErrors.heavyDutyFuelType = "Please select a fuel type for heavy-duty vehicles";
     }
+    if (!heavyDutyVolume) {
+      newErrors.heavyDutyVolume = "Please enter the fuel volume for heavy-duty vehicles";
+    } else if (isNaN(Number(heavyDutyVolume)) || Number(heavyDutyVolume) < 0) {
+      newErrors.heavyDutyVolume = "Please enter a valid positive number";
+    }
+
+    if (!tractorFuelType) {
+      newErrors.tractorFuelType = "Please select a fuel type for tractors";
+    }
+    if (!tractorVolume) {
+      newErrors.tractorVolume = "Please enter the fuel volume for tractors";
+    } else if (isNaN(Number(tractorVolume)) || Number(tractorVolume) < 0) {
+      newErrors.tractorVolume = "Please enter a valid positive number";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -121,13 +155,20 @@ export function VehicleEquipment({
     if (!validateForm()) return;
 
     setIsSaving(true);
-    const payload = { selectedFuelType, fuelVolume, files };
+    const payload = {
+      forkliftFuelType,
+      forkliftVolume,
+      heavyDutyFuelType,
+      heavyDutyVolume,
+      tractorFuelType,
+      tractorVolume,
+      files,
+    };
     dispatch({
       type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
       payload,
     });
     dispatch({ type: "SAVE_PROGRESS" });
-    localStorage.setItem("mobileSources.vehicleEquipment", JSON.stringify(payload));
     setIsSaving(false);
     setShowSaveSuccess(true);
     setTimeout(() => setShowSaveSuccess(false), 2000);
@@ -135,11 +176,21 @@ export function VehicleEquipment({
 
   const handleNext = () => {
     if (!validateForm()) return;
+    const payload = {
+      forkliftFuelType,
+      forkliftVolume,
+      heavyDutyFuelType,
+      heavyDutyVolume,
+      tractorFuelType,
+      tractorVolume,
+      files,
+    };
     dispatch({
       type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
-      payload: { selectedFuelType, fuelVolume, files },
+      payload,
     });
-    localStorage.setItem("mobileSources.vehicleEquipment", JSON.stringify({ selectedFuelType, fuelVolume, files }));
+    dispatch({ type: "SAVE_PROGRESS" });
+    console.log("Vehicle Equipment Data:", state.assessmentData.mobileSources);
     onNext();
   };
 
@@ -159,7 +210,7 @@ export function VehicleEquipment({
           <div>
             <h3 className="text-2xl font-bold text-foreground">Mobile Sources</h3>
             <p className="text-muted-foreground text-base">
-              Emissions from mobile sources such as vehicles and equipment used in transportation.
+              Emissions from moving equipment or vehicles, such as trucks, ships, or planes.
             </p>
           </div>
         </div>
@@ -182,64 +233,183 @@ export function VehicleEquipment({
             </div>
 
             <div>
+              <h4 className="text-xl font-medium text-foreground">Off-road Vehicles & Equipment</h4>
+              <p className="text-muted-foreground text-base">
+                Emissions from vehicles and machinery not used on public roads, such as construction, mining, or agricultural equipment.
+              </p>
+            </div>
+
+            {/* 1.1 Forklifts and Other Machinery */}
+            <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.1 Vehicle Equipment
+                1.1 Forklifts and Other Machinery Used in Warehouses and Factory Floors
               </Label>
               <div className="space-y-4 ml-6">
                 <Label>Type of Fuel</Label>
                 <RadioGroup
-                  value={selectedFuelType}
+                  value={forkliftFuelType}
                   onValueChange={(value) => {
-                    setSelectedFuelType(value);
-                    if (errors.fuelType) {
-                      setErrors((prev) => ({ ...prev, fuelType: undefined }));
+                    setForkliftFuelType(value);
+                    if (errors.forkliftFuelType) {
+                      setErrors((prev) => ({ ...prev, forkliftFuelType: undefined }));
                     }
                   }}
                   className={`flex flex-col space-y-2 ${
-                    errors.fuelType ? "border-red-500 p-2 rounded" : ""
+                    errors.forkliftFuelType ? "border-red-500 p-2 rounded" : ""
                   }`}
                 >
-                  {fuelTypes.map((fuel) => (
+                  {["Diesel", "Liquefied Petroleum Gas (LPG)", "Petrol (Premium Motor Spirit - PMS)"].map((fuel) => (
                     <div key={fuel} className="flex items-center space-x-2">
                       <RadioGroupItem value={fuel} id={fuel.replace(/\s/g, "-").toLowerCase()} />
                       <Label htmlFor={fuel.replace(/\s/g, "-").toLowerCase()}>{fuel}</Label>
                     </div>
                   ))}
                 </RadioGroup>
-                {errors.fuelType && (
-                  <p className="text-sm text-red-500">{errors.fuelType}</p>
+                {errors.forkliftFuelType && (
+                  <p className="text-sm text-red-500">{errors.forkliftFuelType}</p>
                 )}
 
                 <div className="space-y-2 mt-4">
-                  <Label htmlFor="fuel-volume">Volume of Fuel Consumed (Litres)</Label>
+                  <Label htmlFor="forklift-volume">Volume of Fuel Consumed (Litres)</Label>
                   <Input
-                    id="fuel-volume"
+                    id="forklift-volume"
                     type="number"
-                    placeholder="Enter volume in litres"
-                    value={fuelVolume}
+                    placeholder="Enter volume of fuel consumed"
+                    value={forkliftVolume}
                     onChange={(e) => {
-                      setFuelVolume(e.target.value);
-                      if (errors.fuelVolume) {
-                        setErrors((prev) => ({ ...prev, fuelVolume: undefined }));
+                      setForkliftVolume(e.target.value);
+                      if (errors.forkliftVolume) {
+                        setErrors((prev) => ({ ...prev, forkliftVolume: undefined }));
                       }
                     }}
                     className={`w-full border-gray-400 ${
-                      errors.fuelVolume ? "border-red-500 focus:border-red-500" : ""
+                      errors.forkliftVolume ? "border-red-500 focus:border-red-500" : ""
                     }`}
-                    aria-describedby={errors.fuelVolume ? "fuel-volume-error" : undefined}
+                    aria-describedby={errors.forkliftVolume ? "forklift-volume-error" : undefined}
                   />
-                  {errors.fuelVolume && (
-                    <p id="fuel-volume-error" className="text-sm text-red-500">
-                      {errors.fuelVolume}
+                  {errors.forkliftVolume && (
+                    <p id="forklift-volume-error" className="text-sm text-red-500">
+                      {errors.forkliftVolume}
                     </p>
                   )}
                 </div>
               </div>
             </div>
 
+            {/* 1.2 Heavy-duty Vehicles and Equipment */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.2 Document/Evidence Upload
+                1.2 Heavy-duty Vehicles and Equipment Used in Construction and Mining Subsidiaries
+              </Label>
+              <div className="space-y-4 ml-6">
+                <Label>Type of Fuel</Label>
+                <RadioGroup
+                  value={heavyDutyFuelType}
+                  onValueChange={(value) => {
+                    setHeavyDutyFuelType(value);
+                    if (errors.heavyDutyFuelType) {
+                      setErrors((prev) => ({ ...prev, heavyDutyFuelType: undefined }));
+                    }
+                  }}
+                  className={`flex flex-col space-y-2 ${
+                    errors.heavyDutyFuelType ? "border-red-500 p-2 rounded" : ""
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Diesel" id="diesel-heavy-duty" />
+                    <Label htmlFor="diesel-heavy-duty">Diesel</Label>
+                  </div>
+                </RadioGroup>
+                {errors.heavyDutyFuelType && (
+                  <p className="text-sm text-red-500">{errors.heavyDutyFuelType}</p>
+                )}
+
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="heavy-duty-volume">Volume of Fuel Consumed (Litres)</Label>
+                  <Input
+                    id="heavy-duty-volume"
+                    type="number"
+                    placeholder="Enter volume of fuel consumed"
+                    value={heavyDutyVolume}
+                    onChange={(e) => {
+                      setHeavyDutyVolume(e.target.value);
+                      if (errors.heavyDutyVolume) {
+                        setErrors((prev) => ({ ...prev, heavyDutyVolume: undefined }));
+                      }
+                    }}
+                    className={`w-full border-gray-400 ${
+                      errors.heavyDutyVolume ? "border-red-500 focus:border-red-500" : ""
+                    }`}
+                    aria-describedby={errors.heavyDutyVolume ? "heavy-duty-volume-error" : undefined}
+                  />
+                  {errors.heavyDutyVolume && (
+                    <p id="heavy-duty-volume-error" className="text-sm text-red-500">
+                      {errors.heavyDutyVolume}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 1.3 Tractors and Other Machinery */}
+            <div>
+              <Label className="text-md font-semibold mb-2 block">
+                1.3 Tractors and Other Machinery on Large Commercial Farms
+              </Label>
+              <div className="space-y-4 ml-6">
+                <Label>Type of Fuel</Label>
+                <RadioGroup
+                  value={tractorFuelType}
+                  onValueChange={(value) => {
+                    setTractorFuelType(value);
+                    if (errors.tractorFuelType) {
+                      setErrors((prev) => ({ ...prev, tractorFuelType: undefined }));
+                    }
+                  }}
+                  className={`flex flex-col space-y-2 ${
+                    errors.tractorFuelType ? "border-red-500 p-2 rounded" : ""
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Diesel" id="diesel-tractor" />
+                    <Label htmlFor="diesel-tractor">Diesel</Label>
+                  </div>
+                </RadioGroup>
+                {errors.tractorFuelType && (
+                  <p className="text-sm text-red-500">{errors.tractorFuelType}</p>
+                )}
+
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="tractor-volume">Volume of Fuel Consumed (Litres)</Label>
+                  <Input
+                    id="tractor-volume"
+                    type="number"
+                    placeholder="Enter volume of fuel consumed"
+                    value={tractorVolume}
+                    onChange={(e) => {
+                      setTractorVolume(e.target.value);
+                      if (errors.tractorVolume) {
+                        setErrors((prev) => ({ ...prev, tractorVolume: undefined }));
+                      }
+                    }}
+                    className={`w-full border-gray-400 ${
+                      errors.tractorVolume ? "border-red-500 focus:border-red-500" : ""
+                    }`}
+                    aria-describedby={errors.tractorVolume ? "tractor-volume-error" : undefined}
+                  />
+                  {errors.tractorVolume && (
+                    <p id="tractor-volume-error" className="text-sm text-red-500">
+                      {errors.tractorVolume}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 1.4 Document/Evidence Upload */}
+            <div>
+              <Label className="text-md font-semibold mb-2 block">
+                1.4 Document/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && <p className="text-sm text-red-500">{errors.files}</p>}
@@ -247,7 +417,7 @@ export function VehicleEquipment({
                   {uploadFields.map((field) => (
                     <div key={field} className="flex flex-col gap-2">
                       <Label className="text-sm font-medium mb-1 ml-1">{field}</Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all">
+                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all h-32">
                         <Label
                           htmlFor={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                           className="cursor-pointer flex flex-col items-center gap-2"
@@ -266,7 +436,7 @@ export function VehicleEquipment({
                           aria-label={`Upload ${field}`}
                         />
                         {files[field] && (
-                          <p className="text-sm text-green-600 mt-2 text-center">
+                          <p className="text-sm text-green-600 mt-2 text-center truncate">
                             Uploaded: {files[field]!.name}
                           </p>
                         )}

@@ -8,12 +8,13 @@ import { SuccessScreen } from "@/app/components/company/assessments/SuccessScree
 
 interface MobileSourcesFormProps {
   onBack: () => void;
+  onContinueToNextAssessment: () => void;
 }
 
 const steps = ["Road Transport", "Vehicle Equipment", "Marine & Aviation"];
 type StepKey = "road-transport" | "vehicle-equipment" | "marine-aviation";
 
-export function MobileSourcesForm({ onBack }: MobileSourcesFormProps) {
+export function MobileSourcesForm({ onBack, onContinueToNextAssessment }: MobileSourcesFormProps) {
   const [currentStep, setCurrentStep] = useState<StepKey>("road-transport");
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -21,8 +22,8 @@ export function MobileSourcesForm({ onBack }: MobileSourcesFormProps) {
     return (
       <SuccessScreen
         assessmentName="Mobile Sources"
-        nextAssessment={null}
-        onContinue={() => setShowSuccess(false)}
+        nextAssessment="Process Emissions"
+        onContinue={onContinueToNextAssessment}
         onBackToHub={onBack}
       />
     );

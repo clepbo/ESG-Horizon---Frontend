@@ -125,13 +125,34 @@ export function GhgEmissionsAssessment({
         );
     }
     if (currentView === "mobile-sources") {
-        return <MobileSourcesForm onBack={handleBackToOverview} />;
+        return (
+            <MobileSourcesForm
+                onBack={handleBackToOverview}
+                onContinueToNextAssessment={() =>
+                    setCurrentView("process-emissions")
+                }
+            />
+        );
     }
     if (currentView === "process-emissions") {
-        return <MobileSourcesForm onBack={handleBackToOverview} />;
+        return (
+            <MobileSourcesForm
+                onBack={handleBackToOverview}
+                onContinueToNextAssessment={() =>
+                    setCurrentView("process-emissions")
+                }
+            />
+        );
     }
     if (currentView === "fugitive-emissions") {
-        return <MobileSourcesForm onBack={handleBackToOverview} />;
+        return (
+            <MobileSourcesForm
+                onBack={handleBackToOverview}
+                onContinueToNextAssessment={() =>
+                    setCurrentView("process-emissions")
+                }
+            />
+        );
     }
 
     return (

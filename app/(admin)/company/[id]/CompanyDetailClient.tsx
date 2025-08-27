@@ -58,7 +58,7 @@ export default function CompanyDetailsClient({ id }: Props) {
         <BackButton />
         <div className="space-y-1">
           <h1 className="text-2xl font-bold">{company.name}</h1>
-          <p className="text-gray-600">{company.industry}</p>
+          <p className="text-gray-600">{company.industry?.industry}</p>
         </div>
       </div>
 
@@ -160,7 +160,7 @@ export default function CompanyDetailsClient({ id }: Props) {
         <CompanySubscriptionTab
           company={{
             company: company.name,
-            industry: company.industry,
+            industry: company.industry?.industry,
           }}
         />
       )}

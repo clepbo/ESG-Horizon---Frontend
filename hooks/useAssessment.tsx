@@ -41,18 +41,54 @@ export interface AssessmentData {
     };
     mobileSources?: {
         roadTransport?: {
-            selectedFuelType: string;
-            fuelVolume: string;
+            dieselTruckVolume: string;
+            carPetrolVolume: string;
+            carDieselVolume: string;
             files?: { [key: string]: FileMetadata | null };
         };
         vehicleEquipment?: {
-            selectedFuelType: string;
-            fuelVolume: string;
+            forkliftFuelType: string;
+            forkliftVolume: string;
+            heavyDutyFuelType: string;
+            heavyDutyVolume: string;
+            tractorFuelType: string;
+            tractorVolume: string;
             files?: { [key: string]: FileMetadata | null };
         };
         marineAviation?: {
-            selectedFuelType: string;
-            fuelVolume: string;
+            helicopterFuelType: string;
+            helicopterVolume: string;
+            vesselFuelType: string;
+            otherFuelType: string;
+            vesselVolume: string;
+            files?: { [key: string]: FileMetadata | null };
+        };
+    };
+    processEmissions?: {
+        methaneNitrousOxide?: {
+            animals: { [type: string]: number };
+            manureSystem: string;
+            otherManureSystem: string;
+            files?: { [key: string]: FileMetadata | null };
+        };
+        co2Release?: {
+            clinkerQuantity: string;
+            calciumOxide: string;
+            magnesiumOxide: string;
+            files?: { [key: string]: FileMetadata | null };
+        };
+        fertilizerEmissions?: {
+            products: { [product: string]: string };
+            feedstock: string;
+            files?: { [key: string]: FileMetadata | null };
+        };
+        gasFlaring?: {
+            gasVolume: string;
+            carbonContent: string;
+            files?: { [key: string]: FileMetadata | null };
+        };
+        entericFermentation?: {
+            animals: { [type: string]: number };
             files?: { [key: string]: FileMetadata | null };
         };
     };
@@ -122,6 +158,7 @@ const initialState: AssessmentState = {
         endYear: "",
         stationarySources: {},
         mobileSources: {},
+        processEmissions: {},
     },
     isLoading: false,
     lastSaved: null,

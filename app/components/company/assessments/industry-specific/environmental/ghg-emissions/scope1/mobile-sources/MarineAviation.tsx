@@ -6,13 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import {
-    ArrowLeft,
-    Save,
-    CheckCircle2,
-    CloudUpload,
-    ArrowRight,
-} from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
@@ -30,11 +24,11 @@ interface FileMetadata {
     lastModified: number;
 }
 
-const fuelTypes = ["Jet Fuel", "Marine Diesel", "Bunker Fuel"];
 const uploadFields = [
-    "Fuel consumption logs",
-    "Vessel/aircraft maintenance records",
-    "Emission compliance reports",
+    "Vessel logbooks (fuel bunkered per trip)",
+    "Supplier invoices (MGO/Jet A-1)",
+    "Aviation fuel receipts",
+    "Flight logs (distance, refueling events)",
 ];
 
 export function MarineAviation({
@@ -45,28 +39,46 @@ export function MarineAviation({
     percent,
 }: MarineAviationProps) {
     const { state, dispatch } = useAssessment();
-    const [selectedFuelType, setSelectedFuelType] = useState("");
-    const [fuelVolume, setFuelVolume] = useState("");
+    const [helicopterFuelType, setHelicopterFuelType] = useState(
+        "Aviation Turbine Fuel (Jet A-1)"
+    );
+    const [helicopterVolume, setHelicopterVolume] = useState("");
+    const [vesselFuelType, setVesselFuelType] = useState(
+        "Marine Diesel Oil (MDO)"
+    );
+    const [otherFuelType, setOtherFuelType] = useState("");
+    const [vesselVolume, setVesselVolume] = useState("");
     const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
         Object.fromEntries(uploadFields.map((field) => [field, null]))
     );
     const [isSaving, setIsSaving] = useState(false);
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
     const [errors, setErrors] = useState<{
-        fuelType?: string;
-        fuelVolume?: string;
+        helicopterFuelType?: string;
+        helicopterVolume?: string;
+        vesselFuelType?: string;
+        otherFuelType?: string;
+        vesselVolume?: string;
         files?: string;
     }>({});
 
     useEffect(() => {
         const existingData =
             state.assessmentData.mobileSources?.marineAviation ||
-            JSON.parse(
-                localStorage.getItem("mobileSources.marineAviation") || "{}"
-            );
+            JSON.parse(localStorage.getItem("esg-assessment-data") || "{}")
+                .mobileSources?.marineAviation ||
+            {};
         if (existingData) {
-            setSelectedFuelType(existingData.selectedFuelType || "");
-            setFuelVolume(existingData.fuelVolume || "");
+            setHelicopterFuelType(
+                existingData.helicopterFuelType ||
+                    "Aviation Turbine Fuel (Jet A-1)"
+            );
+            setHelicopterVolume(existingData.helicopterVolume || "");
+            setVesselFuelType(
+                existingData.vesselFuelType || "Marine Diesel Oil (MDO)"
+            );
+            setOtherFuelType(existingData.otherFuelType || "");
+            setVesselVolume(existingData.vesselVolume || "");
             setFiles(
                 existingData.files ||
                     Object.fromEntries(
@@ -78,21 +90,40 @@ export function MarineAviation({
 
     const validateForm = () => {
         const newErrors: {
-            fuelType?: string;
-            fuelVolume?: string;
+            helicopterFuelType?: string;
+            helicopterVolume?: string;
+            vesselFuelType?: string;
+            otherFuelType?: string;
+            vesselVolume?: string;
             files?: string;
         } = {};
-        if (!selectedFuelType) {
-            newErrors.fuelType = "Please select a fuel type";
+
+        if (!helicopterFuelType) {
+            newErrors.helicopterFuelType =
+                "Please select a fuel type for helicopters";
         }
-        if (!fuelVolume) {
-            newErrors.fuelVolume = "Please enter the fuel volume";
-        } else if (isNaN(Number(fuelVolume)) || Number(fuelVolume) < 0) {
-            newErrors.fuelVolume = "Please enter a valid positive number";
+        if (!helicopterVolume) {
+            newErrors.helicopterVolume =
+                "Please enter the fuel volume for helicopters";
+        } else if (
+            isNaN(Number(helicopterVolume)) ||
+            Number(helicopterVolume) < 0
+        ) {
+            newErrors.helicopterVolume = "Please enter a valid positive number";
         }
-        if (!Object.values(files).some((file) => file !== null)) {
-            newErrors.files = "Please upload at least one document";
+
+        if (!vesselFuelType) {
+            newErrors.vesselFuelType = "Please select a fuel type for vessels";
         }
+        if (vesselFuelType === "Other Fuels" && !otherFuelType.trim()) {
+            newErrors.otherFuelType = "Please specify the other fuel type";
+        }
+        if (!vesselVolume) {
+            newErrors.vesselVolume = "Please enter the fuel volume for vessels";
+        } else if (isNaN(Number(vesselVolume)) || Number(vesselVolume) < 0) {
+            newErrors.vesselVolume = "Please enter a valid positive number";
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -128,16 +159,20 @@ export function MarineAviation({
         if (!validateForm()) return;
 
         setIsSaving(true);
-        const payload = { selectedFuelType, fuelVolume, files };
+        const payload = {
+            helicopterFuelType,
+            helicopterVolume,
+            vesselFuelType,
+            otherFuelType:
+                vesselFuelType === "Other Fuels" ? otherFuelType : "",
+            vesselVolume,
+            files,
+        };
         dispatch({
             type: "UPDATE_MOBILE_MARINE_AVIATION",
             payload,
         });
         dispatch({ type: "SAVE_PROGRESS" });
-        localStorage.setItem(
-            "mobileSources.marineAviation",
-            JSON.stringify(payload)
-        );
         setIsSaving(false);
         setShowSaveSuccess(true);
         setTimeout(() => setShowSaveSuccess(false), 2000);
@@ -145,14 +180,21 @@ export function MarineAviation({
 
     const handleSubmit = () => {
         if (!validateForm()) return;
+        const payload = {
+            helicopterFuelType,
+            helicopterVolume,
+            vesselFuelType,
+            otherFuelType:
+                vesselFuelType === "Other Fuels" ? otherFuelType : "",
+            vesselVolume,
+            files,
+        };
         dispatch({
             type: "UPDATE_MOBILE_MARINE_AVIATION",
-            payload: { selectedFuelType, fuelVolume, files },
+            payload,
         });
-        localStorage.setItem(
-            "mobileSources.marineAviation",
-            JSON.stringify({ selectedFuelType, fuelVolume, files })
-        );
+        dispatch({ type: "SAVE_PROGRESS" });
+        alert("Marine and Aviation data submitted successfully!");
         onSubmit();
     };
 
@@ -174,8 +216,8 @@ export function MarineAviation({
                             Mobile Sources
                         </h3>
                         <p className="text-muted-foreground text-base">
-                            Emissions from mobile sources such as vessels and
-                            aircraft used in marine and aviation transport.
+                            Emissions from moving equipment or vehicles, such as
+                            trucks, ships, or planes.
                         </p>
                     </div>
                 </div>
@@ -200,99 +242,245 @@ export function MarineAviation({
                         </div>
 
                         <div>
+                            <h4 className="text-xl font-medium text-foreground">
+                                Marine and Aviation
+                            </h4>
+                            <p className="text-muted-foreground text-base">
+                                Emissions from ships, boats, aircraft, and
+                                related subsidiaries for transport or industrial
+                                use.
+                            </p>
+                        </div>
+
+                        {/* 1.1 Helicopters */}
+                        <div>
                             <Label className="text-md font-semibold mb-2 block">
-                                1.1 Marine & Aviation
+                                1.1 Helicopters Used for Transporting Personnel
+                                and Equipment to Offshore Oil Platforms
                             </Label>
                             <div className="space-y-4 ml-6">
                                 <Label>Type of Fuel</Label>
                                 <RadioGroup
-                                    value={selectedFuelType}
+                                    value={helicopterFuelType}
                                     onValueChange={(value) => {
-                                        setSelectedFuelType(value);
-                                        if (errors.fuelType) {
+                                        setHelicopterFuelType(value);
+                                        if (errors.helicopterFuelType) {
                                             setErrors((prev) => ({
                                                 ...prev,
-                                                fuelType: undefined,
+                                                helicopterFuelType: undefined,
                                             }));
                                         }
                                     }}
                                     className={`flex flex-col space-y-2 ${
-                                        errors.fuelType
+                                        errors.helicopterFuelType
                                             ? "border-red-500 p-2 rounded"
                                             : ""
                                     }`}
                                 >
-                                    {fuelTypes.map((fuel) => (
-                                        <div
-                                            key={fuel}
-                                            className="flex items-center space-x-2"
-                                        >
-                                            <RadioGroupItem
-                                                value={fuel}
-                                                id={fuel
-                                                    .replace(/\s/g, "-")
-                                                    .toLowerCase()}
-                                            />
-                                            <Label
-                                                htmlFor={fuel
-                                                    .replace(/\s/g, "-")
-                                                    .toLowerCase()}
-                                            >
-                                                {fuel}
-                                            </Label>
-                                        </div>
-                                    ))}
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem
+                                            value="Aviation Turbine Fuel (Jet A-1)"
+                                            id="jet-a1"
+                                        />
+                                        <Label htmlFor="jet-a1">
+                                            Aviation Turbine Fuel (Jet A-1)
+                                        </Label>
+                                    </div>
                                 </RadioGroup>
-                                {errors.fuelType && (
+                                {errors.helicopterFuelType && (
                                     <p className="text-sm text-red-500">
-                                        {errors.fuelType}
+                                        {errors.helicopterFuelType}
                                     </p>
                                 )}
 
                                 <div className="space-y-2 mt-4">
-                                    <Label htmlFor="fuel-volume">
+                                    <Label htmlFor="helicopter-volume">
                                         Volume of Fuel Consumed (Litres)
                                     </Label>
                                     <Input
-                                        id="fuel-volume"
+                                        id="helicopter-volume"
                                         type="number"
-                                        placeholder="Enter volume in litres"
-                                        value={fuelVolume}
+                                        placeholder="Enter volume of fuel consumed"
+                                        value={helicopterVolume}
                                         onChange={(e) => {
-                                            setFuelVolume(e.target.value);
-                                            if (errors.fuelVolume) {
+                                            setHelicopterVolume(e.target.value);
+                                            if (errors.helicopterVolume) {
                                                 setErrors((prev) => ({
                                                     ...prev,
-                                                    fuelVolume: undefined,
+                                                    helicopterVolume: undefined,
                                                 }));
                                             }
                                         }}
                                         className={`w-full border-gray-400 ${
-                                            errors.fuelVolume
+                                            errors.helicopterVolume
                                                 ? "border-red-500 focus:border-red-500"
                                                 : ""
                                         }`}
                                         aria-describedby={
-                                            errors.fuelVolume
-                                                ? "fuel-volume-error"
+                                            errors.helicopterVolume
+                                                ? "helicopter-volume-error"
                                                 : undefined
                                         }
                                     />
-                                    {errors.fuelVolume && (
+                                    {errors.helicopterVolume && (
                                         <p
-                                            id="fuel-volume-error"
+                                            id="helicopter-volume-error"
                                             className="text-sm text-red-500"
                                         >
-                                            {errors.fuelVolume}
+                                            {errors.helicopterVolume}
                                         </p>
                                     )}
                                 </div>
                             </div>
                         </div>
 
+                        {/* 1.2 Company-owned Boats and Vessels */}
                         <div>
                             <Label className="text-md font-semibold mb-2 block">
-                                1.2 Document/Evidence Upload
+                                1.2 Company-owned Boats and Vessels for
+                                Transport in the Niger Delta and Offshore
+                                Subsidiaries
+                            </Label>
+                            <div className="space-y-4 ml-6">
+                                <Label>Type of Fuel</Label>
+                                <RadioGroup
+                                    value={vesselFuelType}
+                                    onValueChange={(value) => {
+                                        setVesselFuelType(value);
+                                        if (value !== "Other Fuels") {
+                                            setOtherFuelType("");
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                otherFuelType: undefined,
+                                            }));
+                                        }
+                                        if (errors.vesselFuelType) {
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                vesselFuelType: undefined,
+                                            }));
+                                        }
+                                    }}
+                                    className={`flex flex-col space-y-2 ${
+                                        errors.vesselFuelType
+                                            ? "border-red-500 p-2 rounded"
+                                            : ""
+                                    }`}
+                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem
+                                            value="Marine Diesel Oil (MDO)"
+                                            id="mdo"
+                                        />
+                                        <Label htmlFor="mdo">
+                                            Marine Diesel Oil (MDO)
+                                        </Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem
+                                            value="Other Fuels"
+                                            id="other-fuels"
+                                        />
+                                        <Label htmlFor="other-fuels">
+                                            Other Fuels (specify type)
+                                        </Label>
+                                    </div>
+                                </RadioGroup>
+                                {errors.vesselFuelType && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.vesselFuelType}
+                                    </p>
+                                )}
+
+                                {vesselFuelType === "Other Fuels" && (
+                                    <div className="space-y-2 mt-4">
+                                        <Label htmlFor="other-fuel-type">
+                                            Specify Other Fuel Type
+                                        </Label>
+                                        <Input
+                                            id="other-fuel-type"
+                                            type="text"
+                                            placeholder="Enter fuel type"
+                                            value={otherFuelType}
+                                            onChange={(e) => {
+                                                setOtherFuelType(
+                                                    e.target.value
+                                                );
+                                                if (errors.otherFuelType) {
+                                                    setErrors((prev) => ({
+                                                        ...prev,
+                                                        otherFuelType:
+                                                            undefined,
+                                                    }));
+                                                }
+                                            }}
+                                            className={`w-full border-gray-400 ${
+                                                errors.otherFuelType
+                                                    ? "border-red-500 focus:border-red-500"
+                                                    : ""
+                                            }`}
+                                            aria-describedby={
+                                                errors.otherFuelType
+                                                    ? "other-fuel-type-error"
+                                                    : undefined
+                                            }
+                                        />
+                                        {errors.otherFuelType && (
+                                            <p
+                                                id="other-fuel-type-error"
+                                                className="text-sm text-red-500"
+                                            >
+                                                {errors.otherFuelType}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className="space-y-2 mt-4">
+                                    <Label htmlFor="vessel-volume">
+                                        Volume of Fuel Consumed (Litres)
+                                    </Label>
+                                    <Input
+                                        id="vessel-volume"
+                                        type="number"
+                                        placeholder="Enter volume of fuel consumed"
+                                        value={vesselVolume}
+                                        onChange={(e) => {
+                                            setVesselVolume(e.target.value);
+                                            if (errors.vesselVolume) {
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    vesselVolume: undefined,
+                                                }));
+                                            }
+                                        }}
+                                        className={`w-full border-gray-400 ${
+                                            errors.vesselVolume
+                                                ? "border-red-500 focus:border-red-500"
+                                                : ""
+                                        }`}
+                                        aria-describedby={
+                                            errors.vesselVolume
+                                                ? "vessel-volume-error"
+                                                : undefined
+                                        }
+                                    />
+                                    {errors.vesselVolume && (
+                                        <p
+                                            id="vessel-volume-error"
+                                            className="text-sm text-red-500"
+                                        >
+                                            {errors.vesselVolume}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 1.3 Document/Evidence Upload */}
+                        <div>
+                            <Label className="text-md font-semibold mb-2 block">
+                                1.3 Document/Evidence Upload
                             </Label>
                             <div className="ml-6">
                                 {errors.files && (
@@ -309,7 +497,7 @@ export function MarineAviation({
                                             <Label className="text-sm font-medium mb-1 ml-1">
                                                 {field}
                                             </Label>
-                                            <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all">
+                                            <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all h-32">
                                                 <Label
                                                     htmlFor={`upload-${field
                                                         .replace(/\s/g, "-")
@@ -338,7 +526,7 @@ export function MarineAviation({
                                                     aria-label={`Upload ${field}`}
                                                 />
                                                 {files[field] && (
-                                                    <p className="text-sm text-green-600 mt-2 text-center">
+                                                    <p className="text-sm text-green-600 mt-2 text-center truncate">
                                                         Uploaded:{" "}
                                                         {files[field]!.name}
                                                     </p>
@@ -392,10 +580,9 @@ export function MarineAviation({
                                 onClick={handleSubmit}
                                 disabled={isSaving}
                                 className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
-                                aria-label="Submit form"
+                                aria-label="Submit assessment"
                             >
                                 Submit
-                                <ArrowRight className="h-4 w-4" />
                             </Button>
                         </div>
                     </CardContent>
