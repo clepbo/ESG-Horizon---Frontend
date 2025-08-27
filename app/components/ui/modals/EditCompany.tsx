@@ -96,7 +96,7 @@ export default function EditCompanyModal({
           />
           <InputField
             label="Industry"
-            value={formData.industry}
+            value={String(formData.industry)}
             onChange={(v) => handleChange("industry", v)}
           />
           <InputField

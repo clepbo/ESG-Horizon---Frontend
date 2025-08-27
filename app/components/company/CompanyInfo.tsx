@@ -50,7 +50,7 @@ export default function CompanyInfo({ company }: Props) {
             />
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <Info label="Company Name" value={company.name} />
-              <Info label="Industry Type" value={company.industry} />
+              <Info label="Industry Type" value={company.industry?.industry} />
               <Info label="Email Address" value={company.contact_email} />
               <Info
                 label="Contact Phone Number"

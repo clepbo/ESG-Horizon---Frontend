@@ -30,7 +30,7 @@ export default function CompaniesTableSection() {
 
       const searchLower = debouncedSearchTerm.toLowerCase();
       const nameMatches = company.name?.toLowerCase().includes(searchLower);
-      const industryMatches = company.industry
+      const industryMatches = company.industry?.industry
         ?.toLowerCase()
         .includes(searchLower);
       const emailMatches = company.contact_email

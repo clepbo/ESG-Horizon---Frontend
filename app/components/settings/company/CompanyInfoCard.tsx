@@ -33,7 +33,7 @@ export default function CompanyInfoCard({
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 w-full">
           <InfoField label="Company Name" value={company.name} />
-          <InfoField label="Industry Type" value={company.industry || ""} />
+          <InfoField label="Industry Type" value={company.industry?.industry || ""} />
           <InfoField label="Email Address" value={company.contact_email ?? "N/A"} />
           <InfoField
             label="Contact Phone Number"

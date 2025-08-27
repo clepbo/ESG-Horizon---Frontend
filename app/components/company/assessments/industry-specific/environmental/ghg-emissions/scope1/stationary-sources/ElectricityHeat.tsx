@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/app/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -271,7 +266,10 @@ export function ElectricityHeatForm({
                                                 "Diesel (Automotive Gas Oil - AGO)"
                                             }
                                         />
-                                        <Label htmlFor="diesel-ago" className="text-gray-700">
+                                        <Label
+                                            htmlFor="diesel-ago"
+                                            className="text-gray-700"
+                                        >
                                             Diesel (Automotive Gas Oil - AGO)
                                         </Label>
                                     </div>
@@ -336,7 +334,10 @@ export function ElectricityHeatForm({
                                                 gasFuelType === "Natural Gas"
                                             }
                                         />
-                                        <Label htmlFor="natural-gas" className="text-gray-700">
+                                        <Label
+                                            htmlFor="natural-gas"
+                                            className="text-gray-700"
+                                        >
                                             Natural Gas
                                         </Label>
                                     </div>

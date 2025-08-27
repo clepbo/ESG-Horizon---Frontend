@@ -112,7 +112,7 @@ export default function CompanyTable({
         </thead>
         <tbody className="divide-y divide-gray-200">
           {companies.map(
-            ({ id, name, registration_number, industry, sector, status }) => {
+            ({ id, name, registration_number, status }) => {
               const action = STATUS_ACTIONS[status];
               return (
                 <tr key={id} className="hover:bg-gray-50">
@@ -120,7 +120,7 @@ export default function CompanyTable({
                     {name}
                   </td>
                   <td className="px-4 py-3">{registration_number || "N/A"}</td>
-                  <td className="px-4 py-3">{industry || sector || "N/A"}</td>
+                  {/* <td className="px-4 py-3">{industry?.industry?.industry || "N/A"}</td> */}
                   <td className="px-4 py-3">
                     <StatusBadge status={status} />
                   </td>
