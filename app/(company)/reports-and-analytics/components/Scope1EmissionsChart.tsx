@@ -103,7 +103,7 @@ export function Scope1EmissionsChart() {
 
       if (fugitive.methaneLeaks) {
         const methane = fugitive.methaneLeaks;
-        const totalLeaks = Object.values(methane).reduce((sum, val) => (sum + (typeof val === "number" ? val : 0)), 0);
+        const totalLeaks = Object.values(methane).reduce<number>((sum, val) => (sum + (typeof val === "number" ? val : 0)), 0);
         if (totalLeaks > 0) {
           data.push({ category: "Methane Leaks", emissions: totalLeaks * 25 });
         }

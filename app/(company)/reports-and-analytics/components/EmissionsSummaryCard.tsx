@@ -37,7 +37,7 @@ export function EmissionsSummaryCard() {
 
     if (assessmentData.fugitiveEmissions) {
       const f = assessmentData.fugitiveEmissions;
-      if (f.methaneLeaks) scope1 += Object.values(f.methaneLeaks).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
+      if (f.methaneLeaks) scope1 += Object.values(f.methaneLeaks).reduce<number>((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
       if (f.ventingNaturalGas) scope1 += toNumber(f.ventingNaturalGas.volumeOfGasVented) * 0.002;
     }
 
