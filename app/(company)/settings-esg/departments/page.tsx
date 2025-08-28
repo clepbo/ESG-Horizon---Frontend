@@ -20,6 +20,8 @@ import {
     departmentService,
 } from "@/services/department.service";
 import { User } from "@/services/user.service";
+import RoleGuard from "@/lib/RoleGuard";
+
 
 export default function DepartmentsPage() {
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -30,6 +32,11 @@ export default function DepartmentsPage() {
     const [users, setUsers] = useState<User[]>([]);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [usersLoading, setUsersLoading] = useState(false);
+
+
+   
+
+
 
     const loadDepartments = useCallback(async () => {
         try {
@@ -130,6 +137,8 @@ export default function DepartmentsPage() {
                     </div>
 
                     <div className="flex justify-between items-center mb-6 mt-4">
+                       <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+
                         <button
                             className="border bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
                             onClick={() => setShowAddDepartmentModal(true)}
@@ -137,6 +146,7 @@ export default function DepartmentsPage() {
                             <Plus className="h-4 w-4 mr-1" />
                             Add Department
                         </button>
+                        </RoleGuard>
                     </div>
                 </div>
 

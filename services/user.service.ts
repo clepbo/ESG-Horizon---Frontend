@@ -25,6 +25,7 @@ export interface User {
     role?: {
         name?: string;
     };
+    subsidiaryId: number
 }
 
 export const userService = {

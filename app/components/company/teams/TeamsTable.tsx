@@ -9,6 +9,7 @@ import Pagination from "@/app/components/ui/reusables/Pagination";
 import EditUserModal from "../../common/users/EditUserModal";
 import RoleDefinitions from "../../settings/RoleDefinitions";
 import { TeamUserStatus, User } from "@/services/user.service";
+import RoleGuard from "@/lib/RoleGuard";
 
 type Props = {
     users: User[];
@@ -147,14 +148,20 @@ export default function TeamsTable({
                                 </td>
                                 <td className="px-4 py-3 flex space-x-2">
                                     {/* Edit user button */}
+                                   <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+
                                     <button
                                         className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
                                         onClick={() => handleView(user.id)}
                                     >
                                         <SquarePen className="w-4 h-4 text-gray-600" />
                                     </button>
+                                    </RoleGuard>
+
                                     {/* Status change button */}
-                                    {statusActions[user.status] && (
+                                    {statusActions[user.status] &&  (
+                                        <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+
                                         <button
                                             className={`rounded-md border p-2 cursor-pointer ${
                                                 statusActions[user.status].color
@@ -169,6 +176,7 @@ export default function TeamsTable({
                                         >
                                             {statusActions[user.status].icon}
                                         </button>
+                                        </RoleGuard>
                                     )}
                                 </td>
                             </tr>
