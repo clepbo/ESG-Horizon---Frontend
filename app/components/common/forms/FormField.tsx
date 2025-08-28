@@ -6,10 +6,12 @@ export function InputField({
     label,
     value,
     onChange,
+    disabled,
 }: {
     label: string;
     value: string | null | undefined;
     onChange: (v: string) => void;
+    disabled?: boolean;
 }) {
     return (
         <div className="flex flex-col">
@@ -17,11 +19,12 @@ export function InputField({
                 {label}
             </label>
             <input
+                disabled={disabled || false}
                 id="input"
                 type="text"
                 value={value ?? ""}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
             />
         </div>
     );

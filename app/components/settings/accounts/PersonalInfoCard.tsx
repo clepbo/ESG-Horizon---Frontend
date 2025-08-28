@@ -1,8 +1,8 @@
 "use client";
 
 import { User } from "@/services/user.service";
-// import { User } from "@/context/AuthContext";
 import InfoField from "./InfoField";
+import { formatRoleName } from "@/lib/utils";
 
 interface PersonalInfoCardProps {
   user: User;
@@ -14,7 +14,7 @@ export default function PersonalInfoCard({ user }: PersonalInfoCardProps) {
     { label: "Last Name", value: user.last_name },
     { label: "Email Address", value: user.email },
     { label: "Phone Number", value: user.phone_number },
-    { label: "Role", value: user.role?.name },
+    { label: "Role", value: formatRoleName(user.role?.name || "") },
   ];
 
   return (

@@ -88,6 +88,11 @@ const scopeData = [
     },
 ];
 
+// RE: Aghohowa
+// Get user settings, check what scopes they are set to boolean true, then filter the scope accordingly 
+// So a user only see the scope they are concerned about
+// const filteredScopeData = scopeData.filter((scope) => {})
+
 export function GhgEmissionsAssessment({
     onBack,
 }: GhgEmissionsAssessmentProps) {

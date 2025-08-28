@@ -52,14 +52,24 @@ export default function RoleDefinitions() {
                 Understanding user permissions and access levels
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+                className="border border-gray-200 rounded-lg p-5 bg-white"
+            >
+                <ul>
+                    <li>Company Admin</li>
+                    <li>Company SubAdmin</li>
+                    <li>Company Data Officer (Contributor)</li>
+                    <li>Company Viewer</li>
+                </ul>
+            </div>
+
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {roles.length > 0 &&
                     roles.map((role) => (
                         <div
                             key={role.name}
                             className="border border-gray-200 rounded-lg p-5 bg-white"
                         >
-                            {/* Role Title Pill */}
                             <div
                                 className={`inline-block px-3 py-1 rounded-full text-white text-sm font-medium bg-blue-400`}
                             >
@@ -69,31 +79,9 @@ export default function RoleDefinitions() {
                             <div className="mt-3">
                               <p>{role.description}</p>
                             </div>
-
-                            {/* Permissions List */}
-                            {/* <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                            {role.permissions.map((perm, i) =>
-                                typeof perm === "string" ? (
-                                    <li key={i} className="list-disc ml-5">
-                                        {perm}
-                                    </li>
-                                ) : (
-                                    <li key={i} className="ml-5">
-                                        <span className="font-medium">
-                                            {perm.label}
-                                        </span>
-                                        <ul className="list-disc ml-5 mt-1 space-y-1">
-                                            {perm.items.map((item, idx) => (
-                                                <li key={idx}>{item}</li>
-                                            ))}
-                                        </ul>
-                                    </li>
-                                )
-                            )}
-                        </ul> */}
                         </div>
                     ))}
-            </div>
+            </div> */}
         </section>
     );
 }

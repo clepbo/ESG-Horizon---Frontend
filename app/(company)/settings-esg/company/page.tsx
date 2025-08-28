@@ -14,6 +14,7 @@ export default function CompanyPage() {
 
     const [ifrsS1, setIfrsS1] = useState(true);
     const [ifrsS2, setIfrsS2] = useState(true);
+    const [ifrsS3, setIfrsS3] = useState(true);
     const [gri, setGri] = useState(false);
 
     useEffect(() => {
@@ -81,6 +82,19 @@ export default function CompanyPage() {
                     <ToggleSwitch
                         checked={ifrsS2}
                         onChange={() => setIfrsS2(!ifrsS2)}
+                    />
+                </div>
+                
+                <div className="flex justify-between items-center py-3">
+                    <div>
+                        <p className="font-medium">IFRS S3</p>
+                        <p className="text-sm text-gray-500">
+                            International sustainability disclosure standards
+                        </p>
+                    </div>
+                    <ToggleSwitch
+                        checked={ifrsS3}
+                        onChange={() => setIfrsS3(!ifrsS3)}
                     />
                 </div>
 

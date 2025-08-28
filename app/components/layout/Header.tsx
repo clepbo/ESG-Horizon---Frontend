@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { formatRoleName } from "@/lib/utils";
 
 export default function Header() {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ export default function Header() {
             {user ? `${user.first_name} ${user.last_name}` : "Loading..."}
           </span>
           <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
-            {user?.role?.name || "N/A"}
+            {formatRoleName(user?.role?.name || "")}
           </span>
         </div>
       </div>
