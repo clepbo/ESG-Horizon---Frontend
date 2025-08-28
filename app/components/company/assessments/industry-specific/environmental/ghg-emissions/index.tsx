@@ -12,6 +12,8 @@ import {
 import { ArrowLeft, ChevronRight, Info } from "lucide-react";
 import { StationarySourcesForm } from "./scope1/stationary-sources";
 import { MobileSourcesForm } from "./scope1/mobile-sources";
+import { ProcessEmissionsForm } from "./scope1/process-emissions";
+import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
 
 interface GhgEmissionsAssessmentProps {
     onBack: () => void;
@@ -136,7 +138,7 @@ export function GhgEmissionsAssessment({
     }
     if (currentView === "process-emissions") {
         return (
-            <MobileSourcesForm
+            <ProcessEmissionsForm
                 onBack={handleBackToOverview}
                 onContinueToNextAssessment={() =>
                     setCurrentView("process-emissions")
@@ -146,7 +148,7 @@ export function GhgEmissionsAssessment({
     }
     if (currentView === "fugitive-emissions") {
         return (
-            <MobileSourcesForm
+            <FugitiveEmissionsForm
                 onBack={handleBackToOverview}
                 onContinueToNextAssessment={() =>
                     setCurrentView("process-emissions")

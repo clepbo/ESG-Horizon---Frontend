@@ -1,111 +1,91 @@
 "use client";
 
-import { Leaf, Users, Building, BarChart3 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Leaf, Users, Building, BarChart3, TrendingUp, TrendingDown, Activity, Zap } from "lucide-react";
 import Header from "../components/Header";
 import { ESGScoreCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
-import RecentActivities from "../components/RecentActivities";
-import { IndustryLeaderboard } from "../components/IndustryLeaderboard";
-import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
-import ReportTable from "../components/ReportTab";
+import { AssessmentDataProvider } from "./AssessmentDataProvider";
+import { Scope1EmissionsChart } from "./components/Scope1EmissionsChart";
+import { Scope2EmissionsChart } from "./components/Scope2EmissionsChart";
+import { EmissionsBreakdownChart } from "./components/EmissionsBreakdownChart";
+import { AssessmentProgressCard } from "./components/AssessmentProgressCard";
+import { EmissionsSummaryCard } from "./components/EmissionsSummaryCard";
+import { DataQualityIndicator } from "./components/DataQualityIndicator";
 
-export default function DashboardPage() {
+export default function ReportsAnalyticsPage() {
   return (
-    <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
-      {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto p-6">
-        {/* Header */}
-        <Header />
+    <AssessmentDataProvider>
+      <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
+        <main className="flex-1 h-full overflow-y-auto p-6">
+          <Header />
 
-        {/* ESG Scores + Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* Page Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">ESG Reports & Analytics</h1>
+            <p className="text-gray-600">Comprehensive analysis of your environmental impact and ESG performance</p>
+          </div>
+
+          {/* ESG Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <ESGScoreCard
               title="Overall ESG Score"
-              score={70}
+              score={78}
               maxScore={100}
               trend="up"
-              trendValue="10%"
-              bgColor="bg-green-500"
+              trendValue="12%"
+              bgColor="bg-gradient-to-r from-green-500 to-green-600"
               icon={<BarChart3 className="w-5 h-5" />}
             />
             <ESGScoreCard
-              title="Environmental"
-              score={75}
+              title="Environmental Score"
+              score={82}
               maxScore={100}
-              trend="down"
-              trendValue="7%"
-              bgColor="bg-green-500"
+              trend="up"
+              trendValue="15%"
+              bgColor="bg-gradient-to-r from-emerald-500 to-emerald-600"
               icon={<Leaf className="w-5 h-5" />}
             />
             <ESGScoreCard
-              title="Social"
-              score={62}
+              title="Scope 1 Emissions"
+              score={75}
               maxScore={100}
-              trend="up"
-              trendValue="10%"
-              bgColor="bg-green-500"
-              icon={<Users className="w-5 h-5" />}
+              trend="down"
+              trendValue="8%"
+              bgColor="bg-gradient-to-r from-blue-500 to-blue-600"
+              icon={<Activity className="w-5 h-5" />}
             />
             <ESGScoreCard
-              title="Governance"
-              score={67}
+              title="Scope 2 Emissions"
+              score={68}
               maxScore={100}
-              trend="up"
-              trendValue="10%"
-              bgColor="bg-green-500"
-              icon={<Building className="w-5 h-5" />}
+              trend="down"
+              trendValue="12%"
+              bgColor="bg-gradient-to-r from-purple-500 to-purple-600"
+              icon={<Zap className="w-5 h-5" />}
             />
           </div>
-          <ESGJourneyChart />
-        </div>
 
-        {/* Recent Activities + Industry Leaderboard */}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-4">
-          <RecentActivities />
-          <IndustryLeaderboard />
-        </div>
-
-        {/* Assessment HUb CArd */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">
-            Assessment Hub
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <AssessmentHubCard
-              type="Environmental"
-              description="Measure your environmental impact, resource usage and conservation efforts."
-              progress={75}
-              completed="6 of 8 sections completed"
-              icon={Leaf}
-              iconBg="bg-green-500"
-            />
-            <AssessmentHubCard
-              type="Social"
-              description="Evaluate labor practices, human rights, community impact and product responsibility."
-              progress={60}
-              completed="4 of 10 sections completed"
-              icon={Users}
-              iconBg="bg-blue-500"
-            />
-            <AssessmentHubCard
-              type="Governance"
-              description="Evaluate financial governance, market presence, procurement practices and more."
-              progress={55}
-              completed="10 of 18 sections completed"
-              icon={Building}
-              iconBg="bg-yellow-500"
-            />
+          {/* Main Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <Scope1EmissionsChart />
+            <Scope2EmissionsChart />
           </div>
-        </div>
 
-        {/* Activity Table */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Report</h2>
-          <ReportTable />
-        </div>
-      </main>
-    </div>
+          {/* Emissions Breakdown and Progress */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <EmissionsBreakdownChart />
+            <AssessmentProgressCard />
+            <DataQualityIndicator />
+          </div>
+
+          {/* ESG Journey and Summary */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <ESGJourneyChart />
+            <EmissionsSummaryCard />
+          </div>
+        </main>
+      </div>
+    </AssessmentDataProvider>
   );
 }

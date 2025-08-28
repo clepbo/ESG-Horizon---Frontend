@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import type { AssessmentData } from "@/hooks/useAssessment";
 
 interface IndustrialProcessesFormProps {
     onBack: () => void;
@@ -72,19 +73,37 @@ export function IndustrialProcessesForm({
         files?: string;
     }>({});
 
+    // useEffect(() => {
+    //     const existingData =
+    //         state.assessmentData.stationarySources?.industrialProcesses ||
+    //         JSON.parse(
+    //             localStorage.getItem("stationarySources.industrialProcesses") ||
+    //                 "{}"
+    //         );
+    //     if (existingData) {
+    //         setSelectedFuelType(existingData.selectedFuelType || "");
+    //         setOtherFuelType(existingData.otherFuelType || "");
+    //         setFuelVolume(existingData.fuelVolume || "");
+    //         setFiles(
+    //             existingData.files ||
+    //                 Object.fromEntries(
+    //                     uploadFields.map((field) => [field, null])
+    //                 )
+    //         );
+    //     }
+    // }, [state.assessmentData.stationarySources?.industrialProcesses]);
+
     useEffect(() => {
-        const existingData =
-            state.assessmentData.stationarySources?.industrialProcesses ||
-            JSON.parse(
-                localStorage.getItem("stationarySources.industrialProcesses") ||
-                    "{}"
-            );
+        const existingData = state.assessmentData.stationarySources
+            ?.industrialProcesses as NonNullable<
+            AssessmentData["stationarySources"]
+        >["industrialProcesses"];
         if (existingData) {
-            setSelectedFuelType(existingData.selectedFuelType || "");
-            setOtherFuelType(existingData.otherFuelType || "");
-            setFuelVolume(existingData.fuelVolume || "");
+            setSelectedFuelType(existingData.selectedFuelType ?? "");
+            setOtherFuelType(existingData.otherFuelType ?? "");
+            setFuelVolume(existingData.fuelVolume?.toString() ?? "");
             setFiles(
-                existingData.files ||
+                existingData.files ??
                     Object.fromEntries(
                         uploadFields.map((field) => [field, null])
                     )
@@ -148,7 +167,7 @@ export function IndustrialProcessesForm({
         if (!validateForm()) return;
 
         setIsSaving(true);
-        const payload = { selectedFuelType, otherFuelType, fuelVolume, files };
+        const payload = { selectedFuelType, otherFuelType, fuelVolume: Number(fuelVolume), files };
         dispatch({
             type: "UPDATE_STATIONARY_INDUSTRIAL",
             payload,
@@ -167,7 +186,7 @@ export function IndustrialProcessesForm({
         if (!validateForm()) return;
         dispatch({
             type: "UPDATE_STATIONARY_INDUSTRIAL",
-            payload: { selectedFuelType, otherFuelType, fuelVolume, files },
+            payload: { selectedFuelType, otherFuelType, fuelVolume: Number(fuelVolume), files },
         });
         localStorage.setItem(
             "stationarySources.industrialProcesses",
@@ -432,7 +451,6 @@ export function IndustrialProcessesForm({
                             </div>
                         </div>
 
-                        {/* Navigation Buttons */}
                         <div className="grid grid-cols-3 gap-4 pt-8">
                             <Button
                                 variant="outline"

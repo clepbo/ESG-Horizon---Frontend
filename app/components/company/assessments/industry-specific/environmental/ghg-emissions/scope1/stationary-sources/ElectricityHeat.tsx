@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import type { AssessmentData } from "@/hooks/useAssessment";
 
 interface ElectricityHeatFormProps {
     onBack: () => void;
@@ -64,23 +65,45 @@ export function ElectricityHeatForm({
         files?: string;
     }>({});
 
+    // useEffect(() => {
+    //     const existingData =
+    //         state.assessmentData.stationarySources?.electricityHeat ||
+    //         JSON.parse(
+    //             localStorage.getItem("stationarySources.electricityHeat") ||
+    //                 "{}"
+    //         );
+    //     if (existingData) {
+    //         setDieselFuelType(
+    //             existingData.dieselFuelType ||
+    //                 "Diesel (Automotive Gas Oil - AGO)"
+    //         );
+    //         setDieselVolume(existingData.dieselVolume || "");
+    //         setGasFuelType(existingData.gasFuelType || "Natural Gas");
+    //         setGasVolume(existingData.gasVolume || "");
+    //         setFiles(
+    //             existingData.files ||
+    //                 Object.fromEntries(
+    //                     uploadFields.map((field) => [field, null])
+    //                 )
+    //         );
+    //     }
+    // }, [state.assessmentData.stationarySources?.electricityHeat]);
+
     useEffect(() => {
-        const existingData =
-            state.assessmentData.stationarySources?.electricityHeat ||
-            JSON.parse(
-                localStorage.getItem("stationarySources.electricityHeat") ||
-                    "{}"
-            );
+        const existingData = state.assessmentData.stationarySources
+            ?.electricityHeat as NonNullable<
+            AssessmentData["stationarySources"]
+        >["electricityHeat"];
         if (existingData) {
             setDieselFuelType(
-                existingData.dieselFuelType ||
+                existingData.dieselFuelType ??
                     "Diesel (Automotive Gas Oil - AGO)"
             );
-            setDieselVolume(existingData.dieselVolume || "");
-            setGasFuelType(existingData.gasFuelType || "Natural Gas");
-            setGasVolume(existingData.gasVolume || "");
+            setDieselVolume(existingData.dieselVolume?.toString() ?? "");
+            setGasFuelType(existingData.gasFuelType ?? "Natural Gas");
+            setGasVolume(existingData.gasVolume?.toString() ?? "");
             setFiles(
-                existingData.files ||
+                existingData.files ??
                     Object.fromEntries(
                         uploadFields.map((field) => [field, null])
                     )
@@ -147,9 +170,9 @@ export function ElectricityHeatForm({
         setIsSaving(true);
         const payload = {
             dieselFuelType,
-            dieselVolume,
+            dieselVolume: dieselVolume ? Number(dieselVolume) : undefined,
             gasFuelType,
-            gasVolume,
+            gasVolume: gasVolume ? Number(gasVolume) : undefined,
             files,
         };
         dispatch({
@@ -172,9 +195,9 @@ export function ElectricityHeatForm({
             type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
             payload: {
                 dieselFuelType,
-                dieselVolume,
+                dieselVolume: dieselVolume ? Number(dieselVolume) : undefined,
                 gasFuelType,
-                gasVolume,
+                gasVolume: gasVolume ? Number(gasVolume) : undefined,
                 files,
             },
         });
@@ -182,9 +205,9 @@ export function ElectricityHeatForm({
             "stationarySources.electricityHeat",
             JSON.stringify({
                 dieselFuelType,
-                dieselVolume,
+                dieselVolume: dieselVolume ? Number(dieselVolume) : undefined,
                 gasFuelType,
-                gasVolume,
+                gasVolume: gasVolume ? Number(gasVolume) : undefined,
                 files,
             })
         );

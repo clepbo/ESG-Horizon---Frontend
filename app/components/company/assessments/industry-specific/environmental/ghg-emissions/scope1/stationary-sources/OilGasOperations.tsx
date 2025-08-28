@@ -1,22 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-    Card,
-    CardContent,
-} from "@/app/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import {
-    ArrowLeft,
-    Save,
-    CheckCircle2,
-    CloudUpload,
-} from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import type { AssessmentData } from "@/hooks/useAssessment";
 
 interface OilGasOperationsProps {
     onBack: () => void;
@@ -61,18 +54,35 @@ export function OilGasOperations({
         files?: string;
     }>({});
 
+    // useEffect(() => {
+    //     const existingData =
+    //         state.assessmentData.stationarySources?.oilGasOperations ||
+    //         JSON.parse(
+    //             localStorage.getItem("stationarySources.oilGasOperations") ||
+    //                 "{}"
+    //         );
+    //     if (existingData) {
+    //         setSelectedFuelType(existingData.selectedFuelType || "");
+    //         setFuelVolume(existingData.fuelVolume || "");
+    //         setFiles(
+    //             existingData.files ||
+    //                 Object.fromEntries(
+    //                     uploadFields.map((field) => [field, null])
+    //                 )
+    //         );
+    //     }
+    // }, [state.assessmentData.stationarySources?.oilGasOperations]);
+
     useEffect(() => {
-        const existingData =
-            state.assessmentData.stationarySources?.oilGasOperations ||
-            JSON.parse(
-                localStorage.getItem("stationarySources.oilGasOperations") ||
-                    "{}"
-            );
+        const existingData = state.assessmentData.stationarySources
+            ?.oilGasOperations as NonNullable<
+            AssessmentData["stationarySources"]
+        >["oilGasOperations"];
         if (existingData) {
-            setSelectedFuelType(existingData.selectedFuelType || "");
-            setFuelVolume(existingData.fuelVolume || "");
+            setSelectedFuelType(existingData.selectedFuelType ?? "");
+            setFuelVolume(existingData.fuelVolume?.toString() ?? "");
             setFiles(
-                existingData.files ||
+                existingData.files ??
                     Object.fromEntries(
                         uploadFields.map((field) => [field, null])
                     )
@@ -132,7 +142,11 @@ export function OilGasOperations({
         if (!validateForm()) return;
 
         setIsSaving(true);
-        const payload = { selectedFuelType, fuelVolume, files };
+        const payload = {
+            selectedFuelType,
+            fuelVolume: Number(fuelVolume),
+            files,
+        };
         dispatch({
             type: "UPDATE_STATIONARY_OIL_GAS",
             payload,
@@ -151,11 +165,19 @@ export function OilGasOperations({
         if (!validateForm()) return;
         dispatch({
             type: "UPDATE_STATIONARY_OIL_GAS",
-            payload: { selectedFuelType, fuelVolume, files },
+            payload: {
+                selectedFuelType,
+                fuelVolume: Number(fuelVolume),
+                files,
+            },
         });
         localStorage.setItem(
             "stationarySources.oilGasOperations",
-            JSON.stringify({ selectedFuelType, fuelVolume, files })
+            JSON.stringify({
+                selectedFuelType,
+                fuelVolume: Number(fuelVolume),
+                files,
+            })
         );
         onSubmit();
     };

@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import type { AssessmentData } from "@/hooks/useAssessment";
 
 interface MarineAviationProps {
     onBack: () => void;
@@ -62,25 +63,52 @@ export function MarineAviation({
         files?: string;
     }>({});
 
+    // useEffect(() => {
+    //     const existingData =
+    //         state.assessmentData.mobileSources?.marineAviation ||
+    //         JSON.parse(localStorage.getItem("esg-assessment-data") || "{}")
+    //             .mobileSources?.marineAviation ||
+    //         {};
+    //     if (existingData) {
+    //         setHelicopterFuelType(
+    //             existingData.helicopterFuelType ||
+    //                 "Aviation Turbine Fuel (Jet A-1)"
+    //         );
+    //         setHelicopterVolume(existingData.helicopterVolume || "");
+    //         setVesselFuelType(
+    //             existingData.vesselFuelType || "Marine Diesel Oil (MDO)"
+    //         );
+    //         setOtherFuelType(existingData.otherFuelType || "");
+    //         setVesselVolume(existingData.vesselVolume || "");
+    //         setFiles(
+    //             existingData.files ||
+    //                 Object.fromEntries(
+    //                     uploadFields.map((field) => [field, null])
+    //                 )
+    //         );
+    //     }
+    // }, [state.assessmentData.mobileSources?.marineAviation]);
+
     useEffect(() => {
-        const existingData =
-            state.assessmentData.mobileSources?.marineAviation ||
-            JSON.parse(localStorage.getItem("esg-assessment-data") || "{}")
-                .mobileSources?.marineAviation ||
-            {};
+        const existingData = state.assessmentData.mobileSources
+            ?.marineAviation as NonNullable<
+            AssessmentData["mobileSources"]
+        >["marineAviation"];
         if (existingData) {
             setHelicopterFuelType(
-                existingData.helicopterFuelType ||
+                existingData.helicopterFuelType ??
                     "Aviation Turbine Fuel (Jet A-1)"
             );
-            setHelicopterVolume(existingData.helicopterVolume || "");
-            setVesselFuelType(
-                existingData.vesselFuelType || "Marine Diesel Oil (MDO)"
+            setHelicopterVolume(
+                existingData.helicopterVolume?.toString() ?? ""
             );
-            setOtherFuelType(existingData.otherFuelType || "");
-            setVesselVolume(existingData.vesselVolume || "");
+            setVesselFuelType(
+                existingData.vesselFuelType ?? "Marine Diesel Oil (MDO)"
+            );
+            setOtherFuelType(existingData.otherFuelType ?? "");
+            setVesselVolume(existingData.vesselVolume?.toString() ?? "");
             setFiles(
-                existingData.files ||
+                existingData.files ??
                     Object.fromEntries(
                         uploadFields.map((field) => [field, null])
                     )
@@ -161,11 +189,11 @@ export function MarineAviation({
         setIsSaving(true);
         const payload = {
             helicopterFuelType,
-            helicopterVolume,
+            helicopterVolume: Number(helicopterVolume),
             vesselFuelType,
             otherFuelType:
                 vesselFuelType === "Other Fuels" ? otherFuelType : "",
-            vesselVolume,
+            vesselVolume: Number(vesselVolume),
             files,
         };
         dispatch({
@@ -182,11 +210,11 @@ export function MarineAviation({
         if (!validateForm()) return;
         const payload = {
             helicopterFuelType,
-            helicopterVolume,
+            helicopterVolume: Number(helicopterVolume),
             vesselFuelType,
             otherFuelType:
                 vesselFuelType === "Other Fuels" ? otherFuelType : "",
-            vesselVolume,
+            vesselVolume: Number(vesselVolume),
             files,
         };
         dispatch({
