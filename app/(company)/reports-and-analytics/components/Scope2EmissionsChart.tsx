@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
+import { XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
 import { useAssessmentData } from "../AssessmentDataProvider";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -17,7 +17,7 @@ export function Scope2EmissionsChart() {
     return 0;
   };
 
-  const gridEF = 0.5; // kg CO2e per kWh (fallback when factor not provided)
+  const gridEF = 0.5;
 
   const computeScope2Totals = () => {
     if (!assessmentData) return { locationBased: 0, marketBased: 0 };
@@ -37,7 +37,6 @@ export function Scope2EmissionsChart() {
       locationBased += parseNum(assessmentData.heating.heatingConsumed) * gridEF;
     }
 
-    // Market-based sources (use provided emission factors when available)
     let marketBased = 0;
     if (assessmentData.ipps) {
       marketBased += parseNum(assessmentData.ipps.electricityConsumed) * (parseNum(assessmentData.ipps.emissionFactor) || gridEF);

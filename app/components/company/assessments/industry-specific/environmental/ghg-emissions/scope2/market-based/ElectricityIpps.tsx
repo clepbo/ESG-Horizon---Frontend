@@ -60,7 +60,7 @@ export function ElectricityIppsForm({
       setEmissionFactor(existing.emissionFactor || "");
       setUploads(existing.uploads || uploads);
     }
-  }, [state.assessmentData.ipps]);
+  }, [state.assessmentData.ipps, uploads]);
 
   const validateForm = () => {
     const newErrors: {

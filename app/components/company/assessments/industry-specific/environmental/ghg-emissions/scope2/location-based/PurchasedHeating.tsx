@@ -69,7 +69,7 @@ export function PurchasedHeatingForm({
       setSupplierName(existing.supplierName || "");
       setFiles(existing.files || files);
     }
-  }, [state.assessmentData.heating]);
+  }, [files, state.assessmentData.heating]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};

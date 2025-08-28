@@ -60,7 +60,7 @@ export function ResidualForm({
       setResidualMixFactor(existing.residualMixFactor || "");
       setUploads(existing.uploads || uploads);
     }
-  }, [state.assessmentData.residual]);
+  }, [state.assessmentData.residual, uploads]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};

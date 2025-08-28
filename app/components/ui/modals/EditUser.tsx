@@ -4,10 +4,7 @@ import { useState } from "react";
 import { CircleX, Camera } from "lucide-react";
 import Image from "next/image";
 import BackButton from "../reusables/BackButton";
-import {
-    InputField,
-    SelectField,
-} from "@/app/components/common/forms/FormField";
+import { InputField } from "@/app/components/common/forms/FormField";
 import { User, userService } from "@/services/user.service";
 import { toast } from "react-toastify";
 import { formatRoleName } from "@/lib/utils";

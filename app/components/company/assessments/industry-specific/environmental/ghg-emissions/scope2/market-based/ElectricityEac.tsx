@@ -57,7 +57,7 @@ export function ElectricityEACForm({
       setEmissionFactor(existing.emissionFactor || "");
       setUploads(existing.uploads || uploads);
     }
-  }, [state.assessmentData.eac]);
+  }, [state.assessmentData.eac, uploads]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};

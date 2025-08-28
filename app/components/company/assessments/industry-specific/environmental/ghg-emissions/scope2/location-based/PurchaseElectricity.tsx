@@ -64,7 +64,7 @@ export function PurchasedElectricityForm({
       setSupplier(existing.supplier || "");
       setUploads(existing.uploads || uploads);
     }
-  }, [state.assessmentData.electricity]);
+  }, [state.assessmentData.electricity, uploads]);
 
   const validateForm = () => {
     const newErrors: {
