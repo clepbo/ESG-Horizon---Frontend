@@ -1,50 +1,76 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useAssessmentData } from "../AssessmentDataProvider";
 import { PieChart as PieChartIcon } from "lucide-react";
 
 export function EmissionsBreakdownChart() {
   const { assessmentData, isLoading } = useAssessmentData();
 
-  // Mock data for now - will be replaced with real data once structure is fixed
-  const generateMockEmissionsBreakdown = () => {
-    return [
-      {
-        name: "Scope 1 - Stationary",
-        value: 1250.5,
-        color: "#3B82F6"
-      },
-      {
-        name: "Scope 1 - Mobile",
-        value: 1150.9,
-        color: "#10B981"
-      },
-      {
-        name: "Scope 1 - Process",
-        value: 95.7,
-        color: "#F59E0B"
-      },
-      {
-        name: "Scope 1 - Fugitive",
-        value: 180.3,
-        color: "#EF4444"
-      },
-      {
-        name: "Scope 2 - Location",
-        value: 750.0,
-        color: "#8B5CF6"
-      },
-      {
-        name: "Scope 2 - Market",
-        value: 300.0,
-        color: "#EC4899"
-      }
-    ];
+  const toNumber = (val: unknown): number => (typeof val === 'number' && !isNaN(val) ? val : 0);
+
+  const calculateEmissionsBreakdown = () => {
+    if (!assessmentData) return [] as { name: string; value: number; color: string }[];
+
+    const parts: { name: string; value: number; color: string }[] = [];
+
+    // Stationary
+    if (assessmentData.stationarySources) {
+      const s = assessmentData.stationarySources;
+      const elec = s.electricityHeat ? (toNumber(s.electricityHeat.dieselVolume) + toNumber(s.electricityHeat.gasVolume)) * 2.31 : 0;
+      if (elec > 0) parts.push({ name: 'Scope 1 - Stationary', value: elec, color: '#3B82F6' });
+
+      const ind = s.industrialProcesses ? toNumber(s.industrialProcesses.fuelVolume) * 2.31 : 0;
+      if (ind > 0) parts.push({ name: 'Scope 1 - Industrial', value: ind, color: '#10B981' });
+
+      const og = s.oilGasOperations ? toNumber(s.oilGasOperations.fuelVolume) * 2.31 : 0;
+      if (og > 0) parts.push({ name: 'Scope 1 - Oil & Gas', value: og, color: '#F59E0B' });
+    }
+
+    // Mobile
+    if (assessmentData.mobileSources) {
+      const m = assessmentData.mobileSources;
+      const road = m.roadTransport ? (toNumber(m.roadTransport.dieselTruckVolume) + toNumber(m.roadTransport.carPetrolVolume) + toNumber(m.roadTransport.carDieselVolume)) * 2.31 : 0;
+      if (road > 0) parts.push({ name: 'Scope 1 - Road', value: road, color: '#8B5CF6' });
+
+      const veh = m.vehicleEquipment ? (toNumber(m.vehicleEquipment.forkliftVolume) + toNumber(m.vehicleEquipment.heavyDutyVolume) + toNumber(m.vehicleEquipment.tractorVolume)) * 2.31 : 0;
+      if (veh > 0) parts.push({ name: 'Scope 1 - Equipment', value: veh, color: '#EF4444' });
+
+      const ma = m.marineAviation ? (toNumber(m.marineAviation.helicopterVolume) + toNumber(m.marineAviation.vesselVolume)) * 2.31 : 0;
+      if (ma > 0) parts.push({ name: 'Scope 1 - Marine/Aviation', value: ma, color: '#06B6D4' });
+    }
+
+    // Process
+    if (assessmentData.processEmissions?.co2Release) {
+      const co2 = assessmentData.processEmissions.co2Release;
+      const proc = (toNumber(co2.clinkerQuantity) + toNumber(co2.calciumOxide) + toNumber(co2.magnesiumOxide)) * 0.44;
+      if (proc > 0) parts.push({ name: 'Scope 1 - Process', value: proc, color: '#84CC16' });
+    }
+
+    if (assessmentData.processEmissions?.gasFlaring) {
+      const fl = assessmentData.processEmissions.gasFlaring;
+      const val = toNumber(fl.gasVolume) * 0.002;
+      if (val > 0) parts.push({ name: 'Scope 1 - Gas Flaring', value: val, color: '#F97316' });
+    }
+
+    // Fugitive
+    if (assessmentData.fugitiveEmissions?.methaneLeaks) {
+      const methane = assessmentData.fugitiveEmissions.methaneLeaks;
+      const leaks = Object.values(methane).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
+      if (leaks > 0) parts.push({ name: 'Scope 1 - Fugitive', value: leaks, color: '#EC4899' });
+    }
+
+    if (assessmentData.fugitiveEmissions?.ventingNaturalGas) {
+      const vn = assessmentData.fugitiveEmissions.ventingNaturalGas;
+      const val = toNumber(vn.volumeOfGasVented) * 0.002;
+      if (val > 0) parts.push({ name: 'Scope 1 - Venting', value: val, color: '#A855F7' });
+    }
+
+    return parts;
   };
 
-  const chartData = generateMockEmissionsBreakdown();
+  const chartData = calculateEmissionsBreakdown();
   const totalEmissions = chartData.reduce((sum, item) => sum + item.value, 0);
 
   if (isLoading) {
@@ -70,49 +96,40 @@ export function EmissionsBreakdownChart() {
           <CardTitle className="text-lg font-semibold text-gray-900">Emissions Breakdown</CardTitle>
         </div>
         <p className="text-sm text-gray-600">Distribution of emissions by source and scope</p>
-        
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{totalEmissions.toFixed(1)}</div>
-            <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
+        {chartData.length > 0 ? (
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">{totalEmissions.toFixed(1)}</div>
+              <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={chartData} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`} labelLine={false}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => [`${value.toFixed(1)} tonnes CO2e`, 'Emissions']} labelStyle={{ color: '#374151' }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {chartData.map((item, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span className="text-gray-700">{item.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                dataKey="value"
-                label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                labelLine={false}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value: number) => [`${value.toFixed(1)} tonnes CO2e`, 'Emissions']}
-                labelStyle={{ color: '#374151' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            {chartData.map((item, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-gray-700">{item.name}</span>
-              </div>
-            ))}
+        ) : (
+          <div className="text-center py-8">
+            <PieChartIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No emissions data available</p>
+            <p className="text-sm text-gray-400">Complete your assessment to see breakdown</p>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

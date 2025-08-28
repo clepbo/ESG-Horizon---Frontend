@@ -8,40 +8,49 @@ import { CheckCircle, Circle, Clock } from "lucide-react";
 export function AssessmentProgressCard() {
   const { assessmentData, isLoading } = useAssessmentData();
 
-  // Mock data for now - will be replaced with real data once structure is fixed
-  const generateMockAssessmentProgress = () => {
-    return [
-      {
-        name: "Stationary Sources",
-        completed: true,
-        inProgress: false,
-        progress: 100
-      },
-      {
-        name: "Mobile Sources",
-        completed: true,
-        inProgress: false,
-        progress: 100
-      },
-      {
-        name: "Process Emissions",
-        completed: false,
-        inProgress: true,
-        progress: 60
-      },
-      {
-        name: "Fugitive Emissions",
-        completed: false,
-        inProgress: false,
-        progress: 0
-      }
-    ];
+  const hasAnyNumberValue = (obj: unknown): boolean => {
+    if (!obj || typeof obj !== 'object') return false;
+    return Object.values(obj as Record<string, unknown>).some(v => typeof v === 'number' && (v as number) > 0);
   };
 
-  const sections = generateMockAssessmentProgress();
-  const totalCompleted = sections.filter(s => s.completed).length;
-  const totalSections = sections.length;
-  const overallProgress = (totalCompleted / totalSections) * 100;
+  const computeSections = () => {
+    if (!assessmentData) return [] as Array<{ name: string; completed: boolean; inProgress: boolean; progress: number }>;
+
+    const sections = [
+      { name: 'Stationary Sources', keys: ['electricityHeat', 'industrialProcesses', 'oilGasOperations'] as const },
+      { name: 'Mobile Sources', keys: ['roadTransport', 'vehicleEquipment', 'marineAviation'] as const },
+      { name: 'Process Emissions', keys: ['co2Release', 'gasFlaring', 'fertilizerEmissions', 'entericFermentation', 'methaneNitrousOxide'] as const },
+      { name: 'Fugitive Emissions', keys: ['methaneLeaks', 'ventingNaturalGas', 'incompleteCombustion', 'hfcLeaks'] as const }
+    ];
+
+    return sections.map(section => {
+      let present = 0;
+      let nonEmpty = 0;
+      const container = (
+        section.name === 'Stationary Sources' ? assessmentData.stationarySources :
+        section.name === 'Mobile Sources' ? assessmentData.mobileSources :
+        section.name === 'Process Emissions' ? assessmentData.processEmissions :
+        assessmentData.fugitiveEmissions
+      ) as Record<string, unknown> | undefined;
+
+      section.keys.forEach(k => {
+        const val = container ? (container as any)[k] : undefined;
+        if (val && typeof val === 'object') {
+          present++;
+          if (hasAnyNumberValue(val)) nonEmpty++;
+        }
+      });
+
+      const progress = present === 0 ? 0 : (nonEmpty / section.keys.length) * 100;
+      const completed = progress === 100;
+      const inProgress = progress > 0 && progress < 100;
+
+      return { name: section.name, completed, inProgress, progress };
+    });
+  };
+
+  const sections = computeSections();
+  const overallProgress = sections.length ? (sections.reduce((s, x) => s + x.progress, 0) / (sections.length)) : 0;
 
   if (isLoading) {
     return (
@@ -66,14 +75,12 @@ export function AssessmentProgressCard() {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Overall Progress */}
           <div className="text-center">
             <div className="text-3xl font-bold text-gray-900">{overallProgress.toFixed(0)}%</div>
             <div className="text-sm text-gray-600">Overall Completion</div>
             <Progress value={overallProgress} className="mt-2" />
           </div>
 
-          {/* Section Progress */}
           <div className="space-y-4">
             {sections.map((section, index) => (
               <div key={index} className="space-y-2">
@@ -93,20 +100,6 @@ export function AssessmentProgressCard() {
                 <Progress value={section.progress} className="h-2" />
               </div>
             ))}
-          </div>
-
-          {/* Summary */}
-          <div className="pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <div className="text-lg font-bold text-green-600">{totalCompleted}</div>
-                <div className="text-xs text-gray-600">Completed</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold text-gray-400">{totalSections - totalCompleted}</div>
-                <div className="text-xs text-gray-600">Remaining</div>
-              </div>
-            </div>
           </div>
         </div>
       </CardContent>

@@ -19,6 +19,8 @@ export interface AssessmentData {
     startYear: string;
     endMonth: string;
     endYear: string;
+
+    // Scope 1
     stationarySources?: {
         electricityHeat?: {
             dieselFuelType?: string;
@@ -139,6 +141,88 @@ export interface AssessmentData {
             files?: { [key: string]: FileMetadata | null };
         };
     };
+
+    // Scope 2
+    electricity?: {
+        electricityConsumed: string;
+        reportingPeriod: string;
+        supplier: string;
+        uploads?: {
+            equipmentInventory: File | null;
+            ldarReport: File | null;
+            gasAnalysis: File | null;
+        };
+    };
+    cooling?: {
+        coolingConsumed: string;
+        reportingPeriod: string;
+        selectedSystems: string[];
+        otherComments: string;
+        uploads?: {
+            invoices: File | null;
+            performanceLogs: File | null;
+            subMetering: File | null;
+        };
+    };
+    steam?: {
+        volume: string;
+        reportingPeriod: string;
+        selectedSources: string[];
+        otherComments: string;
+        uploads?: {
+            invoices: File | null;
+            meteredRecords: File | null;
+            contracts: File | null;
+        };
+    };
+    heating?: {
+        heatingPurchased: string;
+        heatingConsumed: string;
+        supplierName: string;
+        uploads?: {
+            invoices: File | null;
+            meteredRecords: File | null;
+            contracts: File | null;
+            certifications: File | null;
+        };
+    };
+    ipps?: {
+        electricityConsumed: string;
+        emissionFactor: string;
+        uploads?: {
+            contract: File | null;
+            bills: File | null;
+            certificate: File | null;
+        };
+    };
+    eac?: {
+        gridElectricity: string;
+        emissionFactor: string;
+        uploads?: {
+            eac: File | null;
+            bills: File | null;
+            recs: File | null;
+            gridAgreement: File | null;
+        };
+    };
+    residual?: {
+        electricityConsumed: string;
+        residualMixFactor: string;
+        uploads?: {
+            gridElectricity: File | null;
+            gridDocumentation: File | null;
+            supplierContracts: File | null;
+        };
+    };
+    coolingSteam?: {
+        energyConsumed: string;
+        emissionFactor: string;
+        uploads?: {
+            supplierContract: File | null;
+            bills: File | null;
+            certificate: File | null;
+        };
+    };
 }
 
 export interface AssessmentState {
@@ -241,6 +325,15 @@ type AssessmentAction =
           type: "UPDATE_FUGITIVE_HFC_LEAKS";
           payload: NonNullable<AssessmentData["fugitiveEmissions"]>["hfcLeaks"];
       }
+    // Scope 2 flattened
+    | { type: "UPDATE_ELECTRICITY"; payload: AssessmentData["electricity"] }
+    | { type: "UPDATE_COOLING"; payload: AssessmentData["cooling"] }
+    | { type: "UPDATE_STEAM"; payload: AssessmentData["steam"] }
+    | { type: "UPDATE_HEATING"; payload: AssessmentData["heating"] }
+    | { type: "UPDATE_IPPS"; payload: AssessmentData["ipps"] }
+    | { type: "UPDATE_EAC"; payload: AssessmentData["eac"] }
+    | { type: "UPDATE_RESIDUAL"; payload: AssessmentData["residual"] }
+    | { type: "UPDATE_COOLING_STEAM"; payload: AssessmentData["coolingSteam"] }
     | { type: "SAVE_PROGRESS" }
     | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
     | { type: "RESET_ASSESSMENT" }
@@ -603,6 +696,79 @@ function assessmentReducer(
                     },
                 },
                 error: null,
+            };
+
+        // Enter MR Scope 2
+        case "UPDATE_ELECTRICITY":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    electricity: action.payload,
+                },
+            };
+
+        case "UPDATE_COOLING":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    cooling: action.payload,
+                },
+            };
+
+        case "UPDATE_STEAM":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    steam: action.payload,
+                },
+            };
+
+        case "UPDATE_HEATING":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    heating: action.payload,
+                },
+            };
+
+        case "UPDATE_IPPS":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    ipps: action.payload,
+                },
+            };
+
+        case "UPDATE_EAC":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    eac: action.payload,
+                },
+            };
+
+        case "UPDATE_RESIDUAL":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    residual: action.payload,
+                },
+            };
+
+        case "UPDATE_COOLING_STEAM":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    coolingSteam: action.payload,
+                },
             };
 
         case "SAVE_PROGRESS":

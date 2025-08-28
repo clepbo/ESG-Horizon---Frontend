@@ -8,32 +8,9 @@ import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 export function Scope2EmissionsChart() {
   const { assessmentData, isLoading } = useAssessmentData();
 
-  // Mock data for now - will be replaced with real data once structure is fixed
-  const generateMockScope2Data = () => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
-    return months.map((month, index) => {
-      // Simulate seasonal variation in electricity consumption
-      const baseConsumption = 1500; // kWh
-      const seasonalFactor = 1 + 0.3 * Math.sin((index / 12) * 2 * Math.PI);
-      const consumption = baseConsumption * seasonalFactor * (0.8 + Math.random() * 0.4);
-      
-      // Location-based emissions (grid average)
-      const locationBasedEmissions = consumption * 0.5; // kg CO2e/kWh
-      
-      // Market-based emissions (renewable energy contracts)
-      const marketBasedEmissions = consumption * 0.2; // kg CO2e/kWh
-      
-      return {
-        month,
-        locationBased: Math.round(locationBasedEmissions),
-        marketBased: Math.round(marketBasedEmissions),
-        consumption: Math.round(consumption)
-      };
-    });
-  };
+  // There is no explicit Scope 2 structure yet; derive nothing and show empty state when unavailable
+  const chartData: Array<{ month: string; locationBased: number; marketBased: number }> = [];
 
-  const chartData = generateMockScope2Data();
   const currentLocationBased = chartData[chartData.length - 1]?.locationBased || 0;
   const currentMarketBased = chartData[chartData.length - 1]?.marketBased || 0;
   const previousLocationBased = chartData[chartData.length - 2]?.locationBased || currentLocationBased;
@@ -42,8 +19,8 @@ export function Scope2EmissionsChart() {
   const locationTrend = currentLocationBased < previousLocationBased ? "down" : "up";
   const marketTrend = currentMarketBased < previousMarketBased ? "down" : "up";
   
-  const locationTrendValue = Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100).toFixed(1);
-  const marketTrendValue = Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(1);
+  const locationTrendValue = previousLocationBased > 0 ? Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100).toFixed(1) : "0.0";
+  const marketTrendValue = previousMarketBased > 0 ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(1) : "0.0";
 
   if (isLoading) {
     return (
@@ -92,66 +69,38 @@ export function Scope2EmissionsChart() {
           </div>
         </div>
         <p className="text-sm text-gray-600">Indirect emissions from purchased electricity</p>
-        
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-lg font-bold text-blue-900">{currentLocationBased.toLocaleString()}</div>
-              <div className="text-xs text-blue-600">Location-based (kg CO2e)</div>
-            </div>
-            <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-lg font-bold text-purple-900">{currentMarketBased.toLocaleString()}</div>
-              <div className="text-xs text-purple-600">Market-based (kg CO2e)</div>
-            </div>
+        {chartData.length === 0 ? (
+          <div className="text-center py-8">
+            <Zap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No Scope 2 emissions data available</p>
+            <p className="text-sm text-gray-400">Add Scope 2 (electricity) tracking to view trends here</p>
           </div>
-          
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#6B7280" }}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#6B7280" }}
-                domain={[0, 'dataMax + 100']}
-              />
-              <Tooltip
-                formatter={(value: number) => [`${value.toLocaleString()} kg CO2e`, 'Emissions']}
-                labelStyle={{ color: '#374151' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="locationBased"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2 }}
-                name="Location-based"
-              />
-              <Line
-                type="monotone"
-                dataKey="marketBased"
-                stroke="#8B5CF6"
-                strokeWidth={2}
-                dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#8B5CF6', strokeWidth: 2 }}
-                name="Market-based"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          
-          <div className="text-xs text-gray-500 text-center">
-            <p>Location-based: Grid average emissions factor</p>
-            <p>Market-based: Renewable energy contracts and certificates</p>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-lg font-bold text-blue-900">{currentLocationBased.toLocaleString()}</div>
+                <div className="text-xs text-blue-600">Location-based (kg CO2e)</div>
+              </div>
+              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                <div className="text-lg font-bold text-purple-900">{currentMarketBased.toLocaleString()}</div>
+                <div className="text-xs text-purple-600">Market-based (kg CO2e)</div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#6B7280" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#6B7280" }} domain={[0, 'dataMax + 100']} />
+                <Tooltip formatter={(value: number) => [`${value.toLocaleString()} kg CO2e`, 'Emissions']} labelStyle={{ color: '#374151' }} />
+                <Line type="monotone" dataKey="locationBased" stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }} activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2 }} name="Location-based" />
+                <Line type="monotone" dataKey="marketBased" stroke="#8B5CF6" strokeWidth={2} dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }} activeDot={{ r: 6, stroke: '#8B5CF6', strokeWidth: 2 }} name="Market-based" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

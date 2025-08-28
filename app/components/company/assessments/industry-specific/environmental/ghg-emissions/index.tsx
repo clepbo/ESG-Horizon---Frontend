@@ -14,6 +14,8 @@ import { StationarySourcesForm } from "./scope1/stationary-sources";
 import { MobileSourcesForm } from "./scope1/mobile-sources";
 import { ProcessEmissionsForm } from "./scope1/process-emissions";
 import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
+import { LocationBasedForm } from "./scope2/location-based";
+import { MarketBasedForm } from "./scope2/market-based";
 
 interface GhgEmissionsAssessmentProps {
     onBack: () => void;
@@ -95,6 +97,9 @@ export function GhgEmissionsAssessment({
         | "mobile-sources"
         | "process-emissions"
         | "fugitive-emissions"
+        | "location-based"
+        | "market-based"
+        | "scope3"
     >("overview");
 
     const handleCardClick = (cardTitle: string) => {
@@ -109,6 +114,15 @@ export function GhgEmissionsAssessment({
         }
         if (cardTitle === "Fugitive Emissions") {
             setCurrentView("fugitive-emissions");
+        }
+        if (cardTitle.includes("Location-Based")) {
+            setCurrentView("location-based");
+        }
+        if (cardTitle.includes("Market-Based")) {
+            setCurrentView("market-based");
+        }
+        if (cardTitle.includes("scope3")) {
+            setCurrentView("scope3");
         }
     };
 
@@ -156,6 +170,23 @@ export function GhgEmissionsAssessment({
             />
         );
     }
+
+    if (currentView === "location-based") {
+        return (
+          <LocationBasedForm
+            onBack={handleBackToOverview}
+            onContinueToNextAssessment={() => setCurrentView("market-based")}
+          />
+        );
+      }
+      if (currentView === "market-based") {
+        return (
+          <MarketBasedForm
+            onBack={handleBackToOverview}
+            onContinueToNextAssessment={() => setCurrentView("scope3")}
+          />
+        );
+      }
 
     return (
         <div className="min-h-screen bg-green-50 p-6">
