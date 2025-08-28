@@ -130,9 +130,9 @@ export function ElectricityHeatForm({
         if (gasVolume && (isNaN(Number(gasVolume)) || Number(gasVolume) < 0)) {
             newErrors.gasVolume = "Please enter a valid positive number";
         }
-        if (!Object.values(files).some((file) => file !== null)) {
-            newErrors.files = "Please upload at least one document";
-        }
+        // if (!Object.values(files).some((file) => file !== null)) {
+        //     newErrors.files = "Please upload at least one document";
+        // }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };

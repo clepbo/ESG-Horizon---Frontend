@@ -26,8 +26,6 @@ export function AssessmentDataProvider({ children }: { children: ReactNode }) {
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         setAssessmentData(parsedData);
-      } else {
-        setAssessmentData(null);
       }
     } catch (err) {
       setError("Failed to load assessment data");
@@ -46,7 +44,12 @@ export function AssessmentDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AssessmentDataContext.Provider value={{ assessmentData, isLoading, error, refreshData }}>
+    <AssessmentDataContext.Provider value={{
+      assessmentData,
+      isLoading,
+      error,
+      refreshData
+    }}>
       {children}
     </AssessmentDataContext.Provider>
   );

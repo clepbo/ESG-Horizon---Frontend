@@ -8,8 +8,8 @@ import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 export function Scope2EmissionsChart() {
   const { assessmentData, isLoading } = useAssessmentData();
 
-  // Generate mock Scope 2 data since it's not in the current assessment structure
-  const generateScope2Data = () => {
+  // Mock data for now - will be replaced with real data once structure is fixed
+  const generateMockScope2Data = () => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
     return months.map((month, index) => {
@@ -33,7 +33,7 @@ export function Scope2EmissionsChart() {
     });
   };
 
-  const chartData = generateScope2Data();
+  const chartData = generateMockScope2Data();
   const currentLocationBased = chartData[chartData.length - 1]?.locationBased || 0;
   const currentMarketBased = chartData[chartData.length - 1]?.marketBased || 0;
   const previousLocationBased = chartData[chartData.length - 2]?.locationBased || currentLocationBased;
@@ -92,6 +92,7 @@ export function Scope2EmissionsChart() {
           </div>
         </div>
         <p className="text-sm text-gray-600">Indirect emissions from purchased electricity</p>
+        
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

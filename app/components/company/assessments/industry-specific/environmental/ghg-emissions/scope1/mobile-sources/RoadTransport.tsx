@@ -163,9 +163,9 @@ export function RoadTransport({
             newErrors.carDieselVolume = "Please enter a valid positive number";
         }
 
-        if (!Object.values(files).some((file) => file !== null)) {
-            newErrors.files = "Please upload at least one document";
-        }
+        // if (!Object.values(files).some((file) => file !== null)) {
+        //     newErrors.files = "Please upload at least one document";
+        // }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

@@ -222,7 +222,6 @@ export function MarineAviation({
             payload,
         });
         dispatch({ type: "SAVE_PROGRESS" });
-        alert("Marine and Aviation data submitted successfully!");
         onSubmit();
     };
 

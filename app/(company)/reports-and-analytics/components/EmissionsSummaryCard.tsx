@@ -7,89 +7,19 @@ import { TrendingDown, TrendingUp, Target, Calendar, Building } from "lucide-rea
 export function EmissionsSummaryCard() {
   const { assessmentData, isLoading } = useAssessmentData();
 
-  const calculateEmissionsSummary = () => {
-    if (!assessmentData) return null;
-
-    let scope1Total = 0;
-    let scope2Total = 1050; // Mock data for Scope 2
-
-    // Calculate Scope 1 emissions
-    if (assessmentData.stationarySources) {
-      const stationary = assessmentData.stationarySources;
-      
-      if (stationary.electricityHeat) {
-        const totalVolume = (stationary.electricityHeat.dieselVolume || 0) + (stationary.electricityHeat.gasVolume || 0);
-        scope1Total += totalVolume * 2.31;
-      }
-      
-      if (stationary.industrialProcesses) {
-        scope1Total += (stationary.industrialProcesses.fuelVolume || 0) * 2.31;
-      }
-      
-      if (stationary.oilGasOperations) {
-        scope1Total += (stationary.oilGasOperations.fuelVolume || 0) * 2.31;
-      }
-    }
-
-    if (assessmentData.mobileSources) {
-      const mobile = assessmentData.mobileSources;
-      
-      if (mobile.roadTransport) {
-        const road = mobile.roadTransport;
-        const totalVolume = (road.dieselTruckVolume || 0) + (road.carPetrolVolume || 0) + (road.carDieselVolume || 0);
-        scope1Total += totalVolume * 2.31;
-      }
-      
-      if (mobile.vehicleEquipment) {
-        const vehicle = mobile.vehicleEquipment;
-        const totalVolume = (vehicle.forkliftVolume || 0) + (vehicle.heavyDutyVolume || 0) + (vehicle.tractorVolume || 0);
-        scope1Total += totalVolume * 2.31;
-      }
-      
-      if (mobile.marineAviation) {
-        const marine = mobile.marineAviation;
-        const totalVolume = (marine.helicopterVolume || 0) + (marine.vesselVolume || 0);
-        scope1Total += totalVolume * 2.31;
-      }
-    }
-
-    if (assessmentData.processEmissions) {
-      const process = assessmentData.processEmissions;
-      
-      if (process.co2Release) {
-        const co2 = process.co2Release;
-        const totalEmissions = (co2.clinkerQuantity || 0) + (co2.calciumOxide || 0) + (co2.magnesiumOxide || 0);
-        scope1Total += totalEmissions * 0.44;
-      }
-      
-      if (process.gasFlaring) {
-        scope1Total += (process.gasFlaring.gasVolume || 0) * 0.002;
-      }
-    }
-
-    if (assessmentData.fugitiveEmissions) {
-      const fugitive = assessmentData.fugitiveEmissions;
-      
-      if (fugitive.methaneLeaks) {
-        const methane = fugitive.methaneLeaks;
-        const totalLeaks = Object.values(methane).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
-        scope1Total += totalLeaks * 25;
-      }
-      
-      if (fugitive.ventingNaturalGas) {
-        scope1Total += (fugitive.ventingNaturalGas.volumeOfGasVented || 0) * 0.002;
-      }
-    }
-
-    const totalEmissions = scope1Total + scope2Total;
+  // Mock data for now - will be replaced with real data once structure is fixed
+  const generateMockEmissionsSummary = () => {
+    const scope1 = 2676.5; // tonnes CO2e
+    const scope2 = 1050.0; // tonnes CO2e
+    const totalEmissions = scope1 + scope2;
     const previousYear = totalEmissions * 1.15; // Assume 15% higher last year
     const reduction = ((previousYear - totalEmissions) / previousYear) * 100;
     const targetReduction = 20; // Target 20% reduction
     const progressToTarget = Math.min((reduction / targetReduction) * 100, 100);
 
     return {
-      scope1: scope1Total,
-      scope2: scope2Total,
+      scope1,
+      scope2,
       total: totalEmissions,
       reduction,
       progressToTarget,
@@ -98,7 +28,7 @@ export function EmissionsSummaryCard() {
     };
   };
 
-  const summary = calculateEmissionsSummary();
+  const summary = generateMockEmissionsSummary();
 
   if (isLoading) {
     return (
@@ -115,28 +45,12 @@ export function EmissionsSummaryCard() {
     );
   }
 
-  if (!summary) {
-    return (
-      <Card className="bg-white border-none shadow rounded-xl">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900">Emissions Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No emissions data available</p>
-            <p className="text-sm text-gray-400">Complete your assessment to see summary</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="bg-white border-none shadow rounded-xl">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">Emissions Summary</CardTitle>
         <p className="text-sm text-gray-600">Comprehensive overview of your GHG emissions</p>
+        
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
