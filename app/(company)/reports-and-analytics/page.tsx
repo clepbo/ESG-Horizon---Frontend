@@ -1,6 +1,5 @@
 "use client";
 
-import { Leaf, BarChart3, TrendingDown, Activity, Zap } from "lucide-react";
 import Header from "../components/Header";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
 import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
