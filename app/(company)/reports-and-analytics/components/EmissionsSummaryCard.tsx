@@ -1,11 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { useAssessmentData } from "../AssessmentDataProvider";
+import { useAssessment } from "@/hooks/useAssessment";
 import { TrendingDown, TrendingUp, Calendar, Building } from "lucide-react";
 
 export function EmissionsSummaryCard() {
-  const { assessmentData, isLoading } = useAssessmentData();
+  const { state: { assessmentData, isLoading } } = useAssessment();
 
   const toNumber = (val: unknown): number => (typeof val === 'number' && !isNaN(val) ? val : 0);
 

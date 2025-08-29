@@ -9,6 +9,7 @@ export interface Company {
     isoCountryCode?: string;
     industry?: {
         industry?: string;
+        sector?: string;
     };
     address?: string;
     country?: string;

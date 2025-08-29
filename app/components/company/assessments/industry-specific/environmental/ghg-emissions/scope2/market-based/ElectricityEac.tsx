@@ -104,7 +104,7 @@ export function ElectricityEACForm({
   const savePayload = () => {
     const payload = { gridElectricity, emissionFactor, uploads };
     dispatch({ type: "UPDATE_EAC", payload });
-    localStorage.setItem("scope2_eac", JSON.stringify(payload));
+
     return payload;
   };
 

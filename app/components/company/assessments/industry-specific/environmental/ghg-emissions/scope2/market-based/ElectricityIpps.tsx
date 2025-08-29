@@ -110,7 +110,7 @@ export function ElectricityIppsForm({
       uploads,
     };
     dispatch({ type: "UPDATE_IPPS", payload });
-    localStorage.setItem("scope2_ipps", JSON.stringify(payload));
+
     return payload;
   };
 

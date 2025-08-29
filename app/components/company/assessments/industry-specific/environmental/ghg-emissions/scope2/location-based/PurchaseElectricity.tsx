@@ -55,9 +55,7 @@ export function PurchasedElectricityForm({
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   useEffect(() => {
-    const existing =
-      state.assessmentData.electricity ||
-      JSON.parse(localStorage.getItem("electricity") || "{}");
+    const existing = state.assessmentData.electricity;
     if (existing) {
       setElectricityConsumed(existing.electricityConsumed || "");
       setReportingPeriod(existing.reportingPeriod || "monthly");
@@ -118,7 +116,6 @@ export function PurchasedElectricityForm({
       uploads,
     };
     dispatch({ type: "UPDATE_ELECTRICITY", payload });
-    localStorage.setItem("electricity", JSON.stringify(payload));
     return payload;
   };
 

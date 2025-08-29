@@ -70,17 +70,15 @@ export function PurchasedSteamForm({
 
   // Hydrate from context or localStorage
   useEffect(() => {
-    const existingData =
-      state.assessmentData.steam ||
-      JSON.parse(localStorage.getItem("steam") || "{}");
+    const existingData = state.assessmentData.steam;
 
     if (existingData) {
-      setSteamConsumed(existingData.steamConsumed || "");
+      setSteamConsumed(existingData.volume || "");
       setReportingPeriod(existingData.reportingPeriod || "monthly");
       setSelectedSources(existingData.selectedSources || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
-        existingData.files ||
+        existingData.uploads ||
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
@@ -160,8 +158,6 @@ export function PurchasedSteamForm({
     dispatch({ type: "UPDATE_STEAM", payload });
     dispatch({ type: "SAVE_PROGRESS" });
 
-    localStorage.setItem("steam", JSON.stringify(payload));
-
     setIsSaving(false);
     setShowSaveSuccess(true);
     setTimeout(() => setShowSaveSuccess(false), 2000);
@@ -182,8 +178,6 @@ export function PurchasedSteamForm({
       type: "UPDATE_STEAM",
       payload,
     });
-
-    localStorage.setItem("steam", JSON.stringify(payload));
 
     onNext();
   };
