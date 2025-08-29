@@ -9,12 +9,32 @@ import { ArrowLeft } from "lucide-react";
 import { FormField } from "@/app/components/ui/reusables/FormFields";
 import { industriesService } from "@/services/industries.services";
 import Select from "react-select";
+import PhoneInput from "react-phone-number-input";
+import type { CountryCode } from "libphonenumber-js";
+import "react-phone-number-input/style.css";
+import ReactFlagsSelect from "react-flags-select";
+import { parsePhoneNumberWithError } from "libphonenumber-js";
 
 const organizationSchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
   industry: z.string().min(1, "Please select your industry"),
   contactEmail: z.string().email("Please enter a valid email address"),
-  contactPhone: z.string().min(10, "Please enter a valid phone number"),
+  contactPhone: z
+    .string()
+    .min(1, "Phone number is required")
+    .refine(
+      (val) => {
+        try {
+          const phone = parsePhoneNumberWithError(val);
+          return phone.isValid();
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: "Please enter a valid phone number for the selected country",
+      }
+    ),
   website: z
     .string()
     .url("Please enter a valid website URL")
@@ -38,12 +58,19 @@ export const OrganizationDetails = ({
     register,
     handleSubmit,
     setError,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
+    defaultValues: {
+      isoCountryCode: "",
+    },
   });
 
   const [loading, setLoading] = useState(false);
+  const [country, setCountry] = useState<CountryCode | undefined>(undefined);
+
   const [isTransitioning, setIsTransitioning] = useState(false);
   // const [industries, setIndustries] = useState<Industry[]>([]);
   const [industryOptions, setIndustryOptions] = useState<
@@ -184,13 +211,35 @@ export const OrganizationDetails = ({
             error={errors.contactEmail}
             placeholder="info@company.com"
           />
-          <FormField
-            label="Contact Phone"
-            required
-            {...register("contactPhone")}
-            error={errors.contactPhone}
-            placeholder="08123456789"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Contact Phone <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="contactPhone"
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  defaultCountry={country}
+                  international
+                  withCountryCallingCode
+                  className={`w-full rounded-lg border px-3 py-2 text-base [&>input]:outline-none ${
+                    errors.contactPhone
+                      ? "border-red-500"
+                      : "border-neutral-200 focus:outline-none focus:ring-primary"
+                  }`}
+                />
+              )}
+            />
+            {errors.contactPhone && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.contactPhone.message}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Row 3 */}
@@ -213,17 +262,39 @@ export const OrganizationDetails = ({
 
         {/* Row 4 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Country"
-            required
-            as="select"
-            {...register("isoCountryCode")}
-            error={errors.isoCountryCode}
-            options={[
-              { label: "Nigeria", value: "NG" },
-              { label: "Ghana", value: "GH" },
-              { label: "Kenya", value: "KE" },
-            ]}
+          <Controller
+            name="isoCountryCode"
+            control={control}
+            render={({ field }) => (
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Country <span className="text-red-500">*</span>
+                </label>
+                <ReactFlagsSelect
+                  selected={watch("isoCountryCode") || ""}
+                  onSelect={(code) => {
+                    setValue("isoCountryCode", code);
+                    setCountry(code as CountryCode);
+                  }}
+                  searchable
+                  placeholder="Select your country"
+                  fullWidth
+                  showSelectedLabel
+                  showOptionLabel
+                  className="w-full"
+                  selectButtonClassName={`w-full h-12 rounded-lg border px-3 text-left ${
+                    errors.isoCountryCode
+                      ? "border-red-500"
+                      : "border-neutral-200 focus:outline-none"
+                  }`}
+                />
+                {errors.isoCountryCode && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.isoCountryCode.message}
+                  </p>
+                )}
+              </div>
+            )}
           />
           <FormField
             label="Address"
