@@ -49,8 +49,8 @@ export function DataQualityIndicator() {
     const hasFiles = Object.values(assessmentData).some(section => {
       if (section && typeof section === 'object') {
         return Object.values(section as Record<string, unknown>).some(sub => {
-          if (sub && typeof sub === 'object' && 'files' in (sub as any)) {
-            const files = (sub as any).files as Record<string, unknown> | undefined;
+          if (sub && typeof sub === 'object' && 'files' in (sub as object)) {
+            const files = (sub as { files?: Record<string, unknown> }).files;
             return files && Object.keys(files).length > 0;
           }
           return false;
