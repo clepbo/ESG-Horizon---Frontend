@@ -244,7 +244,7 @@ export const OrganizationDetails = ({
                   className={`w-full rounded-lg border px-3 py-2 text-base [&>input]:outline-none ${
                     errors.contactPhone
                       ? "border-red-500"
-                      : "border-neutral-200 focus:outline-none focus:ring-primary"
+                      : "border-neutral-500 focus:outline-none focus:ring-primary"
                   }`}
                 />
               )}
