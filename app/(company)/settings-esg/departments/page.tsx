@@ -36,10 +36,6 @@ export default function DepartmentsPage() {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
 
-   
-
-console.log("USERS", users);
-
     const loadDepartments = useCallback(async () => {
         try {
             setLoading(true);
