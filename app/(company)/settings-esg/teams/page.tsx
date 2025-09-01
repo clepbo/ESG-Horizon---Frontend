@@ -17,6 +17,7 @@ import Header from "../../components/Header";
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
+import RoleGuard from "@/lib/RoleGuard";
 
 export default function TeamsPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -100,6 +101,8 @@ export default function TeamsPage() {
                     </div>
 
                     <div className="flex justify-between items-center mb-6 mt-4">
+                       <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+
                         <button
                             className="text-white bg-green-400 hover:bg-green-500 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
                             onClick={() => setShowInviteModal(true)}
@@ -107,6 +110,7 @@ export default function TeamsPage() {
                             <Plus className="h-4 w-4 mr-1" />
                             Invite User
                         </button>
+                        </RoleGuard>
                     </div>
                 </div>
 
