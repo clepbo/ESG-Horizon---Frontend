@@ -70,25 +70,12 @@ export const OrganizationDetails = ({
 
   const [loading, setLoading] = useState(false);
   const [country, setCountry] = useState<CountryCode | undefined>(undefined);
+
+  const [isTransitioning, setIsTransitioning] = useState(false);
   // const [industries, setIndustries] = useState<Industry[]>([]);
   const [industryOptions, setIndustryOptions] = useState<
     { value: number; label: string }[]
   >([]);
-
-  // --- Auto-detect country from browser ---
-  useEffect(() => {
-    fetch("https://ipapi.co/json/")
-      .then((res) => res.json())
-      .then((data) => {
-        const code = (data?.country_code as CountryCode) || "US";
-        setCountry(code);
-        setValue("isoCountryCode", code);
-      })
-      .catch(() => {
-        setCountry("US");
-        setValue("isoCountryCode", "US");
-      });
-  }, [setValue]);
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -109,15 +96,18 @@ export const OrganizationDetails = ({
 
   const onSubmit = async (data: OrganizationFormData) => {
     setLoading(true);
+
     try {
-      onNext(data);
+      await onNext(data);
+      setIsTransitioning(true);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Submission failed";
       toast.error(errorMessage);
       setError("root", { message: errorMessage });
+      setIsTransitioning(false);
     } finally {
-      setLoading(false);
+      //   setLoading(false);
     }
   };
 
@@ -319,9 +309,18 @@ export const OrganizationDetails = ({
         <Button
           type="submit"
           className="w-full h-12 hover:cursor-pointer bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium"
-          disabled={loading}
+          disabled={loading || isTransitioning}
         >
-          {loading ? "Submitting..." : "Submit"}
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Submitting...
+            </div>
+          ) : isTransitioning ? (
+            "Redirecting..."
+          ) : (
+            "Submit"
+          )}
         </Button>
       </form>
     </div>

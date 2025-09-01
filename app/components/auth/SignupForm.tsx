@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FormField } from "@/app/components/ui/reusables/FormFields";
 import { esgService } from "@/services/esg.service";
+import { Eye, EyeOff } from "lucide-react";
 import PhoneInput from "react-phone-number-input";
 import type { CountryCode } from "libphonenumber-js";
 import "react-phone-number-input/style.css";
@@ -59,6 +60,8 @@ export const SignupForm = ({
   } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const [country, setCountry] = useState<CountryCode | undefined>(undefined);
 
   // --- Auto-detect country from browser ---
@@ -142,6 +145,51 @@ export const SignupForm = ({
             error={errors.workEmail}
             placeholder="email.example@company.com"
           />
+          <FormField
+            label="Phone Number"
+            required
+            {...register("phoneNumber")}
+            error={errors.phoneNumber}
+            placeholder="0812345678"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="relative">
+            <FormField
+              label="Create Password"
+              required
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              error={errors.password}
+              placeholder="Enter a strong password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <FormField
+              label="Confirm Password"
+              required
+              type={showPassword ? "text" : "password"}
+              {...register("confirmPassword")}
+              error={errors.confirmPassword}
+              placeholder="Confirm your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           <div>
             <label className="block text-sm font-medium mb-1">
               Phone Number <span className="text-red-500">*</span>
