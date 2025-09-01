@@ -30,12 +30,6 @@ interface FileMetadata {
     lastModified: number;
 }
 
-interface FertilizerEmissionsData {
-    products?: { [product: string]: number };
-    feedstock?: number;
-    files?: { [key: string]: FileMetadata | null };
-}
-
 const fertilizerProducts = [
     "Ammonia",
     "Urea",

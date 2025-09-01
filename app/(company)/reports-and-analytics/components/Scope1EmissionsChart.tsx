@@ -2,11 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { useAssessmentData } from "../AssessmentDataProvider";
+import { useAssessment } from "@/hooks/useAssessment";
 import { Activity, TrendingDown, TrendingUp } from "lucide-react";
 
 export function Scope1EmissionsChart() {
-  const { assessmentData, isLoading } = useAssessmentData();
+  const { state: { assessmentData, isLoading } } = useAssessment();
 
   const toNumber = (val: unknown): number => (typeof val === "number" && !isNaN(val) ? val : 0);
 
@@ -103,7 +103,7 @@ export function Scope1EmissionsChart() {
 
       if (fugitive.methaneLeaks) {
         const methane = fugitive.methaneLeaks;
-        const totalLeaks = Object.values(methane).reduce((sum, val) => (sum + (typeof val === "number" ? val : 0)), 0);
+        const totalLeaks = Object.values(methane).reduce<number>((sum, val) => (sum + (typeof val === "number" ? val : 0)), 0);
         if (totalLeaks > 0) {
           data.push({ category: "Methane Leaks", emissions: totalLeaks * 25 });
         }

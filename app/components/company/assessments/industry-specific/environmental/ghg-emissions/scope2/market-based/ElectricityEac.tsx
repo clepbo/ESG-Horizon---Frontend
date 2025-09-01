@@ -57,7 +57,7 @@ export function ElectricityEACForm({
       setEmissionFactor(existing.emissionFactor || "");
       setUploads(existing.uploads || uploads);
     }
-  }, [state.assessmentData.eac]);
+  }, [state.assessmentData.eac, uploads]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -104,7 +104,7 @@ export function ElectricityEACForm({
   const savePayload = () => {
     const payload = { gridElectricity, emissionFactor, uploads };
     dispatch({ type: "UPDATE_EAC", payload });
-    localStorage.setItem("scope2_eac", JSON.stringify(payload));
+
     return payload;
   };
 

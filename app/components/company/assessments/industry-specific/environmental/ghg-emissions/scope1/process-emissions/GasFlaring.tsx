@@ -37,12 +37,6 @@ const uploadFields = [
     "Regulatory submissions",
 ];
 
-interface GasFlaringData {
-    gasVolume?: number;
-    carbonContent?: number;
-    files?: { [key: string]: FileMetadata | null };
-}
-
 export function GasFlaring({
     onBack,
     onNext,

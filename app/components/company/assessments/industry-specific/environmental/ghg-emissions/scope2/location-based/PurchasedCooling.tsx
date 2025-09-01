@@ -71,11 +71,9 @@ export function PurchasedCoolingForm({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
-  // Hydrate from context or localStorage
+  // Hydrate from context
   useEffect(() => {
-    const existingData =
-      state.assessmentData.cooling ||
-      JSON.parse(localStorage.getItem("cooling") || "{}");
+    const existingData = state.assessmentData.cooling;
 
     if (existingData) {
       setCoolingConsumed(existingData.coolingConsumed || "");
@@ -83,7 +81,7 @@ export function PurchasedCoolingForm({
       setSelectedSystems(existingData.selectedSystems || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
-        existingData.files ||
+        existingData.uploads ||
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
@@ -166,7 +164,7 @@ export function PurchasedCoolingForm({
     });
     dispatch({ type: "SAVE_PROGRESS" });
 
-    localStorage.setItem("cooling", JSON.stringify(payload));
+
 
     setIsSaving(false);
     setShowSaveSuccess(true);
@@ -188,8 +186,6 @@ export function PurchasedCoolingForm({
       type: "UPDATE_COOLING",
       payload,
     });
-
-    localStorage.setItem("cooling", JSON.stringify(payload));
 
     onNext();
   };

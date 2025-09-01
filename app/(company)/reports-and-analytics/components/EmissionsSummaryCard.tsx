@@ -1,11 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { useAssessmentData } from "../AssessmentDataProvider";
+import { useAssessment } from "@/hooks/useAssessment";
 import { TrendingDown, TrendingUp, Calendar, Building } from "lucide-react";
 
 export function EmissionsSummaryCard() {
-  const { assessmentData, isLoading } = useAssessmentData();
+  const { state: { assessmentData, isLoading } } = useAssessment();
 
   const toNumber = (val: unknown): number => (typeof val === 'number' && !isNaN(val) ? val : 0);
 
@@ -37,7 +37,7 @@ export function EmissionsSummaryCard() {
 
     if (assessmentData.fugitiveEmissions) {
       const f = assessmentData.fugitiveEmissions;
-      if (f.methaneLeaks) scope1 += Object.values(f.methaneLeaks).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
+      if (f.methaneLeaks) scope1 += Object.values(f.methaneLeaks).reduce<number>((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
       if (f.ventingNaturalGas) scope1 += toNumber(f.ventingNaturalGas.volumeOfGasVented) * 0.002;
     }
 

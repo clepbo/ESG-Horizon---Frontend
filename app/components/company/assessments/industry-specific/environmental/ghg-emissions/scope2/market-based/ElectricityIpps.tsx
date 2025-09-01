@@ -60,7 +60,7 @@ export function ElectricityIppsForm({
       setEmissionFactor(existing.emissionFactor || "");
       setUploads(existing.uploads || uploads);
     }
-  }, [state.assessmentData.ipps]);
+  }, [state.assessmentData.ipps, uploads]);
 
   const validateForm = () => {
     const newErrors: {
@@ -110,7 +110,7 @@ export function ElectricityIppsForm({
       uploads,
     };
     dispatch({ type: "UPDATE_IPPS", payload });
-    localStorage.setItem("scope2_ipps", JSON.stringify(payload));
+
     return payload;
   };
 

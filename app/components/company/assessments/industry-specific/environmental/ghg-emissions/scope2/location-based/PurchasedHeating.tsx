@@ -59,17 +59,15 @@ export function PurchasedHeatingForm({
 
   // Load existing data
   useEffect(() => {
-    const existing =
-      state.assessmentData.heating ||
-      JSON.parse(localStorage.getItem("heating") || "{}");
+    const existing = state.assessmentData.heating;
 
     if (existing) {
       setHeatingPurchased(existing.heatingPurchased || "");
       setHeatingConsumed(existing.heatingConsumed || "");
       setSupplierName(existing.supplierName || "");
-      setFiles(existing.files || files);
+      setFiles(existing.uploads || files);
     }
-  }, [state.assessmentData.heating]);
+  }, [files, state.assessmentData.heating]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -137,7 +135,6 @@ export function PurchasedHeatingForm({
     const payload = buildPayload();
     dispatch({ type: "UPDATE_HEATING", payload });
     dispatch({ type: "SAVE_PROGRESS" });
-    localStorage.setItem("heating", JSON.stringify(payload));
     setIsSaving(false);
     setShowSaveSuccess(true);
     setTimeout(() => setShowSaveSuccess(false), 2000);
@@ -147,7 +144,6 @@ export function PurchasedHeatingForm({
     if (!validateForm()) return;
     const payload = buildPayload();
     dispatch({ type: "UPDATE_HEATING", payload });
-    localStorage.setItem("heating", JSON.stringify(payload));
     onSubmit();
   };
 

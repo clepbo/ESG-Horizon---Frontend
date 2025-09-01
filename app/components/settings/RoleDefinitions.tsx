@@ -11,6 +11,7 @@ export default function RoleDefinitions() {
     //     platform_viewer: "orange",
     // };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roles, setRoles] = useState<
         { description: string; id?: string | number; name: string }[]
     >([]);

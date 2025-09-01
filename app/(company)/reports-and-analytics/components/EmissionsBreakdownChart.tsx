@@ -2,11 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { useAssessmentData } from "../AssessmentDataProvider";
+import { useAssessment } from "@/hooks/useAssessment";
 import { PieChart as PieChartIcon } from "lucide-react";
 
 export function EmissionsBreakdownChart() {
-  const { assessmentData, isLoading } = useAssessmentData();
+  const { state: { assessmentData, isLoading } } = useAssessment();
 
   const toNumber = (val: unknown): number => (typeof val === 'number' && !isNaN(val) ? val : 0);
 
@@ -57,7 +57,8 @@ export function EmissionsBreakdownChart() {
     // Fugitive
     if (assessmentData.fugitiveEmissions?.methaneLeaks) {
       const methane = assessmentData.fugitiveEmissions.methaneLeaks;
-      const leaks = Object.values(methane).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
+      // const leaks = Object.values(methane).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0) * 25;
+      const leaks = Object.values(methane).reduce<number>((sum, v) => sum + toNumber(v), 0) * 25;
       if (leaks > 0) parts.push({ name: 'Scope 1 - Fugitive', value: leaks, color: '#EC4899' });
     }
 

@@ -2,11 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
-import { useAssessmentData } from "../AssessmentDataProvider";
+import { useAssessment } from "@/hooks/useAssessment";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
 export function Scope2EmissionsChart() {
-  const { assessmentData, isLoading } = useAssessmentData();
+  const { state: { assessmentData, isLoading } } = useAssessment();
+
+
 
   const parseNum = (v: unknown): number => {
     if (typeof v === 'number') return isNaN(v) ? 0 : v;
@@ -17,7 +19,7 @@ export function Scope2EmissionsChart() {
     return 0;
   };
 
-  const gridEF = 0.5; // kg CO2e per kWh (fallback when factor not provided)
+  const gridEF = 0.5;
 
   const computeScope2Totals = () => {
     if (!assessmentData) return { locationBased: 0, marketBased: 0 };
@@ -34,10 +36,11 @@ export function Scope2EmissionsChart() {
       locationBased += parseNum(assessmentData.steam.volume) * gridEF;
     }
     if (assessmentData.heating) {
-      locationBased += parseNum(assessmentData.heating.heatingConsumed) * gridEF;
+      // Try both fields in case one is used
+      const heatingValue = parseNum(assessmentData.heating.heatingConsumed) || parseNum(assessmentData.heating.heatingPurchased);
+      locationBased += heatingValue * gridEF;
     }
 
-    // Market-based sources (use provided emission factors when available)
     let marketBased = 0;
     if (assessmentData.ipps) {
       marketBased += parseNum(assessmentData.ipps.electricityConsumed) * (parseNum(assessmentData.ipps.emissionFactor) || gridEF);
