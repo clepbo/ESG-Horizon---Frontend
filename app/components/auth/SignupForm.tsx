@@ -192,7 +192,7 @@ export const SignupForm = ({
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
-              Phone Number <span className="text-red-500">*</span>
+              Phone Number <span className="">*</span>
             </label>
             <Controller
               name="phoneNumber"
@@ -208,7 +208,7 @@ export const SignupForm = ({
                   className={`w-full rounded-lg border  px-3 py-2 text-base  [&>input]:outline-none ${
                     errors.phoneNumber
                       ? "border-red-500 "
-                      : "border-neutral-200 focus:outline-none focus:ring-primary"
+                      : "border-neutral-500 focus:outline-none focus:ring-primary"
                   }`}
                   //   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-base focus:outline-none focus:ring-primary  [&>input]:outline-none"
                 />
