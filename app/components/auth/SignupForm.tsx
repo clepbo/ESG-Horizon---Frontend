@@ -145,13 +145,37 @@ export const SignupForm = ({
             error={errors.workEmail}
             placeholder="email.example@company.com"
           />
-          <FormField
-            label="Phone Number"
-            required
-            {...register("phoneNumber")}
-            error={errors.phoneNumber}
-            placeholder="0812345678"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Phone Number <span className="">*</span>
+            </label>
+            <Controller
+              name="phoneNumber"
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  defaultCountry={country}
+                  international
+                  withCountryCallingCode
+                  className={`w-full rounded-lg border  px-3 py-2 text-base  [&>input]:outline-none ${
+                    errors.phoneNumber
+                      ? "border-red-500 "
+                      : "border-neutral-500 focus:outline-none focus:ring-primary"
+                  }`}
+                  //   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-base focus:outline-none focus:ring-primary  [&>input]:outline-none"
+                />
+              )}
+            />
+
+            {errors.phoneNumber && (
+              <p className="mt-1 text-sm text-red-600 border-red-500 ">
+                {errors.phoneNumber.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -190,56 +214,6 @@ export const SignupForm = ({
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Phone Number <span className="">*</span>
-            </label>
-            <Controller
-              name="phoneNumber"
-              control={control}
-              render={({ field }) => (
-                <PhoneInput
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  defaultCountry={country}
-                  international
-                  withCountryCallingCode
-                  className={`w-full rounded-lg border  px-3 py-2 text-base  [&>input]:outline-none ${
-                    errors.phoneNumber
-                      ? "border-red-500 "
-                      : "border-neutral-500 focus:outline-none focus:ring-primary"
-                  }`}
-                  //   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-base focus:outline-none focus:ring-primary  [&>input]:outline-none"
-                />
-              )}
-            />
-
-            {errors.phoneNumber && (
-              <p className="mt-1 text-sm text-red-600 border-red-500 ">
-                {errors.phoneNumber.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            label="Create Password"
-            required
-            type="password"
-            {...register("password")}
-            error={errors.password}
-            placeholder="Enter a strong password"
-          />
-          <FormField
-            label="Confirm Password"
-            required
-            type="password"
-            {...register("confirmPassword")}
-            error={errors.confirmPassword}
-            placeholder="Confirm your password"
-          />
         </div>
 
         <Button

@@ -77,6 +77,21 @@ export const OrganizationDetails = ({
     { value: number; label: string }[]
   >([]);
 
+  // --- Auto-detect country from browser ---
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        const code = (data?.country_code as CountryCode) || "US";
+        setCountry(code);
+        setValue("isoCountryCode", code);
+      })
+      .catch(() => {
+        setCountry("US");
+        setValue("isoCountryCode", "US");
+      });
+  }, [setValue]);
+
   useEffect(() => {
     const fetchIndustries = async () => {
       try {
