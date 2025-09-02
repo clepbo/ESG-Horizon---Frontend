@@ -33,17 +33,33 @@ export default function CompanyDetailsClient({ id }: Props) {
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // useEffect(() => {
+  //   const fetchCompany = async () => {
+  //     try {
+  //       const data = await companyService.getDetails();
+  //       setCompany(data);
+  //     } catch (err) {
+  //       console.error("Error fetching company:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchCompany();
+  // }, [id]);
   useEffect(() => {
     const fetchCompany = async () => {
       try {
-        const data = await companyService.getDetails();
-        setCompany(data);
-      } catch (err) {
-        console.error("Error fetching company:", err);
+        if (id) {
+          const data = await companyService.viewProfile(id);
+          setCompany(data);
+        }
+      } catch (error) {
+        console.error("Error fetching company profile:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchCompany();
   }, [id]);
 
@@ -58,7 +74,7 @@ export default function CompanyDetailsClient({ id }: Props) {
         <BackButton />
         <div className="space-y-1">
           <h1 className="text-2xl font-bold">{company.name}</h1>
-          <p className="text-gray-600">{company.industry?.industry}</p>
+          <p className="text-gray-600">{company.industry?.sector}</p>
         </div>
       </div>
 
@@ -127,7 +143,7 @@ export default function CompanyDetailsClient({ id }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <CompanyIdStat
               label="Staff Strength"
-              value={company.staff || "N/A"} // ✅ company data
+              value={company.staff || "N/A"}
               iconSrc="/icons/leaf.svg"
               iconBgColor="bg-green-200"
             />
@@ -151,7 +167,7 @@ export default function CompanyDetailsClient({ id }: Props) {
             />
           </div>
 
-          {/* ✅ Still using mock UsersTable */}
+          {/*  Still using mock UsersTable */}
           <UsersTable />
         </>
       )}
