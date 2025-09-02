@@ -47,3 +47,8 @@ export function canAccess(userRole: string | undefined, allowedRoles: string[]):
   if (!userRole) return false;
   return allowedRoles.includes(userRole);
 }
+
+export async function getCurrentUser(){
+        const user = await userService.getCurrent();
+        return user;
+    }

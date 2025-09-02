@@ -21,6 +21,7 @@ import {
 } from "@/services/department.service";
 import { User } from "@/services/user.service";
 import RoleGuard from "@/lib/RoleGuard";
+import { getCurrentUser } from "@/lib/utils";
 
 
 export default function DepartmentsPage() {
@@ -32,10 +33,7 @@ export default function DepartmentsPage() {
     const [users, setUsers] = useState<User[]>([]);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [usersLoading, setUsersLoading] = useState(false);
-
-
-   
-
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
 
     const loadDepartments = useCallback(async () => {
@@ -72,6 +70,7 @@ export default function DepartmentsPage() {
     useEffect(() => {
         loadDepartments();
         loadUsers();
+        getCurrentUser().then(setCurrentUser);
     }, [loadDepartments, loadUsers]);
 
     const handleAddDepartment = async (newDept: {
@@ -88,8 +87,8 @@ export default function DepartmentsPage() {
             const createPayload: CreateDepartment = {
                 name: newDept.name,
                 description: newDept.description,
-                contact_email: newDept.contact_email,
-                leadId: newDept.lead?.id ? Number(newDept.lead.id) : undefined,
+                contact_email: newDept.contact_email || currentUser?.email,
+                leadId: newDept.lead?.id ? Number(newDept.lead.id) : Number(currentUser?.id),
             };
 
             const createdDepartment = await departmentService.create(
