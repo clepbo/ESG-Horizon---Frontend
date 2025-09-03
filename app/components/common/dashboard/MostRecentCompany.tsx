@@ -23,7 +23,7 @@ export default function CompaniesTableSection() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState("All Status");
-  const [industryFilter, setIndustryFilter] = useState("All Industry");
+  const [industryFilter, setIndustryFilter] = useState("All Sectors");
   const [industryOptions, setIndustryOptions] = useState<string[]>([]);
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function CompaniesTableSection() {
       company.status?.toLowerCase() === statusFilter.toLowerCase();
 
     const matchesIndustry =
-      industryFilter === "All Industry" ||
+      industryFilter === "All Sectors" ||
       company?.industry?.sector === industryFilter;
 
     return matchesSearch && matchesStatus && matchesIndustry;
@@ -106,7 +106,7 @@ export default function CompaniesTableSection() {
                 <SelectValue placeholder="Select industry" />
               </SelectTrigger>
               <SelectContent className="max-h-[200px] max-w-[250px] overflow-y-auto">
-                <SelectItem value="All Industry">All Industry</SelectItem>
+                <SelectItem value="All Sectors">All Sectors</SelectItem>
                 {industryOptions.map((sector) => (
                   <SelectItem key={sector} value={sector}>
                     {sector}
