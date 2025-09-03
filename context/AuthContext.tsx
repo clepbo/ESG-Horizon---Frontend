@@ -46,7 +46,9 @@ type AuthContextType = {
     login: (email: string, password: string) => Promise<void>;
     signup: (formData: SignupData) => Promise<void>;
     inviteUser: (formData: InviteUserData & { token: string }) => Promise<void>;
-    validateInviteToken: (token: string) => Promise<boolean>;
+    validateInviteToken: (
+        token: string
+    ) => Promise<{ responseToken: string; status: string } | null>;
     logout: () => Promise<void>;
 };
 
@@ -178,7 +180,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             }
         } catch (error) {
             const axiosError = error as AxiosError<{ message: string }>;
-            console.log("Login error caught in AuthContext:", axiosError?.response?.data); 
+            console.log(
+                "Login error caught in AuthContext:",
+                axiosError?.response?.data
+            );
             console.log(
                 "Axios error response data:",
                 axiosError?.response?.data
@@ -202,14 +207,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         await handleAuthSuccess();
     };
 
-    const validateInviteToken = async (token: string): Promise<boolean> => {
+    const validateInviteToken = async (
+        token: string
+    ): Promise<{ responseToken: string; status: string } | null> => {
         try {
-            const { valid } = await api.get<{ valid: boolean }>(
-                `/esg/auth/validate-invite?token=${token}`
-            );
-            return valid;
-        } catch {
-            return false;
+            const data = await api.get(`company/esg/invitations/${token}`);
+            return {
+                responseToken: data.token,
+                status: data.status,
+            };
+        } catch (error) {
+            console.error("Failed to validate token:", error);
+            return null;
         }
     };
 

@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 
 import ReactQueryProvider from "@/app/providers/ReactQueryProvider";
 import { Bounce, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const poppins = Poppins({
     variable: "--font-poppins",
