@@ -30,7 +30,7 @@ const roleMappings: Record<string, string> = {
     company_esg_admin: "Company Admin",
     company_esg_subadmin: "Company Subadmin",
     company_esg_data_officer: "Company Data Officer",
-    company_viewer: "Company Viewer",
+    company_esg_viewer: "Company Viewer",
 };
 
 export function formatRoleName(roleKey: string): string {

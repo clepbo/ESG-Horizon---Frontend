@@ -4,7 +4,6 @@ import { useState, useMemo, ReactNode, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, CircleCheckBig, RotateCcw, Ban } from "lucide-react";
 import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
-import Pagination from "@/app/components/ui/reusables/Pagination";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
 import { User } from "@/lib/mockData/users";
@@ -13,8 +12,7 @@ type UserTableProps = { users: User[] };
 
 export default function ESGCompanyTable({ users }: UserTableProps) {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const [loading, setLoading] = useState(false);
   const [updatedUsers, setUpdatedUsers] = useState(users);
 
@@ -25,28 +23,7 @@ export default function ESGCompanyTable({ users }: UserTableProps) {
   // Sync data when prop changes
   useEffect(() => {
     setUpdatedUsers(users);
-    setCurrentPage(1);
   }, [users]);
-
-  const totalItems = updatedUsers.length;
-
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return updatedUsers.slice(start, start + itemsPerPage);
-  }, [updatedUsers, currentPage, itemsPerPage]);
-
-  const handlePageChange = (page: number) => {
-    setLoading(true);
-    setTimeout(() => {
-      setCurrentPage(page);
-      setLoading(false);
-    }, 300);
-  };
-
-  const handleItemsPerPageChange = (limit: number) => {
-    setItemsPerPage(limit);
-    setCurrentPage(1);
-  };
 
   const handleView = (id: string) => router.push(`/company/${id}`);
 
@@ -115,7 +92,7 @@ export default function ESGCompanyTable({ users }: UserTableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {paginatedUsers.map((user) => (
+          {updatedUsers.map((user) => (
             <tr key={user.id} className="hover:bg-gray-50">
               <td className="px-4 py-3 font-medium">{user.company}</td>
               <td className="px-4 py-3">{user.industry}</td>
@@ -150,16 +127,6 @@ export default function ESGCompanyTable({ users }: UserTableProps) {
           ))}
         </tbody>
       </table>
-
-      <div className="mt-4 px-4 pb-4">
-        <Pagination
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          onItemsPerPageChange={handleItemsPerPageChange}
-        />
-      </div>
 
       <ConfirmModal
         open={modalOpen}

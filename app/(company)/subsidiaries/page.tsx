@@ -26,7 +26,6 @@ export default function SubsidiariesPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
-  const [sectorFilter, setSectorFilter] = useState("All");
   const [debouncedSearch] = useDebounce(search, 300);
   const [industryOptions, setIndustryOptions] = useState<
     { value: number; label: string }[]

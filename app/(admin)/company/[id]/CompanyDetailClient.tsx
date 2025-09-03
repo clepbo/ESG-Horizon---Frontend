@@ -15,6 +15,8 @@ import CompanyActivities from "@/app/components/company/CompanyActivities";
 import CompanyInfo from "@/app/components/company/CompanyInfo";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import { Company, companyService } from "@/services/company.service";
+import { User } from "@/services/user.service";
+
 
 const PERSONA_TABS = [
   { label: "Overview", value: "overview" },
@@ -32,6 +34,7 @@ export default function CompanyDetailsClient({ id }: Props) {
   const [activePersona, setActivePersona] = useState("overview");
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
+  const [companyUsers, setCompanyUsers] = useState<User[]>([]);
 
   // useEffect(() => {
   //   const fetchCompany = async () => {
@@ -52,6 +55,9 @@ export default function CompanyDetailsClient({ id }: Props) {
         if (id) {
           const data = await companyService.viewProfile(id);
           setCompany(data);
+
+          const users = await companyService.getUsers(id);
+          setCompanyUsers(users);
         }
       } catch (error) {
         console.error("Error fetching company profile:", error);
@@ -168,7 +174,7 @@ export default function CompanyDetailsClient({ id }: Props) {
           </div>
 
           {/*  Still using mock UsersTable */}
-          <UsersTable />
+          <UsersTable usersData={companyUsers} />
         </>
       )}
 

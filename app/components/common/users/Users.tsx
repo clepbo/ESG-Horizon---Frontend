@@ -17,6 +17,7 @@ import {
 } from "@/app/components/ui/select";
 import { Search } from "lucide-react";
 import { industriesService } from "@/services/industries.services";
+import Pagination from "../../ui/reusables/Pagination";
 
 const PERSONA_TABS = [
   { label: "All", value: "all" },
@@ -34,8 +35,10 @@ export default function Companies() {
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [industryFilter, setIndustryFilter] = useState("All");
   const [industryOptions, setIndustryOptions] = useState<string[]>([]);
-
   const [activePersona, setActivePersona] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -85,6 +88,21 @@ export default function Companies() {
     industryFilter,
     activePersona,
   ]);
+  const totalItems = filteredCompanies.length;
+
+  const paginatedCompanies = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredCompanies.slice(start, start + itemsPerPage);
+  }, [filteredCompanies, currentPage, itemsPerPage]);
+
+  const handlePageChange = (page: number) => setCurrentPage(page);
+
+  const handleItemsPerPageChange = (limit: number) => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 300); // fake loading for smooth UX
+    setItemsPerPage(limit);
+    setCurrentPage(1); // reset to first page
+  };
 
   if (isLoading) {
     return (
@@ -170,10 +188,10 @@ export default function Companies() {
 
         {/* Table Rendering */}
         {activePersona === "all" && (
-          <CompanyTable companies={filteredCompanies} />
+          <CompanyTable companies={paginatedCompanies} />
         )}
         {activePersona === "esg company" && (
-          <ESGCompanyTable users={filteredCompanies} />
+          <ESGCompanyTable users={paginatedCompanies} />
         )}
         {activePersona === "investor" && (
           <div className="text-center py-8 text-gray-500">
@@ -185,6 +203,14 @@ export default function Companies() {
             <p>No regulator companies yet.</p>
           </div>
         )}
+
+        <Pagination
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
 
         {/* No results */}
         {!isLoading &&
