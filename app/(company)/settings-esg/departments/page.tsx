@@ -136,7 +136,7 @@ export default function DepartmentsPage() {
                     </div>
 
                     <div className="flex justify-between items-center mb-6 mt-4">
-                       <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+                       <RoleGuard allowedRoles={["company_esg_admin"]}>
 
                         <button
                             className="border bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
