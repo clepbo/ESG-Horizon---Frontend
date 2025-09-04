@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { CircleX, Camera } from "lucide-react";
 import Image from "next/image";
-import BackButton from "../reusables/BackButton";
 import { InputField } from "@/app/components/common/forms/FormField";
 import { Company, companyService } from "@/services/company.service";
 import { toast } from "react-toastify";
+import { uploadService } from "@/services/upload.service";
 
 export default function EditCompanyModal({
   company,
@@ -54,8 +54,6 @@ export default function EditCompanyModal({
           <CircleX size={28} />
         </button>
 
-        <BackButton />
-
         <h2 className="text-xl font-semibold text-gray-900 mb-6">
           Edit Company Information
         </h2>
@@ -75,11 +73,36 @@ export default function EditCompanyModal({
               <input
                 type="file"
                 className="hidden"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const imageUrl = URL.createObjectURL(file);
-                    setCompanyLogo(imageUrl);
+                    try {
+                      setLoading(true); // Upload to backend → Cloudinary
+
+                      const uploaded = await uploadService.uploadImage(file); // Check if uploaded is defined before proceeding
+
+                      if (uploaded) {
+                        // Save the Cloudinary URL into state
+                        setCompanyLogo(uploaded.url); // Also update formData so payload has it
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          company_logo_url: uploaded.url,
+                        }));
+
+                        toast.success("Logo uploaded successfully!");
+                      } else {
+                        // Handle the case where the upload failed but no exception was thrown
+                        toast.error(
+                          "Failed to upload logo: Upload returned no data."
+                        );
+                      }
+                    } catch (err) {
+                      toast.error("Failed to upload logo");
+                      console.error(err);
+                    } finally {
+                      setLoading(false);
+                    }
                   }
                 }}
               />
