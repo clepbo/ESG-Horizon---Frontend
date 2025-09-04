@@ -60,12 +60,13 @@ export default function AddSubsidiaryModal({
             industryId: Number(formData.industry),
             address: formData.address,
             status: "active",
+
         };
 
         try {
             const response = await subsidiariesService.createSubsidiary(payload);
             console.log(response);
-            // onAddSubsidiary(payload);
+            onAddSubsidiary(payload);
             toast.success(`Subsidiary "${formData.name}" added successfully`);
             reset();
             // onClose();
