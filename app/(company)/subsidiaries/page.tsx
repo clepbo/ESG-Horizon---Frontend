@@ -54,7 +54,7 @@ export default function SubsidiariesPage() {
             }
         };
         fetchSubsidiaries();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const fetchIndustries = async () => {
