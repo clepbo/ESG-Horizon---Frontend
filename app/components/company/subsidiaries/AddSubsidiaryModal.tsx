@@ -86,6 +86,7 @@ export default function AddSubsidiaryModal({
       status: "active",
       leadId: selectedLead?.id,
       teamLead_email: leadEmail,
+      teamLead_name: leadInput,
     };
 
     try {
