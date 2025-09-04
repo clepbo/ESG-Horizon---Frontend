@@ -12,7 +12,7 @@ export default function UsersPage() {
         <header>
           <h2 className="text-2xl font-semibold">Company</h2>
           <p className="text-sm text-muted-foreground">
-            Manage platform users and their access permissions
+            Manage platform companies
           </p>
         </header>
 

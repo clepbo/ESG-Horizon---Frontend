@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Company, companyService } from "@/services/company.service";
+import { toast } from "react-toastify";
 interface CompanyTableProps {
     companies: Company[];
     loading?: boolean;
@@ -43,7 +44,7 @@ const STATUS_ACTIONS: Partial<
         newStatus: "suspended",
         title: "Suspend",
     },
-    "under review": {
+    disabled: {
         icon: <CircleCheckBig className="w-4 h-4 text-green-600" />,
         color: "border-green-500 hover:bg-green-200",
         newStatus: "active",
@@ -73,7 +74,6 @@ export default function CompanyTable({
 
         if (companyId && newStatus) {
             try {
-                // await updateCompanyStatus(companyId, newStatus);
                 await companyService.updateStatus(companyId, newStatus);
 
                 queryClient.setQueryData<Company[]>(["companies"], (prev) =>
@@ -83,6 +83,7 @@ export default function CompanyTable({
                             : company
                     )
                 );
+                toast.info(`Company status updated to ${newStatus}`);
             } catch (error) {
                 queryClient.invalidateQueries({ queryKey: ["companies"] });
                 console.log("error", error);
@@ -129,7 +130,9 @@ export default function CompanyTable({
                                         {registration_number || "N/A"}
                                     </td>
                                     <td className="px-4 py-3">
-                                        {industry?.sector || industry?.sector || "N/A"}
+                                        {industry?.sector ||
+                                            industry?.sector ||
+                                            "N/A"}
                                     </td>
                                     <td className="px-4 py-3">
                                         <StatusBadge status={status} />

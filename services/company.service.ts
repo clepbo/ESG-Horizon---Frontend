@@ -17,10 +17,11 @@ export interface Company {
     website?: string;
     contact_phone?: string;
     company_logo_url?: string | null;
-    status: "pending" | "active" | "suspended" | "under review";
+    status: "pending" | "active" | "suspended" | "disabled";
     description?: string;
     staff?: string;
     category?: string;
+    company_type?: string;
 }
 
 export const companyService = {

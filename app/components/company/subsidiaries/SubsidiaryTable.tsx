@@ -38,7 +38,7 @@ export default function SubsidiaryTable({
         return subsidiaries.slice(start, start + itemsPerPage);
     }, [subsidiaries, currentPage, itemsPerPage]);
 
-    console.log("Subsidiaries being rendered:", paginatedSubsidiaries);
+    // console.log("Subsidiaries being rendered:", paginatedSubsidiaries);
 
     const handleEditClick = (subsidiary: Subsidiary) => {
         setSelectedSubsidiary(subsidiary);
@@ -82,10 +82,10 @@ export default function SubsidiaryTable({
                                     {subsidiary.name}
                                 </td>
                                 <td className="px-4 py-3">
-                                    {subsidiary.sector}
+                                    {subsidiary.industry?.sector}
                                 </td>
                                 <td className="px-4 py-3">
-                                    {subsidiary.industry}
+                                    {subsidiary.industry?.industry}
                                 </td>
                                 <td className="px-4 py-3">
                                     {subsidiary.address}

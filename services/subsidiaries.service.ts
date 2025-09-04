@@ -1,65 +1,40 @@
-// import api from "@/lib/api/axios";
+import api from "@/lib/api/axios";
 
 export type Subsidiary = {
     id: number;
     name: string;
-    sector: string;
-    industry: string;
+    industryId?: number;
+    industry: {
+        industry: string;
+        sector?: string;
+    };
     address: string;
     status: string;
 };
 
-export const mockSubsidiaries: Subsidiary[] = [
-    {
-        id: 1,
-        name: "Offshore Drilling",
-        sector: "Extractives and Minerals Processing",
-        industry: "Oil & Gas – Exploration & Production",
-        address: "3517 W. Gray St. Utica, Pennsylvania 57867",
-        status: "active",
-    },
-    {
-        id: 2,
-        name: "Refinery Upgrade",
-        sector: "Extractives and Minerals Processing",
-        industry: "Oil & Gas – Exploration & Production",
-        address: "2715 Ash Dr. San Jose, South Dakota 83475",
-        status: "inactive",
-    },
-    {
-        id: 3,
-        name: "Pipeline Expansion",
-        sector: "Extractives and Minerals Processing",
-        industry: "Oil & Gas – Exploration & Production",
-        address: "6391 Elgin St. Celina, Delaware 10299",
-        status: "active",
-    },
-];
-
 export const subsidiariesService = {
     getAll: async () => {
-        // const data = await api.get(`/subsidiaries`);
-        // console.log(data);
-        return mockSubsidiaries;
+        const data = await api.get(`/subsidiary`);
+        return data;
     },
-    createSubsidiaries: async (payload: Subsidiary) => {
-        // const data = await api.post(`/subsidiaries`, payload);
-        // console.log(data);
-        return payload;
+    getCompanySubsidiaries: async () => {
+        const data = await api.get("subsidiary/company-subsidiaries");
+        return data;
+    },
+    createSubsidiary: async (payload: Partial<Subsidiary>) => {
+        const data = await api.post(`/subsidiary`, payload);
+        return data;
     },
     editSubsidiaries: async (payload: Subsidiary) => {
-        // const data = await api.patch(`/subsidiaries`);
-        // console.log(data);
-        return payload;
+        const data = await api.patch(`/subsidiary`, payload);
+        return data;
     },
     getSubsidiariesById: async () => {
-        // const data = await api.get(`/subsidiaries`);
-        // console.log(data);
-        return mockSubsidiaries;
+        const data = await api.get(`/subsidiary`);
+        return data;
     },
     deleteSubsidiaries: async () => {
-        // const data = await api.get(`/subsidiaries`);
-        // console.log(data);
-        return mockSubsidiaries;
+        const data = await api.get(`/subsidiary`);
+        return data;
     },
 };
