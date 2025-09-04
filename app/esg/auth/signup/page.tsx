@@ -41,7 +41,7 @@ export default function Index() {
             last_name: personalData.lastName,
             phone_number: personalData.phoneNumber,
             name: orgData.companyName,
-            registration_number: orgData.registrationNumber,
+            registration_number: orgData.registrationNumber || "",
             industryId: Number(orgData.industry),
             isoCountryCode: orgData.isoCountryCode,
             address: orgData.address,
