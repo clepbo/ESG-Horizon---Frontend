@@ -15,32 +15,32 @@ export type Subsidiary = {
 };
 
 export const subsidiariesService = {
-  getAll: async () => {
-    const data = await api.get(`/subsidiary`);
-    return data;
-  },
-  getCompanySubsidiaries: async () => {
-    const data = await api.get("subsidiary/company-subsidiaries");
-    return data;
-  },
-  createSubsidiary: async (payload: Partial<Subsidiary>) => {
-    const data = await api.post(`/subsidiary`, payload);
-    return data;
-  },
-  editSubsidiaries: async (payload: Subsidiary) => {
-    const data = await api.patch(`/subsidiary`, payload);
-    return data;
-  },
-  getSubsidiariesById: async () => {
-    const data = await api.get(`/subsidiary`);
-    return data;
-  },
-  deleteSubsidiaries: async () => {
-    const data = await api.get(`/subsidiary`);
-    return data;
-  },
-  getCompanySubsidiaryUsers: async (id: number) => {
-    const data = await api.get(`/subsidiary/${id}/users`);
-    return data;
-  },
+    getAll: async () => {
+        const data = await api.get(`/subsidiary`);
+        return data;
+    },
+    getCompanySubsidiaries: async () => {
+        const data = await api.get("subsidiary/company-subsidiaries");
+        return data;
+    },
+    getCompanySubsidiaryUsers: async (id: number) => {
+        const data = await api.get(`/subsidiary/${id}/users`);
+        return data;
+    },
+    createSubsidiary: async (payload: Partial<Subsidiary>) => {
+        const data = await api.post(`/subsidiary`, payload);
+        return data;
+    },
+    editSubsidiaries: async (payload: Subsidiary) => {
+        const data = await api.patch(`/subsidiary`, payload);
+        return data;
+    },
+    getSubsidiariesById: async () => {
+        const data = await api.get(`/subsidiary`);
+        return data;
+    },
+    deleteSubsidiaries: async () => {
+        const data = await api.get(`/subsidiary`);
+        return data;
+    },
 };

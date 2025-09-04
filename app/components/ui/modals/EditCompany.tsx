@@ -27,7 +27,7 @@ export default function EditCompanyModal({
     const [companyLogo, setCompanyLogo] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [industryOptions, setIndustryOptions] = useState<
-        { sector: string; industry: string }[]
+        { id: number; sector: string; industry: string }[]
     >([]);
 
     useEffect(() => {
@@ -43,9 +43,9 @@ export default function EditCompanyModal({
         fetchIndustries();
     }, []);
 
-    const handleIndustryChange = (industry: string) => {
+    const handleIndustryChange = (id: string) => {
         const selectedIndustry = industryOptions.find(
-            (opt) => opt.industry === industry
+            (opt) => String(opt.id) === id
         );
         if (selectedIndustry) {
             setFormData((prev) => ({
@@ -62,9 +62,10 @@ export default function EditCompanyModal({
     const handleUpdate = async () => {
         try {
             setLoading(true);
-            const payload: Partial<Company> = {
+            const payload = {
                 ...formData,
                 company_logo_url: companyLogo || formData.company_logo_url,
+                industryId: formData.industry?.id,
             };
 
             const updated = await companyService.updateDetails(
@@ -75,6 +76,7 @@ export default function EditCompanyModal({
             onUpdate(updated);
         } catch (error) {
             console.error("Error updating company profile:", error);
+            toast.error("Error updating company profile.");
         } finally {
             setLoading(false);
         }
@@ -174,7 +176,7 @@ export default function EditCompanyModal({
                             Industry
                         </label>
                         <Select
-                            value={formData.industry?.sector}
+                            value={String(formData.industry?.id)}
                             onValueChange={handleIndustryChange}
                         >
                             <SelectTrigger className="w-full">
@@ -183,10 +185,10 @@ export default function EditCompanyModal({
                             <SelectContent className="max-h-[200px] overflow-y-auto">
                                 {industryOptions.map((opt) => (
                                     <SelectItem
-                                        key={opt.sector}
-                                        value={opt.sector}
+                                        key={opt.id}
+                                        value={String(opt.id)}
                                     >
-                                        {opt.sector} / {opt.industry}
+                                        {opt.industry} ({opt.sector})
                                     </SelectItem>
                                 ))}
                             </SelectContent>

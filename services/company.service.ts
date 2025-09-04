@@ -8,6 +8,7 @@ export interface Company {
     isinCode?: string | null;
     isoCountryCode?: string;
     industry?: {
+        id?: number;
         industry?: string;
         sector?: string;
     };

@@ -3,11 +3,10 @@ import axios, { AxiosRequestConfig } from "axios";
 import { triggerLogout } from "../utils";
 
 const api = axios.create({
-  baseURL:
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    // "https://esghorizon-engine.up.railway.app",
-    "https://esghorizon-engine.onrender.com",
-  withCredentials: true,
+    baseURL:
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        "https://esghorizon-engine.onrender.com",
+    withCredentials: true,
 });
 
 // api.interceptors.request.use(
