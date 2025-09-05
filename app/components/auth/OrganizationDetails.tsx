@@ -280,7 +280,7 @@ export const OrganizationDetails = ({
           <Controller
             name="isoCountryCode"
             control={control}
-            render={({ field }) => (
+            render={() => (
               <div className="flex flex-col">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Country <span className="text-red-500">*</span>
