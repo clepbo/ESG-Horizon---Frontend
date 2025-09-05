@@ -39,7 +39,7 @@ const organizationSchema = z.object({
     .string()
     .url("Please enter a valid website URL")
     .or(z.string().min(0)),
-  registrationNumber: z.string().min(1, "Registration number is required"),
+  registrationNumber: z.string().optional(),
   isoCountryCode: z.string().min(2, "Country is required"),
   address: z.string().min(10, "Please enter a complete address"),
 });
@@ -268,9 +268,8 @@ export const OrganizationDetails = ({
           />
           <FormField
             label="Registration Number"
-            required
             {...register("registrationNumber")}
-            error={errors.registrationNumber}
+            // error={errors.registrationNumber}
             placeholder="CAC Registration Number"
           />
         </div>

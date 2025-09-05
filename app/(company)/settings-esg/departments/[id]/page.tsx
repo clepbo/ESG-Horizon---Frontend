@@ -229,6 +229,8 @@ export default function DepartmentTeamUsersPage() {
             <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-semibold">{department.name}</h2>
+                    
+                    
                     <button
                         className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 cursor-pointer"
                         onClick={() => handleEditClick(department)}
