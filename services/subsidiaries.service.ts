@@ -1,17 +1,17 @@
 import api from "@/lib/api/axios";
 
 export type Subsidiary = {
-  id: number;
-  name: string;
-  industryId?: number;
-  industry?: {
-    industry: string;
-    sector?: string;
-  };
-  address: string;
-  status: string;
-  teamLead_email?: string;
-  teamLead_name?: string;
+    id: number;
+    name: string;
+    industryId?: number;
+    industry?: {
+        industry: string;
+        sector?: string;
+    };
+    address: string;
+    status: string;
+    teamLead_email?: string;
+    teamLead_name?: string;
 };
 
 export const subsidiariesService = {
@@ -31,8 +31,8 @@ export const subsidiariesService = {
         const data = await api.post(`/subsidiary`, payload);
         return data;
     },
-    editSubsidiaries: async (payload: Subsidiary) => {
-        const data = await api.patch(`/subsidiary`, payload);
+    editSubsidiaries: async (payload: Partial<Subsidiary>) => {
+        const data = await api.patch(`/subsidiary/${payload.id}`, payload);
         return data;
     },
     getSubsidiariesById: async () => {

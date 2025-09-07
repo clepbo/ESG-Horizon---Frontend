@@ -37,18 +37,20 @@ export function formatRoleName(roleKey: string): string {
     return roleMappings[roleKey] ?? roleKey;
 }
 
-
-export async function getRole(){
-        const user = await userService.getCurrent();
-        return user?.role?.name;
-    }
-
-export function canAccess(userRole: string | undefined, allowedRoles: string[]): boolean {
-  if (!userRole) return false;
-  return allowedRoles.includes(userRole);
+export async function getRole() {
+    const user = await userService.getCurrent();
+    return user?.role?.name;
 }
 
-export async function getCurrentUser(){
-        const user = await userService.getCurrent();
-        return user;
-    }
+export function canAccess(
+    userRole: string | undefined,
+    allowedRoles: string[]
+): boolean {
+    if (!userRole) return false;
+    return allowedRoles.includes(userRole);
+}
+
+export async function getCurrentUser() {
+    const user = await userService.getCurrent();
+    return user;
+}

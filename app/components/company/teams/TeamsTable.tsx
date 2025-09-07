@@ -14,17 +14,13 @@ import RoleGuard from "@/lib/RoleGuard";
 type Props = {
     users: User[];
     setUsers: React.Dispatch<React.SetStateAction<User[]>>;
-    onStatusUpdate: (id: string, newStatus: TeamUserStatus) => void;
+    onStatusUpdate: (id: number, newStatus: TeamUserStatus) => void;
     onUserUpdate?: (user: User) => void;
 };
 
-export default function TeamsTable({
-    users,
-    setUsers,
-    onStatusUpdate,
-}: Props) {
+export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
     const [statusModalOpen, setStatusModalOpen] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(
         null
     );
@@ -40,15 +36,15 @@ export default function TeamsTable({
         return users.slice(start, start + itemsPerPage);
     }, [users, currentPage, itemsPerPage]);
 
-    const handleView = (id: string) => {
-        const user = users.find((u) => u.id === id);
+    const handleView = (id: number) => {
+        const user = users.find((u) => Number(u.id) === Number(id));
         if (user) {
             setSelectedUser(user);
             setEditModalOpen(true);
         }
     };
 
-    const openStatusModal = (id: string, newStatus: TeamUserStatus) => {
+    const openStatusModal = (id: number, newStatus: TeamUserStatus) => {
         setSelectedUserId(id);
         setTargetStatus(newStatus);
         setStatusModalOpen(true);
@@ -148,34 +144,47 @@ export default function TeamsTable({
                                 </td>
                                 <td className="px-4 py-3 flex space-x-2">
                                     {/* Edit user button */}
-                                   <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
-
-                                    <button
-                                        className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                                        onClick={() => handleView(user.id)}
+                                    <RoleGuard
+                                        allowedRoles={[
+                                            "company_esg_admin",
+                                            "company_esg_subadmin",
+                                        ]}
                                     >
-                                        <SquarePen className="w-4 h-4 text-gray-600" />
-                                    </button>
+                                        <button
+                                            className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
+                                            onClick={() => handleView(user.id)}
+                                        >
+                                            <SquarePen className="w-4 h-4 text-gray-600" />
+                                        </button>
                                     </RoleGuard>
 
                                     {/* Status change button */}
-                                    {statusActions[user.status] &&  (
-                                        <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
-
-                                        <button
-                                            className={`rounded-md border p-2 cursor-pointer ${
-                                                statusActions[user.status].color
-                                            }`}
-                                            onClick={() =>
-                                                openStatusModal(
-                                                    user.id,
-                                                    statusActions[user.status]
-                                                        .newStatus
-                                                )
-                                            }
+                                    {statusActions[user.status] && (
+                                        <RoleGuard
+                                            allowedRoles={[
+                                                "company_esg_admin",
+                                                "company_esg_subadmin",
+                                            ]}
                                         >
-                                            {statusActions[user.status].icon}
-                                        </button>
+                                            <button
+                                                className={`rounded-md border p-2 cursor-pointer ${
+                                                    statusActions[user.status]
+                                                        .color
+                                                }`}
+                                                onClick={() =>
+                                                    openStatusModal(
+                                                        user.id,
+                                                        statusActions[
+                                                            user.status
+                                                        ].newStatus
+                                                    )
+                                                }
+                                            >
+                                                {
+                                                    statusActions[user.status]
+                                                        .icon
+                                                }
+                                            </button>
                                         </RoleGuard>
                                     )}
                                 </td>

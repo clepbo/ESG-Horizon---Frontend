@@ -134,7 +134,6 @@ export default function SubsidiaryTable({
           subsidiary={selectedSubsidiary}
           onClose={() => setIsEditOpen(false)}
           onUpdate={(updated) => {
-            // call parent update
             onEdit?.(updated);
             setIsEditOpen(false);
           }}

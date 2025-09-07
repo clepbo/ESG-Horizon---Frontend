@@ -38,11 +38,9 @@ export default function TeamsPage() {
       }
       try {
         const depts = await departmentService.getAll(yourCompany.id);
-        console.log("Fetched departments:", depts);
         setDepartments(depts);
 
         const companyUsers = await companyService.getUsers(yourCompany.id);
-        console.log("Fetched users:", companyUsers);
         setUsers(companyUsers);
       } catch (err) {
         console.error("Failed to fetch users:", err);
