@@ -22,7 +22,7 @@ export default function UserTable({ users }: UserTableProps) {
 
     // Modal states
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
     const [targetStatus, setTargetStatus] = useState<User["status"] | null>(
         null
     );
@@ -52,16 +52,16 @@ export default function UserTable({ users }: UserTableProps) {
         setCurrentPage(1);
     };
 
-    const updateStatus = (id: string, newStatus: User["status"]) => {
+    const updateStatus = (id: number, newStatus: User["status"]) => {
         setUserList((prev) =>
             prev.map((user) =>
-                user.id === id ? { ...user, status: newStatus } : user
+                user.id === Number(id) ? { ...user, status: newStatus } : user
             )
         );
         setModalOpen(false);
     };
 
-    const openModal = (id: string, newStatus: User["status"]) => {
+    const openModal = (id: number, newStatus: User["status"]) => {
         setSelectedUserId(id);
         setTargetStatus(newStatus);
         setModalOpen(true);

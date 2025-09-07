@@ -21,11 +21,11 @@ export default function TeamMembersTable({ users }: Props) {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-    const handleEditClick = (id?: string) => {
+    const handleEditClick = (id?: number) => {
         if (!id) return;
         const user = users.find((u) => u.id === id);
         if (user) {
-            setSelectedUser(user as User); // cast since edit expects full User
+            setSelectedUser(user as User);
             setEditModalOpen(true);
         }
     };

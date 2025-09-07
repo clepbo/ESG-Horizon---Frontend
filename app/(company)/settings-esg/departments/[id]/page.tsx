@@ -86,7 +86,7 @@ export default function DepartmentTeamUsersPage() {
             const normalizedTeamUsers: Partial<User>[] = safeTeamData.map(
                 (user) => ({
                     ...user,
-                    id: String(user.id),
+                    id: Number(user.id),
                     status: mapStatus(user.status),
                     role: { name: user.role },
                 })
@@ -181,7 +181,7 @@ export default function DepartmentTeamUsersPage() {
                 const normalizedTeamUsers: Partial<User>[] =
                     safeUpdatedUsers.map((user) => ({
                         ...user,
-                        id: String(user.id),
+                        id: Number(user.id),
                         status: mapStatus(user.status),
                         role: { name: user.role },
                     }));
