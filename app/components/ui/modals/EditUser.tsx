@@ -94,10 +94,10 @@ export default function EditUserModal({
                           profile_photo_url: uploaded.url,
                         }));
 
-                        toast.success("Profile photo uploaded successfully!");
+                        toast.success("Image Added, Click Update to Continue");
                       } else {
                         toast.error(
-                          "Failed to upload profile photo: No data returned."
+                          "Failed to upload profile photo. Please try again."
                         );
                       }
                     } catch (err) {
@@ -172,7 +172,7 @@ export default function EditUserModal({
             disabled={loading}
             className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
           >
-            {loading ? "Updating..." : "Update"}
+            {loading ? "Please wait..." : "Update"}
           </button>
         </div>
       </div>
