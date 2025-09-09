@@ -29,7 +29,9 @@ export default function LoginPage() {
           <div className="relative z-20 flex flex-col justify-start items-start px-10 py-12 w-full">
             {/* Welcome Text */}
             <div className="mt-16 text-white">
-              <h1 className="text-4xl font-bold mb-4">Welcome Back!</h1>
+              <h1 className="text-4xl text-center font-bold mb-4">
+                Welcome To ESG Horizon
+              </h1>
               <p className="text-base leading-relaxed text-white/90">
                 Access your dashboard, manage ESG data, and collaborate with
                 your team — securely and efficiently.

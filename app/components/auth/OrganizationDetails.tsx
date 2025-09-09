@@ -82,13 +82,13 @@ export const OrganizationDetails = ({
     fetch("https://ipapi.co/json/")
       .then((res) => res.json())
       .then((data) => {
-        const code = (data?.country_code as CountryCode) || "US";
+        const code = (data?.country_code as CountryCode) || "NG";
         setCountry(code);
         setValue("isoCountryCode", code);
       })
       .catch(() => {
         setCountry("US");
-        setValue("isoCountryCode", "US");
+        setValue("isoCountryCode", "NG");
       });
   }, [setValue]);
 
