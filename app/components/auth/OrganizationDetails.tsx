@@ -82,13 +82,13 @@ export const OrganizationDetails = ({
     fetch("https://ipapi.co/json/")
       .then((res) => res.json())
       .then((data) => {
-        const code = (data?.country_code as CountryCode) || "US";
+        const code = (data?.country_code as CountryCode) || "NG";
         setCountry(code);
         setValue("isoCountryCode", code);
       })
       .catch(() => {
         setCountry("US");
-        setValue("isoCountryCode", "US");
+        setValue("isoCountryCode", "NG");
       });
   }, [setValue]);
 
@@ -219,7 +219,7 @@ export const OrganizationDetails = ({
         {/* Row 2 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
-            label="Contact Email"
+            label="Company Email"
             required
             type="email"
             {...register("contactEmail")}
@@ -228,7 +228,7 @@ export const OrganizationDetails = ({
           />
           <div>
             <label className="block text-sm font-medium mb-1">
-              Contact Phone <span className="text-red-500">*</span>
+              Company Phone <span className="text-red-500">*</span>
             </label>
             <Controller
               name="contactPhone"
