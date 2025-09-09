@@ -219,7 +219,7 @@ export const OrganizationDetails = ({
         {/* Row 2 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
-            label="Contact Email"
+            label="Company Email"
             required
             type="email"
             {...register("contactEmail")}
@@ -228,7 +228,7 @@ export const OrganizationDetails = ({
           />
           <div>
             <label className="block text-sm font-medium mb-1">
-              Contact Phone <span className="text-red-500">*</span>
+              Company Phone <span className="text-red-500">*</span>
             </label>
             <Controller
               name="contactPhone"
