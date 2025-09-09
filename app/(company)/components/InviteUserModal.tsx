@@ -63,6 +63,7 @@ export default function InviteUserModal({
     loadSubsidiaries();
     getCurrentUser().then(setCurrentUser);
   }, []);
+  console.log("User", currentUser);
 
   const isFormValid =
     email.trim() !== "" && selectedDepartment !== null && role.trim() !== "";
