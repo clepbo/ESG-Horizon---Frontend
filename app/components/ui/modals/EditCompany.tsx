@@ -14,6 +14,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/app/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
 export default function EditCompanyModal({
   company,
   onClose,
@@ -29,6 +30,7 @@ export default function EditCompanyModal({
   const [industryOptions, setIndustryOptions] = useState<
     { id: number; sector: string; industry: string }[]
   >([]);
+  const { fetchUserProfile, setUser } = useAuth();
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -68,9 +70,13 @@ export default function EditCompanyModal({
         industryId: formData.industry?.id,
       };
 
-      const updated = await companyService.updateDetails(company.id, payload);
+      await companyService.updateDetails(company.id, payload);
+      const freshUser = await fetchUserProfile();
+      if (freshUser) {
+        setUser(freshUser);
+        onUpdate(freshUser.company as Company);
+      }
       toast.info("Company profile updated successfully!");
-      onUpdate(updated);
     } catch (error) {
       console.error("Error updating company profile:", error);
       toast.error("Error updating company profile. Please try again.");

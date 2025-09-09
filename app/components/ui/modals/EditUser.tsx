@@ -8,6 +8,7 @@ import { User, userService } from "@/services/user.service";
 import { toast } from "react-toastify";
 import { formatRoleName } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
+import { useAuth } from "@/context/AuthContext";
 
 export default function EditUserModal({
   user,
@@ -21,7 +22,7 @@ export default function EditUserModal({
   const [formData, setFormData] = useState<User>(user);
   const [userImage, setUserImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const { setUser, fetchUserProfile } = useAuth();
   const handleChange = (field: keyof User, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -33,9 +34,13 @@ export default function EditUserModal({
         ...formData,
         profile_photo_url: userImage || formData.profile_photo_url,
       };
-      const updated = await userService.editCurrent(payload as User);
+      await userService.editCurrent(payload as User);
+      const freshUser = await fetchUserProfile();
+      if (freshUser) {
+        setUser(freshUser);
+        onUpdate(freshUser);
+      }
       toast.success("Profile Updated Successfully!");
-      onUpdate(updated);
     } catch (error) {
       console.error("Error updating user profile:", error);
     } finally {
