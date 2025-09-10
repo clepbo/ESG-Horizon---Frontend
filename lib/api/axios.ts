@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosRequestConfig } from "axios";
 import { triggerLogout } from "../utils";
+import { toast } from "react-toastify";
 
 const api = axios.create({
     baseURL:
@@ -81,6 +82,13 @@ api.interceptors.response.use(
       } finally {
         isRefreshing = false;
       }
+    }
+    // 🔹 Handle 429 (rate limit exceeded)
+    if (error.response && error.response.status === 429) {
+      const message =
+        error.response.data?.message ||
+        "Too many requests. Please slow down.";
+      toast.error(message, { autoClose: 4000 });
     }
     return Promise.reject(error);
   }
