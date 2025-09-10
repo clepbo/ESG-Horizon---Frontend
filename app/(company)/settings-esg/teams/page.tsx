@@ -155,18 +155,17 @@ export default function TeamsPage() {
           </div>
         </div>
 
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 z-10">
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
             <Spinner />
           </div>
+        ) : (
+          <TeamsTable
+            users={filteredData}
+            setUsers={setUsers}
+            onStatusUpdate={handleStatusUpdate}
+          />
         )}
-
-        {/* Pass only filteredData — pagination happens in TeamsTable */}
-        <TeamsTable
-          users={filteredData}
-          setUsers={setUsers}
-          onStatusUpdate={handleStatusUpdate}
-        />
       </main>
 
       {showInviteModal && (
