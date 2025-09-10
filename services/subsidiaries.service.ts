@@ -39,8 +39,8 @@ export const subsidiariesService = {
         const data = await api.get(`/subsidiary`);
         return data;
     },
-    deleteSubsidiaries: async () => {
-        const data = await api.get(`/subsidiary`);
+    deleteSubsidiaries: async (id: number) => {
+        const data = await api.delete(`/subsidiary/${id}`);
         return data;
     },
 };

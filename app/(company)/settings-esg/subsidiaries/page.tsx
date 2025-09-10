@@ -21,6 +21,7 @@ import {
 } from "@/services/subsidiaries.service";
 import { industriesService } from "@/services/industries.services";
 import { useAuth } from "@/context/AuthContext";
+import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
 
 export default function SubsidiariesPage() {
     const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
@@ -54,6 +55,11 @@ export default function SubsidiariesPage() {
         };
         fetchSubsidiaries();
     }, [user]);
+
+     const deleteSubsidiary = useDeleteSubsidiary((id: number) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setSubsidiaries((prev: any[]) => prev.filter((s) => s.id !== id));
+  });
 
     useEffect(() => {
         const fetchIndustries = async () => {
@@ -168,6 +174,7 @@ export default function SubsidiariesPage() {
                             <SubsidiaryTable
                                 subsidiaries={filteredSubsidiaries}
                                 onDelete={(id) => {
+                                    deleteSubsidiary.mutate(+id)
                                     setSubsidiaries((prev) =>
                                         prev.filter((s) => s.id !== id)
                                     );
