@@ -56,7 +56,7 @@ export default function LoginPage() {
             {/* Logo for small screens */}
             <div className="flex justify-center">
               <Image
-                src="/logo.svg"
+                src="/Logo.svg"
                 alt="ESG Horizon Logo"
                 width={50}
                 height={50}
