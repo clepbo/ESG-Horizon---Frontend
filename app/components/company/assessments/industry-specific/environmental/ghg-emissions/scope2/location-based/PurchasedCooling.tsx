@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import {
@@ -14,8 +13,9 @@ import {
   CheckCircle2,
   ArrowRight,
   CloudUpload,
+  X,
 } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 interface PurchasedCoolingFormProps {
@@ -26,15 +26,9 @@ interface PurchasedCoolingFormProps {
   percent: number;
 }
 
-interface FileMetadata {
-  name: string;
-  size: number;
-  lastModified: number;
-}
-
 const uploadFields = [
-  "Cooling energy invoices",
-  "Equipment performance logs",
+  "Cooling energy invoices from service providers",
+  "Equipment performance logs (e.g., chiller reports)",
   "Sub-metering or monitoring records",
 ];
 
@@ -54,9 +48,8 @@ export function PurchasedCoolingForm({
   percent,
 }: PurchasedCoolingFormProps) {
   const { state, dispatch } = useAssessment();
-
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [coolingConsumed, setCoolingConsumed] = useState("");
-  const [reportingPeriod, setReportingPeriod] = useState("monthly");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -71,17 +64,15 @@ export function PurchasedCoolingForm({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
-  // Hydrate from context
   useEffect(() => {
     const existingData = state.assessmentData.cooling;
 
     if (existingData) {
       setCoolingConsumed(existingData.coolingConsumed || "");
-      setReportingPeriod(existingData.reportingPeriod || "monthly");
       setSelectedSystems(existingData.selectedSystems || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
-        existingData.uploads ||
+        existingData.files ??
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
@@ -100,10 +91,6 @@ export function PurchasedCoolingForm({
 
     if (selectedSystems.length === 0) {
       newErrors.selectedSystems = "Please select at least one system type";
-    }
-
-    if (!Object.values(files).some((file) => file !== null)) {
-      newErrors.files = "Please upload at least one supporting document";
     }
 
     setErrors(newErrors);
@@ -135,14 +122,13 @@ export function PurchasedCoolingForm({
       setFiles((prev) => ({
         ...prev,
         [field]: {
+          file,
           name: file.name,
           size: file.size,
           lastModified: file.lastModified,
         },
       }));
-      if (errors.files) {
-        setErrors((prev) => ({ ...prev, files: undefined }));
-      }
+      if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     }
   };
 
@@ -152,7 +138,6 @@ export function PurchasedCoolingForm({
     setIsSaving(true);
     const payload = {
       coolingConsumed,
-      reportingPeriod,
       selectedSystems,
       otherComments,
       files,
@@ -164,8 +149,6 @@ export function PurchasedCoolingForm({
     });
     dispatch({ type: "SAVE_PROGRESS" });
 
-
-
     setIsSaving(false);
     setShowSaveSuccess(true);
     setTimeout(() => setShowSaveSuccess(false), 2000);
@@ -176,7 +159,6 @@ export function PurchasedCoolingForm({
 
     const payload = {
       coolingConsumed,
-      reportingPeriod,
       selectedSystems,
       otherComments,
       files,
@@ -188,8 +170,21 @@ export function PurchasedCoolingForm({
     });
 
     onNext();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const handleRemoveFile = (key: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [key]: null,
+    }));
+    if (inputRefs.current[key]) {
+      inputRefs.current[key]!.value = "";
+    }
 
+    if (errors.files) {
+      setErrors((prev) => ({ ...prev, files: undefined }));
+    }
+  };
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -234,19 +229,22 @@ export function PurchasedCoolingForm({
 
             {/* Cooling Consumed */}
             <div>
-              <Label htmlFor="cooling-consumed">
-                Cooling Energy Consumed (kWh)
+              <Label className="text-md font-semibold mb-2 block">
+                2.1 Purchased Cooling
               </Label>
-              <Input
-                id="cooling-consumed"
-                type="number"
-                placeholder="Enter amount in kWh"
-                value={coolingConsumed}
-                onChange={(e) => setCoolingConsumed(e.target.value)}
-                className={`w-full border-gray-400 ${
-                  errors.coolingConsumed ? "border-red-500" : ""
-                }`}
-              />
+              <div className="space-y-4 ml-6">
+                <Label>Amount of Energy Cooling Energy Consumed (kWh)</Label>
+                <Input
+                  id="cooling-consumed"
+                  type="number"
+                  placeholder="Enter amount in kWh"
+                  value={coolingConsumed}
+                  onChange={(e) => setCoolingConsumed(e.target.value)}
+                  className={`w-full border-gray-400 ${
+                    errors.coolingConsumed ? "border-red-500" : ""
+                  }`}
+                />
+              </div>
               {errors.coolingConsumed && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.coolingConsumed}
@@ -256,8 +254,8 @@ export function PurchasedCoolingForm({
 
             {/* Cooling System Types */}
             <div>
-              <Label className="text-md font-medium mb-2 block">
-                Cooling System Types
+              <Label className="text-md font-medium mb-2 block ml-6">
+                Type of Cooling System
               </Label>
               <div className="space-y-3 ml-6">
                 {coolingSystemTypes.map((system) => (
@@ -280,9 +278,9 @@ export function PurchasedCoolingForm({
               )}
             </div>
 
-            {/* Other Comments */}
-            <div>
-              <Label htmlFor="other-comments">Other Comments</Label>
+            {/* Others */}
+            <div className="ml-6">
+              <Label htmlFor="other-comments">Others</Label>
               <Textarea
                 id="other-comments"
                 placeholder="Please specify"
@@ -292,72 +290,65 @@ export function PurchasedCoolingForm({
               />
             </div>
 
-            {/* Reporting Period */}
-            <div>
-              <Label className="text-md font-medium mb-2 block">
-                Reporting Period
-              </Label>
-              <RadioGroup
-                value={reportingPeriod}
-                onValueChange={setReportingPeriod}
-                className="space-y-3 ml-6"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="monthly" id="monthly" />
-                  <Label htmlFor="monthly">Monthly</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="quarterly" id="quarterly" />
-                  <Label htmlFor="quarterly">Quarterly</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="annually" id="annually" />
-                  <Label htmlFor="annually">Annually</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
             {/* Uploads */}
             <div>
-              <Label className="text-md font-medium mb-2 block">
-                Supporting Documents
+              <Label className="text-md font-semibold mb-2 block">
+                2.2 Documents/Evidence Uploads
               </Label>
-              {errors.files && (
-                <p className="text-sm text-red-500">{errors.files}</p>
-              )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {uploadFields.map((field) => (
-                  <div key={field} className="flex flex-col gap-2">
-                    <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
-                      {field}
-                    </Label>
-                    <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all">
-                      <Label
-                        htmlFor={`upload-${field
-                          .replace(/\s/g, "-")
-                          .toLowerCase()}`}
-                        className="cursor-pointer flex flex-col items-center gap-2"
-                      >
-                        <CloudUpload className="h-6 w-6 text-muted-foreground" />
-                        <span className="text-xs text-gray-400 text-center">
-                          Upload {field} (Max. 10MB)
-                        </span>
+              <div className="mx-6">
+                {errors.files && (
+                  <p className="text-sm text-red-500">{errors.files}</p>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {uploadFields.map((field) => (
+                    <div key={field} className="flex flex-col gap-2">
+                      <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
+                        {field}
                       </Label>
-                      <Input
-                        id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
-                        type="file"
-                        className="hidden"
-                        onChange={(e) => handleFileChange(field, e)}
-                        accept=".pdf,.jpg,.jpeg,.png"
-                      />
-                      {files[field] && (
-                        <p className="text-sm text-green-600 mt-2 text-center">
-                          Uploaded: {files[field]!.name}
-                        </p>
-                      )}
-                    </Card>
-                  </div>
-                ))}
+                      <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all">
+                        <Label
+                          htmlFor={`upload-${field
+                            .replace(/\s/g, "-")
+                            .toLowerCase()}`}
+                          className="cursor-pointer flex flex-col items-center gap-2"
+                        >
+                          <CloudUpload className="h-6 w-6 text-muted-foreground" />
+                          <span className="text-xs text-gray-400 text-center">
+                            Upload {field} (Max. 10MB)
+                          </span>
+                        </Label>
+                        <Input
+                          id={`upload-${field
+                            .replace(/\s/g, "-")
+                            .toLowerCase()}`}
+                          type="file"
+                          ref={(el) => {
+                            inputRefs.current[field] = el;
+                          }}
+                          className="hidden"
+                          onChange={(e) => handleFileChange(field, e)}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          aria-label={`Upload ${field}`}
+                        />
+                        {files[field] && (
+                          <div className="flex items-center gap-2 mt-2">
+                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                              Uploaded: {files[field]!.name}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(field)}
+                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                              aria-label={`Remove ${field}`}
+                            >
+                              <X />
+                            </button>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             {/* Save Status */}

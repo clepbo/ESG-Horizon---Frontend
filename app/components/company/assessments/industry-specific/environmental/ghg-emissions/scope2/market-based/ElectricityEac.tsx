@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -11,8 +11,9 @@ import {
   Save,
   CheckCircle2,
   CloudUpload,
+  X,
 } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 interface ElectricityEACFormProps {
@@ -23,6 +24,12 @@ interface ElectricityEACFormProps {
   percent: number;
 }
 
+const uploadFields = [
+  "Energy Attribute Certificates (EACs) or RECs",
+  "Grid consumption invoices",
+  "Contracts/purchase agreements",
+];
+
 export function ElectricityEACForm({
   onBack,
   onNext,
@@ -31,33 +38,33 @@ export function ElectricityEACForm({
   percent,
 }: ElectricityEACFormProps) {
   const { state, dispatch } = useAssessment();
-
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [gridElectricity, setGridElectricity] = useState("");
   const [emissionFactor, setEmissionFactor] = useState("");
-  const [uploads, setUploads] = useState<{
-    eac: File | null;
-    bills: File | null;
-    recs: File | null;
-    gridAgreement: File | null;
-  }>({ eac: null, bills: null, recs: null, gridAgreement: null });
+  const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
+    Object.fromEntries(uploadFields.map((field) => [field, null]))
+  );
 
   const [errors, setErrors] = useState<{
     gridElectricity?: string;
     emissionFactor?: string;
-    uploads?: string;
+    files?: string;
   }>({});
 
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   useEffect(() => {
-    const existing = state.assessmentData.eac;
-    if (existing) {
-      setGridElectricity(existing.gridElectricity || "");
-      setEmissionFactor(existing.emissionFactor || "");
-      setUploads(existing.uploads || uploads);
+    const existingData = state.assessmentData.eac;
+    if (existingData) {
+      setGridElectricity(existingData.gridElectricity || "");
+      setEmissionFactor(existingData.emissionFactor || "");
+      setFiles(
+        existingData.files ??
+          Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
     }
-  }, [state.assessmentData.eac, uploads]);
+  }, [state.assessmentData?.eac]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -69,40 +76,39 @@ export function ElectricityEACForm({
       newErrors.emissionFactor =
         "Please enter a valid positive emission factor.";
     }
-    if (
-      !uploads.eac &&
-      !uploads.bills &&
-      !uploads.recs &&
-      !uploads.gridAgreement
-    ) {
-      newErrors.uploads = "Please upload at least one supporting document";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleFileChange = (
-    key: keyof typeof uploads,
-    e: React.ChangeEvent<HTMLInputElement>
+    field: string,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = e.target.files?.[0];
+    const file = event.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         setErrors((prev) => ({
           ...prev,
-          uploads: `${file.name} exceeds 10MB limit`,
+          files: `File "${field}" exceeds 10MB limit`,
         }));
         return;
       }
-      setUploads((prev) => ({ ...prev, [key]: file }));
-      if (errors.uploads)
-        setErrors((prev) => ({ ...prev, uploads: undefined }));
+      setFiles((prev) => ({
+        ...prev,
+        [field]: {
+          file,
+          name: file.name,
+          size: file.size,
+          lastModified: file.lastModified,
+        },
+      }));
+      if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     }
   };
 
   const savePayload = () => {
-    const payload = { gridElectricity, emissionFactor, uploads };
+    const payload = { gridElectricity, emissionFactor, files };
     dispatch({ type: "UPDATE_EAC", payload });
 
     return payload;
@@ -124,8 +130,21 @@ export function ElectricityEACForm({
     if (!validateForm()) return;
     savePayload();
     onNext();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const handleRemoveFile = (key: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [key]: null,
+    }));
+    if (inputRefs.current[key]) {
+      inputRefs.current[key]!.value = "";
+    }
 
+    if (errors.files) {
+      setErrors((prev) => ({ ...prev, files: undefined }));
+    }
+  };
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -173,24 +192,30 @@ export function ElectricityEACForm({
             {/* Grid Electricity */}
             <div>
               <Label className="text-base font-medium text-gray-900 mb-2 block">
-                2.1 Purchased Grid Electricity (kWh)
+                2.1 Purchased Electricity (with Energy Attribute Certificates –
+                EACs / RECs)
               </Label>
-              <Input
-                type="number"
-                placeholder="Enter total grid electricity consumed"
-                value={gridElectricity}
-                onChange={(e) => {
-                  setGridElectricity(e.target.value);
-                  if (errors.gridElectricity)
-                    setErrors((prev) => ({
-                      ...prev,
-                      gridElectricity: undefined,
-                    }));
-                }}
-                className={`w-full border-gray-400 ${
-                  errors.gridElectricity ? "border-red-500" : ""
-                }`}
-              />
+              <div className="space-y-4 ml-6">
+                <Label className="text-base font-medium text-gray-900 mb-2 block">
+                  Total grid electricity consumed (kWh)
+                </Label>
+                <Input
+                  type="number"
+                  placeholder="Enter total grid electricity consumed"
+                  value={gridElectricity}
+                  onChange={(e) => {
+                    setGridElectricity(e.target.value);
+                    if (errors.gridElectricity)
+                      setErrors((prev) => ({
+                        ...prev,
+                        gridElectricity: undefined,
+                      }));
+                  }}
+                  className={`w-full border-gray-400 ${
+                    errors.gridElectricity ? "border-red-500" : ""
+                  }`}
+                />
+              </div>
               {errors.gridElectricity && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.gridElectricity}
@@ -198,8 +223,50 @@ export function ElectricityEACForm({
               )}
             </div>
 
+            {/* EAC / REC Certificate Upload */}
+            <div className="ml-6 mt-6">
+              <Label className="text-base font-medium text-gray-900 mb-2 block">
+                Upload EAC / REC Certificate
+              </Label>
+              <Card className="p-4 flex flex-col items-center justify-center border-2">
+                <Label
+                  htmlFor="upload-eac-rec"
+                  className="cursor-pointer flex flex-col items-center gap-2"
+                >
+                  <CloudUpload className="h-6 w-6 text-muted-foreground" />
+                  <span className="text-xs text-gray-400 text-center">
+                    Attach Energy Attribute Certificate or Renewable Energy
+                    Certificate proving renewable sourcing. (Max. 10mb)
+                  </span>
+                </Label>
+
+                <Input
+                  id="upload-eac-rec"
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => handleFileChange("EAC / REC Certificate", e)}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                />
+
+                {files["EAC / REC Certificate"] && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-sm text-green-600 break-words max-w-full text-center">
+                      Uploaded: {files["EAC / REC Certificate"]!.name}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile("EAC / REC Certificate")}
+                      className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                    >
+                      <X />
+                    </button>
+                  </div>
+                )}
+              </Card>
+            </div>
+
             {/* Emission Factor */}
-            <div>
+            <div className="ml-6">
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 Emission Factor Applied
               </Label>
@@ -232,51 +299,56 @@ export function ElectricityEACForm({
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 2.2 Documents / Evidence Upload
               </Label>
-              {errors.uploads && (
-                <p className="text-sm text-red-500 mb-2">{errors.uploads}</p>
+              {errors.files && (
+                <p className="text-sm text-red-500 mb-2">{errors.files}</p>
               )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  {
-                    key: "eac",
-                    label: "Energy Attribute Certificate (EAC/REC)",
-                  },
-                  { key: "bills", label: "Grid Consumption Invoices" },
-                  { key: "recs", label: "Additional RECs Documentation" },
-                  {
-                    key: "gridAgreement",
-                    label: "Contracts / Purchase Agreements",
-                  },
-                ].map((doc) => (
-                  <Card
-                    key={doc.key}
-                    className="p-4 flex flex-col items-center justify-center border-2"
-                  >
-                    <Label
-                      htmlFor={`upload-${doc.key}`}
-                      className="cursor-pointer flex flex-col items-center gap-2"
-                    >
-                      <CloudUpload className="h-6 w-6 text-muted-foreground" />
-                      <span className="text-xs text-gray-400 text-center">
-                        Upload {doc.label} (Max 10MB)
-                      </span>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-8">
+                {uploadFields.map((field) => (
+                  <div key={field} className="flex flex-col gap-2">
+                    <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
+                      {field}
                     </Label>
-                    <Input
-                      id={`upload-${doc.key}`}
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleFileChange(doc.key as keyof typeof uploads, e)
-                      }
-                    />
-                    {uploads[doc.key as keyof typeof uploads] && (
-                      <p className="text-sm text-green-600 mt-2 text-center">
-                        Uploaded:{" "}
-                        {uploads[doc.key as keyof typeof uploads]?.name}
-                      </p>
-                    )}
-                  </Card>
+                    <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
+                      <Label
+                        htmlFor={`upload-${field
+                          .replace(/\s/g, "-")
+                          .toLowerCase()}`}
+                        className="cursor-pointer flex flex-col items-center gap-2"
+                      >
+                        <CloudUpload className="h-6 w-6 text-muted-foreground" />
+                        <span className="text-xs text-gray-400 text-center">
+                          Upload {field} (Max. 10MB)
+                        </span>
+                      </Label>
+                      <Input
+                        id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
+                        type="file"
+                        ref={(el) => {
+                          inputRefs.current[field] = el;
+                        }}
+                        className="hidden"
+                        onChange={(e) => handleFileChange(field, e)}
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        aria-label={`Upload ${field}`}
+                      />
+                      {files[field] && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            Uploaded: {files[field]!.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(field)}
+                            className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                            aria-label={`Remove ${field}`}
+                          >
+                            <X />
+                          </button>
+                        </div>
+                      )}
+                    </Card>
+                  </div>
                 ))}
               </div>
             </div>

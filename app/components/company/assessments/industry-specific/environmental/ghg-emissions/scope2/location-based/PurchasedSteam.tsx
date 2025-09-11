@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { Textarea } from "@/app/components/ui/textarea";
 import {
@@ -14,8 +13,9 @@ import {
   CheckCircle2,
   ArrowRight,
   CloudUpload,
+  X,
 } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 interface PurchasedSteamFormProps {
@@ -26,16 +26,10 @@ interface PurchasedSteamFormProps {
   percent: number;
 }
 
-interface FileMetadata {
-  name: string;
-  size: number;
-  lastModified: number;
-}
-
 const uploadFields = [
   "Supplier invoices for steam purchases",
   "Metered records of steam consumption",
-  "Contracts or agreements with providers",
+  "Contracts or agreements with third-party providers",
 ];
 
 const steamSources = [
@@ -51,9 +45,9 @@ export function PurchasedSteamForm({
   percent,
 }: PurchasedSteamFormProps) {
   const { state, dispatch } = useAssessment();
-
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [steamConsumed, setSteamConsumed] = useState("");
-  const [reportingPeriod, setReportingPeriod] = useState("monthly");
+
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -68,17 +62,16 @@ export function PurchasedSteamForm({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
-  // Hydrate from context or localStorage
   useEffect(() => {
     const existingData = state.assessmentData.steam;
 
     if (existingData) {
       setSteamConsumed(existingData.volume || "");
-      setReportingPeriod(existingData.reportingPeriod || "monthly");
+
       setSelectedSources(existingData.selectedSources || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
-        existingData.uploads ||
+        existingData.files ??
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
@@ -97,10 +90,6 @@ export function PurchasedSteamForm({
 
     if (selectedSources.length === 0) {
       newErrors.selectedSources = "Please select at least one steam source";
-    }
-
-    if (!Object.values(files).some((file) => file !== null)) {
-      newErrors.files = "Please upload at least one supporting document";
     }
 
     setErrors(newErrors);
@@ -132,14 +121,13 @@ export function PurchasedSteamForm({
       setFiles((prev) => ({
         ...prev,
         [field]: {
+          file,
           name: file.name,
           size: file.size,
           lastModified: file.lastModified,
         },
       }));
-      if (errors.files) {
-        setErrors((prev) => ({ ...prev, files: undefined }));
-      }
+      if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     }
   };
 
@@ -149,7 +137,7 @@ export function PurchasedSteamForm({
     setIsSaving(true);
     const payload = {
       volume: steamConsumed,
-      reportingPeriod,
+
       selectedSources,
       otherComments,
       files,
@@ -168,7 +156,7 @@ export function PurchasedSteamForm({
 
     const payload = {
       volume: steamConsumed,
-      reportingPeriod,
+
       selectedSources,
       otherComments,
       files,
@@ -180,6 +168,21 @@ export function PurchasedSteamForm({
     });
 
     onNext();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRemoveFile = (key: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [key]: null,
+    }));
+    if (inputRefs.current[key]) {
+      inputRefs.current[key]!.value = "";
+    }
+
+    if (errors.files) {
+      setErrors((prev) => ({ ...prev, files: undefined }));
+    }
   };
 
   return (
@@ -226,17 +229,22 @@ export function PurchasedSteamForm({
 
             {/* Steam Consumed */}
             <div>
-              <Label htmlFor="steam-consumed">Steam Consumed (tonnes)</Label>
-              <Input
-                id="steam-consumed"
-                type="number"
-                placeholder="Enter amount in tonnes"
-                value={steamConsumed}
-                onChange={(e) => setSteamConsumed(e.target.value)}
-                className={`w-full border-gray-400 ${
-                  errors.steamConsumed ? "border-red-500" : ""
-                }`}
-              />
+              <Label className="text-md font-semibold mb-2 block">
+                3.1 Purchased Steam
+              </Label>
+              <div className="space-y-4 ml-6">
+                <Label htmlFor="steam-consumed">Steam Consumed (tonnes)</Label>
+                <Input
+                  id="steam-consumed"
+                  type="number"
+                  placeholder="Enter amount in tonnes"
+                  value={steamConsumed}
+                  onChange={(e) => setSteamConsumed(e.target.value)}
+                  className={`w-full border-gray-400 ${
+                    errors.steamConsumed ? "border-red-500" : ""
+                  }`}
+                />
+              </div>
               {errors.steamConsumed && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.steamConsumed}
@@ -270,11 +278,11 @@ export function PurchasedSteamForm({
               )}
             </div>
 
-            {/* Other Comments */}
-            <div>
-              <Label htmlFor="other-comments">Other Comments</Label>
+            {/* Others */}
+            <div className="ml-6">
+              <Label htmlFor="other-comments">Others</Label>
               <Textarea
-                id="other-comments"
+                id="others"
                 placeholder="Please specify"
                 value={otherComments}
                 onChange={(e) => setOtherComments(e.target.value)}
@@ -282,35 +290,10 @@ export function PurchasedSteamForm({
               />
             </div>
 
-            {/* Reporting Period */}
-            <div>
-              <Label className="text-md font-medium mb-2 block">
-                Reporting Period
-              </Label>
-              <RadioGroup
-                value={reportingPeriod}
-                onValueChange={setReportingPeriod}
-                className="space-y-3 ml-6"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="monthly" id="monthly" />
-                  <Label htmlFor="monthly">Monthly</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="quarterly" id="quarterly" />
-                  <Label htmlFor="quarterly">Quarterly</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="annually" id="annually" />
-                  <Label htmlFor="annually">Annually</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
             {/* Uploads */}
             <div>
-              <Label className="text-md font-medium mb-2 block">
-                Supporting Documents
+              <Label className="text-md font-semibold mb-2 block">
+                3.2 Documents/Evidence Uploads
               </Label>
               {errors.files && (
                 <p className="text-sm text-red-500">{errors.files}</p>
@@ -336,14 +319,28 @@ export function PurchasedSteamForm({
                       <Input
                         id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                         type="file"
+                        ref={(el) => {
+                          inputRefs.current[field] = el;
+                        }}
                         className="hidden"
                         onChange={(e) => handleFileChange(field, e)}
                         accept=".pdf,.jpg,.jpeg,.png"
+                        aria-label={`Upload ${field}`}
                       />
                       {files[field] && (
-                        <p className="text-sm text-green-600 mt-2 text-center">
-                          Uploaded: {files[field]!.name}
-                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            Uploaded: {files[field]!.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(field)}
+                            className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                            aria-label={`Remove ${field}`}
+                          >
+                            <X />
+                          </button>
+                        </div>
                       )}
                     </Card>
                   </div>

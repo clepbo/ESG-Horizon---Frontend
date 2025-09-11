@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 interface CoolingSteamFormProps {
@@ -31,10 +31,10 @@ export function CoolingSteamForm({
   percent,
 }: CoolingSteamFormProps) {
   const { state, dispatch } = useAssessment();
-
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [energyConsumed, setEnergyConsumed] = useState("");
   const [emissionFactor, setEmissionFactor] = useState("");
-  const [files, setFiles] = useState<{ [key: string]: File | null }>(
+  const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
 
@@ -48,16 +48,15 @@ export function CoolingSteamForm({
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   useEffect(() => {
-    const existing = state.assessmentData.coolingSteam;
-    if (existing) {
-      setEnergyConsumed(existing.energyConsumed || "");
-      setEmissionFactor(existing.emissionFactor || "");
+    const existingData = state.assessmentData.coolingSteam;
+    if (existingData) {
+      setEnergyConsumed(existingData.energyConsumed || "");
+      setEmissionFactor(existingData.emissionFactor || "");
 
-      setFiles({
-        "Supplier Contract": existing.uploads?.supplierContract || null,
-        "Energy Bills / Invoices": existing.uploads?.bills || null,
-        "Emission Factor Certificate": existing.uploads?.certificate || null,
-      });
+      setFiles(
+        existingData.files ??
+          Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
     }
   }, [state.assessmentData.coolingSteam]);
 
@@ -67,13 +66,10 @@ export function CoolingSteamForm({
       newErrors.energyConsumed = "Energy consumed is required";
     if (!emissionFactor || Number(emissionFactor) <= 0)
       newErrors.emissionFactor = "Emission factor is required";
-    if (!Object.values(files).some((f) => f !== null))
-      newErrors.files = "Please upload at least one document";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleFileChange = (
     field: string,
     event: React.ChangeEvent<HTMLInputElement>
@@ -81,25 +77,28 @@ export function CoolingSteamForm({
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        setErrors({ files: `File "${field}" exceeds 10MB limit` });
+        setErrors((prev) => ({
+          ...prev,
+          files: `File "${field}" exceeds 10MB limit`,
+        }));
         return;
       }
       setFiles((prev) => ({
         ...prev,
-        [field]: file, // store File object directly
+        [field]: {
+          file,
+          name: file.name,
+          size: file.size,
+          lastModified: file.lastModified,
+        },
       }));
       if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     }
   };
-
   const buildPayload = () => ({
     energyConsumed,
     emissionFactor,
-    uploads: {
-      supplierContract: files["Supplier Contract"],
-      bills: files["Energy Bills / Invoices"],
-      certificate: files["Emission Factor Certificate"],
-    },
+    files,
   });
 
   const handleSaveAndContinue = () => {
@@ -117,8 +116,21 @@ export function CoolingSteamForm({
     dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
     dispatch({ type: "SAVE_PROGRESS" });
     onSubmit();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const handleRemoveFile = (key: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [key]: null,
+    }));
+    if (inputRefs.current[key]) {
+      inputRefs.current[key]!.value = "";
+    }
 
+    if (errors.files) {
+      setErrors((prev) => ({ ...prev, files: undefined }));
+    }
+  };
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -165,18 +177,23 @@ export function CoolingSteamForm({
             {/* Energy Consumed */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                {stepIndex}.1 Purchased Cooling / Steam
+                4.1 Purchased Cooling / Steam
               </Label>
-              <Input
-                type="number"
-                placeholder="Enter cooling/steam energy consumed (kWh)"
-                value={energyConsumed}
-                onChange={(e) => {
-                  setEnergyConsumed(e.target.value);
-                  if (errors.energyConsumed)
-                    setErrors({ ...errors, energyConsumed: undefined });
-                }}
-              />
+              <div className="space-y-4 ml-6">
+                <Label className="text-base font-medium text-gray-900 mb-2 block">
+                  Quantity consumed
+                </Label>
+                <Input
+                  type="number"
+                  placeholder="Enter cooling/steam energy consumed (kWh)"
+                  value={energyConsumed}
+                  onChange={(e) => {
+                    setEnergyConsumed(e.target.value);
+                    if (errors.energyConsumed)
+                      setErrors({ ...errors, energyConsumed: undefined });
+                  }}
+                />
+              </div>
               {errors.energyConsumed && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.energyConsumed}
@@ -185,7 +202,7 @@ export function CoolingSteamForm({
             </div>
 
             {/* Emission Factor */}
-            <div>
+            <div className="ml-6">
               <Label className="text-md font-medium mb-2 block">
                 Supplier-specific emission factor applied
               </Label>
@@ -215,13 +232,13 @@ export function CoolingSteamForm({
               {errors.files && (
                 <p className="text-sm text-red-500 mb-2">{errors.files}</p>
               )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-8">
                 {uploadFields.map((field) => (
                   <div key={field} className="flex flex-col gap-2">
                     <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
                       {field}
                     </Label>
-                    <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all">
+                    <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
                       <Label
                         htmlFor={`upload-${field
                           .replace(/\s/g, "-")
@@ -236,14 +253,28 @@ export function CoolingSteamForm({
                       <Input
                         id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                         type="file"
+                        ref={(el) => {
+                          inputRefs.current[field] = el;
+                        }}
                         className="hidden"
                         onChange={(e) => handleFileChange(field, e)}
                         accept=".pdf,.jpg,.jpeg,.png"
+                        aria-label={`Upload ${field}`}
                       />
                       {files[field] && (
-                        <p className="text-sm text-green-600 mt-2 text-center">
-                          Uploaded: {files[field]!.name}
-                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            Uploaded: {files[field]!.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(field)}
+                            className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                            aria-label={`Remove ${field}`}
+                          >
+                            <X />
+                          </button>
+                        </div>
                       )}
                     </Card>
                   </div>

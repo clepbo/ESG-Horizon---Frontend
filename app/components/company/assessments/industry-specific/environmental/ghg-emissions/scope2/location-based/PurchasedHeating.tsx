@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 interface PurchasedHeatingFormProps {
@@ -18,17 +18,11 @@ interface PurchasedHeatingFormProps {
   percent: number;
 }
 
-interface FileMetadata {
-  name: string;
-  size: number;
-  lastModified: number;
-}
-
 const uploadFields = [
   "Invoices/receipts for heating services",
   "Metered heating records",
   "Supplier contracts",
-  "Certification of refrigerant type",
+  "Certification of refrigerant type (R-134a, R-410A, etc.).",
 ];
 
 export function PurchasedHeatingForm({
@@ -39,7 +33,7 @@ export function PurchasedHeatingForm({
   percent,
 }: PurchasedHeatingFormProps) {
   const { state, dispatch } = useAssessment();
-
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [heatingPurchased, setHeatingPurchased] = useState("");
   const [heatingConsumed, setHeatingConsumed] = useState("");
   const [supplierName, setSupplierName] = useState("");
@@ -57,17 +51,19 @@ export function PurchasedHeatingForm({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
-  // Load existing data
   useEffect(() => {
-    const existing = state.assessmentData.heating;
+    const existingData = state.assessmentData.heating;
 
-    if (existing) {
-      setHeatingPurchased(existing.heatingPurchased || "");
-      setHeatingConsumed(existing.heatingConsumed || "");
-      setSupplierName(existing.supplierName || "");
-      setFiles(existing.uploads || files);
+    if (existingData) {
+      setHeatingPurchased(existingData.heatingPurchased || "");
+      setHeatingConsumed(existingData.heatingConsumed || "");
+      setSupplierName(existingData.supplierName || "");
+      setFiles(
+        existingData.files ??
+          Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
     }
-  }, [files, state.assessmentData.heating]);
+  }, [state.assessmentData.heating]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -77,17 +73,11 @@ export function PurchasedHeatingForm({
         "Please select whether heating was purchased.";
     }
 
-    if (heatingPurchased === "yes") {
-      if (!heatingConsumed || Number(heatingConsumed) <= 0) {
-        newErrors.heatingConsumed = "Please enter a valid positive number.";
-      }
-      if (!supplierName.trim()) {
-        newErrors.supplierName = "Please enter supplier name.";
-      }
+    if (!heatingConsumed || Number(heatingConsumed) <= 0) {
+      newErrors.heatingConsumed = "Please enter a valid positive number.";
     }
-
-    if (!Object.values(files).some((file) => file !== null)) {
-      newErrors.files = "Please upload at least one document.";
+    if (!supplierName.trim()) {
+      newErrors.supplierName = "Please enter supplier name.";
     }
 
     setErrors(newErrors);
@@ -110,14 +100,13 @@ export function PurchasedHeatingForm({
       setFiles((prev) => ({
         ...prev,
         [field]: {
+          file,
           name: file.name,
           size: file.size,
           lastModified: file.lastModified,
         },
       }));
-      if (errors.files) {
-        setErrors((prev) => ({ ...prev, files: undefined }));
-      }
+      if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     }
   };
 
@@ -145,8 +134,22 @@ export function PurchasedHeatingForm({
     const payload = buildPayload();
     dispatch({ type: "UPDATE_HEATING", payload });
     onSubmit();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleRemoveFile = (key: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [key]: null,
+    }));
+    if (inputRefs.current[key]) {
+      inputRefs.current[key]!.value = "";
+    }
+
+    if (errors.files) {
+      setErrors((prev) => ({ ...prev, files: undefined }));
+    }
+  };
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -192,7 +195,7 @@ export function PurchasedHeatingForm({
             </div>
 
             {/* 4.1 Purchased Heating */}
-            <div>
+            <div className="ml-6">
               <Label className="text-md font-medium mb-2 block">
                 4.1 Purchased Heating
               </Label>
@@ -227,64 +230,63 @@ export function PurchasedHeatingForm({
               )}
             </div>
 
-            {heatingPurchased === "yes" && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="heating-consumed">
-                    Total heating energy consumed (GJ)
-                  </Label>
-                  <Input
-                    id="heating-consumed"
-                    type="number"
-                    placeholder="Enter heating energy in GJ"
-                    value={heatingConsumed}
-                    onChange={(e) => {
-                      setHeatingConsumed(e.target.value);
-                      if (errors.heatingConsumed) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          heatingConsumed: undefined,
-                        }));
-                      }
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.heatingConsumed ? "border-red-500" : ""
-                    }`}
-                  />
-                  {errors.heatingConsumed && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {errors.heatingConsumed}
-                    </p>
-                  )}
-                </div>
+            <div className="ml-6">
+              <div className="space-y-2">
+                <Label htmlFor="heating-consumed">
+                  If yes, what was the total heating energy consumed in
+                  Gigajoules (GJ)
+                </Label>
+                <Input
+                  id="heating-consumed"
+                  type="number"
+                  placeholder="Enter heating energy in GJ"
+                  value={heatingConsumed}
+                  onChange={(e) => {
+                    setHeatingConsumed(e.target.value);
+                    if (errors.heatingConsumed) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        heatingConsumed: undefined,
+                      }));
+                    }
+                  }}
+                  className={`w-full border-gray-400 ${
+                    errors.heatingConsumed ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.heatingConsumed && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.heatingConsumed}
+                  </p>
+                )}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="supplier">Supplier</Label>
-                  <Input
-                    id="supplier"
-                    placeholder="Enter supplier name"
-                    value={supplierName}
-                    onChange={(e) => {
-                      setSupplierName(e.target.value);
-                      if (errors.supplierName) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          supplierName: undefined,
-                        }));
-                      }
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.supplierName ? "border-red-500" : ""
-                    }`}
-                  />
-                  {errors.supplierName && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {errors.supplierName}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
+              <div className="space-y-2">
+                <Label htmlFor="supplier">Supplier</Label>
+                <Input
+                  id="supplier"
+                  placeholder="Enter supplier name"
+                  value={supplierName}
+                  onChange={(e) => {
+                    setSupplierName(e.target.value);
+                    if (errors.supplierName) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        supplierName: undefined,
+                      }));
+                    }
+                  }}
+                  className={`w-full border-gray-400 ${
+                    errors.supplierName ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.supplierName && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.supplierName}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* 4.2 File Uploads */}
             <div>
@@ -315,14 +317,28 @@ export function PurchasedHeatingForm({
                       <Input
                         id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                         type="file"
+                        ref={(el) => {
+                          inputRefs.current[field] = el;
+                        }}
                         className="hidden"
                         onChange={(e) => handleFileChange(field, e)}
                         accept=".pdf,.jpg,.jpeg,.png"
+                        aria-label={`Upload ${field}`}
                       />
                       {files[field] && (
-                        <p className="text-sm text-green-600 mt-2 text-center">
-                          Uploaded: {files[field]!.name}
-                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            Uploaded: {files[field]!.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(field)}
+                            className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                            aria-label={`Remove ${field}`}
+                          >
+                            <X />
+                          </button>
+                        </div>
                       )}
                     </Card>
                   </div>

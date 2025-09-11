@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -11,8 +11,9 @@ import {
   Save,
   CheckCircle2,
   CloudUpload,
+  X,
 } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 interface ElectricityIppsFormProps {
@@ -23,6 +24,13 @@ interface ElectricityIppsFormProps {
   percent: number;
 }
 
+const uploadFields = [
+  "Electricity purchase agreement / contract",
+  "Supplier-provided emission factor documentation",
+  "Electricity invoices / receipts",
+  "Meter readings or consumption records",
+];
+
 export function ElectricityIppsForm({
   onBack,
   onNext,
@@ -31,42 +39,38 @@ export function ElectricityIppsForm({
   percent,
 }: ElectricityIppsFormProps) {
   const { state, dispatch } = useAssessment();
-
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [electricityConsumed, setElectricityConsumed] = useState("");
   const [emissionFactor, setEmissionFactor] = useState("");
-  const [uploads, setUploads] = useState<{
-    contract: File | null;
-    bills: File | null;
-    certificate: File | null;
-  }>({
-    contract: null,
-    bills: null,
-    certificate: null,
-  });
-
+  const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
+    Object.fromEntries(uploadFields.map((field) => [field, null]))
+  );
   const [errors, setErrors] = useState<{
     electricityConsumed?: string;
     emissionFactor?: string;
-    uploads?: string;
+    files?: string;
   }>({});
 
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
 
   useEffect(() => {
-    const existing = state.assessmentData.ipps;
-    if (existing) {
-      setElectricityConsumed(existing.electricityConsumed || "");
-      setEmissionFactor(existing.emissionFactor || "");
-      setUploads(existing.uploads || uploads);
+    const existingData = state.assessmentData.ipps;
+    if (existingData) {
+      setElectricityConsumed(existingData.electricityConsumed || "");
+      setEmissionFactor(existingData.emissionFactor || "");
+      setFiles(
+        existingData.files ??
+          Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
     }
-  }, [state.assessmentData.ipps, uploads]);
+  }, [state.assessmentData?.ipps]);
 
   const validateForm = () => {
     const newErrors: {
       electricityConsumed?: string;
       emissionFactor?: string;
-      uploads?: string;
+      files?: string;
     } = {};
 
     if (!electricityConsumed || Number(electricityConsumed) <= 0) {
@@ -76,30 +80,33 @@ export function ElectricityIppsForm({
       newErrors.emissionFactor =
         "Please enter a valid positive emission factor.";
     }
-    if (!uploads.contract && !uploads.bills && !uploads.certificate) {
-      newErrors.uploads = "Please upload at least one supporting document";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleFileChange = (
-    key: keyof typeof uploads,
-    e: React.ChangeEvent<HTMLInputElement>
+    field: string,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = e.target.files?.[0];
+    const file = event.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         setErrors((prev) => ({
           ...prev,
-          uploads: `${file.name} exceeds 10MB limit`,
+          files: `File "${field}" exceeds 10MB limit`,
         }));
         return;
       }
-      setUploads((prev) => ({ ...prev, [key]: file }));
-      if (errors.uploads)
-        setErrors((prev) => ({ ...prev, uploads: undefined }));
+      setFiles((prev) => ({
+        ...prev,
+        [field]: {
+          file,
+          name: file.name,
+          size: file.size,
+          lastModified: file.lastModified,
+        },
+      }));
+      if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     }
   };
 
@@ -107,7 +114,7 @@ export function ElectricityIppsForm({
     const payload = {
       electricityConsumed,
       emissionFactor,
-      uploads,
+      files,
     };
     dispatch({ type: "UPDATE_IPPS", payload });
 
@@ -130,6 +137,21 @@ export function ElectricityIppsForm({
     if (!validateForm()) return;
     savePayload();
     onNext();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleRemoveFile = (key: string) => {
+    setFiles((prev) => ({
+      ...prev,
+      [key]: null,
+    }));
+    if (inputRefs.current[key]) {
+      inputRefs.current[key]!.value = "";
+    }
+
+    if (errors.files) {
+      setErrors((prev) => ({ ...prev, files: undefined }));
+    }
   };
 
   return (
@@ -177,24 +199,28 @@ export function ElectricityIppsForm({
             {/* Electricity Consumed */}
             <div>
               <Label className="text-base font-medium text-gray-900 mb-2 block">
-                1.1 Electricity Consumed (kWh)
+                1.1 Purchased Electricity (from Independent Power Producers –
+                IPPs)
               </Label>
-              <Input
-                type="number"
-                placeholder="Enter total electricity consumed in kWh"
-                value={electricityConsumed}
-                onChange={(e) => {
-                  setElectricityConsumed(e.target.value);
-                  if (errors.electricityConsumed)
-                    setErrors((prev) => ({
-                      ...prev,
-                      electricityConsumed: undefined,
-                    }));
-                }}
-                className={`w-full border-gray-400 ${
-                  errors.electricityConsumed ? "border-red-500" : ""
-                }`}
-              />
+              <div className="space-y-4 ml-6">
+                <Label>Total Electricity Consumed (kwh)</Label>
+                <Input
+                  type="number"
+                  placeholder="Enter total electricity consumed in kWh"
+                  value={electricityConsumed}
+                  onChange={(e) => {
+                    setElectricityConsumed(e.target.value);
+                    if (errors.electricityConsumed)
+                      setErrors((prev) => ({
+                        ...prev,
+                        electricityConsumed: undefined,
+                      }));
+                  }}
+                  className={`w-full border-gray-400 ${
+                    errors.electricityConsumed ? "border-red-500" : ""
+                  }`}
+                />
+              </div>
               {errors.electricityConsumed && (
                 <p className="text-sm text-red-500 mt-1">
                   {errors.electricityConsumed}
@@ -203,7 +229,7 @@ export function ElectricityIppsForm({
             </div>
 
             {/* Emission Factor */}
-            <div>
+            <div className="space-y-4 ml-6">
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 Supplier-specific Emission Factor
               </Label>
@@ -236,53 +262,56 @@ export function ElectricityIppsForm({
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 1.2 Documents / Evidence Upload
               </Label>
-              {errors.uploads && (
-                <p className="text-sm text-red-500 mb-2">{errors.uploads}</p>
+              {errors.files && (
+                <p className="text-sm text-red-500 mb-2">{errors.files}</p>
               )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  {
-                    key: "contract",
-                    label: "Electricity supply contracts with IPPs",
-                  },
-                  {
-                    key: "bills",
-                    label: "Supplier-issued emission factor documentation",
-                  },
-                  {
-                    key: "certificate",
-                    label: "Emission Factor Certificate / Invoices",
-                  },
-                ].map((doc) => (
-                  <Card
-                    key={doc.key}
-                    className="p-4 flex flex-col items-center justify-center border-2"
-                  >
-                    <Label
-                      htmlFor={`upload-${doc.key}`}
-                      className="cursor-pointer flex flex-col items-center gap-2"
-                    >
-                      <CloudUpload className="h-6 w-6 text-muted-foreground" />
-                      <span className="text-xs text-gray-400 text-center">
-                        Upload {doc.label} (Max 10MB)
-                      </span>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-8">
+                {uploadFields.map((field) => (
+                  <div key={field} className="flex flex-col gap-2">
+                    <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
+                      {field}
                     </Label>
-                    <Input
-                      id={`upload-${doc.key}`}
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        handleFileChange(doc.key as keyof typeof uploads, e)
-                      }
-                    />
-                    {uploads[doc.key as keyof typeof uploads] && (
-                      <p className="text-sm text-green-600 mt-2 text-center">
-                        Uploaded:{" "}
-                        {uploads[doc.key as keyof typeof uploads]?.name}
-                      </p>
-                    )}
-                  </Card>
+                    <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
+                      <Label
+                        htmlFor={`upload-${field
+                          .replace(/\s/g, "-")
+                          .toLowerCase()}`}
+                        className="cursor-pointer flex flex-col items-center gap-2"
+                      >
+                        <CloudUpload className="h-6 w-6 text-muted-foreground" />
+                        <span className="text-xs text-gray-400 text-center">
+                          Upload {field} (Max. 10MB)
+                        </span>
+                      </Label>
+                      <Input
+                        id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
+                        type="file"
+                        ref={(el) => {
+                          inputRefs.current[field] = el;
+                        }}
+                        className="hidden"
+                        onChange={(e) => handleFileChange(field, e)}
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        aria-label={`Upload ${field}`}
+                      />
+                      {files[field] && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            Uploaded: {files[field]!.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(field)}
+                            className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                            aria-label={`Remove ${field}`}
+                          >
+                            <X />
+                          </button>
+                        </div>
+                      )}
+                    </Card>
+                  </div>
                 ))}
               </div>
             </div>
