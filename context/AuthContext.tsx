@@ -193,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       throw err;
     }
   };
+  
 
   const inviteUser = async (formData: InviteUserData & { token: string }) => {
     await api.post("/esg/auth/invite-user", formData);

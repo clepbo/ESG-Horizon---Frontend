@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
-import { getRole } from "./utils";
+import { useAuth } from "@/context/AuthContext";
+import { ReactNode } from "react";
+
 
 type RoleGuardProps = {
   allowedRoles: string[];
@@ -10,24 +11,11 @@ type RoleGuardProps = {
 };
 
 export default function RoleGuard({ allowedRoles, children, fallback = null }: RoleGuardProps) {
-  const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    async function fetchRole() {
-      try {
-        const r = await getRole();
-        setRole(r ?? null);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchRole();
-  }, []);
+  if (loading) return null;
 
-  if (loading) {
-    return null; 
-  }
+  const role = user?.role?.name;
 
   if (!role || !allowedRoles.includes(role)) {
     return <>{fallback}</>;
