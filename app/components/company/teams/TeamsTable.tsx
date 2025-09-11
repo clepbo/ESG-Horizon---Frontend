@@ -148,6 +148,9 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       allowedRoles={[
                         "company_esg_admin",
                         "company_esg_subadmin",
+                        "super_admin",
+                        "platform_subadmin",
+                        "platform_data_officer",
                       ]}
                     >
                       <button

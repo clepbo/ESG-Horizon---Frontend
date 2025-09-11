@@ -150,12 +150,6 @@ export default function TeamsPage() {
           </div>
         </div>
 
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60 z-10">
-            <Spinner />
-          </div>
-        )}
-
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <Spinner />
