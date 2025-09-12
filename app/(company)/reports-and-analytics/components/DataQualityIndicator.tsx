@@ -1,6 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
 // Assuming useAssessmentData is actually useAssessment based on your previous file
 import { useAssessment } from "@/hooks/useAssessment";
 import { Shield, AlertTriangle, CheckCircle, Info } from "lucide-react";
@@ -10,10 +15,13 @@ import { FileMetadata } from "@/hooks/useAssessment";
 
 export function DataQualityIndicator() {
   // Use the correctly typed AssessmentData from your provider
-  const { state: { assessmentData, isLoading } } = useAssessment();
+  const {
+    state: { assessmentData, isLoading },
+  } = useAssessment();
 
   const computeQuality = () => {
-    if (!assessmentData) return { score: 0, level: 'Poor', issues: [ 'No assessment data found' ] };
+    if (!assessmentData)
+      return { score: 0, level: "Poor", issues: ["No assessment data found"] };
 
     const issues: string[] = [];
     let totalChecks = 0;
@@ -21,48 +29,60 @@ export function DataQualityIndicator() {
 
     // Basic info
     totalChecks += 3;
-    if (assessmentData.subsidiary) passedChecks++; else issues.push('Missing subsidiary');
-    if (assessmentData.startMonth && assessmentData.startYear) passedChecks++; else issues.push('Missing start period');
-    if (assessmentData.endMonth && assessmentData.endYear) passedChecks++; else issues.push('Missing end period');
+    if (assessmentData.subsidiary) passedChecks++;
+    else issues.push("Missing subsidiary");
+    if (assessmentData.startMonth && assessmentData.startYear) passedChecks++;
+    else issues.push("Missing start period");
+    if (assessmentData.endMonth && assessmentData.endYear) passedChecks++;
+    else issues.push("Missing end period");
 
     // Helper to detect numeric values
     const hasNumeric = (obj: unknown) => {
-      if (!obj || typeof obj !== 'object') return false;
-      return Object.values(obj as Record<string, unknown>).some(v => typeof v === 'number' && (v as number) > 0);
+      if (!obj || typeof obj !== "object") return false;
+      return Object.values(obj as Record<string, unknown>).some(
+        (v) => typeof v === "number" && (v as number) > 0
+      );
     };
 
     // Sections
     // This array helps to check the top-level scope 1 categories.
-    const sections: Array<{ name: string; data: typeof assessmentData.stationarySources |
-                                                    typeof assessmentData.mobileSources |
-                                                    typeof assessmentData.processEmissions |
-                                                    typeof assessmentData.fugitiveEmissions
-                                                  }> = [
-      { name: 'Stationary Sources', data: assessmentData.stationarySources },
-      { name: 'Mobile Sources', data: assessmentData.mobileSources },
-      { name: 'Process Emissions', data: assessmentData.processEmissions },
-      { name: 'Fugitive Emissions', data: assessmentData.fugitiveEmissions },
+    const sections: Array<{
+      name: string;
+      data:
+        | typeof assessmentData.stationarySources
+        | typeof assessmentData.mobileSources
+        | typeof assessmentData.processEmissions
+        | typeof assessmentData.fugitiveEmissions;
+    }> = [
+      { name: "Stationary Sources", data: assessmentData.stationarySources },
+      { name: "Mobile Sources", data: assessmentData.mobileSources },
+      { name: "Process Emissions", data: assessmentData.processEmissions },
+      { name: "Fugitive Emissions", data: assessmentData.fugitiveEmissions },
     ];
 
     sections.forEach(({ name, data }) => {
       totalChecks += 2;
       // Check if the top-level section object exists and has keys
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) { // 'data' is already typed as a specific object or undefined
+      if (data && typeof data === "object" && Object.keys(data).length > 0) {
+        // 'data' is already typed as a specific object or undefined
         passedChecks++;
       } else {
         issues.push(`No ${name} data provided`);
       }
       // Check for numeric values within the section's sub-objects
-      if (data && typeof data === 'object') {
-        const hasAnyNumericInSection = Object.values(data).some(subCategory =>
-          subCategory && typeof subCategory === 'object' && hasNumeric(subCategory)
+      if (data && typeof data === "object") {
+        const hasAnyNumericInSection = Object.values(data).some(
+          (subCategory) =>
+            subCategory &&
+            typeof subCategory === "object" &&
+            hasNumeric(subCategory)
         );
-        if (hasAnyNumericInSection) passedChecks++; else issues.push(`${name} has no numeric values`);
+        if (hasAnyNumericInSection) passedChecks++;
+        else issues.push(`${name} has no numeric values`);
       } else {
-         issues.push(`${name} has no numeric values`); // If data itself is missing
+        issues.push(`${name} has no numeric values`); // If data itself is missing
       }
     });
-
 
     // Files check (any files anywhere)
     totalChecks += 1;
@@ -70,12 +90,18 @@ export function DataQualityIndicator() {
 
     // Function to check for 'files' property in an object
     const checkForFiles = (obj: unknown): boolean => {
-      if (!obj || typeof obj !== 'object') return false;
+      if (!obj || typeof obj !== "object") return false;
 
       // Iterate through the keys of the object (e.g., electricityHeat, roadTransport)
-      return Object.values(obj).some(subSection => {
-        if (subSection && typeof subSection === 'object' && 'files' in subSection) {
-          const files = (subSection as { files?: { [key: string]: FileMetadata | null } }).files;
+      return Object.values(obj).some((subSection) => {
+        if (
+          subSection &&
+          typeof subSection === "object" &&
+          "files" in subSection
+        ) {
+          const files = (
+            subSection as { files?: { [key: string]: FileMetadata | null } }
+          ).files;
           return files && Object.keys(files).length > 0;
         }
         return false;
@@ -84,32 +110,49 @@ export function DataQualityIndicator() {
 
     // Check each of the main Scope 1 categories
     if (checkForFiles(assessmentData.stationarySources)) hasFiles = true;
-    if (!hasFiles && checkForFiles(assessmentData.mobileSources)) hasFiles = true;
-    if (!hasFiles && checkForFiles(assessmentData.processEmissions)) hasFiles = true;
-    if (!hasFiles && checkForFiles(assessmentData.fugitiveEmissions)) hasFiles = true;
+    if (!hasFiles && checkForFiles(assessmentData.mobileSources))
+      hasFiles = true;
+    if (!hasFiles && checkForFiles(assessmentData.processEmissions))
+      hasFiles = true;
+    if (!hasFiles && checkForFiles(assessmentData.fugitiveEmissions))
+      hasFiles = true;
 
-    // Check Scope 2 uploads (which are different: File | null)
+    // Check Scope 2 files (which are different: File | null)
     const scope2Categories = [
-      assessmentData.electricity, assessmentData.cooling, assessmentData.steam,
-      assessmentData.heating, assessmentData.ipps, assessmentData.eac,
-      assessmentData.residual, assessmentData.coolingSteam
+      assessmentData.electricity,
+      assessmentData.cooling,
+      assessmentData.steam,
+      assessmentData.heating,
+      assessmentData.ipps,
+      assessmentData.eac,
+      assessmentData.residual,
+      assessmentData.coolingSteam,
     ];
 
-    if (!hasFiles) { // Only check if files haven't been found yet
-        hasFiles = scope2Categories.some(scope2Data => {
-            if (scope2Data && scope2Data.uploads && typeof scope2Data.uploads === 'object') {
-                return Object.values(scope2Data.uploads).some(file => file instanceof File);
-            }
-            return false;
-        });
+    if (!hasFiles) {
+      // Only check if files haven't been found yet
+      hasFiles = scope2Categories.some((scope2Data) => {
+        if (
+          scope2Data &&
+          scope2Data.files &&
+          typeof scope2Data.files === "object"
+        ) {
+          return Object.values(scope2Data.files).some(
+            (file) => file instanceof File
+          );
+        }
+        return false;
+      });
     }
 
-    if (hasFiles) passedChecks++; else issues.push('No supporting documents uploaded');
-
+    if (hasFiles) passedChecks++;
+    else issues.push("No supporting documents uploaded");
 
     const score = Math.round((passedChecks / Math.max(totalChecks, 1)) * 100);
-    let level: 'Excellent' | 'Good' | 'Fair' | 'Poor' = 'Poor';
-    if (score >= 80) level = 'Excellent'; else if (score >= 60) level = 'Good'; else if (score >= 40) level = 'Fair';
+    let level: "Excellent" | "Good" | "Fair" | "Poor" = "Poor";
+    if (score >= 80) level = "Excellent";
+    else if (score >= 60) level = "Good";
+    else if (score >= 40) level = "Fair";
 
     return { score, level, issues };
   };
@@ -118,19 +161,27 @@ export function DataQualityIndicator() {
 
   const getQualityColor = (level: string) => {
     switch (level) {
-      case 'Excellent': return 'text-green-600 bg-green-50';
-      case 'Good': return 'text-blue-600 bg-blue-50';
-      case 'Fair': return 'text-yellow-600 bg-yellow-50';
-      default: return 'text-red-600 bg-red-50';
+      case "Excellent":
+        return "text-green-600 bg-green-50";
+      case "Good":
+        return "text-blue-600 bg-blue-50";
+      case "Fair":
+        return "text-yellow-600 bg-yellow-50";
+      default:
+        return "text-red-600 bg-red-50";
     }
   };
 
   const getQualityIcon = (level: string) => {
     switch (level) {
-      case 'Excellent': return <CheckCircle className="w-5 h-5" />;
-      case 'Good': return <Shield className="w-5 h-5" />;
-      case 'Fair': return <AlertTriangle className="w-5 h-5" />;
-      default: return <AlertTriangle className="w-5 h-5" />;
+      case "Excellent":
+        return <CheckCircle className="w-5 h-5" />;
+      case "Good":
+        return <Shield className="w-5 h-5" />;
+      case "Fair":
+        return <AlertTriangle className="w-5 h-5" />;
+      default:
+        return <AlertTriangle className="w-5 h-5" />;
     }
   };
 
@@ -138,7 +189,9 @@ export function DataQualityIndicator() {
     return (
       <Card className="bg-white border-none shadow rounded-xl">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900">Data Quality</CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            Data Quality
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center items-center h-64">
@@ -152,17 +205,27 @@ export function DataQualityIndicator() {
   return (
     <Card className="bg-white border-none shadow rounded-xl">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900">Data Quality</CardTitle>
-        <p className="text-sm text-gray-600">Assessment of data completeness and reliability</p>
+        <CardTitle className="text-lg font-semibold text-gray-900">
+          Data Quality
+        </CardTitle>
+        <p className="text-sm text-gray-600">
+          Assessment of data completeness and reliability
+        </p>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900">{quality.score}%</div>
+            <div className="text-3xl font-bold text-gray-900">
+              {quality.score}%
+            </div>
             <div className="text-sm text-gray-600">Data Quality Score</div>
           </div>
 
-          <div className={`flex items-center justify-center gap-2 p-3 rounded-lg ${getQualityColor(quality.level)}`}>
+          <div
+            className={`flex items-center justify-center gap-2 p-3 rounded-lg ${getQualityColor(
+              quality.level
+            )}`}
+          >
             {getQualityIcon(quality.level)}
             <span className="font-medium">{quality.level} Quality</span>
           </div>
@@ -175,13 +238,18 @@ export function DataQualityIndicator() {
               </div>
               <div className="space-y-1">
                 {quality.issues.slice(0, 3).map((issue, index) => (
-                  <div key={index} className="flex items-start gap-2 text-xs text-gray-600">
+                  <div
+                    key={index}
+                    className="flex items-start gap-2 text-xs text-gray-600"
+                  >
                     <div className="w-1 h-1 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
                     <span>{issue}</span>
                   </div>
                 ))}
                 {quality.issues.length > 3 && (
-                  <div className="text-xs text-gray-500">+{quality.issues.length - 3} more issues</div>
+                  <div className="text-xs text-gray-500">
+                    +{quality.issues.length - 3} more issues
+                  </div>
                 )}
               </div>
             </div>
@@ -191,10 +259,16 @@ export function DataQualityIndicator() {
             <div className="text-xs text-gray-600">
               <p className="font-medium mb-1">Recommendations:</p>
               <ul className="space-y-1">
-                {quality.score < 80 && (<li>• Complete missing assessment sections</li>)}
-                {quality.score < 60 && (<li>• Add supporting documentation</li>)}
-                {quality.score < 40 && (<li>• Review data accuracy and completeness</li>)}
-                {quality.score >= 80 && (<li>• Data quality is excellent - ready for reporting</li>)}
+                {quality.score < 80 && (
+                  <li>• Complete missing assessment sections</li>
+                )}
+                {quality.score < 60 && <li>• Add supporting documentation</li>}
+                {quality.score < 40 && (
+                  <li>• Review data accuracy and completeness</li>
+                )}
+                {quality.score >= 80 && (
+                  <li>• Data quality is excellent - ready for reporting</li>
+                )}
               </ul>
             </div>
           </div>
