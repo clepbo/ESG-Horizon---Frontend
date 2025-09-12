@@ -48,8 +48,10 @@ export type SignupFormData = z.infer<typeof signupSchema>;
 
 export const SignupForm = ({
   onNext,
+  initialData,
 }: {
   onNext: (data: SignupFormData) => void;
+  initialData: SignupFormData | null;
 }) => {
   const {
     register,
@@ -57,7 +59,10 @@ export const SignupForm = ({
     setError,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<SignupFormData>({ resolver: zodResolver(signupSchema) });
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: initialData || undefined,
+  });
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
