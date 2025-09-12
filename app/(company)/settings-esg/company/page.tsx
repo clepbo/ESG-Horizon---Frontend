@@ -7,15 +7,19 @@ import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import { Company, companyService } from "@/services/company.service";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CompanyPage() {
     const [companyData, setCompanyData] = useState<Company | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useAuth();
 
     const [ifrsS1, setIfrsS1] = useState(true);
     const [ifrsS2, setIfrsS2] = useState(true);
-    const [ifrsS3, setIfrsS3] = useState(true);
+    const [ifrsS3, setIfrsS3] = useState(false);
     const [gri, setGri] = useState(false);
+
+    const isCompanyAdmin = user?.role?.name === "company_esg_admin";
 
     useEffect(() => {
         const fetchCompany = async () => {
@@ -66,10 +70,18 @@ export default function CompanyPage() {
                             International sustainability disclosure standards
                         </p>
                     </div>
-                    <ToggleSwitch
-                        checked={ifrsS1}
-                        onChange={() => setIfrsS1(!ifrsS1)}
-                    />
+                    <div className="relative group">
+                        <ToggleSwitch
+                            checked={ifrsS1}
+                            onChange={() => setIfrsS1(!ifrsS1)}
+                            disabled={!isCompanyAdmin}
+                        />
+                        {!isCompanyAdmin && (
+                            <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                Only Company Admin can switch this
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex justify-between items-center py-3">
@@ -79,12 +91,20 @@ export default function CompanyPage() {
                             International sustainability disclosure standards
                         </p>
                     </div>
-                    <ToggleSwitch
-                        checked={ifrsS2}
-                        onChange={() => setIfrsS2(!ifrsS2)}
-                    />
+                    <div className="relative group">
+                        <ToggleSwitch
+                            checked={ifrsS2}
+                            onChange={() => setIfrsS2(!ifrsS2)}
+                            disabled={!isCompanyAdmin}
+                        />
+                        {!isCompanyAdmin && (
+                            <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                Only Company Admin can switch this
+                            </div>
+                        )}
+                    </div>
                 </div>
-                
+
                 <div className="flex justify-between items-center py-3">
                     <div>
                         <p className="font-medium">IFRS S3</p>
@@ -92,10 +112,18 @@ export default function CompanyPage() {
                             International sustainability disclosure standards
                         </p>
                     </div>
-                    <ToggleSwitch
-                        checked={ifrsS3}
-                        onChange={() => setIfrsS3(!ifrsS3)}
-                    />
+                    <div className="relative group">
+                        <ToggleSwitch
+                            checked={ifrsS3}
+                            onChange={() => setIfrsS3(!ifrsS3)}
+                            disabled={!isCompanyAdmin}
+                        />
+                        {!isCompanyAdmin && (
+                            <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                Only Company Admin can switch this
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex justify-between items-center py-3">
@@ -110,7 +138,18 @@ export default function CompanyPage() {
                             Global Reporting Initiative
                         </p>
                     </div>
-                    <ToggleSwitch checked={gri} onChange={() => setGri(!gri)} />
+                    <div className="relative group">
+                        <ToggleSwitch
+                            checked={gri}
+                            onChange={() => setGri(!gri)}
+                            disabled={!isCompanyAdmin}
+                        />
+                        {!isCompanyAdmin && (
+                            <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                                Only Company Admin can switch this
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

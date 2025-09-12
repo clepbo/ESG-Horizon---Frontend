@@ -66,6 +66,7 @@ export default function InviteUserPage() {
                 width={0}
                 height={0}
                 className="h-20 w-auto object-contain"
+                priority
               />
             </div>
 

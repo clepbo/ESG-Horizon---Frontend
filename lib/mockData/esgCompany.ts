@@ -13,7 +13,7 @@ export interface ESGCompany {
   registrationNumber: string;
   companyPhone: string;
   companyEmail: string;
-  staffStrength: string;
+  staff_strength: string;
   departments: number;
   reportsPublished: number;
   subscriptionCount: number;
@@ -48,7 +48,7 @@ export const mockESGCompanies: ESGCompany[] = [
     registrationNumber: "BKB-001",
     companyPhone: "+1 (555) 321-7654",
     companyEmail: "info@bigkahunaburger.com",
-    staffStrength: "4",
+    staff_strength: "4",
     departments: 25,
     reportsPublished: 5,
     subscriptionCount: 10,

@@ -20,7 +20,7 @@ export interface TeamUser {
   companyPhone?: string;
   website?: string;
   registrationNumber?: string;
-  staffStrength?: string;
+  staff_strength?: string;
   address?: string;
   companyLogo?: string;
 }
@@ -41,7 +41,7 @@ export const teamUsers: TeamUser[] = [
     companyPhone: "555-1000",
     website: "www.teasooconsulting.com",
     registrationNumber: "RC123456",
-    staffStrength: "20",
+    staff_strength: "20",
     address: "4, Oghosa Crescent, Off Ihama, GRA Benin City",
   },
   {
@@ -59,7 +59,7 @@ export const teamUsers: TeamUser[] = [
     companyPhone: "555-1000",
     website: "www.teasooconsulting.com",
     registrationNumber: "RC123456",
-    staffStrength: "20",
+    staff_strength: "20",
     address: "4, Oghosa Crescent, Off Ihama, GRA Benin City",
   },
   {
@@ -77,7 +77,7 @@ export const teamUsers: TeamUser[] = [
     companyPhone: "555-1000",
     website: "www.teasooconsulting.com",
     registrationNumber: "RC123456",
-    staffStrength: "20",
+    staff_strength: "20",
     address: "4, Oghosa Crescent, Off Ihama, GRA Benin City",
   },
   {
@@ -95,7 +95,7 @@ export const teamUsers: TeamUser[] = [
     companyPhone: "555-1000",
     website: "www.teasooconsulting.com",
     registrationNumber: "RC123456",
-    staffStrength: "20",
+    staff_strength: "20",
     address: "4, Oghosa Crescent, Off Ihama, GRA Benin City",
   },
   {
@@ -113,7 +113,7 @@ export const teamUsers: TeamUser[] = [
     companyPhone: "555-1000",
     website: "www.teasooconsulting.com",
     registrationNumber: "RC123456",
-    staffStrength: "20",
+    staff_strength: "20",
     address: "4, Oghosa Crescent, Off Ihama, GRA Benin City",
   },
 ];

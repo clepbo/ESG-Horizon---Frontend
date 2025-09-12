@@ -15,7 +15,7 @@ export interface User {
   companyPhone?: string;
   companyEmail?: string;
   registrationNumber?: string;
-  staffStrength?: string;
+  staff_strength?: string;
   industry?: string;
   activity?: string;
   contactPersonName?: string;
@@ -44,7 +44,7 @@ export const mockUsers: User[] = [
     companyPhone: "+1 (555) 123-4500",
     companyEmail: "info@esgsolutions.com",
     registrationNumber: "ESG-001",
-    staffStrength: "150",
+    staff_strength: "150",
     industry: "Environmental Consulting",
     contactPersonName: "Jane Doe",
     recentActivities: [
@@ -73,7 +73,7 @@ export const mockUsers: User[] = [
     companyPhone: "+1 (555) 987-6500",
     companyEmail: "contact@greeninvestments.com",
     registrationNumber: "GI-002",
-    staffStrength: "75",
+    staff_strength: "75",
     industry: "Finance",
     contactPersonName: "John Smith",
     recentActivities: [
@@ -101,7 +101,7 @@ export const mockUsers: User[] = [
     companyPhone: "+1 (555) 987-6500",
     companyEmail: "contact@yellowinvestments.com",
     registrationNumber: "GI-002",
-    staffStrength: "75",
+    staff_strength: "75",
     industry: "Oil & Gas",
     contactPersonName: "Joan Smith",
     recentActivities: [
@@ -129,7 +129,7 @@ export const mockUsers: User[] = [
     companyPhone: "+1 (555) 987-6500",
     companyEmail: "contact@greeninvestments.com",
     registrationNumber: "GI-002",
-    staffStrength: "75",
+    staff_strength: "75",
     industry: "Retail",
     contactPersonName: "Nancy Smith",
     recentActivities: [

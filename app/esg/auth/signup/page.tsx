@@ -46,7 +46,7 @@ export default function Index() {
       contact_email: orgData.contactEmail,
       contact_phone: orgData.contactPhone,
       company_logo_url: "",
-      staff: "",
+      staff_strength: "",
       website: orgData.website || "",
       role: "",
     };

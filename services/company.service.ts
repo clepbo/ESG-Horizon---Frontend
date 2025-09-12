@@ -20,7 +20,7 @@ export interface Company {
     company_logo_url?: string | null;
     status: "pending" | "active" | "suspended" | "disabled";
     description?: string;
-    staff?: string;
+    staff_strength?: string;
     category?: string;
     company_type?: string;
 }

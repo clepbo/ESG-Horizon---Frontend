@@ -61,6 +61,7 @@ export default function LoginPage() {
                 width={50}
                 height={50}
                 className="h-20 w-auto object-contain"
+                priority
               />
             </div>
 
