@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -16,13 +16,14 @@ import {
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import type { AssessmentData } from "@/hooks/useAssessment";
+import { calculateProgress } from "@/lib/utils";
+import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 
 interface RoadTransportProps {
   onBack: () => void;
   onNext: () => void;
   stepIndex: number;
   totalSteps: number;
-  percent: number;
 }
 
 interface FileMetadata {
@@ -44,7 +45,6 @@ export function RoadTransport({
   onNext,
   stepIndex,
   totalSteps,
-  percent,
 }: RoadTransportProps) {
   const { state, dispatch } = useAssessment();
   const [dieselTruckFuelType, setDieselTruckFuelType] = useState("Diesel");
@@ -110,6 +110,29 @@ export function RoadTransport({
       );
     }
   }, [state.assessmentData.mobileSources?.roadTransport]);
+
+  const { filled, total } = useMemo(() => {
+    const allInputs = [dieselTruckVolume, carPetrolVolume, carDieselVolume];
+
+    const numericProgress = allInputs.map(
+      (value) => value !== "" && Number(value) >= 0
+    );
+
+    const fileProgress = Object.values(files).map((file) => file !== null);
+
+    const progressStatus = [...numericProgress, ...fileProgress];
+
+    const carFuelTypesSelected = carFuelTypes.Petrol || carFuelTypes.Diesel;
+    progressStatus.push(carFuelTypesSelected);
+
+    return calculateProgress(progressStatus);
+  }, [
+    dieselTruckVolume,
+    carPetrolVolume,
+    carDieselVolume,
+    files,
+    carFuelTypes,
+  ]);
 
   const validateForm = () => {
     const newErrors: {
@@ -251,22 +274,13 @@ export function RoadTransport({
 
         <Card className="animate-in slide-in-from-bottom-4 duration-500 bg-gray-50 mt-6 mb-8 pt-6">
           <CardContent className="space-y-8">
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-500">
-                  Section {stepIndex} of {totalSteps}
-                </span>
-                <span className="text-sm font-medium text-gray-500">
-                  {percent}% complete
-                </span>
-              </div>
-              <div className="w-full h-3 bg-green-300 rounded-lg">
-                <div
-                  className="h-3 bg-green-800 rounded transition-all duration-300"
-                  style={{ width: `${percent}%` }}
-                />
-              </div>
-            </div>
+            <AssessmentProgressBar
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
+              fieldsCompleted={filled}
+              totalFields={total}
+              isSubmitted={false}
+            />
 
             <div>
               <h4 className="text-xl font-medium text-foreground">

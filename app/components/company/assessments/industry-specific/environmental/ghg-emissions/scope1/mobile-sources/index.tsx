@@ -14,9 +14,13 @@ interface MobileSourcesFormProps {
 const steps = ["Road Transport", "Vehicle Equipment", "Marine & Aviation"];
 type StepKey = "road-transport" | "vehicle-equipment" | "marine-aviation";
 
-export function MobileSourcesForm({ onBack, onContinueToNextAssessment }: MobileSourcesFormProps) {
+export function MobileSourcesForm({
+  onBack,
+  onContinueToNextAssessment,
+}: MobileSourcesFormProps) {
   const [currentStep, setCurrentStep] = useState<StepKey>("road-transport");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   if (showSuccess) {
     return (
@@ -36,7 +40,6 @@ export function MobileSourcesForm({ onBack, onContinueToNextAssessment }: Mobile
         onNext={() => setCurrentStep("vehicle-equipment")}
         stepIndex={1}
         totalSteps={steps.length}
-        percent={Math.round((1 / steps.length) * 100)}
       />
     );
   }
@@ -48,7 +51,6 @@ export function MobileSourcesForm({ onBack, onContinueToNextAssessment }: Mobile
         onNext={() => setCurrentStep("marine-aviation")}
         stepIndex={2}
         totalSteps={steps.length}
-        percent={Math.round((2 / steps.length) * 100)}
       />
     );
   }
@@ -57,10 +59,13 @@ export function MobileSourcesForm({ onBack, onContinueToNextAssessment }: Mobile
     return (
       <MarineAviation
         onBack={() => setCurrentStep("vehicle-equipment")}
-        onSubmit={() => setShowSuccess(true)}
+        onSubmit={() => {
+          setShowSuccess(true);
+          setIsSubmitted(true);
+        }}
         stepIndex={3}
         totalSteps={steps.length}
-        percent={Math.round((3 / steps.length) * 100)}
+        isSubmitted={isSubmitted}
       />
     );
   }

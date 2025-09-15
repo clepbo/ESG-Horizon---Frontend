@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -8,13 +8,14 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2 } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { calculateProgress } from "@/lib/utils";
+import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 
 interface FlareCombustionProps {
   onBack: () => void;
   onNext: () => void;
   stepIndex: number;
   totalSteps: number;
-  percent: number;
 }
 
 type FormField = "volumeToFlare" | "flareEfficiency" | "gasComposition";
@@ -24,14 +25,14 @@ export function IncompleteFlareCombustion({
   onNext,
   stepIndex,
   totalSteps,
-  percent,
 }: FlareCombustionProps) {
   const {
     state: { assessmentData },
     dispatch,
   } = useAssessment();
 
-  const incompleteCombustion = assessmentData.fugitiveEmissions?.incompleteCombustion;
+  const incompleteCombustion =
+    assessmentData.fugitiveEmissions?.incompleteCombustion;
 
   const [formState, setFormState] = useState<Record<FormField, string>>({
     volumeToFlare: incompleteCombustion?.volumeToFlare?.toString() ?? "",
@@ -47,11 +48,16 @@ export function IncompleteFlareCombustion({
   const inputClass =
     "border border-gray-300 rounded px-3 py-1 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent w-full";
 
-  // Type guard to ensure valid keys when indexing formState and errors
   function isFormField(key: string): key is FormField {
     return ["volumeToFlare", "flareEfficiency", "gasComposition"].includes(key);
   }
+  const { filled, total } = useMemo(() => {
+    const allInputs = Object.values(formState);
 
+    const progressStatus = allInputs.map((value) => value !== "");
+
+    return calculateProgress(progressStatus);
+  }, [formState]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (isFormField(name) && /^\d*\.?\d*$/.test(value)) {
@@ -150,17 +156,22 @@ export function IncompleteFlareCombustion({
 
         <Card className="animate-in slide-in-from-bottom-4 duration-500 bg-gray-50 pt-6 pb-8">
           <CardContent className="space-y-8">
-            <div className="flex justify-between items-center mb-6">
-              <span className="text-sm font-medium text-gray-500">
-                Section {stepIndex} of {totalSteps}
-              </span>
-              <span className="text-sm font-medium text-gray-500">
-                {percent}% complete
-              </span>
-            </div>
+            <AssessmentProgressBar
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
+              fieldsCompleted={filled}
+              totalFields={total}
+              isSubmitted={false}
+            />
 
             <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-              {(["volumeToFlare", "flareEfficiency", "gasComposition"] as FormField[]).map((field) => {
+              {(
+                [
+                  "volumeToFlare",
+                  "flareEfficiency",
+                  "gasComposition",
+                ] as FormField[]
+              ).map((field) => {
                 const labelMap: Record<FormField, string> = {
                   volumeToFlare: "Volume of Gas Sent to Flare Stack (m³)",
                   flareEfficiency: "Flare Combustion Efficiency (%)",
@@ -181,13 +192,20 @@ export function IncompleteFlareCombustion({
                       value={formState[field]}
                       onChange={handleChange}
                       className={
-                        errors[field] ? inputClass + " border-red-500" : inputClass
+                        errors[field]
+                          ? inputClass + " border-red-500"
+                          : inputClass
                       }
                       aria-invalid={!!errors[field]}
-                      aria-describedby={errors[field] ? `${field}-error` : undefined}
+                      aria-describedby={
+                        errors[field] ? `${field}-error` : undefined
+                      }
                     />
                     {errors[field] && (
-                      <p className="text-red-600 text-xs mt-1" id={`${field}-error`}>
+                      <p
+                        className="text-red-600 text-xs mt-1"
+                        id={`${field}-error`}
+                      >
                         {errors[field]}
                       </p>
                     )}
@@ -198,7 +216,8 @@ export function IncompleteFlareCombustion({
                     )}
                     {field === "flareEfficiency" && (
                       <p className="text-gray-600 text-xs mt-1">
-                        Enter the efficiency rate (or use standard factor if direct measurement is unavailable).
+                        Enter the efficiency rate (or use standard factor if
+                        direct measurement is unavailable).
                       </p>
                     )}
                     {field === "gasComposition" && (
