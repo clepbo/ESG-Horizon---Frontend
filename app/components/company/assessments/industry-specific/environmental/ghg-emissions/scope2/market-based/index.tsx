@@ -31,6 +31,7 @@ export function MarketBasedForm({
 }: MarketBasedFormProps) {
   const [currentStep, setCurrentStep] = useState<StepKey>("electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -49,7 +50,6 @@ export function MarketBasedForm({
         onNext={() => setCurrentStep("electricityEAC")}
         stepIndex={1}
         totalSteps={steps.length}
-        percent={Math.round(((1 - 1) / steps.length) * 100)}
       />
     );
   }
@@ -61,7 +61,6 @@ export function MarketBasedForm({
         onNext={() => setCurrentStep("residual")}
         stepIndex={2}
         totalSteps={steps.length}
-        percent={Math.round(((2 - 1) / steps.length) * 100)}
       />
     );
   }
@@ -73,7 +72,6 @@ export function MarketBasedForm({
         onNext={() => setCurrentStep("coolingSteam")}
         stepIndex={3}
         totalSteps={steps.length}
-        percent={Math.round(((3 - 1) / steps.length) * 100)}
       />
     );
   }
@@ -82,10 +80,13 @@ export function MarketBasedForm({
     return (
       <CoolingSteamForm
         onBack={() => setCurrentStep("residual")}
-        onSubmit={() => setShowSuccess(true)}
+        onSubmit={() => {
+          setShowSuccess(true);
+          setIsSubmitted(true);
+        }}
         stepIndex={4}
         totalSteps={steps.length}
-        percent={Math.round(((4 - 1) / steps.length) * 100)}
+        isSubmitted={isSubmitted}
       />
     );
   }
