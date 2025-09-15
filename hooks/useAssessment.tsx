@@ -1,14 +1,33 @@
 "use client";
 
-import { FileData } from "@/app/components/company/assessments/AdditionalFileUpload";
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import React, {
   createContext,
   useContext,
   useReducer,
   type ReactNode,
 } from "react";
+import {
+  CreateLocationBasedPayload,
+  locationBasedService,
+} from "@/services/locationBased.service";
+
+// Define the type for the error response
+interface ErrorResponse {
+  message: string;
+}
+
+export interface FileData {
+  name: string;
+  isDeleting?: boolean;
+  url: string | null;
+  publicId: string | null;
+  size: number;
+  lastModified: number;
+}
 
 export interface FileMetadata {
+  file: File;
   name: string;
   size: number;
   lastModified: number;
@@ -18,6 +37,7 @@ export interface FileMetadata {
 }
 
 export interface AssessmentData {
+  // ... (Your existing AssessmentData interface remains unchanged)
   subsidiary: string;
   startMonth: string;
   startYear: string;
@@ -163,14 +183,12 @@ export interface AssessmentData {
   // Scope 2
   electricity?: {
     electricityConsumed: string;
-    // reportingPeriod: string;
     supplier: string;
     files?: { [key: string]: FileMetadata | null };
     additionalFields?: FileData[];
   };
   cooling?: {
     coolingConsumed: string;
-    // reportingPeriod: string;
     selectedSystems: string[];
     otherComments: string;
     files?: { [key: string]: FileMetadata | null };
@@ -178,7 +196,6 @@ export interface AssessmentData {
   };
   steam?: {
     volume: string;
-    // reportingPeriod: string;
     selectedSources: string[];
     otherComments: string;
     files?: { [key: string]: FileMetadata | null };
@@ -808,10 +825,24 @@ function assessmentReducer(
 export const AssessmentContext = createContext<{
   state: AssessmentState;
   dispatch: React.Dispatch<AssessmentAction>;
+  submitAssessment: (payload: CreateLocationBasedPayload) => void;
+  isSubmitting: boolean;
+  submitError: ErrorResponse | null;
+  isSubmitSuccess: boolean;
 } | null>(null);
 
 export function AssessmentProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(assessmentReducer, initialState);
+
+  // Use the useMutation hook here
+  const {
+    mutate: submitAssessment,
+    isPending: isSubmitting,
+    isSuccess: isSubmitSuccess,
+    error: submitError,
+  } = useMutation({
+    mutationFn: locationBasedService.createLocationBased,
+  });
 
   React.useEffect(() => {
     dispatch({ type: "SET_LOADING", payload: true });
@@ -831,11 +862,21 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AssessmentContext.Provider value={{ state, dispatch }}>
+    <AssessmentContext.Provider
+      value={{
+        state,
+        dispatch,
+        submitAssessment,
+        isSubmitting,
+        submitError: submitError as ErrorResponse | null,
+        isSubmitSuccess,
+      }}
+    >
       {children}
     </AssessmentContext.Provider>
   );
 }
+
 export function useAssessment() {
   const context = useContext(AssessmentContext);
   if (!context) {
