@@ -24,14 +24,15 @@ export const formatRole = (role: string) => {
 };
 
 const roleMappings: Record<string, string> = {
-  super_admin: "Super Admin",
-  platform_admin: "Platform Subadmin",
-  platform_data_officer: "Platform Data Officer",
-  platform_viewer: "Platform Viewer",
-  company_esg_admin: "Company Admin",
-  company_esg_subadmin: "Company Subadmin",
-  company_esg_data_officer: "Company Data Officer",
-  company_esg_viewer: "Company Viewer",
+    super_admin: "Super Admin",
+    platform_admin: "Platform Subadmin",
+    platform_subadmin: "Platform Subadmin",
+    platform_data_officer: "Platform Data Officer",
+    platform_viewer: "Platform Viewer",
+    company_esg_admin: "Company Admin",
+    company_esg_subadmin: "Company Subadmin",
+    company_esg_data_officer: "Company Data Officer",
+    company_esg_viewer: "Company Viewer",
 };
 
 export function formatRoleName(roleKey: string): string {
@@ -63,3 +64,21 @@ export function calculateProgress(
   const filled = fields.filter(Boolean).length;
   return { total, filled };
 }
+
+export const handleAxiosError = (
+    error: unknown,
+    defaultMessage?: string
+): string => {
+    let errorMessage = defaultMessage || "Request Failed. Please try again.";
+    if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as {
+            response?: { data?: { message?: string } };
+        };
+        if (axiosError.response?.data?.message) {
+            errorMessage = axiosError.response.data.message;
+        }
+    } else if (error instanceof Error) {
+        errorMessage = error.message;
+    }
+    return errorMessage;
+};

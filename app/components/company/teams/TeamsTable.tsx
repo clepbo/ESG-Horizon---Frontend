@@ -10,6 +10,7 @@ import EditUserModal from "../../common/users/EditUserModal";
 import RoleDefinitions from "../../settings/RoleDefinitions";
 import { TeamUserStatus, User } from "@/services/user.service";
 import RoleGuard from "@/lib/RoleGuard";
+import { formatRoleName } from "@/lib/utils";
 
 type Props = {
   users: User[];
@@ -121,9 +122,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                 <td className="px-4 py-3">{user.department?.name || "-"}</td>
 
                 <td className="px-4 py-3">
-                  {typeof user.role === "object" && user.role !== null
-                    ? user.role.name || JSON.stringify(user.role)
-                    : user.role}
+                  {formatRoleName(user.role?.name || "")}
                 </td>
 
                 <td className="px-4 py-3">

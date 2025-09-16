@@ -160,19 +160,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 ? localStorage.getItem("isLoggedIn") === "true"
                 : false;
 
-        // On initial load, try to fetch the user profile if a token exists
         if (loading && (accessToken || storedLoginState)) {
             fetchUserProfile();
         } else if (loading) {
-            // No token or stored state, so we're done loading.
             setLoading(false);
         }
 
-        // After loading is complete, handle redirection based on user state
         if (!loading) {
-            const isPublicPage = ["/login", "/signup", "/invite"].some((p) =>
-                pathname.startsWith(p)
-            );
+            const isPublicPage = [
+                "/login",
+                "/signup",
+                "/forgot-password",
+                "/verify-email",
+                "/reset-password",
+            ].some((p) => pathname.startsWith(p));
 
             if (!user) {
                 // Not authenticated, redirect to login page if not already on a public page
@@ -214,7 +215,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
     }, [user, loading, router, pathname, fetchUserProfile]);
 
-    // Helper function to check if a page is valid for the user's role
     const isPageValidForRole = (page: string, role: string): boolean => {
         const platformRoles = [
             "super_admin",

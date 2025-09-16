@@ -25,7 +25,7 @@ const navLinks = [
 
 const settingsSubLinks = [
     { name: "Account", href: "/settings/account" },
-    { name: "Company", href: "/settings/company" },
+    { name: "Company Info", href: "/settings/company" },
     { name: "Teams", href: "/settings/teams" },
     { name: "Departments", href: "/settings/departments" },
 ];

@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Edit } from "lucide-react";
 import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import Header from "@/app/components/layout/Header";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
@@ -63,13 +62,6 @@ export default function CompanyPage() {
                         </p>
                     </div>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 cursor-pointer"
-                >
-                    <Edit className="w-4 h-4" />
-                    Edit
-                </button>
             </div>
 
             {/* Info Card */}
