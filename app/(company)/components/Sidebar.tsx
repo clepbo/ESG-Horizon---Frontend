@@ -23,7 +23,7 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
   { name: "Assessments", href: "/assessments", icon: ClipboardList },
   {
-    name: "Reports & Analytics",
+    name: "Reports",
     href: "/reports-and-analytics",
     icon: BarChart3,
   },

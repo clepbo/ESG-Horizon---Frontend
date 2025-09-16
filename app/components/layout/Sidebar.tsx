@@ -12,7 +12,7 @@ const navLinks = [
     { name: "Dashboard", icon: "/icons/Dashboard.svg", href: "/dashboard" },
     { name: "Company", icon: "/icons/Company.svg", href: "/company" },
     {
-        name: "Reports & Analytics",
+        name: "Reports",
         icon: "/icons/Analytics.svg",
         href: "/reports",
     },

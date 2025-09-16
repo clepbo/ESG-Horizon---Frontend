@@ -28,7 +28,7 @@ describe("Sidebar Component", () => {
     const navItems = [
       "Dashboard",
       "Users",
-      "Reports & Analytics",
+      "Reports",
       "Subscription & Billing",
       "Settings",
     ];

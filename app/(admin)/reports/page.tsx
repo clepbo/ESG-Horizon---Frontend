@@ -17,7 +17,7 @@ export default function ReportsAnalyticsPage() {
         <div className="flex justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
-              Reports & Analytics
+              Reports
             </h1>
             <p className="text-sm text-gray-500">
               View and analyze ESG reports submitted by companies
