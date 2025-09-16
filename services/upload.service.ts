@@ -23,4 +23,12 @@ export const uploadService = {
       throw err;
     }
   },
+  async deleteImage(publicId: string): Promise<void> {
+    try {
+      await api.delete(`/upload/image/${publicId}`);
+    } catch (err: any) {
+      console.error("Delete failed:", err.response?.data || err.message);
+      throw err;
+    }
+  },
 };

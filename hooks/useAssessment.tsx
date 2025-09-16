@@ -1,5 +1,6 @@
 "use client";
 
+import { FileData } from "@/app/components/company/assessments/AdditionalFileUpload";
 import React, {
   createContext,
   useContext,
@@ -11,6 +12,9 @@ export interface FileMetadata {
   name: string;
   size: number;
   lastModified: number;
+  url?: string;
+  publicId?: string;
+  isDeleting?: boolean;
 }
 
 export interface AssessmentData {
@@ -28,17 +32,20 @@ export interface AssessmentData {
       gasFuelType?: string;
       gasVolume?: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     industrialProcesses?: {
       selectedFuelType: string;
       otherFuelType: string;
       fuelVolume: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     oilGasOperations?: {
       selectedFuelType: string;
       fuelVolume: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
   };
   mobileSources?: {
@@ -48,6 +55,7 @@ export interface AssessmentData {
       carPetrolVolume: number;
       carDieselVolume: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     vehicleEquipment?: {
       forkliftFuelType: string;
@@ -57,6 +65,7 @@ export interface AssessmentData {
       tractorFuelType: string;
       tractorVolume: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     marineAviation?: {
       helicopterFuelType: string;
@@ -65,6 +74,7 @@ export interface AssessmentData {
       otherFuelType: string;
       vesselVolume: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
   };
   processEmissions?: {
@@ -73,26 +83,31 @@ export interface AssessmentData {
       calciumOxide: number;
       magnesiumOxide: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     fertilizerEmissions?: {
       products: { [product: string]: number };
       feedstock: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     gasFlaring?: {
       gasVolume: number;
       carbonContent: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     entericFermentation?: {
       animals: { [type: string]: number };
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     methaneNitrousOxide?: {
       animals: { [type: string]: number };
       manureSystem: string;
       otherManureSystem: string;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
   };
   fugitiveEmissions?: {
@@ -110,6 +125,7 @@ export interface AssessmentData {
       others: number;
       methanePercent: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     ventingNaturalGas?: {
       volumeOfGasVented: number;
@@ -123,6 +139,7 @@ export interface AssessmentData {
       hydrogenSulfide: number;
       others: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
     incompleteCombustion?: {
       volumeToFlare: number;
@@ -139,6 +156,7 @@ export interface AssessmentData {
       manureSystem: string;
       refrigerantAdded: number;
       files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileData[];
     };
   };
 
@@ -148,6 +166,7 @@ export interface AssessmentData {
     // reportingPeriod: string;
     supplier: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   cooling?: {
     coolingConsumed: string;
@@ -155,6 +174,7 @@ export interface AssessmentData {
     selectedSystems: string[];
     otherComments: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   steam?: {
     volume: string;
@@ -162,32 +182,38 @@ export interface AssessmentData {
     selectedSources: string[];
     otherComments: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   heating?: {
     heatingPurchased: string;
     heatingConsumed: string;
     supplierName: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   ipps?: {
     electricityConsumed: string;
     emissionFactor: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   eac?: {
     gridElectricity: string;
     emissionFactor: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   residual?: {
     electricityConsumed: string;
     residualMixFactor: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
   coolingSteam?: {
     energyConsumed: string;
     emissionFactor: string;
     files?: { [key: string]: FileMetadata | null };
+    additionalFields?: FileData[];
   };
 }
 
@@ -810,7 +836,6 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     </AssessmentContext.Provider>
   );
 }
-
 export function useAssessment() {
   const context = useContext(AssessmentContext);
   if (!context) {
