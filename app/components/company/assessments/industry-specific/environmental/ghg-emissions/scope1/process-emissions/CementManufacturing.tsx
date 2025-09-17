@@ -167,7 +167,7 @@ export function CementManufacturing({
             />
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-4 block">
-                1.1 CO2 from Calcination in Cement Manufacturing
+                1.1 Cement Manufacturing
               </Label>
               <div className="space-y-6 ml-6">
                 <div className="space-y-4">
