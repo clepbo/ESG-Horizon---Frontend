@@ -5,13 +5,20 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import type { AssessmentData } from "@/hooks/useAssessment";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
+import {
+  getFuelOptions,
+  unitOptions,
+  type FuelOption,
+} from "@/lib/fuelDataFile";
+import {
+  AddSource,
+  SourceData,
+} from "@/app/components/company/assessments/AddSource";
 
 interface MarineAviationProps {
   onBack: () => void;
@@ -42,136 +49,106 @@ export function MarineAviation({
   isSubmitted,
 }: MarineAviationProps) {
   const { state, dispatch } = useAssessment();
-  const [helicopterFuelType, setHelicopterFuelType] = useState(
-    "Aviation Turbine Fuel (Jet A-1)"
-  );
-  const [helicopterVolume, setHelicopterVolume] = useState("");
-  const [vesselFuelType, setVesselFuelType] = useState(
-    "Marine Diesel Oil (MDO)"
-  );
-  const [otherFuelType, setOtherFuelType] = useState("");
-  const [vesselVolume, setVesselVolume] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
-    helicopterFuelType?: string;
-    helicopterVolume?: string;
-    vesselFuelType?: string;
-    otherFuelType?: string;
-    vesselVolume?: string;
+    air?: string;
+    marine?: string;
     files?: string;
   }>({});
 
-  // useEffect(() => {
-  //     const existingData =
-  //         state.assessmentData.mobileSources?.marineAviation ||
-  //         JSON.parse(localStorage.getItem("esg-assessment-data") || "{}")
-  //             .mobileSources?.marineAviation ||
-  //         {};
-  //     if (existingData) {
-  //         setHelicopterFuelType(
-  //             existingData.helicopterFuelType ||
-  //                 "Aviation Turbine Fuel (Jet A-1)"
-  //         );
-  //         setHelicopterVolume(existingData.helicopterVolume || "");
-  //         setVesselFuelType(
-  //             existingData.vesselFuelType || "Marine Diesel Oil (MDO)"
-  //         );
-  //         setOtherFuelType(existingData.otherFuelType || "");
-  //         setVesselVolume(existingData.vesselVolume || "");
-  //         setFiles(
-  //             existingData.files ||
-  //                 Object.fromEntries(
-  //                     uploadFields.map((field) => [field, null])
-  //                 )
-  //         );
-  //     }
-  // }, [state.assessmentData.mobileSources?.marineAviation]);
+  const airOptions = useMemo(() => getFuelOptions("air"), []);
+  const marineOptions = useMemo(() => getFuelOptions("marine"), []);
+
+  const getInitialSources = (
+    existingSources: SourceData[] | undefined,
+    fuelOptions: FuelOption[]
+  ) => {
+    if (existingSources && existingSources.length > 0) {
+      return existingSources;
+    }
+    const defaultFuel = fuelOptions[0] || {
+      value: "",
+      emissionFactor: 0,
+      source: "N/A",
+    };
+    return [
+      {
+        id: "initial-" + Date.now().toString(),
+        fuelType: defaultFuel.value,
+        volume: "",
+        unit: unitOptions[0]?.value || "",
+        emissionFactor: defaultFuel.emissionFactor,
+        source: defaultFuel.source,
+      },
+    ];
+  };
+
+  const [air, setAir] = useState<SourceData[]>(() =>
+    getInitialSources(
+      state.assessmentData.mobileSources?.marineAviation?.air,
+      airOptions
+    )
+  );
+
+  const [marine, setMarine] = useState<SourceData[]>(() =>
+    getInitialSources(
+      state.assessmentData.mobileSources?.marineAviation?.marine,
+      marineOptions
+    )
+  );
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources
-      ?.marineAviation as NonNullable<
-      AssessmentData["mobileSources"]
-    >["marineAviation"];
+    const existingData = state.assessmentData.mobileSources?.marineAviation;
     if (existingData) {
-      setHelicopterFuelType(
-        existingData.helicopterFuelType ?? "Aviation Turbine Fuel (Jet A-1)"
-      );
-      setHelicopterVolume(existingData.helicopterVolume?.toString() ?? "");
-      setVesselFuelType(
-        existingData.vesselFuelType ?? "Marine Diesel Oil (MDO)"
-      );
-      setOtherFuelType(existingData.otherFuelType ?? "");
-      setVesselVolume(existingData.vesselVolume?.toString() ?? "");
+      setAir(existingData.air || getInitialSources([], airOptions));
+      setMarine(existingData.marine || getInitialSources([], marineOptions));
       setFiles(
-        existingData.files ??
+        existingData.files ||
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
-  }, [state.assessmentData.mobileSources?.marineAviation]);
-  const { filled, total } = useMemo(() => {
-    const allInputs = [helicopterVolume, vesselVolume];
+  }, [
+    state.assessmentData.mobileSources?.marineAviation,
+    airOptions,
+    marineOptions,
+  ]);
 
-    const numericProgress = allInputs.map(
-      (value) => value !== "" && Number(value) >= 0
+  const { filled, total } = useMemo(() => {
+    const hasAirData = air.some(
+      (s) => s.volume && parseFloat(s.volume.toString()) > 0
+    );
+    const hasMarineData = marine.some(
+      (s) => s.volume && parseFloat(s.volume.toString()) > 0
     );
 
-    const fileProgress = Object.values(files).map((file) => file !== null);
+    const hasFileUploaded = Object.values(files).some(Boolean);
+    const progressChecks = [hasAirData, hasMarineData, hasFileUploaded];
 
-    const fuelTypeProgress = [helicopterFuelType !== "", vesselFuelType !== ""];
-
-    const progressStatus = [
-      ...numericProgress,
-      ...fileProgress,
-      ...fuelTypeProgress,
-    ];
-
-    return calculateProgress(progressStatus);
-  }, [
-    helicopterVolume,
-    vesselVolume,
-    files,
-    helicopterFuelType,
-    vesselFuelType,
-  ]);
+    return calculateProgress(progressChecks);
+  }, [air, marine, files]);
 
   const validateForm = () => {
     const newErrors: {
-      helicopterFuelType?: string;
-      helicopterVolume?: string;
-      vesselFuelType?: string;
-      otherFuelType?: string;
-      vesselVolume?: string;
+      air?: string;
+      marine?: string;
       files?: string;
     } = {};
 
-    if (!helicopterFuelType) {
-      newErrors.helicopterFuelType =
-        "Please select a fuel type for helicopters";
-    }
-    if (!helicopterVolume) {
-      newErrors.helicopterVolume =
-        "Please enter the fuel volume for helicopters";
-    } else if (
-      isNaN(Number(helicopterVolume)) ||
-      Number(helicopterVolume) < 0
-    ) {
-      newErrors.helicopterVolume = "Please enter a valid positive number";
+    const hasValidAir = air.some((s) => s.volume && Number(s.volume) > 0);
+    const hasValidMarine = marine.some((s) => s.volume && Number(s.volume) > 0);
+
+    if (!hasValidAir) {
+      newErrors.air =
+        "Please add at least one fuel source with a positive volume for air.";
     }
 
-    if (!vesselFuelType) {
-      newErrors.vesselFuelType = "Please select a fuel type for vessels";
-    }
-    if (vesselFuelType === "Other Fuels" && !otherFuelType.trim()) {
-      newErrors.otherFuelType = "Please specify the other fuel type";
-    }
-    if (!vesselVolume) {
-      newErrors.vesselVolume = "Please enter the fuel volume for vessels";
-    } else if (isNaN(Number(vesselVolume)) || Number(vesselVolume) < 0) {
-      newErrors.vesselVolume = "Please enter a valid positive number";
+    if (!hasValidMarine) {
+      newErrors.marine =
+        "Please add at least one fuel source with a positive volume for marine.";
     }
 
     setErrors(newErrors);
@@ -210,11 +187,8 @@ export function MarineAviation({
 
     setIsSaving(true);
     const payload = {
-      helicopterFuelType,
-      helicopterVolume: Number(helicopterVolume),
-      vesselFuelType,
-      otherFuelType: vesselFuelType === "Other Fuels" ? otherFuelType : "",
-      vesselVolume: Number(vesselVolume),
+      air,
+      marine,
       files,
     };
     dispatch({
@@ -230,11 +204,8 @@ export function MarineAviation({
   const handleSubmit = () => {
     if (!validateForm()) return;
     const payload = {
-      helicopterFuelType,
-      helicopterVolume: Number(helicopterVolume),
-      vesselFuelType,
-      otherFuelType: vesselFuelType === "Other Fuels" ? otherFuelType : "",
-      vesselVolume: Number(vesselVolume),
+      air,
+      marine,
       files,
     };
     dispatch({
@@ -276,7 +247,7 @@ export function MarineAviation({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              isSubmitted={isSubmitted}
             />
 
             <div>
@@ -296,78 +267,16 @@ export function MarineAviation({
                 Offshore Oil Platforms
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Type of Fuel</Label>
-                <RadioGroup
-                  value={helicopterFuelType}
-                  onValueChange={(value) => {
-                    setHelicopterFuelType(value);
-                    if (errors.helicopterFuelType) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        helicopterFuelType: undefined,
-                      }));
-                    }
-                  }}
-                  className={`flex flex-col space-y-2 ${
-                    errors.helicopterFuelType
-                      ? "border-red-500 p-2 rounded"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value="Aviation Turbine Fuel (Jet A-1)"
-                      id="jet-a1"
-                    />
-                    <Label htmlFor="jet-a1">
-                      Aviation Turbine Fuel (Jet A-1)
-                    </Label>
-                  </div>
-                </RadioGroup>
-                {errors.helicopterFuelType && (
-                  <p className="text-sm text-red-500">
-                    {errors.helicopterFuelType}
-                  </p>
-                )}
-
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="helicopter-volume">
-                    Volume of Fuel Consumed (Litres)
-                  </Label>
-                  <Input
-                    id="helicopter-volume"
-                    type="number"
-                    placeholder="Enter volume of fuel consumed"
-                    value={helicopterVolume}
-                    onChange={(e) => {
-                      setHelicopterVolume(e.target.value);
-                      if (errors.helicopterVolume) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          helicopterVolume: undefined,
-                        }));
-                      }
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.helicopterVolume
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.helicopterVolume
-                        ? "helicopter-volume-error"
-                        : undefined
-                    }
-                  />
-                  {errors.helicopterVolume && (
-                    <p
-                      id="helicopter-volume-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.helicopterVolume}
-                    </p>
-                  )}
-                </div>
+                <AddSource
+                  title="Fuel Sources"
+                  fuelTypeOptions={airOptions}
+                  unitOptions={unitOptions}
+                  sources={air}
+                  onSourcesChange={setAir}
+                  volumeLabel="Volume of Fuel Consumed"
+                  volumePlaceholder="Enter volume consumed"
+                  error={errors.air}
+                />
               </div>
             </div>
 
@@ -378,123 +287,16 @@ export function MarineAviation({
                 Delta and Offshore Subsidiaries
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Type of Fuel</Label>
-                <RadioGroup
-                  value={vesselFuelType}
-                  onValueChange={(value) => {
-                    setVesselFuelType(value);
-                    if (value !== "Other Fuels") {
-                      setOtherFuelType("");
-                      setErrors((prev) => ({
-                        ...prev,
-                        otherFuelType: undefined,
-                      }));
-                    }
-                    if (errors.vesselFuelType) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        vesselFuelType: undefined,
-                      }));
-                    }
-                  }}
-                  className={`flex flex-col space-y-2 ${
-                    errors.vesselFuelType ? "border-red-500 p-2 rounded" : ""
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Marine Diesel Oil (MDO)" id="mdo" />
-                    <Label htmlFor="mdo">Marine Diesel Oil (MDO)</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Other Fuels" id="other-fuels" />
-                    <Label htmlFor="other-fuels">
-                      Other Fuels (specify type)
-                    </Label>
-                  </div>
-                </RadioGroup>
-                {errors.vesselFuelType && (
-                  <p className="text-sm text-red-500">
-                    {errors.vesselFuelType}
-                  </p>
-                )}
-
-                {vesselFuelType === "Other Fuels" && (
-                  <div className="space-y-2 mt-4">
-                    <Label htmlFor="other-fuel-type">
-                      Specify Other Fuel Type
-                    </Label>
-                    <Input
-                      id="other-fuel-type"
-                      type="text"
-                      placeholder="Enter fuel type"
-                      value={otherFuelType}
-                      onChange={(e) => {
-                        setOtherFuelType(e.target.value);
-                        if (errors.otherFuelType) {
-                          setErrors((prev) => ({
-                            ...prev,
-                            otherFuelType: undefined,
-                          }));
-                        }
-                      }}
-                      className={`w-full border-gray-400 ${
-                        errors.otherFuelType
-                          ? "border-red-500 focus:border-red-500"
-                          : ""
-                      }`}
-                      aria-describedby={
-                        errors.otherFuelType
-                          ? "other-fuel-type-error"
-                          : undefined
-                      }
-                    />
-                    {errors.otherFuelType && (
-                      <p
-                        id="other-fuel-type-error"
-                        className="text-sm text-red-500"
-                      >
-                        {errors.otherFuelType}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="vessel-volume">
-                    Volume of Fuel Consumed (Litres)
-                  </Label>
-                  <Input
-                    id="vessel-volume"
-                    type="number"
-                    placeholder="Enter volume of fuel consumed"
-                    value={vesselVolume}
-                    onChange={(e) => {
-                      setVesselVolume(e.target.value);
-                      if (errors.vesselVolume) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          vesselVolume: undefined,
-                        }));
-                      }
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.vesselVolume
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.vesselVolume ? "vessel-volume-error" : undefined
-                    }
-                  />
-                  {errors.vesselVolume && (
-                    <p
-                      id="vessel-volume-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.vesselVolume}
-                    </p>
-                  )}
-                </div>
+                <AddSource
+                  title="Fuel Sources"
+                  fuelTypeOptions={airOptions}
+                  unitOptions={unitOptions}
+                  sources={marine}
+                  onSourcesChange={setMarine}
+                  volumeLabel="Volume of Fuel Consumed"
+                  volumePlaceholder="Enter volume consumed"
+                  error={errors.marine}
+                />
               </div>
             </div>
 
@@ -513,7 +315,7 @@ export function MarineAviation({
                       <Label className="text-sm font-medium mb-1 ml-1">
                         {field}
                       </Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all h-32">
+                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all h-32">
                         <Label
                           htmlFor={`upload-${field
                             .replace(/\s/g, "-")

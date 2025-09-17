@@ -36,68 +36,55 @@ const uploadFields = [
   "Kiln operation logs",
 ];
 
-export function CO2Release({
+export function CementManufacturing({
   onBack,
   onNext,
   stepIndex,
   totalSteps,
 }: CO2ReleaseProps) {
   const { state, dispatch } = useAssessment();
-  const [clinkerQuantity, setClinkerQuantity] = useState<number>(0);
-  const [calciumOxide, setCalciumOxide] = useState<number>(0);
-  const [magnesiumOxide, setMagnesiumOxide] = useState<number>(0);
+  const [cementQuantity, setCementQuantity] = useState<number>(0);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
-    clinkerQuantity?: string;
+    cementQuantity?: string;
     calciumOxide?: string;
     magnesiumOxide?: string;
     files?: string;
   }>({});
 
   useEffect(() => {
-    const existingData = state.assessmentData.processEmissions?.co2Release;
+    const existingData =
+      state.assessmentData.processEmissions?.cementManufacturing;
     if (existingData) {
-      setClinkerQuantity(existingData.clinkerQuantity);
-      setCalciumOxide(existingData.calciumOxide);
-      setMagnesiumOxide(existingData.magnesiumOxide);
+      setCementQuantity(existingData.cementQuantity);
       setFiles(
         existingData.files ||
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
-  }, [state.assessmentData.processEmissions?.co2Release]);
+  }, [state.assessmentData.processEmissions?.cementManufacturing]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      clinkerQuantity > 0,
-      calciumOxide > 0,
-      magnesiumOxide > 0,
+      cementQuantity > 0,
       ...Object.values(files).map(Boolean),
     ]);
-  }, [clinkerQuantity, calciumOxide, magnesiumOxide, files]);
+  }, [cementQuantity, files]);
 
   const validateForm = () => {
     const newErrors: {
-      clinkerQuantity?: string;
-      calciumOxide?: string;
-      magnesiumOxide?: string;
+      cementQuantity?: string;
       files?: string;
     } = {};
-    if (clinkerQuantity <= 0) {
-      newErrors.clinkerQuantity =
-        "Please enter a positive quantity of clinker produced";
+    if (cementQuantity <= 0) {
+      newErrors.cementQuantity =
+        "Please enter a positive quantity of cement produced";
     }
-    if (calciumOxide <= 0) {
-      newErrors.calciumOxide = "Please enter a positive calcium oxide content";
-    }
-    if (magnesiumOxide <= 0) {
-      newErrors.magnesiumOxide =
-        "Please enter a positive magnesium oxide content";
-    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -131,8 +118,8 @@ export function CO2Release({
     if (!validateForm()) return;
     setIsSaving(true);
     dispatch({
-      type: "UPDATE_PROCESS_CO2_RELEASE",
-      payload: { clinkerQuantity, calciumOxide, magnesiumOxide, files },
+      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
+      payload: { cementQuantity, files },
     });
     dispatch({ type: "SAVE_PROGRESS" });
     setIsSaving(false);
@@ -185,116 +172,40 @@ export function CO2Release({
               <div className="space-y-6 ml-6">
                 <div className="space-y-4">
                   <Label
-                    htmlFor="clinker-quantity"
+                    htmlFor="cement-quantity"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Quantity of Clinker Produced (Tonnes)
+                    Quantity of Cement Produced (Tonnes)
                   </Label>
                   <Input
-                    id="clinker-quantity"
+                    id="cement-quantity"
                     type="number"
-                    placeholder="Enter quantity of clinker produced"
-                    value={clinkerQuantity || ""}
+                    placeholder="Enter quantity of cement produced"
+                    value={cementQuantity || ""}
                     onChange={(e) => {
-                      setClinkerQuantity(Number(e.target.value));
+                      setCementQuantity(Number(e.target.value));
                       setErrors((prev) => ({
                         ...prev,
-                        clinkerQuantity: undefined,
+                        cementQuantity: undefined,
                       }));
                     }}
                     className={`w-full border-gray-400 ${
-                      errors.clinkerQuantity
+                      errors.cementQuantity
                         ? "border-red-500 focus:border-red-500"
                         : ""
                     }`}
                     aria-describedby={
-                      errors.clinkerQuantity
-                        ? "clinker-quantity-error"
+                      errors.cementQuantity
+                        ? "cement-quantity-error"
                         : undefined
                     }
                   />
-                  {errors.clinkerQuantity && (
+                  {errors.cementQuantity && (
                     <p
-                      id="clinker-quantity-error"
+                      id="cement-quantity-error"
                       className="text-sm text-red-500"
                     >
-                      {errors.clinkerQuantity}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-4">
-                  <Label
-                    htmlFor="calcium-oxide"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Calcium Oxide Content (Tonnes)
-                  </Label>
-                  <Input
-                    id="calcium-oxide"
-                    type="number"
-                    placeholder="Enter calcium oxide content"
-                    value={calciumOxide || ""}
-                    onChange={(e) => {
-                      setCalciumOxide(Number(e.target.value));
-                      setErrors((prev) => ({
-                        ...prev,
-                        calciumOxide: undefined,
-                      }));
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.calciumOxide
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.calciumOxide ? "calcium-oxide-error" : undefined
-                    }
-                  />
-                  {errors.calciumOxide && (
-                    <p
-                      id="calcium-oxide-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.calciumOxide}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-4">
-                  <Label
-                    htmlFor="magnesium-oxide"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Magnesium Oxide Content (Tonnes)
-                  </Label>
-                  <Input
-                    id="magnesium-oxide"
-                    type="number"
-                    placeholder="Enter magnesium oxide content"
-                    value={magnesiumOxide || ""}
-                    onChange={(e) => {
-                      setMagnesiumOxide(Number(e.target.value));
-                      setErrors((prev) => ({
-                        ...prev,
-                        magnesiumOxide: undefined,
-                      }));
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.magnesiumOxide
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.magnesiumOxide
-                        ? "magnesium-oxide-error"
-                        : undefined
-                    }
-                  />
-                  {errors.magnesiumOxide && (
-                    <p
-                      id="magnesium-oxide-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.magnesiumOxide}
+                      {errors.cementQuantity}
                     </p>
                   )}
                 </div>
@@ -314,7 +225,7 @@ export function CO2Release({
                       <Label className="text-sm font-medium text-gray-700">
                         {field}
                       </Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all h-32">
+                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all h-32">
                         <Label
                           htmlFor={`upload-${field
                             .replace(/\s/g, "-")

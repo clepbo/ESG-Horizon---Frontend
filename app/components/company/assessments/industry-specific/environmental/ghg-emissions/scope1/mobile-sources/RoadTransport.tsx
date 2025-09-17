@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import {
   ArrowLeft,
   Save,
@@ -15,9 +14,17 @@ import {
 } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import type { AssessmentData } from "@/hooks/useAssessment";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  getFuelOptions,
+  unitOptions,
+  type FuelOption,
+} from "@/lib/fuelDataFile";
+import {
+  AddSource,
+  SourceData,
+} from "@/app/components/company/assessments/AddSource";
 
 interface RoadTransportProps {
   onBack: () => void;
@@ -47,139 +54,119 @@ export function RoadTransport({
   totalSteps,
 }: RoadTransportProps) {
   const { state, dispatch } = useAssessment();
-  const [dieselTruckFuelType, setDieselTruckFuelType] = useState("Diesel");
-  const [dieselTruckVolume, setDieselTruckVolume] = useState("");
-  const [carFuelTypes, setCarFuelTypes] = useState<{
-    Petrol: boolean;
-    Diesel: boolean;
-  }>({
-    Petrol: false,
-    Diesel: false,
-  });
-  const [carPetrolVolume, setCarPetrolVolume] = useState("");
-  const [carDieselVolume, setCarDieselVolume] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
-    dieselTruckFuelType?: string;
-    dieselTruckVolume?: string;
-    carFuelTypes?: string;
-    carPetrolVolume?: string;
-    carDieselVolume?: string;
+    vehicleFleet?: string;
+    carsBuses?: string;
     files?: string;
   }>({});
 
-  // useEffect(() => {
-  //   const existingData =
-  //     state.assessmentData.mobileSources?.roadTransport ||
-  //     JSON.parse(localStorage.getItem("esg-assessment-data") || "{}").mobileSources?.roadTransport ||
-  //     {};
-  //   if (existingData) {
-  //     setDieselTruckFuelType(existingData.dieselTruckFuelType || "Diesel");
-  //     setDieselTruckVolume(existingData.dieselTruckVolume || "");
-  //     setCarFuelTypes({
-  //       Petrol: !!existingData.carPetrolVolume,
-  //       Diesel: !!existingData.carDieselVolume,
-  //     });
-  //     setCarPetrolVolume(existingData.carPetrolVolume || "");
-  //     setCarDieselVolume(existingData.carDieselVolume || "");
-  //     setFiles(existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null])));
-  //   }
-  // }, [state.assessmentData.mobileSources?.roadTransport]);
+  const vehicleFleetOptions = useMemo(() => getFuelOptions("vehicleFleet"), []);
+  const carsBusesOptions = useMemo(() => getFuelOptions("carsBuses"), []);
+
+  const getInitialSources = (
+    existingSources: SourceData[] | undefined,
+    fuelOptions: FuelOption[]
+  ) => {
+    if (existingSources && existingSources.length > 0) {
+      return existingSources;
+    }
+    const defaultFuel = fuelOptions[0] || {
+      value: "",
+      emissionFactor: 0,
+      source: "N/A",
+    };
+    return [
+      {
+        id: "initial-" + Date.now().toString(),
+        fuelType: defaultFuel.value,
+        volume: "",
+        unit: unitOptions[0]?.value || "",
+        emissionFactor: defaultFuel.emissionFactor,
+        source: defaultFuel.source,
+      },
+    ];
+  };
+
+  const [vehicleFleet, setVehicleFleet] = useState<SourceData[]>(() =>
+    getInitialSources(
+      state.assessmentData.mobileSources?.roadTransport?.vehicleFleet,
+      vehicleFleetOptions
+    )
+  );
+
+  const [carsBuses, setCarsBuses] = useState<SourceData[]>(() =>
+    getInitialSources(
+      state.assessmentData.mobileSources?.roadTransport?.carsBuses,
+      carsBusesOptions
+    )
+  );
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources
-      ?.roadTransport as NonNullable<
-      AssessmentData["mobileSources"]
-    >["roadTransport"];
+    const existingData = state.assessmentData.mobileSources?.roadTransport;
     if (existingData) {
-      setDieselTruckFuelType(existingData.dieselTruckFuelType ?? "Diesel");
-      setDieselTruckVolume(existingData.dieselTruckVolume?.toString() ?? "");
-      setCarFuelTypes({
-        Petrol: !!existingData.carPetrolVolume,
-        Diesel: !!existingData.carDieselVolume,
-      });
-      setCarPetrolVolume(existingData.carPetrolVolume?.toString() ?? "");
-      setCarDieselVolume(existingData.carDieselVolume?.toString() ?? "");
+      setVehicleFleet(
+        existingData.vehicleFleet || getInitialSources([], vehicleFleetOptions)
+      );
+      setCarsBuses(
+        existingData.carsBuses || getInitialSources([], carsBusesOptions)
+      );
       setFiles(
-        existingData.files ??
+        existingData.files ||
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
-  }, [state.assessmentData.mobileSources?.roadTransport]);
+  }, [
+    state.assessmentData.mobileSources?.roadTransport,
+    vehicleFleetOptions,
+    carsBusesOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
-    const allInputs = [dieselTruckVolume, carPetrolVolume, carDieselVolume];
-
-    const numericProgress = allInputs.map(
-      (value) => value !== "" && Number(value) >= 0
+    const hasVehicleFleetData = vehicleFleet.some(
+      (s) => s.volume && parseFloat(s.volume.toString()) > 0
+    );
+    const hasCarsBusesData = carsBuses.some(
+      (s) => s.volume && parseFloat(s.volume.toString()) > 0
     );
 
-    const fileProgress = Object.values(files).map((file) => file !== null);
+    const hasFileUploaded = Object.values(files).some(Boolean);
+    const progressChecks = [
+      hasVehicleFleetData,
+      hasCarsBusesData,
+      hasFileUploaded,
+    ];
 
-    const progressStatus = [...numericProgress, ...fileProgress];
-
-    const carFuelTypesSelected = carFuelTypes.Petrol || carFuelTypes.Diesel;
-    progressStatus.push(carFuelTypesSelected);
-
-    return calculateProgress(progressStatus);
-  }, [
-    dieselTruckVolume,
-    carPetrolVolume,
-    carDieselVolume,
-    files,
-    carFuelTypes,
-  ]);
+    return calculateProgress(progressChecks);
+  }, [vehicleFleet, carsBuses, files]);
 
   const validateForm = () => {
     const newErrors: {
-      dieselTruckFuelType?: string;
-      dieselTruckVolume?: string;
-      carFuelTypes?: string;
-      carPetrolVolume?: string;
-      carDieselVolume?: string;
+      vehicleFleet?: string;
+      carsBuses?: string;
       files?: string;
     } = {};
 
-    if (!dieselTruckFuelType) {
-      newErrors.dieselTruckFuelType = "Please select a fuel type for trucks";
-    }
-    if (!dieselTruckVolume) {
-      newErrors.dieselTruckVolume = "Please enter the diesel volume for trucks";
-    } else if (
-      isNaN(Number(dieselTruckVolume)) ||
-      Number(dieselTruckVolume) < 0
-    ) {
-      newErrors.dieselTruckVolume = "Please enter a valid positive number";
+    const hasValidVehicleFleet = vehicleFleet.some(
+      (s) => s.volume && Number(s.volume) > 0
+    );
+    const hasValidCarsBuses = carsBuses.some(
+      (s) => s.volume && Number(s.volume) > 0
+    );
+
+    if (!hasValidVehicleFleet) {
+      newErrors.vehicleFleet =
+        "Please add at least one fuel source with a positive volume for the truck fleet.";
     }
 
-    if (!carFuelTypes.Petrol && !carFuelTypes.Diesel) {
-      newErrors.carFuelTypes =
-        "Please select at least one fuel type for company cars/buses";
+    if (!hasValidCarsBuses) {
+      newErrors.carsBuses =
+        "Please add at least one fuel source with a positive volume for the cars and buses.";
     }
-    if (carFuelTypes.Petrol && !carPetrolVolume) {
-      newErrors.carPetrolVolume = "Please enter the petrol volume";
-    } else if (
-      carFuelTypes.Petrol &&
-      (isNaN(Number(carPetrolVolume)) || Number(carPetrolVolume) < 0)
-    ) {
-      newErrors.carPetrolVolume = "Please enter a valid positive number";
-    }
-    if (carFuelTypes.Diesel && !carDieselVolume) {
-      newErrors.carDieselVolume = "Please enter the diesel volume";
-    } else if (
-      carFuelTypes.Diesel &&
-      (isNaN(Number(carDieselVolume)) || Number(carDieselVolume) < 0)
-    ) {
-      newErrors.carDieselVolume = "Please enter a valid positive number";
-    }
-
-    // if (!Object.values(files).some((file) => file !== null)) {
-    //     newErrors.files = "Please upload at least one document";
-    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -217,9 +204,8 @@ export function RoadTransport({
 
     setIsSaving(true);
     const payload = {
-      dieselTruckVolume: Number(dieselTruckVolume),
-      carPetrolVolume: carFuelTypes.Petrol ? Number(carPetrolVolume) : 0,
-      carDieselVolume: carFuelTypes.Diesel ? Number(carDieselVolume) : 0,
+      vehicleFleet,
+      carsBuses,
       files,
     };
     dispatch({
@@ -235,9 +221,8 @@ export function RoadTransport({
   const handleNext = () => {
     if (!validateForm()) return;
     const payload = {
-      dieselTruckVolume: Number(dieselTruckVolume),
-      carPetrolVolume: carFuelTypes.Petrol ? Number(carPetrolVolume) : 0,
-      carDieselVolume: carFuelTypes.Diesel ? Number(carDieselVolume) : 0,
+      vehicleFleet,
+      carsBuses,
       files,
     };
     dispatch({
@@ -298,73 +283,16 @@ export function RoadTransport({
                 Logistics
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Type of Fuel</Label>
-                <RadioGroup
-                  value={dieselTruckFuelType}
-                  onValueChange={(value) => {
-                    setDieselTruckFuelType(value);
-                    if (errors.dieselTruckFuelType) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        dieselTruckFuelType: undefined,
-                      }));
-                    }
-                  }}
-                  className={`flex flex-col space-y-2 ${
-                    errors.dieselTruckFuelType
-                      ? "border-red-500 p-2 rounded"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Diesel" id="diesel" />
-                    <Label htmlFor="diesel">Diesel</Label>
-                  </div>
-                </RadioGroup>
-                {errors.dieselTruckFuelType && (
-                  <p className="text-sm text-red-500">
-                    {errors.dieselTruckFuelType}
-                  </p>
-                )}
-
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="diesel-truck-volume">
-                    Volume of Diesel Consumed (Litres)
-                  </Label>
-                  <Input
-                    id="diesel-truck-volume"
-                    type="number"
-                    placeholder="Enter volume of diesel consumed"
-                    value={dieselTruckVolume}
-                    onChange={(e) => {
-                      setDieselTruckVolume(e.target.value);
-                      if (errors.dieselTruckVolume) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          dieselTruckVolume: undefined,
-                        }));
-                      }
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.dieselTruckVolume
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.dieselTruckVolume
-                        ? "diesel-truck-volume-error"
-                        : undefined
-                    }
-                  />
-                  {errors.dieselTruckVolume && (
-                    <p
-                      id="diesel-truck-volume-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.dieselTruckVolume}
-                    </p>
-                  )}
-                </div>
+                <AddSource
+                  title="Fuel Sources"
+                  fuelTypeOptions={vehicleFleetOptions}
+                  unitOptions={unitOptions}
+                  sources={vehicleFleet}
+                  onSourcesChange={setVehicleFleet}
+                  volumeLabel="Volume of Fuel Consumed"
+                  volumePlaceholder="Enter volume consumed"
+                  error={errors.vehicleFleet}
+                />
               </div>
             </div>
 
@@ -374,149 +302,16 @@ export function RoadTransport({
                 1.2 Company Cars and Buses Used for Employee Transportation
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Type of Fuel</Label>
-                <div
-                  className={`flex flex-col space-y-2 ${
-                    errors.carFuelTypes ? "border-red-500 p-2 rounded" : ""
-                  }`}
-                >
-                  {["Petrol (Premium Motor Spirit - PMS)", "Diesel"].map(
-                    (fuel) => (
-                      <div key={fuel} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={fuel.replace(/\s/g, "-").toLowerCase()}
-                          checked={
-                            carFuelTypes[
-                              fuel === "Petrol (Premium Motor Spirit - PMS)"
-                                ? "Petrol"
-                                : "Diesel"
-                            ]
-                          }
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setCarFuelTypes((prev) => ({
-                              ...prev,
-                              [fuel === "Petrol (Premium Motor Spirit - PMS)"
-                                ? "Petrol"
-                                : "Diesel"]: checked,
-                            }));
-                            if (errors.carFuelTypes) {
-                              setErrors((prev) => ({
-                                ...prev,
-                                carFuelTypes: undefined,
-                              }));
-                            }
-                            if (!checked) {
-                              if (
-                                fuel === "Petrol (Premium Motor Spirit - PMS)"
-                              ) {
-                                setCarPetrolVolume("");
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  carPetrolVolume: undefined,
-                                }));
-                              } else {
-                                setCarDieselVolume("");
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  carDieselVolume: undefined,
-                                }));
-                              }
-                            }
-                          }}
-                          className="h-4 w-4 rounded border-2 border-green-600 text-green-600 focus:ring-green-500 focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                          aria-label={`Select ${fuel} fuel type`}
-                        />
-                        <Label htmlFor={fuel.replace(/\s/g, "-").toLowerCase()}>
-                          {fuel}
-                        </Label>
-                      </div>
-                    )
-                  )}
-                </div>
-                {errors.carFuelTypes && (
-                  <p className="text-sm text-red-500">{errors.carFuelTypes}</p>
-                )}
-
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="car-petrol-volume">
-                    Total Volume of Petrol Consumed (Litres)
-                  </Label>
-                  <Input
-                    id="car-petrol-volume"
-                    type="number"
-                    placeholder="Enter total volume of petrol consumed"
-                    value={carPetrolVolume}
-                    onChange={(e) => {
-                      setCarPetrolVolume(e.target.value);
-                      if (errors.carPetrolVolume) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          carPetrolVolume: undefined,
-                        }));
-                      }
-                    }}
-                    disabled={!carFuelTypes.Petrol}
-                    className={`w-full border-gray-400 ${
-                      errors.carPetrolVolume
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.carPetrolVolume
-                        ? "car-petrol-volume-error"
-                        : undefined
-                    }
-                  />
-                  {errors.carPetrolVolume && (
-                    <p
-                      id="car-petrol-volume-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.carPetrolVolume}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="car-diesel-volume">
-                    Total Volume of Diesel Consumed (Litres)
-                  </Label>
-                  <Input
-                    id="car-diesel-volume"
-                    type="number"
-                    placeholder="Enter total volume of diesel consumed"
-                    value={carDieselVolume}
-                    onChange={(e) => {
-                      setCarDieselVolume(e.target.value);
-                      if (errors.carDieselVolume) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          carDieselVolume: undefined,
-                        }));
-                      }
-                    }}
-                    disabled={!carFuelTypes.Diesel}
-                    className={`w-full border-gray-400 ${
-                      errors.carDieselVolume
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.carDieselVolume
-                        ? "car-diesel-volume-error"
-                        : undefined
-                    }
-                  />
-                  {errors.carDieselVolume && (
-                    <p
-                      id="car-diesel-volume-error"
-                      className="text-sm text-red-500"
-                    >
-                      {errors.carDieselVolume}
-                    </p>
-                  )}
-                </div>
+                <AddSource
+                  title="Fuel Sources"
+                  fuelTypeOptions={carsBusesOptions}
+                  unitOptions={unitOptions}
+                  sources={carsBuses}
+                  onSourcesChange={setCarsBuses}
+                  volumeLabel="Volume of Fuel Consumed"
+                  volumePlaceholder="Enter volume consumed"
+                  error={errors.carsBuses}
+                />
               </div>
             </div>
 
@@ -535,7 +330,7 @@ export function RoadTransport({
                       <Label className="text-sm font-medium mb-1 ml-1">
                         {field}
                       </Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all h-32">
+                      <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all h-32">
                         <Label
                           htmlFor={`upload-${field
                             .replace(/\s/g, "-")

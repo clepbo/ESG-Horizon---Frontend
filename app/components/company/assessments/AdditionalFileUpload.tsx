@@ -7,8 +7,13 @@ import { useToast } from "@/hooks/use-toast";
 
 // The `FileData` interface remains the same
 export interface FileData {
+  id?: string; // Made optional as it may not exist before saving
   name: string;
-  file: File | null;
+  size?: number; // Made optional as it may not exist before saving
+  lastModified?: number; // Made optional as it may not exist before saving
+  url?: string;
+  publicId?: string;
+  file?: File | null; // Added the 'file' property
 }
 
 interface AdditionalFileUploadProps {
