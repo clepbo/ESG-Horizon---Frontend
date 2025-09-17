@@ -6,11 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import {
-  useAssessment,
-  type SourceData,
-  type AssessmentData,
-} from "@/hooks/useAssessment";
+import { useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { TrendingDown, TrendingUp, Calendar, Building } from "lucide-react";
 
 export function EmissionsSummaryCard() {

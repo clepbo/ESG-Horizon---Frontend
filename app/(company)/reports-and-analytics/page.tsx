@@ -13,33 +13,37 @@ import { EmissionsBreakdownChart } from "./components/EmissionsBreakdownChart";
 import { AssessmentProgressCard } from "./components/AssessmentProgressCard";
 import { DataQualityIndicator } from "./components/DataQualityIndicator";
 import { EmissionsSummaryCard } from "./components/EmissionsSummaryCard";
-import React from "react"; // Import React for useEffect and useState
+import React from "react"; // Import React for useMemo and useCallback
+
+// Helper function to safely convert a value to a number.
+// Moved outside the component to ensure a stable reference.
+const toNumber = (val: unknown): number =>
+  typeof val === "string" && !isNaN(parseFloat(val))
+    ? parseFloat(val)
+    : typeof val === "number" && !isNaN(val)
+    ? val
+    : 0;
+
+// Helper function to calculate total emissions for an array of SourceData.
+// Moved outside the component as it's a pure function and doesn't rely on component state.
+const calculateSourceEmissions = (
+  sources: SourceData[] | undefined
+): number => {
+  if (!sources) return 0;
+  return sources.reduce((sum, s) => {
+    const volume = toNumber(s.volume);
+    const factor = s.emissionFactor;
+    return sum + volume * factor;
+  }, 0);
+};
 
 function ReportsContent() {
   const { state } = useAssessment();
   const data = state.assessmentData;
 
-  // Helper function to safely convert a value to a number
-  const toNumber = (val: unknown): number =>
-    typeof val === "string" && !isNaN(parseFloat(val))
-      ? parseFloat(val)
-      : typeof val === "number" && !isNaN(val)
-      ? val
-      : 0;
-
-  // Helper function to calculate total emissions for an array of SourceData
-  const calculateSourceEmissions = (
-    sources: SourceData[] | undefined
-  ): number => {
-    if (!sources) return 0;
-    return sources.reduce((sum, s) => {
-      const volume = toNumber(s.volume);
-      const factor = s.emissionFactor;
-      return sum + volume * factor;
-    }, 0);
-  };
-
-  const calculateScope1Total = () => {
+  // Since the calculation functions are now pure and defined outside the component,
+  // we can use useMemo with 'data' as the only dependency.
+  const calculateScope1Total = React.useMemo(() => {
     let scope1 = 0;
 
     // Stationary Sources
@@ -109,9 +113,9 @@ function ReportsContent() {
     }
 
     return scope1;
-  };
+  }, [data]);
 
-  const calculateScope2Total = () => {
+  const calculateScope2Total = React.useMemo(() => {
     let scope2 = 0;
     if (data.electricity)
       scope2 += toNumber(data.electricity.electricityConsumed) * 0.35; // Example factor
@@ -134,16 +138,15 @@ function ReportsContent() {
         toNumber(data.coolingSteam.energyConsumed) *
         toNumber(data.coolingSteam.emissionFactor);
     return scope2;
-  };
+  }, [data]);
 
-  // Use React.useMemo to prevent recalculation on every render
-  const scope1 = React.useMemo(() => calculateScope1Total(), [data]);
-  const scope2 = React.useMemo(() => calculateScope2Total(), [data]);
+  const scope1 = calculateScope1Total;
+  const scope2 = calculateScope2Total;
   const total = scope1 + scope2;
 
   // A more dynamic way to calculate progress
   const totalSections = 14; // Total number of sections in the assessment
-  const completedSections = Object.entries(data).filter(([key, value]) => {
+  const completedSections = Object.entries(data).filter(([value]) => {
     // Check if the section object exists and has at least one filled field
     if (typeof value === "object" && value !== null) {
       return Object.values(value).some(
