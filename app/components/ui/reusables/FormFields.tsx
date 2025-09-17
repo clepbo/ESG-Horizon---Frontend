@@ -66,7 +66,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       {as === "select" && options && (
         <select
           {...(props as SelectFieldProps)}
-          className={`h-12 w-full px-4 text-sm rounded-md border hover:shadow-sm ${
+          className={`h-12 w-full px-4 text-sm rounded-xs border hover:shadow-sm ${
             error ? "border-red-500" : "border-gray-300"
           }`}
         >
