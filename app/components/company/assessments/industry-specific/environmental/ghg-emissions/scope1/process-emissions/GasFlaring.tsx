@@ -60,17 +60,6 @@ export function GasFlaring({
     files?: string;
   }>({});
 
-  // useEffect(() => {
-  //     const existingData = (state.assessmentData.processEmissions
-  //         ?.gasFlaring ?? {}) as GasFlaringData;
-  //     setGasVolume(existingData.gasVolume ?? 0);
-  //     setCarbonContent(existingData.carbonContent ?? 0);
-  //     setFiles(
-  //         existingData.files ??
-  //             Object.fromEntries(uploadFields.map((field) => [field, null]))
-  //     );
-  // }, [state.assessmentData.processEmissions?.gasFlaring]);
-
   useEffect(() => {
     const existingData = state.assessmentData.processEmissions
       ?.gasFlaring as NonNullable<
