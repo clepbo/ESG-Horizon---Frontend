@@ -5,13 +5,21 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import type { AssessmentData } from "@/hooks/useAssessment";
+
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  getFuelOptions,
+  unitOptions,
+  type FuelOption,
+} from "@/lib/fuelDataFile";
+import {
+  AddSource,
+  SourceData,
+} from "@/app/components/company/assessments/AddSource";
 
 interface OilGasOperationsProps {
   onBack: () => void;
@@ -27,8 +35,6 @@ interface FileMetadata {
   lastModified: number;
 }
 
-const oilProductionFuelTypes = ["Lease Gas", "Fuel Oil"];
-
 const uploadFields = [
   "Internal process flow meter logs (natural gas, crude, diesel)",
   "Equipment technical specs (boiler efficiency)",
@@ -43,86 +49,87 @@ export function OilGasOperations({
   isSubmitted,
 }: OilGasOperationsProps) {
   const { state, dispatch } = useAssessment();
-  const [selectedFuelType, setSelectedFuelType] = useState("");
-  const [fuelVolume, setFuelVolume] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
-    fuelType?: string;
-    fuelVolume?: string;
+    onShoreProduction?: string;
     files?: string;
   }>({});
 
-  // useEffect(() => {
-  //     const existingData =
-  //         state.assessmentData.stationarySources?.oilGasOperations ||
-  //         JSON.parse(
-  //             localStorage.getItem("stationarySources.oilGasOperations") ||
-  //                 "{}"
-  //         );
-  //     if (existingData) {
-  //         setSelectedFuelType(existingData.selectedFuelType || "");
-  //         setFuelVolume(existingData.fuelVolume || "");
-  //         setFiles(
-  //             existingData.files ||
-  //                 Object.fromEntries(
-  //                     uploadFields.map((field) => [field, null])
-  //                 )
-  //         );
-  //     }
-  // }, [state.assessmentData.stationarySources?.oilGasOperations]);
+  const onShoreProductionOptions = useMemo(
+    () => getFuelOptions("onShoreProduction"),
+    []
+  );
+
+  const getInitialSources = (
+    existingSources: SourceData[],
+    fuelOptions: FuelOption[]
+  ) => {
+    if (existingSources?.length > 0) {
+      return existingSources;
+    }
+    return [
+      {
+        id: "initial-" + Date.now().toString(),
+        fuelType: fuelOptions[0]?.value || "",
+        volume: "",
+        unit: unitOptions[0]?.value || "",
+        emissionFactor: fuelOptions[0]?.emissionFactor || 2.05,
+        source: fuelOptions[0]?.source || "IEA (Emission Factors 2023), IPCC",
+      },
+    ];
+  };
+
+  const [onShoreProduction, setOnShoreProduction] = useState<SourceData[]>(() =>
+    getInitialSources([], onShoreProductionOptions)
+  );
 
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources
-      ?.oilGasOperations as NonNullable<
-      AssessmentData["stationarySources"]
-    >["oilGasOperations"];
+    const existingData =
+      state.assessmentData.stationarySources?.oilGasOperations;
     if (existingData) {
-      setSelectedFuelType(existingData.selectedFuelType ?? "");
-      setFuelVolume(existingData.fuelVolume?.toString() ?? "");
+      setOnShoreProduction(
+        existingData.onShoreProduction ||
+          getInitialSources([], onShoreProductionOptions)
+      );
       setFiles(
-        existingData.files ??
+        existingData.files ||
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
     }
-  }, [state.assessmentData.stationarySources?.oilGasOperations]);
+  }, [
+    state.assessmentData.stationarySources?.oilGasOperations,
+    onShoreProductionOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
-    const isFuelTypeSelected = selectedFuelType.length > 0;
-
-    const isFuelVolumeEntered = fuelVolume.length > 0;
+    const hasOnShoreProductionData = onShoreProduction.some(
+      (s) => s.volume && parseFloat(s.volume.toString()) > 0
+    );
 
     const hasFileUploaded = Object.values(files).some(Boolean);
-
-    const progressChecks = [
-      isFuelTypeSelected,
-      isFuelVolumeEntered,
-      hasFileUploaded,
-    ];
+    const progressChecks = [hasOnShoreProductionData, hasFileUploaded];
 
     return calculateProgress(progressChecks);
-  }, [selectedFuelType, fuelVolume, files]);
+  }, [onShoreProduction, files]);
 
   const validateForm = () => {
     const newErrors: {
-      fuelType?: string;
-      fuelVolume?: string;
+      onShoreProduction?: string;
       files?: string;
     } = {};
-    if (!selectedFuelType) {
-      newErrors.fuelType = "Please select a fuel type";
+
+    const hasValidOnShore = onShoreProduction.some(
+      (s) => s.volume && Number(s.volume) > 0
+    );
+
+    if (!hasValidOnShore) {
+      newErrors.onShoreProduction =
+        "Please add at least one fuel source with a positive volume.";
     }
-    if (!fuelVolume) {
-      newErrors.fuelVolume = "Please enter the fuel volume";
-    } else if (isNaN(Number(fuelVolume)) || Number(fuelVolume) < 0) {
-      newErrors.fuelVolume = "Please enter a valid positive number";
-    }
-    // if (!Object.values(files).some((file) => file !== null)) {
-    //     newErrors.files = "Please upload at least one document";
-    // }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -159,8 +166,7 @@ export function OilGasOperations({
 
     setIsSaving(true);
     const payload = {
-      selectedFuelType,
-      fuelVolume: Number(fuelVolume),
+      onShoreProduction,
       files,
     };
     dispatch({
@@ -179,21 +185,17 @@ export function OilGasOperations({
 
   const handleSubmit = () => {
     if (!validateForm()) return;
+    const payload = {
+      onShoreProduction,
+      files,
+    };
     dispatch({
       type: "UPDATE_STATIONARY_OIL_GAS",
-      payload: {
-        selectedFuelType,
-        fuelVolume: Number(fuelVolume),
-        files,
-      },
+      payload,
     });
     localStorage.setItem(
       "stationarySources.oilGasOperations",
-      JSON.stringify({
-        selectedFuelType,
-        fuelVolume: Number(fuelVolume),
-        files,
-      })
+      JSON.stringify(payload)
     );
     onSubmit();
   };
@@ -246,84 +248,26 @@ export function OilGasOperations({
             {/* 1.1 Heaters and Boilers at Oil Production Facilities */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                1.1 Heaters and Boilers at Oil Production Facilities
+                3.1 Heaters and Boilers at Oil Production Facilities
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Type of Fuel</Label>
-                <RadioGroup
-                  value={selectedFuelType}
-                  onValueChange={(value) => {
-                    setSelectedFuelType(value);
-                    if (errors.fuelType) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        fuelType: undefined,
-                      }));
-                    }
-                  }}
-                  className={`flex flex-col space-y-2 mt-2 ${
-                    errors.fuelType ? "border-red-500 p-2 rounded" : ""
-                  }`}
-                >
-                  {oilProductionFuelTypes.map((fuel) => (
-                    <div key={fuel} className="flex items-center space-x-1">
-                      <RadioGroupItem
-                        value={fuel}
-                        id={fuel.replace(/\s/g, "-").toLowerCase()}
-                      />
-                      <Label
-                        className="text-gray-700"
-                        htmlFor={fuel.replace(/\s/g, "-").toLowerCase()}
-                      >
-                        {fuel}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                {errors.fuelType && (
-                  <p className="text-sm text-red-500">{errors.fuelType}</p>
-                )}
-
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="fuel-volume">
-                    Volume of Fuel Consumed by Each Piece of Equipment (Litres)
-                  </Label>
-                  <Input
-                    id="fuel-volume"
-                    type="number"
-                    placeholder="Enter volume in litres"
-                    value={fuelVolume}
-                    onChange={(e) => {
-                      setFuelVolume(e.target.value);
-                      if (errors.fuelVolume) {
-                        setErrors((prev) => ({
-                          ...prev,
-                          fuelVolume: undefined,
-                        }));
-                      }
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.fuelVolume
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                    aria-describedby={
-                      errors.fuelVolume ? "fuel-volume-error" : undefined
-                    }
-                  />
-                  {errors.fuelVolume && (
-                    <p id="fuel-volume-error" className="text-sm text-red-500">
-                      {errors.fuelVolume}
-                    </p>
-                  )}
-                </div>
+                <AddSource
+                  title="Fuel Sources"
+                  fuelTypeOptions={onShoreProductionOptions}
+                  unitOptions={unitOptions}
+                  sources={onShoreProduction}
+                  onSourcesChange={setOnShoreProduction}
+                  volumeLabel="Volume of Fuel Consumed"
+                  volumePlaceholder="Enter volume consumed"
+                  error={errors.onShoreProduction}
+                />
               </div>
             </div>
 
-            {/* 1.2 Document/Evidence Upload */}
+            {/* 3.3 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                1.2 Document/Evidence Upload
+                3.3 Document/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -335,7 +279,7 @@ export function OilGasOperations({
                       <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
                         {field}
                       </Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all">
+                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
                         <Label
                           htmlFor={`upload-${field
                             .replace(/\s/g, "-")

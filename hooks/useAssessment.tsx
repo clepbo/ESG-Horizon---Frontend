@@ -1,6 +1,5 @@
 "use client";
 
-import { FileData } from "@/app/components/company/assessments/AdditionalFileUpload";
 import React, {
   createContext,
   useContext,
@@ -8,6 +7,17 @@ import React, {
   type ReactNode,
 } from "react";
 
+export interface FileData {
+  id?: string; // Made optional as it may not exist before saving
+  name: string;
+  size?: number; // Made optional as it may not exist before saving
+  lastModified?: number; // Made optional as it may not exist before saving
+  url?: string;
+  publicId?: string;
+  file?: File | null; // Added the 'file' property
+}
+
+// The FileMetadata interface can be removed if you use FileData everywhere
 export interface FileMetadata {
   name: string;
   size: number;
@@ -15,6 +25,15 @@ export interface FileMetadata {
   url?: string;
   publicId?: string;
   isDeleting?: boolean;
+}
+
+export interface SourceData {
+  id: string;
+  fuelType: string;
+  volume: string;
+  unit: string;
+  emissionFactor: number;
+  source: string;
 }
 
 export interface AssessmentData {
@@ -27,124 +46,63 @@ export interface AssessmentData {
   // Scope 1
   stationarySources?: {
     electricityHeat?: {
-      dieselFuelType?: string;
-      dieselVolume?: number;
-      gasFuelType?: string;
-      gasVolume?: number;
+      dieselGenerators?: SourceData[];
+      gasTurbines?: SourceData[];
       files?: { [key: string]: FileMetadata | null };
+      customFiles?: { [key: string]: any };
       additionalFields?: FileData[];
     };
     industrialProcesses?: {
-      selectedFuelType: string;
-      otherFuelType: string;
-      fuelVolume: number;
+      boilerFurnaces?: SourceData[];
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
     oilGasOperations?: {
-      selectedFuelType: string;
-      fuelVolume: number;
+      onShoreProduction?: SourceData[];
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
   };
   mobileSources?: {
     roadTransport?: {
-      dieselTruckFuelType?: string;
-      dieselTruckVolume: number;
-      carPetrolVolume: number;
-      carDieselVolume: number;
+      vehicleFleet?: SourceData[];
+      carsBuses?: SourceData[];
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
     vehicleEquipment?: {
-      forkliftFuelType: string;
-      forkliftVolume: number;
-      heavyDutyFuelType: string;
-      heavyDutyVolume: number;
-      tractorFuelType: string;
-      tractorVolume: number;
+      forkliftFuelType: SourceData[];
+      heavyDutyFuelType: SourceData[];
+      tractorFuelType: SourceData[];
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
     marineAviation?: {
-      helicopterFuelType: string;
-      helicopterVolume: number;
-      vesselFuelType: string;
-      otherFuelType: string;
-      vesselVolume: number;
+      air: SourceData[];
+      marine: SourceData[];
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
   };
   processEmissions?: {
-    co2Release?: {
-      clinkerQuantity: number;
-      calciumOxide: number;
-      magnesiumOxide: number;
+    cementManufacturing?: {
+      cementQuantity: number;
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
-    fertilizerEmissions?: {
-      products: { [product: string]: number };
-      feedstock: number;
-      files?: { [key: string]: FileMetadata | null };
-      additionalFields?: FileData[];
-    };
+
     gasFlaring?: {
       gasVolume: number;
       carbonContent: number;
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
-    entericFermentation?: {
-      animals: { [type: string]: number };
-      files?: { [key: string]: FileMetadata | null };
-      additionalFields?: FileData[];
-    };
-    methaneNitrousOxide?: {
-      animals: { [type: string]: number };
-      manureSystem: string;
-      otherManureSystem: string;
-      files?: { [key: string]: FileMetadata | null };
-      additionalFields?: FileData[];
-    };
   };
   fugitiveEmissions?: {
-    methaneLeaks?: {
-      compressors: number;
-      pumps: number;
-      prds: number;
-      openEnded: number;
-      seals: number;
-      wellheads: number;
-      manifolds: number;
-      hoses: number;
-      drains: number;
-      sampling: number;
-      others: number;
-      methanePercent: number;
-      files?: { [key: string]: FileMetadata | null };
-      additionalFields?: FileData[];
-    };
     ventingNaturalGas?: {
       volumeOfGasVented: number;
-      methane: number;
-      carbonDioxide: number;
-      ethane: number;
-      propane: number;
-      butanes: number;
-      wellheads: number;
-      nitrogen: number;
-      hydrogenSulfide: number;
-      others: number;
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
-    };
-    incompleteCombustion?: {
-      volumeToFlare: number;
-      flareEfficiency: number;
-      gasComposition: number;
     };
     hfcLeaks?: {
       R134a: boolean;
@@ -163,14 +121,12 @@ export interface AssessmentData {
   // Scope 2
   electricity?: {
     electricityConsumed: string;
-    // reportingPeriod: string;
     supplier: string;
     files?: { [key: string]: FileMetadata | null };
     additionalFields?: FileData[];
   };
   cooling?: {
     coolingConsumed: string;
-    // reportingPeriod: string;
     selectedSystems: string[];
     otherComments: string;
     files?: { [key: string]: FileMetadata | null };
@@ -178,7 +134,6 @@ export interface AssessmentData {
   };
   steam?: {
     volume: string;
-    // reportingPeriod: string;
     selectedSources: string[];
     otherComments: string;
     files?: { [key: string]: FileMetadata | null };
@@ -260,46 +215,20 @@ type AssessmentAction =
       payload: NonNullable<AssessmentData["mobileSources"]>["marineAviation"];
     }
   | {
-      type: "UPDATE_PROCESS_CO2_RELEASE";
-      payload: NonNullable<AssessmentData["processEmissions"]>["co2Release"];
-    }
-  | {
-      type: "UPDATE_PROCESS_FERTILIZER_EMISSIONS";
+      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING";
       payload: NonNullable<
         AssessmentData["processEmissions"]
-      >["fertilizerEmissions"];
+      >["cementManufacturing"];
     }
   | {
       type: "UPDATE_PROCESS_GAS_FLARING";
       payload: NonNullable<AssessmentData["processEmissions"]>["gasFlaring"];
     }
   | {
-      type: "UPDATE_PROCESS_ENTERIC_FERMENTATION";
-      payload: NonNullable<
-        AssessmentData["processEmissions"]
-      >["entericFermentation"];
-    }
-  | {
-      type: "UPDATE_PROCESS_METHANE_NITROUS_OXIDE";
-      payload: NonNullable<
-        AssessmentData["processEmissions"]
-      >["methaneNitrousOxide"];
-    }
-  | {
-      type: "UPDATE_FUGITIVE_METHANE_LEAKS";
-      payload: NonNullable<AssessmentData["fugitiveEmissions"]>["methaneLeaks"];
-    }
-  | {
       type: "UPDATE_FUGITIVE_VENTING";
       payload: NonNullable<
         AssessmentData["fugitiveEmissions"]
       >["ventingNaturalGas"];
-    }
-  | {
-      type: "UPDATE_FUGITIVE_INCOMPLETE_COMBUSTION";
-      payload: NonNullable<
-        AssessmentData["fugitiveEmissions"]
-      >["incompleteCombustion"];
     }
   | {
       type: "UPDATE_FUGITIVE_HFC_LEAKS";
@@ -332,100 +261,55 @@ const initialState: AssessmentState = {
     // ---- Scope 1 ----
     stationarySources: {
       electricityHeat: {
-        dieselFuelType: "",
-        dieselVolume: 0,
-        gasFuelType: "",
-        gasVolume: 0,
+        dieselGenerators: [],
+        gasTurbines: [],
         files: {},
+        customFiles: {},
       },
       industrialProcesses: {
-        selectedFuelType: "",
-        otherFuelType: "",
-        fuelVolume: 0,
+        boilerFurnaces: [],
         files: {},
       },
       oilGasOperations: {
-        selectedFuelType: "",
-        fuelVolume: 0,
+        onShoreProduction: [],
         files: {},
       },
     },
     mobileSources: {
       roadTransport: {
-        dieselTruckVolume: 0,
-        carPetrolVolume: 0,
-        carDieselVolume: 0,
+        vehicleFleet: [],
+        carsBuses: [],
         files: {},
       },
       vehicleEquipment: {
-        forkliftFuelType: "",
-        forkliftVolume: 0,
-        heavyDutyFuelType: "",
-        heavyDutyVolume: 0,
-        tractorFuelType: "",
-        tractorVolume: 0,
+        forkliftFuelType: [],
+
+        heavyDutyFuelType: [],
+
+        tractorFuelType: [],
+
         files: {},
       },
       marineAviation: {
-        helicopterFuelType: "",
-        helicopterVolume: 0,
-        vesselFuelType: "",
-        otherFuelType: "",
-        vesselVolume: 0,
+        air: [],
+        marine: [],
         files: {},
       },
     },
     processEmissions: {
-      co2Release: {
-        clinkerQuantity: 0,
-        calciumOxide: 0,
-        magnesiumOxide: 0,
+      cementManufacturing: {
+        cementQuantity: 0,
+
         files: {},
       },
-      fertilizerEmissions: { products: {}, feedstock: 0, files: {} },
       gasFlaring: { gasVolume: 0, carbonContent: 0, files: {} },
-      entericFermentation: { animals: {}, files: {} },
-      methaneNitrousOxide: {
-        animals: {},
-        manureSystem: "",
-        otherManureSystem: "",
-        files: {},
-      },
     },
     fugitiveEmissions: {
-      methaneLeaks: {
-        compressors: 0,
-        pumps: 0,
-        prds: 0,
-        openEnded: 0,
-        seals: 0,
-        wellheads: 0,
-        manifolds: 0,
-        hoses: 0,
-        drains: 0,
-        sampling: 0,
-        others: 0,
-        methanePercent: 0,
-        files: {},
-      },
       ventingNaturalGas: {
         volumeOfGasVented: 0,
-        methane: 0,
-        carbonDioxide: 0,
-        ethane: 0,
-        propane: 0,
-        butanes: 0,
-        wellheads: 0,
-        nitrogen: 0,
-        hydrogenSulfide: 0,
-        others: 0,
         files: {},
       },
-      incompleteCombustion: {
-        volumeToFlare: 0,
-        flareEfficiency: 0,
-        gasComposition: 0,
-      },
+
       hfcLeaks: {
         R134a: false,
         R410A: false,
@@ -575,30 +459,19 @@ function assessmentReducer(
         },
         error: null,
       };
-    case "UPDATE_PROCESS_CO2_RELEASE":
+    case "UPDATE_PROCESS_CEMENT_MANUFACTURING":
       return {
         ...state,
         assessmentData: {
           ...state.assessmentData,
           processEmissions: {
             ...(state.assessmentData.processEmissions ?? {}),
-            co2Release: action.payload,
+            cementManufacturing: action.payload,
           },
         },
         error: null,
       };
-    case "UPDATE_PROCESS_FERTILIZER_EMISSIONS":
-      return {
-        ...state,
-        assessmentData: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...(state.assessmentData.processEmissions ?? {}),
-            fertilizerEmissions: action.payload,
-          },
-        },
-        error: null,
-      };
+
     case "UPDATE_PROCESS_GAS_FLARING":
       return {
         ...state,
@@ -611,43 +484,7 @@ function assessmentReducer(
         },
         error: null,
       };
-    case "UPDATE_PROCESS_ENTERIC_FERMENTATION":
-      return {
-        ...state,
-        assessmentData: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...(state.assessmentData.processEmissions ?? {}),
-            entericFermentation: action.payload,
-          },
-        },
-        error: null,
-      };
-    case "UPDATE_PROCESS_METHANE_NITROUS_OXIDE":
-      return {
-        ...state,
-        assessmentData: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...(state.assessmentData.processEmissions ?? {}),
-            methaneNitrousOxide: action.payload,
-          },
-        },
-        error: null,
-      };
 
-    case "UPDATE_FUGITIVE_METHANE_LEAKS":
-      return {
-        ...state,
-        assessmentData: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...(state.assessmentData.fugitiveEmissions ?? {}),
-            methaneLeaks: action.payload,
-          },
-        },
-        error: null,
-      };
     case "UPDATE_FUGITIVE_VENTING":
       return {
         ...state,
@@ -660,18 +497,7 @@ function assessmentReducer(
         },
         error: null,
       };
-    case "UPDATE_FUGITIVE_INCOMPLETE_COMBUSTION":
-      return {
-        ...state,
-        assessmentData: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...(state.assessmentData.fugitiveEmissions ?? {}),
-            incompleteCombustion: action.payload,
-          },
-        },
-        error: null,
-      };
+
     case "UPDATE_FUGITIVE_HFC_LEAKS":
       return {
         ...state,
@@ -836,6 +662,7 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     </AssessmentContext.Provider>
   );
 }
+
 export function useAssessment() {
   const context = useContext(AssessmentContext);
   if (!context) {

@@ -20,9 +20,10 @@ import { calculateProgress } from "@/lib/utils";
 
 interface GasFlaringProps {
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
   stepIndex: number;
   totalSteps: number;
+  isSubmitted: boolean;
 }
 
 interface FileMetadata {
@@ -40,9 +41,10 @@ const uploadFields = [
 
 export function GasFlaring({
   onBack,
-  onNext,
+  onSubmit,
   stepIndex,
   totalSteps,
+  isSubmitted,
 }: GasFlaringProps) {
   const { state, dispatch } = useAssessment();
   const [gasVolume, setGasVolume] = useState<number>(0);
@@ -57,17 +59,6 @@ export function GasFlaring({
     carbonContent?: string;
     files?: string;
   }>({});
-
-  // useEffect(() => {
-  //     const existingData = (state.assessmentData.processEmissions
-  //         ?.gasFlaring ?? {}) as GasFlaringData;
-  //     setGasVolume(existingData.gasVolume ?? 0);
-  //     setCarbonContent(existingData.carbonContent ?? 0);
-  //     setFiles(
-  //         existingData.files ??
-  //             Object.fromEntries(uploadFields.map((field) => [field, null]))
-  //     );
-  // }, [state.assessmentData.processEmissions?.gasFlaring]);
 
   useEffect(() => {
     const existingData = state.assessmentData.processEmissions
@@ -146,10 +137,18 @@ export function GasFlaring({
     setTimeout(() => setShowSaveSuccess(false), 2000);
   };
 
-  const handleNext = () => {
+  const handleSubmit = () => {
     if (!validateForm()) return;
-    handleSaveAndContinue();
-    onNext();
+
+    // Perform data update and save actions directly here
+    dispatch({
+      type: "UPDATE_PROCESS_GAS_FLARING",
+      payload: { gasVolume, carbonContent, files },
+    });
+    dispatch({ type: "SAVE_PROGRESS" });
+
+    // Then, immediately call the parent's onSubmit prop
+    onSubmit();
   };
 
   return (
@@ -182,7 +181,7 @@ export function GasFlaring({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              isSubmitted={isSubmitted}
             />
             <div>
               <Label className="text-md font-semibold mb-2 block">
@@ -268,7 +267,7 @@ export function GasFlaring({
                       <Label className="text-sm font-medium mb-1 ml-1">
                         {field}
                       </Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border border-2 hover:border-solid hover:border-primary transition-all h-32">
+                      <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all h-32">
                         <Label
                           htmlFor={`upload-${field
                             .replace(/\s/g, "-")
@@ -337,12 +336,12 @@ export function GasFlaring({
               </Button>
               <Button
                 variant="outline"
-                onClick={handleNext}
+                onClick={handleSubmit}
                 disabled={isSaving}
                 className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
-                Next
+                Submit
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>

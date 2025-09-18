@@ -33,18 +33,6 @@ interface FileMetadata {
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
-const numericKeys = [
-  "methane",
-  "carbonDioxide",
-  "ethane",
-  "propane",
-  "butanes",
-  "wellheads",
-  "nitrogen",
-  "hydrogenSulfide",
-  "others",
-] as const;
-
 const uploadFields = [
   "Venting event logs (time, duration, pressure)",
   "Simulation model outputs (when direct measurement missing)",
@@ -65,15 +53,6 @@ export function VentingNaturalGas({
 
   const [formState, setFormState] = useState({
     volumeOfGasVented: ventingNaturalGas?.volumeOfGasVented?.toString() ?? "",
-    methane: ventingNaturalGas?.methane?.toString() ?? "",
-    carbonDioxide: ventingNaturalGas?.carbonDioxide?.toString() ?? "",
-    ethane: ventingNaturalGas?.ethane?.toString() ?? "",
-    propane: ventingNaturalGas?.propane?.toString() ?? "",
-    butanes: ventingNaturalGas?.butanes?.toString() ?? "",
-    wellheads: ventingNaturalGas?.wellheads?.toString() ?? "",
-    nitrogen: ventingNaturalGas?.nitrogen?.toString() ?? "",
-    hydrogenSulfide: ventingNaturalGas?.hydrogenSulfide?.toString() ?? "",
-    others: ventingNaturalGas?.others?.toString() ?? "",
   });
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -93,15 +72,6 @@ export function VentingNaturalGas({
     if (existingData) {
       setFormState({
         volumeOfGasVented: existingData.volumeOfGasVented?.toString() ?? "",
-        methane: existingData.methane?.toString() ?? "",
-        carbonDioxide: existingData.carbonDioxide?.toString() ?? "",
-        ethane: existingData.ethane?.toString() ?? "",
-        propane: existingData.propane?.toString() ?? "",
-        butanes: existingData.butanes?.toString() ?? "",
-        wellheads: existingData.wellheads?.toString() ?? "",
-        nitrogen: existingData.nitrogen?.toString() ?? "",
-        hydrogenSulfide: existingData.hydrogenSulfide?.toString() ?? "",
-        others: existingData.others?.toString() ?? "",
       });
 
       if (existingData.files) {
@@ -111,18 +81,7 @@ export function VentingNaturalGas({
   }, [assessmentData.fugitiveEmissions?.ventingNaturalGas]);
 
   const { filled, total } = useMemo(() => {
-    const allInputs = [
-      formState.volumeOfGasVented,
-      formState.methane,
-      formState.carbonDioxide,
-      formState.ethane,
-      formState.propane,
-      formState.butanes,
-      formState.wellheads,
-      formState.nitrogen,
-      formState.hydrogenSulfide,
-      formState.others,
-    ];
+    const allInputs = [formState.volumeOfGasVented];
 
     const numericProgress = allInputs.map((value) => value !== "");
     const fileProgress = Object.values(files).map((file) => file !== null);
@@ -155,16 +114,6 @@ export function VentingNaturalGas({
     ) {
       newErrors.volumeOfGasVented = "Value cannot be negative or empty";
     }
-
-    numericKeys.forEach((key) => {
-      const val = formState[key];
-      if (val !== "") {
-        const n = Number(val);
-        if (isNaN(n) || n < 0 || n > 100) {
-          newErrors[key] = "Value must be between 0 and 100";
-        }
-      }
-    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -207,15 +156,7 @@ export function VentingNaturalGas({
     setIsSaving(true);
     const payload = {
       volumeOfGasVented: Number(formState.volumeOfGasVented),
-      methane: Number(formState.methane),
-      carbonDioxide: Number(formState.carbonDioxide),
-      ethane: Number(formState.ethane),
-      propane: Number(formState.propane),
-      butanes: Number(formState.butanes),
-      wellheads: Number(formState.wellheads),
-      nitrogen: Number(formState.nitrogen),
-      hydrogenSulfide: Number(formState.hydrogenSulfide),
-      others: Number(formState.others),
+
       files,
     };
 
@@ -237,15 +178,7 @@ export function VentingNaturalGas({
       type: "UPDATE_FUGITIVE_VENTING",
       payload: {
         volumeOfGasVented: Number(formState.volumeOfGasVented),
-        methane: Number(formState.methane),
-        carbonDioxide: Number(formState.carbonDioxide),
-        ethane: Number(formState.ethane),
-        propane: Number(formState.propane),
-        butanes: Number(formState.butanes),
-        wellheads: Number(formState.wellheads),
-        nitrogen: Number(formState.nitrogen),
-        hydrogenSulfide: Number(formState.hydrogenSulfide),
-        others: Number(formState.others),
+
         files,
       },
     });
@@ -320,6 +253,7 @@ export function VentingNaturalGas({
                     <Input
                       id="volumeOfGasVented"
                       name="volumeOfGasVented"
+                      placeholder="Provide the measured or estimated volume of gas released."
                       type="number"
                       min={0}
                       step="any"
@@ -345,89 +279,6 @@ export function VentingNaturalGas({
                         {errors.volumeOfGasVented}
                       </p>
                     )}
-                    <p className="text-gray-600 text-xs mt-1">
-                      Provide the measured or estimated volume of gas released.
-                    </p>
-                  </div>
-
-                  {/* Gas composition fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                    {numericKeys.slice(0, -1).map((field) => (
-                      <div key={field} className="flex flex-col">
-                        <Label
-                          htmlFor={field}
-                          className="text-gray-700 text-sm font-medium"
-                        >
-                          {field
-                            .replace(/([A-Z])/g, " $1")
-                            .replace(/^./, (str) => str.toUpperCase())}{" "}
-                          %
-                        </Label>
-                        <Input
-                          id={field}
-                          name={field}
-                          type="number"
-                          min={0}
-                          max={100}
-                          step="any"
-                          value={formState[field]}
-                          onChange={handleChange}
-                          className={`w-full border-gray-400 rounded-lg ${
-                            errors[field]
-                              ? "border-red-500 focus:border-red-500"
-                              : ""
-                          }`}
-                          aria-invalid={!!errors[field]}
-                          aria-describedby={
-                            errors[field] ? `${field}-error` : undefined
-                          }
-                        />
-                        {errors[field] && (
-                          <p
-                            className="text-red-600 text-xs mt-1"
-                            id={`${field}-error`}
-                          >
-                            {errors[field]}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                    {/* Others full width */}
-                    <div className="col-span-full flex flex-col">
-                      <Label
-                        htmlFor="others"
-                        className="text-gray-700 text-sm font-medium"
-                      >
-                        Others %
-                      </Label>
-                      <Input
-                        id="others"
-                        name="others"
-                        type="number"
-                        min={0}
-                        max={100}
-                        step="any"
-                        value={formState.others}
-                        onChange={handleChange}
-                        className={`w-full border-gray-400 rounded-lg ${
-                          errors.others
-                            ? "border-red-500 focus:border-red-500"
-                            : ""
-                        }`}
-                        aria-invalid={!!errors.others}
-                        aria-describedby={
-                          errors.others ? "others-error" : undefined
-                        }
-                      />
-                      {errors.others && (
-                        <p
-                          className="text-red-600 text-xs mt-1"
-                          id="others-error"
-                        >
-                          {errors.others}
-                        </p>
-                      )}
-                    </div>
                   </div>
                 </div>
               </div>
