@@ -46,7 +46,7 @@ export function MarineAviation({
   onSubmit,
   stepIndex,
   totalSteps,
-  // isSubmitted,
+  isSubmitted,
 }: MarineAviationProps) {
   const { state, dispatch } = useAssessment();
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
