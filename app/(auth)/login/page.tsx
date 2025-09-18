@@ -8,9 +8,8 @@ import { motion } from "framer-motion";
 
 export default function LoginPage() {
     return (
-        <div className="h-screen flex flex-col lg:flex-row font-poppins overflow-hidden">
-            {/* Left section remains static with h-screen */}
-            <div className="relative hidden lg:flex w-full lg:w-[45%] px-12 py-6 h-screen">
+        <div className="flex flex-col lg:flex-row font-poppins h-screen overflow-hidden">
+            <div className="relative hidden lg:flex w-full lg:w-[45%] px-12 py-6 h-screen overflow-hidden">
                 <Image
                     src="/login-image.png"
                     alt="Login background"
@@ -59,7 +58,7 @@ export default function LoginPage() {
                     damping: 25,
                     duration: 0.5,
                 }}
-                className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white overflow-y-auto"
+                className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white overflow-y-auto h-full"
             >
                 <div className="flex flex-1 flex-col px-6 py-12 md:px-12 bg-white overflow-y-auto">
                     <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center">

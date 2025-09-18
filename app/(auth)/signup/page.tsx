@@ -25,9 +25,9 @@ export default function Index() {
 
     return (
         <>
-            <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
+            <div className="flex flex-col lg:flex-row font-poppins h-screen overflow-hidden">
                 {/* Left */}
-                <div className="relative hidden lg:flex w-full lg:w-[45%] px-12 py-6 min-h-screen">
+                <div className="relative hidden lg:flex w-full lg:w-[45%] px-12 py-6 h-screen overflow-hidden">
                     <Image
                         src="/login-image.png"
                         alt="Login background"
@@ -73,22 +73,24 @@ export default function Index() {
                         damping: 25,
                         duration: 0.5,
                     }}
-                    className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white overflow-y-auto"
+                    className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white overflow-y-auto h-full"
                 >
-                    <div className="flex px-6 mb-6">
-                        <Image
-                            src="/Logo.svg"
-                            alt="ESG Horizon Logo"
-                            width={50}
-                            height={50}
-                            className="h-20 w-auto object-contain"
-                            priority
-                        />
-                    </div>
+                    <div className="flex flex-1 flex-col px-2 md:px-4 bg-white overflow-y-auto">
+                        <div className="flex px-6 mb-6 pt-6">
+                            <Image
+                                src="/Logo.svg"
+                                alt="ESG Horizon Logo"
+                                width={50}
+                                height={50}
+                                className="h-20 w-auto object-contain"
+                                priority
+                            />
+                        </div>
 
-                    <div className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white">
-                        <div className="w-full max-w-lg space-y-6">
-                            <SignupForm onSubmitted={handleSubmitted} />
+                        <div className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white">
+                            <div className="w-full max-w-lg space-y-6">
+                                <SignupForm onSubmitted={handleSubmitted} />
+                            </div>
                         </div>
                     </div>
                 </motion.div>

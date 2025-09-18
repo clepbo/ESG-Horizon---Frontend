@@ -1,5 +1,5 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { Leaf, Users, Building } from "lucide-react";
 // import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -9,8 +9,29 @@ import RecentActivities from "../components/RecentActivities";
 import { IndustryLeaderboard } from "../components/IndustryLeaderboard";
 import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
 import ReportTable from "../components/ReportTab";
+import ESGTour from "@/app/components/company/ESGTour";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
+  const [showTour, setShowTour] = useState(true)
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem("esg-tour-completed")
+    if (!tourCompleted) {
+      setShowTour(true)
+    }
+  }, [])
+
+  const handleTourComplete = () => {
+    setShowTour(false)
+  }
+
+  if (showTour) {
+    return <ESGTour firstName={user?.first_name || ""} onComplete={handleTourComplete} />
+  }
+
+  
   return (
     <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
       {/* Main Content */}

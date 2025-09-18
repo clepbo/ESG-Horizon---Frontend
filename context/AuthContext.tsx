@@ -136,6 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.removeItem("lastVisitedPage_name");
             localStorage.removeItem("lastVisitedPage_role");
             localStorage.removeItem("lastVisitedPage_page");
+            localStorage.setItem("esg-tour-completed", "false");
         }
 
         toast.dark("Logged out");
@@ -288,7 +289,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 socialLogin,
             }}
         >
-            {loading ? <div className="p-8">Loading...</div> : children}
+            {/* {loading ? <div className="p-8">Loading...</div> : children} */}
+            {children}
         </AuthContext.Provider>
     );
 };
