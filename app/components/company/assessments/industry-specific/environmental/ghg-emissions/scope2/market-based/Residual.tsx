@@ -15,14 +15,14 @@ import {
 } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import {
-  AdditionalFileUpload,
-  FileData,
-} from "@/app/components/company/assessments/AdditionalFileUpload";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
+import {
+  AdditionalFileUpload,
+  FileData,
+} from "@/app/components/company/assessments/AdditionalFileUpload";
 
 interface ResidualFormProps {
   onBack: () => void;
@@ -59,6 +59,7 @@ export function ResidualForm({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const existingData = state.assessmentData.residual;
@@ -69,13 +70,15 @@ export function ResidualForm({
         existingData.files ??
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
+      setAdditionalFields(existingData.additionalFields || []);
     }
   }, [state.assessmentData.residual]);
   const { filled, total } = useMemo(() => {
     return calculateProgress([
       electricityConsumed,
       residualMixFactor,
-      Object.values(files).some(Boolean) || additionalFields.length > 0,
+      Object.values(files).some(Boolean) ||
+        additionalFields.some((field) => field.file),
     ]);
   }, [electricityConsumed, residualMixFactor, files, additionalFields]);
   const validateForm = () => {
@@ -120,6 +123,7 @@ export function ResidualForm({
             size: file.size,
             lastModified: file.lastModified,
             url: uploaded.url,
+            publicId: uploaded.publicId,
           },
         }));
 
@@ -138,7 +142,12 @@ export function ResidualForm({
   };
 
   const savePayload = () => {
-    const payload = { electricityConsumed, residualMixFactor, files };
+    const payload = {
+      electricityConsumed,
+      residualMixFactor,
+      files,
+      additionalFields,
+    };
     dispatch({ type: "UPDATE_RESIDUAL", payload });
     return payload;
   };
@@ -162,33 +171,49 @@ export function ResidualForm({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleAdditionalFieldsChange = (fields: FileData[]) => {
+    setAdditionalFields(fields);
+  };
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
     if (file?.publicId) {
       try {
+        // Start the deleting state for this specific file
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+
         await uploadService.deleteImage(file.publicId);
         toast.success("File deleted successfully");
       } catch (err) {
         toast.error("Failed to delete file");
         console.error(err);
+      } finally {
+        // Stop the deleting state regardless of success or failure
+        setDeleting((prev) => ({ ...prev, [key]: false }));
+
+        // Always remove the file from local state and clear the input field
+        setFiles((prev) => ({
+          ...prev,
+          [key]: null,
+        }));
+
+        if (inputRefs.current[key]) {
+          inputRefs.current[key]!.value = "";
+        }
+
+        if (errors.files) {
+          setErrors((prev) => ({ ...prev, files: undefined }));
+        }
+      }
+    } else {
+      // If there is no publicId, just remove the file from the local state
+      setFiles((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+      if (inputRefs.current[key]) {
+        inputRefs.current[key]!.value = "";
       }
     }
-
-    setFiles((prev) => ({
-      ...prev,
-      [key]: null,
-    }));
-
-    if (inputRefs.current[key]) {
-      inputRefs.current[key]!.value = "";
-    }
-
-    if (errors.files) {
-      setErrors((prev) => ({ ...prev, files: undefined }));
-    }
-  };
-  const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    setAdditionalFields(fields);
   };
   return (
     <div className="min-h-screen bg-green-50 p-6">
@@ -290,65 +315,74 @@ export function ResidualForm({
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 3.2 Documents / Evidence Upload
               </Label>
-              {errors.files && (
-                <p className="text-sm text-red-500 mb-2">{errors.files}</p>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-8">
-                {uploadFields.map((field) => (
-                  <div key={field} className="flex flex-col gap-2">
-                    <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
-                      {field}
-                    </Label>
-                    <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
-                      <Label
-                        htmlFor={`upload-${field
-                          .replace(/\s/g, "-")
-                          .toLowerCase()}`}
-                        className="cursor-pointer flex flex-col items-center gap-2"
-                      >
-                        <CloudUpload className="h-6 w-6 text-muted-foreground" />
-                        <span className="text-xs text-gray-400 text-center">
-                          Upload {field} (Max. 10MB)
-                        </span>
+              <div className="ml-6">
+                {errors.files && (
+                  <p className="text-sm text-red-500">{errors.files}</p>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {uploadFields.map((field) => (
+                    <div key={field} className="flex flex-col gap-2">
+                      <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
+                        {field}
                       </Label>
-                      <Input
-                        id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
-                        type="file"
-                        ref={(el) => {
-                          inputRefs.current[field] = el;
-                        }}
-                        className="hidden"
-                        onChange={(e) => handleFileChange(field, e)}
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        aria-label={`Upload ${field}`}
-                      />
-                      {uploading[field] ? (
-                        <div className="flex items-center gap-2 mt-2 text-gray-500">
-                          <LoadingSpinner size="sm" /> Uploading...
-                        </div>
-                      ) : files[field] ? (
-                        <div className="flex items-center gap-2 mt-2">
-                          <p className="text-sm text-green-600 break-words max-w-full text-center">
-                            Uploaded: {files[field]!.name}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFile(field)}
-                            className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                            aria-label={`Remove ${field}`}
-                          >
-                            <X />
-                          </button>
-                        </div>
-                      ) : null}
-                    </Card>
-                  </div>
-                ))}
+                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
+                        <Label
+                          htmlFor={`upload-${field
+                            .replace(/\s/g, "-")
+                            .toLowerCase()}`}
+                          className="cursor-pointer flex flex-col items-center gap-2"
+                        >
+                          <CloudUpload className="h-6 w-6 text-muted-foreground" />
+                          <span className="text-xs text-gray-400 text-center">
+                            Upload {field} (Max. 10MB)
+                          </span>
+                        </Label>
+                        <Input
+                          id={`upload-${field
+                            .replace(/\s/g, "-")
+                            .toLowerCase()}`}
+                          type="file"
+                          ref={(el) => {
+                            inputRefs.current[field] = el;
+                          }}
+                          className="hidden"
+                          onChange={(e) => handleFileChange(field, e)}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          aria-label={`Upload ${field}`}
+                        />
+                        {uploading[field] ? (
+                          <div className="flex items-center gap-2 mt-2 text-gray-500">
+                            <LoadingSpinner size="sm" /> Uploading...
+                          </div>
+                        ) : deleting[field] ? (
+                          <div className="flex items-center gap-2 mt-2 text-red-500">
+                            <LoadingSpinner size="sm" /> Deleting...
+                          </div>
+                        ) : files[field] ? (
+                          <div className="flex items-center gap-2 mt-2">
+                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                              Uploaded: {files[field]!.name}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveFile(field)}
+                              disabled={deleting[field]} // Disable button while deleting
+                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                              aria-label={`Remove ${field}`}
+                            >
+                              <X />
+                            </button>
+                          </div>
+                        ) : null}
+                      </Card>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="mx-6 mt-6">
+              <div className="mt-6">
                 <AdditionalFileUpload
                   onFieldsChange={handleAdditionalFieldsChange}
+                  initialData={additionalFields}
                 />
               </div>
             </div>

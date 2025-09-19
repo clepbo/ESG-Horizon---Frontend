@@ -1,38 +1,38 @@
+"use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { CloudUpload, X, Plus, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { uploadService } from "@/services/upload.service";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { toast } from "react-toastify";
 
-// The `FileData` interface remains the same
 export interface FileData {
-  id?: string; // Made optional as it may not exist before saving
+  id?: string;
   name: string;
-  size?: number; // Made optional as it may not exist before saving
-  lastModified?: number; // Made optional as it may not exist before saving
+  size?: number;
+  lastModified?: number;
   url?: string;
   publicId?: string;
-  file?: File | null; // Added the 'file' property
+  file?: File | null;
 }
 
 interface AdditionalFileUploadProps {
   onFieldsChange?: (fields: FileData[]) => void;
-  // Add a prop to pass initial data
   initialData?: FileData[];
 }
 
 export function AdditionalFileUpload({
   onFieldsChange,
-  initialData, // Destructure the new prop
+  initialData,
 }: AdditionalFileUploadProps) {
-  const { toast } = useToast();
-  // Use a state that can be initialized with the `initialData` prop
   const [additionalFields, setAdditionalFields] = useState<FileData[]>(
     initialData || []
   );
+  const [uploading, setUploading] = useState<{ [key: number]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: number]: boolean }>({});
 
-  // Use a useEffect to listen for changes to the parent's data and update the local state
   useEffect(() => {
     if (initialData) {
       setAdditionalFields(initialData);
@@ -51,33 +51,67 @@ export function AdditionalFileUpload({
     onFieldsChange?.(newFields);
   };
 
-  const handleFileChange = (
+  const handleFileChange = async (
     index: number,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please select a file smaller than 10MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-      // Note: You can't store a `File` object directly in local storage as it is not serializable.
-      // This is another bug you'll need to address. A workaround is storing file metadata and then handling uploads separately.
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File too large. Please select a file smaller than 10MB.");
+      return;
+    }
+
+    try {
+      setUploading((prev) => ({ ...prev, [index]: true }));
+
+      const uploaded = await uploadService.uploadImage(file);
+
       const newFields = additionalFields.map((item, i) =>
-        i === index ? { ...item, file } : item
+        i === index
+          ? {
+              ...item,
+              file: file,
+              url: uploaded.url,
+              publicId: uploaded.publicId,
+              size: file.size,
+              lastModified: file.lastModified,
+            }
+          : item
       );
+
       setAdditionalFields(newFields);
       onFieldsChange?.(newFields);
+      toast.success(`${file.name} uploaded successfully.`);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      toast.error("There was an error uploading your file.");
+    } finally {
+      setUploading((prev) => ({ ...prev, [index]: false }));
     }
   };
 
-  const handleRemoveFile = (index: number) => {
+  const handleRemoveFile = async (index: number) => {
+    const fileData = additionalFields[index];
+
+    if (fileData?.publicId) {
+      try {
+        setDeleting((prev) => ({ ...prev, [index]: true }));
+        await uploadService.deleteImage(fileData.publicId);
+        toast.success("File was successfully removed.");
+      } catch (err) {
+        console.error("Delete failed:", err);
+        toast.error("There was an error deleting the file.");
+      } finally {
+        setDeleting((prev) => ({ ...prev, [index]: false }));
+      }
+    }
+
     const newFields = additionalFields.map((item, i) =>
-      i === index ? { ...item, file: null } : item
+      i === index
+        ? { ...item, file: null, url: undefined, publicId: undefined }
+        : item
     );
     setAdditionalFields(newFields);
     onFieldsChange?.(newFields);
@@ -97,7 +131,6 @@ export function AdditionalFileUpload({
 
   return (
     <div>
-      {/* Dynamic Additional Fields */}
       {additionalFields.map((fieldData, index) => (
         <div
           key={index}
@@ -112,6 +145,7 @@ export function AdditionalFileUpload({
               value={fieldData.name}
               onChange={(e) => handleNameChange(index, e)}
               className="border-gray-300"
+              disabled={uploading[index] || deleting[index]}
             />
           </div>
           <div className="relative">
@@ -129,6 +163,7 @@ export function AdditionalFileUpload({
                   ) as HTMLInputElement;
                   input?.click();
                 }}
+                disabled={uploading[index] || deleting[index]}
               >
                 <div className="flex items-center">
                   <CloudUpload className="h-4 w-4 mr-2" />
@@ -146,9 +181,20 @@ export function AdditionalFileUpload({
                   size="icon"
                   className="absolute right-16 top-1/2 -mt-1 transform -translate-y-1/2"
                   onClick={() => handleRemoveFile(index)}
+                  disabled={deleting[index]}
                 >
                   <X className="h-4 w-4 text-red-500" />
                 </Button>
+              )}
+              {uploading[index] && (
+                <div className="absolute right-1/2 top-1/2 transform translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-500">
+                  <LoadingSpinner size="sm" /> Uploading...
+                </div>
+              )}
+              {deleting[index] && (
+                <div className="absolute right-1/2 top-1/2 transform translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-red-500">
+                  <LoadingSpinner size="sm" /> Deleting...
+                </div>
               )}
               <Input
                 id={`additional-file-${index}`}
@@ -163,6 +209,7 @@ export function AdditionalFileUpload({
                 size="icon"
                 onClick={() => handleRemoveField(index)}
                 className="border-red-300 text-red-500 hover:bg-red-50"
+                disabled={uploading[index] || deleting[index]}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -170,8 +217,6 @@ export function AdditionalFileUpload({
           </div>
         </div>
       ))}
-
-      {/* Add More Files Button */}
       <Button
         type="button"
         variant="outline"

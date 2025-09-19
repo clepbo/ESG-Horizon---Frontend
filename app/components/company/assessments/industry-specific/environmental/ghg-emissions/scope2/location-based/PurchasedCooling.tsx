@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -69,6 +69,7 @@ export function PurchasedCoolingForm({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const existingData = state.assessmentData.cooling;
@@ -81,14 +82,23 @@ export function PurchasedCoolingForm({
         existingData.files ??
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
+      setAdditionalFields(existingData.additionalFields || []);
     }
   }, [state.assessmentData.cooling]);
 
-  const { total, filled } = calculateProgress([
-    coolingConsumed,
-    Array.isArray(selectedSystems) && selectedSystems.length > 0,
-    Object.values(files).some(Boolean) || additionalFields.length > 0,
-  ]);
+  // const { total, filled } = calculateProgress([
+  //   coolingConsumed,
+  //   Array.isArray(selectedSystems) && selectedSystems.length > 0,
+  //   Object.values(files).some(Boolean) || additionalFields.length > 0,
+  // ]);
+
+  const { filled, total } = useMemo(() => {
+    return calculateProgress([
+      coolingConsumed,
+      Object.values(files).some(Boolean) ||
+        additionalFields.some((field) => field.file),
+    ]);
+  }, [coolingConsumed, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: {
@@ -146,6 +156,7 @@ export function PurchasedCoolingForm({
             size: file.size,
             lastModified: file.lastModified,
             url: uploaded.url,
+            publicId: uploaded.publicId,
           },
         }));
 
@@ -195,6 +206,7 @@ export function PurchasedCoolingForm({
       selectedSystems,
       otherComments,
       files,
+      additionalFields,
     };
 
     dispatch({
@@ -205,29 +217,46 @@ export function PurchasedCoolingForm({
     onNext();
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
     if (file?.publicId) {
       try {
+        // Start the deleting state for this specific file
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+
         await uploadService.deleteImage(file.publicId);
         toast.success("File deleted successfully");
       } catch (err) {
         toast.error("Failed to delete file");
         console.error(err);
+      } finally {
+        // Stop the deleting state regardless of success or failure
+        setDeleting((prev) => ({ ...prev, [key]: false }));
+
+        // Always remove the file from local state and clear the input field
+        setFiles((prev) => ({
+          ...prev,
+          [key]: null,
+        }));
+
+        if (inputRefs.current[key]) {
+          inputRefs.current[key]!.value = "";
+        }
+
+        if (errors.files) {
+          setErrors((prev) => ({ ...prev, files: undefined }));
+        }
       }
-    }
-
-    setFiles((prev) => ({
-      ...prev,
-      [key]: null,
-    }));
-
-    if (inputRefs.current[key]) {
-      inputRefs.current[key]!.value = "";
-    }
-
-    if (errors.files) {
-      setErrors((prev) => ({ ...prev, files: undefined }));
+    } else {
+      // If there is no publicId, just remove the file from the local state
+      setFiles((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+      if (inputRefs.current[key]) {
+        inputRefs.current[key]!.value = "";
+      }
     }
   };
   return (
@@ -331,7 +360,7 @@ export function PurchasedCoolingForm({
               <Label className="text-md font-semibold mb-2 block">
                 2.2 Documents/Evidence Uploads
               </Label>
-              <div className="mx-6">
+              <div className="ml-6">
                 {errors.files && (
                   <p className="text-sm text-red-500">{errors.files}</p>
                 )}
@@ -370,6 +399,10 @@ export function PurchasedCoolingForm({
                           <div className="flex items-center gap-2 mt-2 text-gray-500">
                             <LoadingSpinner size="sm" /> Uploading...
                           </div>
+                        ) : deleting[field] ? (
+                          <div className="flex items-center gap-2 mt-2 text-red-500">
+                            <LoadingSpinner size="sm" /> Deleting...
+                          </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
                             <p className="text-sm text-green-600 break-words max-w-full text-center">
@@ -378,6 +411,7 @@ export function PurchasedCoolingForm({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
+                              disabled={deleting[field]} // Disable button while deleting
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
@@ -390,9 +424,10 @@ export function PurchasedCoolingForm({
                   ))}
                 </div>
               </div>
-              <div className="mx-6 mt-6">
+              <div className="mt-6">
                 <AdditionalFileUpload
                   onFieldsChange={handleAdditionalFieldsChange}
+                  initialData={additionalFields}
                 />
               </div>
             </div>

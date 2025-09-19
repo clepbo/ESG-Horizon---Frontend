@@ -1,20 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CloudUpload, ArrowLeft, Save, CheckCircle2 } from "lucide-react";
-import { useAssessment } from "@/hooks/useAssessment";
+import { CloudUpload, ArrowLeft, Save, CheckCircle2, X } from "lucide-react";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-
-interface UploadFile {
-  file: File | null;
-  error: string | null;
-}
+import {
+  AdditionalFileUpload,
+  FileData,
+} from "@/app/components/company/assessments/AdditionalFileUpload";
+import { uploadService } from "@/services/upload.service";
+import { toast } from "react-toastify";
 
 interface HFCLeaksProps {
   onBack: () => void;
@@ -23,8 +25,6 @@ interface HFCLeaksProps {
   totalSteps: number;
   isSubmitted: boolean;
 }
-
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 const uploadFields = [
   "Asset register of cooling units",
@@ -58,29 +58,20 @@ export function HFCLeaks({
     refrigerantAdded: hfcLeaks?.refrigerantAdded ?? 0,
   });
 
-  const [assetRegister, setAssetRegister] = useState<UploadFile>({
-    file: null,
-    error: null,
-  });
-  const [purchaseInvoices, setPurchaseInvoices] = useState<UploadFile>({
-    file: null,
-    error: null,
-  });
-  const [serviceLogs, setServiceLogs] = useState<UploadFile>({
-    file: null,
-    error: null,
-  });
-  const [certification, setCertification] = useState<UploadFile>({
-    file: null,
-    error: null,
-  });
-
+  const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
+    hfcLeaks?.files || {}
+  );
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const [additionalFields, setAdditionalFields] = useState<FileData[]>(
+    hfcLeaks?.additionalFields || []
+  );
+  const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const labelClass = "text-gray-700 text-sm font-medium";
-
   const { filled, total } = useMemo(() => {
     const numericFields = [
       formState.manureSystem,
@@ -92,30 +83,19 @@ export function HFCLeaks({
       formState.R407C,
       formState.R507A,
     ];
-
-    const fileFields = [
-      assetRegister.file,
-      purchaseInvoices.file,
-      serviceLogs.file,
-      certification.file,
-    ];
-
-    // Check which fields are filled
+    const hasFiles =
+      Object.values(files).some(Boolean) ||
+      additionalFields.some((field) => field.file);
     const numericProgress = numericFields.map((value) => {
-      // For boolean checkboxes and number inputs, check if they have a value or are true
       if (typeof value === "boolean") {
         return value;
       }
-
       return value !== "" && value !== 0;
     });
-
-    const fileProgress = fileFields.map((file) => file !== null);
-
-    const progressStatus = [...numericProgress, ...fileProgress];
+    const progressStatus = [...numericProgress, hasFiles];
 
     return calculateProgress(progressStatus);
-  }, [formState, assetRegister, purchaseInvoices, serviceLogs, certification]);
+  }, [formState, files, additionalFields]);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
@@ -135,20 +115,52 @@ export function HFCLeaks({
     }));
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setFileState: React.Dispatch<React.SetStateAction<UploadFile>>
+  const handleFileChange = async (
+    field: string,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) {
-      setFileState({ file: null, error: null });
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        files: `File "${field}" exceeds 10MB limit`,
+      }));
       return;
     }
-    const file = files[0];
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      setFileState({ file: null, error: "File size must be under 10MB" });
-    } else {
-      setFileState({ file, error: null });
+
+    try {
+      setUploading((prev) => ({ ...prev, [field]: true })); // start spinner
+
+      const uploaded = await uploadService.uploadImage(file);
+
+      if (uploaded?.url) {
+        setFiles((prev) => ({
+          ...prev,
+          [field]: {
+            name: file.name,
+            size: file.size,
+            lastModified: file.lastModified,
+            url: uploaded.url,
+            publicId: uploaded.publicId,
+          },
+        }));
+
+        toast.success(`${file.name} uploaded successfully`);
+      } else {
+        toast.error("Failed to upload file");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error uploading file");
+    } finally {
+      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+    }
+
+    if (errors.files) {
+      const { files, ...rest } = errors;
+      setErrors(rest);
     }
   };
 
@@ -181,7 +193,8 @@ export function HFCLeaks({
         R507A: formState.R507A,
         others: formState.others,
         refrigerantAdded: formState.refrigerantAdded,
-        files: {},
+        files: files,
+        additionalFields: additionalFields,
       },
     });
     dispatch({ type: "SAVE_PROGRESS" });
@@ -206,7 +219,8 @@ export function HFCLeaks({
         R507A: formState.R507A,
         others: formState.others,
         refrigerantAdded: formState.refrigerantAdded,
-        files: {},
+        files: files,
+        additionalFields: additionalFields,
       },
     });
 
@@ -241,7 +255,52 @@ export function HFCLeaks({
       <span className="text-gray-700 text-sm font-medium">{label}</span>
     </label>
   );
+  const handleAdditionalFieldsChange = (fields: FileData[]) => {
+    setAdditionalFields(fields);
+  };
 
+  const handleRemoveFile = async (key: string) => {
+    const file = files[key];
+    if (file?.publicId) {
+      try {
+        // Start the deleting state for this specific file
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+
+        await uploadService.deleteImage(file.publicId);
+        toast.success("File deleted successfully");
+      } catch (err) {
+        toast.error("Failed to delete file");
+        console.error(err);
+      } finally {
+        // Stop the deleting state regardless of success or failure
+        setDeleting((prev) => ({ ...prev, [key]: false }));
+
+        // Always remove the file from local state and clear the input field
+        setFiles((prev) => ({
+          ...prev,
+          [key]: null,
+        }));
+
+        if (inputRefs.current[key]) {
+          inputRefs.current[key]!.value = "";
+        }
+
+        if (errors.files) {
+          const { files, ...rest } = errors;
+          setErrors(rest);
+        }
+      }
+    } else {
+      // If there is no publicId, just remove the file from the local state
+      setFiles((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+      if (inputRefs.current[key]) {
+        inputRefs.current[key]!.value = "";
+      }
+    }
+  };
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -348,19 +407,45 @@ export function HFCLeaks({
                         {field}
                       </Label>
                       <Card className="p-4 flex flex-col items-center justify-center border-2 border-gray-300 hover:border-green-500 transition-all h-full">
-                        <Label
-                          htmlFor={`upload-${field
-                            .replace(/\s/g, "-")
-                            .toLowerCase()}`}
-                          className="cursor-pointer flex flex-col items-center gap-2 w-full"
-                        >
-                          <CloudUpload className="h-8 w-8 text-gray-400" />
-                          <span className="text-sm text-gray-500 text-center">
-                            Upload {field.split(" ")[0]}
-                            <br />
-                            <span className="text-xs">(Max. 10MB)</span>
-                          </span>
-                        </Label>
+                        {uploading[field] || deleting[field] ? (
+                          <div className="flex items-center flex-col">
+                            <LoadingSpinner size="sm" />
+                            <span className="mt-2 text-sm text-gray-500">
+                              {uploading[field]
+                                ? "Uploading..."
+                                : "Deleting..."}
+                            </span>
+                          </div>
+                        ) : files[field] ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <p className="text-sm text-green-600 truncate max-w-full text-center">
+                              Uploaded: {files[field]?.name}
+                            </p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={() => handleRemoveFile(field)}
+                              disabled={deleting[field]}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Label
+                            htmlFor={`upload-${field
+                              .replace(/\s/g, "-")
+                              .toLowerCase()}`}
+                            className="cursor-pointer flex flex-col items-center gap-2 w-full"
+                          >
+                            <CloudUpload className="h-8 w-8 text-gray-400" />
+                            <span className="text-sm text-gray-500 text-center">
+                              Upload {field}
+                              <br />
+                              <span className="text-xs">(Max. 10MB)</span>
+                            </span>
+                          </Label>
+                        )}
                         <Input
                           id={`upload-${field
                             .replace(/\s/g, "-")
@@ -368,56 +453,23 @@ export function HFCLeaks({
                           type="file"
                           className="hidden"
                           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                          onChange={(e) =>
-                            handleFileChange(
-                              e,
-                              (() => {
-                                switch (field) {
-                                  case "Asset register of cooling units":
-                                    return setAssetRegister;
-                                  case "Refrigerant purchase invoices":
-                                    return setPurchaseInvoices;
-                                  case "Maintenance/service logs showing recharge volumes":
-                                    return setServiceLogs;
-                                  case "Certification of refrigerant type":
-                                    return setCertification;
-                                  default:
-                                    return () => {};
-                                }
-                              })()
-                            )
-                          }
+                          onChange={(e) => handleFileChange(field, e)}
+                          ref={(el) => {
+                            inputRefs.current[field] = el;
+                          }}
+                          disabled={!!files[field]}
                           aria-label={`Upload ${field}`}
                         />
-                        {(() => {
-                          const stateFile = (() => {
-                            switch (field) {
-                              case "Asset register of cooling units":
-                                return assetRegister.file;
-                              case "Refrigerant purchase invoices":
-                                return purchaseInvoices.file;
-                              case "Maintenance/service logs showing recharge volumes":
-                                return serviceLogs.file;
-                              case "Certification of refrigerant type":
-                                return certification.file;
-                              default:
-                                return null;
-                            }
-                          })();
-                          if (stateFile) {
-                            return (
-                              <p className="text-green-600 text-xs mt-2 truncate w-full text-center">
-                                Uploaded: {stateFile.name}
-                              </p>
-                            );
-                          }
-                          return null;
-                        })()}
                       </Card>
                     </div>
                   ))}
                 </div>
               </section>
+
+              <AdditionalFileUpload
+                onFieldsChange={handleAdditionalFieldsChange}
+                initialData={additionalFields}
+              />
 
               <div className="grid grid-cols-3 gap-4 pt-8">
                 <Button

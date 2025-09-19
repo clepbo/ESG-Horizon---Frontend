@@ -19,14 +19,14 @@ import {
   useAssessment,
 } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import {
-  AdditionalFileUpload,
-  FileData,
-} from "@/app/components/company/assessments/AdditionalFileUpload";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
+import {
+  AdditionalFileUpload,
+  FileData,
+} from "@/app/components/company/assessments/AdditionalFileUpload";
 
 interface PurchasedElectricityFormProps {
   onBack: () => void;
@@ -63,6 +63,7 @@ export function PurchasedElectricityForm({
     files?: string;
   }>({});
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const existingData = state.assessmentData?.electricity as NonNullable<
@@ -77,6 +78,7 @@ export function PurchasedElectricityForm({
         existingData.files ??
           Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
+      setAdditionalFields(existingData.additionalFields || []);
     }
   }, [state.assessmentData?.electricity]);
 
@@ -85,7 +87,8 @@ export function PurchasedElectricityForm({
     return calculateProgress([
       electricityConsumed,
       supplier,
-      Object.values(files).some(Boolean) || additionalFields.length > 0,
+      Object.values(files).some(Boolean) ||
+        additionalFields.some((field) => field.file),
     ]);
   }, [electricityConsumed, supplier, files, additionalFields]);
   const validateForm = () => {
@@ -134,6 +137,7 @@ export function PurchasedElectricityForm({
             size: file.size,
             lastModified: file.lastModified,
             url: uploaded.url,
+            publicId: uploaded.publicId,
           },
         }));
 
@@ -150,19 +154,19 @@ export function PurchasedElectricityForm({
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
+  const handleAdditionalFieldsChange = (fields: FileData[]) => {
+    setAdditionalFields(fields);
+  };
 
   const savePayload = () => {
     const payload = {
       electricityConsumed,
       supplier,
+      additionalFields,
       files,
     };
     dispatch({ type: "UPDATE_ELECTRICITY", payload });
     return payload;
-  };
-
-  const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    setAdditionalFields(fields);
   };
 
   const handleSaveAndContinue = () => {
@@ -188,28 +192,43 @@ export function PurchasedElectricityForm({
     const file = files[key];
     if (file?.publicId) {
       try {
+        // Start the deleting state for this specific file
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+
         await uploadService.deleteImage(file.publicId);
         toast.success("File deleted successfully");
       } catch (err) {
         toast.error("Failed to delete file");
         console.error(err);
+      } finally {
+        // Stop the deleting state regardless of success or failure
+        setDeleting((prev) => ({ ...prev, [key]: false }));
+
+        // Always remove the file from local state and clear the input field
+        setFiles((prev) => ({
+          ...prev,
+          [key]: null,
+        }));
+
+        if (inputRefs.current[key]) {
+          inputRefs.current[key]!.value = "";
+        }
+
+        if (errors.files) {
+          setErrors((prev) => ({ ...prev, files: undefined }));
+        }
+      }
+    } else {
+      // If there is no publicId, just remove the file from the local state
+      setFiles((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+      if (inputRefs.current[key]) {
+        inputRefs.current[key]!.value = "";
       }
     }
-
-    setFiles((prev) => ({
-      ...prev,
-      [key]: null,
-    }));
-
-    if (inputRefs.current[key]) {
-      inputRefs.current[key]!.value = "";
-    }
-
-    if (errors.files) {
-      setErrors((prev) => ({ ...prev, files: undefined }));
-    }
   };
-
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -299,12 +318,11 @@ export function PurchasedElectricityForm({
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 1.2 Documents / Evidence Upload
               </Label>
-              <div className="mx-6">
+              <div className="ml-6">
                 {errors.files && (
-                  <p className="text-sm text-red-500 mb-2">{errors.files}</p>
+                  <p className="text-sm text-red-500">{errors.files}</p>
                 )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {uploadFields.map((field) => (
                     <div key={field} className="flex flex-col gap-2">
                       <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
@@ -339,6 +357,10 @@ export function PurchasedElectricityForm({
                           <div className="flex items-center gap-2 mt-2 text-gray-500">
                             <LoadingSpinner size="sm" /> Uploading...
                           </div>
+                        ) : deleting[field] ? (
+                          <div className="flex items-center gap-2 mt-2 text-red-500">
+                            <LoadingSpinner size="sm" /> Deleting...
+                          </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
                             <p className="text-sm text-green-600 break-words max-w-full text-center">
@@ -347,6 +369,7 @@ export function PurchasedElectricityForm({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
+                              disabled={deleting[field]} // Disable button while deleting
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
@@ -359,9 +382,10 @@ export function PurchasedElectricityForm({
                   ))}
                 </div>
               </div>
-              <div className="mx-6 mt-6">
+              <div className="mt-6">
                 <AdditionalFileUpload
                   onFieldsChange={handleAdditionalFieldsChange}
+                  initialData={additionalFields}
                 />
               </div>
             </div>
