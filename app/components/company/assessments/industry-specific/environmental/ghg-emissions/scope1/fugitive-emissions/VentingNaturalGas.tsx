@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -11,12 +11,19 @@ import {
   ArrowRight,
   Save,
   CheckCircle2,
+  X,
 } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import type { AssessmentData } from "@/hooks/useAssessment";
+import type { AssessmentData, FileMetadata } from "@/hooks/useAssessment";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
+import {
+  AdditionalFileUpload,
+  FileData,
+} from "@/app/components/company/assessments/AdditionalFileUpload";
+import { uploadService } from "@/services/upload.service";
+import { toast } from "react-toastify";
 
 interface VentingNaturalGasProps {
   onBack: () => void;
@@ -24,15 +31,6 @@ interface VentingNaturalGasProps {
   stepIndex: number;
   totalSteps: number;
 }
-
-interface FileMetadata {
-  name: string;
-  size: number;
-  lastModified: number;
-}
-
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
-
 const uploadFields = [
   "Venting event logs (time, duration, pressure)",
   "Simulation model outputs (when direct measurement missing)",
@@ -62,6 +60,10 @@ export function VentingNaturalGas({
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     const existingData = assessmentData.fugitiveEmissions
@@ -77,19 +79,33 @@ export function VentingNaturalGas({
       if (existingData.files) {
         setFiles(existingData.files);
       }
+      setAdditionalFields(existingData.additionalFields || []);
     }
   }, [assessmentData.fugitiveEmissions?.ventingNaturalGas]);
 
+  // const { filled, total } = useMemo(() => {
+  //   const allInputs = [formState.volumeOfGasVented];
+
+  //   const numericProgress = allInputs.map((value) => value !== "");
+  //   const fileProgress = Object.values(files).map((file) => file !== null);
+
+  //   const progressStatus = [...numericProgress, ...fileProgress];
+
+  //   return calculateProgress(progressStatus);
+  // }, [formState, files]);
+
   const { filled, total } = useMemo(() => {
-    const allInputs = [formState.volumeOfGasVented];
+    const hasVolume = formState.volumeOfGasVented !== "";
 
-    const numericProgress = allInputs.map((value) => value !== "");
-    const fileProgress = Object.values(files).map((file) => file !== null);
+    // Check if any file exists in either the 'files' object or the 'additionalFields' array.
+    const hasFiles =
+      Object.values(files).some(Boolean) ||
+      additionalFields.some((field) => field.file);
 
-    const progressStatus = [...numericProgress, ...fileProgress];
-
-    return calculateProgress(progressStatus);
-  }, [formState, files]);
+    // The 'filled' count will be the sum of these two booleans (1 if true, 0 if false).
+    // The 'total' count will always be 2, representing the two major criteria.
+    return calculateProgress([hasVolume, hasFiles]);
+  }, [formState.volumeOfGasVented, files, additionalFields]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -119,45 +135,65 @@ export function VentingNaturalGas({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFileChange = (
+  const handleFileChange = async (
     field: string,
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > MAX_FILE_SIZE_BYTES) {
-        setErrors((prev) => ({
-          ...prev,
-          files: `File "${field}" exceeds 10MB limit`,
-        }));
-        return;
-      }
-      setFiles((prev) => ({
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({
         ...prev,
-        [field]: {
-          name: file.name,
-          size: file.size,
-          lastModified: file.lastModified,
-        },
+        files: `File "${field}" exceeds 10MB limit`,
       }));
-      if (errors.files) {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors.files;
-          return newErrors;
-        });
+      return;
+    }
+
+    try {
+      setUploading((prev) => ({ ...prev, [field]: true })); // start spinner
+
+      const uploaded = await uploadService.uploadImage(file);
+
+      if (uploaded?.url) {
+        setFiles((prev) => ({
+          ...prev,
+          [field]: {
+            name: file.name,
+            size: file.size,
+            lastModified: file.lastModified,
+            url: uploaded.url,
+            publicId: uploaded.publicId,
+          },
+        }));
+
+        toast.success(`${file.name} uploaded successfully`);
+      } else {
+        toast.error("Failed to upload file");
       }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error uploading file");
+    } finally {
+      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+    }
+
+    if (errors.files) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.files;
+        return newErrors;
+      });
     }
   };
-
   const handleSaveAndContinue = () => {
     if (!validateForm()) return;
 
     setIsSaving(true);
     const payload = {
       volumeOfGasVented: Number(formState.volumeOfGasVented),
-
       files,
+      additionalFields,
     };
 
     dispatch({
@@ -178,12 +214,62 @@ export function VentingNaturalGas({
       type: "UPDATE_FUGITIVE_VENTING",
       payload: {
         volumeOfGasVented: Number(formState.volumeOfGasVented),
-
         files,
+        additionalFields,
       },
     });
 
     onNext();
+  };
+
+  const handleRemoveFile = async (key: string) => {
+    const file = files[key];
+    if (file?.publicId) {
+      try {
+        // Start the deleting state for this specific file
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+
+        await uploadService.deleteImage(file.publicId);
+        toast.success("File deleted successfully");
+      } catch (err) {
+        toast.error("Failed to delete file");
+        console.error(err);
+      } finally {
+        // Stop the deleting state regardless of success or failure
+        setDeleting((prev) => ({ ...prev, [key]: false }));
+
+        // Always remove the file from local state and clear the input field
+        setFiles((prev) => ({
+          ...prev,
+          [key]: null,
+        }));
+
+        if (inputRefs.current[key]) {
+          inputRefs.current[key]!.value = "";
+        }
+
+        if (errors.files) {
+          setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors.files;
+            return newErrors;
+          });
+        }
+      }
+    } else {
+      // If there is no publicId, just remove the file from the local state
+      setFiles((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+      if (inputRefs.current[key]) {
+        inputRefs.current[key]!.value = "";
+      }
+    }
+  };
+
+  const handleAdditionalFieldsChange = (fields: FileData[]) => {
+    setAdditionalFields(fields);
   };
 
   return (
@@ -295,10 +381,10 @@ export function VentingNaturalGas({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {uploadFields.map((field) => (
                       <div key={field} className="flex flex-col gap-2">
-                        <Label className="text-sm font-medium text-gray-700 mb-1 ml-1">
+                        <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
                           {field}
                         </Label>
-                        <Card className="p-4 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-green-500 transition-all h-full">
+                        <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
                           <Label
                             htmlFor={`upload-${field
                               .replace(/\s/g, "-")
@@ -307,7 +393,7 @@ export function VentingNaturalGas({
                           >
                             <CloudUpload className="h-6 w-6 text-muted-foreground" />
                             <span className="text-xs text-gray-400 text-center">
-                              Upload {field.split(" ")[0]} (Max. 10MB)
+                              Upload {field} (Max. 10MB)
                             </span>
                           </Label>
                           <Input
@@ -315,20 +401,48 @@ export function VentingNaturalGas({
                               .replace(/\s/g, "-")
                               .toLowerCase()}`}
                             type="file"
+                            ref={(el) => {
+                              inputRefs.current[field] = el;
+                            }}
                             className="hidden"
                             onChange={(e) => handleFileChange(field, e)}
-                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                            accept=".pdf,.jpg,.jpeg,.png"
                             aria-label={`Upload ${field}`}
                           />
-                          {files[field] && (
-                            <p className="text-sm text-green-600 mt-2 text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                          )}
+                          {uploading[field] ? (
+                            <div className="flex items-center gap-2 mt-2 text-gray-500">
+                              <LoadingSpinner size="sm" /> Uploading...
+                            </div>
+                          ) : deleting[field] ? (
+                            <div className="flex items-center gap-2 mt-2 text-red-500">
+                              <LoadingSpinner size="sm" /> Deleting...
+                            </div>
+                          ) : files[field] ? (
+                            <div className="flex items-center gap-2 mt-2">
+                              <p className="text-sm text-green-600 break-words max-w-full text-center">
+                                Uploaded: {files[field]!.name}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFile(field)}
+                                disabled={deleting[field]} // Disable button while deleting
+                                className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                                aria-label={`Remove ${field}`}
+                              >
+                                <X />
+                              </button>
+                            </div>
+                          ) : null}
                         </Card>
                       </div>
                     ))}
                   </div>
+                </div>
+                <div className="mt-6">
+                  <AdditionalFileUpload
+                    onFieldsChange={handleAdditionalFieldsChange}
+                    initialData={additionalFields}
+                  />
                 </div>
               </div>
 
