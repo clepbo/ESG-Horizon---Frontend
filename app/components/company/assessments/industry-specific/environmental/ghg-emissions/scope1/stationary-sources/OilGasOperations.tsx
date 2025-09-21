@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 interface OilGasOperationsProps {
   onBack: () => void;
   onSubmit: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -44,6 +45,7 @@ const uploadFields = [
 export function OilGasOperations({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -192,27 +194,38 @@ export function OilGasOperations({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      onShoreProduction,
-      additionalFields,
-      files,
-    };
-    dispatch({
-      type: "UPDATE_STATIONARY_OIL_GAS",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    localStorage.setItem(
-      "stationarySources.oilGasOperations",
-      JSON.stringify(payload)
-    );
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        onShoreProduction,
+        additionalFields,
+        files,
+      };
+      dispatch({
+        type: "UPDATE_STATIONARY_OIL_GAS",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      localStorage.setItem(
+        "stationarySources.oilGasOperations",
+        JSON.stringify(payload)
+      );
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleSubmit = () => {

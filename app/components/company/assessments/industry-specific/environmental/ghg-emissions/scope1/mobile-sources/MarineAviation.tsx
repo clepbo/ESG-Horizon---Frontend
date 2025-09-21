@@ -29,6 +29,7 @@ import { toast } from "react-toastify";
 interface MarineAviationProps {
   onBack: () => void;
   onSubmit: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -44,6 +45,7 @@ const uploadFields = [
 export function MarineAviation({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -214,24 +216,35 @@ export function MarineAviation({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      air,
-      marine,
-      additionalFields,
-      files,
-    };
-    dispatch({
-      type: "UPDATE_MOBILE_MARINE_AVIATION",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        air,
+        marine,
+        additionalFields,
+        files,
+      };
+      dispatch({
+        type: "UPDATE_MOBILE_MARINE_AVIATION",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleSubmit = () => {

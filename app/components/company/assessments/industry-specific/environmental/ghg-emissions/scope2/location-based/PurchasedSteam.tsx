@@ -29,6 +29,7 @@ import {
 interface PurchasedSteamFormProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -47,6 +48,7 @@ const steamSources = [
 export function PurchasedSteamForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedSteamFormProps) {
@@ -170,22 +172,32 @@ export function PurchasedSteamForm({
   };
   const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      volume: steamConsumed,
-      selectedSources,
-      otherComments,
-      files,
-      additionalFields,
-    };
+    setShowSaveSuccess(false);
 
-    dispatch({ type: "UPDATE_STEAM", payload });
-    dispatch({ type: "SAVE_PROGRESS" });
-
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        volume: steamConsumed,
+        selectedSources,
+        otherComments,
+        files,
+        additionalFields,
+      };
+      dispatch({ type: "UPDATE_STEAM", payload });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {
@@ -422,17 +434,6 @@ export function PurchasedSteamForm({
                 />
               </div>
             </div>
-
-            {/* Save Status */}
-            {isSaving ? (
-              <div className="text-sm text-gray-500 flex items-center gap-2">
-                <LoadingSpinner size="sm" /> Saving...
-              </div>
-            ) : showSaveSuccess ? (
-              <p className="text-sm text-green-600 flex items-center gap-1">
-                <CheckCircle2 className="h-4 w-4" /> Saved successfully!
-              </p>
-            ) : null}
 
             {/* Nav Buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">

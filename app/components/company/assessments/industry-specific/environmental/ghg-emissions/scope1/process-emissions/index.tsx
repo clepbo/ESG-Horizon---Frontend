@@ -40,6 +40,7 @@ export function ProcessEmissionsForm({
       <CementManufacturing
         onBack={onBack}
         onNext={() => setCurrentStep("gas-flaring")}
+        onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
       />
@@ -54,6 +55,7 @@ export function ProcessEmissionsForm({
           setShowSuccess(true);
           setIsSubmitted(true);
         }}
+        onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}

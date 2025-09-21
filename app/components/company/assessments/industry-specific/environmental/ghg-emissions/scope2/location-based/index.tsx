@@ -44,6 +44,7 @@ export function LocationBasedForm({
       <PurchasedElectricityForm
         onBack={onBack}
         onNext={() => setCurrentStep("cooling")}
+        onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
       />
@@ -55,6 +56,7 @@ export function LocationBasedForm({
       <PurchasedCoolingForm
         onBack={() => setCurrentStep("electricity")}
         onNext={() => setCurrentStep("steam")}
+        onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
       />
@@ -66,6 +68,7 @@ export function LocationBasedForm({
       <PurchasedSteamForm
         onBack={() => setCurrentStep("cooling")}
         onNext={() => setCurrentStep("heating")}
+        onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
       />
@@ -80,6 +83,7 @@ export function LocationBasedForm({
           setShowSuccess(true);
           setIsSubmitted(true);
         }}
+        onBackToHub={onBack}
         stepIndex={4}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}

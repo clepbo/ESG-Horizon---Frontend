@@ -22,6 +22,7 @@ import {
 interface PurchasedHeatingFormProps {
   onBack: () => void;
   onSubmit: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -37,6 +38,7 @@ const uploadFields = [
 export function PurchasedHeatingForm({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -161,16 +163,27 @@ export function PurchasedHeatingForm({
     additionalFields,
   });
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = buildPayload();
-    dispatch({ type: "UPDATE_HEATING", payload });
-    dispatch({ type: "SAVE_PROGRESS" });
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = buildPayload();
+      dispatch({ type: "UPDATE_HEATING", payload });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleSubmit = () => {
@@ -445,22 +458,27 @@ export function PurchasedHeatingForm({
               </Button>
 
               <Button
+                type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="cursor-pointer justify-self-center bg-green-500 text-white hover:bg-green-300 transition-colors"
+                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                aria-label="Save and continue later"
               >
                 {isSaving ? (
                   <>
-                    <LoadingSpinner size="sm" className="mr-2" /> Saving...
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Saving...
                   </>
                 ) : showSaveSuccess ? (
                   <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" /> Saved!
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" /> Save & Continue Later
+                    <Save className="h-4 w-4 mr-2" />
+                    Save & Continue Later
                   </>
                 )}
               </Button>
