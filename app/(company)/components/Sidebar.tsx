@@ -126,6 +126,7 @@ export default function Sidebar() {
                   )}
                 />
                 <span className="hidden md:inline ml-3">{name}</span>
+                
               </Link>
             );
           })}
