@@ -36,6 +36,7 @@ import { toast } from "react-toastify";
 interface IndustrialProcessesFormProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -50,6 +51,7 @@ const uploadFields = [
 export function IndustrialProcessesForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: IndustrialProcessesFormProps) {
@@ -196,27 +198,38 @@ export function IndustrialProcessesForm({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      boilerFurnaces,
-      additionalFields,
-      files,
-    };
-    dispatch({
-      type: "UPDATE_STATIONARY_INDUSTRIAL",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    localStorage.setItem(
-      "stationarySources.industrialProcesses",
-      JSON.stringify(payload)
-    );
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        boilerFurnaces,
+        additionalFields,
+        files,
+      };
+      dispatch({
+        type: "UPDATE_STATIONARY_INDUSTRIAL",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      localStorage.setItem(
+        "stationarySources.industrialProcesses",
+        JSON.stringify(payload)
+      );
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {

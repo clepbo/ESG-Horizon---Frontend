@@ -37,6 +37,7 @@ import { toast } from "react-toastify";
 interface VehicleEquipmentProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -51,6 +52,7 @@ const uploadFields = [
 export function VehicleEquipment({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: VehicleEquipmentProps) {
@@ -277,25 +279,36 @@ export function VehicleEquipment({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      forkliftFuelType,
-      heavyDutyFuelType,
-      tractorFuelType,
-      additionalFields,
-      files,
-    };
-    dispatch({
-      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        forkliftFuelType,
+        heavyDutyFuelType,
+        tractorFuelType,
+        additionalFields,
+        files,
+      };
+      dispatch({
+        type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {

@@ -36,6 +36,7 @@ import { toast } from "react-toastify";
 interface RoadTransportProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -51,6 +52,7 @@ const uploadFields = [
 export function RoadTransport({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: RoadTransportProps) {
@@ -228,24 +230,35 @@ export function RoadTransport({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      vehicleFleet,
-      carsBuses,
-      additionalFields,
-      files,
-    };
-    dispatch({
-      type: "UPDATE_MOBILE_ROAD_TRANSPORT",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        vehicleFleet,
+        carsBuses,
+        additionalFields,
+        files,
+      };
+      dispatch({
+        type: "UPDATE_MOBILE_ROAD_TRANSPORT",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {

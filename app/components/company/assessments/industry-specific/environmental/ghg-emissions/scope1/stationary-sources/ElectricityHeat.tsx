@@ -35,6 +35,7 @@ import { toast } from "react-toastify";
 interface ElectricityHeatFormProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -51,6 +52,7 @@ const uploadFields = [
 export function ElectricityHeatForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityHeatFormProps) {
@@ -225,23 +227,34 @@ export function ElectricityHeatForm({
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
-
   const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    dispatch({
-      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    localStorage.setItem(
-      "stationarySources.electricityHeat",
-      JSON.stringify(payload)
-    );
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      dispatch({
+        type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      localStorage.setItem(
+        "stationarySources.electricityHeat",
+        JSON.stringify(payload)
+      );
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {
