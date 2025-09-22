@@ -458,8 +458,8 @@ export default function CompanySetupModal({
         };
 
         try {
-            // const response = await bulkCreateMutation(payload);
-            // onSubmit(response);
+            const response = await bulkCreateMutation(payload);
+            onSubmit(response);
             setLoadingIsDone(false);
             setNewSubsidiaries([]);
             setNewDepartments([]);

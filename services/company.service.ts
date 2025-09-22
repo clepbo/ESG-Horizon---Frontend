@@ -1,7 +1,7 @@
 import api from "@/lib/api/axios";
 import { User } from "./user.service";
-import { Department } from '@/services/department.service';
-import { Subsidiary } from '@/services/subsidiaries.service';
+import { Department } from "@/services/department.service";
+import { Subsidiary } from "@/services/subsidiaries.service";
 
 export interface Company {
     id: number;
@@ -27,11 +27,11 @@ export interface Company {
     company_type?: string;
 }
 
-// interface BulkCreateData = {
-//     subsidiaries: [];
-//     departments: [];
-//     users: [];
-// }
+interface BulkCreateData {
+    subsidiaries: Partial<Subsidiary>[];
+    departments: Partial<Department>[];
+    users: Partial<User>[];
+}
 
 export const companyService = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,8 +94,8 @@ export const companyService = {
         return data;
     },
 
-    // bulkCreate: async (payload: BulkCreateDto) => {
-    //     const data = await api.post("/company-setup/bulk-create", payload);
-    //     return data;
-    // },
+    bulkCreate: async (payload: BulkCreateData) => {
+        const data = await api.post("/company-setup/bulk-create", payload);
+        return data;
+    },
 };
