@@ -92,10 +92,7 @@ export default function LoginForm() {
             }, 3000);
             setLoading(false);
             setIsTransitioning(false);
-        } finally {
-            setLoading(false);
-            setIsTransitioning(false);
-        }
+        } 
     };
 
     const onSocialLoginClick = async (provider: "google") => {

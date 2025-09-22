@@ -4,7 +4,9 @@ export interface Department {
     id: number;
     name: string;
     description?: string;
-    companyId: number;
+    companyId?: number;
+    subsidiaryId?: number;
+    leadId?: number;
     contact_email?: string;
     lead?: {
         id: number;
@@ -24,15 +26,20 @@ export interface DepartmentUser {
     profile_photo_url?: string;
 }
 
-export interface CreateDepartment {
-  name: string;
-  description?: string;
-  leadId?: number;  
-  contact_email?: string;
+export interface UpdateDepartment {
+    name?: string;
+    description?: string;
+    leadId?: number;
+    contact_email?: string;
 }
 
-
-
+export interface CreateDepartment {
+    name: string;
+    description?: string;
+    leadId?: number;
+    contact_email?: string;
+    subsidiaryId?: number;
+}
 
 export const departmentService = {
     create: async (companyId: string | number, payload?: CreateDepartment) => {
@@ -45,7 +52,7 @@ export const departmentService = {
         return data;
     },
 
-    update: async (id: string | number, payload?: Department) => {
+    update: async (id: string | number, payload?: UpdateDepartment) => {
         const data = await api.patch(`/departments/${id}`, payload);
         return data;
     },

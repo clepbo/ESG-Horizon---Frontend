@@ -5,6 +5,7 @@ export type Subsidiary = {
     name: string;
     industryId?: number;
     industry?: {
+        id?: number;
         industry: string;
         sector?: string;
     };
@@ -12,6 +13,7 @@ export type Subsidiary = {
     status: string;
     teamLead_email?: string;
     teamLead_name?: string;
+    teamLeadId?: number;
 };
 
 export const subsidiariesService = {
