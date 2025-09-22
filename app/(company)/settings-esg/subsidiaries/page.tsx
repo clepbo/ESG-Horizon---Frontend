@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { useDebounce } from "use-debounce";
-
+import { useSearchParams } from "next/navigation";
 import Header from "@/app/components/layout/Header";
 import { Input } from "@/app/components/ui/input";
 import {
@@ -22,6 +22,15 @@ import {
 import { industriesService } from "@/services/industries.services";
 import { useAuth } from "@/context/AuthContext";
 import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
+import CompanySetupModal from "@/app/components/company/CompanySetupModal";
+import { toast } from "react-toastify";
+
+interface IndustryOptionsProps {
+    value: number;
+    label: string;
+    industry: string;
+    sector: string;
+}
 
 export default function SubsidiariesPage() {
     const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
@@ -30,10 +39,22 @@ export default function SubsidiariesPage() {
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebounce(search, 300);
     const [industryOptions, setIndustryOptions] = useState<
-        { value: number; label: string }[]
+        IndustryOptionsProps[]
     >([]);
     const [industryFilter, setIndustryFilter] = useState("All");
     const { user } = useAuth();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTab, setModalTab] = useState<
+        "subsidiary" | "department" | "user"
+    >("subsidiary");
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const shouldOpenModal = searchParams.get("setup");
+        if (shouldOpenModal === "true") {
+            setIsModalOpen(true);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         const fetchSubsidiaries = async () => {
@@ -56,10 +77,10 @@ export default function SubsidiariesPage() {
         fetchSubsidiaries();
     }, [user]);
 
-     const deleteSubsidiary = useDeleteSubsidiary((id: number) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setSubsidiaries((prev: any[]) => prev.filter((s) => s.id !== id));
-  });
+    const deleteSubsidiary = useDeleteSubsidiary((id: number) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setSubsidiaries((prev: any[]) => prev.filter((s) => s.id !== id));
+    });
 
     useEffect(() => {
         const fetchIndustries = async () => {
@@ -69,6 +90,8 @@ export default function SubsidiariesPage() {
                     data.map((i) => ({
                         value: i.id,
                         label: `${i.industry} (${i.sector})`,
+                        sector: i.sector,
+                        industry: i.industry,
                     }))
                 );
             } catch (error) {
@@ -97,6 +120,93 @@ export default function SubsidiariesPage() {
         setSubsidiaries((prev) => [{ ...newSub }, ...prev]);
     };
 
+    const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
+        setModalTab(tab);
+        setIsModalOpen(true);
+    };
+
+    interface SubmissionData {
+        subsidiaries: Subsidiary[];
+    }
+
+    // SubsidiariesPage.tsx
+
+    // SubsidiariesPage.tsx
+
+    // SubsidiariesPage.tsx
+
+    // const handleModalSubmit = (submissionData: SubmissionData) => {
+    //     const updatedSubsidiaries = submissionData.subsidiaries;
+
+    //     setSubsidiaries((prevSubs) => {
+    //         // Create a new list by placing the new subsidiaries at the beginning
+    //         // of the previous list. This ensures the new items are visible immediately.
+    //         const newList = [...updatedSubsidiaries, ...prevSubs];
+    //         return newList;
+    //     });
+
+    //     toast.success("Submitted Successfully");
+    //     setIsModalOpen(false);
+    // };
+
+    const handleModalSubmit = (submissionData: SubmissionData) => {
+    const updatedSubsidiaries = submissionData.subsidiaries;
+
+    setSubsidiaries((prevSubs) => {
+        // Hydrate the new subsidiaries with full industry data
+        const hydratedSubs = updatedSubsidiaries.map((newSub) => {
+            // Find the full industry object by matching the industry name
+            const fullIndustry = industryOptions.find(
+                (opt) => opt.industry === newSub?.industry?.industry
+            );
+
+            // If the full industry is found, use it. Otherwise, use the existing incomplete data.
+            const completeIndustry = fullIndustry ? {
+                id: Number(crypto.randomUUID()),
+                industry: fullIndustry.industry,
+                sector: fullIndustry.sector,
+            } : newSub.industry;
+
+            // Return a new object that includes the complete industry data
+            return {
+                ...newSub,
+                industry: completeIndustry,
+            };
+        });
+
+        // Combine the newly hydrated subsidiaries with the previous list
+        return [...hydratedSubs, ...prevSubs];
+    });
+
+    toast.success("Submitted Successfully");
+    setIsModalOpen(false);
+};
+
+    const OLDhandleModalSubmit = (submissionData: SubmissionData) => {
+        const updatedSubsidiaries = submissionData.subsidiaries;
+
+        setSubsidiaries((prevSubs) => {
+            const updatedList = [...prevSubs];
+
+            updatedSubsidiaries.forEach((newSub) => {
+                const existingIndex = updatedList.findIndex(
+                    (sub) => sub.id === newSub.id
+                );
+
+                if (existingIndex !== -1) {
+                    updatedList[existingIndex] = newSub;
+                } else {
+                    updatedList.unshift(newSub);
+                }
+            });
+
+            return updatedList;
+        });
+
+        toast.success("Submitted Successfully");
+        setIsModalOpen(false);
+    };
+
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50">
             <main className="flex-1 h-full overflow-y-auto p-6">
@@ -115,7 +225,10 @@ export default function SubsidiariesPage() {
                             <div>
                                 <button
                                     className="flex items-center rounded-sm border bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-600 cursor-pointer"
-                                    onClick={() => setShowAddModal(true)}
+                                    // onClick={() => setShowAddModal(true)}
+                                    onClick={() =>
+                                        openModalWithTab("subsidiary")
+                                    }
                                 >
                                     <Plus className="mr-1 h-4 w-4" />
                                     Add New Subsidiary
@@ -174,7 +287,7 @@ export default function SubsidiariesPage() {
                             <SubsidiaryTable
                                 subsidiaries={filteredSubsidiaries}
                                 onDelete={(id) => {
-                                    deleteSubsidiary.mutate(+id)
+                                    deleteSubsidiary.mutate(+id);
                                     setSubsidiaries((prev) =>
                                         prev.filter((s) => s.id !== id)
                                     );
@@ -199,6 +312,15 @@ export default function SubsidiariesPage() {
                     onAddSubsidiary={handleAddSubsidiary}
                 />
             )}
+
+            <CompanySetupModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                initialTab={modalTab}
+                onSubmit={(data) => {
+                    handleModalSubmit(data);
+                }}
+            />
         </div>
     );
 }

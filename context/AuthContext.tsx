@@ -139,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.setItem("esg-tour-completed", "false");
         }
 
-        toast.dark("Logged out");
+        toast.dark("Logged out", { autoClose: 1000});
     }, []);
 
     const socialLogin = async (provider: "google") => {

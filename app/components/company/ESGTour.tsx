@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { User, ArrowRight } from "lucide-react";
+import { FC, useState } from "react";
+import { User, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
     Card,
@@ -11,6 +11,8 @@ import {
     CardTitle,
 } from "../ui/card";
 import Header from "@/app/(company)/components/Header";
+import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 interface TourCardProps {
     title: string;
@@ -18,23 +20,19 @@ interface TourCardProps {
     buttonText: string;
     href: string;
     onAction?: () => void;
+    isCurrentLoading?: boolean;
+    allButtonsDisabled: boolean;
+    onClick: () => void;
 }
 
 function TourCard({
     title,
     description,
     buttonText,
-    href,
-    onAction,
+    isCurrentLoading,
+    allButtonsDisabled,
+    onClick,
 }: TourCardProps) {
-    const handleClick = () => {
-        if (onAction) {
-            onAction();
-        } else {
-            window.location.href = href;
-        }
-    };
-
     return (
         <Card className="h-full flex flex-col p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
             <CardHeader className="flex-1 text-center p-0">
@@ -47,12 +45,22 @@ function TourCard({
             </CardHeader>
             <CardContent className="pt-4 px-0">
                 <Button
-                    onClick={handleClick}
+                    onClick={onClick}
                     variant="outline"
                     className="w-full border-green-500 text-green-600 hover:bg-green-50 bg-transparent flex items-center justify-center gap-2 text-xs"
+                    disabled={allButtonsDisabled}
                 >
-                    {buttonText}
-                    <ArrowRight className="w-4 h-4" />
+                    {isCurrentLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Loading...
+                        </>
+                    ) : (
+                        <>
+                            {buttonText}
+                            <ArrowRight className="w-4 h-4" />
+                        </>
+                    )}
                 </Button>
             </CardContent>
         </Card>
@@ -64,15 +72,39 @@ interface ESGTourProps {
     onComplete?: () => void;
 }
 
-export default function ESGTour({
+const ESGTour: FC<ESGTourProps> = ({
     firstName = "User",
     onComplete,
-}: ESGTourProps) {
-    const [isVisible, setIsVisible] = useState(true);
+}: ESGTourProps) => {
+    const [isVisible, setIsVisible] = useState<boolean>(true);
+    const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
+    const { user } = useAuth();
+
+    const handleCardClick = (
+        index: number,
+        href: string,
+        onAction?: () => void
+    ): void => {
+        setLoadingIndex(index);
+        setTimeout(() => {
+            if (onAction) {
+                onAction();
+            } else {
+                window.location.href = href;
+            }
+        }, 500);
+    };
 
     const handleContinueToDashboard = () => {
         setIsVisible(false);
+        if (onComplete) {
+            onComplete();
+        }
+    };
+
+    const handleOptOut = () => {
         localStorage.setItem("esg-tour-completed", "true");
+        setIsVisible(false);
         if (onComplete) {
             onComplete();
         }
@@ -102,7 +134,7 @@ export default function ESGTour({
             description:
                 "Create departments and invite team members. Assign roles (Admin, Editor, Viewer).",
             buttonText: "Set Up Departments & Teams",
-            href: "/settings-esg/subsidiaries",
+            href: "/settings-esg/subsidiaries?setup=true",
         },
         {
             title: "Start First Assessment",
@@ -128,15 +160,25 @@ export default function ESGTour({
         },
     ];
 
+    const allButtonsDisabled: boolean = loadingIndex !== null;
+
     return (
         <div className="min-h-screen bg-[#F2FBF3] p-6">
             <Header />
             <div className="max-w-4xl mx-auto">
-                {/* Header Section */}
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                            <User className="w-8 h-8 text-gray-600" />
+                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center relative">
+                            {user && user.profile_photo_url ? (
+                                <Image
+                                    src={user.profile_photo_url || "/image.png"}
+                                    alt={`${user.first_name} photo`}
+                                    className="rounded-full object-cover"
+                                    fill
+                                />
+                            ) : (
+                                <User className="w-8 h-8 text-gray-600" />
+                            )}
                         </div>
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -145,7 +187,6 @@ export default function ESGTour({
                     <p className="text-gray-600">What would you like to do?</p>
                 </div>
 
-                {/* Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {tourCards.map((card, index) => (
                         <TourCard
@@ -155,12 +196,24 @@ export default function ESGTour({
                             buttonText={card.buttonText}
                             href={card.href}
                             onAction={card.onAction}
+                            isCurrentLoading={loadingIndex === index}
+                            allButtonsDisabled={allButtonsDisabled}
+                            onClick={() =>
+                                handleCardClick(index, card.href, card.onAction)
+                            }
                         />
                     ))}
                 </div>
 
-                {/* Footer */}
                 <div className="text-center text-sm text-gray-600">
+                    <p className="mb-2">
+                        <button
+                            onClick={handleOptOut}
+                            className="underline text-gray-900 hover:text-gray-700 font-medium transition-colors cursor-pointer"
+                        >
+                            Want to stop seeing this tour page? Opt Out.
+                        </button>
+                    </p>
                     Need Help?{" "}
                     <a
                         href="mailto:support@esghorizon.com"
@@ -172,4 +225,6 @@ export default function ESGTour({
             </div>
         </div>
     );
-}
+};
+
+export default ESGTour;

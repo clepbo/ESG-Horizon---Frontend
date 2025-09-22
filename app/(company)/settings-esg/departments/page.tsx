@@ -22,7 +22,8 @@ import {
 import { User } from "@/services/user.service";
 import RoleGuard from "@/lib/RoleGuard";
 import { getCurrentUser } from "@/lib/utils";
-
+import CompanySetupModal from "@/app/components/company/CompanySetupModal";
+import { toast } from "react-toastify";
 
 export default function DepartmentsPage() {
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -35,6 +36,21 @@ export default function DepartmentsPage() {
     const [usersLoading, setUsersLoading] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalTab, setModalTab] = useState<
+        "subsidiary" | "department" | "user"
+    >("department");
+
+    interface SubmissionData {
+        departments: Department[];
+    }
+
+    const handleModalSubmit = (data: SubmissionData) => {
+        toast.success("Submitted Successfully");
+        setIsModalOpen(false);
+        console.log("Modal submitted data:", data);
+        loadDepartments();
+    };
 
     const loadDepartments = useCallback(async () => {
         try {
@@ -88,7 +104,9 @@ export default function DepartmentsPage() {
                 name: newDept.name,
                 description: newDept.description,
                 contact_email: newDept.contact_email || currentUser?.email,
-                leadId: newDept.lead?.id ? Number(newDept.lead.id) : Number(currentUser?.id),
+                leadId: newDept.lead?.id
+                    ? Number(newDept.lead.id)
+                    : Number(currentUser?.id),
             };
 
             const createdDepartment = await departmentService.create(
@@ -120,6 +138,11 @@ export default function DepartmentsPage() {
         });
     }, [departments, search]);
 
+    const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
+        setModalTab(tab);
+        setIsModalOpen(true);
+    };
+
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50">
             <main className="flex-1 h-full overflow-y-auto p-6">
@@ -136,15 +159,14 @@ export default function DepartmentsPage() {
                     </div>
 
                     <div className="flex justify-between items-center mb-6 mt-4">
-                       <RoleGuard allowedRoles={["company_esg_admin"]}>
-
-                        <button
-                            className="border bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
-                            onClick={() => setShowAddDepartmentModal(true)}
-                        >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Add Department
-                        </button>
+                        <RoleGuard allowedRoles={["company_esg_admin"]}>
+                            <button
+                                className="border bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
+                                onClick={() => openModalWithTab("department")}
+                            >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add Department
+                            </button>
                         </RoleGuard>
                     </div>
                 </div>
@@ -202,6 +224,15 @@ export default function DepartmentsPage() {
                     users={users}
                 />
             )}
+
+            <CompanySetupModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                initialTab={modalTab}
+                onSubmit={(data) => {
+                    handleModalSubmit(data);
+                }}
+            />
         </div>
     );
 }
