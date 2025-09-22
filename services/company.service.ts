@@ -1,5 +1,7 @@
 import api from "@/lib/api/axios";
 import { User } from "./user.service";
+import { Department } from '@/services/department.service';
+import { Subsidiary } from '@/services/subsidiaries.service';
 
 export interface Company {
     id: number;
@@ -24,6 +26,12 @@ export interface Company {
     category?: string;
     company_type?: string;
 }
+
+// interface BulkCreateData = {
+//     subsidiaries: [];
+//     departments: [];
+//     users: [];
+// }
 
 export const companyService = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -85,4 +93,9 @@ export const companyService = {
         const data = await api.patch(`/company/esg/${id}/status`, { status });
         return data;
     },
+
+    // bulkCreate: async (payload: BulkCreateDto) => {
+    //     const data = await api.post("/company-setup/bulk-create", payload);
+    //     return data;
+    // },
 };

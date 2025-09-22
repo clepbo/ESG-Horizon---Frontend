@@ -6,20 +6,18 @@ import {
     useCompanySubsidiaries,
     useCreateSubsidiary,
     useEditSubsidiary,
-    useDeleteSubsidiary,
 } from "@/services/hooks/subsidiaries.hooks";
 import {
     useCompanyUsers,
     useInviteUser,
     useEditUser,
-    useDeleteUser,
     useCompanyDetails,
+    useBulkCreate,
 } from "@/services/hooks/company.hooks";
 import {
     useCompanyDepartments,
     useCreateDepartment,
     useUpdateDepartment,
-    useDeleteDepartment,
 } from "@/services/hooks/department.hooks";
 import { Industry } from "@/services/industries.services";
 import { User } from "@/services/user.service";
@@ -65,15 +63,14 @@ export default function CompanySetupModal({
     const [loadingIsDone, setLoadingIsDone] = useState(false);
     const createSubsidiaryMutation = useCreateSubsidiary();
     const editSubsidiaryMutation = useEditSubsidiary();
-    const deleteSubsidiaryMutation = useDeleteSubsidiary();
 
     const createDepartmentMutation = useCreateDepartment();
     const editDepartmentMutation = useUpdateDepartment();
-    const deleteDepartmentMutation = useDeleteDepartment();
 
     const inviteUserMutation = useInviteUser();
     const editUserMutation = useEditUser();
-    const deleteUserMutation = useDeleteUser();
+
+    const { mutateAsync: bulkCreateMutation } = useBulkCreate();
 
     const [activeTab, setActiveTab] = useState<TabType>(initialTab);
     const [formData, setFormData] = useState({
@@ -297,22 +294,25 @@ export default function CompanySetupModal({
         }
     };
 
-    const handleDelete = async (id: number, type: TabType) => {
+    const handleDelete = (id: number, type: TabType) => {
         if (type === "subsidiary") {
-            await deleteSubsidiaryMutation.mutateAsync(id);
+            setNewSubsidiaries((prev) => prev.filter((sub) => sub.id !== id));
         } else if (type === "department") {
-            await deleteDepartmentMutation.mutateAsync(id);
+            setNewDepartments((prev) => prev.filter((dept) => dept.id !== id));
         } else if (type === "user") {
-            await deleteUserMutation.mutateAsync(id);
+            setNewUsers((prev) => prev.filter((user) => user.id !== id));
         }
     };
 
     const handleClose = () => {
         setLoadingIsDone(false);
+        setNewSubsidiaries([]);
+        setNewDepartments([]);
+        setNewUsers([]);
         onClose();
     };
 
-    const handleFinalSubmit = async () => {
+    const OLDhandleFinalSubmit = async () => {
         setLoadingIsDone(true);
 
         if (!companyId) {
@@ -321,6 +321,14 @@ export default function CompanySetupModal({
             );
             return;
         }
+
+        const payload = {
+            subsidiaries: newSubsidiaries.filter(
+                (item) => item.id > 9999999999
+            ),
+            departments: newDepartments.filter((item) => item.id > 9999999999),
+            users: newUsers.filter((item) => item.id > 9999999999),
+        };
 
         try {
             const subsidiaryPromises = newSubsidiaries.map(async (sub) => {
@@ -430,10 +438,35 @@ export default function CompanySetupModal({
                 users: newUsers,
             };
             onSubmit(submissionData);
-            console.log(submissionData);
+            setNewSubsidiaries([]);
+            setNewDepartments([]);
+            setNewUsers([]);
             setLoadingIsDone(false);
         } catch (error) {
             console.error("Final submission failed:", error);
+        }
+    };
+
+    const handleFinalSubmit = async () => {
+        setLoadingIsDone(true);
+        const payload = {
+            subsidiaries: newSubsidiaries.filter(
+                (item) => item.id > 9999999999
+            ),
+            departments: newDepartments.filter((item) => item.id > 9999999999),
+            users: newUsers.filter((item) => item.id > 9999999999),
+        };
+
+        try {
+            // const response = await bulkCreateMutation(payload);
+            // onSubmit(response);
+            setLoadingIsDone(false);
+            setNewSubsidiaries([]);
+            setNewDepartments([]);
+            setNewUsers([]);
+        } catch (error) {
+            console.error("Bulk submission failed:", error);
+            setLoadingIsDone(false);
         }
     };
 

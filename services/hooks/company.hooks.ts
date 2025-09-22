@@ -111,3 +111,18 @@ export const useUpdateCompanyDetails = () => {
         },
     });
 };
+
+/** Hook for company setup (to create subs, deps, and users) */
+export const useBulkCreate = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        // mutationFn: companyService.bulkCreate,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["companySubsidiaries"],
+            });
+            queryClient.invalidateQueries({ queryKey: ["departments"] });
+            queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+        },
+    });
+};
