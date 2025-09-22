@@ -3,8 +3,8 @@ import clsx from "clsx";
 
 
 interface Props {
-    heading: string;
-    subheading: string;
+    heading?: string;
+    subheading?: string;
     className?: string
 }
 export default function HeadingAndSubheading({heading, subheading, className}: Props) {
