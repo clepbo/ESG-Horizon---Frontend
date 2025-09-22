@@ -311,7 +311,7 @@ export function AddSource({
                         className={
                           errors[`${source.id}-volume`]
                             ? "border-destructive"
-                            : ""
+                            : "border-neutral-200"
                         }
                       />
                       {errors[`${source.id}-volume`] && (

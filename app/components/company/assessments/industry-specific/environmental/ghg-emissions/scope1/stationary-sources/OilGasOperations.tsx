@@ -235,6 +235,7 @@ export function OilGasOperations({
       additionalFields,
       files,
     };
+    console.log(payload);
     dispatch({
       type: "UPDATE_STATIONARY_OIL_GAS",
       payload,
