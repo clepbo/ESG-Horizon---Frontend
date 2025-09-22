@@ -39,6 +39,7 @@ export function StationarySourcesForm({
         onBack={onBack}
         onNext={() => setCurrentStep("industrial-processes")}
         stepIndex={1}
+        onBackToHub={onBack}
         totalSteps={steps.length}
       />
     );
@@ -49,6 +50,7 @@ export function StationarySourcesForm({
       <IndustrialProcessesForm
         onBack={() => setCurrentStep("electricity-heat")}
         onNext={() => setCurrentStep("oil-gas")}
+        onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
       />
@@ -63,6 +65,7 @@ export function StationarySourcesForm({
           setShowSuccess(true);
           setIsSubmitted(true);
         }}
+        onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}

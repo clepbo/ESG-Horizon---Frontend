@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 interface HFCLeaksProps {
   onBack: () => void;
   onSubmit: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -36,6 +37,7 @@ const uploadFields = [
 export function HFCLeaks({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -178,31 +180,40 @@ export function HFCLeaks({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validate()) return;
-
     setIsSaving(true);
-
-    dispatch({
-      type: "UPDATE_FUGITIVE_HFC_LEAKS",
-      payload: {
-        manureSystem: formState.manureSystem,
-        R134a: formState.R134a,
-        R410A: formState.R410A,
-        R404A: formState.R404A,
-        R407C: formState.R407C,
-        R507A: formState.R507A,
-        others: Number(formState.others),
-        refrigerantAdded: Number(formState.refrigerantAdded),
-        files: files,
-        additionalFields: additionalFields,
-      },
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      dispatch({
+        type: "UPDATE_FUGITIVE_HFC_LEAKS",
+        payload: {
+          manureSystem: formState.manureSystem,
+          R134a: formState.R134a,
+          R410A: formState.R410A,
+          R404A: formState.R404A,
+          R407C: formState.R407C,
+          R507A: formState.R507A,
+          others: Number(formState.others),
+          refrigerantAdded: Number(formState.refrigerantAdded),
+          files: files,
+          additionalFields: additionalFields,
+        },
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -474,6 +485,7 @@ export function HFCLeaks({
 
               <div className="grid grid-cols-3 gap-4 pt-8">
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={onBack}
                   className="justify-self-start hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
@@ -483,6 +495,7 @@ export function HFCLeaks({
                   Previous
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleSaveAndContinue}
                   disabled={isSaving}
@@ -507,6 +520,7 @@ export function HFCLeaks({
                   )}
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleSubmit}
                   disabled={isSaving}

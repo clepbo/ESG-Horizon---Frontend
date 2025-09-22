@@ -39,6 +39,7 @@ export function FugitiveEmissionsForm({
       <VentingNaturalGas
         onBack={onBack}
         onNext={() => setCurrentStep("hfc-leaks")}
+        onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
       />
@@ -53,6 +54,7 @@ export function FugitiveEmissionsForm({
           setShowSuccess(true);
           setIsSubmitted(true);
         }}
+        onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}

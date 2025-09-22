@@ -28,6 +28,7 @@ import { toast } from "react-toastify";
 interface VentingNaturalGasProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -39,6 +40,7 @@ const uploadFields = [
 export function VentingNaturalGas({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: VentingNaturalGasProps) {
@@ -186,25 +188,34 @@ export function VentingNaturalGas({
       });
     }
   };
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-    const payload = {
-      volumeOfGasVented: Number(formState.volumeOfGasVented),
-      files,
-      additionalFields,
-    };
-
-    dispatch({
-      type: "UPDATE_FUGITIVE_VENTING",
-      payload,
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        volumeOfGasVented: Number(formState.volumeOfGasVented),
+        files,
+        additionalFields,
+      };
+      dispatch({
+        type: "UPDATE_FUGITIVE_VENTING",
+        payload,
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {
@@ -448,6 +459,7 @@ export function VentingNaturalGas({
 
               <div className="grid grid-cols-3 gap-4 pt-8">
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={onBack}
                   className="justify-self-start hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
@@ -457,6 +469,7 @@ export function VentingNaturalGas({
                   Previous
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleSaveAndContinue}
                   disabled={isSaving}
@@ -481,6 +494,7 @@ export function VentingNaturalGas({
                   )}
                 </Button>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleNext}
                   disabled={isSaving}

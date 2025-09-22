@@ -48,6 +48,7 @@ export function MarketBasedForm({
       <ElectricityIppsForm
         onBack={onBack}
         onNext={() => setCurrentStep("electricityEAC")}
+        onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
       />
@@ -59,6 +60,7 @@ export function MarketBasedForm({
       <ElectricityEACForm
         onBack={() => setCurrentStep("electricityIPP")}
         onNext={() => setCurrentStep("residual")}
+        onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
       />
@@ -70,6 +72,7 @@ export function MarketBasedForm({
       <ResidualForm
         onBack={() => setCurrentStep("electricityEAC")}
         onNext={() => setCurrentStep("coolingSteam")}
+        onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
       />
@@ -84,6 +87,7 @@ export function MarketBasedForm({
           setShowSuccess(true);
           setIsSubmitted(true);
         }}
+        onBackToHub={onBack}
         stepIndex={4}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}

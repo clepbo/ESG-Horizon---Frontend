@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 interface CO2ReleaseProps {
   onBack: () => void;
   onNext: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -40,6 +41,7 @@ const uploadFields = [
 export function CementManufacturing({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: CO2ReleaseProps) {
@@ -141,17 +143,29 @@ export function CementManufacturing({
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
     setIsSaving(true);
-    dispatch({
-      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
-      payload: { cementQuantity, files, additionalFields },
-    });
-    dispatch({ type: "SAVE_PROGRESS" });
-    setIsSaving(false);
-    setShowSaveSuccess(true);
-    setTimeout(() => setShowSaveSuccess(false), 2000);
+    setShowSaveSuccess(false);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      dispatch({
+        type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
+        payload: { cementQuantity, files, additionalFields },
+      });
+      dispatch({ type: "SAVE_PROGRESS" });
+      setIsSaving(false);
+      toast.success("Data saved successfully!");
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+      toast.error("Failed to save data.");
+    }
   };
 
   const handleNext = () => {

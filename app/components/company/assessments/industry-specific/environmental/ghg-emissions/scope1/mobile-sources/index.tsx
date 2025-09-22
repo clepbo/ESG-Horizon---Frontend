@@ -38,6 +38,7 @@ export function MobileSourcesForm({
       <RoadTransport
         onBack={onBack}
         onNext={() => setCurrentStep("vehicle-equipment")}
+        onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
       />
@@ -49,6 +50,7 @@ export function MobileSourcesForm({
       <VehicleEquipment
         onBack={() => setCurrentStep("road-transport")}
         onNext={() => setCurrentStep("marine-aviation")}
+        onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
       />
@@ -63,6 +65,7 @@ export function MobileSourcesForm({
           setShowSuccess(true);
           setIsSubmitted(true);
         }}
+        onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
