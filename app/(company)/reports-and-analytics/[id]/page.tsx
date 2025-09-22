@@ -1,11 +1,11 @@
 import React from 'react'
 import ReportSummary from '../components/ReportSummary'
+import ReportSummarySkeleton from '../components/skeleton/ReportSummarySkeleton';
 
 export default function pages() {
-  const loading = false;
+  const loading = true;
 
   if (loading) {
-    const ReportSummarySkeleton = React.lazy(() => import('../components/skeleton/ReportSummarySkeleton'));
     return (
       <React.Suspense fallback={<div>Loading...</div>}>
         <ReportSummarySkeleton />
