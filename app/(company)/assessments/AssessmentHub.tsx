@@ -15,6 +15,7 @@ import {
   Assessment,
   AssessmentTable,
 } from "@/app/components/company/assessments/AssessmentTable";
+import Header from "../components/Header";
 
 const mockAssessments: Assessment[] = [
   {
@@ -90,16 +91,6 @@ const subsidiaries = [
   "Refining Division",
   "Marketing Division",
 ];
-
-const Header = () => (
-  <header className="py-4">
-    <nav className="flex items-center justify-between">
-      <div className="flex items-center space-x-4">
-        <h1 className="text-xl font-bold text-gray-800">My App</h1>
-      </div>
-    </nav>
-  </header>
-);
 
 export default function AssessmentHub() {
   const { state, dispatch } = useAssessment();
