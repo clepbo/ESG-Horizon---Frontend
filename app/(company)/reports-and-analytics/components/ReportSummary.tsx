@@ -6,6 +6,7 @@ import BackButton from "@/app/components/ui/reusables/BackButton";
 import CustomDropdown from "./CustomDropdown";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssessmentAll, {  data, PillarAssessmentCard } from "./AssessmentAll";
+import Link from "next/link";
 
 
 interface ReportSummaryProps {
@@ -64,7 +65,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                             {/* Actions */}
                             <div className="flex flex-col sm:flex-row gap-2 lg:justify-end ">
                                 <Button className="bg-green-500 hover:bg-green-400 text-white px-2 rounded-lg">
-                                    View Full Report
+                                    <Link href={`/reports-and-analytics/1/report`}>
+                                        View Full Report
+                                    </Link>
                                 </Button>
                                 <CustomDropdown
                                     options={[

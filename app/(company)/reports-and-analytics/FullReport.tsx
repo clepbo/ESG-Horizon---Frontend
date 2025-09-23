@@ -1,0 +1,53 @@
+import React from 'react'
+import { OverallSummary } from './components/OverallSummaryCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import { EmissionInventoryWrapper } from './components/EmissionIventory';
+import { trendData } from './components/data/trendData';
+import ComparativeTrendAnalysis from './components/charts/ComparativeTrendAnalysis';
+import DirectEmission from './components/DirectEmission';
+import EmissionProgressComponent from './components/EmissionProgressComponents';
+import { emissionsData } from './components/data/reportData';
+
+export default function FullReport() {
+    const scopeKeys = ["Scope 1", "Scope 2", "Scope 3"]
+    const scopeColors = ["#FF6B3D", "#3E9BFF", "#9B4DFF"]
+
+    return (
+        <div className={`w-full grid gap-4`}>
+
+            <div className={`grid w-full gap-4 lg:gap-8 rounded-lg`}>
+
+                <div className={`flex justify-between w-full items-center`}>
+                    <h1 className="text-2xl lg:text-3xl font-semibold text-foreground"> Greenhouse Gas Emissions </h1>
+                    <Select>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Export report" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none" disabled>
+                                Select file format
+                            </SelectItem>
+                            <SelectItem value="pdf"> PDF</SelectItem>
+                            <SelectItem value="csv">CSV</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <OverallSummary />
+
+            </div>
+            <div className={`grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm`}>
+                <EmissionInventoryWrapper />
+            <hr className='text-gray-300'/>
+                <ComparativeTrendAnalysis data={trendData} keys={scopeKeys} colors={scopeColors} />
+            <hr className='text-gray-300'/>
+            
+            <EmissionProgressComponent data={emissionsData} title={'Scope 1: Direct Emissions'} total={32900} color={'orange-500'} />
+            <hr className='text-gray-300'/>
+            <EmissionProgressComponent data={emissionsData} title={'Scope 2: Indirect Energy Emissions'} total={30900} color={'blue-500'} />
+            <hr className='text-gray-300'/>
+            <EmissionProgressComponent data={emissionsData} title={'Scope 3: Value Chain Emissions'} total={44900} color={'purple-500'} />
+            </div>
+
+        </div>
+    )
+}

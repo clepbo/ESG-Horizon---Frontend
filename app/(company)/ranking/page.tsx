@@ -14,7 +14,7 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
       {/* Sidebar */}
-      <Sidebar />
+      {/* <Sidebar /> */}
 
       {/* Main Content */}
       <main className="flex-1 h-full overflow-y-auto p-6">

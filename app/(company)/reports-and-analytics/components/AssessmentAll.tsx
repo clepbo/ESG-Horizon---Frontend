@@ -36,10 +36,10 @@ export const data: AssessmentItem[] = [
         title: "Scope 3",
         value: 3030,
         unit: "tCO₂e",
-        icon: <GoDotFill className="h-4 w-4 bg-green-500 rounded-full  text-green-500" />,
-        colorClass: "bg-green-500",
+        icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full  text-purple-500" />,
+        colorClass: "bg-purple-500",
         percentage: 11,
-        textColorClass: "text-green-500",
+        textColorClass: "text-purple-500",
     },
 ]
 export default function AssessmentAll() {
