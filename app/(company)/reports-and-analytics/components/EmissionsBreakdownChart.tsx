@@ -117,7 +117,7 @@ export function EmissionsBreakdownChart() {
       }
 
       // A more robust way to calculate HFC leaks would be to map each type to a GWP
-      const hfcEmissions = (hfcLeaks?.refrigerantAdded || 0) * 1430; // Example factor for R134a GWP
+      const hfcEmissions = Number(hfcLeaks?.refrigerantAdded || 0) * 1430; // Example factor for R134a GWP
       if (hfcEmissions > 0) {
         parts.push({
           name: "Scope 1 - HFC Leaks",

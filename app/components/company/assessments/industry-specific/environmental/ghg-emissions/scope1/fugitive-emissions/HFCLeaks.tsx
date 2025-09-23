@@ -56,8 +56,8 @@ export function HFCLeaks({
     R404A: Boolean(hfcLeaks?.R404A),
     R407C: Boolean(hfcLeaks?.R407C),
     R507A: Boolean(hfcLeaks?.R507A),
-    others: hfcLeaks?.others ?? 0,
-    refrigerantAdded: hfcLeaks?.refrigerantAdded ?? 0,
+    others: hfcLeaks?.others ?? "",
+    refrigerantAdded: hfcLeaks?.refrigerantAdded ?? "",
   });
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -113,7 +113,8 @@ export function HFCLeaks({
     const { name, value } = e.target;
     setFormState((prev) => ({
       ...prev,
-      [name]: name === "manureSystem" ? value : Number(value),
+      // [name]: name === "manureSystem" ? value : Number(value),
+      [name]: value,
     }));
   };
 
@@ -172,8 +173,8 @@ export function HFCLeaks({
     if (!formState.manureSystem.trim()) {
       newErrors.manureSystem = "Please specify manure management system";
     }
-    if (formState.refrigerantAdded < 0) {
-      newErrors.refrigerantAdded = "Quantity cannot be negative";
+    if (formState.refrigerantAdded == "") {
+      newErrors.refrigerantAdded = "Quantity cannot be empty";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -194,8 +195,8 @@ export function HFCLeaks({
           R404A: formState.R404A,
           R407C: formState.R407C,
           R507A: formState.R507A,
-          others: formState.others,
-          refrigerantAdded: formState.refrigerantAdded,
+          others: Number(formState.others),
+          refrigerantAdded: Number(formState.refrigerantAdded),
           files: files,
           additionalFields: additionalFields,
         },
@@ -228,8 +229,8 @@ export function HFCLeaks({
         R404A: formState.R404A,
         R407C: formState.R407C,
         R507A: formState.R507A,
-        others: formState.others,
-        refrigerantAdded: formState.refrigerantAdded,
+        others: Number(formState.others),
+        refrigerantAdded: Number(formState.refrigerantAdded),
         files: files,
         additionalFields: additionalFields,
       },

@@ -110,9 +110,9 @@ export interface AssessmentData {
       R404A: boolean;
       R407C: boolean;
       R507A: boolean;
-      others: number;
+      others: number | string;
       manureSystem: string;
-      refrigerantAdded: number;
+      refrigerantAdded: number | string;
       files?: { [key: string]: FileMetadata | null };
       additionalFields?: FileData[];
     };
@@ -316,9 +316,9 @@ const initialState: AssessmentState = {
         R404A: false,
         R407C: false,
         R507A: false,
-        others: 0,
+        others: "",
         manureSystem: "",
-        refrigerantAdded: 0,
+        refrigerantAdded: "",
         files: {},
       },
     },
