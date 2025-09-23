@@ -3,7 +3,7 @@ import ReportSummary from '../components/ReportSummary'
 import ReportSummarySkeleton from '../components/skeleton/ReportSummarySkeleton';
 
 export default function pages() {
-  const loading = true;
+  const loading = false;
 
   if (loading) {
     return (
