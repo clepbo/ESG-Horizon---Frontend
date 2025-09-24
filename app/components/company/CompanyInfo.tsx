@@ -57,7 +57,7 @@ export default function CompanyInfo({ company }: Props) {
                 value={company.contact_phone}
               />
               <Info label="Website Address" value={company.website} />
-              <Info label="Staff Strength" value={company.staff_strength} />
+              <Info label="Platform Users Count" value={company.staff_strength} />
               <Info
                 label="Company Registration Number"
                 value={company.registration_number}

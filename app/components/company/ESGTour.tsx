@@ -78,6 +78,7 @@ const ESGTour: FC<ESGTourProps> = ({
 }: ESGTourProps) => {
     const [isVisible, setIsVisible] = useState<boolean>(true);
     const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
+    const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
     const { user } = useAuth();
 
     const handleCardClick = (
@@ -107,11 +108,19 @@ const ESGTour: FC<ESGTourProps> = ({
     };
 
     const handleOptOut = () => {
+        setShowConfirmDialog(true);
+    };
+
+    const handleConfirmOptOut = () => {
         localStorage.setItem("esg-tour-completed", "true");
         setIsVisible(false);
         if (onComplete) {
             onComplete();
         }
+    };
+
+    const handleCancelOptOut = () => {
+        setShowConfirmDialog(false);
     };
 
     if (!isVisible) {
@@ -166,67 +175,113 @@ const ESGTour: FC<ESGTourProps> = ({
 
     const allButtonsDisabled: boolean = loadingIndex !== null;
 
+    const mainContentClasses = showConfirmDialog
+        ? "min-h-screen bg-[#F2FBF3] p-6 blur-sm pointer-events-none"
+        : "min-h-screen bg-[#F2FBF3] p-6";
+
     return (
-        <div className="min-h-screen bg-[#F2FBF3] p-6">
-            <Header />
-            <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-8">
-                    <div className="flex justify-center mb-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center relative">
-                            {user && user.profile_photo_url ? (
-                                <Image
-                                    src={user.profile_photo_url || "/image.png"}
-                                    alt={`${user.first_name} photo`}
-                                    className="rounded-full object-cover"
-                                    fill
-                                />
-                            ) : (
-                                <User className="w-8 h-8 text-gray-600" />
-                            )}
+        <div className="relative">
+            <div className={mainContentClasses}>
+                <Header />
+                <div className="max-w-4xl mx-auto">
+                    <div className="text-center mb-8">
+                        <div className="flex justify-center mb-4">
+                            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center relative">
+                                {user && user.profile_photo_url ? (
+                                    <Image
+                                        src={
+                                            user.profile_photo_url ||
+                                            "/image.png"
+                                        }
+                                        alt={`${user.first_name} photo`}
+                                        className="rounded-full object-cover"
+                                        fill
+                                    />
+                                ) : (
+                                    <User className="w-8 h-8 text-gray-600" />
+                                )}
+                            </div>
                         </div>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                            Welcome {firstName},
+                        </h1>
+                        <p className="text-gray-600">
+                            What would you like to do?
+                        </p>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                        Welcome {firstName},
-                    </h1>
-                    <p className="text-gray-600">What would you like to do?</p>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    {tourCards.map((card, index) => (
-                        <TourCard
-                            key={index}
-                            title={card.title}
-                            description={card.description}
-                            buttonText={card.buttonText}
-                            href={card.href}
-                            onAction={card.onAction}
-                            isCurrentLoading={loadingIndex === index}
-                            allButtonsDisabled={allButtonsDisabled}
-                            onClick={() =>
-                                handleCardClick(index, card.href, card.onAction)
-                            }
-                        />
-                    ))}
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        {tourCards.map((card, index) => (
+                            <TourCard
+                                key={index}
+                                title={card.title}
+                                description={card.description}
+                                buttonText={card.buttonText}
+                                href={card.href}
+                                onAction={card.onAction}
+                                isCurrentLoading={loadingIndex === index}
+                                allButtonsDisabled={allButtonsDisabled}
+                                onClick={() =>
+                                    handleCardClick(
+                                        index,
+                                        card.href,
+                                        card.onAction
+                                    )
+                                }
+                            />
+                        ))}
+                    </div>
 
-                <div className="text-center text-sm text-gray-600">
-                    <p className="mb-2">
-                        <button
-                            onClick={handleOptOut}
-                            className="underline text-gray-900 hover:text-gray-700 font-medium transition-colors cursor-pointer"
+                    <div className="text-center text-sm text-gray-600">
+                        <p className="mb-2">
+                            <button
+                                onClick={handleOptOut}
+                                className="underline text-gray-900 hover:text-gray-700 font-medium transition-colors cursor-pointer"
+                            >
+                                Want to stop seeing this welcome tour page? Opt
+                                Out.
+                            </button>
+                        </p>
+                        Need Help?{" "}
+                        <a
+                            href="mailto:support@esghorizon.com"
+                            className="underline text-gray-900 hover:text-gray-700"
                         >
-                            Want to stop seeing this tour page? Opt Out.
-                        </button>
-                    </p>
-                    Need Help?{" "}
-                    <a
-                        href="mailto:support@esghorizon.com"
-                        className="underline text-gray-900 hover:text-gray-700"
-                    >
-                        support@esghorizon.com
-                    </a>
+                            support@esghorizon.com
+                        </a>
+                    </div>
                 </div>
             </div>
+
+            {/* Confirmation Dialog */}
+            {showConfirmDialog && (
+                <div className="fixed inset-0 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+                    <div className="relative p-6 bg-white w-96 rounded-lg shadow-xl text-center">
+                        <h3 className="text-lg font-bold mb-4">
+                            Confirm Opt-Out
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-6">
+                            Are you sure you want to stop seeing this welecome
+                            tour page? You cant undo this action.
+                        </p>
+                        <div className="flex justify-center gap-4">
+                            <Button
+                                onClick={handleConfirmOptOut}
+                                className="px-5 py-2 text-sm rounded-xs bg-red-500 hover:bg-red-600 text-white"
+                            >
+                                Yes, Opt Out
+                            </Button>
+                            <Button
+                                onClick={handleCancelOptOut}
+                                variant="outline"
+                                className="px-5 py-2 text-sm rounded-xs border-gray-300 text-gray-900 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -80,7 +80,7 @@ export default function CompanyInfoCard({
                         value={company.country ?? "n/a"}
                     />
                     <InfoField
-                        label="Staff Strength"
+                        label="Platform Users Count"
                         value={
                             company.staff_strength ||
                             companyUsersCount.toString() ||

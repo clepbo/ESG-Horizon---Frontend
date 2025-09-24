@@ -148,7 +148,7 @@ export default function CompanyDetailsClient({ id }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <CompanyIdStat
-              label="Staff Strength"
+              label="Platform Users Count"
               value={company.staff_strength || "N/A"}
               iconSrc="/icons/leaf.svg"
               iconBgColor="bg-green-200"

@@ -456,7 +456,7 @@ export default function CompanySetupModal({
                                 <Info className="h-3 w-3" />{" "}
                                 <span className="text-xs text-neutral-1000">
                                     This step is only needed if your company has
-                                    subsidiaries. Stand-along companies can skip
+                                    subsidiaries. Stand-alone companies can skip
                                     and continue.
                                 </span>
                             </section>
