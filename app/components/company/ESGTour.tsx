@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { User, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -94,6 +94,10 @@ const ESGTour: FC<ESGTourProps> = ({
             }
         }, 500);
     };
+
+    useEffect(() => {
+        setLoadingIndex(null);
+    }, []);
 
     const handleContinueToDashboard = () => {
         setIsVisible(false);
