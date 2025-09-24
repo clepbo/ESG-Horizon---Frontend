@@ -38,6 +38,7 @@ export function DataTable<TData>({
   filterOptions = [],
 }: {
   data: TData[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   filterOptions?: FilterOption[];
 }) {
