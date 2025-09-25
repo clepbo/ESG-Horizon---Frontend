@@ -4,9 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EmissionInventoryWrapper } from './components/EmissionIventory';
 import { trendData } from './components/data/trendData';
 import ComparativeTrendAnalysis from './components/charts/ComparativeTrendAnalysis';
-import DirectEmission from './components/DirectEmission';
 import EmissionProgressComponent from './components/EmissionProgressComponents';
 import { emissionsData } from './components/data/reportData';
+import FullReportSummary from './components/FullReportSummary';
 
 export default function FullReport() {
     const scopeKeys = ["Scope 1", "Scope 2", "Scope 3"]
@@ -17,7 +17,7 @@ export default function FullReport() {
 
             <div className={`grid w-full gap-4 lg:gap-8 rounded-lg`}>
 
-                <div className={`flex justify-between w-full items-center`}>
+                <div className={`flex flex-col md:flex-row justify-between w-full items-center`}>
                     <h1 className="text-2xl lg:text-3xl font-semibold text-foreground"> Greenhouse Gas Emissions </h1>
                     <Select>
                         <SelectTrigger className="w-[180px]">
@@ -47,6 +47,7 @@ export default function FullReport() {
             <hr className='text-gray-300'/>
             <EmissionProgressComponent data={emissionsData} title={'Scope 3: Value Chain Emissions'} total={44900} color={'purple-500'} />
             </div>
+            <FullReportSummary />
 
         </div>
     )
