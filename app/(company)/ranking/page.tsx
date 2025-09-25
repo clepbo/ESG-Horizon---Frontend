@@ -1,7 +1,6 @@
 "use client";
 
 import { Leaf, Users, Building, BarChart3 } from "lucide-react";
-import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { ESGScoreCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";

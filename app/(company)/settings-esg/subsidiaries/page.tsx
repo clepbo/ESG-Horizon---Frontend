@@ -182,30 +182,30 @@ export default function SubsidiariesPage() {
     setIsModalOpen(false);
 };
 
-    const OLDhandleModalSubmit = (submissionData: SubmissionData) => {
-        const updatedSubsidiaries = submissionData.subsidiaries;
+    // const OLDhandleModalSubmit = (submissionData: SubmissionData) => {
+    //     const updatedSubsidiaries = submissionData.subsidiaries;
 
-        setSubsidiaries((prevSubs) => {
-            const updatedList = [...prevSubs];
+    //     setSubsidiaries((prevSubs) => {
+    //         const updatedList = [...prevSubs];
 
-            updatedSubsidiaries.forEach((newSub) => {
-                const existingIndex = updatedList.findIndex(
-                    (sub) => sub.id === newSub.id
-                );
+    //         updatedSubsidiaries.forEach((newSub) => {
+    //             const existingIndex = updatedList.findIndex(
+    //                 (sub) => sub.id === newSub.id
+    //             );
 
-                if (existingIndex !== -1) {
-                    updatedList[existingIndex] = newSub;
-                } else {
-                    updatedList.unshift(newSub);
-                }
-            });
+    //             if (existingIndex !== -1) {
+    //                 updatedList[existingIndex] = newSub;
+    //             } else {
+    //                 updatedList.unshift(newSub);
+    //             }
+    //         });
 
-            return updatedList;
-        });
+    //         return updatedList;
+    //     });
 
-        toast.success("Submitted Successfully");
-        setIsModalOpen(false);
-    };
+    //     toast.success("Submitted Successfully");
+    //     setIsModalOpen(false);
+    // };
 
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50">
