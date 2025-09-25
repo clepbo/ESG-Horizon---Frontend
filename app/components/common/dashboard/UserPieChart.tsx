@@ -22,7 +22,7 @@ const USER_METRICS_DATA = [
 const CHART_COLORS = ["#8884d8", "#facc15", "#60a5fa", "#94a3b8"];
 
 const renderPercentageLabel = ({ percent }: PieLabelRenderProps) =>
-  `${(percent ?? 0) * 100}%`;
+  `${Number(percent ?? 0) * 100}%`;
 
 export default function UserPieChart() {
   const [loading, setLoading] = useState(true);

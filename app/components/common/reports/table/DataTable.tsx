@@ -116,7 +116,7 @@ export function DataTable() {
       {/* Header with search and filters */}
       <div className="flex items-center justify-between gap-4">
        
-          <SearchInput placeholder="Search by Invoice ID" value={filters.search} 
+          <SearchInput placeholder="Search by subsidiary" value={filters.search} 
           onChange={(e) => table.setGlobalFilter(e.target.value)} />
 
         <div className="flex items-center gap-2">

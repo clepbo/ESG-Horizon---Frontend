@@ -33,7 +33,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/(company)/teams-esg"
+    "app/(company)/teams-esg",
+    "./node_modules/@types", 
+    "./src/types"
   ],
   "exclude": [
     "node_modules"
