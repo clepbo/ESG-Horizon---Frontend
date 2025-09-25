@@ -2,13 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeft, Edit, Info, X } from "lucide-react";
-import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
+import {
+    useCompanySubsidiaries,
+    // useCreateSubsidiary,
+    // useEditSubsidiary,
+} from "@/services/hooks/subsidiaries.hooks";
 import {
     useCompanyUsers,
+    // useInviteUser,
+    // useEditUser,
     useCompanyDetails,
     useBulkCreate,
 } from "@/services/hooks/company.hooks";
-import { useCompanyDepartments } from "@/services/hooks/department.hooks";
+import {
+    useCompanyDepartments,
+    // useCreateDepartment,
+    // useUpdateDepartment,
+} from "@/services/hooks/department.hooks";
 import { Industry } from "@/services/industries.services";
 import { User } from "@/services/user.service";
 import { Subsidiary } from "@/services/subsidiaries.service";
@@ -51,6 +61,14 @@ export default function CompanySetupModal({
     );
 
     const [loadingIsDone, setLoadingIsDone] = useState(false);
+    // const createSubsidiaryMutation = useCreateSubsidiary();
+    // const editSubsidiaryMutation = useEditSubsidiary();
+
+    // const createDepartmentMutation = useCreateDepartment();
+    // const editDepartmentMutation = useUpdateDepartment();
+
+    // const inviteUserMutation = useInviteUser();
+    // const editUserMutation = useEditUser();
 
     const { mutateAsync: bulkCreateMutation } = useBulkCreate();
 
@@ -294,51 +312,149 @@ export default function CompanySetupModal({
         onClose();
     };
 
+    // const OLDhandleFinalSubmit = async () => {
+    //     setLoadingIsDone(true);
+
+    //     if (!companyId) {
+    //         console.error(
+    //             "Company ID is missing. Cannot perform final submission."
+    //         );
+    //         return;
+    //     }
+
+    //     const payload = {
+    //         subsidiaries: newSubsidiaries.filter(
+    //             (item) => item.id > 9999999999
+    //         ),
+    //         departments: newDepartments.filter((item) => item.id > 9999999999),
+    //         users: newUsers.filter((item) => item.id > 9999999999),
+    //     };
+
+    //     try {
+    //         const subsidiaryPromises = newSubsidiaries.map(async (sub) => {
+    //             const selectedIndustry = industries?.find(
+    //                 (ind) => ind.industry === sub.industry?.industry
+    //             );
+    //             const industryId = selectedIndustry?.id;
+    //             const selectedSubsidiaryLead = companyUsers?.find(
+    //                 (user) => user.email === sub.teamLead_email
+    //             );
+    //             const subsidiaryLeadId = selectedSubsidiaryLead?.id;
+
+    //             if (sub.id > 0 && sub.id < 9999999999) {
+    //                 return editSubsidiaryMutation.mutateAsync({
+    //                     id: sub.id,
+    //                     name: sub.name,
+    //                     industryId: industryId,
+    //                     teamLeadId: subsidiaryLeadId,
+    //                     address: sub.address,
+    //                 });
+    //             } else {
+    //                 return createSubsidiaryMutation.mutateAsync({
+    //                     name: sub.name,
+    //                     industryId: industryId,
+    //                     teamLeadId: subsidiaryLeadId,
+    //                     address: sub.address,
+    //                 });
+    //             }
+    //         });
+
+    //         const departmentPromises = newDepartments.map(async (dept) => {
+    //             const selectedDepartmentLead = companyUsers?.find(
+    //                 (user) => user.email === dept.lead?.email
+    //             );
+    //             const departmentLeadId = selectedDepartmentLead?.id;
+
+    //             if (dept.id > 0 && dept.id < 9999999999) {
+    //                 return editDepartmentMutation.mutateAsync({
+    //                     id: dept.id,
+    //                     payload: {
+    //                         name: dept.name,
+    //                         leadId: departmentLeadId,
+    //                     },
+    //                 });
+    //             } else {
+    //                 const selectedSubsidiary = allSubsidiaries?.find(
+    //                     (sub) => sub.id === dept.subsidiaryId
+    //                 );
+    //                 const subsidiaryId = selectedSubsidiary?.id;
+
+    //                 return createDepartmentMutation.mutateAsync({
+    //                     companyId: companyId,
+    //                     payload: {
+    //                         name: dept.name,
+    //                         subsidiaryId: subsidiaryId,
+    //                         leadId: departmentLeadId,
+    //                     },
+    //                 });
+    //             }
+    //         });
+
+    //         const userPromises = newUsers.map(async (user) => {
+    //             const selectedRole = userRoles?.find(
+    //                 (role: { id: number; name: string }) =>
+    //                     role.name === user.role?.name
+    //             );
+    //             const roleId = selectedRole?.id;
+
+    //             const selectedSubsidiary = allSubsidiaries?.find(
+    //                 (sub) => sub.id === user.subsidiaryId
+    //             );
+    //             const subsidiaryId = selectedSubsidiary?.id;
+    //             const selectedDepartment = allDepartments?.find(
+    //                 (dept) => dept.name === user.department?.name
+    //             );
+    //             const departmentId = selectedDepartment?.id;
+
+    //             if (user.id > 0 && user.id < 9999999999) {
+    //                 return editUserMutation.mutateAsync({
+    //                     id: user.id,
+    //                     payload: {
+    //                         email: user.email,
+    //                         roleId: roleId,
+    //                         subsidiaryId: subsidiaryId,
+    //                         departmentId: departmentId,
+    //                     },
+    //                 });
+    //             } else {
+    //                 return inviteUserMutation.mutateAsync({
+    //                     email: user.email,
+    //                     roleId: roleId,
+    //                     subsidiaryId: subsidiaryId,
+    //                     departmentId: departmentId,
+    //                 });
+    //             }
+    //         });
+
+    //         await Promise.all([
+    //             ...subsidiaryPromises,
+    //             ...departmentPromises,
+    //             ...userPromises,
+    //         ]);
+
+    //         const submissionData = {
+    //             subsidiaries: newSubsidiaries,
+    //             departments: newDepartments,
+    //             users: newUsers,
+    //         };
+    //         onSubmit(submissionData);
+    //         setNewSubsidiaries([]);
+    //         setNewDepartments([]);
+    //         setNewUsers([]);
+    //         setLoadingIsDone(false);
+    //     } catch (error) {
+    //         console.error("Final submission failed:", error);
+    //     }
+    // };
+
     const handleFinalSubmit = async () => {
         setLoadingIsDone(true);
-
         const payload = {
-            subsidiaries: newSubsidiaries
-                .filter((item) => item.id > 9999999999)
-                .map((sub) => {
-                    const industry = allIndustries.find(
-                        (ind) => ind.industry === sub?.industry?.industry
-                    );
-                    return {
-                        name: sub.name,
-                        industryId: industry?.id,
-                        teamLead_email: sub.teamLead_email,
-                        address: sub.address,
-                    };
-                }),
-            departments: newDepartments
-                .filter((item) => item.id > 9999999999)
-                .map((dept) => {
-                    const subsidiary = allSubsidiaries.find(
-                        (sub) => sub.name === dept?.subsidiary?.name
-                    );
-                    return {
-                        name: dept.name,
-                        subsidiaryId: subsidiary?.id,
-                        lead_email: dept?.lead?.email,
-                    };
-                }),
-            users: newUsers
-                .filter((item) => item.id > 9999999999)
-                .map((user) => {
-                    const subsidiary = allSubsidiaries.find(
-                        (sub) => sub.name === user.subsidiary?.name
-                    );
-                    const department = allDepartments.find(
-                        (dept) => dept.name === user.department?.name
-                    );
-                    return {
-                        email: user.email,
-                        roleName: user.role?.name,
-                        subsidiaryId: subsidiary?.id,
-                        departmentId: department?.id,
-                    };
-                }),
+            subsidiaries: newSubsidiaries.filter(
+                (item) => item.id > 9999999999
+            ),
+            departments: newDepartments.filter((item) => item.id > 9999999999),
+            users: newUsers.filter((item) => item.id > 9999999999),
         };
 
         try {

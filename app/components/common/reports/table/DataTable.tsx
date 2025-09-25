@@ -16,12 +16,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TableFilters, TableRowType } from "@/types/table";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { StatusButton } from "../StatusButton";
+import Link from "next/link";
 
 
 
 
 const columnHelper = createColumnHelper<TableRowType>();
-
+const reportId = 1
 const columns = [
   columnHelper.accessor("startingPeriod", {
     header: "Starting Period",
@@ -46,7 +47,7 @@ const columns = [
     header: "Quick Actions",
     cell: () => (
       <Button variant="default" size="sm" className="rounded-sm font-semibold text-white bg-green-400 hover:bg-green-600">
-        View Report
+        <Link href={`/reports-and-analytics/${reportId}`}>View Report</Link>
       </Button>
     ),
   }),

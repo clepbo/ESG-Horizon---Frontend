@@ -130,39 +130,62 @@ export default function SubsidiariesPage() {
     }
 
     const handleModalSubmit = (submissionData: SubmissionData) => {
-        const updatedSubsidiaries = submissionData.subsidiaries;
+    const updatedSubsidiaries = submissionData.subsidiaries;
 
-        setSubsidiaries((prevSubs) => {
-            // Hydrate the new subsidiaries with full industry data
-            const hydratedSubs = updatedSubsidiaries.map((newSub) => {
-                // Find the full industry object by matching the industry name
-                const fullIndustry = industryOptions.find(
-                    (opt) => opt.industry === newSub?.industry?.industry
-                );
+    setSubsidiaries((prevSubs) => {
+        // Hydrate the new subsidiaries with full industry data
+        const hydratedSubs = updatedSubsidiaries.map((newSub) => {
+            // Find the full industry object by matching the industry name
+            const fullIndustry = industryOptions.find(
+                (opt) => opt.industry === newSub?.industry?.industry
+            );
 
-                // If the full industry is found, use it. Otherwise, use the existing incomplete data.
-                const completeIndustry = fullIndustry
-                    ? {
-                          id: Number(crypto.randomUUID()),
-                          industry: fullIndustry.industry,
-                          sector: fullIndustry.sector,
-                      }
-                    : newSub.industry;
+            // If the full industry is found, use it. Otherwise, use the existing incomplete data.
+            const completeIndustry = fullIndustry ? {
+                id: Number(crypto.randomUUID()),
+                industry: fullIndustry.industry,
+                sector: fullIndustry.sector,
+            } : newSub.industry;
 
-                // Return a new object that includes the complete industry data
-                return {
-                    ...newSub,
-                    industry: completeIndustry,
-                };
-            });
-
-            // Combine the newly hydrated subsidiaries with the previous list
-            return [...hydratedSubs, ...prevSubs];
+            // Return a new object that includes the complete industry data
+            return {
+                ...newSub,
+                industry: completeIndustry,
+            };
         });
 
-        toast.success("Submitted Successfully");
-        setIsModalOpen(false);
-    };
+        // Combine the newly hydrated subsidiaries with the previous list
+        return [...hydratedSubs, ...prevSubs];
+    });
+
+    toast.success("Submitted Successfully");
+    setIsModalOpen(false);
+};
+
+    // const OLDhandleModalSubmit = (submissionData: SubmissionData) => {
+    //     const updatedSubsidiaries = submissionData.subsidiaries;
+
+    //     setSubsidiaries((prevSubs) => {
+    //         const updatedList = [...prevSubs];
+
+    //         updatedSubsidiaries.forEach((newSub) => {
+    //             const existingIndex = updatedList.findIndex(
+    //                 (sub) => sub.id === newSub.id
+    //             );
+
+    //             if (existingIndex !== -1) {
+    //                 updatedList[existingIndex] = newSub;
+    //             } else {
+    //                 updatedList.unshift(newSub);
+    //             }
+    //         });
+
+    //         return updatedList;
+    //     });
+
+    //     toast.success("Submitted Successfully");
+    //     setIsModalOpen(false);
+    // };
 
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50">
