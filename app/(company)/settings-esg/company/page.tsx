@@ -325,7 +325,7 @@ export default function CompanyPage() {
         <EditCompanyModal
           company={companyData}
           industryOptions={industryOptions}
-          companyUsersCount={companyUsersCount} // Pass the count here
+          companyUsersCount={companyUsersCount}
           onClose={() => setIsModalOpen(false)}
           onUpdate={handleUpdate}
         />

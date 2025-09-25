@@ -628,8 +628,6 @@ import { CountryCode, parsePhoneNumberWithError } from "libphonenumber-js";
 import { Company } from "@/services/company.service";
 import { Industry } from "@/services/industries.services";
 import { FormField } from "../reusables/FormFields";
-
-// Import the 'countries' object from the countries-list package
 import { countries } from "countries-list";
 
 const editCompanySchema = z.object({
@@ -652,7 +650,20 @@ const editCompanySchema = z.object({
         message: "Please enter a valid phone number for the selected country",
       }
     ),
-  website: z.string().url("Please enter a valid website URL").or(z.literal("")),
+  website: z
+    .string()
+    .min(1, "Website is required")
+    .refine(
+      (val) => {
+        const websiteRegex =
+          /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}(\/\S*)?$/;
+
+        return websiteRegex.test(val);
+      },
+      {
+        message: "Please enter a valid website URL (e.g., www.example.com)",
+      }
+    ),
   isoCountryCode: z.string().min(2, "Country is required"),
   address: z.string().min(10, "Please enter a complete address"),
   company_logo_url: z.string().url().optional().or(z.literal("")),
@@ -700,11 +711,8 @@ export default function EditCompanyModal({
   );
 
   const onSubmit = (data: EditCompanyFormData) => {
-    // Look up the country name from the countries-list package
-    // FIX: Add a type assertion to tell TypeScript that isoCountryCode is a valid key
     const countryData =
       countries[data.isoCountryCode as keyof typeof countries];
-    // Use the name from the country data or fall back to the ISO code
     const countryName = countryData?.name || data.isoCountryCode;
 
     const payload = {
