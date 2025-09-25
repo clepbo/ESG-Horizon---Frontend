@@ -95,6 +95,7 @@ export default function EditCompanyModal({
 
   const { mutate: updateCompany, isPending: isUpdating } =
     useUpdateCompanyDetails();
+
   const [companyLogo, setCompanyLogo] = useState(
     company.company_logo_url || null
   );
