@@ -116,7 +116,7 @@ export const useUpdateCompanyDetails = () => {
 export const useBulkCreate = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        // mutationFn: companyService.bulkCreate,
+        mutationFn: companyService.bulkCreate,
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["companySubsidiaries"],

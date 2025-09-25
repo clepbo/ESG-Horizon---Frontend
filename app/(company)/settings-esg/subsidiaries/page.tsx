@@ -129,26 +129,6 @@ export default function SubsidiariesPage() {
         subsidiaries: Subsidiary[];
     }
 
-    // SubsidiariesPage.tsx
-
-    // SubsidiariesPage.tsx
-
-    // SubsidiariesPage.tsx
-
-    // const handleModalSubmit = (submissionData: SubmissionData) => {
-    //     const updatedSubsidiaries = submissionData.subsidiaries;
-
-    //     setSubsidiaries((prevSubs) => {
-    //         // Create a new list by placing the new subsidiaries at the beginning
-    //         // of the previous list. This ensures the new items are visible immediately.
-    //         const newList = [...updatedSubsidiaries, ...prevSubs];
-    //         return newList;
-    //     });
-
-    //     toast.success("Submitted Successfully");
-    //     setIsModalOpen(false);
-    // };
-
     const handleModalSubmit = (submissionData: SubmissionData) => {
     const updatedSubsidiaries = submissionData.subsidiaries;
 

@@ -12,7 +12,7 @@ import {
     // useInviteUser,
     // useEditUser,
     useCompanyDetails,
-    // useBulkCreate,
+    useBulkCreate,
 } from "@/services/hooks/company.hooks";
 import {
     useCompanyDepartments,
@@ -40,7 +40,7 @@ type TabType = "subsidiary" | "department" | "user";
 export default function CompanySetupModal({
     isOpen,
     onClose,
-    // onSubmit,
+    onSubmit,
     initialTab = "subsidiary",
 }: CompanySetupModalProps) {
     const { data: companySubsidiaries, isLoading: isLoadingSubsidiaries } =
@@ -70,7 +70,7 @@ export default function CompanySetupModal({
     // const inviteUserMutation = useInviteUser();
     // const editUserMutation = useEditUser();
 
-    // const { mutateAsync: bulkCreateMutation } = useBulkCreate();
+    const { mutateAsync: bulkCreateMutation } = useBulkCreate();
 
     const [activeTab, setActiveTab] = useState<TabType>(initialTab);
     const [formData, setFormData] = useState({
@@ -449,17 +449,17 @@ export default function CompanySetupModal({
 
     const handleFinalSubmit = async () => {
         setLoadingIsDone(true);
-        // const payload = {
-        //     subsidiaries: newSubsidiaries.filter(
-        //         (item) => item.id > 9999999999
-        //     ),
-        //     departments: newDepartments.filter((item) => item.id > 9999999999),
-        //     users: newUsers.filter((item) => item.id > 9999999999),
-        // };
+        const payload = {
+            subsidiaries: newSubsidiaries.filter(
+                (item) => item.id > 9999999999
+            ),
+            departments: newDepartments.filter((item) => item.id > 9999999999),
+            users: newUsers.filter((item) => item.id > 9999999999),
+        };
 
         try {
-            // const response = await bulkCreateMutation(payload);
-            // onSubmit(response);
+            const response = await bulkCreateMutation(payload);
+            onSubmit(response);
             setLoadingIsDone(false);
             setNewSubsidiaries([]);
             setNewDepartments([]);
@@ -572,7 +572,7 @@ export default function CompanySetupModal({
                                 <Info className="h-3 w-3" />{" "}
                                 <span className="text-xs text-neutral-1000">
                                     This step is only needed if your company has
-                                    subsidiaries. Stand-along companies can skip
+                                    subsidiaries. Stand-alone companies can skip
                                     and continue.
                                 </span>
                             </section>

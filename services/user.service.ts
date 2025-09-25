@@ -20,6 +20,10 @@ export interface User {
         name?: string;
         company_logo_url?: string;
     };
+    subsidiary?: {
+        id?: number;
+        name?: string;
+    };
     department?: {
         id?: number;
         name?: string;

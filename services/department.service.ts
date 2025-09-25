@@ -6,6 +6,10 @@ export interface Department {
     description?: string;
     companyId?: number;
     subsidiaryId?: number;
+    subsidiary?: {
+        id?: number;
+        name?: string;
+    };
     leadId?: number;
     contact_email?: string;
     lead?: {

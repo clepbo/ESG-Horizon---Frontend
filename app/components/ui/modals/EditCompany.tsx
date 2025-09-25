@@ -239,13 +239,14 @@ export default function EditCompanyModal({
                         onChange={(v) => handleChange("isoCountryCode", v)}
                     />
                     <InputField
-                        label="Staff Strength"
+                        label="Platform Users Count"
                         value={
                             formData.staff_strength ||
                             companyUsersCount.toString() ||
                             ""
                         }
                         onChange={(v) => handleChange("staff_strength", v)}
+                        disabled={true}
                     />
                     <InputField
                         label="Company Address"

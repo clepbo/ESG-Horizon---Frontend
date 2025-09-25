@@ -110,7 +110,7 @@ export default function UserDetailsCard(user: User) {
                             value: "555-0102",
                         },
                         {
-                            label: "Staff Strength",
+                            label: "Platform Users Count",
                             value: "20",
                         },
                     ]}

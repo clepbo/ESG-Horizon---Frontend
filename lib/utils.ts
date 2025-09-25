@@ -25,12 +25,12 @@ export const formatRole = (role: string) => {
 
 const roleMappings: Record<string, string> = {
     super_admin: "Super Admin",
-    platform_admin: "Platform Subadmin",
-    platform_subadmin: "Platform Subadmin",
+    platform_admin: "Platform SubAdmin",
+    platform_subadmin: "Platform SubAdmin",
     platform_data_officer: "Platform Data Officer",
     platform_viewer: "Platform Viewer",
     company_esg_admin: "Company Admin",
-    company_esg_subadmin: "Company Subadmin",
+    company_esg_subadmin: "Company SubAdmin",
     company_esg_data_officer: "Company Data Officer",
     company_esg_viewer: "Company Viewer",
 };
