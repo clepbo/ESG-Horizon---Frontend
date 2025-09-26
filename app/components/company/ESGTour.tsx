@@ -261,8 +261,8 @@ const ESGTour: FC<ESGTourProps> = ({
                             Confirm Opt-Out
                         </h3>
                         <p className="text-sm text-gray-600 mb-6">
-                            Are you sure you want to stop seeing this welecome
-                            tour page? You cant undo this action.
+                            Are you sure you want to stop seeing this Welcome
+                            Tour Page? You can&apos;t undo this action.
                         </p>
                         <div className="flex justify-center gap-4">
                             <Button
