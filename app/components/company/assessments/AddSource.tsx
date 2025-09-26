@@ -196,7 +196,7 @@ export function AddSource({
                       {source.fuelType && (
                         <div className="mt-2 space-y-2">
                           <div className="flex items-center space-x-2">
-                            <Label className="flex items-center gap-1">
+                            <Label className="flex items-center gap-1 text-xs">
                               <span>Emission Factor:</span>
                               <TooltipProvider>
                                 <Tooltip>
@@ -247,7 +247,7 @@ export function AddSource({
                               </>
                             ) : (
                               <>
-                                <span className="text-sm">
+                                <span className="text-xs">
                                   {source.emissionFactor || 2.68} kgCO₂/litre
                                 </span>
                                 <Button
@@ -255,7 +255,7 @@ export function AddSource({
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEditClick(source)}
-                                  className="ml-2 h-auto text-primary"
+                                  className="ml-2 h-auto text-primary text-sm"
                                 >
                                   Edit Factor
                                 </Button>
@@ -276,12 +276,14 @@ export function AddSource({
                               <div className="flex gap-2">
                                 <Button
                                   onClick={() => handleSaveClick(source.id)}
+                                  className="text-xs text-white"
                                 >
                                   Save
                                 </Button>
                                 <Button
                                   variant="outline"
                                   onClick={handleCancelClick}
+                                  className="text-xs border-gray-300"
                                 >
                                   Cancel
                                 </Button>
@@ -311,7 +313,7 @@ export function AddSource({
                         className={
                           errors[`${source.id}-volume`]
                             ? "border-destructive"
-                            : "border-neutral-200"
+                            : ""
                         }
                       />
                       {errors[`${source.id}-volume`] && (

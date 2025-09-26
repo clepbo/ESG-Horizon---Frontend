@@ -50,7 +50,8 @@ const editCompanySchema = z.object({
         return websiteRegex.test(val);
       },
       {
-        message: "Please enter a valid website URL (e.g., www.example.com)",
+        message:
+          "Please enter a valid website URL (e.g., https://www.example.com)",
       }
     ),
   isoCountryCode: z.string().min(2, "Country is required"),
@@ -100,7 +101,13 @@ export default function EditCompanyModal({
     company.company_logo_url || null
   );
 
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
   const onSubmit = (data: EditCompanyFormData) => {
+    if (isUploadingImage) {
+      toast.info("Please wait for the logo upload to finish before updating.");
+      return;
+    }
     const countryData =
       countries[data.isoCountryCode as keyof typeof countries];
     const countryName = countryData?.name || data.isoCountryCode;
@@ -135,6 +142,7 @@ export default function EditCompanyModal({
 
   const handleLogoUpload = async (file: File | undefined) => {
     if (!file) return;
+    setIsUploadingImage(true);
     try {
       const uploaded = await uploadService.uploadImage(file);
       if (uploaded) {
@@ -147,8 +155,12 @@ export default function EditCompanyModal({
     } catch (err) {
       toast.error("Failed to upload logo");
       console.error(err);
+    } finally {
+      setIsUploadingImage(false);
     }
   };
+
+  const isPending = isUpdating || isUploadingImage;
 
   return (
     <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
@@ -323,7 +335,7 @@ export default function EditCompanyModal({
           </div>
 
           <FormField
-            label="Staff Strength"
+            label="Platform Users Count"
             value={companyUsersCount}
             disabled
           />
@@ -345,10 +357,10 @@ export default function EditCompanyModal({
             </button>
             <button
               type="submit"
-              disabled={isUpdating}
+              disabled={isPending}
               className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
             >
-              {isUpdating ? "Please wait..." : "Update"}
+              {isPending ? "Please wait..." : "Update"}
             </button>
           </div>
         </form>
