@@ -78,7 +78,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-col sm:flex-row gap-2 lg:justify-end ">
+                            <div className="flex flex-col sm:flex-row gap-2 lg:justify-end no-export" id="hide1">
                                 <Button className="bg-green-500 hover:bg-green-400 text-white px-2 rounded-lg">
                                     <Link href={`/reports-and-analytics/1/report`}>
                                         View Full Report
@@ -104,7 +104,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                 {/* Tab Navigation */}
 
 
-                <Tabs defaultValue="all" className="w-full">
+                <Tabs defaultValue="all" className="w-full no-export">
                     <TabsList className="bg-[#F1FCF3] w-full h-auto p-2 ">
                         <TabsTrigger className="rounded-none cursor-pointer" value="all">View All</TabsTrigger>
                         <TabsTrigger className="rounded-none cursor-pointer" value="environment">Environment</TabsTrigger>

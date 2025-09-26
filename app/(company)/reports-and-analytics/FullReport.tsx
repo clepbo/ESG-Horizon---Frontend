@@ -29,7 +29,7 @@ function exportFile(value:string) {
 
             <div className={`grid w-full gap-4 lg:gap-8 rounded-lg`}>
 
-                <div className={`flex flex-col md:flex-row justify-between w-full items-center`}>
+                <div className={`flex flex-col md:flex-row justify-between w-full items-center no-export`}>
                     <h1 className="text-2xl lg:text-3xl font-semibold text-foreground"> Greenhouse Gas Emissions </h1>
                     <Select onValueChange={exportFile}>
                         <SelectTrigger className="w-[180px]">
