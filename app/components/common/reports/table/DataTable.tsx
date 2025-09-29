@@ -17,6 +17,7 @@ import { TableFilters, TableRowType } from "@/types/table";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { StatusButton } from "../StatusButton";
 import Link from "next/link";
+import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
 
 
 
@@ -116,8 +117,11 @@ export function DataTable() {
       {/* Header with search and filters */}
       <div className="flex items-center justify-between gap-4">
        
-          <SearchInput placeholder="Search by Invoice ID" value={filters.search} 
+          <SearchInput placeholder="Search by subsidiary" value={filters.search} 
           onChange={(e) => table.setGlobalFilter(e.target.value)} />
+          <Button className={`text-white font-semibold`} onClick={()=> exportToCSV(data)}>
+            Export CSV
+          </Button>
 
         <div className="flex items-center gap-2">
           <Select onValueChange={handleStatusFilter}>

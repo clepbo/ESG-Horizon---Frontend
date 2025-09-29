@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import { OverallSummary } from './components/OverallSummaryCard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
@@ -7,19 +8,30 @@ import ComparativeTrendAnalysis from './components/charts/ComparativeTrendAnalys
 import EmissionProgressComponent from './components/EmissionProgressComponents';
 import { emissionsData } from './components/data/reportData';
 import FullReportSummary from './components/FullReportSummary';
+import { exportPNG, generatePDF } from './components/exportFiles';
 
 export default function FullReport() {
     const scopeKeys = ["Scope 1", "Scope 2", "Scope 3"]
     const scopeColors = ["#FF6B3D", "#3E9BFF", "#9B4DFF"]
 
+function exportFile(value:string) {
+    if(value === "pdf") {
+        generatePDF("detail") 
+    }  else {
+
+        exportPNG("detail")
+    }
+    return
+}
+
     return (
-        <div className={`w-full grid gap-4`}>
+        <div className={`w-full grid gap-4`} id="detail">
 
             <div className={`grid w-full gap-4 lg:gap-8 rounded-lg`}>
 
-                <div className={`flex flex-col md:flex-row justify-between w-full items-center`}>
+                <div className={`flex flex-col md:flex-row justify-between w-full items-center no-export`}>
                     <h1 className="text-2xl lg:text-3xl font-semibold text-foreground"> Greenhouse Gas Emissions </h1>
-                    <Select>
+                    <Select onValueChange={exportFile}>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Export report" />
                         </SelectTrigger>
@@ -28,7 +40,7 @@ export default function FullReport() {
                                 Select file format
                             </SelectItem>
                             <SelectItem value="pdf"> PDF</SelectItem>
-                            <SelectItem value="csv">CSV</SelectItem>
+                            <SelectItem value="csv">PNG</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
