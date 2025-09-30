@@ -5,6 +5,7 @@ import { RoadTransport } from "./RoadTransport";
 import { VehicleEquipment } from "./VehicleEquipment";
 import { MarineAviation } from "./MarineAviation";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface MobileSourcesFormProps {
   onBack: () => void;
@@ -21,11 +22,14 @@ export function MobileSourcesForm({
   const [currentStep, setCurrentStep] = useState<StepKey>("road-transport");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
   if (showSuccess) {
     return (
       <SuccessScreen
         assessmentName="Mobile Sources"
+        sectionKey="mobileSources"
+        totals={totals ?? undefined}
         nextAssessment="Process Emissions"
         onContinue={onContinueToNextAssessment}
         onBackToHub={onBack}
@@ -61,7 +65,8 @@ export function MobileSourcesForm({
     return (
       <MarineAviation
         onBack={() => setCurrentStep("vehicle-equipment")}
-        onSubmit={() => {
+        onSubmit={(totals) => {
+          setTotals(totals);
           setShowSuccess(true);
           setIsSubmitted(true);
         }}

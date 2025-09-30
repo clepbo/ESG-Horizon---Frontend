@@ -19,6 +19,7 @@ import { MarketBasedForm } from "./scope2/market-based";
 
 interface GhgEmissionsAssessmentProps {
   onBack: () => void;
+  onBackToHub?: () => void; // Add this prop
 }
 
 const scopeData = [
@@ -94,6 +95,7 @@ const scopeData = [
 
 export function GhgEmissionsAssessment({
   onBack,
+  onBackToHub,
 }: GhgEmissionsAssessmentProps) {
   const [currentView, setCurrentView] = useState<
     | "overview"
@@ -131,7 +133,11 @@ export function GhgEmissionsAssessment({
   };
 
   const handleBackToOverview = () => {
-    setCurrentView("overview");
+    if (onBackToHub) {
+      onBackToHub();
+    } else {
+      setCurrentView("overview");
+    }
   };
 
   if (currentView === "stationary-sources") {

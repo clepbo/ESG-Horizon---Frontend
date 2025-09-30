@@ -65,50 +65,15 @@ export function ElectricityHeatForm({
 }: ElectricityHeatFormProps) {
     const { state, dispatch } = useAssessment();
 
-    // const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-    // const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
-    //     Object.fromEntries(uploadFields.map((field) => [field, null]))
-    // );
-    // const [isSaving, setIsSaving] = useState(false);
-    // const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-    // const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
-    //     const [dieselGenerators, setDieselGenerators] = useState<SourceData[]>(() =>
-    //     getInitialSources([], dieselFuelOptions)
-    // );
-
-    // const [gasTurbines, setGasTurbines] = useState<SourceData[]>(() =>
-    //     getInitialSources([], gasFuelOptions)
-    // );
-    // const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
-    // const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-    // const [errors, setErrors] = useState<{
-    //     dieselGenerators?: string;
-    //     gasTurbines?: string;
-    //     files?: string;
-    // }>({});
-
-    // const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-
-
-    //new
-// ElectricityHeat.tsx (around lines 55-65)
-
     const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-    const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>( // Keep the setter for file uploads
+    const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>( 
         Object.fromEntries(uploadFields.map((field) => [field, null]))
     );
-    // const [isSaving, setIsSaving] = useState(false);
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-    
-    // 💡 RE-INTRODUCE LOCAL STATE FOR INTERACTIVE COMPONENTS
     const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
-    
     const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
     const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-    
-    // Replace the old block (which had the error) with this:
-const [errors, setErrors] = useState<ElectricityHeatErrors>({});
-    
+    const [errors, setErrors] = useState<ElectricityHeatErrors>({});
     const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
 
     const dieselFuelOptions = useMemo(
@@ -135,8 +100,7 @@ const [errors, setErrors] = useState<ElectricityHeatErrors>({});
             },
         ];
     };
-    
-    // 💡 RE-INTRODUCE LOCAL STATE FOR SOURCES using the initializer function
+
     const [dieselGenerators, setDieselGenerators] = useState<SourceData[]>(() =>
         getInitialSources([], dieselFuelOptions)
     );
@@ -145,13 +109,11 @@ const [errors, setErrors] = useState<ElectricityHeatErrors>({});
         getInitialSources([], gasFuelOptions)
     );
 
-    // ElectricityHeat.tsx (around line 170)
 
     useEffect(() => {
         const existingData =
             state.assessmentData.stationarySources?.electricityHeat;
         if (existingData) {
-            // 💡 Load data into the new local state setters
             setDieselGenerators(
                 existingData.dieselGenerators ||
                     getInitialSources([], dieselFuelOptions)
@@ -160,7 +122,7 @@ const [errors, setErrors] = useState<ElectricityHeatErrors>({});
                 existingData.gasTurbines ||
                     getInitialSources([], gasFuelOptions)
             );
-            setFiles( // Use the setFiles setter
+            setFiles(
                 existingData.files ||
                     Object.fromEntries(
                         uploadFields.map((field) => [field, null])
@@ -173,71 +135,6 @@ const [errors, setErrors] = useState<ElectricityHeatErrors>({});
         dieselFuelOptions,
         gasFuelOptions,
     ]);
-    // end new
-
-
-    // Add this new block after your initial imports/declarations:
-    const initialData = state.assessmentData.stationarySources?.electricityHeat;
-
-    
-
-    // 💡 NEW: Memoized source data initialization
-    // const dieselGenerators = useMemo(() => {
-    //     return (
-    //         initialData?.dieselGenerators ||
-    //         getInitialSources([], dieselFuelOptions)
-    //     );
-    // }, [initialData, dieselFuelOptions]);
-
-    // const gasTurbines = useMemo(() => {
-    //     return (
-    //         initialData?.gasTurbines || getInitialSources([], gasFuelOptions)
-    //     );
-    // }, [initialData, gasFuelOptions]);
-
-    // // 💡 NEW: Memoized file data initialization
-    // const files = useMemo(() => {
-    //     return (
-    //         initialData?.files ||
-    //         Object.fromEntries(uploadFields.map((field) => [field, null]))
-    //     );
-    // }, [initialData]);
-
-    // // 💡 NEW: Memoized additional fields initialization
-    // // NOTE: Since the AdditionalFileUpload component expects FileData[],
-    // // but our global state expects FileMetadata[], we must ensure the type is compatible
-    // const additionalFields = useMemo(() => {
-    //     // We assert it as FileData[] for compatibility with the component's prop
-    //     return (initialData?.additionalFields as FileData[]) || [];
-    // }, [initialData]);
-
-    
-
-    // useEffect(() => {
-    //     const existingData =
-    //         state.assessmentData.stationarySources?.electricityHeat;
-    //     if (existingData) {
-    //         setDieselGenerators(
-    //             existingData.dieselGenerators ||
-    //                 getInitialSources([], dieselFuelOptions)
-    //         );
-    //         setGasTurbines(
-    //             existingData.gasTurbines ||
-    //                 getInitialSources([], gasFuelOptions)
-    //         );
-    //         setFiles(
-    //             existingData.files ||
-    //                 Object.fromEntries(
-    //                     uploadFields.map((field) => [field, null])
-    //                 )
-    //         );
-    //         setAdditionalFields(existingData.additionalFields || []);
-    //     }
-    // }, [
-    //     state.assessmentData.stationarySources?.electricityHeat,
-    //     dieselFuelOptions,
-    //     gasFuelOptions,
-    // ]);
 
     const { filled, total } = useMemo(() => {
         const hasDieselData = dieselGenerators.some(
@@ -255,7 +152,6 @@ const [errors, setErrors] = useState<ElectricityHeatErrors>({});
             hasFileUploaded || hasAdditionalFields,
         ];
 
-        // Using the calculateProgress utility
         return calculateProgress(progressChecks);
     }, [dieselGenerators, gasTurbines, files, additionalFields]);
 
@@ -283,158 +179,152 @@ const [errors, setErrors] = useState<ElectricityHeatErrors>({});
         return Object.keys(newErrors).length === 0;
     };
 
-    // const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    //     setAdditionalFields(fields);
-    // };
-    const payload = {
-        dieselGenerators,
-        gasTurbines,
-        additionalFields,
-        files,
-    };
+    const handleSaveAndContinue = () => {
+        const assessmentId = state.assessmentData.assessmentId;
 
-    // REPLACE existing handleSaveAndContinue function with this:
-    // ElectricityHeat.tsx
-
-// ElectricityHeat.tsx
-
-// ElectricityHeat.tsx (Inside handleSaveAndContinue)
-
-const handleSaveAndContinue = () => {
-    // 1. FIX THE 400 ERROR: Use the subsidiary name as the ID, which the server expects in the URL path.
-    const assessmentId = state.assessmentData.subsidiary; 
-
-    if (!assessmentId) {
-        console.error("Assessment ID (subsidiary) is not available.");
-        toast.error("Cannot save: Assessment ID is missing.");
-        return;
-    }
-
-    // 2. FIX MISSING DATA: Dispatch the current local state (dieselGenerators, etc.) 
-    // to the global store before saving, ensuring all form inputs are collected.
-    dispatch({
-        type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-        payload: {
-            dieselGenerators, 
-            gasTurbines,
-            files,
-            additionalFields: additionalFields as FileMetadata[],
-        },
-    });
-
-    // 3. Perform the server call using the corrected assessmentId.
-    saveAssessment(
-        {
-            assessmentId: assessmentId, 
-            data: {
-                ...state.assessmentData,
-                stationarySources: {
-                    ...state.assessmentData.stationarySources,
-                    electricityHeat: {
-                        dieselGenerators,
-                        gasTurbines,
-                        files,
-                        additionalFields: additionalFields as FileMetadata[],
-                    },
-                },
-            },
-        },
-        {
-            onSuccess: () => {
-                setShowSaveSuccess(true);
-            },
+        if (!assessmentId) {
+            toast.error("Cannot save: Assessment ID is missing.");
+            return;
         }
-    );
-};
-    // REPLACE existing handleFileChange function with this:
-// REPLACE existing handleFileChange function with this:
-const handleFileChange = async (
-    field: string,
-    event: React.ChangeEvent<HTMLInputElement>
-) => {
-    // Define the type for the errors object for clarity
-    type ErrorStateType = { dieselGenerators?: string; gasTurbines?: string; files?: string; };
-    
-    // ... existing file validation logic remains ...
-    const file = event.target.files?.[0];
-    if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-        // ... error setting logic remains ...
-        return;
-    }
-
-    try {
-        // FIX: Explicitly type 'prev' for setUploading
-        setUploading((prev: Record<string, boolean>) => ({ ...prev, [field]: true }));
-        const uploaded = await uploadService.uploadImage(file);
-
-        if (uploaded?.url) {
-            // ... dispatch logic remains ...
-        } else {
-            toast.error("Failed to upload file");
-        }
-    } catch (err) {
-        // ... error handling remains ...
-    } finally {
-        // FIX: Explicitly type 'prev' for setUploading
-        setUploading((prev: Record<string, boolean>) => ({ ...prev, [field]: false }));
-    }
-
-    if (errors.files) {
-        // FIX: Explicitly type 'prev' for setErrors
-        setErrors((prev: ErrorStateType) => ({ ...prev, files: undefined }));
-    }
-};
-
-    // REPLACE existing handleRemoveFile function with this:
-const handleRemoveFile = async (key: string) => {
-    const file = files[key];
-    
-    // Define the type for the errors object for clarity
-    type ErrorStateType = { dieselGenerators?: string; gasTurbines?: string; files?: string; };
-
-    if (file?.publicId) {
-        try {
-            // ... deleting logic remains ...
-        } catch (err) {
-            // ... error handling remains ...
-        } finally {
-            // FIX: Explicitly type 'prev' for setDeleting
-            setDeleting((prev: Record<string, boolean>) => ({ ...prev, [key]: false }));
-
-            // ... dispatch logic remains ...
-
-            if (inputRefs.current[key]) {
-                inputRefs.current[key]!.value = "";
-            }
-
-            if (errors.files) {
-                // FIX: Explicitly type 'prev' for setErrors on the line you reported
-                setErrors((prev: ErrorStateType) => ({ ...prev, files: undefined }));
-            }
-        }
-    } else {
-        // ... alternative dispatch path remains ...
-        
-        if (inputRefs.current[key]) {
-            inputRefs.current[key]!.value = "";
-        }
-    }
-};
-
-    // REPLACE existing handleNext function with this:
-    const handleNext = () => {
-        if (!validateForm()) return;
-
-        // 💡 CHANGE 7: Dispatch the current state before moving to the next step
         dispatch({
             type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
             payload: {
                 dieselGenerators,
                 gasTurbines,
                 files,
-                // Cast to FileMetadata[] for internal state update consistency
+                additionalFields: additionalFields as FileMetadata[],
+            },
+        });
+
+        saveAssessment(
+            {
+                assessmentId,
+                data: {
+                    ...state.assessmentData,
+                    stationarySources: {
+                        ...state.assessmentData.stationarySources,
+                        electricityHeat: {
+                            dieselGenerators,
+                            gasTurbines,
+                            files,
+                            additionalFields:
+                                additionalFields as FileMetadata[],
+                        },
+                    },
+                },
+            },
+            {
+                onSuccess: () => {
+                    setShowSaveSuccess(true);
+
+                    setDieselGenerators(
+                        getInitialSources([], dieselFuelOptions)
+                    );
+                    setGasTurbines(getInitialSources([], gasFuelOptions));
+                    setFiles(
+                        Object.fromEntries(
+                            uploadFields.map((field) => [field, null])
+                        )
+                    );
+                    setAdditionalFields([]);
+
+                    onBackToHub();
+                },
+            }
+        );
+    };
+    const handleFileChange = async (
+        field: string,
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        type ErrorStateType = {
+            dieselGenerators?: string;
+            gasTurbines?: string;
+            files?: string;
+        };
+
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 10 * 1024 * 1024) {
+            return;
+        }
+
+        try {
+            setUploading((prev: Record<string, boolean>) => ({
+                ...prev,
+                [field]: true,
+            }));
+            const uploaded = await uploadService.uploadImage(file);
+
+            if (uploaded?.url) {
+            } else {
+                toast.error("Failed to upload file");
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setUploading((prev: Record<string, boolean>) => ({
+                ...prev,
+                [field]: false,
+            }));
+        }
+
+        if (errors.files) {
+            setErrors((prev: ErrorStateType) => ({
+                ...prev,
+                files: undefined,
+            }));
+        }
+    };
+
+    const handleRemoveFile = async (key: string) => {
+        const file = files[key];
+
+        type ErrorStateType = {
+            dieselGenerators?: string;
+            gasTurbines?: string;
+            files?: string;
+        };
+
+        if (file?.publicId) {
+            try {
+            } catch (err) {
+                console.log(err);
+            } finally {
+                setDeleting((prev: Record<string, boolean>) => ({
+                    ...prev,
+                    [key]: false,
+                }));
+
+                if (inputRefs.current[key]) {
+                    inputRefs.current[key]!.value = "";
+                }
+
+                if (errors.files) {
+                    setErrors((prev: ErrorStateType) => ({
+                        ...prev,
+                        files: undefined,
+                    }));
+                }
+            }
+        } else {
+            if (inputRefs.current[key]) {
+                inputRefs.current[key]!.value = "";
+            }
+        }
+    };
+
+    const handleNext = () => {
+        if (!validateForm()) return;
+
+        dispatch({
+            type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+            payload: {
+                dieselGenerators,
+                gasTurbines,
+                files,
                 additionalFields: additionalFields as FileMetadata[],
             },
         });
@@ -515,7 +405,6 @@ const handleRemoveFile = async (key: string) => {
                                 error={errors.gasTurbines}
                             />
                         </div>
-                        {/* 1.3 Document/Evidence Upload */}
                         <div>
                             <Label className="text-md font-medium mb-2 block">
                                 1.3 Document/Evidence Upload
@@ -593,7 +482,7 @@ const handleRemoveFile = async (key: string) => {
                                                             }
                                                             disabled={
                                                                 deleting[field]
-                                                            } // Disable button while deleting
+                                                            }
                                                             className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                                                             aria-label={`Remove ${field}`}
                                                         >
@@ -608,12 +497,7 @@ const handleRemoveFile = async (key: string) => {
                             </div>
                             <div className="mt-6">
                                 <AdditionalFileUpload
-                                    // onFieldsChange={
-                                    //     handleAdditionalFieldsChange
-                                    // }
                                     onFieldsChange={(newFields) => {
-                                        // 💡 CHANGE 9: Dispatch new fields.
-                                        // Note: newFields is FileData[], but we cast it to FileMetadata[] for the global state.
                                         dispatch({
                                             type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
                                             payload: {
