@@ -20,15 +20,21 @@ import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 
 const navItems = [
-    { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
-    { name: "Assessments", href: "/assessments", icon: ClipboardList },
+    // { name: "Dashboard", href: "/dashboard-esg", icon: LayoutDashboard },
+    // { name: "Assessments", href: "/assessments", icon: ClipboardList },
     {
         name: "Reports",
         href: "/reports-and-analytics",
         icon: BarChart3,
     },
     { name: "Ranking", href: "/ranking", icon: TrendingUp },
-    // { name: "Teams", href: "/teams-esg", icon: Users },
+];
+
+const assessmentSubLinks = [
+    { name: "New Assessment", href: "/assessments" },
+    { name: "Bulk Upload", href: "/assessments/bulk-upload" },
+    { name: "Tasks", href: "/assessments/tasks" },
+    { name: "Target", href: "/assessments/target" },
 ];
 
 const settingsSubLinks = [
@@ -47,6 +53,7 @@ export default function Sidebar() {
     const pathname = usePathname();
     const { logout, user } = useAuth();
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [assessmentsOpen, setAssessmentsOpen] = useState(false);
 
     useEffect(() => {
         if (typeof window !== "undefined" && user) {
@@ -59,6 +66,9 @@ export default function Sidebar() {
     useEffect(() => {
         const isSettingsPage = pathname.startsWith("/settings-esg");
         setSettingsOpen(isSettingsPage);
+
+        const isAssessmentsPage = pathname.startsWith("/assessments");
+        setAssessmentsOpen(isAssessmentsPage);
     }, [pathname]);
 
     const handleLogout = () => {
@@ -111,6 +121,79 @@ export default function Sidebar() {
 
                 {/* Navigation */}
                 <nav className="space-y-1">
+                    <Link
+                        href="/dashboard-esg"
+                        className={clsx(
+                            "flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2",
+                            pathname.startsWith("/dashboard-esg")
+                                ? "bg-[#DFFAE5] text-[#007A4D]"
+                                : "text-[#001D34] hover:bg-[#E8F5EE]"
+                        )}
+                    >
+                        <LayoutDashboard
+                            className={clsx(
+                                "h-5 w-5 flex-shrink-0",
+                                pathname.startsWith("/dashboard-esg")
+                                    ? "text-[#007A4D]"
+                                    : "text-[#001D34]"
+                            )}
+                        />
+                        <span className="hidden md:inline ml-3">Dashboard</span>
+                    </Link>
+                    {/* Assessments Dropdown */}
+                    <div>
+                        <button
+                            onClick={() => setAssessmentsOpen((prev) => !prev)}
+                            className={clsx(
+                                "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
+                                pathname.startsWith("/assessments")
+                                    ? "bg-[#DFFAE5] text-[#007A4D]"
+                                    : "text-[#001D34] hover:bg-[#E8F5EE]"
+                            )}
+                        >
+                            <ClipboardList
+                                className={clsx(
+                                    "h-5 w-5 flex-shrink-0",
+                                    pathname.startsWith("/assessments")
+                                        ? "text-[#007A4D]"
+                                        : "text-[#001D34]"
+                                )}
+                            />
+                            <span className="hidden md:inline ml-3">
+                                Assessments
+                            </span>
+                            {assessmentsOpen ? (
+                                <ChevronUp className="ml-auto w-4 h-4 md:block hidden" />
+                            ) : (
+                                <ChevronDown className="ml-auto w-4 h-4 md:block hidden" />
+                            )}
+                        </button>
+
+                        {assessmentsOpen && (
+                            <div className="ml-6 mt-1 space-y-1">
+                                {assessmentSubLinks.map((sub) => {
+                                    const isSubActive =
+                                        pathname === sub.href ||
+                                        pathname.startsWith(sub.href + "/");
+                                    return (
+                                        <Link
+                                            key={sub.name}
+                                            href={sub.href}
+                                            className={clsx(
+                                                "block text-sm rounded px-2 py-1 transition-all",
+                                                isSubActive
+                                                    ? "bg-[#DFFAE5] text-[#007A4D]"
+                                                    : "text-[#001D34] hover:bg-[#E8F5EE]"
+                                            )}
+                                        >
+                                            {sub.name}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
                     {navItems.map(({ name, href, icon: Icon }) => {
                         const isActive = pathname.startsWith(href);
                         return (

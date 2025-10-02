@@ -13,6 +13,14 @@ export const useAssessments = () => {
     });
 };
 
+export const useAssessment = (assessmentId: number) => {
+    return useQuery({
+        queryKey: ["assessment", assessmentId],
+        queryFn: () => assessmentService.getAssessment(assessmentId),
+        enabled: !!assessmentId,
+    });
+};
+
 export const useCreateAssessment = () => {
     const queryClient = useQueryClient();
 

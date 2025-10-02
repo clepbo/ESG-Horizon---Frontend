@@ -29,11 +29,13 @@ export interface SubmitAssessmentResponse {
 
 export const assessmentService = {
     getAssessments: async () => {
-        return await api.get("/assessments");
+        const { data } = await api.get("/assessments");
+        return data;
     },
 
     getAssessment: async (assessmentId: number) => {
-        return await api.get(`/assessments/${assessmentId}`);
+        const { data } = await api.get(`/assessments/${assessmentId}`);
+        return data;
     },
 
     createAssessment: async (): Promise<number> => {

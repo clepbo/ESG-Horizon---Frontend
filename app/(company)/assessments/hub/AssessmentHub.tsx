@@ -11,10 +11,12 @@ import {
 } from "@/app/components/ui/select";
 import { useAssessment } from "@/hooks/useAssessment";
 import { DisclosureTopics } from "@/app/components/company/assessments/DisclosureTopics";
-import Header from "../components/Header";
+import Header from "../../components/Header";
 import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import { useAuth } from "@/context/AuthContext";
 import { useCreateAssessment } from "@/services/hooks/assessment.hooks";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 const months = [
     "January",
@@ -36,6 +38,7 @@ export default function AssessmentHub() {
     const { state, dispatch } = useAssessment();
     const { user } = useAuth();
     const { mutateAsync: createAssessment } = useCreateAssessment();
+    const router = useRouter();
 
     const {
         data: subsidiaries = [],
@@ -93,6 +96,8 @@ export default function AssessmentHub() {
         });
     };
 
+    const backToNewAssessment = () => router.back();
+
     if (state.currentView === "disclosure") {
         return <DisclosureTopics onBack={handleBack} />;
     }
@@ -110,17 +115,25 @@ export default function AssessmentHub() {
                 <Header />
                 <div className="space-y-1 mb-6">
                     <h1 className="text-2xl font-semibold text-foreground">
-                        Assessment Hub
+                        Start a New Assessment
                     </h1>
                     <p className="text-base text-muted-foreground">
-                        Track your ESG data collection progress across all
-                        pillars
+                        Start a new assessment to capture your company&apos;s
+                        ESG and GHG data, track performance, and generate
+                        complaince-ready reports.
                     </p>
                 </div>
 
-                <Card className="bg-white p-8 space-y-8 shadow-none border-none">
+                <Button
+                    className="mb-3 text-sm flex gap-1 text-gray-800 shadow rounded px-4 py-2 w-fit bg-white hover:bg-gray-100 cursor-pointer"
+                    onClick={backToNewAssessment}
+                >
+                    <ArrowLeft size={18} />{" "}
+                    <span className="text-sm">Back</span>
+                </Button>
+
+                <Card className="bg-white p-8 space-y-8 shadow-md border-none">
                     <CardContent className="space-y-6 p-0">
-                        {/* ✅ Only render subsidiary select if company has subsidiaries */}
                         {subsidiaries.length > 0 && (
                             <div className="space-y-2">
                                 <label className="text-lg font-semibold text-foreground">
@@ -281,13 +294,22 @@ export default function AssessmentHub() {
                                     </div>
                                 </div>
                             </div>
-                            <Button
-                                className="bg-green-600 hover:bg-green-700 text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-md mt-2"
-                                disabled={!isFormValid}
-                                onClick={handleProceed}
-                            >
-                                Proceed
-                            </Button>
+
+                            <div className="flex justify-end">
+                                <Button
+                                    className="bg-white border border-green-500 mr-2 hover:bg-green-200/30 text-neutral-1000 max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                                    onClick={backToNewAssessment}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="bg-green-600 hover:bg-green-700 text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                                    disabled={!isFormValid}
+                                    onClick={handleProceed}
+                                >
+                                    Proceed
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

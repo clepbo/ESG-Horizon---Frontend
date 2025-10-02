@@ -19,7 +19,7 @@ import { MarketBasedForm } from "./scope2/market-based";
 
 interface GhgEmissionsAssessmentProps {
   onBack: () => void;
-  onBackToHub?: () => void; // Add this prop
+  onBackToHub?: () => void;
 }
 
 const scopeData = [

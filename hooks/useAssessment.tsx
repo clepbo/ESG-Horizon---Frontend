@@ -36,6 +36,8 @@ export interface SourceData {
 }
 
 export interface AssessmentData {
+    id?: number;
+    status?: string;
     assessmentId?: number;
     subsidiary: string;
     startMonth: string;
