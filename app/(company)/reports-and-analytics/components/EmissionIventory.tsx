@@ -20,6 +20,7 @@ interface ScopeData {
   name: string
   value: number
   color: string
+  [key: string]: string | number
 }
 
 interface FuelMixData {

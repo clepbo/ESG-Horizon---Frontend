@@ -204,7 +204,7 @@ export function EmissionsBreakdownChart() {
                   outerRadius={80}
                   dataKey="value"
                   label={({ name, percent }) =>
-                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
+                    `${name} ${(Number(percent || 0) * 100).toFixed(0)}%`
                   }
                   labelLine={false}
                 >
