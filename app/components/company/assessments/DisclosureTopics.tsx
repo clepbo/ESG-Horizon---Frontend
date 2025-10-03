@@ -20,6 +20,9 @@ import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-em
 
 interface DisclosureTopicsProps {
     onBack: () => void;
+    initialView?: "topics" | "ghg";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initialForm?: "stationary-sources" | any;
 }
 
 interface MetricCard {
@@ -41,20 +44,24 @@ const industrySpecificMetrics: MetricSection[] = [
         cards: [
             {
                 title: "Greenhouse Gas Emissions",
-                subtitle: "Report total CO2-equivalent emissions from Subsidiaries and supply chains",
+                subtitle:
+                    "Report total CO2-equivalent emissions from Subsidiaries and supply chains",
                 clickable: true,
             },
             {
                 title: "Air Quality",
-                subtitle: "Assess pollutant emissions and their impact on local air quality",
+                subtitle:
+                    "Assess pollutant emissions and their impact on local air quality",
             },
             {
                 title: "Water Management",
-                subtitle: "Evaluate water use, conservation, and treatment practices",
+                subtitle:
+                    "Evaluate water use, conservation, and treatment practices",
             },
             {
                 title: "Biodiversity Impact",
-                subtitle: "Identify and measure impacts on ecosystems, species, and natural habitats",
+                subtitle:
+                    "Identify and measure impacts on ecosystems, species, and natural habitats",
             },
         ],
     },
@@ -69,7 +76,8 @@ const industrySpecificMetrics: MetricSection[] = [
             },
             {
                 title: "Community Relations",
-                subtitle: "Report engagement strategies and impact on local  communities",
+                subtitle:
+                    "Report engagement strategies and impact on local  communities",
             },
         ],
     },
@@ -79,7 +87,8 @@ const industrySpecificMetrics: MetricSection[] = [
         cards: [
             {
                 title: "Workforce Health & Safety",
-                subtitle: "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
+                subtitle:
+                    "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
             },
         ],
     },
@@ -89,7 +98,8 @@ const industrySpecificMetrics: MetricSection[] = [
         cards: [
             {
                 title: "Reserves Valuation & Capital Expenditures",
-                subtitle: "Report on investment strategies and valuation of natural rsource reserves",
+                subtitle:
+                    "Report on investment strategies and valuation of natural rsource reserves",
             },
         ],
     },
@@ -99,15 +109,18 @@ const industrySpecificMetrics: MetricSection[] = [
         cards: [
             {
                 title: "Business Ethics & Transparency",
-                subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
+                subtitle:
+                    "Assess anti-corruption measures and Subsidiaryal integrity",
             },
             {
                 title: "Management of the Legal & Regulatory Environment",
-                subtitle: "Evaluate compliance with applicable laws and regulations",
+                subtitle:
+                    "Evaluate compliance with applicable laws and regulations",
             },
             {
                 title: "Critical Incident Risk Management",
-                subtitle: "Report preparedness plans and response strategies for major Subsidiaryal incidents",
+                subtitle:
+                    "Report preparedness plans and response strategies for major Subsidiaryal incidents",
             },
         ],
     },
@@ -186,8 +199,13 @@ const supplementaryMetrics: MetricSection[] = [
     },
 ];
 
-export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
-    const [currentView, setCurrentView] = useState<"topics" | "ghg">("topics");
+export function DisclosureTopics({
+    onBack,
+    initialView = "topics",
+    initialForm = "stationary-sources",
+}: DisclosureTopicsProps) {
+    // const [currentView, setCurrentView] = useState<"topics" | "ghg">("topics");
+    const [currentView, setCurrentView] = useState(initialView);
 
     const handleCardClick = (cardTitle: string) => {
         if (cardTitle === "Greenhouse Gas Emissions") {
@@ -204,6 +222,7 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
             <GhgEmissionsAssessment
                 onBack={() => setCurrentView("topics")}
                 onBackToHub={handleBackToHub}
+                initialForm={initialForm}
             />
         );
     }
@@ -229,7 +248,11 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                         Disclosure Topics
                                     </h1>
                                     <p className="text-muted-foreground text-base">
-                                        Disclosure topics are industry-based versions of sustainability-related risks and<br/>opportunities
+                                        Disclosure topics are industry-based
+                                        versions of sustainability-related risks
+                                        and
+                                        <br />
+                                        opportunities
                                     </p>
                                 </div>
                                 <Button className="bg-green-600 hover:bg-green-700 text-white">
@@ -255,8 +278,14 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                     <TooltipTrigger asChild>
                                                         <Info className="h-4 w-4 text-muted-foreground" />
                                                     </TooltipTrigger>
-                                                    <TooltipContent side="top" align="start">
-                                                        <p>Metrics specific to your industry sector</p>
+                                                    <TooltipContent
+                                                        side="top"
+                                                        align="start"
+                                                    >
+                                                        <p>
+                                                            Metrics specific to
+                                                            your industry sector
+                                                        </p>
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </span>
@@ -275,11 +304,20 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                             <h4 className="text-lg font-medium text-foreground flex items-center gap-2">
                                                                 {section.title}
                                                                 <Tooltip>
-                                                                    <TooltipTrigger asChild>
+                                                                    <TooltipTrigger
+                                                                        asChild
+                                                                    >
                                                                         <Info className="h-4 w-4 text-muted-foreground" />
                                                                     </TooltipTrigger>
-                                                                    <TooltipContent side="top" align="start">
-                                                                        <p>{section.tooltip}</p>
+                                                                    <TooltipContent
+                                                                        side="top"
+                                                                        align="start"
+                                                                    >
+                                                                        <p>
+                                                                            {
+                                                                                section.tooltip
+                                                                            }
+                                                                        </p>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </h4>
@@ -288,7 +326,9 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                             {section.cards.map(
                                                                 (card) => (
                                                                     <Card
-                                                                        key={card.title}
+                                                                        key={
+                                                                            card.title
+                                                                        }
                                                                         className={`transition-colors shadow-sm bg-white rounded-lg border ${
                                                                             card.clickable
                                                                                 ? "cursor-pointer hover:bg-accent/50"
@@ -296,17 +336,23 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                                         }`}
                                                                         onClick={() =>
                                                                             card.clickable &&
-                                                                            handleCardClick(card.title)
+                                                                            handleCardClick(
+                                                                                card.title
+                                                                            )
                                                                         }
                                                                     >
                                                                         <CardContent className="p-4">
                                                                             <div className="flex items-center justify-between">
                                                                                 <div className="space-y-1 flex-1">
                                                                                     <h5 className="font-medium text-foreground">
-                                                                                        {card.title}
+                                                                                        {
+                                                                                            card.title
+                                                                                        }
                                                                                     </h5>
                                                                                     <p className="text-sm text-muted-foreground">
-                                                                                        {card.subtitle}
+                                                                                        {
+                                                                                            card.subtitle
+                                                                                        }
                                                                                     </p>
                                                                                 </div>
                                                                                 <ChevronRight className="h-7 w-7 text-muted-foreground flex-shrink-0 ml-2" />
@@ -336,8 +382,15 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                     <TooltipTrigger asChild>
                                                         <Info className="h-4 w-4 text-muted-foreground" />
                                                     </TooltipTrigger>
-                                                    <TooltipContent side="top" align="start">
-                                                        <p>Additional metrics to complement core reporting</p>
+                                                    <TooltipContent
+                                                        side="top"
+                                                        align="start"
+                                                    >
+                                                        <p>
+                                                            Additional metrics
+                                                            to complement core
+                                                            reporting
+                                                        </p>
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </span>
@@ -356,11 +409,20 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                             <h3 className="text-lg font-medium text-foreground flex items-center gap-2">
                                                                 {section.title}
                                                                 <Tooltip>
-                                                                    <TooltipTrigger asChild>
+                                                                    <TooltipTrigger
+                                                                        asChild
+                                                                    >
                                                                         <Info className="h-4 w-4 text-muted-foreground" />
                                                                     </TooltipTrigger>
-                                                                    <TooltipContent side="top" align="start">
-                                                                        <p>{section.tooltip}</p>
+                                                                    <TooltipContent
+                                                                        side="top"
+                                                                        align="start"
+                                                                    >
+                                                                        <p>
+                                                                            {
+                                                                                section.tooltip
+                                                                            }
+                                                                        </p>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </h3>
@@ -369,17 +431,23 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
                                                             {section.cards.map(
                                                                 (card) => (
                                                                     <Card
-                                                                        key={card.title}
+                                                                        key={
+                                                                            card.title
+                                                                        }
                                                                         className="shadow-sm bg-white rounded-lg border cursor-default"
                                                                     >
                                                                         <CardContent className="p-4">
                                                                             <div className="flex items-center justify-between">
                                                                                 <div className="space-y-1 flex-1">
                                                                                     <h4 className="font-medium text-foreground">
-                                                                                        {card.title}
+                                                                                        {
+                                                                                            card.title
+                                                                                        }
                                                                                     </h4>
                                                                                     <p className="text-sm text-muted-foreground">
-                                                                                        {card.subtitle}
+                                                                                        {
+                                                                                            card.subtitle
+                                                                                        }
                                                                                     </p>
                                                                                 </div>
                                                                                 <ChevronRight className="h-7 w-7 text-muted-foreground flex-shrink-0 ml-2" />

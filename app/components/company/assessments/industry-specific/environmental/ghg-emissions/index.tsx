@@ -17,9 +17,20 @@ import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
 import { LocationBasedForm } from "./scope2/location-based";
 import { MarketBasedForm } from "./scope2/market-based";
 
+type GHGView =
+    | "overview"
+    | "stationary-sources"
+    | "mobile-sources"
+    | "process-emissions"
+    | "fugitive-emissions"
+    | "location-based"
+    | "market-based"
+    | "scope3";
+
 interface GhgEmissionsAssessmentProps {
     onBack: () => void;
     onBackToHub?: () => void;
+    initialForm: GHGView;
 }
 
 const scopeData = [
@@ -92,17 +103,11 @@ const scopeData = [
 export function GhgEmissionsAssessment({
     onBack,
     onBackToHub,
-}: GhgEmissionsAssessmentProps) {
-    const [currentView, setCurrentView] = useState<
-        | "overview"
-        | "stationary-sources"
-        | "mobile-sources"
-        | "process-emissions"
-        | "fugitive-emissions"
-        | "location-based"
-        | "market-based"
-        | "scope3"
-    >("overview");
+    initialForm,
+}: GhgEmissionsAssessmentProps & { initialForm?: GHGView }) {
+    const [currentView, setCurrentView] = useState<GHGView>(
+        initialForm ?? "overview"
+    );
 
     const handleCardClick = (cardTitle: string) => {
         if (cardTitle === "Stationary Sources") {

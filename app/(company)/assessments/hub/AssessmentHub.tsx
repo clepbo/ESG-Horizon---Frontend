@@ -102,6 +102,16 @@ export default function AssessmentHub() {
         return <DisclosureTopics onBack={handleBack} />;
     }
 
+    if (state.currentView === "ghg-stationary-sources") {
+        return (
+            <DisclosureTopics
+                onBack={handleBack}
+                initialView="ghg"
+                initialForm="stationary-sources"
+            />
+        );
+    }
+
     const isFormValid =
         state.assessmentData.subsidiary &&
         state.assessmentData.startMonth &&

@@ -11,15 +11,17 @@ export default function AssessmentPage() {
     const { data, isLoading } = useAssessment(Number(id));
     const { dispatch } = useAssessmentContext();
 
+    console.log('assessment data', data);
+
     useEffect(() => {
         if (data) {
             dispatch({ type: "SET_ASSESSMENT_ID", payload: data.id });
             dispatch({ type: "LOAD_SAVED_DATA", payload: data.assessmentData });
-            dispatch({ type: "SET_VIEW", payload: "topics" });
+            dispatch({ type: "SET_VIEW", payload: "ghg-stationary-sources" });
         }
     }, [data, dispatch]);
 
-    if (isLoading) return <div>Loading assessment...</div>;
+    if (isLoading) return <div className="p-10">Loading assessment...</div>;
 
     return <AssessmentHub />;
 }
