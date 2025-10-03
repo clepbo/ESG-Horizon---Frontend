@@ -6,90 +6,95 @@ import { PurchasedCoolingForm } from "./PurchasedCooling";
 import { PurchasedSteamForm } from "./PurchasedSteam";
 import { PurchasedHeatingForm } from "./PurchasedHeating";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface LocationBasedFormProps {
-  onBack: () => void;
-  onContinueToNextAssessment: () => void;
+    onBack: () => void;
+    onContinueToNextAssessment: () => void;
 }
 
 const steps = [
-  "Purchased Electricity",
-  "Purchased Cooling",
-  "Purchased Steam",
-  "Purchased Heating",
+    "Purchased Electricity",
+    "Purchased Cooling",
+    "Purchased Steam",
+    "Purchased Heating",
 ];
 type StepKey = "electricity" | "cooling" | "steam" | "heating";
 
 export function LocationBasedForm({
-  onBack,
-  onContinueToNextAssessment,
+    onBack,
+    onContinueToNextAssessment,
 }: LocationBasedFormProps) {
-  const [currentStep, setCurrentStep] = useState<StepKey>("electricity");
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+    const [currentStep, setCurrentStep] = useState<StepKey>("electricity");
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
-  if (showSuccess) {
-    return (
-      <SuccessScreen
-        assessmentName="Location Based"
-        nextAssessment="Market Based"
-        onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
-      />
-    );
-  }
+    if (showSuccess) {
+        return (
+            <SuccessScreen
+                assessmentName="Location Based"
+                sectionKey="locationBased"
+                totals={totals ?? undefined}
+                nextAssessment="Market Based"
+                onContinue={onContinueToNextAssessment}
+                onBackToHub={onBack}
+            />
+        );
+    }
 
-  if (currentStep === "electricity") {
-    return (
-      <PurchasedElectricityForm
-        onBack={onBack}
-        onNext={() => setCurrentStep("cooling")}
-        onBackToHub={onBack}
-        stepIndex={1}
-        totalSteps={steps.length}
-      />
-    );
-  }
+    if (currentStep === "electricity") {
+        return (
+            <PurchasedElectricityForm
+                onBack={onBack}
+                onNext={() => setCurrentStep("cooling")}
+                onBackToHub={onBack}
+                stepIndex={1}
+                totalSteps={steps.length}
+            />
+        );
+    }
 
-  if (currentStep === "cooling") {
-    return (
-      <PurchasedCoolingForm
-        onBack={() => setCurrentStep("electricity")}
-        onNext={() => setCurrentStep("steam")}
-        onBackToHub={onBack}
-        stepIndex={2}
-        totalSteps={steps.length}
-      />
-    );
-  }
+    if (currentStep === "cooling") {
+        return (
+            <PurchasedCoolingForm
+                onBack={() => setCurrentStep("electricity")}
+                onNext={() => setCurrentStep("steam")}
+                onBackToHub={onBack}
+                stepIndex={2}
+                totalSteps={steps.length}
+            />
+        );
+    }
 
-  if (currentStep === "steam") {
-    return (
-      <PurchasedSteamForm
-        onBack={() => setCurrentStep("cooling")}
-        onNext={() => setCurrentStep("heating")}
-        onBackToHub={onBack}
-        stepIndex={3}
-        totalSteps={steps.length}
-      />
-    );
-  }
+    if (currentStep === "steam") {
+        return (
+            <PurchasedSteamForm
+                onBack={() => setCurrentStep("cooling")}
+                onNext={() => setCurrentStep("heating")}
+                onBackToHub={onBack}
+                stepIndex={3}
+                totalSteps={steps.length}
+            />
+        );
+    }
 
-  if (currentStep === "heating") {
-    return (
-      <PurchasedHeatingForm
-        onBack={() => setCurrentStep("steam")}
-        onSubmit={() => {
-          setShowSuccess(true);
-          setIsSubmitted(true);
-        }}
-        onBackToHub={onBack}
-        stepIndex={4}
-        totalSteps={steps.length}
-        isSubmitted={isSubmitted}
-      />
-    );
-  }
+    if (currentStep === "heating") {
+        return (
+            <PurchasedHeatingForm
+                onBack={() => setCurrentStep("steam")}
+                onSubmit={(totals) => {
+                    setTotals(totals);
+                    setShowSuccess(true);
+                    setIsSubmitted(true);
+                }}
+                onBackToHub={onBack}
+                stepIndex={4}
+                totalSteps={steps.length}
+                isSubmitted={isSubmitted}
+            />
+        );
+    }
 
-  return null;
+    return null;
 }

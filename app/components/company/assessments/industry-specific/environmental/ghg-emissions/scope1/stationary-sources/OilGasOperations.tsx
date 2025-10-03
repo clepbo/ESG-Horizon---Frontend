@@ -525,8 +525,8 @@ export function OilGasOperations({
                             <Button
                                 variant="outline"
                                 onClick={handleSubmit}
-                                disabled={isPending} // Use combined pending state
-                                className="justify-self-end hover:cursor-pointer bg-green-700 text-white hover:bg-green-800 flex items-center gap-2"
+                                disabled={isPending}
+                                className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                                 aria-label="Submit form"
                             >
                                 {isSubmitting ? (

@@ -24,7 +24,7 @@ import { companyService } from "@/services/company.service";
 import { departmentService } from "@/services/department.service";
 
 export default function DepartmentTeamUsersPage() {
-    const { id } = useParams(); // department id from URL
+    const { id } = useParams();
 
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
@@ -34,7 +34,7 @@ export default function DepartmentTeamUsersPage() {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [selectedDepartment, setSelectedDepartment] =
-        useState<Department | null>(null); // ✅ FIX
+        useState<Department | null>(null);
 
     // pagination
     const [currentPage, setCurrentPage] = useState(1);
