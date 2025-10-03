@@ -149,6 +149,21 @@ export function CoolingSteamForm({
         if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
     };
 
+    const resetForm = () => {
+        setEnergyConsumed("");
+        setEmissionFactor("");
+        setFiles(
+            Object.fromEntries(uploadFields.map((field) => [field, null]))
+        );
+        setAdditionalFields([]);
+        setErrors({});
+        setShowSaveSuccess(false);
+
+        Object.values(inputRefs.current).forEach((input) => {
+            if (input) input.value = "";
+        });
+    };
+
     const buildPayload = () => ({
         energyConsumed,
         emissionFactor,
@@ -178,6 +193,7 @@ export function CoolingSteamForm({
             {
                 onSuccess: () => {
                     setShowSaveSuccess(true);
+                    resetForm();
                     onBackToHub();
                 },
             }
@@ -206,6 +222,7 @@ export function CoolingSteamForm({
             {
                 onSuccess: (response) => {
                     onSubmit(response.totals ?? null);
+                    resetForm();
                 },
             }
         );
