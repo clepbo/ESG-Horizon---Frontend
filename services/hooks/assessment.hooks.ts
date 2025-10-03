@@ -1,9 +1,11 @@
 import { toast } from "react-toastify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { assessmentService } from "@/services/assessment.service";
+import {
+    assessmentService,
+    SubmitAssessmentResponse,
+} from "@/services/assessment.service";
 import { AssessmentData } from "@/hooks/useAssessment";
 
-// Hook to fetch all assessments
 export const useAssessments = () => {
     return useQuery({
         queryKey: ["assessments"],
@@ -11,13 +13,23 @@ export const useAssessments = () => {
     });
 };
 
-// Hook to create a new assessment
+export const useAssessment = (assessmentId: number) => {
+    return useQuery({
+        queryKey: ["assessment", assessmentId],
+        queryFn: () => assessmentService.getAssessment(assessmentId),
+        enabled: !!assessmentId,
+    });
+};
+
 export const useCreateAssessment = () => {
     const queryClient = useQueryClient();
-    return useMutation({
+
+    return useMutation<number, Error>({
         mutationFn: assessmentService.createAssessment,
-        onSuccess: () => {
+        onSuccess: (assessmentId) => {
             queryClient.invalidateQueries({ queryKey: ["assessments"] });
+            toast.info("New assessment started.");
+            console.log("Created assessment with ID:", assessmentId);
         },
         onError: () => {
             toast.error("Failed to create a new assessment.");
@@ -25,11 +37,14 @@ export const useCreateAssessment = () => {
     });
 };
 
-// Updated hook for saving, now without localStorage
 export const useSaveAssessment = () => {
     const queryClient = useQueryClient();
 
-    return useMutation({
+    return useMutation<
+        { message: string; data: AssessmentData },
+        Error,
+        { assessmentId: number; data: Partial<AssessmentData> }
+    >({
         mutationFn: assessmentService.saveAssessment,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["assessments"] });
@@ -41,60 +56,21 @@ export const useSaveAssessment = () => {
     });
 };
 
-// Updated hook for submitting, now without localStorage
 export const useSubmitAssessment = () => {
     const queryClient = useQueryClient();
 
-    return useMutation({
+    return useMutation<
+        SubmitAssessmentResponse,
+        Error,
+        { assessmentId: number; data: Partial<AssessmentData> }
+    >({
         mutationFn: assessmentService.submitAssessment,
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["assessments"] });
             queryClient.invalidateQueries({ queryKey: ["dashboard-data"] });
-            toast.success("Assessment submitted successfully!");
         },
         onError: () => {
             toast.error("Failed to submit assessment. Please try again.");
         },
     });
 };
-
-
-
-// import { toast } from "react-toastify";
-// import { useMutation, useQueryClient } from "@tanstack/react-query";
-// import { assessmentService } from "@/services/assessment.service";
-
-// export const useSaveAssessment = () => {
-//     const queryClient = useQueryClient();
-
-//     return useMutation({
-//         mutationFn: assessmentService.saveAssessment,
-//         onSuccess: (data) => {
-//             queryClient.invalidateQueries({ queryKey: ["assessments"] });
-
-//             localStorage.setItem("esg-assessment-data", JSON.stringify(data));
-//             toast.success("Assessment data saved successfully!");
-//         },
-//         onError: () => {
-//             toast.error("Failed to save data. Please try again.");
-//         },
-//     });
-// };
-
-// export const useSubmitAssessment = () => {
-//     const queryClient = useQueryClient();
-
-//     return useMutation({
-//         mutationFn: assessmentService.submitAssessment,
-//         onSuccess: () => {
-//             queryClient.invalidateQueries({ queryKey: ["assessments"] });
-//             queryClient.invalidateQueries({ queryKey: ["dashboard-data"] });
-
-//             localStorage.removeItem("esg-assessment-data");
-//             toast.success("Assessment submitted successfully!");
-//         },
-//         onError: () => {
-//             toast.error("Failed to submit assessment. Please try again.");
-//         },
-//     });
-// };

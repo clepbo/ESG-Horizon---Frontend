@@ -4,6 +4,7 @@ import { useState } from "react";
 import { VentingNaturalGas } from "./VentingNaturalGas";
 import { HFCLeaks } from "./HFCLeaks";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface FugitiveEmissionsFormProps {
   onBack: () => void;
@@ -22,11 +23,14 @@ export function FugitiveEmissionsForm({
   );
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
   if (showSuccess) {
     return (
       <SuccessScreen
         assessmentName="Fugitive Emissions"
+        sectionKey="fugitiveEmissions"
+        totals={totals ?? undefined}
         nextAssessment="Stationary Sources"
         onContinue={onContinueToNextAssessment}
         onBackToHub={onBack}
@@ -50,7 +54,8 @@ export function FugitiveEmissionsForm({
     return (
       <HFCLeaks
         onBack={() => setCurrentStep("venting-natural-gas")}
-        onSubmit={() => {
+        onSubmit={(totals) => {
+          setTotals(totals);
           setShowSuccess(true);
           setIsSubmitted(true);
         }}

@@ -6,76 +6,63 @@ interface SaveAssessmentResponse {
     data: AssessmentData;
 }
 
-interface SubmitAssessmentResponse {
+export interface TotalsBreakdown {
+    [section: string]: {
+        sum: number;
+        [key: string]: { unit: string; value: number } | number;
+    };
+}
+
+export interface TotalsResponse {
+    totals: {
+        sum: number;
+        breakdown: TotalsBreakdown;
+    };
+    computedAt: string;
+}
+export interface SubmitAssessmentResponse {
     message: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    assessment: any;
+    totals?: TotalsResponse;
 }
 
 export const assessmentService = {
-    // New endpoint to fetch all assessments for the company
     getAssessments: async () => {
         const { data } = await api.get("/assessments");
-        return data.data;
+        return data;
     },
-    
-    // New endpoint to fetch a single assessment by ID
-    getAssessment: async (assessmentId: string) => {
+
+    getAssessment: async (assessmentId: number) => {
         const { data } = await api.get(`/assessments/${assessmentId}`);
-        return data.data;
-    },
-    
-    // New endpoint to create a new assessment and get an ID
-    createAssessment: async (): Promise<{ assessmentId: string }> => {
-        const { data } = await api.post("/assessments/create");
         return data;
     },
 
-    // Updated to accept an assessmentId
-    saveAssessment: async (
-        // Note: This function expects a single payload object, not two separate arguments.
-        payload: { assessmentId: string; data: Partial<AssessmentData> }
-    ): Promise<SaveAssessmentResponse> => {
-        const { assessmentId, data: assessmentData } = payload;
-        const { data } = await api.post(`/assessments/${assessmentId}/save`, assessmentData);
-        return data;
+    createAssessment: async (): Promise<number> => {
+        const response = await api.post("/assessments/create");
+        return response.assessmentId;
     },
 
-    // Updated to accept an assessmentId
-    submitAssessment: async (
-        // Note: This function expects a single payload object, not two separate arguments.
-        payload: { assessmentId: string; data: Partial<AssessmentData> }
-    ): Promise<SubmitAssessmentResponse> => {
+    saveAssessment: async (payload: {
+        assessmentId: number;
+        data: Partial<AssessmentData>;
+    }): Promise<SaveAssessmentResponse> => {
         const { assessmentId, data: assessmentData } = payload;
-        const { data } = await api.post(`/assessments/${assessmentId}/submit`, assessmentData);
-        return data;
+        return await api.post(
+            `/assessments/${assessmentId}/save`,
+            assessmentData
+        );
+    },
+
+    submitAssessment: async (payload: {
+        assessmentId: number;
+        data: Partial<AssessmentData>;
+    }): Promise<SubmitAssessmentResponse> => {
+        const { assessmentId, data: assessmentData } = payload;
+        const response = await api.post(
+            `/assessments/${assessmentId}/submit`,
+            assessmentData
+        );
+        return response;
     },
 };
-
-
-
-// import api from "@/lib/api/axios";
-// import { AssessmentData } from "@/hooks/useAssessment";
-
-// interface SaveAssessmentResponse {
-//     message: string;
-//     data: AssessmentData;
-// }
-
-// interface SubmitAssessmentResponse {
-//     message: string;
-// }
-
-// export const assessmentService = {
-//     saveAssessment: async (
-//         payload: Partial<AssessmentData>
-//     ): Promise<SaveAssessmentResponse> => {
-//         const { data } = await api.post("/assessments/save", payload);
-//         return data;
-//     },
-
-//     submitAssessment: async (
-//         payload: Partial<AssessmentData>
-//     ): Promise<SubmitAssessmentResponse> => {
-//         const { data } = await api.post("/assessments/submit", payload);
-//         return data;
-//     },
-// };

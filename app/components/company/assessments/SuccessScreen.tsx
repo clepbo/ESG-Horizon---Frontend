@@ -1,18 +1,23 @@
 "use client";
 
 import { Button } from "@/app/components/ui/button";
+import { TotalsResponse } from "@/services/assessment.service";
 import { CheckCircle } from "lucide-react";
 
 interface SuccessScreenProps {
     assessmentName: string;
+    sectionKey?: string;
     nextAssessment: string | null;
+    totals?: TotalsResponse;
     onContinue: () => void;
     onBackToHub: () => void;
 }
 
 export function SuccessScreen({
     assessmentName,
+    sectionKey,
     nextAssessment,
+    totals,
     onContinue,
     onBackToHub,
 }: SuccessScreenProps) {
@@ -23,6 +28,18 @@ export function SuccessScreen({
                 <h2 className="text-2xl font-bold text-white mb-2 text-center">
                     {assessmentName} Assessment Submitted!
                 </h2>
+                {totals && (
+                    <p className="text-green-700 bg-white mb-4 text-center p-3 rounded-lg font-semibold">
+                        Total Emissions for {assessmentName}<br />
+                        <span className="font-bold">
+                            {"="}{(sectionKey &&
+                                totals?.totals?.breakdown?.[sectionKey]?.sum) ??
+                                totals?.totals?.sum ??
+                                0}{" "}
+                            tCO₂e
+                        </span>
+                    </p>
+                )}
                 <p className="text-white mb-4 text-center">
                     Your data for the {assessmentName} metric has been saved
                     successfully. Thank you for completing this step toward

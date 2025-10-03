@@ -2,25 +2,25 @@ import { FileMetadata } from "@/hooks/useAssessment";
 import { userService } from "@/services/user.service";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-
+import { FileData } from "@/app/components/company/assessments/AdditionalFileUpload";
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+    return twMerge(clsx(inputs));
 }
 
 let logoutFunc: (() => void) | null = null;
 
 export const registerLogout = (fn: () => void) => {
-  logoutFunc = fn;
+    logoutFunc = fn;
 };
 
 export const triggerLogout = () => {
-  if (logoutFunc) logoutFunc();
+    if (logoutFunc) logoutFunc();
 };
 
 export const formatRole = (role: string) => {
-  if (!role) return;
-  const role_strings = role.split("_");
-  return role_strings.forEach((role) => role.charAt(0).toUpperCase());
+    if (!role) return;
+    const role_strings = role.split("_");
+    return role_strings.forEach((role) => role.charAt(0).toUpperCase());
 };
 
 const roleMappings: Record<string, string> = {
@@ -36,33 +36,33 @@ const roleMappings: Record<string, string> = {
 };
 
 export function formatRoleName(roleKey: string): string {
-  return roleMappings[roleKey] ?? roleKey;
+    return roleMappings[roleKey] ?? roleKey;
 }
 
 export async function getRole() {
-  const user = await userService.getCurrent();
-  return user?.role?.name;
+    const user = await userService.getCurrent();
+    return user?.role?.name;
 }
 
 export function canAccess(
-  userRole: string | undefined,
-  allowedRoles: string[]
+    userRole: string | undefined,
+    allowedRoles: string[]
 ): boolean {
-  if (!userRole) return false;
-  return allowedRoles.includes(userRole);
+    if (!userRole) return false;
+    return allowedRoles.includes(userRole);
 }
 
 export async function getCurrentUser() {
-  const user = await userService.getCurrent();
-  return user;
+    const user = await userService.getCurrent();
+    return user;
 }
 
 export function calculateProgress(
-  fields: (string | FileMetadata | boolean | null | undefined)[]
+    fields: (string | FileMetadata | boolean | null | undefined)[]
 ) {
-  const total = fields.length;
-  const filled = fields.filter(Boolean).length;
-  return { total, filled };
+    const total = fields.length;
+    const filled = fields.filter(Boolean).length;
+    return { total, filled };
 }
 
 export const handleAxiosError = (
@@ -82,3 +82,12 @@ export const handleAxiosError = (
     }
     return errorMessage;
 };
+
+export const normalizeFiles = (files: FileData[]): FileMetadata[] =>
+    files.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+    }));

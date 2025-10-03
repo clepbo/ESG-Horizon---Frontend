@@ -195,12 +195,17 @@ export function DisclosureTopics({ onBack }: DisclosureTopicsProps) {
         }
     };
 
-    const handleBackFromGhg = () => {
-        setCurrentView("topics");
+    const handleBackToHub = () => {
+        onBack();
     };
 
     if (currentView === "ghg") {
-        return <GhgEmissionsAssessment onBack={handleBackFromGhg} />;
+        return (
+            <GhgEmissionsAssessment
+                onBack={() => setCurrentView("topics")}
+                onBackToHub={handleBackToHub}
+            />
+        );
     }
 
     return (

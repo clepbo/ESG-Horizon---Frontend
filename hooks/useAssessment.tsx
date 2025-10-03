@@ -36,6 +36,9 @@ export interface SourceData {
 }
 
 export interface AssessmentData {
+    id?: number;
+    status?: string;
+    assessmentId?: number;
     subsidiary: string;
     startMonth: string;
     startYear: string;
@@ -110,7 +113,6 @@ export interface AssessmentData {
             R407C: boolean;
             R507A: boolean;
             others: number | string;
-            manureSystem: string;
             refrigerantAdded: number | string;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
@@ -173,6 +175,7 @@ export interface AssessmentData {
 
 export interface AssessmentState {
     currentView: string;
+    assessmentId: number | null;
     assessmentData: AssessmentData;
     isLoading: boolean;
     error: string | null;
@@ -180,6 +183,7 @@ export interface AssessmentState {
 
 type AssessmentAction =
     | { type: "SET_VIEW"; payload: string }
+    | { type: "SET_ASSESSMENT_ID"; payload: number }
     | { type: "UPDATE_BASIC_DATA"; payload: Partial<AssessmentData> }
     | {
           type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
@@ -255,6 +259,7 @@ type AssessmentAction =
 
 const initialState: AssessmentState = {
     currentView: "hub",
+    assessmentId: null,
     assessmentData: {
         subsidiary: "",
         startMonth: "",
@@ -330,7 +335,6 @@ const initialState: AssessmentState = {
                 R407C: false,
                 R507A: false,
                 others: "",
-                manureSystem: "",
                 refrigerantAdded: "",
                 files: {},
                 additionalFields: [],
@@ -401,6 +405,16 @@ function assessmentReducer(
     switch (action.type) {
         case "SET_VIEW":
             return { ...state, currentView: action.payload, error: null };
+
+        case "SET_ASSESSMENT_ID":
+            return {
+                ...state,
+                assessmentData: {
+                    ...state.assessmentData,
+                    assessmentId: action.payload,
+                },
+            };
+
         case "UPDATE_BASIC_DATA":
             return {
                 ...state,
@@ -449,7 +463,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     mobileSources: {
-                        ...(state.assessmentData.mobileSources ?? {}),
+                        ...state.assessmentData.mobileSources,
                         roadTransport: action.payload,
                     },
                 },
@@ -461,7 +475,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     mobileSources: {
-                        ...(state.assessmentData.mobileSources ?? {}),
+                        ...state.assessmentData.mobileSources,
                         vehicleEquipment: action.payload,
                     },
                 },
@@ -473,7 +487,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     mobileSources: {
-                        ...(state.assessmentData.mobileSources ?? {}),
+                        ...state.assessmentData.mobileSources,
                         marineAviation: action.payload,
                     },
                 },
@@ -485,7 +499,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     processEmissions: {
-                        ...(state.assessmentData.processEmissions ?? {}),
+                        ...state.assessmentData.processEmissions,
                         cementManufacturing: action.payload,
                     },
                 },
@@ -498,7 +512,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     processEmissions: {
-                        ...(state.assessmentData.processEmissions ?? {}),
+                        ...state.assessmentData.processEmissions,
                         gasFlaring: action.payload,
                     },
                 },
@@ -511,7 +525,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     fugitiveEmissions: {
-                        ...(state.assessmentData.fugitiveEmissions ?? {}),
+                        ...state.assessmentData.fugitiveEmissions,
                         ventingNaturalGas: action.payload,
                     },
                 },
@@ -524,7 +538,7 @@ function assessmentReducer(
                 assessmentData: {
                     ...state.assessmentData,
                     fugitiveEmissions: {
-                        ...(state.assessmentData.fugitiveEmissions ?? {}),
+                        ...state.assessmentData.fugitiveEmissions,
                         hfcLeaks: action.payload,
                     },
                 },
