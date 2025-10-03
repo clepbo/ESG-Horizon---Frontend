@@ -529,17 +529,7 @@ export function OilGasOperations({
                                 className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                                 aria-label="Submit form"
                             >
-                                {isSubmitting ? (
-                                    <>
-                                        <LoadingSpinner
-                                            size="sm"
-                                            className="mr-2"
-                                        />
-                                        Submitting...
-                                    </>
-                                ) : (
-                                    "Submit"
-                                )}
+                                {isSubmitting ? "Submitting..." : "Submit"}
                             </Button>
                         </div>
                     </CardContent>
