@@ -11,8 +11,6 @@ export default function AssessmentPage() {
     const { data, isLoading } = useAssessment(Number(id));
     const { dispatch } = useAssessmentContext();
 
-    console.log('assessment data', data);
-
     useEffect(() => {
         if (data) {
             dispatch({ type: "SET_ASSESSMENT_ID", payload: data.id });

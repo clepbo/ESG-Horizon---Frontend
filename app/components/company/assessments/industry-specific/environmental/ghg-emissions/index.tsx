@@ -29,7 +29,7 @@ type GHGView =
 
 interface GhgEmissionsAssessmentProps {
     onBack: () => void;
-    onBackToHub?: () => void;
+    onBackToHub: () => void;
     initialForm: GHGView;
 }
 
@@ -102,7 +102,7 @@ const scopeData = [
 
 export function GhgEmissionsAssessment({
     onBack,
-    onBackToHub,
+    onBackToHub = onBack,
     initialForm,
 }: GhgEmissionsAssessmentProps & { initialForm?: GHGView }) {
     const [currentView, setCurrentView] = useState<GHGView>(
@@ -149,6 +149,7 @@ export function GhgEmissionsAssessment({
                 onContinueToNextAssessment={() =>
                     setCurrentView("mobile-sources")
                 }
+                onBackToHub={onBackToHub} 
             />
         );
     }

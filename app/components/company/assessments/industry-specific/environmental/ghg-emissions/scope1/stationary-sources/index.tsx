@@ -10,6 +10,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 interface StationarySourcesFormProps {
     onBack: () => void;
     onContinueToNextAssessment: () => void;
+    onBackToHub: () => void;
 }
 
 const steps = ["Electricity & Heat", "Industrial Processes", "Oil & Gas"];
@@ -18,6 +19,7 @@ type StepKey = "electricity-heat" | "industrial-processes" | "oil-gas";
 export function StationarySourcesForm({
     onBack,
     onContinueToNextAssessment,
+    onBackToHub
 }: StationarySourcesFormProps) {
     const [currentStep, setCurrentStep] = useState<StepKey>("electricity-heat");
     const [showSuccess, setShowSuccess] = useState(false);
@@ -43,7 +45,7 @@ export function StationarySourcesForm({
                 onBack={onBack}
                 onNext={() => setCurrentStep("industrial-processes")}
                 stepIndex={1}
-                onBackToHub={onBack}
+                onBackToHub={onBackToHub}
                 totalSteps={steps.length}
             />
         );
