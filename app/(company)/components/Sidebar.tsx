@@ -32,7 +32,7 @@ const navItems = [
 
 const assessmentSubLinks = [
     { name: "New Assessment", href: "/assessments" },
-    { name: "Bulk Upload", href: "/assessments/bulk-upload" },
+    // { name: "Bulk Upload", href: "/assessments/bulk-upload" },
     { name: "Tasks", href: "/assessments/tasks" },
     { name: "Target", href: "/assessments/target" },
 ];
