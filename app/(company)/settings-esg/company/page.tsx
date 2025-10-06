@@ -13,6 +13,7 @@ import {
 } from "@/services/hooks/company.hooks";
 import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 
 export default function CompanyPage() {
   const queryClient = useQueryClient();
@@ -53,7 +54,17 @@ export default function CompanyPage() {
   const companyUsersCount = usersData?.length || 0;
 
   return (
-    <div className="min-h-screen bg-[#F2FBF3] p-6 space-y-6">
+    <motion.div
+      className="min-h-screen bg-[#F2FBF3] p-6 space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 25,
+        duration: 0.5,
+      }}
+    >
       <Header />
 
       <CompanyInfoCard
@@ -165,7 +176,7 @@ export default function CompanyPage() {
           onUpdate={handleUpdate}
         />
       )}
-    </div>
+    </motion.div>
   );
 }
 

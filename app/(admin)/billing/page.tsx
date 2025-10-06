@@ -4,7 +4,7 @@ import Header from "@/app/components/layout/Header";
 import { BillingTabs } from "@/app/components/common/billing/BillingTabs";
 import SubscriptionLineChart from "@/app/components/common/billing/SubscriptionLineChart";
 import BillingActivityFeed from "@/app/components/common/billing/BillingActivityFeed";
-
+import { motion } from "framer-motion";
 import GenerateInvoiceButton from "@/app/components/common/billing/GenerateInvoiceButton";
 import BillingTable from "@/app/components/common/billing/BillingTable";
 import ExportAllButton from "@/app/components/common/billing/ExportBillingButton";
@@ -13,7 +13,17 @@ import BillingSummaryCard from "@/app/components/common/billing/BillingSummaryCa
 export default function SubscriptionBillingPage() {
   return (
     <section className="min-h-screen flex flex-col">
-      <main className="flex-1 p-4 space-y-6">
+      <motion.main
+        className="flex-1 p-4 space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.5,
+        }}
+      >
         {/* Header */}
         <Header />
 
@@ -75,7 +85,7 @@ export default function SubscriptionBillingPage() {
           <BillingTabs />
           <BillingTable />
         </div>
-      </main>
+      </motion.main>
     </section>
   );
 }

@@ -11,31 +11,47 @@ import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
 import ReportTable from "../components/ReportTab";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
-  const [showTour, setShowTour] = useState(true)
+  const [showTour, setShowTour] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
-    const tourCompleted = localStorage.getItem("esg-tour-completed")
+    const tourCompleted = localStorage.getItem("esg-tour-completed");
     if (!tourCompleted) {
-      setShowTour(true)
+      setShowTour(true);
     }
-  }, [])
+  }, []);
 
   const handleTourComplete = () => {
-    setShowTour(false)
-  }
+    setShowTour(false);
+  };
 
   if (showTour) {
-    return <ESGTour firstName={user?.first_name || ""} onComplete={handleTourComplete} />
+    return (
+      <ESGTour
+        firstName={user?.first_name || ""}
+        onComplete={handleTourComplete}
+      />
+    );
   }
 
-  
   return (
     <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto p-6 mb-4">
+
+      <motion.main
+        className="flex-1 h-full overflow-y-auto p-6 mb-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.5,
+        }}
+      >
         {/* Header */}
         <div className="flex gap-2">
           <h1 className="hidden lg:block">Dashboard</h1>
@@ -79,7 +95,8 @@ export default function DashboardPage() {
                 icon={<Users className="w-5 h-5" />}
                 gradientClass="bg-gradient-to-b from-[#D3B961] to-[#CBAA45] bg-fixed"
                 bottomBarColor="bg-[#DCA54B]"
-                iconSrc={"/icons/social.svg"} />
+                iconSrc={"/icons/social.svg"}
+              />
               <ESGCard
                 title="Governance"
                 score={67}
@@ -92,7 +109,6 @@ export default function DashboardPage() {
                 iconSrc={"/icons/governance.svg"}
               />
             </div>
-
           </div>
           <div className="h-full">
             <ESGJourneyChart />
@@ -144,7 +160,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-gray-900">Recent Report</h2>
           <ReportTable />
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }

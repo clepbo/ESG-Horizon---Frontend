@@ -1,3 +1,4 @@
+"use client";
 import UserPieChart from "@/app/components/common/dashboard/UserPieChart";
 import MostRecentCompany from "../../components/common/dashboard/MostRecentCompany";
 import { RecentActivities } from "@/app/components/common/dashboard/RecentActivities";
@@ -8,12 +9,24 @@ import { ReportSubmittedChart } from "@/app/components/common/dashboard/ReportSu
 import { StatCard } from "@/app/components/common/dashboard/StatCard";
 import Subscription from "@/app/components/common/dashboard/Subscription";
 import subscriptionData from "@/lib/mockData/subscriptionData";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* <Sidebar /> */}
-      <main className="flex-1 p-4 space-y-4">
+
+      <motion.main
+        className="flex-1 p-4 space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.5,
+        }}
+      >
         <Header />
 
         <div>
@@ -99,7 +112,7 @@ export default function DashboardPage() {
         </section>
 
         <MostRecentCompany />
-      </main>
+      </motion.main>
     </div>
   );
 }
