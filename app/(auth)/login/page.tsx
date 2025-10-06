@@ -27,7 +27,7 @@ export default function LoginPage() {
         <div className="relative z-20 flex flex-col justify-start items-start px-10  w-full">
           {/* Welcome Text */}
           <div className="mt-16 text-white">
-            <h1 className="text-4xl font-semibold mb-4 text-center">
+            <h1 className="text-4xl font-semibold mb-4 text-left">
               Welcome To <br />
               ESG Horizon
             </h1>
@@ -61,7 +61,7 @@ export default function LoginPage() {
       >
         <div className="flex flex-1 flex-col px-6 py-12 md:px-12 bg-white overflow-y-auto">
           <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center">
-            <div className="flex px-6">
+            <div className="fixed top-0">
               <Image
                 src="/Logo.svg"
                 alt="ESG Horizon Logo"
@@ -72,10 +72,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="bg-white py-6 px-8 space-y-8">
-              <h2 className="text-left text-xl md:text-2xl font-semibold text-dark-500">
-                Login to your account
-              </h2>
+            <div className="bg-white ">
               <LoginForm />
             </div>
           </div>

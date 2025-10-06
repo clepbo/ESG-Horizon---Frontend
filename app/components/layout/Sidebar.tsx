@@ -60,7 +60,7 @@ export default function Sidebar() {
     <aside className="h-screen bg-white shadow-sm flex flex-col p-4 rounded-r-2xl w-16 md:w-64 transition-all duration-300">
       {/* Logo */}
       <Link href="/dashboard">
-        <div className=" flex justify-center ">
+        <div className=" flex justify-center md:justify-start ">
           <Image
             src="/logo-new.png"
             alt="ESG Horizon Logo"
