@@ -13,7 +13,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/app/components/ui/select";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { companyService } from "@/services/company.service";
 import {
   Department,
@@ -22,6 +21,7 @@ import {
 } from "@/services/department.service";
 import { User } from "@/services/user.service";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -181,7 +181,7 @@ export default function DepartmentsPage() {
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <Spinner />
+            <CardSkeleton />
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">

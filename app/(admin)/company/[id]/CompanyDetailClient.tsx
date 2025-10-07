@@ -13,10 +13,10 @@ import {
 import CompanySubscriptionTab from "@/app/components/company/CompanySubscriptionTab";
 import CompanyActivities from "@/app/components/company/CompanyActivities";
 import CompanyInfo from "@/app/components/company/CompanyInfo";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { Company, companyService } from "@/services/company.service";
 import { User } from "@/services/user.service";
 import { motion } from "framer-motion";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 const PERSONA_TABS = [
   { label: "Overview", value: "overview" },
@@ -36,19 +36,6 @@ export default function CompanyDetailsClient({ id }: Props) {
   const [loading, setLoading] = useState(true);
   const [companyUsers, setCompanyUsers] = useState<User[]>([]);
 
-  // useEffect(() => {
-  //   const fetchCompany = async () => {
-  //     try {
-  //       const data = await companyService.getDetails();
-  //       setCompany(data);
-  //     } catch (err) {
-  //       console.error("Error fetching company:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchCompany();
-  // }, [id]);
   useEffect(() => {
     const fetchCompany = async () => {
       try {
@@ -69,7 +56,7 @@ export default function CompanyDetailsClient({ id }: Props) {
     fetchCompany();
   }, [id]);
 
-  if (loading) return <Spinner />;
+  if (loading) return <PageSkeleton />;
   if (!company)
     return <div className="p-6 text-red-500">Company not found</div>;
 
@@ -116,7 +103,6 @@ export default function CompanyDetailsClient({ id }: Props) {
           })}
         </div>
 
-        {/* Tab Content */}
         {activePersona === "overview" && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -185,7 +171,6 @@ export default function CompanyDetailsClient({ id }: Props) {
               />
             </div>
 
-            {/*  Still using mock UsersTable */}
             <UsersTable usersData={companyUsers} />
           </>
         )}

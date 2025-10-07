@@ -12,17 +12,12 @@ import {
   SelectItem,
   SelectValue,
 } from "@/app/components/ui/select";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import Header from "@/app/components/layout/Header";
-// import InviteUserModal from "@/app/(company)/components/InviteUserModal";
-// import TeamMembersTable from "@/app/components/settings/departments/TeamMembersTable";
-// import EditDepartmentModal from "@/app/components/ui/modals/EditDepartment";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import { useParams } from "next/navigation";
-// import { companyService } from "@/services/company.service";
-// import { departmentService } from "@/services/department.service";
 import { motion } from "framer-motion";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export default function DepartmentTeamUsersPage() {
   const { id } = useParams();
@@ -80,11 +75,6 @@ export default function DepartmentTeamUsersPage() {
     });
   }, [search, statusFilter, roleFilter, teamUsers]);
 
-  // const paginatedMembers = useMemo(() => {
-  //   const startIndex = (currentPage - 1) * itemsPerPage;
-  //   return filteredMembers.slice(startIndex, startIndex + itemsPerPage);
-  // }, [filteredMembers, currentPage, itemsPerPage]);
-
   const handleEditClick = (dept: Department) => {
     setSelectedDepartment(dept);
     setIsEditOpen(true);
@@ -93,7 +83,7 @@ export default function DepartmentTeamUsersPage() {
   if (loading || !department) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spinner />
+        <PageSkeleton />
       </div>
     );
   }

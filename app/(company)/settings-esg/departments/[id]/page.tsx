@@ -12,7 +12,6 @@ import {
   SelectItem,
   SelectValue,
 } from "@/app/components/ui/select";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import TeamMembersTable from "@/app/components/settings/departments/TeamMembersTable";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
@@ -21,6 +20,7 @@ import { departmentService, Department } from "@/services/department.service";
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function DepartmentTeamUsersPage() {
   const { id } = useParams();
@@ -196,7 +196,7 @@ export default function DepartmentTeamUsersPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Spinner />
+        <CardSkeleton />
       </div>
     );
   }
