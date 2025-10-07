@@ -8,6 +8,7 @@ import RecentActivities from "../components/RecentActivities";
 import { IndustryLeaderboard } from "../components/IndustryLeaderboard";
 import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
 import ReportTable from "../components/ReportTab";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   return (
@@ -16,7 +17,18 @@ export default function DashboardPage() {
       {/* <Sidebar /> */}
 
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto p-6">
+
+      <motion.main
+        className="flex-1 h-full overflow-y-auto p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.5,
+        }}
+      >
         {/* Header */}
         <Header />
 
@@ -107,7 +119,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-gray-900">Recent Report</h2>
           <ReportTable />
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }

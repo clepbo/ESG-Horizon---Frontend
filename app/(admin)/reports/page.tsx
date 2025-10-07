@@ -7,18 +7,27 @@ import LineChartCard from "@/app/components/common/reports/LineChartCard";
 import ReportActivityTable from "@/app/components/common/reports/ReportActivityTable";
 import { ReportSummaryCard } from "@/app/components/common/reports/ReportSummaryCard";
 import { ReportTabs } from "@/app/components/common/reports/ReportTab";
+import { motion } from "framer-motion";
 
 export default function ReportsAnalyticsPage() {
   return (
     <section className="min-h-screen flex flex-col md:flex-row">
-      <main className="flex-1 p-4 space-y-6">
+      <motion.main
+        className="flex-1 p-4 space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.5,
+        }}
+      >
         <Header />
 
         <div className="flex justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Reports
-            </h1>
+            <h1 className="text-2xl font-semibold text-gray-900">Reports</h1>
             <p className="text-sm text-gray-500">
               View and analyze ESG reports submitted by companies
             </p>
@@ -78,7 +87,7 @@ export default function ReportsAnalyticsPage() {
           <ReportTabs />
           <ReportActivityTable />
         </div>
-      </main>
+      </motion.main>
     </section>
   );
 }

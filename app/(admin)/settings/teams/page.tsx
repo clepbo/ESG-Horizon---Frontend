@@ -17,6 +17,7 @@ import {
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
+import { motion } from "framer-motion";
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -80,7 +81,17 @@ export default function TeamsPage() {
 
   return (
     <div className="flex h-screen  overflow-hidden">
-      <main className="flex-1 h-full overflow-y-auto p-6">
+      <motion.main
+        className="flex-1 h-full overflow-y-auto p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.5,
+        }}
+      >
         <Header />
 
         {/* Title & Invite */}
@@ -161,7 +172,7 @@ export default function TeamsPage() {
             onStatusUpdate={handleStatusUpdate}
           />
         )}
-      </main>
+      </motion.main>
 
       {showInviteModal && (
         <InviteUserModal
