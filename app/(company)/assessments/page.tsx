@@ -42,6 +42,15 @@ export default function NewAssessmentPage() {
         }}
       >
         <Header />
+
+        <div className="space-y- mb-6">
+          <h1 className="text-2xl font-semibold text-foreground">
+            Assessments Hub
+          </h1>
+          <p className="text-base text-muted-foreground">
+            Track your ESG data collection progress across all pillars
+          </p>
+        </div>
         <Card className="max-w-6xl w-full p-12 text-center rounded-md bg-white border-none mb-10 shadow-md">
           <CardContent>
             <h1 className="text-2xl font-bold mb-6 text-neutral-1000">

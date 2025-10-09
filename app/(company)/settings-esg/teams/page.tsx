@@ -13,7 +13,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/app/components/ui/select";
-import Header from "../../components/Header";
+import Header from "@/app/(company)/components/Header";
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/app/components/layout/Header";
+import Header from "@/app/(company)/components/Header";
 import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";

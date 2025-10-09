@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { useSearchParams } from "next/navigation";
-import Header from "@/app/components/layout/Header";
+import Header from "@/app/(company)/components/Header";
 import { Input } from "@/app/components/ui/input";
 import {
   Select,
