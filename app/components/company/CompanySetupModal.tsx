@@ -2,23 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeft, Edit, Info, X } from "lucide-react";
-import {
-    useCompanySubsidiaries,
-    // useCreateSubsidiary,
-    // useEditSubsidiary,
-} from "@/services/hooks/subsidiaries.hooks";
+import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import {
     useCompanyUsers,
-    // useInviteUser,
-    // useEditUser,
     useCompanyDetails,
     useBulkCreate,
 } from "@/services/hooks/company.hooks";
-import {
-    useCompanyDepartments,
-    // useCreateDepartment,
-    // useUpdateDepartment,
-} from "@/services/hooks/department.hooks";
+import { useCompanyDepartments } from "@/services/hooks/department.hooks";
 import { Industry } from "@/services/industries.services";
 import { User } from "@/services/user.service";
 import { Subsidiary } from "@/services/subsidiaries.service";
@@ -61,14 +51,6 @@ export default function CompanySetupModal({
     );
 
     const [loadingIsDone, setLoadingIsDone] = useState(false);
-    // const createSubsidiaryMutation = useCreateSubsidiary();
-    // const editSubsidiaryMutation = useEditSubsidiary();
-
-    // const createDepartmentMutation = useCreateDepartment();
-    // const editDepartmentMutation = useUpdateDepartment();
-
-    // const inviteUserMutation = useInviteUser();
-    // const editUserMutation = useEditUser();
 
     const { mutateAsync: bulkCreateMutation } = useBulkCreate();
 
@@ -77,7 +59,7 @@ export default function CompanySetupModal({
         // Subsidiary fields
         subsidiaryId: 0,
         subsidiaryName: "",
-        industry: "",
+        industryId: 0,
         managerEmail: "",
         address: "",
         // Department fields
@@ -106,7 +88,7 @@ export default function CompanySetupModal({
             setFormData({
                 subsidiaryId: 0,
                 subsidiaryName: "",
-                industry: "",
+                industryId: 0,
                 managerEmail: "",
                 address: "",
                 departmentId: 0,
@@ -124,7 +106,7 @@ export default function CompanySetupModal({
 
     if (!isOpen) return null;
 
-    const handleInputChange = (field: string, value: string) => {
+    const handleInputChange = (field: string, value: string | number) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -134,7 +116,7 @@ export default function CompanySetupModal({
                 const updatedSub: Subsidiary = {
                     id: formData.subsidiaryId,
                     name: formData.subsidiaryName,
-                    industry: { industry: formData.industry },
+industryId: formData.industryId,
                     teamLead_email: formData.managerEmail,
                     address: formData.address,
                     status: "active",
@@ -189,7 +171,7 @@ export default function CompanySetupModal({
                 const newSub: Subsidiary = {
                     id: Date.now(),
                     name: formData.subsidiaryName,
-                    industry: { industry: formData.industry },
+industryId: formData.industryId,
                     teamLead_email: formData.managerEmail,
                     address: formData.address,
                     status: "active",
@@ -233,7 +215,7 @@ export default function CompanySetupModal({
 
         setFormData({
             subsidiaryName: "",
-            industry: "",
+            industryId: 0,
             managerEmail: "",
             address: "",
             departmentName: "",
@@ -262,7 +244,7 @@ export default function CompanySetupModal({
                 ...formData,
                 subsidiaryId: subsidiaryData.id,
                 subsidiaryName: subsidiaryData.name,
-                industry: subsidiaryData.industry?.industry || "",
+                industryId: subsidiaryData.industryId || 0,
                 managerEmail: subsidiaryData.teamLead_email || "",
                 address: subsidiaryData.address || "",
             });
@@ -312,147 +294,18 @@ export default function CompanySetupModal({
         onClose();
     };
 
-    // const OLDhandleFinalSubmit = async () => {
-    //     setLoadingIsDone(true);
-
-    //     if (!companyId) {
-    //         console.error(
-    //             "Company ID is missing. Cannot perform final submission."
-    //         );
-    //         return;
-    //     }
-
-    //     const payload = {
-    //         subsidiaries: newSubsidiaries.filter(
-    //             (item) => item.id > 9999999999
-    //         ),
-    //         departments: newDepartments.filter((item) => item.id > 9999999999),
-    //         users: newUsers.filter((item) => item.id > 9999999999),
-    //     };
-
-    //     try {
-    //         const subsidiaryPromises = newSubsidiaries.map(async (sub) => {
-    //             const selectedIndustry = industries?.find(
-    //                 (ind) => ind.industry === sub.industry?.industry
-    //             );
-    //             const industryId = selectedIndustry?.id;
-    //             const selectedSubsidiaryLead = companyUsers?.find(
-    //                 (user) => user.email === sub.teamLead_email
-    //             );
-    //             const subsidiaryLeadId = selectedSubsidiaryLead?.id;
-
-    //             if (sub.id > 0 && sub.id < 9999999999) {
-    //                 return editSubsidiaryMutation.mutateAsync({
-    //                     id: sub.id,
-    //                     name: sub.name,
-    //                     industryId: industryId,
-    //                     teamLeadId: subsidiaryLeadId,
-    //                     address: sub.address,
-    //                 });
-    //             } else {
-    //                 return createSubsidiaryMutation.mutateAsync({
-    //                     name: sub.name,
-    //                     industryId: industryId,
-    //                     teamLeadId: subsidiaryLeadId,
-    //                     address: sub.address,
-    //                 });
-    //             }
-    //         });
-
-    //         const departmentPromises = newDepartments.map(async (dept) => {
-    //             const selectedDepartmentLead = companyUsers?.find(
-    //                 (user) => user.email === dept.lead?.email
-    //             );
-    //             const departmentLeadId = selectedDepartmentLead?.id;
-
-    //             if (dept.id > 0 && dept.id < 9999999999) {
-    //                 return editDepartmentMutation.mutateAsync({
-    //                     id: dept.id,
-    //                     payload: {
-    //                         name: dept.name,
-    //                         leadId: departmentLeadId,
-    //                     },
-    //                 });
-    //             } else {
-    //                 const selectedSubsidiary = allSubsidiaries?.find(
-    //                     (sub) => sub.id === dept.subsidiaryId
-    //                 );
-    //                 const subsidiaryId = selectedSubsidiary?.id;
-
-    //                 return createDepartmentMutation.mutateAsync({
-    //                     companyId: companyId,
-    //                     payload: {
-    //                         name: dept.name,
-    //                         subsidiaryId: subsidiaryId,
-    //                         leadId: departmentLeadId,
-    //                     },
-    //                 });
-    //             }
-    //         });
-
-    //         const userPromises = newUsers.map(async (user) => {
-    //             const selectedRole = userRoles?.find(
-    //                 (role: { id: number; name: string }) =>
-    //                     role.name === user.role?.name
-    //             );
-    //             const roleId = selectedRole?.id;
-
-    //             const selectedSubsidiary = allSubsidiaries?.find(
-    //                 (sub) => sub.id === user.subsidiaryId
-    //             );
-    //             const subsidiaryId = selectedSubsidiary?.id;
-    //             const selectedDepartment = allDepartments?.find(
-    //                 (dept) => dept.name === user.department?.name
-    //             );
-    //             const departmentId = selectedDepartment?.id;
-
-    //             if (user.id > 0 && user.id < 9999999999) {
-    //                 return editUserMutation.mutateAsync({
-    //                     id: user.id,
-    //                     payload: {
-    //                         email: user.email,
-    //                         roleId: roleId,
-    //                         subsidiaryId: subsidiaryId,
-    //                         departmentId: departmentId,
-    //                     },
-    //                 });
-    //             } else {
-    //                 return inviteUserMutation.mutateAsync({
-    //                     email: user.email,
-    //                     roleId: roleId,
-    //                     subsidiaryId: subsidiaryId,
-    //                     departmentId: departmentId,
-    //                 });
-    //             }
-    //         });
-
-    //         await Promise.all([
-    //             ...subsidiaryPromises,
-    //             ...departmentPromises,
-    //             ...userPromises,
-    //         ]);
-
-    //         const submissionData = {
-    //             subsidiaries: newSubsidiaries,
-    //             departments: newDepartments,
-    //             users: newUsers,
-    //         };
-    //         onSubmit(submissionData);
-    //         setNewSubsidiaries([]);
-    //         setNewDepartments([]);
-    //         setNewUsers([]);
-    //         setLoadingIsDone(false);
-    //     } catch (error) {
-    //         console.error("Final submission failed:", error);
-    //     }
-    // };
-
     const handleFinalSubmit = async () => {
         setLoadingIsDone(true);
         const payload = {
-            subsidiaries: newSubsidiaries.filter(
-                (item) => item.id > 9999999999
-            ),
+            subsidiaries: newSubsidiaries
+                .filter((item) => item.id > 9999999999)
+                .map((item) => ({
+                    ...item,
+                    industryId:
+                        typeof item.industry === "object"
+                            ? item.industry?.id
+                            : item.industryId || 0,
+                })),
             departments: newDepartments.filter((item) => item.id > 9999999999),
             users: newUsers.filter((item) => item.id > 9999999999),
         };
@@ -646,12 +499,9 @@ export default function CompanySetupModal({
                                                 </span>
                                             </label>
                                             <select
-                                                value={formData.industry}
+                                                value={formData.industryId}
                                                 onChange={(e) =>
-                                                    handleInputChange(
-                                                        "industry",
-                                                        e.target.value
-                                                    )
+                                                    handleInputChange("industryId", Number(e.target.value))
                                                 }
                                                 disabled={isLoadingIndustries}
                                                 className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -666,7 +516,7 @@ export default function CompanySetupModal({
                                                         <option
                                                             key={industry.id}
                                                             value={
-                                                                industry.industry
+                                                                industry.id
                                                             }
                                                         >
                                                             {industry.industry}{" "}

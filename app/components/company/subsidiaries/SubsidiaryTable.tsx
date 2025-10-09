@@ -39,8 +39,6 @@ export default function SubsidiaryTable({
         return subsidiaries.slice(start, start + itemsPerPage);
     }, [subsidiaries, currentPage, itemsPerPage]);
 
-    // console.log("Subsidiaries being rendered:", paginatedSubsidiaries);
-
     const handleEditClick = (subsidiary: Subsidiary) => {
         setSelectedSubsidiary(subsidiary);
         setIsEditOpen(true);

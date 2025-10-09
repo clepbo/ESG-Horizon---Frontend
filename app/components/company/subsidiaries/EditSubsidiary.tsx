@@ -53,7 +53,11 @@ export default function EditSubsidiaryModal({
         setSaving(true);
         setError(null);
         try {
-            await subsidiariesService.editSubsidiaries(formData);
+            const formattedData = {
+                ...formData,
+                industryId: formData.industry?.id,
+            };
+            await subsidiariesService.editSubsidiaries(formattedData);
             onUpdate?.(formData);
             onClose();
         } catch (err) {
