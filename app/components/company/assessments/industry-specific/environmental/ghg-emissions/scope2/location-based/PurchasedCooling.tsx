@@ -103,25 +103,6 @@ export function PurchasedCoolingForm({
         ]);
     }, [coolingConsumed, files, additionalFields]);
 
-    const validateForm = () => {
-        const newErrors: {
-            coolingConsumed?: string;
-            selectedSystems?: string;
-            files?: string;
-        } = {};
-
-        if (!coolingConsumed || Number(coolingConsumed) <= 0) {
-            newErrors.coolingConsumed = "Please enter a valid positive number";
-        }
-
-        if (selectedSystems.length === 0) {
-            newErrors.selectedSystems =
-                "Please select at least one system type";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
 
     const handleSystemChange = (systemId: string, checked: boolean) => {
         setSelectedSystems((prev) =>

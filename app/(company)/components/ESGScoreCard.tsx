@@ -3,6 +3,7 @@ import Spinner from "@/app/components/ui/reusables/Spinner";
 import {  ArrowUp, ArrowDown, TrendingUp, TrendingDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { formatNumberToTwoDecimals } from "@/lib/utils";
 
 interface ESGScoreCardProps {
   title: string;
@@ -88,6 +89,7 @@ export function ESGCard({
 }: ESGScoreCardProps) {
   const isTrendUp = trend === "up";
   const [loading, setLoading] = useState(true);
+  const formattedScore = formatNumberToTwoDecimals(score);
 
   useEffect(() => {
     // Simulate data fetching
@@ -118,7 +120,7 @@ export function ESGCard({
                 
               </div>
               <div className=" flex items-center justify-between">
-                <p className={` ${main ? "text-5xl" : "text-3xl"} font-bold mt-1`}>{score}<span className="text-xl">/{maxScore} </span> </p>
+                <p className={` ${main ? "text-5xl" : "text-3xl"} font-bold mt-1`}>{formattedScore}<span className="text-xl">/{maxScore} </span> </p>
               <div className=" rounded-lg flex items-center justify-center">
                 {iconSrc ? (
                   <Image

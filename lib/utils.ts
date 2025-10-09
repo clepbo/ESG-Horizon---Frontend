@@ -91,3 +91,26 @@ export const normalizeFiles = (files: FileData[]): FileMetadata[] =>
         url: f.url ?? "",
         publicId: f.publicId ?? "",
     }));
+
+export const formatNumberToTwoDecimals = (
+    value: string | number | null | undefined
+): string => {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    const numberValue = Number(value);
+
+    // Check if the conversion resulted in a valid, finite number
+    if (isNaN(numberValue) || !isFinite(numberValue)) {
+        // If invalid, return "N/A" or "0" depending on desired UX for dashboard scores
+        return "0";
+    }
+
+    // Use toLocaleString with 'undefined' to automatically use the user's system locale.
+    return numberValue.toLocaleString(undefined, {
+        minimumFractionDigits: 0, // Allows 12.00 to become "12"
+        maximumFractionDigits: 2, // Ensures a max of two decimals
+        useGrouping: false, // Prevents thousands separators (e.g., 1,000)
+    });
+};

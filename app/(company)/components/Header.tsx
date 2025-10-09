@@ -7,7 +7,11 @@ import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import { formatRoleName } from "@/lib/utils";
 
-export default function Header() {
+export default function Header({
+    showSearchBar = true,
+}: {
+    showSearchBar?: boolean;
+}) {
     const [search, setSearch] = useState("");
     const { user } = useAuth();
 
@@ -23,10 +27,12 @@ export default function Header() {
         <header className="w-full flex items-center justify-between mb-4">
             {/* Search Bar */}
             <div className="flex-1 max-w-xl">
-                <SearchInput
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+                {showSearchBar && (
+                    <SearchInput
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                )}
             </div>
 
             {/* Notifications & User Info */}
