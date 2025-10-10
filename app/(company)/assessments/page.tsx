@@ -5,10 +5,10 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAssessments } from "@/services/hooks/assessment.hooks";
-import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentData } from "@/hooks/useAssessment";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function NewAssessmentPage() {
   const router = useRouter();
@@ -66,9 +66,7 @@ export default function NewAssessmentPage() {
             Recent Assessments
           </h4>
           {isLoading ? (
-            <div className="flex justify-center items-center py-10">
-              <LoadingSpinner size="lg" />
-            </div>
+            <CardSkeleton />
           ) : isError ? (
             <p className="text-red-600">Failed to load assessments.</p>
           ) : !assessments || assessments.length === 0 ? (

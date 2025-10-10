@@ -9,9 +9,9 @@ import DataManagement from "@/app/components/settings/DataManagement";
 import { useAuth } from "@/context/AuthContext";
 import TabBar from "@/app/components/settings/accounts/TopBar";
 import ProfileTab from "@/app/components/settings/accounts/ProfileTab";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { User } from "@/services/user.service";
 import { motion } from "framer-motion";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 const TABS = ["Profile", "Security & Password", "Notifications", "Data"];
 
@@ -56,7 +56,7 @@ export default function AccountPage() {
 
       {!userData ? (
         <div className="flex justify-center items-center py-10">
-          <Spinner />
+          <PageSkeleton />
         </div>
       ) : (
         <>

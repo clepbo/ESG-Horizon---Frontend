@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import TeamsTable from "@/app/components/company/teams/TeamsTable";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
 import { Input } from "@/app/components/ui/input";
@@ -21,6 +20,7 @@ import RoleGuard from "@/lib/RoleGuard";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -188,9 +188,7 @@ export default function TeamsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <Spinner />
-          </div>
+          <CardSkeleton />
         ) : (
           <TeamsTable
             users={filteredData}
