@@ -99,24 +99,6 @@ export function PurchasedHeatingForm({
             additionalFields.some((field) => field.file),
     ]);
 
-    const validateForm = () => {
-        const newErrors: typeof errors = {};
-
-        if (!heatingPurchased) {
-            newErrors.heatingPurchased =
-                "Please select whether heating was purchased.";
-        }
-
-        if (!heatingConsumed || Number(heatingConsumed) <= 0) {
-            newErrors.heatingConsumed = "Please enter a valid positive number.";
-        }
-        if (!supplierName.trim()) {
-            newErrors.supplierName = "Please enter supplier name.";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
 
     const handleFileChange = async (
         field: string,
@@ -167,13 +149,6 @@ export function PurchasedHeatingForm({
         setAdditionalFields(fields);
     };
 
-    const buildPayload = () => ({
-        heatingPurchased,
-        heatingConsumed,
-        supplierName,
-        files,
-        additionalFields,
-    });
 
     const handleSaveAndContinue = () => {
         const assessmentId = state.assessmentData.assessmentId;

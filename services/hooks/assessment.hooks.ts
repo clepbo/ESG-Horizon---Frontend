@@ -74,3 +74,57 @@ export const useSubmitAssessment = () => {
         },
     });
 };
+
+export const useDeleteAssessment = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<void, Error, number>({
+        mutationFn: assessmentService.deleteAssessment,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["assessments"] });
+            toast.success("Draft assessment deleted successfully.");
+        },
+        onError: (error) => {
+            const errorMessage =
+                error.message ||
+                "Failed to delete assessment. Only 'draft' status assessments can be deleted.";
+            toast.error(errorMessage);
+        },
+    });
+};
+
+export const useApproveAssessment = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<{ message: string }, Error, number>({
+        mutationFn: (assessmentId: number) =>
+            assessmentService.approveAssessment(assessmentId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["assessments"] });
+            toast.success("Assessment approved. Report generation started.");
+        },
+        onError: () => {
+            toast.error("Failed to approve assessment.");
+        },
+    });
+};
+
+export const useUnapproveAssessment = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<
+        { message: string },
+        Error,
+        { assessmentId: number; rejectionReason: string }
+    >({
+        mutationFn: ({ assessmentId, rejectionReason }) =>
+            assessmentService.unapproveAssessment(assessmentId, rejectionReason),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["assessments"] });
+            toast.success("Assessment marked as unapproved.");
+        },
+        onError: () => {
+            toast.error("Failed to mark assessment as unapproved.");
+        },
+    });
+};

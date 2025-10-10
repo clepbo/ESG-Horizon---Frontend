@@ -11,13 +11,15 @@ import {
 } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
+import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
+import AssessmentDetailsModal from "./AssessmentDetailsModal";
 
 export interface Assessment {
     id: number;
     startPeriod: string;
     endPeriod: string;
     subsidiary: string;
-    status: "In Progress" | "Awaiting Review" | "Completed";
+    status: "In Progress" | "Awaiting Review" | "Completed" | "Draft";
 }
 
 interface AssessmentTableProps {
@@ -26,13 +28,17 @@ interface AssessmentTableProps {
 
 const columnHelper = createColumnHelper<Assessment>();
 
-export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
+export function AssessmentTable({ data }: AssessmentTableProps) {
     const router = useRouter();
-    const [data, setData] = useState(initialData);
     const [modalData, setModalData] = useState({
         open: false,
         assessmentId: null as number | null,
     });
+
+    const [detailsOpen, setDetailsOpen] = useState(false);
+    const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+
+    const deleteMutation = useDeleteAssessment();
 
     const handleOpenModal = (assessmentId: number) => {
         setModalData({
@@ -41,18 +47,31 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
         });
     };
 
-    const handleDeleteConfirm = () => {
-        console.log(`Deleting assessment with ID: ${modalData.assessmentId}`);
-        setData((prevData) =>
-            prevData.filter((item) => item.id !== modalData.assessmentId)
-        );
-
-        setModalData({
-            open: false,
-            assessmentId: null,
-        });
+    const handleOpenDetails = (assessment: Assessment) => {
+        setSelectedAssessment(assessment);
+        setDetailsOpen(true);
     };
 
+    const handleDeleteConfirm = () => {
+        const idToDelete = modalData.assessmentId;
+        if (!idToDelete) return;
+
+        deleteMutation.mutate(idToDelete, {
+            onSuccess: () => {
+                setModalData({
+                    open: false,
+                    assessmentId: null,
+                });
+            },
+            onError: (error: Error) => {
+                console.error("Deletion failed:", error);
+                setModalData({
+                    open: false,
+                    assessmentId: null,
+                });
+            },
+        });
+    };
     const columns = [
         columnHelper.accessor("startPeriod", {
             header: "Starting Period",
@@ -95,6 +114,7 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
             header: "Quick Actions",
             cell: (info) => {
                 const status = info.row.original.status;
+                const assessment = info.row.original;
 
                 let actionButton;
                 let trashButton: JSX.Element | null;
@@ -104,19 +124,24 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
                         size="sm"
                         variant="outline"
                         className="text-destructive hover:text-destructive rounded-sm"
-                        onClick={() => handleOpenModal(info.row.original.id)}
+                        onClick={() => handleOpenModal(assessment.id)}
+                        disabled={deleteMutation.isPending}
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
                 );
-                if (status === "In Progress") {
-                  // if status is draft
+                if (status === "Draft" || status === "In Progress") {
+                    // if status is draft
                     actionButton = (
                         <Button
                             key="continue"
                             size="sm"
                             className="bg-green-500 hover:bg-green-600 text-white rounded-sm"
-                            onClick={() => router.push(`/assessments/${info.row.original.id}`)}
+                            onClick={() =>
+                                router.push(
+                                    `/assessments/${info.row.original.id}`
+                                )
+                            }
                         >
                             Continue
                         </Button>
@@ -125,12 +150,13 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
                     // If Submitted
                     actionButton = (
                         <Button
-                            key="edit"
+                            key="view"
                             size="sm"
                             variant="secondary"
                             className="bg-green-500 hover:bg-green-600 text-white rounded-sm"
+                            onClick={() => handleOpenDetails(assessment)}
                         >
-                            Edit
+                            View
                         </Button>
                     );
                     trashButton = null;
@@ -149,6 +175,7 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
                             size="sm"
                             variant="outline"
                             className="rounded-sm"
+                            onClick={() => handleOpenDetails(assessment)}
                         >
                             View
                         </Button>
@@ -169,7 +196,7 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
         {
             label: "Status",
             columnId: "status",
-            options: ["In Progress", "Completed", "Draft"],
+            options: ["In Progress", "Completed", "Awaiting Review", "Draft"],
         },
         { label: "Date", columnId: "startPeriod", options: ["2025", "2024"] },
     ];
@@ -193,6 +220,15 @@ export function AssessmentTable({ data: initialData }: AssessmentTableProps) {
                 }
                 onConfirm={handleDeleteConfirm}
             />
+            <AssessmentDetailsModal
+                open={detailsOpen}
+                onClose={() => {
+                    setDetailsOpen(false);
+                    setSelectedAssessment(null);
+                }}
+                assessment={selectedAssessment}
+            />
         </section>
     );
 }
+

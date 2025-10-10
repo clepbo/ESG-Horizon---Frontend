@@ -64,8 +64,7 @@ export function CoolingSteamForm({
     const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
     const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-    const { mutate: submitAssessment, isPending: isSubmitting } =
-        useSubmitAssessment();
+    const { mutate: submitAssessment } = useSubmitAssessment();
 
     useEffect(() => {
         const existingData = state.assessmentData.coolingSteam;

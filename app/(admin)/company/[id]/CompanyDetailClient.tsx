@@ -36,6 +36,19 @@ export default function CompanyDetailsClient({ id }: Props) {
   const [loading, setLoading] = useState(true);
   const [companyUsers, setCompanyUsers] = useState<User[]>([]);
 
+  // useEffect(() => {
+  //   const fetchCompany = async () => {
+  //     try {
+  //       const data = await companyService.getDetails();
+  //       setCompany(data);
+  //     } catch (err) {
+  //       console.error("Error fetching company:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchCompany();
+  // }, [id]);
   useEffect(() => {
     const fetchCompany = async () => {
       try {
@@ -103,6 +116,7 @@ export default function CompanyDetailsClient({ id }: Props) {
           })}
         </div>
 
+        {/* Tab Content */}
         {activePersona === "overview" && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -141,7 +155,8 @@ export default function CompanyDetailsClient({ id }: Props) {
                   />
                 </div>
               </div>
-              <ESGJourneyChart />
+
+              <ESGJourneyChart esgJourney={[]} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -170,7 +185,9 @@ export default function CompanyDetailsClient({ id }: Props) {
                 iconBgColor="bg-gray-100"
               />
             </div>
+            <ESGJourneyChart esgJourney={[]} />
 
+            {/*  Still using mock UsersTable */}
             <UsersTable usersData={companyUsers} />
           </>
         )}

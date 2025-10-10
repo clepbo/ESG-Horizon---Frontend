@@ -60,6 +60,7 @@ export function MarineAviation({
     const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
         Object.fromEntries(uploadFields.map((field) => [field, null]))
     );
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [showSaveSuccess, setShowSaveSuccess] = useState(false);
     const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
     const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
