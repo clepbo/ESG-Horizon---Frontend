@@ -98,25 +98,25 @@ export function PurchasedSteamForm({
             additionalFields.some((field) => field.file),
     ]);
 
-    const validateForm = () => {
-        const newErrors: {
-            steamConsumed?: string;
-            selectedSources?: string;
-            files?: string;
-        } = {};
+    // const validateForm = () => {
+    //     const newErrors: {
+    //         steamConsumed?: string;
+    //         selectedSources?: string;
+    //         files?: string;
+    //     } = {};
 
-        if (!steamConsumed || Number(steamConsumed) <= 0) {
-            newErrors.steamConsumed = "Please enter a valid positive number";
-        }
+    //     if (!steamConsumed || Number(steamConsumed) <= 0) {
+    //         newErrors.steamConsumed = "Please enter a valid positive number";
+    //     }
 
-        if (selectedSources.length === 0) {
-            newErrors.selectedSources =
-                "Please select at least one steam source";
-        }
+    //     if (selectedSources.length === 0) {
+    //         newErrors.selectedSources =
+    //             "Please select at least one steam source";
+    //     }
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    // };
 
     const handleSourceChange = (sourceId: string, checked: boolean) => {
         setSelectedSources((prev) =>

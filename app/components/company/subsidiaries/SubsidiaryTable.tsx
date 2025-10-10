@@ -39,12 +39,19 @@ export default function SubsidiaryTable({
     return subsidiaries.slice(start, start + itemsPerPage);
   }, [subsidiaries, currentPage, itemsPerPage]);
 
+<<<<<<< HEAD
   // console.log("Subsidiaries being rendered:", paginatedSubsidiaries);
 
   const handleEditClick = (subsidiary: Subsidiary) => {
     setSelectedSubsidiary(subsidiary);
     setIsEditOpen(true);
   };
+=======
+    const handleEditClick = (subsidiary: Subsidiary) => {
+        setSelectedSubsidiary(subsidiary);
+        setIsEditOpen(true);
+    };
+>>>>>>> 474567aba6daad426bfc38a37b4dca81f8723bcf
 
   const handleDeleteClick = (subsidiary: Subsidiary) => {
     setSubsidiaryToDelete(subsidiary);

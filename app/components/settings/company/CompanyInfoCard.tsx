@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Edit } from "lucide-react";
 import InfoField from "./InfoField";
 import { Company, companyService } from "@/services/company.service";

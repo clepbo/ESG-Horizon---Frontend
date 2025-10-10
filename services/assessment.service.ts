@@ -65,4 +65,41 @@ export const assessmentService = {
         );
         return response;
     },
+
+    approveAssessment: async (assessmentId: number): Promise<{ message: string }> => {
+        const response = await api.post(`/assessments/${assessmentId}/approve`);
+        return response;
+    },
+
+    unapproveAssessment: async (
+        assessmentId: number,
+        rejectionReason: string
+    ): Promise<{ message: string }> => {
+        const response = await api.post(
+            `/assessments/${assessmentId}/unapprove`,
+            { rejectionReason }
+        );
+        return response;
+    },
+
+    deleteAssessment: async (assessmentId: number): Promise<void> => {
+        try {
+            await api.delete(`/assessments/${assessmentId}`);
+        } catch (error) {
+            if (
+                typeof error === "object" &&
+                error !== null &&
+                "response" in error &&
+                typeof error.response === "object" &&
+                error.response !== null &&
+                "status" in error.response
+            ) {
+                const status = (error.response as { status: number }).status;
+                if (status >= 200 && status < 300) {
+                    return;
+                }
+            }
+            throw error;
+        }
+    },
 };

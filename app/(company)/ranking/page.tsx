@@ -72,7 +72,7 @@ export default function DashboardPage() {
               icon={<Building className="w-5 h-5" />}
             />
           </div>
-          <ESGJourneyChart />
+          <ESGJourneyChart esgJourney={[]} />
         </div>
 
         {/* Recent Activities + Industry Leaderboard */}

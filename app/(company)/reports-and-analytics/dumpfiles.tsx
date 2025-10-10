@@ -214,7 +214,7 @@ function ReportsContent() {
             <EmissionsSummaryCard />
             <div className="bg-white rounded-xl shadow p-6">
               <h3 className="text-lg font-semibold">ESG Journey Overview</h3>
-              <ESGJourneyChart />
+              <ESGJourneyChart esgJourney={[]} />
             </div>
           </div>
         </div>
