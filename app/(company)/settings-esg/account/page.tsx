@@ -7,7 +7,6 @@ import NotificationsSettings from "@/app/components/settings/NotificationsSettin
 import DataManagement from "@/app/components/settings/DataManagement";
 import TabBar from "@/app/components/settings/accounts/TopBar";
 import ProfileTab from "@/app/components/settings/accounts/ProfileTab";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import {
   Select,
