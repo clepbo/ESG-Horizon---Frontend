@@ -113,17 +113,16 @@ export default function SubsidiaryTable({
                 ))}
               </tbody>
             </table>
-          </div>
-
-          {/* pagination */}
-          <div className="mt-4 px-4 pb-4">
-            <Pagination
-              totalItems={subsidiaries.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-              onItemsPerPageChange={setItemsPerPage}
-            />
+            {/* pagination */}
+            <div className="mt-4 px-4 pb-4">
+              <Pagination
+                totalItems={subsidiaries.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={setItemsPerPage}
+              />
+            </div>
           </div>
         </section>
       )}
