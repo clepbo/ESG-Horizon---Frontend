@@ -12,7 +12,6 @@ import ReportTable from "../components/ReportTab";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-
 import { useCompanyDashboard } from "@/services/hooks/dashboard.hooks";
 
 export default function DashboardPage() {
