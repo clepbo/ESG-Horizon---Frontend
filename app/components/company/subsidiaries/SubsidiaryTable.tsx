@@ -39,19 +39,10 @@ export default function SubsidiaryTable({
     return subsidiaries.slice(start, start + itemsPerPage);
   }, [subsidiaries, currentPage, itemsPerPage]);
 
-<<<<<<< HEAD
-  // console.log("Subsidiaries being rendered:", paginatedSubsidiaries);
-
   const handleEditClick = (subsidiary: Subsidiary) => {
     setSelectedSubsidiary(subsidiary);
     setIsEditOpen(true);
   };
-=======
-    const handleEditClick = (subsidiary: Subsidiary) => {
-        setSelectedSubsidiary(subsidiary);
-        setIsEditOpen(true);
-    };
->>>>>>> 474567aba6daad426bfc38a37b4dca81f8723bcf
 
   const handleDeleteClick = (subsidiary: Subsidiary) => {
     setSubsidiaryToDelete(subsidiary);
@@ -122,16 +113,17 @@ export default function SubsidiaryTable({
                 ))}
               </tbody>
             </table>
-            {/* pagination */}
-            <div className="mt-4 px-4 pb-4">
-              <Pagination
-                totalItems={subsidiaries.length}
-                itemsPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-                onItemsPerPageChange={setItemsPerPage}
-              />
-            </div>
+          </div>
+
+          {/* pagination */}
+          <div className="mt-4 px-4 pb-4">
+            <Pagination
+              totalItems={subsidiaries.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+              onItemsPerPageChange={setItemsPerPage}
+            />
           </div>
         </section>
       )}
