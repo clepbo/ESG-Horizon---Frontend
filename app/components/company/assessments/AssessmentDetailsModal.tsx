@@ -576,7 +576,7 @@ export default function AssessmentDetailsModal({ open, onClose, assessment }: As
             {/* Action Note */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-blue-800">
-                <strong>Note:</strong> Approving will generate the report for this assessment.
+                <strong>Note:</strong> Approving this ESG data will conclude the assessment cycle and will generate the report for this assessment.
               </p>
             </div>
 
