@@ -12,7 +12,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/app/components/ui/select";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { companyService } from "@/services/company.service";
 import {
   CreateDepartment,
@@ -25,6 +24,7 @@ import { getCurrentUser } from "@/lib/utils";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -211,8 +211,8 @@ export default function DepartmentsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Spinner />
+          <div className="">
+            <CardSkeleton />
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">

@@ -36,9 +36,14 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     });
 
     const [detailsOpen, setDetailsOpen] = useState(false);
-    const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+    const [selectedAssessment, setSelectedAssessment] =
+        useState<Assessment | null>(null);
 
     const deleteMutation = useDeleteAssessment();
+
+    const validData = data.filter(
+        (a) => a.startPeriod && a.endPeriod && a.subsidiary
+    );
 
     const handleOpenModal = (assessmentId: number) => {
         setModalData({
@@ -204,7 +209,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     return (
         <section className="shadow-md">
             <DataTable
-                data={data}
+                data={validData}
                 columns={columns}
                 filterOptions={filterOptions}
             />
@@ -231,4 +236,3 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         </section>
     );
 }
-
