@@ -18,6 +18,7 @@ import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { StatusButton } from "../StatusButton";
 import Link from "next/link";
 import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
+// import { getReport } from "@/app/(company)/reports-and-analytics/components/service/get-report";
 
 
 
@@ -30,7 +31,7 @@ const columns = [
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("endingPeriod", {
-    header: "Ending Period", 
+    header: "Ending Period",
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("subsidiaries", {
@@ -40,7 +41,7 @@ const columns = [
   columnHelper.accessor("status", {
     header: "Status",
     cell: (info) => <StatusButton progress={90}
-    status={info.getValue() as "Working on it" | "Awaiting Review" | "In Progress"}
+      status={info.getValue() as "Working on it" | "Awaiting Review" | "In Progress"}
     />
   }),
   columnHelper.display({
@@ -55,7 +56,7 @@ const columns = [
 ];
 
 export function DataTable() {
-     const [filters, setFilters] = useState<TableFilters>({
+  const [filters, setFilters] = useState<TableFilters>({
     search: "",
     status: "",
     date: "",
@@ -64,7 +65,8 @@ export function DataTable() {
 
   const [data] = useState(tableData);
 
-   const table = useReactTable({
+
+  const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -94,13 +96,13 @@ export function DataTable() {
   });
 
   const handleYearFilter = (year: string) => {
-  setFilters((prev) => ({ ...prev, date: year }))
-  if (year === "all") {
-    table.getColumn("startingPeriod")?.setFilterValue(undefined)
-  } else {
-    table.getColumn("startingPeriod")?.setFilterValue(year)
+    setFilters((prev) => ({ ...prev, date: year }))
+    if (year === "all") {
+      table.getColumn("startingPeriod")?.setFilterValue(undefined)
+    } else {
+      table.getColumn("startingPeriod")?.setFilterValue(year)
+    }
   }
-}
 
 
   const handleStatusFilter = (status: string) => {
@@ -112,16 +114,18 @@ export function DataTable() {
     }
   };
 
+    // const response =  getReport();
+  console.log("Loging Report Data...", data)
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
       <div className="flex items-center justify-between gap-4">
-       
-          <SearchInput placeholder="Search by subsidiary" value={filters.search} 
+
+        <SearchInput placeholder="Search by subsidiary" value={filters.search}
           onChange={(e) => table.setGlobalFilter(e.target.value)} />
-          <Button className={`text-white font-semibold`} onClick={()=> exportToCSV(data)}>
-            Export CSV
-          </Button>
+        <Button className={`text-white font-semibold`} onClick={() => exportToCSV(data)}>
+          Export CSV
+        </Button>
 
         <div className="flex items-center gap-2">
           <Select onValueChange={handleStatusFilter}>

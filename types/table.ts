@@ -10,3 +10,13 @@ export type TableFilters = {
   status: string;
   date: string;
 };
+
+export type ReportApiType = {
+  id: number;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  subsidiary: string;
+  status: string;
+};
