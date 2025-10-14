@@ -1,8 +1,13 @@
 export type TableRowType = {
   startingPeriod: string;
   endingPeriod: string;
-  subsidiaries: string;
-  status: "Working on it" | "Awaiting Review" | "In Progress" | string;
+  subsidiary: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  id: string;
+  status: "submitted" | "Awaiting Review" | "In Progress" | string;
 };
 
 export type TableFilters = {

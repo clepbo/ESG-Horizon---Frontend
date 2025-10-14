@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { tableData } from "./data";
 import {
   useReactTable,
   getCoreRowModel,
@@ -18,23 +17,27 @@ import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { StatusButton } from "../StatusButton";
 import Link from "next/link";
 import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
+import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
 // import { getReport } from "@/app/(company)/reports-and-analytics/components/service/get-report";
 
 
 
 
 const columnHelper = createColumnHelper<TableRowType>();
-const reportId = 1
+
 const columns = [
-  columnHelper.accessor("startingPeriod", {
+  columnHelper.accessor(row => `${row.startMonth} ${row.startYear}`, {
+    id: "startingPeriod",
     header: "Starting Period",
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue()
   }),
-  columnHelper.accessor("endingPeriod", {
+
+  columnHelper.accessor(row => `${row.endMonth} ${row.endYear}`, {
+    id: "endingPeriod",
     header: "Ending Period",
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue()
   }),
-  columnHelper.accessor("subsidiaries", {
+  columnHelper.accessor("subsidiary", {
     header: "Subsidiaries",
     cell: (info) => info.getValue(),
   }),
@@ -47,9 +50,9 @@ const columns = [
   columnHelper.display({
     id: "actions",
     header: "Quick Actions",
-    cell: () => (
+    cell: (info) => (
       <Button variant="default" size="sm" className="rounded-sm font-semibold text-white bg-green-400 hover:bg-green-600">
-        <Link href={`/reports-and-analytics/${reportId}`}>View Report</Link>
+        <Link href={`/reports-and-analytics/${info.row.original.id}`}>View Report</Link>
       </Button>
     ),
   }),
@@ -63,7 +66,9 @@ export function DataTable() {
   });
 
 
-  const [data] = useState(tableData);
+  const report = useReport();
+
+  const data = report.data || [];
 
 
   const table = useReactTable({
@@ -79,11 +84,16 @@ export function DataTable() {
     },
     globalFilterFn: (row, columnId, filterValue) => {
       const search = filterValue.toLowerCase();
+      const combinedPeriod = `${row.original.startMonth} ${row.original.startYear}`.toLowerCase()
+      ;
+
       return (
-        row.original.startingPeriod.toLowerCase().includes(search) ||
-        row.original.endingPeriod.toLowerCase().includes(search) ||
-        row.original.subsidiaries.toLowerCase().includes(search) ||
-        row.original.status.toLowerCase().includes(search)
+        combinedPeriod.includes(search) ||
+        row.original.endingPeriod?.toLowerCase().includes(search) ||
+        row.original.endMonth?.toLowerCase().includes(search) ||
+        row.original.endYear?.toLowerCase().includes(search) ||
+        row.original.subsidiary?.toLowerCase().includes(search) ||
+        row.original.status?.toLowerCase().includes(search)
       );
     },
     state: {
@@ -114,8 +124,7 @@ export function DataTable() {
     }
   };
 
-    // const response =  getReport();
-  console.log("Loging Report Data...", data)
+  // console.log("Loging Report Data...", report.data)
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
@@ -135,8 +144,9 @@ export function DataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Working on it">Working on it</SelectItem>
-              <SelectItem value="Awaiting Review">Awaiting Review</SelectItem>
+              <SelectItem value="approved"> Approved </SelectItem>
+              <SelectItem value="submitted"> Submitted </SelectItem>
+              <SelectItem value="unapproved"> Unapproved</SelectItem>
               <SelectItem value="In Progress">In Progress</SelectItem>
             </SelectContent>
           </Select>
@@ -152,6 +162,7 @@ export function DataTable() {
               <SelectItem value="2022">2022</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
             </SelectContent>
           </Select>
         </div>

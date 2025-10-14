@@ -3,9 +3,16 @@ import React from "react";
 import ReportSummary from "../components/ReportSummary";
 import ReportSummarySkeleton from "../components/skeleton/ReportSummarySkeleton";
 import { motion } from "framer-motion";
+import { useSingleReport } from "../components/service/useReport";
+import { useParams } from "next/navigation";
 
-export default function pages() {
+export default function Pages() {
   const loading = false;
+
+   const params = useParams()
+  const data = useSingleReport(Number(params?.id));
+
+  console.log(`Single Report Data, ${data.data}`)
 
   if (loading) {
     return (
@@ -14,6 +21,7 @@ export default function pages() {
       </React.Suspense>
     );
   }
+ 
   return (
     <motion.div
       className="grid"
