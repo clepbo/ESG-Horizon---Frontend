@@ -25,7 +25,6 @@ export const useCreateAssessment = () => {
     mutationFn: assessmentService.createAssessment,
     onSuccess: (assessmentId) => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
-      toast.info("New assessment started.");
       console.log("Created assessment with ID:", assessmentId);
     },
     onError: () => {
