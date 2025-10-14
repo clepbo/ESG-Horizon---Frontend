@@ -182,7 +182,7 @@ function Card({
 
 function Badge({ status }: { status: string }) {
   return (
-    <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-green-400 text-white border border-green-200">
+    <span className="px-2 py-0.5 text-xs rounded-full font-medium bg-teal-400 text-white border border-green-200">
       {status}
     </span>
   );

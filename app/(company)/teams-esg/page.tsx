@@ -79,7 +79,7 @@ export default function TeamsPage() {
             </p>
           </div>
           <button
-            className="cursor-pointer bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition text-sm"
+            className="cursor-pointer bg-[var(--color-primary)]  hover:bg-teal-700 text-white px-4 py-2 rounded-xl  transition text-sm"
             onClick={() => setShowInviteModal(true)}
           >
             <span className="flex items-center">

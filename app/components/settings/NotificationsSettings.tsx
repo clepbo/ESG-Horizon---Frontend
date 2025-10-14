@@ -76,7 +76,7 @@ export default function NotificationsSettings() {
           <button className="px-5 py-2 border border-green-500 text-green-500 rounded hover:bg-green-50">
             Close
           </button>
-          <button className="px-5 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+          <button className="px-5 py-2 bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded ">
             Save
           </button>
         </div>

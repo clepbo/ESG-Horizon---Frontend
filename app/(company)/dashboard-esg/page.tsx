@@ -116,9 +116,9 @@ export default function DashboardPage() {
                                 maxScore={100}
                                 trend="up"
                                 trendValue="10%"
-                                gradientClass="bg-gradient-to-b from-[#4686E2] to-[#2671DD] bg-fixed"
+                                gradientClass="bg-gradient-to-b from-[var(--color-primary)] to-[#2671DD] bg-fixed"
                                 icon={<Building className="w-5 h-5" />}
-                                bottomBarColor="bg-[#2570EB]"
+                                bottomBarColor=""
                                 iconSrc={"/icons/governance.svg"}
                             />
                         </div>

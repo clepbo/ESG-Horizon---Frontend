@@ -255,7 +255,7 @@ export function DisclosureTopics({
                                         opportunities
                                     </p>
                                 </div>
-                                <Button className="bg-green-600 hover:bg-green-700 text-white">
+                                <Button className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white">
                                     Assign Task
                                 </Button>
                             </div>

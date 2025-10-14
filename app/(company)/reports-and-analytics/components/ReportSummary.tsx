@@ -79,7 +79,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
                             {/* Actions */}
                             <div className="flex flex-col sm:flex-row gap-2 lg:justify-end no-export" id="hide1">
-                                <Button className="bg-green-500 hover:bg-green-400 text-white px-2 rounded-lg">
+                                <Button className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-2 rounded-lg">
                                     <Link href={`/reports-and-analytics/1/report`}>
                                         View Full Report
                                     </Link>

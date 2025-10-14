@@ -351,14 +351,14 @@ export default function EditCompanyModal({
             <button
               type="button"
               onClick={onClose}
-              className="border border-green-500 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50 cursor-pointer"
+              className="border bg-[var(--color-primary)]  text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50 cursor-pointer"
             >
               Close
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
+              className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm cursor-pointer disabled:opacity-50"
             >
               {isPending ? "Please wait..." : "Update"}
             </button>

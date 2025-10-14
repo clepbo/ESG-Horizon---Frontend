@@ -126,12 +126,12 @@ export default function SecurityAndPassword() {
 
                 {/* Footer Buttons */}
                 <div className="flex justify-end gap-3 mt-6">
-                    <button className="border border-green-500 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50">
+                    <button className="border bg-[var(--color-primary)]   text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50">
                         Close
                     </button>
                     <button
                         onClick={handleSavePassword}
-                        className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 hover:cursor-pointer"
+                        className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm  hover:cursor-pointer"
                         disabled={saving}
                     >
                         {saving ? "Saving..." : "Save"}

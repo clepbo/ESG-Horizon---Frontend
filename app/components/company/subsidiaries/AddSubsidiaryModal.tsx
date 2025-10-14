@@ -239,7 +239,7 @@ export default function AddSubsidiaryModal({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 cursor-pointer"
+              className="px-4 py-2 text-sm rounded-md bg-[var(--color-primary)]  hover:bg-teal-600 text-white  cursor-pointer"
             >
               {addingSubsidiary ? "Adding..." : "Add Subsidiary"}
             </button>

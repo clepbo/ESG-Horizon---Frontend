@@ -253,7 +253,7 @@ export default function LoginForm() {
                             className={`w-full py-3 px-4 rounded text-sm font-semibold transition-all duration-300 cursor-pointer ${
                                 loading || isTransitioning
                                     ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-green-500 text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                                    : "bg-[var(--color-primary)] text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                             }`}
                         >
                             {loading ? (

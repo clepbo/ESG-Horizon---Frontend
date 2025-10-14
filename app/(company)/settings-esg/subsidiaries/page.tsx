@@ -216,7 +216,7 @@ export default function SubsidiariesPage() {
               </p>
               <div>
                 <button
-                  className="flex items-center rounded-sm border bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-600 cursor-pointer"
+                  className="flex items-center rounded-sm border bg-[var(--color-primary)]  hover:bg-teal-700 px-4 py-2 text-sm text-white  cursor-pointer"
                   // onClick={() => setShowAddModal(true)}
                   onClick={() => openModalWithTab("subsidiary")}
                 >
@@ -236,7 +236,7 @@ export default function SubsidiariesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
               <Search className="h-3.5 w-3.5" />
               Search
             </button>

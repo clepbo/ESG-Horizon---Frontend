@@ -141,7 +141,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
                         <Button
                             key="continue"
                             size="sm"
-                            className="bg-green-500 hover:bg-green-600 text-white rounded-sm"
+                            className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded-sm"
                             onClick={() =>
                                 router.push(
                                     `/assessments/${info.row.original.id}`
@@ -158,7 +158,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
                             key="view"
                             size="sm"
                             variant="secondary"
-                            className="bg-green-500 hover:bg-green-600 text-white rounded-sm"
+                            className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded-sm"
                             onClick={() => handleOpenDetails(assessment)}
                         >
                             View
