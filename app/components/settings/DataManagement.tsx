@@ -25,13 +25,13 @@ export default function DataManagement() {
       {/* Export Buttons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Export All Data */}
-        <button className="flex flex-col items-center justify-center gap-2 border border-green-500 text-green-500 rounded hover:bg-green-50 py-6">
+        <button className="flex flex-col items-center justify-center gap-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50 py-6">
           <Download className="w-5 h-5" />
           <span className="text-sm font-medium">Export All Data</span>
         </button>
 
         {/* Download Reports */}
-        <button className="flex flex-col items-center justify-center gap-2 border border-green-500 text-green-500 rounded hover:bg-green-50 py-6">
+        <button className="flex flex-col items-center justify-center gap-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50 py-6">
           <Image
             src="/icons/Assessment.svg"
             alt="File download icon"
@@ -79,10 +79,10 @@ export default function DataManagement() {
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-3 pt-4">
-        <button className="px-5 py-2 border border-green-500 text-green-500 rounded hover:bg-green-50">
+        <button className="px-5 py-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50">
           Close
         </button>
-        <button className="px-5 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+        <button className="px-5 py-2 bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded ">
           Save
         </button>
       </div>
@@ -105,7 +105,7 @@ function ToggleSwitch({
         checked={checked}
         onChange={onChange}
       />
-      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-green-500 relative transition-all">
+      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-teal-500 relative transition-all">
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
             checked ? "translate-x-5" : ""

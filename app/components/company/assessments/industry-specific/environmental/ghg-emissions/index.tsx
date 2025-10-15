@@ -235,7 +235,7 @@ export function GhgEmissionsAssessment({
                                     chains, measured in CO2-equivalent
                                 </p>
                             </div>
-                            <Button className="bg-green-600 hover:bg-green-700 text-white">
+                            <Button className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white">
                                 Assign Task
                             </Button>
                         </div>

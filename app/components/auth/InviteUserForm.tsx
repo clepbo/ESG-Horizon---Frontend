@@ -188,7 +188,7 @@ export default function InviteUserPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full hover:cursor-pointer bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-md transition"
+                        className="w-full hover:cursor-pointer bg-[var(--color-primary)]  hover:bg-teal-700 text-white font-medium py-3 rounded-md transition"
                     >
                         {loading ? "Processing..." : "Submit"}
                     </button>

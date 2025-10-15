@@ -35,7 +35,7 @@ export default function Index() {
             className="absolute inset-0 object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-green-600 opacity-50 z-10" />
+          <div className="absolute inset-0 bg-[var(--color-primary)] opacity-60 z-10" />
           <div className="absolute inset-0 bg-black opacity-50 z-10" />
           <div className="relative z-20 flex flex-col justify-center items-start px-10">
             {/* <Image

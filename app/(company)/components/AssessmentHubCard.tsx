@@ -54,7 +54,7 @@ export default function AssessmentHubCard({
 
                 <Button
                     className={
-                        "w-full bg-transparent border border-esg-green text-green-500 hover:bg-green-500 hover:text-white transition-colors" +
+                        "w-full bg-transparent border border-esg-green text-teal-500  transform hover:scale-[1.02] hover:text-white transition-colors" +
                         (progress <= 0
                             ? " !border-gray-400 !text-gray-600 hover:bg-transparent hover:text-gray-600"
                             : "")

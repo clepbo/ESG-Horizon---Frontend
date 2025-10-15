@@ -58,7 +58,7 @@ export function ESGScoreCard({
         <div
           className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
             isTrendUp
-              ? "bg-green-100 text-green-600"
+              ? "bg-green-100 text-[var(--color-tertiary)]"
               : "bg-red-100 text-red-600"
           }`}
         >
@@ -145,7 +145,7 @@ export function ESGCard({
             <div
               className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
                 isTrendUp
-                  ? "bg-green-200 text-green-600"
+                  ? "bg-green-200 text-[var(--color-tertiary)]"
                   : "bg-red-100 text-red-600"
               }`}
             >

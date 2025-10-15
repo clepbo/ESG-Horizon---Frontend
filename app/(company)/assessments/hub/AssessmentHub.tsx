@@ -353,13 +353,13 @@ export default function AssessmentHub() {
 
                             <div className="flex justify-end">
                                 <Button
-                                    className="bg-white border border-green-500 mr-2 hover:bg-green-200/30 text-neutral-1000 max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                                    className="bg-white border border-teal-500 mr-2 hover:scale-[1.02] text-neutral-1000 max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
                                     onClick={backToNewAssessment}
                                 >
                                     Cancel
                                 </Button>
                                 <Button
-                                    className="bg-green-600 hover:bg-green-700 text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                                    className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
                                     disabled={!isFormValid}
                                     onClick={handleProceed}
                                 >

@@ -33,7 +33,7 @@ export default function ConfirmModal({
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 hover:cursor-pointer"
+            className="px-4 py-2 bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded  hover:cursor-pointer"
           >
             Confirm
           </button>

@@ -4,7 +4,7 @@ export default function RoleDefinitions() {
   const roles = [
     {
       title: "ESG Admin",
-      color: "bg-green-500",
+      color: "bg-teal-500",
       bg: "bg-green-50",
       permissions: [
         "Registers their company",
@@ -24,7 +24,7 @@ export default function RoleDefinitions() {
     },
     {
       title: "ESG Reviewer/Sub Admin",
-      color: "bg-blue-500",
+      color: "bg-emerald-500",
       bg: "bg-blue-50",
       permissions: [
         "Reviews ESG data",

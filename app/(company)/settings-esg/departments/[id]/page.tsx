@@ -267,7 +267,7 @@ export default function DepartmentTeamUsersPage() {
         <h3 className="text-lg font-semibold">Team Members</h3>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
+          className="text-white bg-[var(--color-primary)] transform hover:scale-[1.02] px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-1" />
           Invite New User
@@ -282,7 +282,7 @@ export default function DepartmentTeamUsersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
             <Search className="h-3.5 w-3.5" />
             Search
           </button>
