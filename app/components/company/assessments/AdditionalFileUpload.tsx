@@ -134,9 +134,11 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
               disabled={uploading[index] || deleting[index]}
             />
           </div>
-          <div className="relative">
+
+          <div className="flex-1 min-w-0">
             <Label className="text-sm font-medium mb-2 block text-gray-700">Upload File</Label>
-            <div className="flex items-center gap-2">
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
               <Button
                 type="button"
                 variant="outline"
