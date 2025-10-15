@@ -52,13 +52,14 @@ export default function Header({
                             isFallbackImage ? "opacity-50 blur-[1px]" : ""
                         }`}
                     />
-                    <div className="flex flex-col justify-center items-center text-sm">
+                    <div className="flex flex-col justify-center items-start text-sm">
                         <span className="text-gray-900 font-medium ">
                             {user
                                 ? `${user.first_name} ${user.last_name}`
                                 : "Loading..."}
                         </span>
-                        <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-lg">
+                        <span className="bg-[var(--color-primary)]
+ text-white text-xs px-2 py-0.5 rounded-lg">
                             {formatRoleName(user?.role?.name || "N/A")}
                         </span>
                     </div>

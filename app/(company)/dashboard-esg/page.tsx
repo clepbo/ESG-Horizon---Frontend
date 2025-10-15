@@ -116,9 +116,9 @@ export default function DashboardPage() {
                                 maxScore={100}
                                 trend="up"
                                 trendValue="10%"
-                                gradientClass="bg-gradient-to-b from-[var(--color-primary)] to-[#2671DD] bg-fixed"
+                                gradientClass="bg-gradient-to-b from-[var(--color-primary)] to-[var(--color-primary)] bg-fixed"
                                 icon={<Building className="w-5 h-5" />}
-                                bottomBarColor=""
+                                bottomBarColor="bg-teal-600"
                                 iconSrc={"/icons/governance.svg"}
                             />
                         </div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
                             progress={75}
                             completed="6 of 8 sections completed"
                             icon={Leaf}
-                            iconBg="bg-green-500"
+                            iconBg="bg-[var(--color-tertiary)]"
                         />
                         <AssessmentHubCard
                             type="Social"
@@ -155,7 +155,7 @@ export default function DashboardPage() {
                             progress={0}
                             completed="0 sections completed"
                             icon={Users}
-                            iconBg="bg-blue-500"
+                            iconBg="bg-teal-500"
                         />
                         <AssessmentHubCard
                             type="Governance"
@@ -163,7 +163,7 @@ export default function DashboardPage() {
                             progress={0}
                             completed="0 sections completed"
                             icon={Building}
-                            iconBg="bg-yellow-500"
+                            iconBg="bg-[var(--color-secondary)]"
                         />
                     </div>
                 </div>
