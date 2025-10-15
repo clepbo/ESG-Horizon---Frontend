@@ -25,13 +25,7 @@ describe("Sidebar Component", () => {
     mockUsePathname.mockReturnValue("/dashboard");
     render(<Sidebar />);
 
-    const navItems = [
-      "Dashboard",
-      "Users",
-      "Reports",
-      "Subscription & Billing",
-      "Settings",
-    ];
+    const navItems = ["Dashboard", "Users", "Reports", "Subscription & Billing", "Settings"];
 
     navItems.forEach((item) => {
       expect(screen.getByText(item)).toBeInTheDocument();

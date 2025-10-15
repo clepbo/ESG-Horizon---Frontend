@@ -32,8 +32,8 @@ export default function LoginPage() {
               ESG Horizon
             </h1>
             <p className="text-base leading-relaxed text-white/90">
-              Access your dashboard, manage ESG data, and collaborate with your
-              team — securely and efficiently.
+              Access your dashboard, manage ESG data, and collaborate with your team — securely and
+              efficiently.
             </p>
           </div>
 

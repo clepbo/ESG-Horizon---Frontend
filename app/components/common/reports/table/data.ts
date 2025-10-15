@@ -1,7 +1,3 @@
-
-
-
-
 export const tableData: Array<{
   id: string;
   startingPeriod: string;

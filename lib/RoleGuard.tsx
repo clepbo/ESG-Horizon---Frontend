@@ -3,7 +3,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { ReactNode } from "react";
 
-
 type RoleGuardProps = {
   allowedRoles: string[];
   children: ReactNode;

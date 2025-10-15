@@ -7,64 +7,53 @@ import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import { formatRoleName } from "@/lib/utils";
 
-export default function Header({
-    showSearchBar = true,
-}: {
-    showSearchBar?: boolean;
-}) {
-    const [search, setSearch] = useState("");
-    const { user } = useAuth();
+export default function Header({ showSearchBar = true }: { showSearchBar?: boolean }) {
+  const [search, setSearch] = useState("");
+  const { user } = useAuth();
 
-    const avatarSrc =
-        user?.profile_photo_url && user.profile_photo_url.trim() !== ""
-            ? user.profile_photo_url
-            : "/image.png";
+  const avatarSrc =
+    user?.profile_photo_url && user.profile_photo_url.trim() !== ""
+      ? user.profile_photo_url
+      : "/image.png";
 
-    const isFallbackImage =
-        !user?.profile_photo_url || user.profile_photo_url.trim() === "";
+  const isFallbackImage = !user?.profile_photo_url || user.profile_photo_url.trim() === "";
 
-    return (
-        <header className="w-full flex items-center justify-between mb-4">
-            {/* Search Bar */}
-            <div className="flex-1 max-w-xl">
-                {showSearchBar && (
-                    <SearchInput
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                )}
-            </div>
+  return (
+    <header className="w-full flex items-center justify-between mb-4">
+      {/* Search Bar */}
+      <div className="flex-1 max-w-xl">
+        {showSearchBar && (
+          <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} />
+        )}
+      </div>
 
-            {/* Notifications & User Info */}
-            <div className="flex items-center gap-4">
-                <Bell
-                    className="text-gray-600 hover:text-black cursor-pointer"
-                    size={20}
-                />
+      {/* Notifications & User Info */}
+      <div className="flex items-center gap-4">
+        <Bell className="text-gray-600 hover:text-black cursor-pointer" size={20} />
 
-                <div className="flex items-center gap-2">
-                    <Image
-                        src={avatarSrc}
-                        alt={`${user?.first_name || "N/A"}`}
-                        width={36}
-                        height={36}
-                        className={`rounded-full object-cover ${
-                            isFallbackImage ? "opacity-50 blur-[1px]" : ""
-                        }`}
-                    />
-                    <div className="flex flex-col justify-center items-start text-sm">
-                        <span className="text-gray-900 font-medium ">
-                            {user
-                                ? `${user.first_name} ${user.last_name}`
-                                : "Loading..."}
-                        </span>
-                        <span className="bg-[var(--color-primary)]
- text-white text-xs px-2 py-0.5 rounded-lg">
-                            {formatRoleName(user?.role?.name || "N/A")}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </header>
-    );
+        <div className="flex items-center gap-2">
+          <Image
+            src={avatarSrc}
+            alt={`${user?.first_name || "N/A"}`}
+            width={36}
+            height={36}
+            className={`rounded-full object-cover ${
+              isFallbackImage ? "opacity-50 blur-[1px]" : ""
+            }`}
+          />
+          <div className="flex flex-col justify-center items-start text-sm">
+            <span className="text-gray-900 font-medium ">
+              {user ? `${user.first_name} ${user.last_name}` : "Loading..."}
+            </span>
+            <span
+              className="bg-[var(--color-primary)]
+ text-white text-xs px-2 py-0.5 rounded-lg"
+            >
+              {formatRoleName(user?.role?.name || "N/A")}
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 }

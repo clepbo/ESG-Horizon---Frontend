@@ -83,9 +83,7 @@ export default function UserTable({ users }: UserTableProps) {
         <tbody className="divide-y divide-gray-200">
           {users.map((user) => (
             <tr key={user.id}>
-              <td className="px-4 py-3 font-medium text-gray-900">
-                {user.name}
-              </td>
+              <td className="px-4 py-3 font-medium text-gray-900">{user.name}</td>
               <td className="px-4 py-3">{user.company}</td>
               <td className="px-4 py-3">{user.category}</td>
               <td className="px-4 py-3">{user.role}</td>

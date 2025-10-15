@@ -1,7 +1,6 @@
 // import * as htmlToImage from 'html-to-image';
-import { toPng } from 'html-to-image';
-import jsPDF from "jspdf"
-
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 
 export async function generatePDF(id: string, fileName = "esg-report.pdf") {
   const element = document.getElementById(id);
@@ -13,14 +12,12 @@ export async function generatePDF(id: string, fileName = "esg-report.pdf") {
   });
 
   const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth();  // 210
+  const pageWidth = pdf.internal.pageSize.getWidth(); // 210
   const pageHeight = pdf.internal.pageSize.getHeight(); // 297
 
   pdf.addImage(dataUrl, "PNG", 5, 5, pageWidth - 10, pageHeight - 10);
   pdf.save(fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`);
 }
-
-
 
 export async function exportPNG(id: string, fileName = "esg-report.png") {
   const element = document.getElementById(id);
@@ -42,7 +39,6 @@ export async function exportPNG(id: string, fileName = "esg-report.png") {
   }
 }
 
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function exportToCSV(data: any[], fileName = "table-data.csv") {
   if (!data || !data.length) return;
@@ -53,12 +49,14 @@ export function exportToCSV(data: any[], fileName = "table-data.csv") {
   // Build CSV content
   const csvRows = [
     headers.join(","), // header row
-    ...data.map(row =>
-      headers.map(field => {
-        const value = row[field] ?? "";
-        // Escape quotes and commas
-        return `"${String(value).replace(/"/g, '""')}"`;
-      }).join(",")
+    ...data.map((row) =>
+      headers
+        .map((field) => {
+          const value = row[field] ?? "";
+          // Escape quotes and commas
+          return `"${String(value).replace(/"/g, '""')}"`;
+        })
+        .join(",")
     ),
   ];
 

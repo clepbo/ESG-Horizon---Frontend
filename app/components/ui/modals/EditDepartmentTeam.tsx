@@ -16,13 +16,7 @@ type User = {
   jobTitle?: string;
 };
 
-export default function EditUserModal({
-  user,
-  onClose,
-}: {
-  user: User;
-  onClose: () => void;
-}) {
+export default function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
   const [firstName, lastName] = user.name.split(" ");
   const [userImage, setUserImage] = useState<string | null>(null);
   const [isApproved, setIsApproved] = useState(true);
@@ -45,9 +39,7 @@ export default function EditUserModal({
         <BackButton />
 
         {/* Title */}
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
-          User Information
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">User Information</h2>
 
         {/* Avatar + Status Badge */}
         <div className="flex items-center gap-4 mb-8">
@@ -84,7 +76,9 @@ export default function EditUserModal({
           <span
             className={clsx(
               "px-4 py-1 rounded-full text-sm font-medium",
-              isApproved ? "bg-[var(--color-primary)]  hover:bg-teal-600 text-white" : "bg-red-500 text-white"
+              isApproved
+                ? "bg-[var(--color-primary)]  hover:bg-teal-600 text-white"
+                : "bg-red-500 text-white"
             )}
           >
             {isApproved ? "Approved" : "Suspended"}

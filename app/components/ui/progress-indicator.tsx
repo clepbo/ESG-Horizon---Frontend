@@ -1,9 +1,9 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 interface ProgressIndicatorProps {
-  steps: string[]
-  currentStep: number
-  className?: string
+  steps: string[];
+  currentStep: number;
+  className?: string;
 }
 
 export function ProgressIndicator({ steps, currentStep, className }: ProgressIndicatorProps) {
@@ -19,7 +19,7 @@ export function ProgressIndicator({ steps, currentStep, className }: ProgressInd
                   ? "bg-green-600 text-white"
                   : index === currentStep
                     ? "bg-green-600 text-white"
-                    : "bg-gray-200 text-gray-500",
+                    : "bg-gray-200 text-gray-500"
               )}
             >
               {index + 1}
@@ -28,11 +28,14 @@ export function ProgressIndicator({ steps, currentStep, className }: ProgressInd
           </div>
           {index < steps.length - 1 && (
             <div
-              className={cn("h-0.5 w-16 mx-4 transition-colors", index < currentStep ? "bg-green-600" : "bg-gray-200")}
+              className={cn(
+                "h-0.5 w-16 mx-4 transition-colors",
+                index < currentStep ? "bg-green-600" : "bg-gray-200"
+              )}
             />
           )}
         </div>
       ))}
     </div>
-  )
+  );
 }

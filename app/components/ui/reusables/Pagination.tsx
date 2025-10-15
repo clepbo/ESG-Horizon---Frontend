@@ -66,10 +66,7 @@ const Pagination = ({
 
         {/* Numbered buttons (optional, limit to 5 for now) */}
         {Array.from({ length: totalPages }, (_, i) => i + 1)
-          .slice(
-            Math.max(currentPage - 2, 0),
-            Math.min(currentPage + 1, totalPages)
-          )
+          .slice(Math.max(currentPage - 2, 0), Math.min(currentPage + 1, totalPages))
           .map((page) => (
             <button
               key={page}

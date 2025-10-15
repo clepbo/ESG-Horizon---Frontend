@@ -55,9 +55,7 @@ export default function ESGHorizonLanding() {
             <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce delay-200" />
             <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" />
           </div>
-          <span className="text-gray-500 font-light text-start">
-            Loading...
-          </span>
+          <span className="text-gray-500 font-light text-start">Loading...</span>
         </div>
       </div>
 

@@ -29,8 +29,7 @@ export default function DepartmentTeamUsersPage() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,10 +43,7 @@ export default function DepartmentTeamUsersPage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [departmentsData, teamData] = await Promise.all([
-        fetchDepartments(),
-        fetchTeamUsers(),
-      ]);
+      const [departmentsData, teamData] = await Promise.all([fetchDepartments(), fetchTeamUsers()]);
 
       const dept = departmentsData.find((d) => d.id === id) || null;
       setDepartment(dept);
@@ -68,8 +64,7 @@ export default function DepartmentTeamUsersPage() {
       const matchesSearch =
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === "All" || user.status === statusFilter;
+      const matchesStatus = statusFilter === "All" || user.status === statusFilter;
       const matchesRole = roleFilter === "All" || user.role === roleFilter;
       return matchesSearch && matchesStatus && matchesRole;
     });
@@ -121,10 +116,7 @@ export default function DepartmentTeamUsersPage() {
           <InfoRow label="Description" value={department.description} />
           <InfoRow label="Department Lead" value={department.lead} />
           <InfoRow label="Email" value={department.email} />
-          <InfoRow
-            label="Team Members"
-            value={department.teamSize?.toString() || "0"}
-          />
+          <InfoRow label="Team Members" value={department.teamSize?.toString() || "0"} />
           <InfoRow label="Status" value={department.status} />
         </div>
       </div>

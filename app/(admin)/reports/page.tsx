@@ -81,9 +81,7 @@ export default function ReportsAnalyticsPage() {
 
         {/* Activity Table */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Recent Activities
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
           <ReportTabs />
           <ReportActivityTable />
         </div>

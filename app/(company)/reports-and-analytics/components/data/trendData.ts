@@ -9,7 +9,4 @@ export const trendData = [
   { year: 2023, "Scope 1": 11000, "Scope 2": 6000, "Scope 3": 1800 },
   { year: 2024, "Scope 1": 9500, "Scope 2": 5800, "Scope 3": 1500 },
   { year: 2025, "Scope 1": 7000, "Scope 2": 5500, "Scope 3": 1000 },
-]
-
-
-
+];

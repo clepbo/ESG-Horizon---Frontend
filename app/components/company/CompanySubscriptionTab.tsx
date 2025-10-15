@@ -35,8 +35,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
         payment.id.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "All" ||
-        payment.status.toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === "All" || payment.status.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesDate = !dateFilter || payment.dateValue === dateFilter;
 
@@ -48,10 +47,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
     <div className="space-y-6">
       {/* Top Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card
-          title="Subscription Overview"
-          iconSrc="/icons/SubscriptionBilling.svg"
-        >
+        <Card title="Subscription Overview" iconSrc="/icons/SubscriptionBilling.svg">
           <div className="grid grid-cols-2 gap-6 text-sm">
             <Info label="Current Plan" value="Premium" />
             <Info label="Status" value={<Badge status="Active" />} />
@@ -75,10 +71,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
       </div>
 
       {/* Payment Summary */}
-      <Card
-        title="Upcoming Payment Summary"
-        iconSrc="/icons/SubscriptionBilling.svg"
-      >
+      <Card title="Upcoming Payment Summary" iconSrc="/icons/SubscriptionBilling.svg">
         <div className="grid grid-cols-3 gap-6 text-sm">
           <Info label="Next Invoice Date" value="2024-09-15" />
           <Info label="Amount Due" value="$299.99" />
@@ -88,9 +81,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
 
       {/* Payment History */}
       <div className="space-y-4">
-        <h2 className="text-base font-semibold text-gray-800">
-          Payment History
-        </h2>
+        <h2 className="text-base font-semibold text-gray-800">Payment History</h2>
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* Search */}
           <div className="relative w-full">
@@ -109,10 +100,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
           {/* Filters */}
           <div className="flex gap-2 w-full md:w-auto">
             {/* Status Filter */}
-            <Select
-              value={statusFilter}
-              onValueChange={(val) => setStatusFilter(val)}
-            >
+            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -125,11 +113,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
             </Select>
 
             {/* Date Filter */}
-            <Input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
+            <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
           </div>
         </div>
 
@@ -139,13 +123,7 @@ export default function CompanySubscriptionTab({ company }: Props) {
   );
 }
 
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | React.ReactNode;
-}) {
+function Info({ label, value }: { label: string; value: string | React.ReactNode }) {
   return (
     <div>
       <div className="text-xs text-gray-500">{label}</div>
@@ -166,13 +144,7 @@ function Card({
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Image
-          src={iconSrc}
-          alt={title}
-          width={20}
-          height={20}
-          className="object-contain"
-        />
+        <Image src={iconSrc} alt={title} width={20} height={20} className="object-contain" />
         <h2 className="text-base font-semibold text-gray-800">{title}</h2>
       </div>
       {children}

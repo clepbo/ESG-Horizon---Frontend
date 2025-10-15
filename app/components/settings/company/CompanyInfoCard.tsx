@@ -52,29 +52,15 @@ export default function CompanyInfoCard({
                 </div> */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 w-full">
           <InfoField label="Company Name" value={company.name} />
-          <InfoField
-            label="Industry Type"
-            value={company.industry?.industry || ""}
-          />
-          <InfoField
-            label="Email Address"
-            value={company.contact_email ?? "N/A"}
-          />
-          <InfoField
-            label="Contact Phone Number"
-            value={company.contact_phone ?? "N/A"}
-          />
+          <InfoField label="Industry Type" value={company.industry?.industry || ""} />
+          <InfoField label="Email Address" value={company.contact_email ?? "N/A"} />
+          <InfoField label="Contact Phone Number" value={company.contact_phone ?? "N/A"} />
           <InfoField label="Website Address" value={company.website ?? "N/A"} />
-          <InfoField
-            label="Company Registration Number"
-            value={company.registration_number}
-          />
+          <InfoField label="Company Registration Number" value={company.registration_number} />
           <InfoField label="Country" value={company.country ?? "n/a"} />
           <InfoField
             label="Platform Users Count"
-            value={
-              company.staff_strength || companyUsersCount.toString() || "n/a"
-            }
+            value={company.staff_strength || companyUsersCount.toString() || "n/a"}
           />
           <InfoField label="Company Address" value={company.address || ""} />
         </div>

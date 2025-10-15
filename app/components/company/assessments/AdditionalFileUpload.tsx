@@ -23,13 +23,8 @@ interface AdditionalFileUploadProps {
   initialData?: FileData[];
 }
 
-export function AdditionalFileUpload({
-  onFieldsChange,
-  initialData,
-}: AdditionalFileUploadProps) {
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>(
-    initialData || []
-  );
+export function AdditionalFileUpload({ onFieldsChange, initialData }: AdditionalFileUploadProps) {
+  const [additionalFields, setAdditionalFields] = useState<FileData[]>(initialData || []);
   const [uploading, setUploading] = useState<{ [key: number]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: number]: boolean }>({});
 
@@ -51,10 +46,7 @@ export function AdditionalFileUpload({
     onFieldsChange?.(newFields);
   };
 
-  const handleFileChange = async (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -109,22 +101,15 @@ export function AdditionalFileUpload({
     }
 
     const newFields = additionalFields.map((item, i) =>
-      i === index
-        ? { ...item, file: null, url: undefined, publicId: undefined }
-        : item
+      i === index ? { ...item, file: null, url: undefined, publicId: undefined } : item
     );
     setAdditionalFields(newFields);
     onFieldsChange?.(newFields);
   };
 
-  const handleNameChange = (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleNameChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const name = event.target.value;
-    const newFields = additionalFields.map((item, i) =>
-      i === index ? { ...item, name } : item
-    );
+    const newFields = additionalFields.map((item, i) => (i === index ? { ...item, name } : item));
     setAdditionalFields(newFields);
     onFieldsChange?.(newFields);
   };
@@ -149,9 +134,7 @@ export function AdditionalFileUpload({
             />
           </div>
           <div className="relative">
-            <Label className="text-sm font-medium mb-2 block text-gray-700">
-              Upload File
-            </Label>
+            <Label className="text-sm font-medium mb-2 block text-gray-700">Upload File</Label>
             <div className="flex items-center gap-2">
               <Button
                 type="button"

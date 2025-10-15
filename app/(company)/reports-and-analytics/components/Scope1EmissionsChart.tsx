@@ -1,19 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { Activity, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -27,13 +15,11 @@ export function Scope1EmissionsChart() {
     typeof val === "string" && !isNaN(parseFloat(val))
       ? parseFloat(val)
       : typeof val === "number" && !isNaN(val)
-      ? val
-      : 0;
+        ? val
+        : 0;
 
   // Helper function to calculate total emissions for an array of SourceData
-  const calculateSourceEmissions = (
-    sources: SourceData[] | undefined
-  ): number => {
+  const calculateSourceEmissions = (sources: SourceData[] | undefined): number => {
     if (!sources) return 0;
     return sources.reduce((sum, s) => {
       const volume = toNumber(s.volume);
@@ -53,9 +39,8 @@ export function Scope1EmissionsChart() {
       (calculateSourceEmissions(
         assessmentData.stationarySources?.electricityHeat?.dieselGenerators
       ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.stationarySources?.electricityHeat?.gasTurbines
-      ) || 0) +
+      (calculateSourceEmissions(assessmentData.stationarySources?.electricityHeat?.gasTurbines) ||
+        0) +
       (calculateSourceEmissions(
         assessmentData.stationarySources?.industrialProcesses?.boilerFurnaces
       ) || 0) +
@@ -71,27 +56,17 @@ export function Scope1EmissionsChart() {
 
     // Mobile Sources
     const mobileEmissions =
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.roadTransport?.vehicleFleet
-      ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.roadTransport?.carsBuses
-      ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.vehicleEquipment?.forkliftFuelType
-      ) || 0) +
+      (calculateSourceEmissions(assessmentData.mobileSources?.roadTransport?.vehicleFleet) || 0) +
+      (calculateSourceEmissions(assessmentData.mobileSources?.roadTransport?.carsBuses) || 0) +
+      (calculateSourceEmissions(assessmentData.mobileSources?.vehicleEquipment?.forkliftFuelType) ||
+        0) +
       (calculateSourceEmissions(
         assessmentData.mobileSources?.vehicleEquipment?.heavyDutyFuelType
       ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.vehicleEquipment?.tractorFuelType
-      ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.marineAviation?.air
-      ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.marineAviation?.marine
-      ) || 0);
+      (calculateSourceEmissions(assessmentData.mobileSources?.vehicleEquipment?.tractorFuelType) ||
+        0) +
+      (calculateSourceEmissions(assessmentData.mobileSources?.marineAviation?.air) || 0) +
+      (calculateSourceEmissions(assessmentData.mobileSources?.marineAviation?.marine) || 0);
     if (mobileEmissions > 0) {
       data.push({ category: "Mobile Sources", emissions: mobileEmissions });
     }
@@ -99,9 +74,7 @@ export function Scope1EmissionsChart() {
     // Process Emissions
     if (assessmentData.processEmissions) {
       const cementEmissions =
-        toNumber(
-          assessmentData.processEmissions.cementManufacturing?.cementQuantity
-        ) * 0.44; // Using example factor
+        toNumber(assessmentData.processEmissions.cementManufacturing?.cementQuantity) * 0.44; // Using example factor
       if (cementEmissions > 0) {
         data.push({
           category: "Cement Manufacturing",
@@ -120,16 +93,13 @@ export function Scope1EmissionsChart() {
     // Fugitive Emissions
     if (assessmentData.fugitiveEmissions) {
       const ventingEmissions =
-        toNumber(
-          assessmentData.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented
-        ) * 0.002; // Using example factor
+        toNumber(assessmentData.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) * 0.002; // Using example factor
       if (ventingEmissions > 0) {
         data.push({ category: "Gas Venting", emissions: ventingEmissions });
       }
 
       const hfcEmissions =
-        toNumber(assessmentData.fugitiveEmissions.hfcLeaks?.refrigerantAdded) *
-        1430; // Using example GWP
+        toNumber(assessmentData.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Using example GWP
       if (hfcEmissions > 0) {
         data.push({ category: "HFC Leaks", emissions: hfcEmissions });
       }
@@ -139,26 +109,19 @@ export function Scope1EmissionsChart() {
   };
 
   const chartData = calculateScope1Data();
-  const totalEmissions = chartData.reduce(
-    (sum, item) => sum + item.emissions,
-    0
-  );
+  const totalEmissions = chartData.reduce((sum, item) => sum + item.emissions, 0);
   const previousTotal = totalEmissions * 1.05; // assume slight reduction for trend reference
   const trend = totalEmissions < previousTotal ? "down" : "up";
   const trendValue =
     previousTotal > 0
-      ? Math.abs(
-          ((totalEmissions - previousTotal) / previousTotal) * 100
-        ).toFixed(1)
+      ? Math.abs(((totalEmissions - previousTotal) / previousTotal) * 100).toFixed(1)
       : "0.0";
 
   if (isLoading) {
     return (
       <Card className="bg-white border-none shadow rounded-xl">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900">
-            Scope 1 Emissions
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-900">Scope 1 Emissions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center items-center h-64">
@@ -175,9 +138,7 @@ export function Scope1EmissionsChart() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-blue-600" />
-            <CardTitle className="text-lg font-semibold text-gray-900">
-              Scope 1 Emissions
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-900">Scope 1 Emissions</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             {trend === "down" ? (
@@ -194,17 +155,13 @@ export function Scope1EmissionsChart() {
             </span>
           </div>
         </div>
-        <p className="text-sm text-gray-600">
-          Direct emissions from owned or controlled sources
-        </p>
+        <p className="text-sm text-gray-600">Direct emissions from owned or controlled sources</p>
       </CardHeader>
       <CardContent>
         {chartData.length > 0 ? (
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900">
-                {totalEmissions.toFixed(1)}
-              </div>
+              <div className="text-3xl font-bold text-gray-900">{totalEmissions.toFixed(1)}</div>
               <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
             </div>
             <ResponsiveContainer width="100%" height={250}>
@@ -225,18 +182,10 @@ export function Scope1EmissionsChart() {
                   domain={[0, "dataMax + 10"]}
                 />
                 <Tooltip
-                  formatter={(value: number) => [
-                    `${value.toFixed(1)} tonnes CO2e`,
-                    "Emissions",
-                  ]}
+                  formatter={(value: number) => [`${value.toFixed(1)} tonnes CO2e`, "Emissions"]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Bar
-                  dataKey="emissions"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={40}
-                  fill="#3B82F6"
-                />
+                <Bar dataKey="emissions" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6" />
               </BarChart>
             </ResponsiveContainer>
           </div>

@@ -51,9 +51,7 @@ export function AddSource({
 }: AddSourceProps) {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [editingFactorId, setEditingFactorId] = useState<string | null>(null);
-  const [tempEmissionFactor, setTempEmissionFactor] = useState<number | null>(
-    null
-  );
+  const [tempEmissionFactor, setTempEmissionFactor] = useState<number | null>(null);
 
   const addSource = () => {
     const defaultFuelType = fuelTypeOptions[0] || {
@@ -83,22 +81,15 @@ export function AddSource({
     }
   };
 
-  const updateSource = (
-    id: string,
-    field: keyof Omit<SourceData, "id">,
-    value: string
-  ) => {
+  const updateSource = (id: string, field: keyof Omit<SourceData, "id">, value: string) => {
     onSourcesChange(
       sources.map((source) => {
         if (source.id === id) {
           const updatedSource = { ...source, [field]: value };
           if (field === "fuelType") {
-            const selectedFuel = fuelTypeOptions.find(
-              (option) => option.value === value
-            );
+            const selectedFuel = fuelTypeOptions.find((option) => option.value === value);
             updatedSource.emissionFactor = selectedFuel?.emissionFactor || 0;
-            updatedSource.source =
-              selectedFuel?.source || "IPCC 2006, Vintage: 2006";
+            updatedSource.source = selectedFuel?.source || "IPCC 2006, Vintage: 2006";
             setEditingFactorId(null);
             setTempEmissionFactor(null);
           }
@@ -122,9 +113,7 @@ export function AddSource({
   const handleSaveClick = (id: string) => {
     onSourcesChange(
       sources.map((source) =>
-        source.id === id
-          ? { ...source, emissionFactor: tempEmissionFactor || 0 }
-          : source
+        source.id === id ? { ...source, emissionFactor: tempEmissionFactor || 0 } : source
       )
     );
     setEditingFactorId(null);
@@ -138,18 +127,13 @@ export function AddSource({
 
   const handleResetClick = (source: SourceData) => {
     const defaultFactor =
-      fuelTypeOptions.find((option) => option.value === source.fuelType)
-        ?.emissionFactor || 2.68;
+      fuelTypeOptions.find((option) => option.value === source.fuelType)?.emissionFactor || 2.68;
     setTempEmissionFactor(defaultFactor);
   };
 
   const validateSource = (source: SourceData) => {
     const newErrors = { ...errors };
-    if (
-      !source.volume ||
-      isNaN(Number(source.volume)) ||
-      Number(source.volume) <= 0
-    ) {
+    if (!source.volume || isNaN(Number(source.volume)) || Number(source.volume) <= 0) {
       newErrors[`${source.id}-volume`] = "Please enter a valid positive number";
     }
     setErrors(newErrors);
@@ -172,14 +156,10 @@ export function AddSource({
                 <CardContent className="p-0">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="flex flex-col space-y-2">
-                      <Label htmlFor={`fuel-type-${source.id}`}>
-                        Fuel Type
-                      </Label>
+                      <Label htmlFor={`fuel-type-${source.id}`}>Fuel Type</Label>
                       <Select
                         value={source.fuelType}
-                        onValueChange={(value) =>
-                          updateSource(source.id, "fuelType", value)
-                        }
+                        onValueChange={(value) => updateSource(source.id, "fuelType", value)}
                       >
                         <SelectTrigger id={`fuel-type-${source.id}`}>
                           <SelectValue placeholder="Select type of fuel" />
@@ -204,13 +184,9 @@ export function AddSource({
                                     <Info className="h-4 w-6 text-muted-foreground" />
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>
-                                      The standard value is used by default.{" "}
-                                    </p>
+                                    <p>The standard value is used by default. </p>
                                     <p>You can edit it to align with </p>
-                                    <p>
-                                      your specific supplier&apos;s data data.
-                                    </p>
+                                    <p>your specific supplier&apos;s data data.</p>
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
@@ -224,9 +200,7 @@ export function AddSource({
                                     value={tempEmissionFactor ?? ""}
                                     onChange={(e) =>
                                       setTempEmissionFactor(
-                                        e.target.value === ""
-                                          ? null
-                                          : parseFloat(e.target.value)
+                                        e.target.value === "" ? null : parseFloat(e.target.value)
                                       )
                                     }
                                     className="pr-5 "
@@ -241,9 +215,7 @@ export function AddSource({
                                     <RefreshCcw className="h-4 w-4" />
                                   </Button>
                                 </div>
-                                <span className="text-sm text-gray-700">
-                                  kgCO₂/litre
-                                </span>
+                                <span className="text-sm text-gray-700">kgCO₂/litre</span>
                               </>
                             ) : (
                               <>
@@ -268,9 +240,9 @@ export function AddSource({
                               <div className="flex items-start text-yellow-600 bg-yellow-500/10 p-2 rounded-md border border-yellow-600">
                                 <AlertTriangle className="h-4 w-4 mt-1 mr-2 flex-shrink-0" />
                                 <p className="text-xs">
-                                  Editing emission factors will change your
-                                  total emissions calculations. Only update with
-                                  verified data to ensure accurate reporting.
+                                  Editing emission factors will change your total emissions
+                                  calculations. Only update with verified data to ensure accurate
+                                  reporting.
                                 </p>
                               </div>
                               <div className="flex gap-2">
@@ -291,30 +263,21 @@ export function AddSource({
                             </>
                           )}
                           <p className="text-xs text-muted-foreground">
-                            Source:{" "}
-                            {source.source || "IPCC 2006, Vintage: 2006"}
+                            Source: {source.source || "IPCC 2006, Vintage: 2006"}
                           </p>
                         </div>
                       )}
                     </div>
                     <div className="flex flex-col space-y-2">
-                      <Label htmlFor={`volume-${source.id}`}>
-                        {volumeLabel}
-                      </Label>
+                      <Label htmlFor={`volume-${source.id}`}>{volumeLabel}</Label>
                       <Input
                         id={`volume-${source.id}`}
                         type="number"
                         placeholder={volumePlaceholder}
                         value={source.volume}
-                        onChange={(e) =>
-                          updateSource(source.id, "volume", e.target.value)
-                        }
+                        onChange={(e) => updateSource(source.id, "volume", e.target.value)}
                         onBlur={() => validateSource(source)}
-                        className={
-                          errors[`${source.id}-volume`]
-                            ? "border-destructive"
-                            : ""
-                        }
+                        className={errors[`${source.id}-volume`] ? "border-destructive" : ""}
                       />
                       {errors[`${source.id}-volume`] && (
                         <p className="text-sm text-destructive mt-1">
@@ -326,9 +289,7 @@ export function AddSource({
                       <Label htmlFor={`unit-${source.id}`}>Unit</Label>
                       <Select
                         value={source.unit}
-                        onValueChange={(value) =>
-                          updateSource(source.id, "unit", value)
-                        }
+                        onValueChange={(value) => updateSource(source.id, "unit", value)}
                       >
                         <SelectTrigger id={`unit-${source.id}`}>
                           <SelectValue placeholder="Select unit" />
@@ -360,12 +321,7 @@ export function AddSource({
       </div>
 
       <div className="flex justify-center">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={addSource}
-          className="w-full border"
-        >
+        <Button type="button" variant="outline" onClick={addSource} className="w-full border">
           <Plus className="h-4 w-4 mr-2" />
           Add Source
         </Button>

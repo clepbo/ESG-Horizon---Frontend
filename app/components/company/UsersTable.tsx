@@ -45,13 +45,11 @@ export default function UsersTable({
 
     const matchesStatus =
       statusFilter === "Status" ||
-      (user?.status || "").trim().toLowerCase() ===
-        statusFilter.trim().toLowerCase();
+      (user?.status || "").trim().toLowerCase() === statusFilter.trim().toLowerCase();
 
     const matchesRole =
       roleFilter === "Role" ||
-      (user?.role?.name || "").trim().toLowerCase() ===
-        roleFilter.trim().toLowerCase();
+      (user?.role?.name || "").trim().toLowerCase() === roleFilter.trim().toLowerCase();
 
     return matchesSearch && matchesStatus && matchesRole;
   });
@@ -86,10 +84,7 @@ export default function UsersTable({
           {/* Filters */}
           <div className="flex gap-2 w-full md:w-auto">
             {/* Role Filter */}
-            <Select
-              value={roleFilter}
-              onValueChange={(val) => setRoleFilter(val)}
-            >
+            <Select value={roleFilter} onValueChange={(val) => setRoleFilter(val)}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Role" />
               </SelectTrigger>
@@ -102,10 +97,7 @@ export default function UsersTable({
             </Select>
 
             {/* Status Filter */}
-            <Select
-              value={statusFilter}
-              onValueChange={(val) => setStatusFilter(val)}
-            >
+            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>

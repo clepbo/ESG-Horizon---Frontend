@@ -15,10 +15,7 @@ import {
 } from "@/app/components/ui/select";
 import SubsidiaryTable from "@/app/components/company/subsidiaries/SubsidiaryTable";
 import AddSubsidiaryModal from "@/app/components/company/subsidiaries/AddSubsidiaryModal";
-import {
-  Subsidiary,
-  subsidiariesService,
-} from "@/services/subsidiaries.service";
+import { Subsidiary, subsidiariesService } from "@/services/subsidiaries.service";
 import { industriesService } from "@/services/industries.services";
 import { useAuth } from "@/context/AuthContext";
 import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
@@ -40,15 +37,11 @@ export default function SubsidiariesPage() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
-  const [industryOptions, setIndustryOptions] = useState<
-    IndustryOptionsProps[]
-  >([]);
+  const [industryOptions, setIndustryOptions] = useState<IndustryOptionsProps[]>([]);
   const [industryFilter, setIndustryFilter] = useState("All");
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalTab, setModalTab] = useState<
-    "subsidiary" | "department" | "user"
-  >("subsidiary");
+  const [modalTab, setModalTab] = useState<"subsidiary" | "department" | "user">("subsidiary");
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -105,9 +98,7 @@ export default function SubsidiariesPage() {
   /** Filtered subsidiaries */
   const filteredSubsidiaries = useMemo(() => {
     return subsidiaries.filter((sub) => {
-      const matchesSearch = sub.name
-        .toLowerCase()
-        .includes(debouncedSearch.toLowerCase());
+      const matchesSearch = sub.name.toLowerCase().includes(debouncedSearch.toLowerCase());
 
       const matchesIndustry =
         industryFilter === "All" || sub.industry?.toString() === industryFilter;
@@ -210,8 +201,7 @@ export default function SubsidiariesPage() {
             <h2 className="text-2xl font-semibold">Subsidiaries</h2>
             <div className="flex justify-between mb-6">
               <p className="text-gray-600 ">
-                Add new Subsidiaries , review existing ones, and edit details to{" "}
-                <br />
+                Add new Subsidiaries , review existing ones, and edit details to <br />
                 keep your records up to date.
               </p>
               <div>
@@ -271,9 +261,7 @@ export default function SubsidiariesPage() {
                 setSubsidiaries((prev) => prev.filter((s) => s.id !== id));
               }}
               onEdit={(updated) => {
-                setSubsidiaries((prev) =>
-                  prev.map((s) => (s.id === updated.id ? updated : s))
-                );
+                setSubsidiaries((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
               }}
             />
           </div>

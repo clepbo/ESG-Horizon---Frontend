@@ -84,8 +84,7 @@ export default function Sidebar() {
       {/* Main Links */}
       <nav className="flex flex-col gap-1">
         {navLinks.map((link) => {
-          const isActive =
-            pathname === link.href || pathname.startsWith(link.href + "/");
+          const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
 
           return (
             <Link
@@ -138,8 +137,7 @@ export default function Sidebar() {
           {settingsOpen && (
             <div className="ml-6 mt-1 space-y-1">
               {settingsSubLinks.map((sub) => {
-                const isSubActive =
-                  pathname === sub.href || pathname.startsWith(sub.href + "/");
+                const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                 return (
                   <Link

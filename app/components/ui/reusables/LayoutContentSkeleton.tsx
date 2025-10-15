@@ -4,11 +4,7 @@ import { Skeleton } from "../skeleton";
 
 const LayoutContentSkeleton = () => {
   return (
-    <div
-      className={cn(
-        "flex flex-col flex-1 overflow-auto bg-gray-50 animate-pulse p-8"
-      )}
-    >
+    <div className={cn("flex flex-col flex-1 overflow-auto bg-gray-50 animate-pulse p-8")}>
       <header className="h-16 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-10 w-10 rounded-full" />

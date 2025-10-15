@@ -49,9 +49,7 @@ export default function EditTeamUser({
           <ArrowLeft size={18} /> Back
         </button>
 
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
-          User Information
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">User Information</h2>
 
         {/* Avatar + Status */}
         <div className="flex items-center gap-4 mb-8">
@@ -82,9 +80,7 @@ export default function EditTeamUser({
           {/* Status badge */}
           <span
             className={`text-sm px-3 py-1 rounded-full font-medium ${
-              status === "approved"
-                ? "bg-green-500 text-white"
-                : "bg-red-500 text-white"
+              status === "approved" ? "bg-green-500 text-white" : "bg-red-500 text-white"
             }`}
           >
             {status === "approved" ? "Approved" : "Suspended"}
@@ -134,9 +130,7 @@ export default function EditTeamUser({
 
           {/* Suspend / Restore button */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-800 mb-1">
-              Action *
-            </label>
+            <label className="text-sm font-medium text-gray-800 mb-1">Action *</label>
             <button
               type="button"
               onClick={toggleStatus}

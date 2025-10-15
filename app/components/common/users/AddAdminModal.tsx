@@ -17,9 +17,7 @@ export default function AddAdminModal({ onClose }: { onClose: () => void }) {
 
         <BackButton />
 
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
-          Invite User
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Invite User</h2>
 
         <form className="space-y-6">
           <div className="flex flex-col gap-4">

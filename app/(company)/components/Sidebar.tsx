@@ -130,9 +130,7 @@ export default function Sidebar() {
             <LayoutDashboard
               className={clsx(
                 "h-5 w-5 flex-shrink-0",
-                pathname.startsWith("/dashboard-esg")
-                  ? "text-[#007A4D]"
-                  : "text-[#001D34]"
+                pathname.startsWith("/dashboard-esg") ? "text-[#007A4D]" : "text-[#001D34]"
               )}
             />
             <span className="hidden md:inline ml-3">Dashboard</span>
@@ -151,9 +149,7 @@ export default function Sidebar() {
               <ClipboardList
                 className={clsx(
                   "h-5 w-5 flex-shrink-0",
-                  pathname.startsWith("/assessments")
-                    ? "text-[#007A4D]"
-                    : "text-[#001D34]"
+                  pathname.startsWith("/assessments") ? "text-[#007A4D]" : "text-[#001D34]"
                 )}
               />
               <span className="hidden md:inline ml-3">Assessments</span>
@@ -167,9 +163,7 @@ export default function Sidebar() {
             {assessmentsOpen && (
               <div className="ml-6 mt-1 space-y-1">
                 {assessmentSubLinks.map((sub) => {
-                  const isSubActive =
-                    pathname === sub.href ||
-                    pathname.startsWith(sub.href + "/");
+                  const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
                   return (
                     <Link
                       key={sub.name}
@@ -197,9 +191,7 @@ export default function Sidebar() {
                 href={href}
                 className={clsx(
                   "flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2",
-                  isActive
-                    ? "bg-[#DFFAE5] text-[#007A4D]"
-                    : "text-[#001D34] hover:bg-[#E8F5EE]"
+                  isActive ? "bg-[#DFFAE5] text-[#007A4D]" : "text-[#001D34] hover:bg-[#E8F5EE]"
                 )}
               >
                 <Icon
@@ -227,9 +219,7 @@ export default function Sidebar() {
               <Settings
                 className={clsx(
                   "h-5 w-5 flex-shrink-0",
-                  pathname.startsWith("/settings-esg")
-                    ? "text-[#007A4D]"
-                    : "text-[#001D34]"
+                  pathname.startsWith("/settings-esg") ? "text-[#007A4D]" : "text-[#001D34]"
                 )}
               />
               <span className="hidden md:inline ml-3">Settings</span>
@@ -243,9 +233,7 @@ export default function Sidebar() {
             {settingsOpen && (
               <div className="ml-6 mt-1 space-y-1">
                 {settingsSubLinks.map((sub) => {
-                  const isSubActive =
-                    pathname === sub.href ||
-                    pathname.startsWith(sub.href + "/");
+                  const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                   return (
                     <Link

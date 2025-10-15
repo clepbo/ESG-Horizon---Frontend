@@ -48,18 +48,14 @@ export const FormField: React.FC<FormFieldProps> = ({
       {as === "input" && (
         <Input
           {...(props as InputFieldProps)}
-          className={`${props.className || ""} ${
-            error ? "border-red-500" : ""
-          }`}
+          className={`${props.className || ""} ${error ? "border-red-500" : ""}`}
         />
       )}
 
       {as === "textarea" && (
         <Textarea
           {...(props as TextareaFieldProps)}
-          className={`${props.className || ""} ${
-            error ? "border-red-500" : ""
-          }`}
+          className={`${props.className || ""} ${error ? "border-red-500" : ""}`}
         />
       )}
 

@@ -1,18 +1,22 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { ChevronDown } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/app/components/ui/dropdown-menu";
 import { Button } from "@/app/components/ui/button";
 
-
 interface CustomDropdownProps {
-  options: { label: string; value: string }[]
-  value?: string
-  onChange?: (value: string) => void
-  placeholder?: string
-  className?: string
+  options: { label: string; value: string }[];
+  value?: string;
+  onChange?: (value: string) => void;
+  placeholder?: string;
+  className?: string;
 }
 
 export default function CustomDropdown({
@@ -22,11 +26,11 @@ export default function CustomDropdown({
   placeholder = "Select an option",
   className,
 }: CustomDropdownProps) {
-  const [mounted, setMounted] = React.useState(false)
-  React.useEffect(() => setMounted(true), [])
-  if (!mounted) return null
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
 
-  const selected = options.find((opt) => opt.value === value)
+  const selected = options.find((opt) => opt.value === value);
 
   return (
     <DropdownMenu>
@@ -41,15 +45,11 @@ export default function CustomDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
         {options.map((option) => (
-          <DropdownMenuItem
-            key={option.value}
-            onClick={() => onChange?.(option.value)}
-          >
+          <DropdownMenuItem key={option.value} onClick={() => onChange?.(option.value)}>
             {option.label}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
-

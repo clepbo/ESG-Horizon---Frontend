@@ -32,9 +32,7 @@ const STATUS_COLORS: Record<string, string> = {
 const StatusBadge = ({ status }: { status: string }) => {
   const classes = STATUS_COLORS[status] || "bg-gray-200 text-gray-700";
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${classes}`}>
-      {status}
-    </span>
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${classes}`}>{status}</span>
   );
 };
 
@@ -80,13 +78,9 @@ export default function BillingTable() {
   // --- Filtered Data ---
   const filteredData = useMemo(() => {
     return billingData.filter((item) => {
-      const matchesSearch = item.company
-        .toLowerCase()
-        .includes(search.toLowerCase());
-      const matchesPlan =
-        selectedPlan === "All Plans" || item.plan === selectedPlan;
-      const matchesStatus =
-        selectedStatus === "All Status" || item.status === selectedStatus;
+      const matchesSearch = item.company.toLowerCase().includes(search.toLowerCase());
+      const matchesPlan = selectedPlan === "All Plans" || item.plan === selectedPlan;
+      const matchesStatus = selectedStatus === "All Status" || item.status === selectedStatus;
       return matchesSearch && matchesPlan && matchesStatus;
     });
   }, [billingData, search, selectedPlan, selectedStatus]);

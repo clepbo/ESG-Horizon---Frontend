@@ -61,9 +61,7 @@ export const SecuritySlider = () => {
                   </div>
                   <h3 className="text-lg font-semibold">{feature.title}</h3>
                 </div>
-                <p className="text-sm leading-relaxed opacity-90 max-w-xs">
-                  {feature.description}
-                </p>
+                <p className="text-sm leading-relaxed opacity-90 max-w-xs">{feature.description}</p>
               </div>
             ))}
           </div>
