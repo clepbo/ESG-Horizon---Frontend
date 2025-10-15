@@ -8,39 +8,39 @@ import { useAuth } from "@/context/AuthContext";
 import { formatRoleName } from "@/lib/utils";
 
 export default function Header({
-    showSearchBar = true,
+  showSearchBar = true,
 }: {
-    showSearchBar?: boolean;
+  showSearchBar?: boolean;
 }) {
-    const [search, setSearch] = useState("");
-    const { user } = useAuth();
+  const [search, setSearch] = useState("");
+  const { user } = useAuth();
 
-    const avatarSrc =
-        user?.profile_photo_url && user.profile_photo_url.trim() !== ""
-            ? user.profile_photo_url
-            : "/image.png";
+  const avatarSrc =
+    user?.profile_photo_url && user.profile_photo_url.trim() !== ""
+      ? user.profile_photo_url
+      : "/image.png";
 
-    const isFallbackImage =
-        !user?.profile_photo_url || user.profile_photo_url.trim() === "";
+  const isFallbackImage =
+    !user?.profile_photo_url || user.profile_photo_url.trim() === "";
 
-    return (
-        <header className="w-full flex items-center justify-between mb-4">
-            {/* Search Bar */}
-            <div className="flex-1 max-w-xl">
-                {showSearchBar && (
-                    <SearchInput
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                )}
-            </div>
+  return (
+    <header className="w-full flex items-center justify-between mb-4">
+      {/* Search Bar */}
+      <div className="flex-1 max-w-xl">
+        {showSearchBar && (
+          <SearchInput
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        )}
+      </div>
 
-            {/* Notifications & User Info */}
-            <div className="flex items-center gap-4">
-                <Bell
-                    className="text-gray-600 hover:text-black cursor-pointer"
-                    size={20}
-                />
+      {/* Notifications & User Info */}
+      <div className="flex items-center gap-4">
+        <Bell
+          className="text-gray-600 hover:text-black cursor-pointer"
+          size={20}
+        />
 
                 <div className="flex items-center gap-2">
                     <Image
