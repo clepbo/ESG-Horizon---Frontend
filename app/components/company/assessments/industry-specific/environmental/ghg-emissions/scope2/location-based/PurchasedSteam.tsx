@@ -279,7 +279,7 @@ export function PurchasedSteamForm({
                     <Button
                         variant="outline"
                         onClick={onBack}
-                        className="cursor-pointer flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+                        className="cursor-pointer flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
                     >
                         <ArrowLeft className="h-4 w-4" /> Back
                     </Button>
@@ -449,7 +449,7 @@ export function PurchasedSteamForm({
                                                     </div>
                                                 ) : files[field] ? (
                                                     <div className="flex items-center gap-2 mt-2">
-                                                        <p className="text-sm text-green-600 break-words max-w-full text-center">
+                                                        <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
                                                             Uploaded:{" "}
                                                             {files[field]!.name}
                                                         </p>
@@ -490,7 +490,7 @@ export function PurchasedSteamForm({
                             <Button
                                 variant="outline"
                                 onClick={onBack}
-                                className="cursor-pointer justify-self-start border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                                className="cursor-pointer justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50 flex items-center gap-2"
                             >
                                 <ArrowLeft className="h-4 w-4" /> Previous
                             </Button>
@@ -499,7 +499,7 @@ export function PurchasedSteamForm({
                                 variant="outline"
                                 onClick={handleSaveAndContinue}
                                 disabled={isSaving}
-                                className="justify-self-center bg-green-500 text-white hover:bg-green-300 cursor-pointer"
+                                className="justify-self-center bg-[var(--color-primary)] text-white hover:bg-teal-300 cursor-pointer"
                             >
                                 {isSaving ? (
                                     <>
@@ -526,7 +526,7 @@ export function PurchasedSteamForm({
                                 variant="outline"
                                 onClick={handleNext}
                                 disabled={isSaving}
-                                className="cursor-pointer justify-self-end border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                                className="cursor-pointer justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50 flex items-center gap-2"
                             >
                                 Next <ArrowRight className="h-4 w-4" />
                             </Button>

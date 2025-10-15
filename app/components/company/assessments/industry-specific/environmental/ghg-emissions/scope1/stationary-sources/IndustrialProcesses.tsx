@@ -486,7 +486,7 @@ export function IndustrialProcessesForm({
                                 variant="outline"
                                 onClick={handleSaveAndContinue}
                                 disabled={isSaving}
-                                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                                className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                                 aria-label="Save and continue later"
                             >
                                 {isSaving ? (

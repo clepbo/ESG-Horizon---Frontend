@@ -101,7 +101,7 @@ export default function Sidebar() {
         </Link>
 
         {/* Company Info */}
-        <div className="mb-1 hidden md:flex items-center space-x-2 bg-[#B4EDBC] rounded-md px-3 py-2">
+        <div className="mb-1 hidden md:flex items-center space-x-2 bg-[#b4eddf] rounded-md px-3 py-2">
           <Image
             src={user?.company?.company_logo_url || "/image.png"}
             alt="Company Logo"
@@ -123,7 +123,7 @@ export default function Sidebar() {
             className={clsx(
               "flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2",
               pathname.startsWith("/dashboard-esg")
-                ? "bg-[#DFFAE5] text-[#007A4D]"
+                ? "bg-[#DFFAE5] text-[var(--color-primary)]"
                 : "text-[#001D34] hover:bg-[#E8F5EE]"
             )}
           >
@@ -131,7 +131,7 @@ export default function Sidebar() {
               className={clsx(
                 "h-5 w-5 flex-shrink-0",
                 pathname.startsWith("/dashboard-esg")
-                  ? "text-[#007A4D]"
+                  ? "text-[var(--color-primary)]"
                   : "text-[#001D34]"
               )}
             />
@@ -144,7 +144,7 @@ export default function Sidebar() {
               className={clsx(
                 "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
                 pathname.startsWith("/assessments")
-                  ? "bg-[#DFFAE5] text-[#007A4D]"
+                  ? "bg-[#DFFAE5] text-[var(--color-primary)]"
                   : "text-[#001D34] hover:bg-[#E8F5EE]"
               )}
             >
@@ -152,7 +152,7 @@ export default function Sidebar() {
                 className={clsx(
                   "h-5 w-5 flex-shrink-0",
                   pathname.startsWith("/assessments")
-                    ? "text-[#007A4D]"
+                    ? "text-[var(--color-primary)]"
                     : "text-[#001D34]"
                 )}
               />
@@ -177,7 +177,7 @@ export default function Sidebar() {
                       className={clsx(
                         "block text-sm rounded px-2 py-1 transition-all",
                         isSubActive
-                          ? "bg-[#DFFAE5] text-[#007A4D]"
+                          ? "bg-[#DFFAE5] text-[var(--color-primary)]"
                           : "text-[#001D34] hover:bg-[#E8F5EE]"
                       )}
                     >
@@ -198,14 +198,14 @@ export default function Sidebar() {
                 className={clsx(
                   "flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2",
                   isActive
-                    ? "bg-[#DFFAE5] text-[#007A4D]"
+                    ? "bg-[#DFFAE5] text-[var(--color-primary)]"
                     : "text-[#001D34] hover:bg-[#E8F5EE]"
                 )}
               >
                 <Icon
                   className={clsx(
                     "h-5 w-5 flex-shrink-0",
-                    isActive ? "text-[#007A4D]" : "text-[#001D34]"
+                    isActive ? "text-[var(--color-primary)]" : "text-[#001D34]"
                   )}
                 />
                 <span className="hidden md:inline ml-3">{name}</span>
@@ -220,7 +220,7 @@ export default function Sidebar() {
               className={clsx(
                 "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
                 pathname.startsWith("/settings-esg")
-                  ? "bg-[#DFFAE5] text-[#007A4D]"
+                  ? "bg-[#DFFAE5] text-[var(--color-primary)]"
                   : "text-[#001D34] hover:bg-[#E8F5EE]"
               )}
             >
@@ -228,7 +228,7 @@ export default function Sidebar() {
                 className={clsx(
                   "h-5 w-5 flex-shrink-0",
                   pathname.startsWith("/settings-esg")
-                    ? "text-[#007A4D]"
+                    ? "text-[var(--color-primary)]"
                     : "text-[#001D34]"
                 )}
               />
@@ -254,7 +254,7 @@ export default function Sidebar() {
                       className={clsx(
                         "block text-sm rounded px-2 py-1 transition-all",
                         isSubActive
-                          ? "bg-[#DFFAE5] text-[#007A4D]"
+                          ? "bg-[#DFFAE5] text-[var(--color-primary)]"
                           : "text-[#001D34] hover:bg-[#E8F5EE]"
                       )}
                     >
