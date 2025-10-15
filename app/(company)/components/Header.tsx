@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { Bell } from "lucide-react";
 import Image from "next/image";
-import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import { formatRoleName } from "@/lib/utils";
+import { AutoBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
 
 export default function Header({ showSearchBar = true }: { showSearchBar?: boolean }) {
-  const [search, setSearch] = useState("");
   const { user } = useAuth();
 
   const avatarSrc =
@@ -23,7 +21,9 @@ export default function Header({ showSearchBar = true }: { showSearchBar?: boole
       {/* Search Bar */}
       <div className="flex-1 max-w-xl">
         {showSearchBar && (
-          <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} />
+          // <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} />
+          // <CustomBreadcrumb items={[{ label: "Home", href: "/" }, { label: "Report" }]} />
+          <AutoBreadcrumb />
         )}
       </div>
 
