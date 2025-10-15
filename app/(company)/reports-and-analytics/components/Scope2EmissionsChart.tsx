@@ -6,14 +6,14 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
 export function Scope2EmissionsChart() {
-  const { state: { assessmentData, isLoading } } = useAssessment();
-
-
+  const {
+    state: { assessmentData, isLoading },
+  } = useAssessment();
 
   const parseNum = (v: unknown): number => {
-    if (typeof v === 'number') return isNaN(v) ? 0 : v;
-    if (typeof v === 'string') {
-      const n = Number(String(v).replace(/[^0-9.-]/g, ''));
+    if (typeof v === "number") return isNaN(v) ? 0 : v;
+    if (typeof v === "string") {
+      const n = Number(String(v).replace(/[^0-9.-]/g, ""));
       return isNaN(n) ? 0 : n;
     }
     return 0;
@@ -37,22 +37,32 @@ export function Scope2EmissionsChart() {
     }
     if (assessmentData.heating) {
       // Try both fields in case one is used
-      const heatingValue = parseNum(assessmentData.heating.heatingConsumed) || parseNum(assessmentData.heating.heatingPurchased);
+      const heatingValue =
+        parseNum(assessmentData.heating.heatingConsumed) ||
+        parseNum(assessmentData.heating.heatingPurchased);
       locationBased += heatingValue * gridEF;
     }
 
     let marketBased = 0;
     if (assessmentData.ipps) {
-      marketBased += parseNum(assessmentData.ipps.electricityConsumed) * (parseNum(assessmentData.ipps.emissionFactor) || gridEF);
+      marketBased +=
+        parseNum(assessmentData.ipps.electricityConsumed) *
+        (parseNum(assessmentData.ipps.emissionFactor) || gridEF);
     }
     if (assessmentData.eac) {
-      marketBased += parseNum(assessmentData.eac.gridElectricity) * (parseNum(assessmentData.eac.emissionFactor) || gridEF);
+      marketBased +=
+        parseNum(assessmentData.eac.gridElectricity) *
+        (parseNum(assessmentData.eac.emissionFactor) || gridEF);
     }
     if (assessmentData.residual) {
-      marketBased += parseNum(assessmentData.residual.electricityConsumed) * (parseNum(assessmentData.residual.residualMixFactor) || gridEF);
+      marketBased +=
+        parseNum(assessmentData.residual.electricityConsumed) *
+        (parseNum(assessmentData.residual.residualMixFactor) || gridEF);
     }
     if (assessmentData.coolingSteam) {
-      marketBased += parseNum(assessmentData.coolingSteam.energyConsumed) * (parseNum(assessmentData.coolingSteam.emissionFactor) || gridEF);
+      marketBased +=
+        parseNum(assessmentData.coolingSteam.energyConsumed) *
+        (parseNum(assessmentData.coolingSteam.emissionFactor) || gridEF);
     }
 
     return { locationBased, marketBased };
@@ -61,20 +71,30 @@ export function Scope2EmissionsChart() {
   const totals = computeScope2Totals();
 
   const chartData = [
-    { label: 'Location-based', value: Math.round(totals.locationBased) },
-    { label: 'Market-based', value: Math.round(totals.marketBased) },
+    { label: "Location-based", value: Math.round(totals.locationBased) },
+    { label: "Market-based", value: Math.round(totals.marketBased) },
   ];
 
   const currentLocationBased = chartData[0].value;
   const currentMarketBased = chartData[1].value;
   const previousLocationBased = currentLocationBased * 1.05; // simple reference for trend
   const previousMarketBased = currentMarketBased * 1.05;
-  
+
   const locationTrend = currentLocationBased < previousLocationBased ? "down" : "up";
   const marketTrend = currentMarketBased < previousMarketBased ? "down" : "up";
-  
-  const locationTrendValue = previousLocationBased > 0 ? Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100).toFixed(1) : "0.0";
-  const marketTrendValue = previousMarketBased > 0 ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(1) : "0.0";
+
+  const locationTrendValue =
+    previousLocationBased > 0
+      ? Math.abs(
+          ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
+        ).toFixed(1)
+      : "0.0";
+  const marketTrendValue =
+    previousMarketBased > 0
+      ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(
+          1
+        )
+      : "0.0";
 
   const hasData = currentLocationBased > 0 || currentMarketBased > 0;
 
@@ -108,7 +128,9 @@ export function Scope2EmissionsChart() {
               ) : (
                 <TrendingUp className="w-3 h-3 text-red-600" />
               )}
-              <span className={`text-xs font-medium ${locationTrend === "down" ? "text-green-600" : "text-red-600"}`}>
+              <span
+                className={`text-xs font-medium ${locationTrend === "down" ? "text-green-600" : "text-red-600"}`}
+              >
                 {locationTrendValue}%
               </span>
             </div>
@@ -118,7 +140,9 @@ export function Scope2EmissionsChart() {
               ) : (
                 <TrendingUp className="w-3 h-3 text-red-600" />
               )}
-              <span className={`text-xs font-medium ${marketTrend === "down" ? "text-green-600" : "text-red-600"}`}>
+              <span
+                className={`text-xs font-medium ${marketTrend === "down" ? "text-green-600" : "text-red-600"}`}
+              >
                 {marketTrendValue}%
               </span>
             </div>
@@ -131,11 +155,15 @@ export function Scope2EmissionsChart() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-lg font-bold text-blue-900">{currentLocationBased.toLocaleString()}</div>
+                <div className="text-lg font-bold text-blue-900">
+                  {currentLocationBased.toLocaleString()}
+                </div>
                 <div className="text-xs text-blue-600">Location-based</div>
               </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-lg font-bold text-purple-900">{currentMarketBased.toLocaleString()}</div>
+                <div className="text-lg font-bold text-purple-900">
+                  {currentMarketBased.toLocaleString()}
+                </div>
                 <div className="text-xs text-purple-600">Market-based</div>
               </div>
             </div>
@@ -143,9 +171,20 @@ export function Scope2EmissionsChart() {
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
-                <Tooltip formatter={(value: number) => [`${Number(value).toLocaleString()} kg CO2e`, 'Emissions']} labelStyle={{ color: '#374151' }} />
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#6B7280" }}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
+                <Tooltip
+                  formatter={(value: number) => [
+                    `${Number(value).toLocaleString()} kg CO2e`,
+                    "Emissions",
+                  ]}
+                  labelStyle={{ color: "#374151" }}
+                />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6" />
               </BarChart>
             </ResponsiveContainer>
@@ -154,7 +193,9 @@ export function Scope2EmissionsChart() {
           <div className="text-center py-8">
             <Zap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No Scope 2 emissions data available</p>
-            <p className="text-sm text-gray-400">Add Scope 2 entries (electricity, cooling, steam, heating, IPPs/EAC etc.)</p>
+            <p className="text-sm text-gray-400">
+              Add Scope 2 entries (electricity, cooling, steam, heating, IPPs/EAC etc.)
+            </p>
           </div>
         )}
       </CardContent>

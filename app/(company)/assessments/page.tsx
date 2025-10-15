@@ -60,9 +60,7 @@ export default function NewAssessmentPage() {
         <Header />
 
         <div className="space-y- mb-6">
-          <h1 className="text-2xl font-semibold text-foreground">
-            Assessments Hub
-          </h1>
+          <h1 className="text-2xl font-semibold text-foreground">Assessments Hub</h1>
           <p className="text-base text-muted-foreground">
             Track your ESG data collection progress across all pillars
           </p>

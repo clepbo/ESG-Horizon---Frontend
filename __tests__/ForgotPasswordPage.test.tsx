@@ -29,9 +29,7 @@ describe("ForgotPasswordPage", () => {
   it("renders the forgot password form", () => {
     expect(screen.getByText(/forgot your password/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /sent otp/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sent otp/i })).toBeInTheDocument();
   });
 
   it("validates required email field on submit", async () => {
@@ -44,9 +42,7 @@ describe("ForgotPasswordPage", () => {
     await userEvent.type(screen.getByLabelText(/email/i), "invalid-email");
     await userEvent.click(screen.getByRole("button", { name: /sent otp/i }));
 
-    expect(
-      await screen.findByText(/invalid email format/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/invalid email format/i)).toBeInTheDocument();
   });
 
   it("shows success toast and redirects on valid submit", async () => {

@@ -7,10 +7,10 @@ import { User } from "../user.service";
  * @returns An object with data, loading state, and error.
  */
 export const useCompanyDetails = () => {
-    return useQuery<Company>({
-        queryKey: ["companyDetails"],
-        queryFn: companyService.getDetails,
-    });
+  return useQuery<Company>({
+    queryKey: ["companyDetails"],
+    queryFn: companyService.getDetails,
+  });
 };
 
 /**
@@ -18,10 +18,10 @@ export const useCompanyDetails = () => {
  * @returns An object with data, loading state, and error.
  */
 export const useAllCompanies = () => {
-    return useQuery<Company[]>({
-        queryKey: ["companies"],
-        queryFn: companyService.getAll,
-    });
+  return useQuery<Company[]>({
+    queryKey: ["companies"],
+    queryFn: companyService.getAll,
+  });
 };
 
 /**
@@ -30,12 +30,12 @@ export const useAllCompanies = () => {
  * @returns An object with data, loading state, and error.
  */
 export const useCompanyUsers = (companyId: string | number) => {
-    return useQuery<User[]>({
-        queryKey: ["companyUsers", companyId],
-        queryFn: () => companyService.getUsers(companyId),
-        // This query will only run if a valid companyId is provided.
-        enabled: !!companyId,
-    });
+  return useQuery<User[]>({
+    queryKey: ["companyUsers", companyId],
+    queryFn: () => companyService.getUsers(companyId),
+    // This query will only run if a valid companyId is provided.
+    enabled: !!companyId,
+  });
 };
 
 /**
@@ -43,15 +43,15 @@ export const useCompanyUsers = (companyId: string | number) => {
  * @returns A mutation object with mutate function and status.
  */
 export const useInviteUser = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: companyService.invite,
-        onSuccess: () => {
-            // Invalidate the 'companyUsers' query to refetch the user list
-            // after a new user is invited, keeping the UI up-to-date.
-            queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: companyService.invite,
+    onSuccess: () => {
+      // Invalidate the 'companyUsers' query to refetch the user list
+      // after a new user is invited, keeping the UI up-to-date.
+      queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+    },
+  });
 };
 
 /**
@@ -59,20 +59,15 @@ export const useInviteUser = () => {
  * @returns A mutation object with mutate function and status.
  */
 export const useEditUser = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({
-            id,
-            payload,
-        }: {
-            id: string | number;
-            payload: Partial<User>;
-        }) => companyService.editUser(id, payload),
-        onSuccess: () => {
-            // Invalidate the 'companyUsers' query to reflect the changes.
-            queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string | number; payload: Partial<User> }) =>
+      companyService.editUser(id, payload),
+    onSuccess: () => {
+      // Invalidate the 'companyUsers' query to reflect the changes.
+      queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+    },
+  });
 };
 
 /**
@@ -80,14 +75,14 @@ export const useEditUser = () => {
  * @returns A mutation object with mutate function and status.
  */
 export const useDeleteUser = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id: string | number) => companyService.deleteUser(id),
-        onSuccess: () => {
-            // Invalidate the 'companyUsers' query to remove the deleted user.
-            queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string | number) => companyService.deleteUser(id),
+    onSuccess: () => {
+      // Invalidate the 'companyUsers' query to remove the deleted user.
+      queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+    },
+  });
 };
 
 /**
@@ -95,34 +90,29 @@ export const useDeleteUser = () => {
  * @returns A mutation object with mutate function and status.
  */
 export const useUpdateCompanyDetails = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({
-            id,
-            payload,
-        }: {
-            id: string | number;
-            payload: Partial<Company>;
-        }) => companyService.updateDetails(id, payload),
-        onSuccess: () => {
-            // Invalidate both the companyDetails and companies queries to update the UI.
-            queryClient.invalidateQueries({ queryKey: ["companyDetails"] });
-            queryClient.invalidateQueries({ queryKey: ["companies"] });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string | number; payload: Partial<Company> }) =>
+      companyService.updateDetails(id, payload),
+    onSuccess: () => {
+      // Invalidate both the companyDetails and companies queries to update the UI.
+      queryClient.invalidateQueries({ queryKey: ["companyDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+    },
+  });
 };
 
 /** Hook for company setup (to create subs, deps, and users) */
 export const useBulkCreate = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: companyService.bulkCreate,
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["companySubsidiaries"],
-            });
-            queryClient.invalidateQueries({ queryKey: ["departments"] });
-            queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: companyService.bulkCreate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["companySubsidiaries"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
+      queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+    },
+  });
 };

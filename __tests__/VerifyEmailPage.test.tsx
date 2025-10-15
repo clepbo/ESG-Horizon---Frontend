@@ -27,9 +27,7 @@ describe("VerifyEmailPage", () => {
   });
 
   it("displays error if code is incomplete", async () => {
-    await userEvent.click(
-      screen.getByRole("button", { name: /verify email/i })
-    );
+    await userEvent.click(screen.getByRole("button", { name: /verify email/i }));
     const toast = await screen.findByText(/please enter the 6-digit code/i);
     expect(toast).toBeInTheDocument();
   });
@@ -54,9 +52,7 @@ describe("VerifyEmailPage", () => {
       await userEvent.type(inputs[i], `${i + 1}`);
     }
 
-    await userEvent.click(
-      screen.getByRole("button", { name: /verify email/i })
-    );
+    await userEvent.click(screen.getByRole("button", { name: /verify email/i }));
 
     await waitFor(() => {
       const toast = document.body.querySelector(".Toastify__toast");

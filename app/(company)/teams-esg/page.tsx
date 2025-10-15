@@ -32,10 +32,8 @@ export default function TeamsPage() {
       const matchesSearch =
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === "All Status" || user.status === statusFilter;
-      const matchesRole =
-        roleFilter === "All Roles" || user.role === roleFilter;
+      const matchesStatus = statusFilter === "All Status" || user.status === statusFilter;
+      const matchesRole = roleFilter === "All Roles" || user.role === roleFilter;
       return matchesSearch && matchesStatus && matchesRole;
     });
   }, [search, statusFilter, roleFilter]);
@@ -74,9 +72,7 @@ export default function TeamsPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-2xl font-semibold">Users</h2>
-            <p className="text-gray-600">
-              Manage platform users and their access permissions
-            </p>
+            <p className="text-gray-600">Manage platform users and their access permissions</p>
           </div>
           <button
             className="cursor-pointer bg-[var(--color-primary)]  hover:bg-teal-700 text-white px-4 py-2 rounded-xl  transition text-sm"
@@ -93,9 +89,7 @@ export default function TeamsPage() {
         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white rounded-lg p-4 shadow-sm">
           <SearchInput
             value={search}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setSearch(e.target.value)
-            }
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
           />
           <div className="flex gap-2 w-full md:w-auto">
             <SelectFilter
@@ -157,9 +151,7 @@ export default function TeamsPage() {
                     <button
                       className="text-red-600 hover:text-red-900"
                       title="Suspend"
-                      onClick={() =>
-                        console.log("Open suspend modal for", user)
-                      }
+                      onClick={() => console.log("Open suspend modal for", user)}
                     >
                       <Ban size={16} />
                     </button>

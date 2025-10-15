@@ -1,7 +1,7 @@
 export default function ToggleSwitch({
   checked,
   onChange,
-  disabled
+  disabled,
 }: {
   checked: boolean;
   onChange: () => void;

@@ -2,11 +2,7 @@
 
 import Header from "../components/Header";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
-import {
-  AssessmentProvider,
-  useAssessment,
-  type SourceData,
-} from "@/hooks/useAssessment";
+import { AssessmentProvider, useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { Scope1EmissionsChart } from "./components/Scope1EmissionsChart";
 import { Scope2EmissionsChart } from "./components/Scope2EmissionsChart";
 import { EmissionsBreakdownChart } from "./components/EmissionsBreakdownChart";
@@ -21,14 +17,12 @@ const toNumber = (val: unknown): number =>
   typeof val === "string" && !isNaN(parseFloat(val))
     ? parseFloat(val)
     : typeof val === "number" && !isNaN(val)
-    ? val
-    : 0;
+      ? val
+      : 0;
 
 // Helper function to calculate total emissions for an array of SourceData.
 // Moved outside the component as it's a pure function and doesn't rely on component state.
-const calculateSourceEmissions = (
-  sources: SourceData[] | undefined
-): number => {
+const calculateSourceEmissions = (sources: SourceData[] | undefined): number => {
   if (!sources) return 0;
   return sources.reduce((sum, s) => {
     const volume = toNumber(s.volume);
@@ -48,12 +42,8 @@ function ReportsContent() {
 
     // Stationary Sources
     if (data.stationarySources) {
-      scope1 += calculateSourceEmissions(
-        data.stationarySources.electricityHeat?.dieselGenerators
-      );
-      scope1 += calculateSourceEmissions(
-        data.stationarySources.electricityHeat?.gasTurbines
-      );
+      scope1 += calculateSourceEmissions(data.stationarySources.electricityHeat?.dieselGenerators);
+      scope1 += calculateSourceEmissions(data.stationarySources.electricityHeat?.gasTurbines);
       scope1 += calculateSourceEmissions(
         data.stationarySources.industrialProcesses?.boilerFurnaces
       );
@@ -64,34 +54,19 @@ function ReportsContent() {
 
     // Mobile Sources
     if (data.mobileSources) {
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.roadTransport?.vehicleFleet
-      );
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.roadTransport?.carsBuses
-      );
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.vehicleEquipment?.forkliftFuelType
-      );
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.vehicleEquipment?.heavyDutyFuelType
-      );
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.vehicleEquipment?.tractorFuelType
-      );
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.marineAviation?.air
-      );
-      scope1 += calculateSourceEmissions(
-        data.mobileSources.marineAviation?.marine
-      );
+      scope1 += calculateSourceEmissions(data.mobileSources.roadTransport?.vehicleFleet);
+      scope1 += calculateSourceEmissions(data.mobileSources.roadTransport?.carsBuses);
+      scope1 += calculateSourceEmissions(data.mobileSources.vehicleEquipment?.forkliftFuelType);
+      scope1 += calculateSourceEmissions(data.mobileSources.vehicleEquipment?.heavyDutyFuelType);
+      scope1 += calculateSourceEmissions(data.mobileSources.vehicleEquipment?.tractorFuelType);
+      scope1 += calculateSourceEmissions(data.mobileSources.marineAviation?.air);
+      scope1 += calculateSourceEmissions(data.mobileSources.marineAviation?.marine);
     }
 
     // Process Emissions
     if (data.processEmissions) {
       const cementEmissions =
-        toNumber(data.processEmissions.cementManufacturing?.cementQuantity) *
-        0.44; // Example factor
+        toNumber(data.processEmissions.cementManufacturing?.cementQuantity) * 0.44; // Example factor
       if (!isNaN(cementEmissions)) scope1 += cementEmissions;
 
       const gasFlaringEmissions =
@@ -103,12 +78,10 @@ function ReportsContent() {
     // Fugitive Emissions
     if (data.fugitiveEmissions) {
       const ventingEmissions =
-        toNumber(data.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) *
-        0.002; // Example factor
+        toNumber(data.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
       if (!isNaN(ventingEmissions)) scope1 += ventingEmissions;
 
-      const hfcEmissions =
-        toNumber(data.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Example GWP
+      const hfcEmissions = toNumber(data.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Example GWP
       if (!isNaN(hfcEmissions)) scope1 += hfcEmissions;
     }
 
@@ -117,26 +90,19 @@ function ReportsContent() {
 
   const calculateScope2Total = React.useMemo(() => {
     let scope2 = 0;
-    if (data.electricity)
-      scope2 += toNumber(data.electricity.electricityConsumed) * 0.35; // Example factor
+    if (data.electricity) scope2 += toNumber(data.electricity.electricityConsumed) * 0.35; // Example factor
     if (data.cooling) scope2 += toNumber(data.cooling.coolingConsumed) * 0.1; // Example factor
     if (data.steam) scope2 += toNumber(data.steam.volume) * 0.2; // Example factor
     if (data.heating) scope2 += toNumber(data.heating.heatingPurchased) * 0.15; // Example factor
     if (data.ipps)
-      scope2 +=
-        toNumber(data.ipps.electricityConsumed) *
-        toNumber(data.ipps.emissionFactor);
-    if (data.eac)
-      scope2 +=
-        toNumber(data.eac.gridElectricity) * toNumber(data.eac.emissionFactor);
+      scope2 += toNumber(data.ipps.electricityConsumed) * toNumber(data.ipps.emissionFactor);
+    if (data.eac) scope2 += toNumber(data.eac.gridElectricity) * toNumber(data.eac.emissionFactor);
     if (data.residual)
       scope2 +=
-        toNumber(data.residual.electricityConsumed) *
-        toNumber(data.residual.residualMixFactor);
+        toNumber(data.residual.electricityConsumed) * toNumber(data.residual.residualMixFactor);
     if (data.coolingSteam)
       scope2 +=
-        toNumber(data.coolingSteam.energyConsumed) *
-        toNumber(data.coolingSteam.emissionFactor);
+        toNumber(data.coolingSteam.energyConsumed) * toNumber(data.coolingSteam.emissionFactor);
     return scope2;
   }, [data]);
 
@@ -166,9 +132,7 @@ function ReportsContent() {
         <Header />
         <div className="p-6">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Reports & Analytics
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Reports & Analytics</h1>
             <p className="text-gray-600">
               Comprehensive ESG assessment reports and emissions analytics
             </p>

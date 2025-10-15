@@ -27,32 +27,13 @@ const statusStyles: Record<string, string> = {
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const baseStyle =
-    "inline-block px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap";
-  return (
-    <span className={`${baseStyle} ${statusStyles[status] || "bg-gray-100"}`}>
-      {status}
-    </span>
-  );
+  const baseStyle = "inline-block px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap";
+  return <span className={`${baseStyle} ${statusStyles[status] || "bg-gray-100"}`}>{status}</span>;
 }
 
-const typeOptions = [
-  "Type",
-  "Annual",
-  "Quarterly",
-  "Bi-Annual",
-  "Sustainability",
-  "Compliance",
-];
+const typeOptions = ["Type", "Annual", "Quarterly", "Bi-Annual", "Sustainability", "Compliance"];
 
-const statusOptions = [
-  "Status",
-  "Published",
-  "Rejected",
-  "Under Review",
-  "Approved",
-  "Draft",
-];
+const statusOptions = ["Status", "Published", "Rejected", "Under Review", "Approved", "Draft"];
 
 export default function ReportActivityTable() {
   const [reports, setReports] = useState<Report[]>([]);
@@ -87,8 +68,7 @@ export default function ReportActivityTable() {
         report.title.toLowerCase().includes(search.toLowerCase()) ||
         report.company.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === "Type" || report.type === typeFilter;
-      const matchesStatus =
-        statusFilter === "Status" || report.status === statusFilter;
+      const matchesStatus = statusFilter === "Status" || report.status === statusFilter;
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [reports, search, typeFilter, statusFilter]);

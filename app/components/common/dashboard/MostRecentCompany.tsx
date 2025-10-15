@@ -44,23 +44,17 @@ export default function CompaniesTableSection() {
 
       const searchLower = debouncedSearchTerm.toLowerCase();
       const nameMatches = company.name?.toLowerCase().includes(searchLower);
-      const industryMatches = company.industry?.industry
-        ?.toLowerCase()
-        .includes(searchLower);
-      const emailMatches = company.contact_email
-        ?.toLowerCase()
-        .includes(searchLower);
+      const industryMatches = company.industry?.industry?.toLowerCase().includes(searchLower);
+      const emailMatches = company.contact_email?.toLowerCase().includes(searchLower);
 
       return nameMatches || industryMatches || emailMatches;
     })();
 
     const matchesStatus =
-      statusFilter === "All Status" ||
-      company.status?.toLowerCase() === statusFilter.toLowerCase();
+      statusFilter === "All Status" || company.status?.toLowerCase() === statusFilter.toLowerCase();
 
     const matchesIndustry =
-      industryFilter === "All Sectors" ||
-      company?.industry?.sector === industryFilter;
+      industryFilter === "All Sectors" || company?.industry?.sector === industryFilter;
 
     return matchesSearch && matchesStatus && matchesIndustry;
   });
@@ -74,9 +68,7 @@ export default function CompaniesTableSection() {
   }
 
   if (error) {
-    return (
-      <p className="text-center text-red-500">Failed to load companies.</p>
-    );
+    return <p className="text-center text-red-500">Failed to load companies.</p>;
   }
 
   return (
@@ -130,22 +122,15 @@ export default function CompaniesTableSection() {
         </div>
 
         {/* Table */}
-        <CompanyTable
-          companies={filteredCompanies.slice(0, 5)}
-          loading={isLoading}
-        />
+        <CompanyTable companies={filteredCompanies.slice(0, 5)} loading={isLoading} />
 
         {/* No results message */}
-        {!isLoading &&
-          filteredCompanies.length === 0 &&
-          companies.length > 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p>No companies found matching your search criteria.</p>
-              <p className="text-sm mt-2">
-                Try adjusting your filters or search term.
-              </p>
-            </div>
-          )}
+        {!isLoading && filteredCompanies.length === 0 && companies.length > 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No companies found matching your search criteria.</p>
+            <p className="text-sm mt-2">Try adjusting your filters or search term.</p>
+          </div>
+        )}
 
         {/* Empty state */}
         {!isLoading && companies.length === 0 && (

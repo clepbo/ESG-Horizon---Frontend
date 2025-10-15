@@ -33,9 +33,7 @@ export default function CompanyInfo({ company }: Props) {
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">
-        Company Information
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-6">Company Information</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Column */}
@@ -52,42 +50,26 @@ export default function CompanyInfo({ company }: Props) {
               <Info label="Company Name" value={company.name} />
               <Info label="Industry Type" value={company.industry?.industry} />
               <Info label="Email Address" value={company.contact_email} />
-              <Info
-                label="Contact Phone Number"
-                value={company.contact_phone}
-              />
+              <Info label="Contact Phone Number" value={company.contact_phone} />
               <Info label="Website Address" value={company.website} />
               <Info label="Platform Users Count" value={company.staff_strength} />
-              <Info
-                label="Company Registration Number"
-                value={company.registration_number}
-              />
+              <Info label="Company Registration Number" value={company.registration_number} />
               <Info label="Company Address" value={company.address} />
             </div>
           </div>
 
           {/* Primary Contact */}
           <hr className="my-4" />
-          <h3 className="text-base font-semibold text-gray-900 mb-4">
-            Primary Contact
-          </h3>
+          <h3 className="text-base font-semibold text-gray-900 mb-4">Primary Contact</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <div className="text-sm font-medium text-gray-900">
-                {company.name || "N/A"}
-              </div>
+              <div className="text-sm font-medium text-gray-900">{company.name || "N/A"}</div>
               {/* <div className="text-xs text-gray-500">
                 {company.role || "N/A"}
               </div> */}
             </div>
-            <ContactInfo
-              icon={<Mail size={16} />}
-              value={company.contact_email}
-            />
-            <ContactInfo
-              icon={<Phone size={16} />}
-              value={company.contact_phone}
-            />
+            <ContactInfo icon={<Mail size={16} />} value={company.contact_email} />
+            <ContactInfo icon={<Phone size={16} />} value={company.contact_phone} />
           </div>
         </div>
 
@@ -118,10 +100,7 @@ export default function CompanyInfo({ company }: Props) {
             }
           >
             <div className="flex justify-between items-center">
-              <Info
-                label="Current Status"
-                value={<StatusBadge status={status} />}
-              />
+              <Info label="Current Status" value={<StatusBadge status={status} />} />
               {/* <button
                 onClick={() =>
                   openModal(
@@ -168,13 +147,7 @@ export default function CompanyInfo({ company }: Props) {
 }
 
 /* Sub Components */
-function Info({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | React.ReactNode | undefined;
-}) {
+function Info({ label, value }: { label: string; value: string | React.ReactNode | undefined }) {
   return (
     <div>
       <div className="text-xs text-gray-500">{label}</div>
@@ -183,19 +156,11 @@ function Info({
   );
 }
 
-function ContactInfo({
-  icon,
-  value,
-}: {
-  icon: React.ReactNode;
-  value?: string;
-}) {
+function ContactInfo({ icon, value }: { icon: React.ReactNode; value?: string }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-gray-500">{icon}</span>
-      <span className="text-sm font-medium text-gray-900">
-        {value || "N/A"}
-      </span>
+      <span className="text-sm font-medium text-gray-900">{value || "N/A"}</span>
     </div>
   );
 }
@@ -222,9 +187,7 @@ function DetailCard({
 
 function StatusBadge({ status }: { status: string }) {
   const colors =
-    status.toLowerCase() === "approved"
-      ? "bg-green-500 text-white"
-      : "bg-red-500 text-white";
+    status.toLowerCase() === "approved" ? "bg-green-500 text-white" : "bg-red-500 text-white";
 
   return (
     <span className={`px-3 py-0.5 text-xs rounded-full font-medium ${colors}`}>

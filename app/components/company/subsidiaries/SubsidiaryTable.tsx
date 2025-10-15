@@ -15,17 +15,11 @@ interface SubsidiaryTableProps {
   onEdit?: (subsidiary: Subsidiary) => void;
 }
 
-export default function SubsidiaryTable({
-  subsidiaries,
-  onDelete,
-  onEdit,
-}: SubsidiaryTableProps) {
+export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: SubsidiaryTableProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedSubsidiary, setSelectedSubsidiary] =
-    useState<Subsidiary | null>(null);
+  const [selectedSubsidiary, setSelectedSubsidiary] = useState<Subsidiary | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [subsidiaryToDelete, setSubsidiaryToDelete] =
-    useState<Subsidiary | null>(null);
+  const [subsidiaryToDelete, setSubsidiaryToDelete] = useState<Subsidiary | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -61,9 +55,7 @@ export default function SubsidiaryTable({
     <>
       {subsidiaries.length === 0 ? (
         <Card>
-          <p className="px-4 py-6 text-center text-gray-500 text-sm">
-            No subsidiaries found.
-          </p>
+          <p className="px-4 py-6 text-center text-gray-500 text-sm">No subsidiaries found.</p>
         </Card>
       ) : (
         <section>
@@ -82,13 +74,9 @@ export default function SubsidiaryTable({
               <tbody className="divide-y divide-gray-200">
                 {paginatedSubsidiaries.map((subsidiary) => (
                   <tr key={subsidiary.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      {subsidiary.name}
-                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-900">{subsidiary.name}</td>
                     <td className="px-4 py-3">{subsidiary.industry?.sector}</td>
-                    <td className="px-4 py-3">
-                      {subsidiary.industry?.industry}
-                    </td>
+                    <td className="px-4 py-3">{subsidiary.industry?.industry}</td>
                     <td className="px-4 py-3">{subsidiary.address}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={subsidiary.status} />
@@ -146,8 +134,8 @@ export default function SubsidiaryTable({
         message={
           <>
             Are you sure you want to delete{" "}
-            <span className="font-medium">{subsidiaryToDelete?.name}</span>?
-            This action cannot be undone.
+            <span className="font-medium">{subsidiaryToDelete?.name}</span>? This action cannot be
+            undone.
           </>
         }
         onCancel={() => setIsDeleteOpen(false)}

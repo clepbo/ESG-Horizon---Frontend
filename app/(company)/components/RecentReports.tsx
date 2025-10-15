@@ -19,13 +19,7 @@ import {
 } from "@/app/components/ui/select";
 import { Search, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 
-const reportTabs = [
-  "All Reports",
-  "Published",
-  "Approved",
-  "Under Review",
-  "Drafts",
-];
+const reportTabs = ["All Reports", "Published", "Approved", "Under Review", "Drafts"];
 
 const reportsData = [
   {
@@ -115,9 +109,7 @@ export function RecentReports() {
                 key={tab}
                 variant={index === 0 ? "default" : "outline"}
                 size="sm"
-                className={
-                  index === 0 ? "bg-esg-green hover:bg-esg-green/90" : ""
-                }
+                className={index === 0 ? "bg-esg-green hover:bg-esg-green/90" : ""}
               >
                 {tab}
               </Button>
@@ -127,10 +119,7 @@ export function RecentReports() {
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by name or company"
-                className="pl-10"
-              />
+              <Input placeholder="Search by name or company" className="pl-10" />
             </div>
             <div className="flex gap-2">
               <Select>
@@ -174,39 +163,22 @@ export function RecentReports() {
                 <TableHead className="text-xs font-medium text-muted-foreground">
                   Report Title
                 </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">
-                  Type
-                </TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground">Type</TableHead>
                 <TableHead className="text-xs font-medium text-muted-foreground">
                   Submission Date
                 </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">
-                  Status
-                </TableHead>
-                <TableHead className="text-xs font-medium text-muted-foreground">
-                  Action
-                </TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground">Status</TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {reportsData.map((report, index) => (
-                <TableRow
-                  key={index}
-                  className="border-border hover:bg-muted/50 transition-colors"
-                >
-                  <TableCell className="text-sm font-medium max-w-xs">
-                    {report.title}
-                  </TableCell>
+                <TableRow key={index} className="border-border hover:bg-muted/50 transition-colors">
+                  <TableCell className="text-sm font-medium max-w-xs">{report.title}</TableCell>
                   <TableCell className="text-sm">{report.type}</TableCell>
-                  <TableCell className="text-sm">
-                    {report.submissionDate}
-                  </TableCell>
+                  <TableCell className="text-sm">{report.submissionDate}</TableCell>
                   <TableCell>
-                    <Badge
-                      className={`${getStatusBadge(
-                        report.status
-                      )} border-0 text-xs`}
-                    >
+                    <Badge className={`${getStatusBadge(report.status)} border-0 text-xs`}>
                       {report.status}
                     </Badge>
                   </TableCell>
@@ -227,9 +199,7 @@ export function RecentReports() {
           {/* Pagination */}
           <div className="flex items-center justify-between px-6 py-4 border-t border-border">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Rows per page
-              </span>
+              <span className="text-sm text-muted-foreground">Rows per page</span>
               <Select defaultValue="10">
                 <SelectTrigger className="w-16 h-8">
                   <SelectValue />
@@ -243,9 +213,7 @@ export function RecentReports() {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">
-                1 - 10 of 25
-              </span>
+              <span className="text-sm text-muted-foreground">1 - 10 of 25</span>
               <div className="flex items-center gap-1">
                 <Button variant="outline" size="icon" className="w-8 h-8">
                   <ChevronLeft className="w-4 h-4" />
@@ -255,9 +223,7 @@ export function RecentReports() {
                     key={page}
                     variant={page === 1 ? "default" : "outline"}
                     size="icon"
-                    className={`w-8 h-8 ${
-                      page === 1 ? "bg-esg-green hover:bg-esg-green/90" : ""
-                    }`}
+                    className={`w-8 h-8 ${page === 1 ? "bg-esg-green hover:bg-esg-green/90" : ""}`}
                   >
                     {page}
                   </Button>

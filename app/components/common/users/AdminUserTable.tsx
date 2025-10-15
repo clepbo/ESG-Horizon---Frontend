@@ -69,9 +69,7 @@ export default function AdminUserTable({ users }: UserTableProps) {
         <tbody className="divide-y divide-gray-200">
           {paginatedUsers.map((user) => (
             <tr key={user.id} className="hover:bg-gray-50">
-              <td className="px-6 py-4 font-medium text-gray-900 cursor-pointer">
-                {user.name}
-              </td>
+              <td className="px-6 py-4 font-medium text-gray-900 cursor-pointer">{user.name}</td>
               <td className="px-6 py-4">{user.email}</td>
               <td className="px-6 py-4">{user.role}</td>
               <td className="px-6 py-4">{user.recentActivity}</td>

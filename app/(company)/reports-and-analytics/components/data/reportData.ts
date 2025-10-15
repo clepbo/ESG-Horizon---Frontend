@@ -34,4 +34,4 @@ export const emissionsData = [
     total: 16300,
     percent: 100,
   },
-]
+];

@@ -4,10 +4,7 @@ import Image from "next/image";
 import Header from "@/app/components/layout/Header";
 import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
-import {
-  useCompanyDetails,
-  useCompanyUsers,
-} from "@/services/hooks/company.hooks";
+import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
 import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -15,13 +12,9 @@ import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export default function CompanyPage() {
   const queryClient = useQueryClient();
-  const { data: companyData, isLoading: isCompanyLoading } =
-    useCompanyDetails();
-  const { data: industryOptions, isLoading: isIndustriesLoading } =
-    useIndustries();
-  const { data: usersData, isLoading: isUsersLoading } = useCompanyUsers(
-    companyData?.id || ""
-  );
+  const { data: companyData, isLoading: isCompanyLoading } = useCompanyDetails();
+  const { data: industryOptions, isLoading: isIndustriesLoading } = useIndustries();
+  const { data: usersData, isLoading: isUsersLoading } = useCompanyUsers(companyData?.id || "");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -72,18 +65,13 @@ export default function CompanyPage() {
           />
           <div>
             <h2 className="text-xl font-semibold">{companyData.name}</h2>
-            <p className="text-sm text-gray-500">
-              Reg. No.: {companyData.registration_number}
-            </p>
+            <p className="text-sm text-gray-500">Reg. No.: {companyData.registration_number}</p>
           </div>
         </div>
       </div>
 
       {/* Info Card */}
-      <CompanyInfoCard
-        company={companyData}
-        onEdit={() => setIsModalOpen(true)}
-      />
+      <CompanyInfoCard company={companyData} onEdit={() => setIsModalOpen(true)} />
 
       {/* Modal */}
       {isModalOpen && companyData && (

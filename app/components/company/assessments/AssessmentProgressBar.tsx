@@ -35,9 +35,7 @@ export function AssessmentProgressBar({
         <span className="text-sm font-medium text-gray-500">
           Section {stepIndex} of {totalSteps}{" "}
         </span>{" "}
-        <span className="text-sm font-medium text-gray-500">
-          {percent}% complete{" "}
-        </span>{" "}
+        <span className="text-sm font-medium text-gray-500">{percent}% complete </span>{" "}
       </div>{" "}
       <div className="w-full h-3 bg-green-300 rounded-lg">
         {" "}

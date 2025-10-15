@@ -22,11 +22,7 @@ export default function PersonalInfoCard({ user }: PersonalInfoCardProps) {
       <h3 className="text-lg font-semibold mb-6">Personal Information</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
         {infoFields.map((field) => (
-          <InfoField
-            key={field.label}
-            label={field.label}
-            value={field.value ?? "N/A"}
-          />
+          <InfoField key={field.label} label={field.label} value={field.value ?? "N/A"} />
         ))}
       </div>
     </div>

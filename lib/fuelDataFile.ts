@@ -390,13 +390,7 @@ export const sectionFuelMapping: {
       "hybrid",
     ],
     air: ["aviation-fuel-jet-a1", "aviation-gasoline"],
-    marine: [
-      "marine-gas-oil",
-      "heavy-fuel-oil-marine",
-      "lng-marine",
-      "cng-marine",
-      "dual-fuel",
-    ],
+    marine: ["marine-gas-oil", "heavy-fuel-oil-marine", "lng-marine", "cng-marine", "dual-fuel"],
   },
   // Scope 1: Process Emission
   process: {
@@ -415,14 +409,7 @@ export const sectionFuelMapping: {
   },
   // Scope 1: Fugitive Emission
   fugitive: {
-    equipmentLeaks: [
-      "fugitive-methane",
-      "fugitive-co2",
-      "ethane",
-      "propane",
-      "butanes",
-      "h2s",
-    ], // Placeholder for equipment leaks
+    equipmentLeaks: ["fugitive-methane", "fugitive-co2", "ethane", "propane", "butanes", "h2s"], // Placeholder for equipment leaks
     // You can add more detailed fugitive categories here
   },
   // Scope 3: Downstream Emissions
@@ -476,9 +463,7 @@ export function getFuelOptions(categoryKey: string): FuelOption[] {
 
   if (allSections.hasOwnProperty(categoryKey)) {
     const fuelValues = allSections[categoryKey];
-    return fuelValues
-      .map((value) => fuelLookup.get(value))
-      .filter(Boolean) as FuelOption[];
+    return fuelValues.map((value) => fuelLookup.get(value)).filter(Boolean) as FuelOption[];
   }
 
   return [];

@@ -12,8 +12,7 @@ export default function Header() {
       ? user.profile_photo_url
       : "/image.png";
 
-  const isFallbackImage =
-    !user?.profile_photo_url || user.profile_photo_url.trim() === "";
+  const isFallbackImage = !user?.profile_photo_url || user.profile_photo_url.trim() === "";
 
   return (
     <header className="flex justify-start lg:justify-end items-center p-2 bg-white rounded-xl shadow-sm w-full">
@@ -23,9 +22,7 @@ export default function Header() {
           alt={`${user?.first_name || "N/A"}`}
           width={36}
           height={36}
-          className={`rounded-full object-cover ${
-            isFallbackImage ? "opacity-50 blur-[1px]" : ""
-          }`}
+          className={`rounded-full object-cover ${isFallbackImage ? "opacity-50 blur-[1px]" : ""}`}
         />
         <div className="flex flex-col justify-center items-start text-sm">
           <span className="text-gray-900 font-medium ">

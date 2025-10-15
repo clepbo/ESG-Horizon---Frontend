@@ -41,13 +41,9 @@ export default function RoleDefinitions() {
         let filteredRoles: Role[] = [];
 
         if (platformRoles.includes(user.role?.name || "")) {
-          filteredRoles = allRoles.filter((r: Role) =>
-            platformRoles.includes(r.name)
-          );
+          filteredRoles = allRoles.filter((r: Role) => platformRoles.includes(r.name));
         } else if (companyRoles.includes(user.role?.name || "")) {
-          filteredRoles = allRoles.filter((r: Role) =>
-            companyRoles.includes(r.name)
-          );
+          filteredRoles = allRoles.filter((r: Role) => companyRoles.includes(r.name));
         }
 
         setRoles(filteredRoles);
@@ -63,20 +59,15 @@ export default function RoleDefinitions() {
   return (
     <section className="mt-6 bg-white rounded-lg shadow p-6">
       <h3 className="text-xl font-semibold mb-1">Role Definitions</h3>
-      <p className="text-gray-600 mb-6">
-        Understanding user permissions and access levels
-      </p>
+      <p className="text-gray-600 mb-6">Understanding user permissions and access levels</p>
 
       {loading ? (
         <CardSkeleton />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {roles.map((role) => (
-            <div
-              key={role.name}
-              className="border border-gray-200 rounded-lg p-5 bg-white"
-            >
-              <div className="inline-block px-3 py-1 rounded-full text-white text-sm font-medium bg-[var(--color-primary)]">
+            <div key={role.name} className="border border-gray-200 rounded-lg p-5 bg-white">
+              <div className="inline-block px-3 py-1 rounded-full text-white text-sm font-medium bg-teal-400">
                 {formatRoleName(role.name)}
               </div>
               <div className="mt-3">

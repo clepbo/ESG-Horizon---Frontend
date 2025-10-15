@@ -6,10 +6,7 @@ import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
 import { useAuth } from "@/context/AuthContext";
-import {
-  useCompanyDetails,
-  useCompanyUsers,
-} from "@/services/hooks/company.hooks";
+import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
 import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -17,13 +14,9 @@ import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export default function CompanyPage() {
   const queryClient = useQueryClient();
-  const { data: companyData, isLoading: isCompanyLoading } =
-    useCompanyDetails();
-  const { data: industryOptions, isLoading: isIndustriesLoading } =
-    useIndustries();
-  const { data: usersData, isLoading: isUsersLoading } = useCompanyUsers(
-    companyData?.id || ""
-  );
+  const { data: companyData, isLoading: isCompanyLoading } = useCompanyDetails();
+  const { data: industryOptions, isLoading: isIndustriesLoading } = useIndustries();
+  const { data: usersData, isLoading: isUsersLoading } = useCompanyUsers(companyData?.id || "");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
@@ -67,10 +60,7 @@ export default function CompanyPage() {
     >
       <Header />
 
-      <CompanyInfoCard
-        company={companyData}
-        onEdit={() => setIsModalOpen(true)}
-      />
+      <CompanyInfoCard company={companyData} onEdit={() => setIsModalOpen(true)} />
 
       {/* ESG Frameworks */}
       <div className="bg-white p-6 shadow rounded-lg">
@@ -121,8 +111,6 @@ export default function CompanyPage() {
           </div>
         </div>
 
-     
-
         <div className="flex justify-between items-center py-3">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
@@ -134,11 +122,7 @@ export default function CompanyPage() {
             <p className="text-sm text-gray-500">Global Reporting Initiative</p>
           </div>
           <div className="relative group">
-            <ToggleSwitch
-              checked={gri}
-              onChange={() => setGri(!gri)}
-              disabled={!isCompanyAdmin}
-            />
+            <ToggleSwitch checked={gri} onChange={() => setGri(!gri)} disabled={!isCompanyAdmin} />
             {!isCompanyAdmin && (
               <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
                 Only Company Admin can switch this

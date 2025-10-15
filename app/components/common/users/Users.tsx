@@ -70,24 +70,14 @@ export default function Companies() {
         company.status?.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesIndustry =
-        industryFilter === "All" ||
-        company?.industry?.sector === industryFilter;
+        industryFilter === "All" || company?.industry?.sector === industryFilter;
 
       const matchesPersona =
-        activePersona === "all" ||
-        company.company_type?.trim().toLowerCase() === activePersona;
+        activePersona === "all" || company.company_type?.trim().toLowerCase() === activePersona;
 
-      return (
-        matchesSearch && matchesStatus && matchesIndustry && matchesPersona
-      );
+      return matchesSearch && matchesStatus && matchesIndustry && matchesPersona;
     });
-  }, [
-    companies,
-    debouncedSearchTerm,
-    statusFilter,
-    industryFilter,
-    activePersona,
-  ]);
+  }, [companies, debouncedSearchTerm, statusFilter, industryFilter, activePersona]);
   const totalItems = filteredCompanies.length;
 
   const paginatedCompanies = useMemo(() => {
@@ -109,9 +99,7 @@ export default function Companies() {
   }
 
   if (error) {
-    return (
-      <p className="text-center text-red-500">Failed to load companies.</p>
-    );
+    return <p className="text-center text-red-500">Failed to load companies.</p>;
   }
 
   return (
@@ -183,12 +171,8 @@ export default function Companies() {
         </div>
 
         {/* Table Rendering */}
-        {activePersona === "all" && (
-          <CompanyTable companies={paginatedCompanies} />
-        )}
-        {activePersona === "esg" && (
-          <ESGCompanyTable companies={paginatedCompanies} />
-        )}
+        {activePersona === "all" && <CompanyTable companies={paginatedCompanies} />}
+        {activePersona === "esg" && <ESGCompanyTable companies={paginatedCompanies} />}
         {activePersona === "investor" && (
           <div className="text-center py-8 text-gray-500">
             <p>No investor companies yet.</p>
@@ -209,16 +193,12 @@ export default function Companies() {
         />
 
         {/* No results */}
-        {!isLoading &&
-          filteredCompanies.length === 0 &&
-          companies.length > 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p>No companies found matching your search criteria.</p>
-              <p className="text-sm mt-2">
-                Try adjusting your filters or search term.
-              </p>
-            </div>
-          )}
+        {!isLoading && filteredCompanies.length === 0 && companies.length > 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No companies found matching your search criteria.</p>
+            <p className="text-sm mt-2">Try adjusting your filters or search term.</p>
+          </div>
+        )}
 
         {/* Empty state */}
         {!isLoading && !loading && companies.length === 0 && (

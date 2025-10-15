@@ -15,11 +15,7 @@ const companyEsgRoles = [
   USER_TYPES.COMPANY_ESG_VIEWER,
 ];
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 

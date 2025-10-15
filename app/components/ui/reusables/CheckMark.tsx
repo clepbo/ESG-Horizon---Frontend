@@ -2,11 +2,7 @@
 export const Checkmark = () => {
   return (
     <div className="w-16 h-16 mx-auto mb-6">
-      <svg
-        viewBox="0 0 52 52"
-        className="w-full h-full stroke-green-500 stroke-2"
-        fill="none"
-      >
+      <svg viewBox="0 0 52 52" className="w-full h-full stroke-green-500 stroke-2" fill="none">
         <circle
           cx="26"
           cy="26"
@@ -14,8 +10,7 @@ export const Checkmark = () => {
           style={{
             strokeDasharray: 157,
             strokeDashoffset: 157,
-            animation:
-              "draw-circle 1.2s ease-out forwards, reset-circle 2.4s linear infinite",
+            animation: "draw-circle 1.2s ease-out forwards, reset-circle 2.4s linear infinite",
           }}
         />
         <path
@@ -23,8 +18,7 @@ export const Checkmark = () => {
           style={{
             strokeDasharray: 48,
             strokeDashoffset: 48,
-            animation:
-              "draw-check 0.6s 0.6s ease-out forwards, reset-check 2.4s linear infinite",
+            animation: "draw-check 0.6s 0.6s ease-out forwards, reset-check 2.4s linear infinite",
           }}
         />
       </svg>

@@ -33,8 +33,7 @@ export default function DepartmentTeamUsersPage() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
 
   // Pagination states
@@ -64,16 +63,12 @@ export default function DepartmentTeamUsersPage() {
         departmentService.getUsers(cleanId),
       ]);
 
-      const safeDepartmentsData = Array.isArray(departmentsData)
-        ? departmentsData
-        : [];
+      const safeDepartmentsData = Array.isArray(departmentsData) ? departmentsData : [];
       const safeTeamData = Array.isArray(teamData) ? teamData : [];
 
       // Find department in safe list
       const dept =
-        safeDepartmentsData.find(
-          (d: Department) => String(d.id) === String(cleanId)
-        ) || null;
+        safeDepartmentsData.find((d: Department) => String(d.id) === String(cleanId)) || null;
 
       function mapStatus(statusStr: string): TeamUserStatus | undefined {
         const validStatuses = ["Approved", "Pending", "Suspended"];
@@ -119,10 +114,8 @@ export default function DepartmentTeamUsersPage() {
         lastName.toLowerCase().includes(searchLower) ||
         email.toLowerCase().includes(searchLower);
 
-      const matchesStatus =
-        statusFilter === "All" || user.status === statusFilter;
-      const matchesRole =
-        roleFilter === "All" || user.role?.name === roleFilter;
+      const matchesStatus = statusFilter === "All" || user.status === statusFilter;
+      const matchesRole = roleFilter === "All" || user.role?.name === roleFilter;
 
       return matchesSearch && matchesStatus && matchesRole;
     });
@@ -162,9 +155,7 @@ export default function DepartmentTeamUsersPage() {
       if (yourCompany) {
         const updatedUsers = await departmentService.getUsers(cleanId);
 
-        const safeUpdatedUsers = Array.isArray(updatedUsers)
-          ? updatedUsers
-          : [];
+        const safeUpdatedUsers = Array.isArray(updatedUsers) ? updatedUsers : [];
 
         function mapStatus(statusStr: string): TeamUserStatus | undefined {
           const validStatuses = ["Approved", "Pending", "Suspended"];
@@ -174,14 +165,12 @@ export default function DepartmentTeamUsersPage() {
           return undefined;
         }
 
-        const normalizedTeamUsers: Partial<User>[] = safeUpdatedUsers.map(
-          (user) => ({
-            ...user,
-            id: Number(user.id),
-            status: mapStatus(user.status),
-            role: { name: user.role },
-          })
-        );
+        const normalizedTeamUsers: Partial<User>[] = safeUpdatedUsers.map((user) => ({
+          ...user,
+          id: Number(user.id),
+          status: mapStatus(user.status),
+          role: { name: user.role },
+        }));
 
         setTeamUsers(normalizedTeamUsers);
       }
@@ -202,19 +191,11 @@ export default function DepartmentTeamUsersPage() {
   }
 
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-64 text-red-500">
-        {error}
-      </div>
-    );
+    return <div className="flex justify-center items-center h-64 text-red-500">{error}</div>;
   }
 
   if (!department) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        Department not found.
-      </div>
-    );
+    return <div className="flex justify-center items-center h-64">Department not found.</div>;
   }
 
   return (
@@ -252,9 +233,7 @@ export default function DepartmentTeamUsersPage() {
           <InfoRow
             label="Department Lead"
             value={
-              department.lead
-                ? `${department.lead.first_name} ${department.lead.last_name}`
-                : "-"
+              department.lead ? `${department.lead.first_name} ${department.lead.last_name}` : "-"
             }
           />
           <InfoRow label="Email" value={department.contact_email || "-"} />
@@ -345,10 +324,7 @@ export default function DepartmentTeamUsersPage() {
       )}
 
       {isEditOpen && selectedDepartment && (
-        <EditDepartmentModal
-          department={selectedDepartment}
-          onClose={() => setIsEditOpen(false)}
-        />
+        <EditDepartmentModal department={selectedDepartment} onClose={() => setIsEditOpen(false)} />
       )}
     </motion.div>
   );

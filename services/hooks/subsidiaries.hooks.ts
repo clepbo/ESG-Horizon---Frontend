@@ -7,10 +7,10 @@ import { User } from "../user.service";
  * @returns An object with data, loading state, and error.
  */
 export const useAllSubsidiaries = () => {
-    return useQuery<Subsidiary[]>({
-        queryKey: ["subsidiaries"],
-        queryFn: subsidiariesService.getAll,
-    });
+  return useQuery<Subsidiary[]>({
+    queryKey: ["subsidiaries"],
+    queryFn: subsidiariesService.getAll,
+  });
 };
 
 /**
@@ -18,10 +18,10 @@ export const useAllSubsidiaries = () => {
  * @returns An object with data, loading state, and error.
  */
 export const useCompanySubsidiaries = () => {
-    return useQuery<Subsidiary[]>({
-        queryKey: ["companySubsidiaries"],
-        queryFn: subsidiariesService.getCompanySubsidiaries,
-    });
+  return useQuery<Subsidiary[]>({
+    queryKey: ["companySubsidiaries"],
+    queryFn: subsidiariesService.getCompanySubsidiaries,
+  });
 };
 
 /**
@@ -30,11 +30,11 @@ export const useCompanySubsidiaries = () => {
  * @returns An object with data, loading state, and error.
  */
 export const useSubsidiary = (subsidiaryId: number) => {
-    return useQuery<Subsidiary>({
-        queryKey: ["subsidiary", subsidiaryId],
-        queryFn: () => subsidiariesService.getSubsidiariesById(),
-        enabled: !!subsidiaryId,
-    });
+  return useQuery<Subsidiary>({
+    queryKey: ["subsidiary", subsidiaryId],
+    queryFn: () => subsidiariesService.getSubsidiariesById(),
+    enabled: !!subsidiaryId,
+  });
 };
 
 /**
@@ -43,13 +43,12 @@ export const useSubsidiary = (subsidiaryId: number) => {
  * @returns An object with data, loading state, and error.
  */
 export const useSubsidiaryUsers = (subsidiaryId: number) => {
-    return useQuery<User[]>({
-        queryKey: ["subsidiaryUsers", subsidiaryId],
-        queryFn: () =>
-            subsidiariesService.getCompanySubsidiaryUsers(subsidiaryId),
-        // This query will only run if a valid subsidiaryId is provided.
-        enabled: !!subsidiaryId,
-    });
+  return useQuery<User[]>({
+    queryKey: ["subsidiaryUsers", subsidiaryId],
+    queryFn: () => subsidiariesService.getCompanySubsidiaryUsers(subsidiaryId),
+    // This query will only run if a valid subsidiaryId is provided.
+    enabled: !!subsidiaryId,
+  });
 };
 
 /**
@@ -57,17 +56,17 @@ export const useSubsidiaryUsers = (subsidiaryId: number) => {
  * @returns A mutation object with mutate function and status.
  */
 export const useCreateSubsidiary = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: subsidiariesService.createSubsidiary,
-        onSuccess: () => {
-            // Invalidate the queries that list subsidiaries to ensure the UI updates
-            queryClient.invalidateQueries({ queryKey: ["subsidiaries"] });
-            queryClient.invalidateQueries({
-                queryKey: ["companySubsidiaries"],
-            });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: subsidiariesService.createSubsidiary,
+    onSuccess: () => {
+      // Invalidate the queries that list subsidiaries to ensure the UI updates
+      queryClient.invalidateQueries({ queryKey: ["subsidiaries"] });
+      queryClient.invalidateQueries({
+        queryKey: ["companySubsidiaries"],
+      });
+    },
+  });
 };
 
 /**
@@ -75,17 +74,17 @@ export const useCreateSubsidiary = () => {
  * @returns A mutation object with mutate function and status.
  */
 export const useEditSubsidiary = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: subsidiariesService.editSubsidiaries,
-        onSuccess: () => {
-            // Invalidate the queries to update the UI
-            queryClient.invalidateQueries({ queryKey: ["subsidiaries"] });
-            queryClient.invalidateQueries({
-                queryKey: ["companySubsidiaries"],
-            });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: subsidiariesService.editSubsidiaries,
+    onSuccess: () => {
+      // Invalidate the queries to update the UI
+      queryClient.invalidateQueries({ queryKey: ["subsidiaries"] });
+      queryClient.invalidateQueries({
+        queryKey: ["companySubsidiaries"],
+      });
+    },
+  });
 };
 
 /**
@@ -93,15 +92,15 @@ export const useEditSubsidiary = () => {
  * @returns A mutation object with mutate function and status.
  */
 export const useDeleteSubsidiary = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (id: number) => subsidiariesService.deleteSubsidiaries(id),
-        onSuccess: () => {
-            // Invalidate the queries to remove the deleted subsidiary from the lists
-            queryClient.invalidateQueries({ queryKey: ["subsidiaries"] });
-            queryClient.invalidateQueries({
-                queryKey: ["companySubsidiaries"],
-            });
-        },
-    });
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => subsidiariesService.deleteSubsidiaries(id),
+    onSuccess: () => {
+      // Invalidate the queries to remove the deleted subsidiary from the lists
+      queryClient.invalidateQueries({ queryKey: ["subsidiaries"] });
+      queryClient.invalidateQueries({
+        queryKey: ["companySubsidiaries"],
+      });
+    },
+  });
 };

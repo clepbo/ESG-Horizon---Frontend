@@ -9,9 +9,7 @@ import { useState } from "react";
 import { RequestSubmitted } from "@/app/components/auth/RequestSubmitted";
 
 export default function Index() {
-  const [currentStep, setCurrentStep] = useState<"signup" | "submitted">(
-    "signup"
-  );
+  const [currentStep, setCurrentStep] = useState<"signup" | "submitted">("signup");
 
   if (currentStep === "submitted") {
     return (
@@ -51,9 +49,8 @@ export default function Index() {
                 Join the Future of Responsible Reporting
               </h1>
               <p className="text-base text-white/90 max-w-md">
-                Make your ESG data work for you. Track, manage, and showcase
-                your environmental, social, and governance impact — all in one
-                place.
+                Make your ESG data work for you. Track, manage, and showcase your environmental,
+                social, and governance impact — all in one place.
               </p>
             </div>
             <div className="mt-12">

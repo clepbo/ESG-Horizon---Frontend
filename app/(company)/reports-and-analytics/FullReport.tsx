@@ -44,9 +44,7 @@ export default function FullReport() {
       }}
     >
       <div className={`grid w-full gap-4 lg:gap-8 rounded-lg`}>
-        <div
-          className={`flex flex-col md:flex-row justify-between w-full items-center no-export`}
-        >
+        <div className={`flex flex-col md:flex-row justify-between w-full items-center no-export`}>
           <h1 className="text-2xl lg:text-3xl font-semibold text-foreground">
             {" "}
             Greenhouse Gas Emissions{" "}
@@ -69,11 +67,7 @@ export default function FullReport() {
       <div className={`grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm`}>
         <EmissionInventoryWrapper />
         <hr className="text-gray-300" />
-        <ComparativeTrendAnalysis
-          data={trendData}
-          keys={scopeKeys}
-          colors={scopeColors}
-        />
+        <ComparativeTrendAnalysis data={trendData} keys={scopeKeys} colors={scopeColors} />
         <hr className="text-gray-300" />
 
         <EmissionProgressComponent

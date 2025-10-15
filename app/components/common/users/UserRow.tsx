@@ -23,9 +23,7 @@ export function UserRow({ name, company, category, role, status }: Props) {
       <td className="p-3">{category}</td>
       <td className="p-3">{role}</td>
       <td className="p-3">
-        <span className={`text-xs px-2 py-1 rounded ${statusColors[status]}`}>
-          {status}
-        </span>
+        <span className={`text-xs px-2 py-1 rounded ${statusColors[status]}`}>{status}</span>
       </td>
       <td className="p-3">
         <button className="text-white bg-emerald-600 px-3 py-1 rounded text-xs hover:bg-emerald-700">

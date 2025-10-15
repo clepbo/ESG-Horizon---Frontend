@@ -167,9 +167,7 @@ export default function Sidebar() {
             {assessmentsOpen && (
               <div className="ml-6 mt-1 space-y-1">
                 {assessmentSubLinks.map((sub) => {
-                  const isSubActive =
-                    pathname === sub.href ||
-                    pathname.startsWith(sub.href + "/");
+                  const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
                   return (
                     <Link
                       key={sub.name}
@@ -243,9 +241,7 @@ export default function Sidebar() {
             {settingsOpen && (
               <div className="ml-6 mt-1 space-y-1">
                 {settingsSubLinks.map((sub) => {
-                  const isSubActive =
-                    pathname === sub.href ||
-                    pathname.startsWith(sub.href + "/");
+                  const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                   return (
                     <Link

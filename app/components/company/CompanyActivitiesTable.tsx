@@ -17,10 +17,7 @@ interface ActivityTableProps {
   getStatusBadge: (status: string) => React.ReactNode;
 }
 
-export default function CompanyActivitiesTable({
-  activities,
-  getStatusBadge,
-}: ActivityTableProps) {
+export default function CompanyActivitiesTable({ activities, getStatusBadge }: ActivityTableProps) {
   return (
     <table className="w-full text-sm overflow-x-auto">
       <thead className="bg-gray-50">

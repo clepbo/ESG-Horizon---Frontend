@@ -7,9 +7,7 @@ type PhotoUploadButtonProps = {
   onUpload?: (file: File) => void;
 };
 
-export default function PhotoUploadButton({
-  onUpload,
-}: PhotoUploadButtonProps) {
+export default function PhotoUploadButton({ onUpload }: PhotoUploadButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

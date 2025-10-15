@@ -1,8 +1,4 @@
-export type TeamUserStatus =
-  | "Pending"
-  | "Suspended"
-  | "Approved"
-  | "Under Review";
+export type TeamUserStatus = "Pending" | "Suspended" | "Approved" | "Under Review";
 
 export interface TeamUser {
   id: string;
