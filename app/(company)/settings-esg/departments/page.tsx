@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Plus, Search } from "lucide-react";
-import Header from "@/app/components/layout/Header";
+import Header from "@/app/(company)/components/Header";
 import DepartmentsTable from "@/app/components/company/teams/DepartmentsTable";
 import AddDepartmentModal from "@/app/components/company/teams/AddDepartmentModal";
 import { Input } from "@/app/components/ui/input";

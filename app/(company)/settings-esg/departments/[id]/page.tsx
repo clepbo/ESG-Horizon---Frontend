@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Plus, Search, Edit } from "lucide-react";
-import Header from "@/app/components/layout/Header";
+import Header from "@/app/(company)/components/Header";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import { Input } from "@/app/components/ui/input";
 import {
