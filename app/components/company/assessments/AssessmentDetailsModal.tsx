@@ -585,7 +585,7 @@ export default function AssessmentDetailsModal({ open, onClose, assessment }: As
               <div className="flex gap-4 justify-end">
                 <Button
                   variant="secondary"
-                  className="bg-green-500 hover:bg-green-600 text-white rounded-sm px-6 py-2"
+                  className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded-sm px-6 py-2"
                   onClick={handleApprove}
                   disabled={approving}
                 >

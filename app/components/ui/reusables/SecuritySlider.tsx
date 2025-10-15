@@ -37,7 +37,7 @@ export const SecuritySlider = () => {
 
   return (
     <div className="w-full max-w-sm mx-auto text-white flex">
-      <div className="bg-green-700 rounded-xl px-6 py-6 text-center relative overflow-hidden shadow-md">
+      <div className="bg-[var(--color-primary)] opacity-80 rounded-xl px-6 py-6 text-center relative overflow-hidden shadow-md">
         {/* Slide container */}
         <div className="overflow-hidden">
           <div
@@ -77,7 +77,7 @@ export const SecuritySlider = () => {
               onClick={() => setCurrentSlide(index)}
               className={cn(
                 "w-2.5 h-2.5 rounded-full transition-colors duration-300",
-                index === currentSlide ? "bg-green-500" : "bg-green-200"
+                index === currentSlide ? "bg-[var(--color-secondary)]" : "bg-green-200"
               )}
             />
           ))}

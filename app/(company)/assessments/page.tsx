@@ -68,7 +68,7 @@ export default function NewAssessmentPage() {
             </p>
             <Button
               onClick={() => router.push("/assessments/hub")}
-              className="bg-green-500 text-white hover:bg-green-700 px-8 py-4 text-sm rounded-sm"
+              className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white  px-8 py-4 text-sm rounded-sm"
             >
               Start New Assessment
             </Button>

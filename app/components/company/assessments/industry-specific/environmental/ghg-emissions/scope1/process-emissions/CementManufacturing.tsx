@@ -253,7 +253,7 @@ export function CementManufacturing({
                     <Button
                         variant="outline"
                         onClick={onBack}
-                        className="flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+                        className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
                         aria-label="Go back to previous step"
                     >
                         <ArrowLeft className="h-4 w-4" />
@@ -429,7 +429,7 @@ export function CementManufacturing({
                             <Button
                                 variant="outline"
                                 onClick={onBack}
-                                className="justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                                className="justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                                 aria-label="Previous step"
                             >
                                 <ArrowLeft className="h-4 w-4" />
@@ -439,7 +439,7 @@ export function CementManufacturing({
                                 variant="outline"
                                 onClick={handleSaveAndContinue}
                                 disabled={isSaving}
-                                className="justify-self-center bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                className="justify-self-center bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] transition-colors"
                                 aria-label="Save and continue later"
                             >
                                 {isSaving ? (
@@ -466,7 +466,7 @@ export function CementManufacturing({
                                 variant="outline"
                                 onClick={handleNext}
                                 disabled={isSaving}
-                                className="justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                                className="justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                                 aria-label="Next step"
                             >
                                 Next

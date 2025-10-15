@@ -130,7 +130,7 @@ export default function TeamsPage() {
               allowedRoles={["company_esg_admin", "company_esg_subadmin"]}
             >
               <button
-                className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
+                className="text-white bg-[var(--color-primary)]  hover:bg-teal-700 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
                 onClick={() => openModalWithTab("user")}
               >
                 <Plus className="h-4 w-4 mr-1" />
@@ -150,7 +150,7 @@ export default function TeamsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
               <Search className="h-3.5 w-3.5" />
               Search
             </button>

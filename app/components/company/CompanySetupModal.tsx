@@ -410,8 +410,8 @@ industryId: formData.industryId,
                                         onClick={() => setActiveTab(tab.id)}
                                         className={
                                             activeTab === tab.id
-                                                ? "flex-1 px-4 py-2 text-sm rounded-sm bg-green-200/50 text-green-800 shadow-md border-0 cursor-pointer"
-                                                : "flex-1 px-4 py-2 text-sm rounded-sm bg-white text-black border border-green-500 hover:bg-green-50 cursor-pointer"
+                                                ? "flex-1 px-4 py-2 text-sm rounded-sm bg-green-200/50 text-teal-800 shadow-md border-0 cursor-pointer"
+                                                : "flex-1 px-4 py-2 text-sm rounded-sm bg-white text-black border border-teal-500 hover:bg-green-50 cursor-pointer"
                                         }
                                     >
                                         {tab.label}
@@ -801,7 +801,7 @@ industryId: formData.industryId,
                                 {/* Submit Button */}
                                 <button
                                     onClick={handleAddOrUpdate}
-                                    className="w-full px-4 py-2 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 cursor-pointer mt-6"
+                                    className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)]  hover:bg-teal-600 text-white  cursor-pointer mt-6"
                                 >
                                     {editingItem ? "Update " : "Add "}
                                     {activeTab === "subsidiary"
