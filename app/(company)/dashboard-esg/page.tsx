@@ -124,8 +124,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activities + Industry Leaderboard */}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-4 grid-rows-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-8 grid-rows-1">
           <RecentActivities activities={data.recentActivities} />
           <IndustryLeaderboard />
         </div>
