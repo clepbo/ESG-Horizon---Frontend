@@ -101,7 +101,9 @@ export function ElectricityHeatForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.stationarySources?.electricityHeat, dieselFuelOptions, gasFuelOptions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // }, [state.assessmentData.stationarySources?.electricityHeat, dieselFuelOptions, gasFuelOptions]);
 
   const { filled, total } = useMemo(() => {
     const hasDieselData = dieselGenerators.some(

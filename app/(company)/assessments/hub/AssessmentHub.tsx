@@ -14,7 +14,6 @@ import { DisclosureTopics } from "@/app/components/company/assessments/Disclosur
 import Header from "../../components/Header";
 import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import { useAuth } from "@/context/AuthContext";
-import { useCreateAssessment } from "@/services/hooks/assessment.hooks";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -37,7 +36,6 @@ const months = [
 export default function AssessmentHub() {
   const { state, dispatch } = useAssessment();
   const { user } = useAuth();
-  const { mutateAsync: createAssessment } = useCreateAssessment();
   const router = useRouter();
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
@@ -89,9 +87,6 @@ export default function AssessmentHub() {
   ]);
 
   const handleProceed = async () => {
-    const newId = await createAssessment();
-    dispatch({ type: "SET_ASSESSMENT_ID", payload: newId });
-
     dispatch({
       type: "UPDATE_BASIC_DATA",
       payload: {

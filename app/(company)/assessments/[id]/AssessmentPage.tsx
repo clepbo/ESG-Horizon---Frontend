@@ -13,11 +13,14 @@ export default function AssessmentPage() {
 
   useEffect(() => {
     if (data) {
-      dispatch({ type: "SET_ASSESSMENT_ID", payload: data.id });
-      dispatch({ type: "LOAD_SAVED_DATA", payload: data.assessmentData });
+      dispatch({ type: "SET_ASSESSMENT_ID", payload: Number(id) });
+      dispatch({
+        type: "LOAD_SAVED_DATA",
+        payload: { ...data.assessmentData, assessmentId: Number(id) },
+      });
       dispatch({ type: "SET_VIEW", payload: "ghg-stationary-sources" });
     }
-  }, [data, dispatch]);
+  }, [data, dispatch, id]);
 
   if (isLoading) return <div className="p-10">Loading assessment...</div>;
 
