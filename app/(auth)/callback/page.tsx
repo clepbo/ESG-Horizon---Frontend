@@ -41,7 +41,7 @@ export default function CallbackPage() {
 
         toast.success("Logged in successfully!");
         router.push("/dashboard-esg");
-      } catch (err) {
+      } catch (err: any) {
         const message =
           err?.response?.data?.message || err?.message || "Login failed. Please try again.";
 
