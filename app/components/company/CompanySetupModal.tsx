@@ -12,7 +12,6 @@ import { Department } from "@/services/department.service";
 import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useAllUserRoles } from "@/services/hooks/user.hooks";
 import { formatRoleName } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 interface CompanySetupModalProps {
   isOpen: boolean;
@@ -42,8 +41,6 @@ export default function CompanySetupModal({
   const userRoles = allUserRoles?.filter((role: { id: number; name: string }) =>
     role.name.startsWith("company_")
   );
-
-  const router = useRouter();
 
   const [loadingIsDone, setLoadingIsDone] = useState(false);
 

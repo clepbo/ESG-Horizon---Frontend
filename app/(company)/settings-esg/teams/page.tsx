@@ -1,21 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search } from "lucide-react";
 import TeamsTable from "@/app/components/company/teams/TeamsTable";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
-import { Input } from "@/app/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/app/components/ui/select";
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
-import RoleGuard from "@/lib/RoleGuard";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -60,36 +50,34 @@ export default function TeamsPage() {
   }, []);
 
   const ROLE_OPTIONS = [
-  { label: "Company Admin", value: "company_esg_admin" },
-  { label: "Company SubAdmin", value: "company_esg_subadmin" },
-  { label: "Company Data Manager", value: "company_esg_data_manager" },
-  { label: "Company Viewer", value: "company_esg_viewer" },
-];
+    { label: "Company Admin", value: "company_esg_admin" },
+    { label: "Company SubAdmin", value: "company_esg_subadmin" },
+    { label: "Company Data Manager", value: "company_esg_data_manager" },
+    { label: "Company Viewer", value: "company_esg_viewer" },
+  ];
 
-const STATUS_OPTIONS = [
-  { label: "Active", value: "active" },
-  { label: "Pending", value: "pending" },
-  { label: "Suspended", value: "suspended" },
-];
+  const STATUS_OPTIONS = [
+    { label: "Active", value: "active" },
+    { label: "Pending", value: "pending" },
+    { label: "Suspended", value: "suspended" },
+  ];
 
+  const filteredData = useMemo(() => {
+    const roleValue = ROLE_OPTIONS.find((r) => r.label === roleFilter)?.value;
+    const statusValue = STATUS_OPTIONS.find((s) => s.label === statusFilter)?.value;
 
-const filteredData = useMemo(() => {
-  const roleValue = ROLE_OPTIONS.find((r) => r.label === roleFilter)?.value;
-  const statusValue = STATUS_OPTIONS.find((s) => s.label === statusFilter)?.value;
+    return users.filter((user) => {
+      const matchesSearch =
+        user.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+        user.last_name?.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase());
 
-  return users.filter((user) => {
-    const matchesSearch =
-      user.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-      user.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
+      const matchesRole = roleFilter === "All Roles" || user.role?.name === roleValue;
+      const matchesStatus = statusFilter === "All Status" || user.status === statusValue;
 
-    const matchesRole = roleFilter === "All Roles" || user.role?.name === roleValue;
-    const matchesStatus = statusFilter === "All Status" || user.status === statusValue;
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-}, [users, search, roleFilter, statusFilter]);
-
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [users, search, roleFilter, statusFilter]);
 
   const handleStatusUpdate = async (id: number, newStatus: TeamUserStatus) => {
     try {
@@ -131,31 +119,29 @@ const filteredData = useMemo(() => {
       >
         <Header />
 
-
-<TableManagementControls
-  title="Teams"
-  description="Manage platform users and their access permissions"
-  search={search}
-  onSearchChange={setSearch}
-  searchPlaceholder="Search by name or email"
-  addButtonLabel="Invite User"
-  onAdd={() => openModalWithTab("user")}
-  filters={[
-  {
-    label: roleFilter === "All Roles" ? "All Roles" : "Filter Roles",
-    value: roleFilter,
-    onChange: setRoleFilter,
-    options: ["All Roles", ...ROLE_OPTIONS.map((r) => r.label)],
-  },
-  {
-    label: statusFilter === "All Status" ? "All Status" : "Filter Status",
-    value: statusFilter,
-    onChange: setStatusFilter,
-    options: ["All Status", ...STATUS_OPTIONS.map((s) => s.label)],
-  },
-]}
-
-/>
+        <TableManagementControls
+          title="Teams"
+          description="Manage platform users and their access permissions"
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by name or email"
+          addButtonLabel="Invite User"
+          onAdd={() => openModalWithTab("user")}
+          filters={[
+            {
+              label: roleFilter === "All Roles" ? "All Roles" : "Filter Roles",
+              value: roleFilter,
+              onChange: setRoleFilter,
+              options: ["All Roles", ...ROLE_OPTIONS.map((r) => r.label)],
+            },
+            {
+              label: statusFilter === "All Status" ? "All Status" : "Filter Status",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: ["All Status", ...STATUS_OPTIONS.map((s) => s.label)],
+            },
+          ]}
+        />
 
         {loading ? (
           <CardSkeleton />

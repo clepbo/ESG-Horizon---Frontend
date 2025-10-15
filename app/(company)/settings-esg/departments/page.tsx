@@ -1,21 +1,11 @@
 "use client";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Plus, Search } from "lucide-react";
 import Header from "@/app/(company)/components/Header";
 import DepartmentsTable from "@/app/components/company/teams/DepartmentsTable";
 import AddDepartmentModal from "@/app/components/company/teams/AddDepartmentModal";
-import { Input } from "@/app/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/app/components/ui/select";
 import { companyService } from "@/services/company.service";
 import { CreateDepartment, Department, departmentService } from "@/services/department.service";
 import { User } from "@/services/user.service";
-import RoleGuard from "@/lib/RoleGuard";
 import { getCurrentUser } from "@/lib/utils";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
@@ -113,22 +103,20 @@ export default function DepartmentsPage() {
   };
 
   const filteredDepartments = useMemo(() => {
-  return departments.filter((dept) => {
-    const leadName = `${dept.lead?.first_name || ""} ${dept.lead?.last_name || ""}`
-      .trim()
-      .toLowerCase();
-    const searchLower = search.toLowerCase();
+    return departments.filter((dept) => {
+      const leadName = `${dept.lead?.first_name || ""} ${dept.lead?.last_name || ""}`
+        .trim()
+        .toLowerCase();
+      const searchLower = search.toLowerCase();
 
-    const matchesSearch =
-      dept.name.toLowerCase().includes(searchLower) || leadName.includes(searchLower);
+      const matchesSearch =
+        dept.name.toLowerCase().includes(searchLower) || leadName.includes(searchLower);
 
-    const matchesStatus =
-      statusFilter === "Status" || dept.status === statusFilter;
+      const matchesStatus = statusFilter === "Status" || dept.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
-  });
-}, [departments, search, statusFilter]);
-
+      return matchesSearch && matchesStatus;
+    });
+  }, [departments, search, statusFilter]);
 
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
     setModalTab(tab);
@@ -150,25 +138,23 @@ export default function DepartmentsPage() {
       >
         <Header />
 
-<TableManagementControls
-  title="Departments"
-  description="Manage company departments and their assigned members"
-  search={search}
-  onSearchChange={setSearch}
-  searchPlaceholder="Search by department or lead"
-  addButtonLabel="Add Department"
-  onAdd={() => openModalWithTab("department")}
-  filters={[
-    {
-      label: "Status",
-      value: statusFilter,
-      onChange: setStatusFilter,
-      options: ["Status", "Active", "Inactive"],
-    },
-  ]}
-/>
-
-
+        <TableManagementControls
+          title="Departments"
+          description="Manage company departments and their assigned members"
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by department or lead"
+          addButtonLabel="Add Department"
+          onAdd={() => openModalWithTab("department")}
+          filters={[
+            {
+              label: "Status",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: ["Status", "Active", "Inactive"],
+            },
+          ]}
+        />
 
         {loading ? (
           <div className="">

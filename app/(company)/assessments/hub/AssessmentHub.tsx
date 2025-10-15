@@ -81,6 +81,7 @@ export default function AssessmentHub() {
       setDateError(null);
     }
   }, [
+    state.assessmentData,
     state.assessmentData.startMonth,
     state.assessmentData.startYear,
     state.assessmentData.endMonth,

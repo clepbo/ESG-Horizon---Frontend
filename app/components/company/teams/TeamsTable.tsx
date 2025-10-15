@@ -7,7 +7,6 @@ import ConfirmModal from "../../ui/modals/ConfirmModal";
 
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import EditUserModal from "../../common/users/EditUserModal";
-import RoleDefinitions from "../../settings/RoleDefinitions";
 import { TeamUserStatus, User } from "@/services/user.service";
 import RoleGuard from "@/lib/RoleGuard";
 import { formatRoleName, formattedDate } from "@/lib/utils";

@@ -1,18 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Search } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { useSearchParams } from "next/navigation";
 import Header from "@/app/(company)/components/Header";
-import { Input } from "@/app/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/app/components/ui/select";
 import SubsidiaryTable from "@/app/components/company/subsidiaries/SubsidiaryTable";
 import AddSubsidiaryModal from "@/app/components/company/subsidiaries/AddSubsidiaryModal";
 import { Subsidiary, subsidiariesService } from "@/services/subsidiaries.service";
@@ -97,17 +88,16 @@ export default function SubsidiariesPage() {
   }, []);
 
   const filteredSubsidiaries = useMemo(() => {
-  return subsidiaries.filter((sub) => {
-    const matchesSearch = sub.name.toLowerCase().includes(debouncedSearch.toLowerCase());
+    return subsidiaries.filter((sub) => {
+      const matchesSearch = sub.name.toLowerCase().includes(debouncedSearch.toLowerCase());
 
-    const matchesIndustry =
-      industryFilter === "All Industries" ||
-      (sub.industry && `${sub.industry.industry} (${sub.industry.sector})` === industryFilter);
+      const matchesIndustry =
+        industryFilter === "All Industries" ||
+        (sub.industry && `${sub.industry.industry} (${sub.industry.sector})` === industryFilter);
 
-    return matchesSearch && matchesIndustry;
-  });
-}, [subsidiaries, debouncedSearch, industryFilter]);
-
+      return matchesSearch && matchesIndustry;
+    });
+  }, [subsidiaries, debouncedSearch, industryFilter]);
 
   const handleAddSubsidiary = (newSub: Subsidiary) => {
     setSubsidiaries((prev) => [{ ...newSub }, ...prev]);
@@ -167,29 +157,27 @@ export default function SubsidiariesPage() {
       >
         <Header />
 
-
         <TableManagementControls
-  title="Subsidiaries"
-  description="Add and manage company subsidiaries to keep your records up to date."
-  search={search}
-  onSearchChange={setSearch}
-  searchPlaceholder="Search by Subsidiary"
-  addButtonLabel="Add Subsidiary"
-  onAdd={() => openModalWithTab("subsidiary")}
-  filters={[
-  {
-    label: "Industry",
-    value: industryFilter,
-    onChange: setIndustryFilter,
-    options: ["All Industries", ...industryOptions.map((opt) => `${opt.industry} (${opt.sector})`)],
-  },
-]}
-/>
+          title="Subsidiaries"
+          description="Add and manage company subsidiaries to keep your records up to date."
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by Subsidiary"
+          addButtonLabel="Add Subsidiary"
+          onAdd={() => openModalWithTab("subsidiary")}
+          filters={[
+            {
+              label: "Industry",
+              value: industryFilter,
+              onChange: setIndustryFilter,
+              options: [
+                "All Industries",
+                ...industryOptions.map((opt) => `${opt.industry} (${opt.sector})`),
+              ],
+            },
+          ]}
+        />
 
-
-
-
-        
         {loading ? (
           <div className="">
             <CardSkeleton />
