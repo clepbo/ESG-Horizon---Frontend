@@ -25,7 +25,7 @@ export default function ProfileCard({ user, onEdit }: ProfileCardProps) {
                     <h2 className="text-xl font-semibold">
                         {user.first_name} {user.last_name}
                     </h2>
-                    <span className="text-sm bg-blue-500 text-white px-3 py-0.5 rounded-full">
+                    <span className="text-sm bg-[var(--color-primary)] text-white px-3 py-0.5 rounded-full">
                         {formatRoleName(user?.role?.name || "N/A")}
                     </span>
                 </div>

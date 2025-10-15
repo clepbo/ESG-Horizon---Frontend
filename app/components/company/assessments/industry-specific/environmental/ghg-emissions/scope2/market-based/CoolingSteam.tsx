@@ -274,7 +274,7 @@ export function CoolingSteamForm({
                     <Button
                         variant="outline"
                         onClick={onBack}
-                        className="flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+                        className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
                     >
                         <ArrowLeft className="h-4 w-4" /> Back
                     </Button>
@@ -420,7 +420,7 @@ export function CoolingSteamForm({
                                                     </div>
                                                 ) : files[field] ? (
                                                     <div className="flex items-center gap-2 mt-2">
-                                                        <p className="text-sm text-green-600 break-words max-w-full text-center">
+                                                        <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
                                                             Uploaded:{" "}
                                                             {files[field]!.name}
                                                         </p>
@@ -461,7 +461,7 @@ export function CoolingSteamForm({
                             <Button
                                 variant="outline"
                                 onClick={onBack}
-                                className="cursor-pointer justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                                className="cursor-pointer justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 Previous
@@ -472,7 +472,7 @@ export function CoolingSteamForm({
                                 variant="outline"
                                 onClick={handleSaveAndContinue}
                                 disabled={isSaving}
-                                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                                className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                                 aria-label="Save and continue later"
                             >
                                 {isSaving ? (
@@ -499,7 +499,7 @@ export function CoolingSteamForm({
                                 variant="outline"
                                 onClick={handleSubmit}
                                 disabled={isSaving}
-                                className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                                className="cursor-pointer justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-teal-50 flex items-center gap-2"
                             >
                                 {isSaving ? "Submitting..." : "Submit"}
                             </Button>
