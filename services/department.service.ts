@@ -6,6 +6,7 @@ export interface Department {
   description?: string;
   companyId?: number;
   subsidiaryId?: number;
+  status?: string;
   subsidiary?: {
     id?: number;
     name?: string;

@@ -12,7 +12,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/app/components/ui/select";
-import Header from "@/app/(company)/components/Header";
 import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
@@ -21,13 +20,15 @@ import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import Header from "@/app/(company)/components/Header";
+import TableManagementControls from "@/app/components/company/TableManagementControls";
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Status");
-  const [roleFilter, setRoleFilter] = useState("Roles");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [roleFilter, setRoleFilter] = useState("All Roles");
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
 
@@ -58,17 +59,37 @@ export default function TeamsPage() {
     fetchUsers();
   }, []);
 
-  const filteredData = useMemo(() => {
-    return users.filter((user) => {
-      const matchesSearch =
-        user.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-        user.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "Status" || user.status === statusFilter;
-      const matchesRole = roleFilter === "Roles" || user.role?.name === roleFilter;
-      return matchesSearch && matchesStatus && matchesRole;
-    });
-  }, [users, search, statusFilter, roleFilter]);
+  const ROLE_OPTIONS = [
+  { label: "Company Admin", value: "company_esg_admin" },
+  { label: "Company SubAdmin", value: "company_esg_subadmin" },
+  { label: "Company Data Manager", value: "company_esg_data_manager" },
+  { label: "Company Viewer", value: "company_esg_viewer" },
+];
+
+const STATUS_OPTIONS = [
+  { label: "Active", value: "active" },
+  { label: "Pending", value: "pending" },
+  { label: "Suspended", value: "suspended" },
+];
+
+
+const filteredData = useMemo(() => {
+  const roleValue = ROLE_OPTIONS.find((r) => r.label === roleFilter)?.value;
+  const statusValue = STATUS_OPTIONS.find((s) => s.label === statusFilter)?.value;
+
+  return users.filter((user) => {
+    const matchesSearch =
+      user.first_name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.last_name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase());
+
+    const matchesRole = roleFilter === "All Roles" || user.role?.name === roleValue;
+    const matchesStatus = statusFilter === "All Status" || user.status === statusValue;
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+}, [users, search, roleFilter, statusFilter]);
+
 
   const handleStatusUpdate = async (id: number, newStatus: TeamUserStatus) => {
     try {
@@ -108,62 +129,33 @@ export default function TeamsPage() {
           duration: 0.5,
         }}
       >
-        <Header showSearchBar={false} />
+        <Header />
 
-        <div className="mt-0">
-          <h2 className="text-2xl font-semibold">Teams</h2>
-          <p className="text-gray-600">Manage platform users and their access permissions</p>
-        </div>
 
-        <div className="mt-8 mb-1 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-lg p-4 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center gap-3 flex-1">
-            <div className="relative flex-1">
-              <Input
-                id="search-input"
-                placeholder="Search by name or email"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-[var(--color-primary)] hover:bg-teal-700"
-              />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            </div>
+<TableManagementControls
+  title="Teams"
+  description="Manage platform users and their access permissions"
+  search={search}
+  onSearchChange={setSearch}
+  searchPlaceholder="Search by name or email"
+  addButtonLabel="Invite User"
+  onAdd={() => openModalWithTab("user")}
+  filters={[
+  {
+    label: roleFilter === "All Roles" ? "All Roles" : "Filter Roles",
+    value: roleFilter,
+    onChange: setRoleFilter,
+    options: ["All Roles", ...ROLE_OPTIONS.map((r) => r.label)],
+  },
+  {
+    label: statusFilter === "All Status" ? "All Status" : "Filter Status",
+    value: statusFilter,
+    onChange: setStatusFilter,
+    options: ["All Status", ...STATUS_OPTIONS.map((s) => s.label)],
+  },
+]}
 
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Roles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Roles">All Roles</SelectItem>
-                <SelectItem value="Super Admin">Super Admin</SelectItem>
-                <SelectItem value="Platform Admin">Platform Admin</SelectItem>
-                <SelectItem value="Platform Manager">Platform Manager</SelectItem>
-                <SelectItem value="Platform Viewer">Platform Viewer</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Status">All Status</SelectItem>
-                <SelectItem value="Approved">Approved</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Suspended">Suspended</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
-            <button
-              className="flex items-center gap-1 rounded-md bg-[var(--color-primary)] hover:bg-teal-700 text-white text-sm px-4 py-2 transition whitespace-nowrap cursor-pointer"
-              onClick={() => openModalWithTab("user")}
-            >
-              <Plus className="w-4 h-4" />
-              Invite User
-            </button>
-          </RoleGuard>
-        </div>
+/>
 
         {loading ? (
           <CardSkeleton />

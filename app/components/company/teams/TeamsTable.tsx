@@ -12,6 +12,7 @@ import { TeamUserStatus, User } from "@/services/user.service";
 import RoleGuard from "@/lib/RoleGuard";
 import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
+import RoleDefinitionsModal from "../../settings/RoleDefinitionsModal";
 
 type Props = {
   users: User[];
@@ -137,7 +138,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.department?.name ? (
                         user.department?.name
                       ) : (
-                        <span className="text-gray-400 text-sm">No Department</span>
+                        <span className="text-gray-400 text-sm">N/A</span>
                       )}
                     </td>
 
@@ -230,7 +231,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
         )}
       </div>
 
-      <RoleDefinitions />
+      <RoleDefinitionsModal />
     </div>
   );
 }
