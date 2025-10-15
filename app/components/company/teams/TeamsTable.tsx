@@ -147,9 +147,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       <StatusBadge status={user.status} />
                     </td>
 
-                    <td className="px-4 py-3">
-                      {formattedDate(String(user.last_login) || "")}
-                    </td>
+                    <td className="px-4 py-3">{formattedDate(String(user.last_login) || "")}</td>
 
                     <td className="px-4 py-3 flex space-x-2">
                       {/* Edit user button */}

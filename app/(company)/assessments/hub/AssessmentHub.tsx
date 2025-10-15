@@ -63,30 +63,29 @@ export default function AssessmentHub() {
   }, [isLoading, subsidiaries, user, state.assessmentData.subsidiary, dispatch]);
 
   useEffect(() => {
-  const { startMonth, startYear, endMonth, endYear } = state.assessmentData;
-  if (!startMonth || !startYear || !endMonth || !endYear) {
-    setDateError(null);
-    return;
-  }
+    const { startMonth, startYear, endMonth, endYear } = state.assessmentData;
+    if (!startMonth || !startYear || !endMonth || !endYear) {
+      setDateError(null);
+      return;
+    }
 
-  const startIndex = months.indexOf(startMonth);
-  const endIndex = months.indexOf(endMonth);
+    const startIndex = months.indexOf(startMonth);
+    const endIndex = months.indexOf(endMonth);
 
-  const start = new Date(Number(startYear), startIndex);
-  const end = new Date(Number(endYear), endIndex);
+    const start = new Date(Number(startYear), startIndex);
+    const end = new Date(Number(endYear), endIndex);
 
-  if (end < start) {
-    setDateError("End date cannot be earlier than start date");
-  } else {
-    setDateError(null);
-  }
-}, [
-  state.assessmentData.startMonth,
-  state.assessmentData.startYear,
-  state.assessmentData.endMonth,
-  state.assessmentData.endYear,
-]);
-
+    if (end < start) {
+      setDateError("End date cannot be earlier than start date");
+    } else {
+      setDateError(null);
+    }
+  }, [
+    state.assessmentData.startMonth,
+    state.assessmentData.startYear,
+    state.assessmentData.endMonth,
+    state.assessmentData.endYear,
+  ]);
 
   const handleProceed = async () => {
     dispatch({
@@ -198,7 +197,7 @@ export default function AssessmentHub() {
                 <span className="block text-lg font-semibold text-foreground mb-2">
                   Reporting Period
                 </span>
-                
+
                 <div className="flex flex-col gap-4">
                   {/* Starting Period */}
                   <div className="flex items-center gap-2">
@@ -237,63 +236,58 @@ export default function AssessmentHub() {
 
                   {/* Ending Period */}
                   {/* Ending Period */}
-<div className="flex flex-col gap-1">
-  <div className="flex items-center gap-2">
-    <label className="text-sm text-foreground w-28">Ending Period</label>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-foreground w-28">Ending Period</label>
 
-    <Select
-      value={state.assessmentData.endMonth}
-      onValueChange={(value) => handleInputChange("endMonth", value)}
-    >
-      <SelectTrigger
-        className={`w-32 border ${
-          dateError ? "border-red-500" : "border-slate-300"
-        } hover:cursor-pointer focus:ring-2 ${
-          dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-        }`}
-      >
-        <SelectValue placeholder="Month" />
-      </SelectTrigger>
-      <SelectContent>
-        {months.map((month) => (
-          <SelectItem key={month} value={month}>
-            {month}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+                      <Select
+                        value={state.assessmentData.endMonth}
+                        onValueChange={(value) => handleInputChange("endMonth", value)}
+                      >
+                        <SelectTrigger
+                          className={`w-32 border ${
+                            dateError ? "border-red-500" : "border-slate-300"
+                          } hover:cursor-pointer focus:ring-2 ${
+                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                          }`}
+                        >
+                          <SelectValue placeholder="Month" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {months.map((month) => (
+                            <SelectItem key={month} value={month}>
+                              {month}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
-    <Select
-      value={state.assessmentData.endYear}
-      onValueChange={(value) => handleInputChange("endYear", value)}
-    >
-      <SelectTrigger
-        className={`w-24 border ${
-          dateError ? "border-red-500" : "border-slate-300"
-        } hover:cursor-pointer focus:ring-2 ${
-          dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-        }`}
-      >
-        <SelectValue placeholder="Year" />
-      </SelectTrigger>
-      <SelectContent>
-        {years.map((year) => (
-          <SelectItem key={year} value={year}>
-            {year}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
+                      <Select
+                        value={state.assessmentData.endYear}
+                        onValueChange={(value) => handleInputChange("endYear", value)}
+                      >
+                        <SelectTrigger
+                          className={`w-24 border ${
+                            dateError ? "border-red-500" : "border-slate-300"
+                          } hover:cursor-pointer focus:ring-2 ${
+                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                          }`}
+                        >
+                          <SelectValue placeholder="Year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {years.map((year) => (
+                            <SelectItem key={year} value={year}>
+                              {year}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-  {dateError && (
-    <p className="text-red-600 text-sm ml-28">{dateError}</p>
-  )}
-</div>
-
-
+                    {dateError && <p className="text-red-600 text-sm ml-28">{dateError}</p>}
+                  </div>
                 </div>
-                
               </div>
 
               <div className="flex justify-end">
