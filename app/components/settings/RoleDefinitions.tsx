@@ -76,7 +76,7 @@ export default function RoleDefinitions() {
               key={role.name}
               className="border border-gray-200 rounded-lg p-5 bg-white"
             >
-              <div className="inline-block px-3 py-1 rounded-full text-white text-sm font-medium bg-teal-400">
+              <div className="inline-block px-3 py-1 rounded-full text-white text-sm font-medium bg-[var(--color-primary)]">
                 {formatRoleName(role.name)}
               </div>
               <div className="mt-3">
