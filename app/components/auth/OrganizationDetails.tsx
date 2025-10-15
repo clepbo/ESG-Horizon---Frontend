@@ -322,7 +322,7 @@ export const OrganizationDetails = ({
 
         <Button
           type="submit"
-          className="w-full h-12 hover:cursor-pointer bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium"
+          className="w-full h-12 hover:cursor-pointer bg-[var(--color-primary)]  hover:bg-teal-700 text-white rounded-lg font-medium"
           disabled={loading || isTransitioning}
         >
           {loading ? (

@@ -23,13 +23,13 @@ export function SuccessScreen({
 }: SuccessScreenProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-green-700 rounded-xl shadow-2xl px-8 py-10 max-w-md w-full flex flex-col items-center animate-fade-in-slow">
+            <div className="bg-[var(--color-primary)]  rounded-xl shadow-2xl px-8 py-10 max-w-md w-full flex flex-col items-center animate-fade-in-slow">
                 <CheckCircle className="h-16 w-16 text-white mb-6" />
                 <h2 className="text-2xl font-bold text-white mb-2 text-center">
                     {assessmentName} Assessment Submitted!
                 </h2>
                 {totals && (
-                    <p className="text-green-700 bg-white mb-4 text-center p-3 rounded-lg font-semibold">
+                    <p className="text-teal-700 bg-white mb-4 text-center p-3 rounded-lg font-semibold">
                         Total Emissions for {assessmentName}<br />
                         <span className="font-bold">
                             {"="}{(sectionKey &&
@@ -60,7 +60,7 @@ export function SuccessScreen({
                             : "Review Assessment"}
                     </Button>
                     <Button
-                        className="w-full bg-green-700 border border-white text-white font-semibold py-3 rounded-lg transition-all duration-300 hover:bg-green-800 hover:border-green-200 hover:cursor-pointer"
+                        className="w-full bg-[var(--color-primary)]  hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-lg transition-all duration-300  hover:border-green-200 hover:cursor-pointer"
                         variant="outline"
                         onClick={onBackToHub}
                     >

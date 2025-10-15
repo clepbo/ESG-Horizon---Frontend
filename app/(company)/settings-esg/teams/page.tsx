@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import TeamsTable from "@/app/components/company/teams/TeamsTable";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
 import { Input } from "@/app/components/ui/input";
@@ -21,6 +20,7 @@ import RoleGuard from "@/lib/RoleGuard";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -130,7 +130,7 @@ export default function TeamsPage() {
               allowedRoles={["company_esg_admin", "company_esg_subadmin"]}
             >
               <button
-                className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
+                className="text-white bg-[var(--color-primary)]  hover:bg-teal-700 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
                 onClick={() => openModalWithTab("user")}
               >
                 <Plus className="h-4 w-4 mr-1" />
@@ -150,7 +150,7 @@ export default function TeamsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
               <Search className="h-3.5 w-3.5" />
               Search
             </button>
@@ -188,9 +188,7 @@ export default function TeamsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-10">
-            <Spinner />
-          </div>
+          <CardSkeleton />
         ) : (
           <TeamsTable
             users={filteredData}

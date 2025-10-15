@@ -5,7 +5,6 @@ import Header from "@/app/(company)/components/Header";
 import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import {
   useCompanyDetails,
@@ -14,6 +13,7 @@ import {
 import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export default function CompanyPage() {
   const queryClient = useQueryClient();
@@ -41,7 +41,7 @@ export default function CompanyPage() {
   if (isCompanyLoading || isIndustriesLoading || isUsersLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <Spinner />
+        <PageSkeleton />
       </div>
     );
   }

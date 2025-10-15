@@ -42,26 +42,29 @@ export default function Header({
           size={20}
         />
 
-        <div className="flex items-center gap-2">
-          <Image
-            src={avatarSrc}
-            alt={`${user?.first_name || "N/A"}`}
-            width={36}
-            height={36}
-            className={`rounded-full object-cover ${
-              isFallbackImage ? "opacity-50 blur-[1px]" : ""
-            }`}
-          />
-          <div className="flex flex-col justify-center items-start text-sm">
-            <span className="text-gray-900 font-medium ">
-              {user ? `${user.first_name} ${user.last_name}` : "Loading..."}
-            </span>
-            <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-lg">
-              {formatRoleName(user?.role?.name || "N/A")}
-            </span>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
+                <div className="flex items-center gap-2">
+                    <Image
+                        src={avatarSrc}
+                        alt={`${user?.first_name || "N/A"}`}
+                        width={36}
+                        height={36}
+                        className={`rounded-full object-cover ${
+                            isFallbackImage ? "opacity-50 blur-[1px]" : ""
+                        }`}
+                    />
+                    <div className="flex flex-col justify-center items-start text-sm">
+                        <span className="text-gray-900 font-medium ">
+                            {user
+                                ? `${user.first_name} ${user.last_name}`
+                                : "Loading..."}
+                        </span>
+                        <span className="bg-[var(--color-primary)]
+ text-white text-xs px-2 py-0.5 rounded-lg">
+                            {formatRoleName(user?.role?.name || "N/A")}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
 }

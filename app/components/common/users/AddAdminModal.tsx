@@ -59,7 +59,7 @@ export default function AddAdminModal({ onClose }: { onClose: () => void }) {
             </button>
             <button
               type="submit"
-              className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600"
+              className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm "
             >
               Send Invite
             </button>

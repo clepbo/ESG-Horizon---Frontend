@@ -119,7 +119,7 @@ export default function ReportActivityTable() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
             <Search className="h-3.5 w-3.5" />
             Search
           </button>
@@ -184,7 +184,7 @@ export default function ReportActivityTable() {
                     <StatusBadge status={report.status} />
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500 text-white text-sm hover:bg-green-600 transition-colors cursor-pointer">
+                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 text-white text-sm  transition-colors cursor-pointer">
                       <Eye className="w-4 h-4" />
                       View
                     </button>

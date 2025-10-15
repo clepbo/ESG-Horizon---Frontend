@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import Header from "@/app/components/layout/Header";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import TeamsTable from "@/app/components/company/teams/TeamsTable";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
 import { Input } from "@/app/components/ui/input";
@@ -18,6 +17,7 @@ import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -163,7 +163,7 @@ export default function TeamsPage() {
 
         {loading ? (
           <div className="flex justify-center items-center py-10">
-            <Spinner />
+            <CardSkeleton />
           </div>
         ) : (
           <TeamsTable

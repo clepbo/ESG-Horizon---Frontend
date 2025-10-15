@@ -139,22 +139,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.setItem("esg-tour-completed", "false");
         }
 
-        toast.dark("Logged out", { autoClose: 1000});
+        toast.dark("Logged out", { autoClose: 1000 });
     }, []);
 
+    // const socialLogin = async (provider: "google") => {
+    //     const { error } = await supabase.auth.signInWithOAuth({
+    //         provider: provider,
+    //         options: {
+    //             redirectTo: `${window.location.origin}/callback`,
+    //         },
+    //     });
+
+    //     if (error) {
+    //         toast.error(error.message);
+    //         console.error("Social login error:", error);
+    //     }
+    // };
+
     const socialLogin = async (provider: "google") => {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: provider,
+    try {
+        // Step 1: Trigger OAuth sign-in through Supabase
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider,
             options: {
                 redirectTo: `${window.location.origin}/callback`,
             },
         });
 
+        // Step 2: Handle Supabase errors (if any)
         if (error) {
-            toast.error(error.message);
-            console.error("Social login error:", error);
+            console.error("Supabase OAuth error:", error.message);
+            throw new Error("Failed to start Google authentication.");
         }
-    };
+
+        // The OAuth flow will redirect the user — no manual login needed here.
+        // However, if for some reason the redirect fails or the callback
+        // endpoint returns an error, we’ll handle it below.
+    } catch (err) {
+        const axiosError = err as AxiosError<{ message?: string }>;
+
+        console.log(
+            "Social login error caught in AuthContext:",
+            axiosError?.response?.data
+        );
+
+        // If the backend explicitly returned a message
+        const message =
+            axiosError?.response?.data?.message ||
+            axiosError?.message ||
+            "Login failed. Please try again.";
+
+        setLoginState(false);
+        throw new Error(message);
+    }
+};
+
 
     useEffect(() => {
         registerLogout(logout);
@@ -189,7 +228,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
                 "/forgot-password",
                 "/verify-email",
                 "/reset-password",
-                "/callback"
+                "/callback",
             ].some((p) => pathname.startsWith(p));
 
             if (!user) {

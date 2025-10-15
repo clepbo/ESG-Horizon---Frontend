@@ -375,7 +375,7 @@ export function HFCLeaks({
                     <Button
                         variant="outline"
                         onClick={onBack}
-                        className="flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+                        className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
                         aria-label="Go back to previous step"
                     >
                         <ArrowLeft className="h-4 w-4" />
@@ -572,7 +572,7 @@ export function HFCLeaks({
                                     type="button"
                                     variant="outline"
                                     onClick={onBack}
-                                    className="justify-self-start hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                                    className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                                     aria-label="Previous step"
                                 >
                                     <ArrowLeft className="h-4 w-4" />
@@ -583,7 +583,7 @@ export function HFCLeaks({
                                     variant="outline"
                                     onClick={handleSaveAndContinue}
                                     disabled={isSaving}
-                                    className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                                    className="justify-self-center bg-[var(--color-primary)]  hover:bg-[var(--color-primary)] hover:cursor-pointer text-white  transition-colors"
                                     aria-label="Save and continue later"
                                 >
                                     {isSaving ? (
@@ -611,7 +611,7 @@ export function HFCLeaks({
                                     variant="outline"
                                     onClick={handleSubmit}
                                     disabled={isSaving || isSubmitting}
-                                    className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                                    className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                                     aria-label="Submit form"
                                 >
                                     {isSubmitting ? "Submitting..." : "Submit"}

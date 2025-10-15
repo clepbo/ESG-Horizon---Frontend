@@ -176,14 +176,14 @@ export default function EditUserModal({
                 <div className="flex justify-end gap-4 mt-10">
                     <button
                         onClick={onClose}
-                        className="border border-green-500 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50 cursor-pointer"
+                        className="border border-teal-500 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50 cursor-pointer"
                     >
                         Close
                     </button>
                     <button
                         onClick={handleUpdate}
                         disabled={loading}
-                        className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
+                        className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm  cursor-pointer disabled:opacity-50"
                     >
                         {loading ? "Please wait..." : "Update"}
                     </button>

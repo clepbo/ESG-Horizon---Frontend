@@ -181,7 +181,7 @@ export default function EditSubsidiaryModal({
                     </Button>
                     <Button
                         onClick={handleSave}
-                        className="bg-green-500 hover:bg-green-600"
+                        className="bg-[var(--color-primary)]  hover:bg-teal-600"
                         disabled={saving}
                     >
                         {saving ? "Saving..." : "Save"}

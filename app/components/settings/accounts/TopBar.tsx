@@ -17,8 +17,8 @@ export default function TabBar({ tabs, activeTab, setActiveTab }: TabBarProps) {
           onClick={() => setActiveTab(tab)}
           className={`flex-1 px-6 py-2 rounded border transition-colors cursor-pointer ${
             activeTab === tab
-              ? "bg-green-500 text-white border-green-500"
-              : "bg-white text-green-600 border-green-500 hover:bg-green-50"
+              ? "bg-[var(--color-primary)]   text-white border-teal-500"
+              : "bg-white text-teal-600 border-teal-500 hover:bg-green-50"
           }`}
         >
           {tab}

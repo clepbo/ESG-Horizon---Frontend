@@ -20,7 +20,7 @@ export default function LoginPage() {
         />
 
         {/* Green Overlay */}
-        <div className="absolute inset-0 bg-green-500 opacity-50 z-10" />
+        <div className="absolute inset-0 bg-[var(--color-primary)] opacity-60 z-10" />
         <div className="absolute inset-0 bg-black opacity-50 z-10" />
 
         {/* Content on overlay */}

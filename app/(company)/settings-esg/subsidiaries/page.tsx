@@ -25,6 +25,7 @@ import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 interface IndustryOptionsProps {
   value: number;
@@ -215,7 +216,7 @@ export default function SubsidiariesPage() {
               </p>
               <div>
                 <button
-                  className="flex items-center rounded-sm border bg-green-500 px-4 py-2 text-sm text-white hover:bg-green-600 cursor-pointer"
+                  className="flex items-center rounded-sm border bg-[var(--color-primary)]  hover:bg-teal-700 px-4 py-2 text-sm text-white  cursor-pointer"
                   // onClick={() => setShowAddModal(true)}
                   onClick={() => openModalWithTab("subsidiary")}
                 >
@@ -227,61 +228,55 @@ export default function SubsidiariesPage() {
           </div>
         </div>
 
+        <div className="mb-6 flex flex-col gap-4 rounded-lg bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="relative w-full">
+            <Input
+              id="search-input"
+              placeholder="Search by Subsidiary"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
+              <Search className="h-3.5 w-3.5" />
+              Search
+            </button>
+          </div>
+
+          <div className="flex">
+            <Select value={industryFilter} onValueChange={setIndustryFilter}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Industry" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[200px] max-w-[250px] overflow-y-auto">
+                <SelectItem value="All">All Industries</SelectItem>
+                {industryOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value.toString()}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-8 h-8 border-4 border-gray-300 border-t-green-600 rounded-full animate-spin" />
+          <div className="">
+            <CardSkeleton />
           </div>
         ) : (
-          <>
-            <div className="mb-6 flex flex-col gap-4 rounded-lg bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-              <div className="relative w-full">
-                <Input
-                  id="search-input"
-                  placeholder="Search by Subsidiary"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
-                  <Search className="h-3.5 w-3.5" />
-                  Search
-                </button>
-              </div>
-
-              <div className="flex">
-                <Select
-                  value={industryFilter}
-                  onValueChange={setIndustryFilter}
-                >
-                  <SelectTrigger className="w-[250px]">
-                    <SelectValue placeholder="Industry" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] max-w-[250px] overflow-y-auto">
-                    <SelectItem value="All">All Industries</SelectItem>
-                    {industryOptions.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value.toString()}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-white shadow">
-              <SubsidiaryTable
-                subsidiaries={filteredSubsidiaries}
-                onDelete={(id) => {
-                  deleteSubsidiary.mutate(+id);
-                  setSubsidiaries((prev) => prev.filter((s) => s.id !== id));
-                }}
-                onEdit={(updated) => {
-                  setSubsidiaries((prev) =>
-                    prev.map((s) => (s.id === updated.id ? updated : s))
-                  );
-                }}
-              />
-            </div>
-          </>
+          <div>
+            <SubsidiaryTable
+              subsidiaries={filteredSubsidiaries}
+              onDelete={(id) => {
+                deleteSubsidiary.mutate(+id);
+                setSubsidiaries((prev) => prev.filter((s) => s.id !== id));
+              }}
+              onEdit={(updated) => {
+                setSubsidiaries((prev) =>
+                  prev.map((s) => (s.id === updated.id ? updated : s))
+                );
+              }}
+            />
+          </div>
         )}
       </motion.main>
 

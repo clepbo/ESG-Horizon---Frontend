@@ -41,7 +41,7 @@ export const RequestSubmitted = () => {
 
                 <Button
                     onClick={handleContinue}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 text-sm rounded-md cursor-pointer"
+                    className="w-full bg-[var(--color-primary)]  hover:bg-teal-700 text-white py-3 text-sm rounded-md cursor-pointer"
                 >
                     Continue to website
                 </Button>

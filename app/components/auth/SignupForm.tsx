@@ -287,21 +287,21 @@ export const SignupForm = ({ onSubmitted }: { onSubmitted: () => void }) => {
                 <div className="flex gap-3">
                     <button
                         onClick={() => socialLogin("google")}
-                        className="hover:cursor-pointer flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        className="hover:cursor-pointer flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         disabled={loading || isSubmitting}
                     >
                         <GoogleIcon className="h-5 w-5" />
                         <span className="hidden sm:inline">Google</span>
                     </button>
                     <button
-                        className="flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        className="cursor-not-allowed flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         disabled={loading || isSubmitting}
                     >
                         <FaApple className="h-5 w-5 text-black" />
                         <span className="hidden sm:inline">Apple</span>
                     </button>
                     <button
-                        className="flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        className="cursor-not-allowed flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         disabled={loading || isSubmitting}
                     >
                         <MicrosoftIcon className="h-5 w-5" />

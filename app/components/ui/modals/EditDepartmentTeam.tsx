@@ -84,7 +84,7 @@ export default function EditUserModal({
           <span
             className={clsx(
               "px-4 py-1 rounded-full text-sm font-medium",
-              isApproved ? "bg-green-500 text-white" : "bg-red-500 text-white"
+              isApproved ? "bg-[var(--color-primary)]  hover:bg-teal-600 text-white" : "bg-red-500 text-white"
             )}
           >
             {isApproved ? "Approved" : "Suspended"}
@@ -135,11 +135,11 @@ export default function EditUserModal({
         <div className="flex justify-end gap-4 mt-10">
           <button
             onClick={onClose}
-            className="border border-green-300 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50"
+            className="border border-teal-300 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50"
           >
             Close
           </button>
-          <button className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600">
+          <button className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm ">
             Update
           </button>
         </div>

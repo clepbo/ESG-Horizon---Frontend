@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-// import { User } from "@/context/AuthContext";
 import Header from "@/app/(company)/components/Header";
 import EditUserModal from "@/app/components/ui/modals/EditUser";
 import SettingsAndPassword from "@/app/components/settings/SettingsAndPassword";
@@ -8,7 +7,6 @@ import NotificationsSettings from "@/app/components/settings/NotificationsSettin
 import DataManagement from "@/app/components/settings/DataManagement";
 import TabBar from "@/app/components/settings/accounts/TopBar";
 import ProfileTab from "@/app/components/settings/accounts/ProfileTab";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import {
   Select,
@@ -19,6 +17,7 @@ import {
 } from "@/app/components/ui/select";
 import { User } from "@/services/user.service";
 import { motion } from "framer-motion";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 const TABS = ["Profile", "Security & Password", "Notifications", "Data"];
 
@@ -67,7 +66,7 @@ export default function AccountPage() {
 
       {!userData ? (
         <div className="flex justify-center items-center py-10">
-          <Spinner />
+          <PageSkeleton />
         </div>
       ) : (
         <div className="p-6 space-y-6">

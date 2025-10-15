@@ -47,7 +47,7 @@ function TourCard({
                 <Button
                     onClick={onClick}
                     variant="outline"
-                    className="w-full border-green-500 text-green-600 hover:bg-green-50 bg-transparent flex items-center justify-center gap-2 text-xs"
+                    className="w-full border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50 bg-transparent flex items-center justify-center gap-2 text-xs"
                     disabled={allButtonsDisabled}
                 >
                     {isCurrentLoading ? (
@@ -253,10 +253,10 @@ const ESGTour: FC<ESGTourProps> = ({
                         </p>
                         Need Help?{" "}
                         <a
-                            href="mailto:support@esghorizon.com"
+                            href="mailto:esghorizon@gmail.com"
                             className="underline text-gray-900 hover:text-gray-700"
                         >
-                            support@esghorizon.com
+                            esghorizon@gmail.com
                         </a>
                     </div>
                 </div>

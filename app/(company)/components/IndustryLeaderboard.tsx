@@ -42,7 +42,7 @@ export function IndustryLeaderboard() {
             {/* Table Container */}
             <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100 flex-1">
                 <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-green-200">
+                    <thead className="bg-teal-500">
                         <tr>
                             <th className="px-6 py-3 text-left text-sm font-semibold text-gray-800">
                                 Rank

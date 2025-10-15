@@ -47,7 +47,7 @@ const columns = [
     id: "actions",
     header: "Quick Actions",
     cell: () => (
-      <Button variant="default" size="sm" className="rounded-sm font-semibold text-white bg-green-400 hover:bg-green-600">
+      <Button variant="default" size="sm" className="rounded-sm font-semibold text-white bg-[var(--color-primary)]  hover:bg-teal-600">
         <Link href={`/reports-and-analytics/${reportId}`}>View Report</Link>
       </Button>
     ),

@@ -12,7 +12,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/app/components/ui/select";
-import Spinner from "@/app/components/ui/reusables/Spinner";
 import { companyService } from "@/services/company.service";
 import {
   CreateDepartment,
@@ -25,6 +24,7 @@ import { getCurrentUser } from "@/lib/utils";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -171,7 +171,7 @@ export default function DepartmentsPage() {
           <div className="flex justify-between items-center mb-6 mt-4">
             <RoleGuard allowedRoles={["company_esg_admin"]}>
               <button
-                className="border bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
+                className="border bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
                 onClick={() => openModalWithTab("department")}
               >
                 <Plus className="h-4 w-4 mr-1" />
@@ -190,7 +190,7 @@ export default function DepartmentsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
               <Search className="h-3.5 w-3.5" />
               Search
             </button>
@@ -211,8 +211,8 @@ export default function DepartmentsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Spinner />
+          <div className="">
+            <CardSkeleton />
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">
