@@ -197,4 +197,3 @@ const ReportSummary = (props: ReportSummaryProps) => {
 };
 
 export default ReportSummary;
-
