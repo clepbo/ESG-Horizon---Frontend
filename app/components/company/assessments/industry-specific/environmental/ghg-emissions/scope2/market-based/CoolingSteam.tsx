@@ -37,6 +37,7 @@ const uploadFields = [
 export function CoolingSteamForm({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,

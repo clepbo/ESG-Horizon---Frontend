@@ -108,52 +108,32 @@ export default function TeamsPage() {
           duration: 0.5,
         }}
       >
-        <Header />
+        <Header showSearchBar={false} />
 
-        {/* Title & Invite */}
-        <div className="flex justify-between">
-          <div className="mt-4">
-            <h2 className="text-2xl font-semibold">Teams</h2>
-            <p className="text-gray-600">Manage platform users and their access permissions</p>
-          </div>
-
-          <div className="flex justify-between items-center mb-6 mt-4">
-            <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
-              <button
-                className="text-white bg-[var(--color-primary)]  hover:bg-teal-700 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
-                onClick={() => openModalWithTab("user")}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Invite User
-              </button>
-            </RoleGuard>
-          </div>
+        <div className="mt-0">
+          <h2 className="text-2xl font-semibold">Teams</h2>
+          <p className="text-gray-600">Manage platform users and their access permissions</p>
         </div>
 
-        {/* Search + Filters */}
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white rounded-lg p-4 shadow-sm">
-          {/* Search */}
-          <div className="relative w-full">
-            <Input
-              id="search-input"
-              placeholder="Search by name or email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
-              <Search className="h-3.5 w-3.5" />
-              Search
-            </button>
-          </div>
+        <div className="mt-8 mb-1 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-lg p-4 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 flex-1">
+            <div className="relative flex-1">
+              <Input
+                id="search-input"
+                placeholder="Search by name or email"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-[var(--color-primary)] hover:bg-teal-700"
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            </div>
 
-          {/* Dropdowns */}
-          <div className="flex gap-2">
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Roles" />
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Roles" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Roles">Roles</SelectItem>
+                <SelectItem value="Roles">All Roles</SelectItem>
                 <SelectItem value="Super Admin">Super Admin</SelectItem>
                 <SelectItem value="Platform Admin">Platform Admin</SelectItem>
                 <SelectItem value="Platform Manager">Platform Manager</SelectItem>
@@ -162,17 +142,27 @@ export default function TeamsPage() {
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Status" />
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Status">Status</SelectItem>
+                <SelectItem value="Status">All Status</SelectItem>
                 <SelectItem value="Approved">Approved</SelectItem>
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="Suspended">Suspended</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+            <button
+              className="flex items-center gap-1 rounded-md bg-[var(--color-primary)] hover:bg-teal-700 text-white text-sm px-4 py-2 transition whitespace-nowrap cursor-pointer"
+              onClick={() => openModalWithTab("user")}
+            >
+              <Plus className="w-4 h-4" />
+              Invite User
+            </button>
+          </RoleGuard>
         </div>
 
         {loading ? (

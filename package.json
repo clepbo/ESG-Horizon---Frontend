@@ -8,9 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "format": "prettier --write .",
+    "format": "npx prettier --write .",
     "lint:fix": "eslint . --fix",
-    "fix": "npm run lint:fix && npm run format"
+    "ts:check": "npx tsc --noEmit"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",

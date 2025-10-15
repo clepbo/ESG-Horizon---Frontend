@@ -10,6 +10,7 @@ export interface User {
   phone_number?: string;
   profile_photo_url?: string;
   status: TeamUserStatus;
+  last_login?: string;
   company?: {
     id?: number;
     name?: string;

@@ -10,7 +10,7 @@ import EditUserModal from "../../common/users/EditUserModal";
 import RoleDefinitions from "../../settings/RoleDefinitions";
 import { TeamUserStatus, User } from "@/services/user.service";
 import RoleGuard from "@/lib/RoleGuard";
-import { formatRoleName } from "@/lib/utils";
+import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
 
 type Props = {
@@ -93,7 +93,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
 
   return (
     <div>
-      <div className="relative overflow-x-auto bg-white rounded-lg mt-4 shadow">
+      <div className="relative overflow-x-auto bg-white rounded-lg mt-2 shadow">
         {paginatedUsers.length === 0 ? (
           <Card>
             <div className="px-4 py-6 text-center text-gray-500 text-sm">No users found.</div>
@@ -107,6 +107,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                   <th className="px-4 py-3">Department</th>
                   <th className="px-4 py-3">Role</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Last Active</th>
                   <th className="px-4 py-3">Quick Actions</th>
                 </tr>
               </thead>
@@ -132,13 +133,22 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                     </td>
-                    <td className="px-4 py-3">{user.department?.name || "-"}</td>
+                    <td className="px-4 py-3">
+                      {user.department?.name ? (
+                        user.department?.name
+                      ) : (
+                        <span className="text-gray-400 text-sm">No Department</span>
+                      )}
+                    </td>
 
                     <td className="px-4 py-3">{formatRoleName(user.role?.name || "")}</td>
 
                     <td className="px-4 py-3">
                       <StatusBadge status={user.status} />
                     </td>
+
+                    <td className="px-4 py-3">{formattedDate(String(user.last_login) || "")}</td>
+
                     <td className="px-4 py-3 flex space-x-2">
                       {/* Edit user button */}
                       <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
