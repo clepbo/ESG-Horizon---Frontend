@@ -24,7 +24,11 @@ const steps = [
 
 type StepKey = "electricityIPP" | "electricityEAC" | "residual" | "coolingSteam";
 
-export function MarketBasedForm({ onBack, onContinueToNextAssessment, initialStep }: MarketBasedFormProps) {
+export function MarketBasedForm({
+  onBack,
+  onContinueToNextAssessment,
+  initialStep,
+}: MarketBasedFormProps) {
   useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);

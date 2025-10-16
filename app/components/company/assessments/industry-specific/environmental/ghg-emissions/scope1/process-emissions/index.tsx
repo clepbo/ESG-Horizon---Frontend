@@ -20,7 +20,7 @@ type StepKey = "cement-manufacturing" | "gas-flaring";
 export function ProcessEmissionsForm({
   onBack,
   onContinueToNextAssessment,
-  initialStep
+  initialStep,
 }: ProcessEmissionsFormProps) {
   useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "cement-manufacturing");

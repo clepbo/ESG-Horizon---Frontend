@@ -44,10 +44,10 @@ export default function CompanyPage() {
 
   const handleAssessmentReviewToggle = async () => {
     if (!isCompanyAdmin || !companyData?.id) return;
-    
+
     const newValue = !requireAssessmentReview;
     setRequireAssessmentReview(newValue);
-    
+
     try {
       await companyService.updateDetails(companyData.id, {
         requireAssessmentReview: newValue,
@@ -177,7 +177,8 @@ export default function CompanyPage() {
           <div>
             <p className="font-medium">Require Assessment Review</p>
             <p className="text-sm text-gray-500">
-              When enabled, submitted assessments will await admin approval. When disabled, assessments are automatically approved upon submission.
+              When enabled, submitted assessments will await admin approval. When disabled,
+              assessments are automatically approved upon submission.
             </p>
           </div>
           <div className="relative group">

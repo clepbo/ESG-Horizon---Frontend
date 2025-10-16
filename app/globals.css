@@ -215,7 +215,7 @@
     /* Prevent overscroll bounce effect on all platforms */
     overscroll-behavior: none;
   }
-  
+
   body {
     /* Prevent overscroll bounce effect */
     overscroll-behavior-y: none;

@@ -60,7 +60,7 @@ export function CoolingSteamForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment , isPending: isSaving } = useSaveAssessment();
+  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessment } = useSubmitAssessment();
 
   useEffect(() => {
@@ -181,7 +181,9 @@ export function CoolingSteamForm({
       {
         onSuccess: () => {
           setShowSaveSuccess(true);
-          toast.success("Cooling/Steam data saved. You can continue later from where you left off.");
+          toast.success(
+            "Cooling/Steam data saved. You can continue later from where you left off."
+          );
         },
       }
     );

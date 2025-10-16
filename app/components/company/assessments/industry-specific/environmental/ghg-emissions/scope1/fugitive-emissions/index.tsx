@@ -19,7 +19,7 @@ type StepKey = (typeof steps)[number];
 export function FugitiveEmissionsForm({
   onBack,
   onContinueToNextAssessment,
-  initialStep
+  initialStep,
 }: FugitiveEmissionsFormProps) {
   useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "venting-natural-gas");

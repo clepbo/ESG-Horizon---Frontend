@@ -17,7 +17,11 @@ interface MobileSourcesFormProps {
 const steps = ["Road Transport", "Vehicle Equipment", "Marine & Aviation"];
 type StepKey = "road-transport" | "vehicle-equipment" | "marine-aviation";
 
-export function MobileSourcesForm({ onBack, onContinueToNextAssessment, initialStep }: MobileSourcesFormProps) {
+export function MobileSourcesForm({
+  onBack,
+  onContinueToNextAssessment,
+  initialStep,
+}: MobileSourcesFormProps) {
   useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "road-transport");
   const [showSuccess, setShowSuccess] = useState(false);

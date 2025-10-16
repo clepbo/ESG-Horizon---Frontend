@@ -23,7 +23,11 @@ const steps = [
 ];
 type StepKey = "electricity" | "cooling" | "steam" | "heating";
 
-export function LocationBasedForm({ onBack, onContinueToNextAssessment, initialStep }: LocationBasedFormProps) {
+export function LocationBasedForm({
+  onBack,
+  onContinueToNextAssessment,
+  initialStep,
+}: LocationBasedFormProps) {
   useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity");
   const [showSuccess, setShowSuccess] = useState(false);

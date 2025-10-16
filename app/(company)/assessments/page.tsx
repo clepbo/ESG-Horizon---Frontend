@@ -86,7 +86,9 @@ export default function NewAssessmentPage() {
           ) : isError ? (
             <p className="text-red-600">Failed to load assessments.</p>
           ) : !assessments || assessments.length === 0 ? (
-            <p className="text-gray-500 text-center py-10">No assessments. Start by using the button above.</p>
+            <p className="text-gray-500 text-center py-10">
+              No assessments. Start by using the button above.
+            </p>
           ) : (
             <section>
               <h4 className="font-semibold mb-6 text-neutral-1000">Recent Assessments</h4>

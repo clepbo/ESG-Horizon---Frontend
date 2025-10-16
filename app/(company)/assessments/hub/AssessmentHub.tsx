@@ -91,7 +91,7 @@ export default function AssessmentHub() {
   const handleProceed = async () => {
     // Use company name if no subsidiary is selected (assessment for the company itself)
     const subsidiaryValue = state.assessmentData.subsidiary || user?.company?.name || "Self";
-    
+
     dispatch({
       type: "UPDATE_BASIC_DATA",
       payload: {
@@ -135,20 +135,20 @@ export default function AssessmentHub() {
 
   if (state.currentView.startsWith("ghg-")) {
     const withoutPrefix = state.currentView.substring(4); // Remove "ghg-"
-    
+
     const formPatterns = [
       "stationary-sources",
-      "mobile-sources", 
+      "mobile-sources",
       "process-emissions",
       "fugitive-emissions",
       "location-based",
-      "market-based"
+      "market-based",
     ];
-    
+
     // Find which form pattern matches
     let form = "";
     let step = "";
-    
+
     for (const pattern of formPatterns) {
       if (withoutPrefix.startsWith(pattern + "-")) {
         form = pattern;
@@ -156,11 +156,11 @@ export default function AssessmentHub() {
         break;
       }
     }
-    
+
     return (
-      <DisclosureTopics 
-        onBack={handleBack} 
-        initialView="ghg" 
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView="ghg"
         initialForm={form}
         initialStep={step}
       />
@@ -207,16 +207,20 @@ export default function AssessmentHub() {
           <CardContent className="space-y-6 p-0">
             {subsidiaries.length > 0 && (
               <div className="space-y-2">
-                <label className="text-lg font-semibold text-foreground">
-                  Select Subsidiary
-                </label>
+                <label className="text-lg font-semibold text-foreground">Select Subsidiary</label>
                 <Select
                   value={state.assessmentData.subsidiary}
                   onValueChange={(value) => handleInputChange("subsidiary", value)}
                   disabled={isLoading}
                 >
                   <SelectTrigger className="mt-3 w-full hover:cursor-pointer border border-slate-300 transition-colors focus:ring-2 focus:ring-green-500">
-                    <SelectValue placeholder={isLoading ? "Loading..." : `Choose a subsidiary or leave empty for ${user?.company?.name || "company"} assessment`} />
+                    <SelectValue
+                      placeholder={
+                        isLoading
+                          ? "Loading..."
+                          : `Choose a subsidiary or leave empty for ${user?.company?.name || "company"} assessment`
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {error && (

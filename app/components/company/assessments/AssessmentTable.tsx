@@ -10,11 +10,11 @@ import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentDetailsModal from "./AssessmentDetailsModal";
-export type AssessmentStatus = 
-  | "in_progress" 
-  | "awaiting_review" 
-  | "submitted_approved" 
-  | "approved" 
+export type AssessmentStatus =
+  | "in_progress"
+  | "awaiting_review"
+  | "submitted_approved"
+  | "approved"
   | "unapproved_rejected";
 
 export interface Assessment {
@@ -137,7 +137,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
             <Trash2 className="h-4 w-4" />
           </Button>
         );
-        
+
         if (status === "in_progress") {
           actionButton = (
             <Button
@@ -213,7 +213,13 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     {
       label: "Status",
       columnId: "status",
-      options: ["in_progress", "awaiting_review", "submitted_approved", "approved", "unapproved_rejected"],
+      options: [
+        "in_progress",
+        "awaiting_review",
+        "submitted_approved",
+        "approved",
+        "unapproved_rejected",
+      ],
     },
     { label: "Date", columnId: "startPeriod", options: ["2025", "2024"] },
   ];

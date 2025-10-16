@@ -16,12 +16,12 @@ export default function AssessmentPage() {
       const assessmentId = Number(id);
       const assessmentData = data.data.assessmentData || {};
       const lastSavedForm = assessmentData.lastSavedForm;
-      
+
       dispatch({ type: "SET_CONTINUE_MODE", payload: true });
       dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
       dispatch({
         type: "LOAD_SAVED_DATA",
-        payload: { 
+        payload: {
           ...assessmentData,
           assessmentId,
           subsidiary: data.data.subsidiary || assessmentData.subsidiary || "",
@@ -31,7 +31,7 @@ export default function AssessmentPage() {
           endYear: data.data.endYear || assessmentData.endYear || "",
         },
       });
-      
+
       if (lastSavedForm) {
         dispatch({ type: "SET_VIEW", payload: lastSavedForm });
       } else {

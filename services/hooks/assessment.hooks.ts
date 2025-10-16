@@ -107,17 +107,19 @@ export const useApproveAssessment = () => {
 export const useRejectAssessment = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<{ message: string; data: any }, Error, { assessmentId: number; reason: string }>(
-    {
-      mutationFn: ({ assessmentId, reason }) =>
-        assessmentService.rejectAssessment(assessmentId, reason),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["assessments"] });
-        toast.success("Assessment rejected successfully.");
-      },
-      onError: () => {
-        toast.error("Failed to reject assessment.");
-      },
-    }
-  );
+  return useMutation<
+    { message: string; data: any },
+    Error,
+    { assessmentId: number; reason: string }
+  >({
+    mutationFn: ({ assessmentId, reason }) =>
+      assessmentService.rejectAssessment(assessmentId, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      toast.success("Assessment rejected successfully.");
+    },
+    onError: () => {
+      toast.error("Failed to reject assessment.");
+    },
+  });
 };
