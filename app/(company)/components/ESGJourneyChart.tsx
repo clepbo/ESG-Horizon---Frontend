@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import {
   Select,
   SelectContent,
@@ -44,6 +44,14 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
         {hasData ? (
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={esgJourney} barCategoryGap={10}>
+              {/* <--- 2. Add CartesianGrid for horizontal lines (and customize appearance) */}
+              <CartesianGrid
+                strokeDasharray="3 3" // Optional: makes the lines dashed
+                vertical={false} // This hides the vertical lines
+                stroke="#E5E7EB" // Set the color for the grid lines
+                opacity={0.7} // Set opacity (like the visual)
+              />
+
               <XAxis
                 dataKey="month"
                 axisLine={false}
@@ -63,13 +71,13 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
               <Bar
                 dataKey="score"
                 fill="url(#colorGradient)"
-                radius={[4, 4, 0, 0]}
+                radius={[15, 15, 0, 0]} // <--- 3. Increase the first two values for a more pronounced rounded top
                 maxBarSize={60}
               />
               <defs>
                 <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0F172A" stopOpacity={0.8} />
-                  <stop offset="100%" stopColor="#0F172A" stopOpacity={0.2} />
+                  <stop offset="0%" stopColor="#0F172A" stopOpacity={4} />
+                  <stop offset="100%" stopColor="#0F172A" stopOpacity={0.6} />
                 </linearGradient>
               </defs>
             </BarChart>

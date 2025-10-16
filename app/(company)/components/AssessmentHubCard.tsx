@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react"; // Import a generic fallback icon (Zap)
+import Image from "next/image"; // <--- 1. Import next/image
 
 interface AssessmentHubCardProps {
-  icon: React.ElementType;
-  iconBg: string;
+  icon?: React.ElementType; // <--- 2. Make icon optional (for fallback)
+  iconSrc?: string; // <--- 3. Add optional image source
   type: string;
   description: string;
   progress: number;
@@ -14,18 +15,33 @@ interface AssessmentHubCardProps {
 
 export default function AssessmentHubCard({
   icon: Icon,
-  iconBg,
+  iconSrc, // <--- 4. Destructure iconSrc
   type,
   description,
   progress,
   completed,
 }: AssessmentHubCardProps) {
+  // Use the passed icon, or Zap as the ultimate default fallback
+  const FallbackIcon = Icon || Zap;
+
   return (
     <Card className="bg-white border border-border hover:shadow-md transition-shadow">
       <CardHeader className="pb-4">
-        <div className="flex items-start gap-4">
-          <div className={`p-3 rounded-lg ${iconBg}`}>
-            <Icon className="w-6 h-6 text-white" />
+        <div className="flex flex-col items-start gap-4">
+          <div className={` rounded-lg flex items-center justify-center `}>
+            {/* 5. Conditional Rendering: Image first, then Lucide fallback */}
+            {iconSrc ? (
+              <Image
+                src={iconSrc}
+                alt={`${type} icon`}
+                width={24} // Set dimensions for next/image
+                height={24}
+                className="w-12 h-12 object-contain"
+              />
+            ) : (
+              // Fallback to the provided Icon component or the Zap default
+              <FallbackIcon className="w-6 h-6 text-white" />
+            )}
           </div>
           <div className="flex-1">
             <CardTitle className="text-base font-semibold text-foreground">
@@ -49,7 +65,7 @@ export default function AssessmentHubCard({
 
         <Button
           className={
-            "w-full bg-transparent border border-esg-green text-teal-500  transform hover:scale-[1.02] hover:text-white transition-colors" +
+            "w-full bg-transparent border border-esg-green text-teal-500 transform hover:scale-[1.02] hover:text-white transition-colors" +
             (progress <= 0
               ? " !border-gray-400 !text-gray-600 hover:bg-transparent hover:text-gray-600"
               : "")
