@@ -168,6 +168,7 @@ export function ElectricityHeatForm({
               additionalFields: additionalFields as FileMetadata[],
             },
           },
+          lastSavedForm: "ghg-stationary-sources-electricity-heat",
         },
       },
       {

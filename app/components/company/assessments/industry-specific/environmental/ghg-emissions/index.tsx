@@ -31,6 +31,7 @@ interface GhgEmissionsAssessmentProps {
   onBack: () => void;
   onBackToHub: () => void;
   initialForm: GHGView;
+  initialStep?: string; // For navigating to specific step within a form
 }
 
 const scopeData = [
@@ -99,6 +100,7 @@ export function GhgEmissionsAssessment({
   onBack,
   onBackToHub = onBack,
   initialForm,
+  initialStep,
 }: GhgEmissionsAssessmentProps & { initialForm?: GHGView }) {
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
 
@@ -141,6 +143,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("mobile-sources")}
         onBackToHub={onBackToHub}
+        initialStep={initialStep as any}
       />
     );
   }
@@ -149,6 +152,7 @@ export function GhgEmissionsAssessment({
       <MobileSourcesForm
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("process-emissions")}
+        initialStep={initialStep as any}
       />
     );
   }
@@ -157,6 +161,7 @@ export function GhgEmissionsAssessment({
       <ProcessEmissionsForm
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("fugitive-emissions")}
+        initialStep={initialStep as any}
       />
     );
   }
@@ -165,6 +170,7 @@ export function GhgEmissionsAssessment({
       <FugitiveEmissionsForm
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("location-based")}
+        initialStep={initialStep as any}
       />
     );
   }
@@ -174,6 +180,7 @@ export function GhgEmissionsAssessment({
       <LocationBasedForm
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("market-based")}
+        initialStep={initialStep as any}
       />
     );
   }
@@ -182,6 +189,7 @@ export function GhgEmissionsAssessment({
       <MarketBasedForm
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("scope3")}
+        initialStep={initialStep as any}
       />
     );
   }

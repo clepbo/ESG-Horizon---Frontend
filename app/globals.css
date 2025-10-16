@@ -212,6 +212,13 @@
   /* Your original typography styles - keep these first */
   html {
     font-family: var(--font-sans);
+    /* Prevent overscroll bounce effect on all platforms */
+    overscroll-behavior: none;
+  }
+  
+  body {
+    /* Prevent overscroll bounce effect */
+    overscroll-behavior-y: none;
   }
 
   h1,

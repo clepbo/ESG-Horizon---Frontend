@@ -10,12 +10,20 @@ import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentDetailsModal from "./AssessmentDetailsModal";
+export type AssessmentStatus = 
+  | "in_progress" 
+  | "awaiting_review" 
+  | "submitted_approved" 
+  | "approved" 
+  | "unapproved_rejected";
+
 export interface Assessment {
   id: number;
   startPeriod: string;
   endPeriod: string;
   subsidiary: string;
-  status: "In Progress" | "Awaiting Review" | "Completed" | "Draft";
+  status: AssessmentStatus;
+  rejection_reason?: string;
 }
 
 interface AssessmentTableProps {
@@ -83,23 +91,27 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
-        const getStatusBadgeVariant = (status: string) => {
+        const status = info.getValue();
+        const getStatusDisplay = (status: AssessmentStatus) => {
           switch (status) {
-            case "Completed":
-              return "successGreen";
-            case "In Progress":
-              return "yellow";
-            case "Awaiting Review":
-              return "primaryBlue";
-            case "Draft":
-              return "outline";
+            case "in_progress":
+              return { label: "In Progress", variant: "yellow" as const };
+            case "awaiting_review":
+              return { label: "Awaiting Review", variant: "primaryBlue" as const };
+            case "submitted_approved":
+              return { label: "Submitted-Approved", variant: "successGreen" as const };
+            case "approved":
+              return { label: "Approved", variant: "successGreen" as const };
+            case "unapproved_rejected":
+              return { label: "Unapproved/Rejected", variant: "destructive" as const };
             default:
-              return "outline";
+              return { label: status, variant: "outline" as const };
           }
         };
+        const { label, variant } = getStatusDisplay(status);
         return (
-          <Badge variant={getStatusBadgeVariant(info.getValue())} className="capitalize">
-            {info.getValue()}
+          <Badge variant={variant} className="capitalize">
+            {label}
           </Badge>
         );
       },
@@ -125,37 +137,55 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
             <Trash2 className="h-4 w-4" />
           </Button>
         );
-        if (status === "Draft" || status === "In Progress") {
-          // if status is draft
+        
+        if (status === "in_progress") {
           actionButton = (
             <Button
               key="continue"
               size="sm"
-              className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded-sm"
+              className="bg-[var(--color-primary)] hover:bg-teal-600 text-white rounded-sm"
               onClick={() => router.push(`/assessments/${assessment.id}`)}
             >
               Continue
             </Button>
           );
-        } else if (status === "Awaiting Review") {
-          // If Submitted
+        } else if (status === "awaiting_review") {
+          actionButton = (
+            <Button
+              key="review"
+              size="sm"
+              className="bg-[var(--color-primary)] hover:bg-teal-600 text-white rounded-sm"
+              onClick={() => handleOpenDetails(assessment)}
+            >
+              Review
+            </Button>
+          );
+          trashButton = null;
+        } else if (status === "unapproved_rejected") {
+          actionButton = (
+            <Button
+              key="update"
+              size="sm"
+              className="bg-orange-500 hover:bg-orange-600 text-white rounded-sm"
+              onClick={() => router.push(`/assessments/${assessment.id}`)}
+            >
+              Update
+            </Button>
+          );
+        } else if (status === "submitted_approved" || status === "approved") {
           actionButton = (
             <Button
               key="view"
               size="sm"
-              variant="secondary"
-              className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded-sm"
+              variant="outline"
+              className="rounded-sm"
               onClick={() => handleOpenDetails(assessment)}
             >
               View
             </Button>
           );
           trashButton = null;
-        } else if (status === "Completed") {
-          // If Reviewed
-          return <span className="text-sm font-medium text-gray-500/70">Done</span>;
         } else {
-          // Default/Fallback case
           actionButton = (
             <Button
               key="view"
@@ -183,7 +213,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     {
       label: "Status",
       columnId: "status",
-      options: ["In Progress", "Completed", "Awaiting Review", "Draft"],
+      options: ["in_progress", "awaiting_review", "submitted_approved", "approved", "unapproved_rejected"],
     },
     { label: "Date", columnId: "startPeriod", options: ["2025", "2024"] },
   ];

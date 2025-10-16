@@ -39,6 +39,7 @@ export interface AssessmentData {
   startYear: string;
   endMonth: string;
   endYear: string;
+  lastSavedForm?: string; // Track which form was last saved
 
   // Scope 1
   stationarySources?: {
@@ -174,11 +175,13 @@ export interface AssessmentState {
   assessmentData: AssessmentData;
   isLoading: boolean;
   error: string | null;
+  isContinueMode: boolean; // Track if user is continuing an existing assessment
 }
 
 type AssessmentAction =
   | { type: "SET_VIEW"; payload: string }
   | { type: "SET_ASSESSMENT_ID"; payload: number }
+  | { type: "SET_CONTINUE_MODE"; payload: boolean }
   | { type: "UPDATE_BASIC_DATA"; payload: Partial<AssessmentData> }
   | {
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
@@ -237,6 +240,7 @@ type AssessmentAction =
 const initialState: AssessmentState = {
   currentView: "hub",
   assessmentId: null,
+  isContinueMode: false,
   assessmentData: {
     subsidiary: "",
     startMonth: "",
@@ -380,9 +384,13 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
     case "SET_VIEW":
       return { ...state, currentView: action.payload, error: null };
 
+    case "SET_CONTINUE_MODE":
+      return { ...state, isContinueMode: action.payload };
+
     case "SET_ASSESSMENT_ID":
       return {
         ...state,
+        assessmentId: action.payload,
         assessmentData: {
           ...state.assessmentData,
           assessmentId: action.payload,
@@ -595,11 +603,11 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
     case "LOAD_SAVED_DATA":
       return {
         ...state,
-        // assessmentData: action.payload,
+        assessmentId: action.payload.assessmentId ?? state.assessmentId,
         assessmentData: {
           ...state.assessmentData,
           ...action.payload,
-          assessmentId: state.assessmentData.assessmentId ?? action.payload.assessmentId,
+          assessmentId: action.payload.assessmentId ?? state.assessmentData.assessmentId,
         },
         isLoading: false,
         error: null,

@@ -23,6 +23,7 @@ interface DisclosureTopicsProps {
   initialView?: "topics" | "ghg";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialForm?: "stationary-sources" | any;
+  initialStep?: string;
 }
 
 interface MetricCard {
@@ -194,7 +195,8 @@ const supplementaryMetrics: MetricSection[] = [
 export function DisclosureTopics({
   onBack,
   initialView = "topics",
-  initialForm = "stationary-sources",
+  initialForm,
+  initialStep,
 }: DisclosureTopicsProps) {
   // const [currentView, setCurrentView] = useState<"topics" | "ghg">("topics");
   const [currentView, setCurrentView] = useState(initialView);
@@ -214,7 +216,8 @@ export function DisclosureTopics({
       <GhgEmissionsAssessment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
-        initialForm={initialForm}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
       />
     );
   }

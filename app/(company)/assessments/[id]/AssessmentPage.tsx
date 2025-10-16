@@ -9,20 +9,44 @@ import AssessmentHub from "../hub/AssessmentHub";
 export default function AssessmentPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useAssessment(Number(id));
-  const { dispatch } = useAssessmentContext();
+  const { dispatch, state } = useAssessmentContext();
 
   useEffect(() => {
-    if (data) {
-      dispatch({ type: "SET_ASSESSMENT_ID", payload: Number(id) });
+    if (data?.data) {
+      const assessmentId = Number(id);
+      const assessmentData = data.data.assessmentData || {};
+      const lastSavedForm = assessmentData.lastSavedForm;
+      
+      dispatch({ type: "SET_CONTINUE_MODE", payload: true });
+      dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
       dispatch({
         type: "LOAD_SAVED_DATA",
-        payload: { ...data.assessmentData, assessmentId: Number(id) },
+        payload: { 
+          ...assessmentData,
+          assessmentId,
+          subsidiary: data.data.subsidiary || assessmentData.subsidiary || "",
+          startMonth: data.data.startMonth || assessmentData.startMonth || "",
+          startYear: data.data.startYear || assessmentData.startYear || "",
+          endMonth: data.data.endMonth || assessmentData.endMonth || "",
+          endYear: data.data.endYear || assessmentData.endYear || "",
+        },
       });
-      dispatch({ type: "SET_VIEW", payload: "ghg-stationary-sources" });
+      
+      if (lastSavedForm) {
+        dispatch({ type: "SET_VIEW", payload: lastSavedForm });
+      } else {
+        dispatch({ type: "SET_VIEW", payload: "disclosure" });
+      }
     }
   }, [data, dispatch, id]);
 
-  if (isLoading) return <div className="p-10">Loading assessment...</div>;
+  if (isLoading || !data?.data) {
+    return <div className="p-10">Loading assessment...</div>;
+  }
+
+  if (state.currentView === "hub") {
+    return <div className="p-10">Loading assessment...</div>;
+  }
 
   return <AssessmentHub />;
 }

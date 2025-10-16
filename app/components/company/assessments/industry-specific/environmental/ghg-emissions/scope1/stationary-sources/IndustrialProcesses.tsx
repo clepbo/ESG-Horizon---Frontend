@@ -196,6 +196,7 @@ export function IndustrialProcessesForm({
               files,
             },
           },
+          lastSavedForm: "ghg-stationary-sources-industrial-processes",
         },
       },
       {
