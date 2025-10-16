@@ -68,9 +68,7 @@ export function CompanyIdStat({
       </div>
 
       {/* Icon / Image */}
-      <div
-        className={`flex h-10 w-10 items-center justify-center rounded-md ${iconBgColor}`}
-      >
+      <div className={`flex h-10 w-10 items-center justify-center rounded-md ${iconBgColor}`}>
         {iconSrc ? (
           <Image
             src={iconSrc}

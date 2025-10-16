@@ -4,11 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const CardSkeleton = () => {
   return (
-    <div
-      className={cn(
-        "flex flex-col flex-1 overflow-auto bg-gray-50 animate-pulse"
-      )}
-    >
+    <div className={cn("flex flex-col flex-1 overflow-auto bg-gray-50 animate-pulse")}>
       <div className=" space-y-6 animate-pulse">
         <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
           <Skeleton className="h-7 w-32" />

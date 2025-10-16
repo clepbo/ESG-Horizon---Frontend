@@ -9,10 +9,10 @@ import { useParams } from "next/navigation";
 export default function Pages() {
   const loading = false;
 
-   const params = useParams()
+  const params = useParams();
   const data = useSingleReport(Number(params?.id));
 
-  console.log(`Single Report Data, ${data.data}`)
+  console.log(`Single Report Data, ${data.data}`);
 
   if (loading) {
     return (
@@ -21,7 +21,7 @@ export default function Pages() {
       </React.Suspense>
     );
   }
- 
+
   return (
     <motion.div
       className="grid"

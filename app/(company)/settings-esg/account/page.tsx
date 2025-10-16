@@ -77,17 +77,13 @@ export default function AccountPage() {
               {/*  Preferences section still here in AccountPage */}
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold">Preferences</h2>
-                <p className="text-sm text-gray-500 mb-6">
-                  Customize your account preferences
-                </p>
+                <p className="text-sm text-gray-500 mb-6">Customize your account preferences</p>
 
                 {/* Language */}
                 <div className="flex items-center justify-between py-4">
                   <div>
                     <p className="font-medium">Language</p>
-                    <p className="text-sm text-gray-500">
-                      Change your preferred language
-                    </p>
+                    <p className="text-sm text-gray-500">Change your preferred language</p>
                   </div>
                   <Select defaultValue="en">
                     <SelectTrigger className="w-32">
@@ -107,9 +103,7 @@ export default function AccountPage() {
                 <div className="flex items-center justify-between py-4">
                   <div>
                     <p className="font-medium">Time Zone</p>
-                    <p className="text-sm text-gray-500">
-                      Set your local time zone
-                    </p>
+                    <p className="text-sm text-gray-500">Set your local time zone</p>
                   </div>
                   <Select defaultValue="utc">
                     <SelectTrigger className="w-32">

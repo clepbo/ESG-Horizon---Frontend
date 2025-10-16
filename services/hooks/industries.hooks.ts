@@ -6,10 +6,10 @@ import { industriesService } from "../industries.services";
  * @returns Same old same old
  */
 export const useSectors = () => {
-    return useQuery({
-        queryKey: ["sectors"],
-        queryFn: industriesService.getSectors,
-    });
+  return useQuery({
+    queryKey: ["sectors"],
+    queryFn: industriesService.getSectors,
+  });
 };
 
 /**
@@ -17,10 +17,10 @@ export const useSectors = () => {
  * @returns An object with `data`, `isLoading`, `error`, and more.
  */
 export const useIndustries = () => {
-    return useQuery({
-        queryKey: ["industries"],
-        queryFn: industriesService.getIndustries,
-    });
+  return useQuery({
+    queryKey: ["industries"],
+    queryFn: industriesService.getIndustries,
+  });
 };
 
 /**
@@ -29,9 +29,9 @@ export const useIndustries = () => {
  * @returns An object with `data`, `isLoading`, `error`, etc.
  */
 export const useIndustriesBySector = (sector: string) => {
-    return useQuery({
-        queryKey: ["industries", sector],
-        queryFn: () => industriesService.getIndustriesBySector(sector),
-        enabled: !!sector,
-    });
+  return useQuery({
+    queryKey: ["industries", sector],
+    queryFn: () => industriesService.getIndustriesBySector(sector),
+    enabled: !!sector,
+  });
 };

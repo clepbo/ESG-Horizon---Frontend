@@ -3,16 +3,9 @@
 import { useEffect, useState } from "react";
 import { CircleX } from "lucide-react";
 import { companyService } from "@/services/company.service";
-import {
-  subsidiariesService,
-  Subsidiary,
-} from "@/services/subsidiaries.service";
+import { subsidiariesService, Subsidiary } from "@/services/subsidiaries.service";
 import { toast } from "react-toastify";
-import {
-  CreateDepartment,
-  Department,
-  departmentService,
-} from "@/services/department.service";
+import { CreateDepartment, Department, departmentService } from "@/services/department.service";
 import { getCurrentUser } from "@/lib/utils";
 import { User } from "@/services/user.service";
 
@@ -22,18 +15,12 @@ interface InviteUserModalProps {
   departments: Department[];
 }
 
-export default function InviteUserModal({
-  onClose,
-  onInvite,
-  departments,
-}: InviteUserModalProps) {
+export default function InviteUserModal({ onClose, onInvite, departments }: InviteUserModalProps) {
   const [email, setEmail] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState<number | null>(
     departments.length > 0 ? departments[0].id : null
   );
-  const [selectedSubsidiary, setSelectedSubsidiary] = useState<number | null>(
-    null
-  );
+  const [selectedSubsidiary, setSelectedSubsidiary] = useState<number | null>(null);
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,9 +32,9 @@ export default function InviteUserModal({
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const ROLE_OPTIONS = [
-    { value: "company_esg_subadmin", label: "Company ESG Subadmin" },
-    { value: "company_esg_data_officer", label: "Company ESG Data Officer" },
-    { value: "company_esg_viewer", label: "Company ESG Viewer" },
+    { value: "company_esg_subadmin", label: "Company SubAdmin" },
+    { value: "company_esg_data_officer", label: "Company Data Officer" },
+    { value: "company_esg_viewer", label: "Company Viewer" },
   ];
   const [role, setRole] = useState(ROLE_OPTIONS[0]?.value || "");
 
@@ -65,8 +52,7 @@ export default function InviteUserModal({
   }, []);
   console.log("User", currentUser);
 
-  const isFormValid =
-    email.trim() !== "" && selectedDepartment !== null && role.trim() !== "";
+  const isFormValid = email.trim() !== "" && selectedDepartment !== null && role.trim() !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +81,7 @@ export default function InviteUserModal({
       onInvite();
       onClose();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to send invitation";
+      const message = err instanceof Error ? err.message : "Failed to send invitation";
       setError(message);
       toast.error(message);
     }
@@ -116,18 +101,14 @@ export default function InviteUserModal({
         leadId: currentUser?.id ? Number(currentUser.id) : undefined,
       };
 
-      const newDept = await departmentService.create(
-        yourCompany.id,
-        createPayload
-      );
+      const newDept = await departmentService.create(yourCompany.id, createPayload);
 
       setDeptList((prev) => [...prev, newDept]);
       setSelectedDepartment(newDept.id);
       setDeptInput(newDept.name);
       toast.success("Department added successfully");
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to add department";
+      const message = err instanceof Error ? err.message : "Failed to add department";
       toast.error(message);
     }
   };
@@ -162,16 +143,12 @@ export default function InviteUserModal({
 
           {/* Subsidiary (optional) */}
           <div>
-            <label className="block mb-1 text-sm font-medium">
-              Subsidiary (optional)
-            </label>
+            <label className="block mb-1 text-sm font-medium">Subsidiary (optional)</label>
             <select
               disabled={loading}
               value={selectedSubsidiary ?? ""}
               onChange={(e) =>
-                setSelectedSubsidiary(
-                  e.target.value ? Number(e.target.value) : null
-                )
+                setSelectedSubsidiary(e.target.value ? Number(e.target.value) : null)
               }
               className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             >
@@ -187,9 +164,7 @@ export default function InviteUserModal({
           {/* Department */}
 
           <div>
-            <label className="block mb-1 text-sm font-medium">
-              Department *
-            </label>
+            <label className="block mb-1 text-sm font-medium">Department *</label>
             <input
               type="text"
               value={deptInput}
@@ -202,14 +177,10 @@ export default function InviteUserModal({
               // show only if input doesn't exactly match the selected dept
               (!selectedDepartment ||
                 deptInput.toLowerCase() !==
-                  deptList
-                    .find((d) => d.id === selectedDepartment)
-                    ?.name.toLowerCase()) && (
+                  deptList.find((d) => d.id === selectedDepartment)?.name.toLowerCase()) && (
                 <div className="mt-2 rounded-md max-h-40 overflow-y-auto bg-white shadow">
                   {deptList
-                    .filter((d) =>
-                      d.name.toLowerCase().includes(deptInput.toLowerCase())
-                    )
+                    .filter((d) => d.name.toLowerCase().includes(deptInput.toLowerCase()))
                     .map((dept) => (
                       <div
                         key={dept.id}
@@ -227,9 +198,7 @@ export default function InviteUserModal({
 
                   {/* Option to add new department */}
                   {deptInput &&
-                    !deptList.some(
-                      (d) => d.name.toLowerCase() === deptInput.toLowerCase()
-                    ) && (
+                    !deptList.some((d) => d.name.toLowerCase() === deptInput.toLowerCase()) && (
                       <div
                         onClick={handleAddDepartment}
                         className="px-3 py-2 cursor-pointer text-green-600 hover:bg-green-50"
@@ -274,7 +243,7 @@ export default function InviteUserModal({
             <button
               type="submit"
               disabled={!isFormValid || loading || addingDept}
-              className="px-4 py-2 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] transform hover:scale-[1.02] text-white  disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? "Sending..." : "Send Invite"}
             </button>

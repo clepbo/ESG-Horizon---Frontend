@@ -4,7 +4,7 @@ export default function RoleDefinitions() {
   const roles = [
     {
       title: "ESG Admin",
-      color: "bg-green-500",
+      color: "bg-[var(--color-primary)]",
       bg: "bg-green-50",
       permissions: [
         "Registers their company",
@@ -24,7 +24,7 @@ export default function RoleDefinitions() {
     },
     {
       title: "ESG Reviewer/Sub Admin",
-      color: "bg-blue-500",
+      color: "bg-emerald-500",
       bg: "bg-blue-50",
       permissions: [
         "Reviews ESG data",
@@ -37,25 +37,18 @@ export default function RoleDefinitions() {
       title: "ESG Viewer",
       color: "bg-red-500",
       bg: "bg-red-50",
-      permissions: [
-        { label: "Can view:", items: ["ESG data", "Dashboards", "Reports"] },
-      ],
+      permissions: [{ label: "Can view:", items: ["ESG data", "Dashboards", "Reports"] }],
     },
   ];
 
   return (
     <section className="mt-6">
       <h3 className="text-2xl font-bold mb-1">Role Definitions</h3>
-      <p className="text-gray-600 mb-6">
-        Understanding user permissions and access levels
-      </p>
+      <p className="text-gray-600 mb-6">Understanding user permissions and access levels</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {roles.map((role) => (
-          <div
-            key={role.title}
-            className={`${role.bg} p-5 rounded-lg border border-gray-200`}
-          >
+          <div key={role.title} className={`${role.bg} p-5 rounded-lg border border-gray-200`}>
             {/* Role Title Pill */}
             <div
               className={`${role.color} inline-block px-3 py-1 rounded-full text-white text-sm font-medium`}

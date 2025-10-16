@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import type { PieLabelRenderProps } from "recharts/types/polar/Pie";
 import Spinner from "../../ui/reusables/Spinner";
 
@@ -39,9 +32,7 @@ export default function UserPieChart() {
       className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
       aria-label="User distribution pie chart"
     >
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Users Metrics
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Users Metrics</h3>
 
       <div className="w-full h-[280px] md:h-[310px]">
         {loading ? (
@@ -61,18 +52,11 @@ export default function UserPieChart() {
                 isAnimationActive={false}
               >
                 {USER_METRICS_DATA.map((_, index) => (
-                  <Cell
-                    key={`slice-${index}`}
-                    fill={CHART_COLORS[index % CHART_COLORS.length]}
-                  />
+                  <Cell key={`slice-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
-              <Legend
-                layout="horizontal"
-                verticalAlign="bottom"
-                align="center"
-              />
+              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
             </PieChart>
           </ResponsiveContainer>
         )}

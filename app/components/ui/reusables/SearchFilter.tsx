@@ -11,11 +11,7 @@ type SelectFilterProps = {
   options: string[];
 };
 
-export default function SelectFilter({
-  value,
-  onChange,
-  options,
-}: SelectFilterProps) {
+export default function SelectFilter({ value, onChange, options }: SelectFilterProps) {
   return (
     <div className="relative w-[140px] text-sm cursor-pointer">
       <Listbox value={value} onChange={onChange}>

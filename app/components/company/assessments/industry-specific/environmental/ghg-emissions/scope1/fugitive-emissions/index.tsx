@@ -18,9 +18,7 @@ export function FugitiveEmissionsForm({
   onBack,
   onContinueToNextAssessment,
 }: FugitiveEmissionsFormProps) {
-  const [currentStep, setCurrentStep] = useState<StepKey>(
-    "venting-natural-gas"
-  );
+  const [currentStep, setCurrentStep] = useState<StepKey>("venting-natural-gas");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);

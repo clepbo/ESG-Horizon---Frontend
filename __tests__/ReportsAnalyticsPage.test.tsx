@@ -12,9 +12,7 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-jest.mock("../app/components/layout/Header", () => () => (
-  <div data-testid="header">Header</div>
-));
+jest.mock("../app/components/layout/Header", () => () => <div data-testid="header">Header</div>);
 jest.mock("../app/components/reports/ExportAllButton", () => () => (
   <button data-testid="export-button">Export All</button>
 ));
@@ -54,14 +52,10 @@ describe("ReportsAnalyticsPage", () => {
     render(<ReportsAnalyticsPage />);
     const summaries = screen.getAllByTestId("report-summary");
 
-    expect(
-      within(summaries[0]).getByText("Reports Generated")
-    ).toBeInTheDocument();
+    expect(within(summaries[0]).getByText("Reports Generated")).toBeInTheDocument();
     expect(within(summaries[1]).getByText("Published")).toBeInTheDocument();
     expect(within(summaries[2]).getByText("Under Review")).toBeInTheDocument();
-    expect(
-      within(summaries[3]).getByText("Active Companies")
-    ).toBeInTheDocument();
+    expect(within(summaries[3]).getByText("Active Companies")).toBeInTheDocument();
   });
 
   it("renders charts", () => {

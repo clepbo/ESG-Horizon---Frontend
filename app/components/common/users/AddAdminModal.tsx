@@ -17,9 +17,7 @@ export default function AddAdminModal({ onClose }: { onClose: () => void }) {
 
         <BackButton />
 
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
-          Invite User
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Invite User</h2>
 
         <form className="space-y-6">
           <div className="flex flex-col gap-4">
@@ -59,7 +57,7 @@ export default function AddAdminModal({ onClose }: { onClose: () => void }) {
             </button>
             <button
               type="submit"
-              className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600"
+              className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm "
             >
               Send Invite
             </button>

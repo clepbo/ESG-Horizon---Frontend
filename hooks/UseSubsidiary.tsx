@@ -2,7 +2,6 @@ import { subsidiariesService } from "@/services/subsidiaries.service";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
-
 export function useDeleteSubsidiary(remove: (id: number) => void) {
   return useMutation({
     mutationFn: (id: number) => subsidiariesService.deleteSubsidiaries(id),

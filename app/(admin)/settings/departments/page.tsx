@@ -14,11 +14,7 @@ import {
   SelectItem,
 } from "@/app/components/ui/select";
 import { companyService } from "@/services/company.service";
-import {
-  Department,
-  CreateDepartment,
-  departmentService,
-} from "@/services/department.service";
+import { Department, CreateDepartment, departmentService } from "@/services/department.service";
 import { User } from "@/services/user.service";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
@@ -86,10 +82,7 @@ export default function DepartmentsPage() {
         leadId: newDept.lead?.id ? Number(newDept.lead.id) : undefined,
       };
 
-      const createdDepartment = await departmentService.create(
-        yourCompany.id,
-        createPayload
-      );
+      const createdDepartment = await departmentService.create(yourCompany.id, createPayload);
       setDepartments((prev) => [createdDepartment, ...prev]);
     } catch (error) {
       console.error("Failed to add department", error);
@@ -100,16 +93,13 @@ export default function DepartmentsPage() {
 
   const filteredDepartments = useMemo(() => {
     return departments.filter((dept) => {
-      const leadName = `${dept.lead?.first_name || ""} ${
-        dept.lead?.last_name || ""
-      }`
+      const leadName = `${dept.lead?.first_name || ""} ${dept.lead?.last_name || ""}`
         .trim()
         .toLowerCase();
       const searchLower = search.toLowerCase();
 
       const matchesSearch =
-        dept.name.toLowerCase().includes(searchLower) ||
-        leadName.includes(searchLower);
+        dept.name.toLowerCase().includes(searchLower) || leadName.includes(searchLower);
 
       return matchesSearch;
     });
@@ -134,9 +124,7 @@ export default function DepartmentsPage() {
         <div className="flex justify-between">
           <div className="mt-4">
             <h2 className="text-2xl font-semibold">Departments</h2>
-            <p className="text-gray-600">
-              Manage company departments and their assigned members
-            </p>
+            <p className="text-gray-600">Manage company departments and their assigned members</p>
           </div>
 
           <div className="flex justify-between items-center mb-6 mt-4">

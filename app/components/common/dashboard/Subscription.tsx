@@ -26,27 +26,17 @@ interface SubscriptionProps {
   stats: Stat[];
 }
 
-export default function Subscription({
-  monthlyRevenue,
-  stats,
-}: SubscriptionProps) {
+export default function Subscription({ monthlyRevenue, stats }: SubscriptionProps) {
   return (
     <div className="bg-white rounded-2xl shadow p-2 space-y-6 ">
       {/* Top Row: Monthly Revenue & Icon */}
       <div className="flex items-start justify-between">
         <div>
           <h4 className="text-sm font-medium text-gray-500">Monthly Revenue</h4>
-          <p className="text-4xl font-bold mt-2">
-            ₦{monthlyRevenue.amount.toLocaleString()}
-          </p>
+          <p className="text-4xl font-bold mt-2">₦{monthlyRevenue.amount.toLocaleString()}</p>
         </div>
         <div className="bg-gray-100 p-3 rounded-xl">
-          <Image
-            src="/icons/environment.svg"
-            alt="Growth"
-            width={32}
-            height={32}
-          />
+          <Image src="/icons/environment.svg" alt="Growth" width={32} height={32} />
         </div>
       </div>
 
@@ -55,28 +45,18 @@ export default function Subscription({
         {stats.map((stat, i) => {
           const isUp = stat.change.direction === "up";
           return (
-            <div
-              key={i}
-              className="bg-gray-100 shadow rounded-xl flex flex-col overflow-hidden"
-            >
+            <div key={i} className="bg-gray-100 shadow rounded-xl flex flex-col overflow-hidden">
               {/* Stat Content */}
               <div className="p-2 flex flex-col flex-1">
                 <div className="">
-                  <h4 className="text-sm font-medium text-gray-700">
-                    {stat.label}
-                  </h4>
+                  <h4 className="text-sm font-medium text-gray-700">{stat.label}</h4>
                 </div>
                 <div className="flex justify-between">
                   <p className="text-xl font-bold mt-2">{stat.value}</p>
                   <span
                     className={`p-2 rounded-lg ${stat.iconBg} flex items-center justify-center`}
                   >
-                    <Image
-                      src={stat.icon}
-                      alt={stat.label}
-                      width={16}
-                      height={16}
-                    />
+                    <Image src={stat.icon} alt={stat.label} width={16} height={16} />
                   </span>
                 </div>
               </div>
@@ -86,16 +66,10 @@ export default function Subscription({
                 <span>From last report</span>
                 <div
                   className={`flex items-center gap-1 font-medium px-2 py-0.5 rounded-full ${
-                    isUp
-                      ? "bg-green-200 text-green-700"
-                      : "bg-red-100 text-red-700"
+                    isUp ? "bg-green-200 text-green-700" : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {isUp ? (
-                    <ArrowUp className="w-3 h-3" />
-                  ) : (
-                    <ArrowDown className="w-3 h-3" />
-                  )}
+                  {isUp ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                   {stat.change.value}
                 </div>
               </div>

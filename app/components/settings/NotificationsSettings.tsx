@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface NotificationItem {
   title: string;
@@ -37,10 +38,20 @@ export default function NotificationsSettings() {
     },
   ]);
 
+  const [saving, setSaving] = useState(false);
+
   const toggleNotification = (index: number) => {
     setNotifications((prev) =>
       prev.map((n, i) => (i === index ? { ...n, enabled: !n.enabled } : n))
     );
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    // simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    toast.success("Notification preferences updated successfully");
+    setSaving(false);
   };
 
   return (
@@ -49,9 +60,7 @@ export default function NotificationsSettings() {
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-semibold">Email Notifications</h3>
-          <p className="text-gray-600">
-            Choose what notifications you want to receive
-          </p>
+          <p className="text-gray-600">Choose what notifications you want to receive</p>
         </div>
 
         <div className="space-y-4">
@@ -64,10 +73,7 @@ export default function NotificationsSettings() {
                 <p className="font-medium">{item.title}</p>
                 <p className="text-sm text-gray-500">{item.desc}</p>
               </div>
-              <ToggleSwitch
-                checked={item.enabled}
-                onChange={() => toggleNotification(index)}
-              />
+              <ToggleSwitch checked={item.enabled} onChange={() => toggleNotification(index)} />
             </div>
           ))}
         </div>
@@ -76,8 +82,16 @@ export default function NotificationsSettings() {
           <button className="px-5 py-2 border border-green-500 text-green-500 rounded hover:bg-green-50">
             Close
           </button>
-          <button className="px-5 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-            Save
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`px-5 py-2 rounded text-white ${
+              saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[var(--color-primary)] hover:bg-teal-600"
+            }`}
+          >
+            {saving ? "Saving..." : "Save"}
           </button>
         </div>
       </div>
@@ -85,21 +99,10 @@ export default function NotificationsSettings() {
   );
 }
 
-function ToggleSwitch({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: () => void;
-}) {
+function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
     <label className="inline-flex items-center cursor-pointer">
-      <input
-        type="checkbox"
-        className="sr-only peer"
-        checked={checked}
-        onChange={onChange}
-      />
+      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-green-500 relative transition-all">
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${

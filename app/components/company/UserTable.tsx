@@ -52,9 +52,7 @@ export default function UserTable({ users }: UserTableProps) {
 
   const updateStatus = (id: number, newStatus: User["status"]) => {
     setUserList((prev) =>
-      prev.map((user) =>
-        user.id === Number(id) ? { ...user, status: newStatus } : user
-      )
+      prev.map((user) => (user.id === Number(id) ? { ...user, status: newStatus } : user))
     );
     setModalOpen(false);
   };
@@ -125,17 +123,10 @@ export default function UserTable({ users }: UserTableProps) {
             </thead>
             <tbody>
               {paginatedUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-t border-gray-200 hover:bg-gray-50"
-                >
-                  <td className="p-4">
-                    {user.first_name + " " + user.last_name}
-                  </td>
+                <tr key={user.id} className="border-t border-gray-200 hover:bg-gray-50">
+                  <td className="p-4">{user.first_name + " " + user.last_name}</td>
                   <td className="p-4">{user.email}</td>
-                  <td className="p-4">
-                    {formatRoleName(user.role?.name || "")}
-                  </td>
+                  <td className="p-4">{formatRoleName(user.role?.name || "")}</td>
                   {/* <td className="p-4">
                 {user.recentActivities?.[0]?.action || "N/A"}
               </td> */}
@@ -148,12 +139,7 @@ export default function UserTable({ users }: UserTableProps) {
                         className={`inline-flex items-center gap-1 border rounded px-3 py-1 cursor-pointer ${
                           statusActions[user.status].color
                         }`}
-                        onClick={() =>
-                          openModal(
-                            user.id,
-                            statusActions[user.status].newStatus
-                          )
-                        }
+                        onClick={() => openModal(user.id, statusActions[user.status].newStatus)}
                         title={statusActions[user.status].title}
                       >
                         {statusActions[user.status].icon}
@@ -194,9 +180,7 @@ export default function UserTable({ users }: UserTableProps) {
         }
         onCancel={() => setModalOpen(false)}
         onConfirm={() =>
-          selectedUserId &&
-          targetStatus &&
-          updateStatus(selectedUserId, targetStatus)
+          selectedUserId && targetStatus && updateStatus(selectedUserId, targetStatus)
         }
       />
     </div>

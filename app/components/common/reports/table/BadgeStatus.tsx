@@ -1,16 +1,15 @@
 import { Button } from "@/app/components/ui/button";
 
 interface TableRowStatus {
-    status: "Working on it" | "Awaiting Review" | "In Progress" | string;
+  status: "Working on it" | "Awaiting Review" | "In Progress" | string;
 }
 
 interface StatusBadgeProps {
   status: TableRowStatus["status"];
 }
 
-
 export function BadgeStatus({ status }: StatusBadgeProps) {
-const getVariant = (status: TableRowStatus["status"]) => {
+  const getVariant = (status: TableRowStatus["status"]) => {
     switch (status) {
       case "Working on it":
         return "status-working";
@@ -24,10 +23,10 @@ const getVariant = (status: TableRowStatus["status"]) => {
   };
 
   return (
-    <Button 
+    <Button
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      variant={getVariant(status) as any} 
-      size="sm" 
+      variant={getVariant(status) as any}
+      size="sm"
       className="rounded-full px-3 py-1 text-xs font-medium"
     >
       {status}

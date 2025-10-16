@@ -31,7 +31,7 @@ const Pagination = ({
             id="itemsPerPage"
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 border-[var(--color-green-500)] text-gray-800 focus:ring-[var(--color-green-500)]"
+            className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 border-[var(--color-primary)] text-gray-800 focus:ring-[var(--color-primary)]"
           >
             {[5, 10, 15, 20].map((option) => (
               <option key={option} value={option}>
@@ -66,17 +66,14 @@ const Pagination = ({
 
         {/* Numbered buttons (optional, limit to 5 for now) */}
         {Array.from({ length: totalPages }, (_, i) => i + 1)
-          .slice(
-            Math.max(currentPage - 2, 0),
-            Math.min(currentPage + 1, totalPages)
-          )
+          .slice(Math.max(currentPage - 2, 0), Math.min(currentPage + 1, totalPages))
           .map((page) => (
             <button
               key={page}
               onClick={() => onPageChange(page)}
               className={`w-8 h-8 rounded text-sm ${
                 currentPage === page
-                  ? "bg-[var(--color-green-500)] text-white"
+                  ? "bg-[var(--color-primary)] text-white"
                   : "text-gray-700 hover:bg-gray-200"
               }`}
             >

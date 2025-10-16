@@ -59,10 +59,8 @@ export default function TeamsPage() {
         user.first_name.toLowerCase().includes(search.toLowerCase()) ||
         user.last_name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === "Status" || user.status === statusFilter;
-      const matchesRole =
-        roleFilter === "Roles" || user.role?.name === roleFilter;
+      const matchesStatus = statusFilter === "Status" || user.status === statusFilter;
+      const matchesRole = roleFilter === "Roles" || user.role?.name === roleFilter;
       return matchesSearch && matchesStatus && matchesRole;
     });
   }, [users, search, statusFilter, roleFilter]);
@@ -70,9 +68,7 @@ export default function TeamsPage() {
   const handleStatusUpdate = async (id: number, newStatus: TeamUserStatus) => {
     try {
       setUsers((prev) =>
-        prev.map((user) =>
-          user.id === id ? { ...user, status: newStatus } : user
-        )
+        prev.map((user) => (user.id === id ? { ...user, status: newStatus } : user))
       );
     } catch (err) {
       console.error("Failed to update status", err);
@@ -98,9 +94,7 @@ export default function TeamsPage() {
         <div className="flex justify-between">
           <div className="mt-4">
             <h2 className="text-2xl font-semibold">Teams</h2>
-            <p className="text-gray-600">
-              Manage platform users and their access permissions
-            </p>
+            <p className="text-gray-600">Manage platform users and their access permissions</p>
           </div>
 
           <div className="flex justify-between items-center mb-6 mt-4">
@@ -140,9 +134,7 @@ export default function TeamsPage() {
                 <SelectItem value="Roles">Roles</SelectItem>
                 <SelectItem value="Super Admin">Super Admin</SelectItem>
                 <SelectItem value="Platform Admin">Platform Admin</SelectItem>
-                <SelectItem value="Platform Manager">
-                  Platform Manager
-                </SelectItem>
+                <SelectItem value="Platform Manager">Platform Manager</SelectItem>
                 <SelectItem value="Platform Viewer">Platform Viewer</SelectItem>
               </SelectContent>
             </Select>
@@ -183,9 +175,7 @@ export default function TeamsPage() {
               setLoading(true);
               const yourCompany = await companyService.getDetails();
               if (yourCompany) {
-                const companyUsers = await companyService.getUsers(
-                  yourCompany.id
-                );
+                const companyUsers = await companyService.getUsers(yourCompany.id);
                 setUsers(companyUsers);
               }
               setLoading(false);

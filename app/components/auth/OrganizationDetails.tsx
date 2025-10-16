@@ -35,10 +35,7 @@ const organizationSchema = z.object({
         message: "Please enter a valid phone number for the selected country",
       }
     ),
-  website: z
-    .string()
-    .url("Please enter a valid website URL")
-    .or(z.string().min(0)),
+  website: z.string().url("Please enter a valid website URL").or(z.string().min(0)),
   registrationNumber: z.string().optional(),
   isoCountryCode: z.string().min(2, "Country is required"),
   address: z.string().min(10, "Please enter a complete address"),
@@ -73,9 +70,7 @@ export const OrganizationDetails = ({
 
   const [isTransitioning, setIsTransitioning] = useState(false);
   // const [industries, setIndustries] = useState<Industry[]>([]);
-  const [industryOptions, setIndustryOptions] = useState<
-    { value: number; label: string }[]
-  >([]);
+  const [industryOptions, setIndustryOptions] = useState<{ value: number; label: string }[]>([]);
 
   // --- Auto-detect country from browser ---
   useEffect(() => {
@@ -116,8 +111,7 @@ export const OrganizationDetails = ({
       await onNext(data);
       setIsTransitioning(true);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Submission failed";
+      const errorMessage = error instanceof Error ? error.message : "Submission failed";
       toast.error(errorMessage);
       setError("root", { message: errorMessage });
       setIsTransitioning(false);
@@ -163,22 +157,16 @@ export const OrganizationDetails = ({
             control={control}
             render={({ field }) => {
               const selectedOption =
-                industryOptions.find(
-                  (opt) => opt.value === Number(field.value)
-                ) || null;
+                industryOptions.find((opt) => opt.value === Number(field.value)) || null;
 
               return (
                 <div className="flex flex-col">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Industry
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
                   <Select
                     placeholder="Select an industry"
                     options={industryOptions}
                     value={selectedOption}
-                    onChange={(option) =>
-                      field.onChange(option?.value.toString() ?? "")
-                    }
+                    onChange={(option) => field.onChange(option?.value.toString() ?? "")}
                     isClearable
                     styles={{
                       control: (provided) => ({
@@ -206,9 +194,7 @@ export const OrganizationDetails = ({
                     }}
                   />
                   {errors.industry && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.industry.message}
-                    </p>
+                    <p className="text-red-500 text-sm mt-1">{errors.industry.message}</p>
                   )}
                 </div>
               );
@@ -250,9 +236,7 @@ export const OrganizationDetails = ({
               )}
             />
             {errors.contactPhone && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.contactPhone.message}
-              </p>
+              <p className="mt-1 text-sm text-red-600">{errors.contactPhone.message}</p>
             )}
           </div>
         </div>
@@ -303,9 +287,7 @@ export const OrganizationDetails = ({
                   }`}
                 />
                 {errors.isoCountryCode && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.isoCountryCode.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.isoCountryCode.message}</p>
                 )}
               </div>
             )}
@@ -322,7 +304,7 @@ export const OrganizationDetails = ({
 
         <Button
           type="submit"
-          className="w-full h-12 hover:cursor-pointer bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium"
+          className="w-full h-12 hover:cursor-pointer bg-[var(--color-primary)]  hover:bg-teal-700 text-white rounded-lg font-medium"
           disabled={loading || isTransitioning}
         >
           {loading ? (

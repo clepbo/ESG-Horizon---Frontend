@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { useState, useEffect } from "react";
 import Spinner from "@/app/components/ui/reusables/Spinner";
@@ -86,12 +81,7 @@ export function ReportSubmittedChart() {
                 domain={[0, 100]}
                 interval={0}
               />
-              <Bar
-                dataKey="value"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={32}
-                fill="url(#gradient)"
-              />
+              <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={32} fill="url(#gradient)" />
               <defs>
                 <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#111827" />

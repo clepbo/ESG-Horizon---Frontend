@@ -10,9 +10,7 @@ jest.mock("lucide-react", () => ({
   ShieldUser: () => <svg data-testid="icon-shield-user" />,
 }));
 
-jest.mock("../app/components/layout/Header", () => () => (
-  <div data-testid="header">Header</div>
-));
+jest.mock("../app/components/layout/Header", () => () => <div data-testid="header">Header</div>);
 
 jest.mock("../app/components/dashboard/StatCard", () => ({
   __esModule: true,
@@ -29,9 +27,7 @@ jest.mock("../app/components/dashboard/UserPieChart", () => () => (
 ));
 
 jest.mock("../app/components/dashboard/RecentActivities", () => ({
-  RecentActivities: () => (
-    <div data-testid="recent-activities">Recent Activities</div>
-  ),
+  RecentActivities: () => <div data-testid="recent-activities">Recent Activities</div>,
 }));
 
 jest.mock("../app/components/dashboard/MostRecentUser", () => () => (

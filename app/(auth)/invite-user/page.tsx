@@ -11,8 +11,6 @@ import Spinner from "../../components/ui/reusables/Spinner";
 export default function InviteUserPage() {
   return (
     <>
-      
-
       <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
         {/* Left side with background image + green overlay + slider */}
         <div className="relative hidden lg:flex w-full lg:w-[45%] px-12 py-6 min-h-screen ">
@@ -38,9 +36,8 @@ export default function InviteUserPage() {
                 Join the Future of Responsible Reporting
               </h1>
               <p className="text-base text-white/90 max-w-md">
-                Make your ESG data work for you. Track, manage, and showcase
-                your environmental, social, and governance impact — all in one
-                place.
+                Make your ESG data work for you. Track, manage, and showcase your environmental,
+                social, and governance impact — all in one place.
               </p>
             </div>
 

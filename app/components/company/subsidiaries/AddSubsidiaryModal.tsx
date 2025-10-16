@@ -5,10 +5,7 @@ import { CircleX } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "react-toastify";
 import Select from "react-select";
-import {
-  subsidiariesService,
-  Subsidiary,
-} from "@/services/subsidiaries.service";
+import { subsidiariesService, Subsidiary } from "@/services/subsidiaries.service";
 import { industriesService } from "@/services/industries.services";
 import { User } from "@/services/user.service";
 import { companyService } from "@/services/company.service";
@@ -28,9 +25,7 @@ export default function AddSubsidiaryModal({
   onClose: () => void;
   onAddSubsidiary: (sub: Subsidiary) => void;
 }) {
-  const [industryOptions, setIndustryOptions] = useState<
-    { value: number; label: string }[]
-  >([]);
+  const [industryOptions, setIndustryOptions] = useState<{ value: number; label: string }[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [leadInput, setLeadInput] = useState("");
   const [selectedLead, setSelectedLead] = useState<User | null>(null);
@@ -134,9 +129,7 @@ export default function AddSubsidiaryModal({
               })}
               className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           </div>
 
           {/* Industry */}
@@ -150,34 +143,26 @@ export default function AddSubsidiaryModal({
               rules={{ required: "Industry is required" }}
               render={({ field }) => {
                 const selectedOption =
-                  industryOptions.find(
-                    (opt) => opt.value === Number(field.value)
-                  ) || null;
+                  industryOptions.find((opt) => opt.value === Number(field.value)) || null;
 
                 return (
                   <Select
                     placeholder="Select an industry"
                     options={industryOptions}
                     value={selectedOption}
-                    onChange={(option) =>
-                      field.onChange(option?.value.toString() ?? "")
-                    }
+                    onChange={(option) => field.onChange(option?.value.toString() ?? "")}
                     isClearable
                   />
                 );
               }}
             />
             {errors.industry && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.industry.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.industry.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block mb-1 text-sm font-medium">
-              Subsidiary Lead
-            </label>
+            <label className="block mb-1 text-sm font-medium">Subsidiary Lead</label>
             <select
               value={selectedLead?.id || ""}
               onChange={(e) => {
@@ -194,9 +179,7 @@ export default function AddSubsidiaryModal({
               }}
               className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              <option value="">
-                Select a lead (Or Leave Blank and Enter Email)
-              </option>
+              <option value="">Select a lead (Or Leave Blank and Enter Email)</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.first_name} {user.last_name}
@@ -239,7 +222,7 @@ export default function AddSubsidiaryModal({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 cursor-pointer"
+              className="px-4 py-2 text-sm rounded-md bg-[var(--color-primary)]  hover:bg-teal-600 text-white  cursor-pointer"
             >
               {addingSubsidiary ? "Adding..." : "Add Subsidiary"}
             </button>

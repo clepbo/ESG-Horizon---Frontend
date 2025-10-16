@@ -22,14 +22,7 @@ import {
   SelectItem,
 } from "@/app/components/ui/select";
 
-ChartJS.register(
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-);
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function ReportLineChart() {
   const [isLoading, setIsLoading] = useState(true);

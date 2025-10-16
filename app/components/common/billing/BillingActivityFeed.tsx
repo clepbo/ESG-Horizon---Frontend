@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import clsx from "clsx";
-import {
-  activities as mockActivities,
-  ActivityType,
-} from "@/lib/mockData/billingActivities";
+import { activities as mockActivities, ActivityType } from "@/lib/mockData/billingActivities";
 import Spinner from "@/app/components/ui/reusables/Spinner"; // Ensure correct path
 import Image from "next/image";
 
@@ -41,9 +38,7 @@ export default function BillingActivityFeed() {
   return (
     <div className="bg-white p-6 rounded-xl shadow h-full overflow-hidden flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Recent Activities
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-800">Recent Activities</h2>
       </div>
 
       {loading ? (
@@ -72,9 +67,7 @@ export default function BillingActivityFeed() {
 
               {/* Text content */}
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">
-                  {activity.title}
-                </p>
+                <p className="text-sm font-semibold text-gray-900">{activity.title}</p>
                 <p className="text-sm text-gray-500">{activity.description}</p>
               </div>
 
@@ -87,8 +80,7 @@ export default function BillingActivityFeed() {
                     badgeMap[activity.type]
                   )}
                 >
-                  {activity.type.charAt(0).toUpperCase() +
-                    activity.type.slice(1)}
+                  {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
                 </span>
               </div>
             </li>

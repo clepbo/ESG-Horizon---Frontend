@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Plus, Search, Edit } from "lucide-react";
-import Header from "@/app/components/layout/Header";
+import Header from "@/app/(company)/components/Header";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import { Input } from "@/app/components/ui/input";
 import {
@@ -33,8 +33,7 @@ export default function DepartmentTeamUsersPage() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<Department | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
 
   // Pagination states
@@ -64,16 +63,12 @@ export default function DepartmentTeamUsersPage() {
         departmentService.getUsers(cleanId),
       ]);
 
-      const safeDepartmentsData = Array.isArray(departmentsData)
-        ? departmentsData
-        : [];
+      const safeDepartmentsData = Array.isArray(departmentsData) ? departmentsData : [];
       const safeTeamData = Array.isArray(teamData) ? teamData : [];
 
       // Find department in safe list
       const dept =
-        safeDepartmentsData.find(
-          (d: Department) => String(d.id) === String(cleanId)
-        ) || null;
+        safeDepartmentsData.find((d: Department) => String(d.id) === String(cleanId)) || null;
 
       function mapStatus(statusStr: string): TeamUserStatus | undefined {
         const validStatuses = ["Approved", "Pending", "Suspended"];
@@ -119,10 +114,8 @@ export default function DepartmentTeamUsersPage() {
         lastName.toLowerCase().includes(searchLower) ||
         email.toLowerCase().includes(searchLower);
 
-      const matchesStatus =
-        statusFilter === "All" || user.status === statusFilter;
-      const matchesRole =
-        roleFilter === "All" || user.role?.name === roleFilter;
+      const matchesStatus = statusFilter === "All" || user.status === statusFilter;
+      const matchesRole = roleFilter === "All" || user.role?.name === roleFilter;
 
       return matchesSearch && matchesStatus && matchesRole;
     });
@@ -162,9 +155,7 @@ export default function DepartmentTeamUsersPage() {
       if (yourCompany) {
         const updatedUsers = await departmentService.getUsers(cleanId);
 
-        const safeUpdatedUsers = Array.isArray(updatedUsers)
-          ? updatedUsers
-          : [];
+        const safeUpdatedUsers = Array.isArray(updatedUsers) ? updatedUsers : [];
 
         function mapStatus(statusStr: string): TeamUserStatus | undefined {
           const validStatuses = ["Approved", "Pending", "Suspended"];
@@ -174,14 +165,12 @@ export default function DepartmentTeamUsersPage() {
           return undefined;
         }
 
-        const normalizedTeamUsers: Partial<User>[] = safeUpdatedUsers.map(
-          (user) => ({
-            ...user,
-            id: Number(user.id),
-            status: mapStatus(user.status),
-            role: { name: user.role },
-          })
-        );
+        const normalizedTeamUsers: Partial<User>[] = safeUpdatedUsers.map((user) => ({
+          ...user,
+          id: Number(user.id),
+          status: mapStatus(user.status),
+          role: { name: user.role },
+        }));
 
         setTeamUsers(normalizedTeamUsers);
       }
@@ -202,19 +191,11 @@ export default function DepartmentTeamUsersPage() {
   }
 
   if (error) {
-    return (
-      <div className="flex justify-center items-center h-64 text-red-500">
-        {error}
-      </div>
-    );
+    return <div className="flex justify-center items-center h-64 text-red-500">{error}</div>;
   }
 
   if (!department) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        Department not found.
-      </div>
-    );
+    return <div className="flex justify-center items-center h-64">Department not found.</div>;
   }
 
   return (
@@ -252,9 +233,7 @@ export default function DepartmentTeamUsersPage() {
           <InfoRow
             label="Department Lead"
             value={
-              department.lead
-                ? `${department.lead.first_name} ${department.lead.last_name}`
-                : "-"
+              department.lead ? `${department.lead.first_name} ${department.lead.last_name}` : "-"
             }
           />
           <InfoRow label="Email" value={department.contact_email || "-"} />
@@ -267,7 +246,7 @@ export default function DepartmentTeamUsersPage() {
         <h3 className="text-lg font-semibold">Team Members</h3>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
+          className="text-white bg-[var(--color-primary)] transform hover:scale-[1.02] px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
         >
           <Plus className="h-4 w-4 mr-1" />
           Invite New User
@@ -282,7 +261,7 @@ export default function DepartmentTeamUsersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs text-white">
+          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
             <Search className="h-3.5 w-3.5" />
             Search
           </button>
@@ -345,10 +324,7 @@ export default function DepartmentTeamUsersPage() {
       )}
 
       {isEditOpen && selectedDepartment && (
-        <EditDepartmentModal
-          department={selectedDepartment}
-          onClose={() => setIsEditOpen(false)}
-        />
+        <EditDepartmentModal department={selectedDepartment} onClose={() => setIsEditOpen(false)} />
       )}
     </motion.div>
   );

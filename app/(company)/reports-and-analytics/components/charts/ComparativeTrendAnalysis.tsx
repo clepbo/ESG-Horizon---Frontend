@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
 import {
   AreaChart,
   Area,
@@ -10,18 +10,17 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts"
-
+} from "recharts";
 
 interface TrendData {
-  year: string | number
-  [key: string]: string | number
+  year: string | number;
+  [key: string]: string | number;
 }
 
 interface ComparativeTrendAnalysisProps {
-  data: TrendData[]
-  keys: string[] // ["Scope 1", "Scope 2", "Scope 3"]
-  colors: string[] // matching colors
+  data: TrendData[];
+  keys: string[]; // ["Scope 1", "Scope 2", "Scope 3"]
+  colors: string[]; // matching colors
 }
 
 // ---------- Component ----------
@@ -56,5 +55,5 @@ export default function ComparativeTrendAnalysis({
         </AreaChart>
       </ResponsiveContainer>
     </div>
-  )
+  );
 }

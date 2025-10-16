@@ -22,27 +22,20 @@ const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 //   }
 // };
 
-
-export async function getReportOverview(){
-    try {
-        return await apiUtil.get(`${baseUrl}/report`)
-    }
-    catch(error){
-        console.log(error)
-        throw new Error(`${error}`)
-    }
-   
+export async function getReportOverview() {
+  try {
+    return await apiUtil.get(`${baseUrl}/report`);
+  } catch (error) {
+    console.log(error);
+    throw new Error(`${error}`);
+  }
 }
 
-
-export async function getReport(id:number){
- try {
-        return await apiUtil.get(`${baseUrl}/report/${id}`)
-    }
-    catch(error){
-        console.log(error)
-        throw new Error(`${error}`)
-    }
+export async function getReport(id: number) {
+  try {
+    return await apiUtil.get(`${baseUrl}/report/${id}`);
+  } catch (error) {
+    console.log(error);
+    throw new Error(`${error}`);
+  }
 }
-
-

@@ -42,9 +42,7 @@ export function RecentActivities() {
             {recentActivities.map((activity, index) => (
               <div key={index} className="flex items-start gap-4 relative">
                 {/* Time */}
-                <div className="w-16 text-right text-xs text-gray-800 pt-1">
-                  {activity.time}
-                </div>
+                <div className="w-16 text-right text-xs text-gray-800 pt-1">{activity.time}</div>
 
                 {/* Dot */}
                 <div className="w-4 flex justify-center relative z-10 pt-1">
@@ -57,13 +55,9 @@ export function RecentActivities() {
 
                 {/* Content */}
                 <div className="flex-1 space-y-0.5">
-                  <p className="text-sm font-medium text-gray-900">
-                    {activity.title}
-                  </p>
+                  <p className="text-sm font-medium text-gray-900">{activity.title}</p>
                   {activity.description && (
-                    <p className="text-xs text-gray-600">
-                      {activity.description}
-                    </p>
+                    <p className="text-xs text-gray-600">{activity.description}</p>
                   )}
                 </div>
               </div>

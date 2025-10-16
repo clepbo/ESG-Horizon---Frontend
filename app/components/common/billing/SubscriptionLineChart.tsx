@@ -22,14 +22,7 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 
-ChartJS.register(
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Legend,
-  Tooltip
-);
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Legend, Tooltip);
 
 const chartData = {
   labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri"],

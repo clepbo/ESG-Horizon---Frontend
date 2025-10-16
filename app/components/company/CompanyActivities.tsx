@@ -36,19 +36,12 @@ export default function CompanyActivities() {
     return activityData.filter((item) => {
       const matchesSearch =
         !debouncedSearchTerm.trim() ||
-        item.details
-          .toLowerCase()
-          .includes(debouncedSearchTerm.toLowerCase()) ||
-        item.activity
-          .toLowerCase()
-          .includes(debouncedSearchTerm.toLowerCase()) ||
-        item.performedBy
-          .toLowerCase()
-          .includes(debouncedSearchTerm.toLowerCase());
+        item.details.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        item.activity.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        item.performedBy.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "All" ||
-        item.status.toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === "All" || item.status.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesDate = !dateFilter || item.dateValue === dateFilter;
 
@@ -120,10 +113,7 @@ export default function CompanyActivities() {
           {/* Filters */}
           <div className="flex gap-2 w-full md:w-auto">
             {/* Status Filter */}
-            <Select
-              value={statusFilter}
-              onValueChange={(val) => setStatusFilter(val)}
-            >
+            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val)}>
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -137,11 +127,7 @@ export default function CompanyActivities() {
             </Select>
 
             {/* Date Filter */}
-            <Input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
+            <Input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
           </div>
         </div>
 

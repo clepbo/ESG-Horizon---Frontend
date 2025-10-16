@@ -54,9 +54,7 @@ export default function UserTable({ users }: UserTableProps) {
 
   const updateStatus = (id: string, newStatus: User["status"]) => {
     setUpdatedUsers((prev) =>
-      prev.map((user) =>
-        user.id === id ? { ...user, status: newStatus } : user
-      )
+      prev.map((user) => (user.id === id ? { ...user, status: newStatus } : user))
     );
     setModalOpen(false);
   };
@@ -136,9 +134,7 @@ export default function UserTable({ users }: UserTableProps) {
                     className={`rounded-md border p-2 cursor-pointer ${
                       statusActions[user.status].color
                     }`}
-                    onClick={() =>
-                      openModal(user.id, statusActions[user.status].newStatus)
-                    }
+                    onClick={() => openModal(user.id, statusActions[user.status].newStatus)}
                   >
                     {statusActions[user.status].icon}
                   </button>
@@ -170,9 +166,7 @@ export default function UserTable({ users }: UserTableProps) {
         }
         onCancel={() => setModalOpen(false)}
         onConfirm={() =>
-          selectedUserId &&
-          targetStatus &&
-          updateStatus(selectedUserId, targetStatus)
+          selectedUserId && targetStatus && updateStatus(selectedUserId, targetStatus)
         }
       />
     </div>

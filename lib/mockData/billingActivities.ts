@@ -1,9 +1,4 @@
-export type ActivityType =
-  | "success"
-  | "failed"
-  | "upgrade"
-  | "expired"
-  | "cancelled";
+export type ActivityType = "success" | "failed" | "upgrade" | "expired" | "cancelled";
 
 export interface Activity {
   id: number;
@@ -24,8 +19,7 @@ export const activities: Activity[] = [
   {
     id: 2,
     title: "Payment Failed",
-    description:
-      "EduVault’s monthly payment attempt failed due to insufficient funds.",
+    description: "EduVault’s monthly payment attempt failed due to insufficient funds.",
     datetime: "2025-07-19 10:12 AM",
     type: "failed",
   },
@@ -46,8 +40,7 @@ export const activities: Activity[] = [
   {
     id: 5,
     title: "Subscription Cancelled",
-    description:
-      "SafeGrid Alliance cancelled their Standard subscription plan.",
+    description: "SafeGrid Alliance cancelled their Standard subscription plan.",
     datetime: "2025-07-19 01:45 PM",
     type: "cancelled",
   },

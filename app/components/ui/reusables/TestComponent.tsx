@@ -51,13 +51,11 @@ export default function ESGHorizonLanding() {
         </p>
         <div className="flex items-center gap-3 animate-fade-in-delay-2">
           <div className="flex gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-bounce delay-100" />
+            <div className="w-3 h-3 bg-[var(--color-primary)]   rounded-full animate-bounce delay-100" />
             <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce delay-200" />
             <div className="w-3 h-3 bg-emerald-500 rounded-full animate-bounce" />
           </div>
-          <span className="text-gray-500 font-light text-start">
-            Loading...
-          </span>
+          <span className="text-gray-500 font-light text-start">Loading...</span>
         </div>
       </div>
 

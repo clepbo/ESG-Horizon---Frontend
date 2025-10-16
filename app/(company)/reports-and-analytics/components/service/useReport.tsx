@@ -13,11 +13,10 @@ export function useReport() {
         throw error;
       }
     },
-    retry: 1, 
+    retry: 1,
     refetchOnWindowFocus: false,
   });
 }
-
 
 export function useSingleReport(id: number) {
   return useQuery({
@@ -26,7 +25,7 @@ export function useSingleReport(id: number) {
       const response = await apiUtil.get(`/report/${id}`);
       return response.data;
     },
-    enabled: !!id, 
+    enabled: !!id,
     retry: 1,
     refetchOnWindowFocus: false,
   });

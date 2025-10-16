@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { PieChart as PieChartIcon } from "lucide-react";
@@ -20,9 +15,7 @@ export function EmissionsBreakdownChart() {
     typeof val === "string" && !isNaN(parseFloat(val)) ? parseFloat(val) : 0;
 
   // Helper function to calculate total emissions for an array of SourceData
-  const calculateSourceEmissions = (
-    sources: SourceData[] | undefined
-  ): number => {
+  const calculateSourceEmissions = (sources: SourceData[] | undefined): number => {
     if (!sources) return 0;
     return sources.reduce((sum, s) => {
       const volume = toNumber(s.volume);
@@ -57,8 +50,7 @@ export function EmissionsBreakdownChart() {
     }
 
     if (assessmentData.mobileSources) {
-      const { roadTransport, vehicleEquipment, marineAviation } =
-        assessmentData.mobileSources;
+      const { roadTransport, vehicleEquipment, marineAviation } = assessmentData.mobileSources;
 
       const mobileTotal =
         calculateSourceEmissions(roadTransport?.vehicleFleet) +
@@ -79,11 +71,9 @@ export function EmissionsBreakdownChart() {
     }
 
     if (assessmentData.processEmissions) {
-      const { cementManufacturing, gasFlaring } =
-        assessmentData.processEmissions;
+      const { cementManufacturing, gasFlaring } = assessmentData.processEmissions;
 
-      const cementEmissions =
-        toNumber(cementManufacturing?.cementQuantity) * 0.44; // Example factor
+      const cementEmissions = toNumber(cementManufacturing?.cementQuantity) * 0.44; // Example factor
       if (cementEmissions > 0) {
         parts.push({
           name: "Scope 1 - Cement",
@@ -106,8 +96,7 @@ export function EmissionsBreakdownChart() {
     if (assessmentData.fugitiveEmissions) {
       const { ventingNaturalGas, hfcLeaks } = assessmentData.fugitiveEmissions;
 
-      const ventingEmissions =
-        toNumber(ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
+      const ventingEmissions = toNumber(ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
       if (ventingEmissions > 0) {
         parts.push({
           name: "Scope 1 - Venting",
@@ -128,8 +117,7 @@ export function EmissionsBreakdownChart() {
     }
 
     // Scope 2 Emissions
-    const electricityEmissions =
-      toNumber(assessmentData.electricity?.electricityConsumed) * 0.35; // Example factor
+    const electricityEmissions = toNumber(assessmentData.electricity?.electricityConsumed) * 0.35; // Example factor
     if (electricityEmissions > 0) {
       parts.push({
         name: "Scope 2 - Electricity",
@@ -138,8 +126,7 @@ export function EmissionsBreakdownChart() {
       });
     }
 
-    const coolingEmissions =
-      toNumber(assessmentData.cooling?.coolingConsumed) * 0.1; // Example factor
+    const coolingEmissions = toNumber(assessmentData.cooling?.coolingConsumed) * 0.1; // Example factor
     if (coolingEmissions > 0) {
       parts.push({
         name: "Scope 2 - Cooling",
@@ -160,9 +147,7 @@ export function EmissionsBreakdownChart() {
     return (
       <Card className="bg-white border-none shadow rounded-xl">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900">
-            Emissions Breakdown
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-900">Emissions Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center items-center h-64">
@@ -178,21 +163,15 @@ export function EmissionsBreakdownChart() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <PieChartIcon className="w-5 h-5 text-green-600" />
-          <CardTitle className="text-lg font-semibold text-gray-900">
-            Emissions Breakdown
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-900">Emissions Breakdown</CardTitle>
         </div>
-        <p className="text-sm text-gray-600">
-          Distribution of emissions by source and scope
-        </p>
+        <p className="text-sm text-gray-600">Distribution of emissions by source and scope</p>
       </CardHeader>
       <CardContent>
         {chartData.length > 0 ? (
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {totalEmissions.toFixed(1)}
-              </div>
+              <div className="text-2xl font-bold text-gray-900">{totalEmissions.toFixed(1)}</div>
               <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
             </div>
             <ResponsiveContainer width="100%" height={200}>
@@ -213,10 +192,7 @@ export function EmissionsBreakdownChart() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [
-                    `${value.toFixed(1)} tonnes CO2e`,
-                    "Emissions",
-                  ]}
+                  formatter={(value: number) => [`${value.toFixed(1)} tonnes CO2e`, "Emissions"]}
                   labelStyle={{ color: "#374151" }}
                 />
               </PieChart>
@@ -224,10 +200,7 @@ export function EmissionsBreakdownChart() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               {chartData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
                   <span className="text-gray-700">{item.name}</span>
                 </div>
               ))}
@@ -237,9 +210,7 @@ export function EmissionsBreakdownChart() {
           <div className="text-center py-8">
             <PieChartIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No emissions data available</p>
-            <p className="text-sm text-gray-400">
-              Complete your assessment to see breakdown
-            </p>
+            <p className="text-sm text-gray-400">Complete your assessment to see breakdown</p>
           </div>
         )}
       </CardContent>

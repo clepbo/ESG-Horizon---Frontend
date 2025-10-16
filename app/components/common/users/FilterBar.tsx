@@ -10,10 +10,7 @@ export function FilterBar() {
       </select>
 
       <div className="flex flex-1 items-center border rounded px-3 py-2">
-        <input
-          placeholder="Search by name or company"
-          className="flex-1 text-sm outline-none"
-        />
+        <input placeholder="Search by name or company" className="flex-1 text-sm outline-none" />
         <button className="text-emerald-600 text-sm font-medium flex items-center gap-1">
           <Search size={16} /> Search
         </button>

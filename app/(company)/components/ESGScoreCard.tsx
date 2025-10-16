@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Spinner from "@/app/components/ui/reusables/Spinner";
-import {  ArrowUp, ArrowDown, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUp, ArrowDown, TrendingUp, TrendingDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { formatNumberToTwoDecimals } from "@/lib/utils";
@@ -13,12 +13,11 @@ interface ESGScoreCardProps {
   trend: "up" | "down";
   trendValue: string;
   icon: React.ReactNode;
-  bottomBarColor?: string; 
+  bottomBarColor?: string;
   gradientClass?: string;
   height?: string;
   main?: boolean;
   bgColor?: string;
-  
 }
 
 export function ESGScoreCard({
@@ -36,9 +35,7 @@ export function ESGScoreCard({
   return (
     <div className="rounded-xl overflow-hidden shadow-md w-full">
       {/* Card Top */}
-      <div
-        className={`p-4 h-[150px] flex flex-col justify-between ${bgColor} text-white`}
-      >
+      <div className={`p-4 h-[150px] flex flex-col justify-between ${bgColor} text-white`}>
         <div className="flex items-start justify-between">
           <div>
             <h4 className="text-sm font-medium">{title}</h4>
@@ -57,23 +54,16 @@ export function ESGScoreCard({
         <p className="font-medium">From last report</p>
         <div
           className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
-            isTrendUp
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
+            isTrendUp ? "bg-green-100 text-[var(--color-tertiary)]" : "bg-red-100 text-red-600"
           }`}
         >
-          {isTrendUp ? (
-            <TrendingUp className="w-3 h-3" />
-          ) : (
-            <TrendingDown className="w-3 h-3" />
-          )}
+          {isTrendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
           <span>{trendValue}</span>
         </div>
       </div>
     </div>
   );
 }
-
 
 export function ESGCard({
   title,
@@ -85,7 +75,7 @@ export function ESGCard({
   gradientClass,
   bottomBarColor = "",
   maxScore,
-  main = false
+  main = false,
 }: ESGScoreCardProps) {
   const isTrendUp = trend === "up";
   const [loading, setLoading] = useState(true);
@@ -115,12 +105,14 @@ export function ESGCard({
             className={`p-2 pt-4 flex h-4/5 flex-col gap-2 bg-gradient-to-b ${gradientClass} text-white`}
           >
             {/* <div className="flex items-center justify-between p-2"> */}
-              <div className="">
-                <h4 className={` text-xs font-medium`}>{title}</h4>
-                
-              </div>
-              <div className=" flex items-center justify-between">
-                <p className={` ${main ? "text-5xl" : "text-3xl"} font-bold mt-1`}>{formattedScore}<span className="text-xl">/{maxScore} </span> </p>
+            <div className="">
+              <h4 className={` text-xs font-medium`}>{title}</h4>
+            </div>
+            <div className=" flex items-center justify-between">
+              <p className={` ${main ? "text-5xl" : "text-3xl"} font-bold mt-1`}>
+                {formattedScore}
+                <span className="text-xl">/{maxScore} </span>{" "}
+              </p>
               <div className=" rounded-lg flex items-center justify-center">
                 {iconSrc ? (
                   <Image
@@ -144,16 +136,10 @@ export function ESGCard({
             <p className="font-medium">From last report</p>
             <div
               className={`flex items-center gap-1 font-medium px-2 py-1 rounded-full ${
-                isTrendUp
-                  ? "bg-green-200 text-green-600"
-                  : "bg-red-100 text-red-600"
+                isTrendUp ? "bg-green-200 text-[var(--color-tertiary)]" : "bg-red-100 text-red-600"
               }`}
             >
-              {isTrendUp ? (
-                <ArrowUp className="w-3 h-4" />
-              ) : (
-                <ArrowDown className="w-3 h-4" />
-              )}
+              {isTrendUp ? <ArrowUp className="w-3 h-4" /> : <ArrowDown className="w-3 h-4" />}
               <span>{trendValue}</span>
             </div>
           </div>

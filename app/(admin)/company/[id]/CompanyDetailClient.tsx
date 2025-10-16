@@ -6,10 +6,7 @@ import BackButton from "@/app/components/ui/reusables/BackButton";
 import { ESGJourneyChart } from "@/app/(company)/components/ESGJourneyChart";
 import { CompanyIdStat } from "@/app/components/company/CompanyIdStat";
 import UsersTable from "@/app/components/company/UsersTable";
-import {
-  ESGCard,
-  ESGOverallCard,
-} from "@/app/components/common/dashboard/SubscriptionCard";
+import { ESGCard, ESGOverallCard } from "@/app/components/common/dashboard/SubscriptionCard";
 import CompanySubscriptionTab from "@/app/components/company/CompanySubscriptionTab";
 import CompanyActivities from "@/app/components/company/CompanyActivities";
 import CompanyInfo from "@/app/components/company/CompanyInfo";
@@ -70,8 +67,7 @@ export default function CompanyDetailsClient({ id }: Props) {
   }, [id]);
 
   if (loading) return <PageSkeleton />;
-  if (!company)
-    return <div className="p-6 text-red-500">Company not found</div>;
+  if (!company) return <div className="p-6 text-red-500">Company not found</div>;
 
   return (
     <section className="w-full p-4 md:p-6 space-y-6">
@@ -201,9 +197,7 @@ export default function CompanyDetailsClient({ id }: Props) {
           />
         )}
 
-        {activePersona === "assessment & reports" && (
-          <div>Assessment Reports Coming Soon...</div>
-        )}
+        {activePersona === "assessment & reports" && <div>Assessment Reports Coming Soon...</div>}
         {activePersona === "activities" && <CompanyActivities />}
         {activePersona === "company-info" && <CompanyInfo company={company} />}
       </motion.div>

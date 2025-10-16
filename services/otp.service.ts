@@ -8,11 +8,7 @@ export const otpService = {
   },
 
   // Verify OTP
-  verify: async (payload: {
-    email: string;
-    otp: string;
-    [key: string]: any;
-  }) => {
+  verify: async (payload: { email: string; otp: string; [key: string]: any }) => {
     const { data } = await api.post("/otp/verify", payload);
     return data;
   },

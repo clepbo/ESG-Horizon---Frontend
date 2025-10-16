@@ -9,9 +9,7 @@ import { useState } from "react";
 import { RequestSubmitted } from "@/app/components/auth/RequestSubmitted";
 
 export default function Index() {
-  const [currentStep, setCurrentStep] = useState<"signup" | "submitted">(
-    "signup"
-  );
+  const [currentStep, setCurrentStep] = useState<"signup" | "submitted">("signup");
 
   if (currentStep === "submitted") {
     return (
@@ -35,7 +33,7 @@ export default function Index() {
             className="absolute inset-0 object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-green-600 opacity-50 z-10" />
+          <div className="absolute inset-0 bg-[var(--color-primary)] opacity-60 z-10" />
           <div className="absolute inset-0 bg-black opacity-50 z-10" />
           <div className="relative z-20 flex flex-col justify-center items-start px-10">
             {/* <Image
@@ -51,9 +49,8 @@ export default function Index() {
                 Join the Future of Responsible Reporting
               </h1>
               <p className="text-base text-white/90 max-w-md">
-                Make your ESG data work for you. Track, manage, and showcase
-                your environmental, social, and governance impact — all in one
-                place.
+                Make your ESG data work for you. Track, manage, and showcase your environmental,
+                social, and governance impact — all in one place.
               </p>
             </div>
             <div className="mt-12">

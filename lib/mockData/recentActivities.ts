@@ -1,10 +1,5 @@
 // /mockData/recentActivities.ts
-export type ActivityType =
-  | "published"
-  | "failed"
-  | "upgrade"
-  | "expired"
-  | "cancelled";
+export type ActivityType = "published" | "failed" | "upgrade" | "expired" | "cancelled";
 
 export interface Activity {
   id: number;
@@ -25,8 +20,7 @@ export const mockActivities: Activity[] = [
   {
     id: 2,
     title: "Payment Failed",
-    description:
-      "Acme Tech's monthly payment attempt failed due to insufficient funds.",
+    description: "Acme Tech's monthly payment attempt failed due to insufficient funds.",
     datetime: "2024-07-31 10:42 AM",
     type: "failed",
   },
@@ -57,8 +51,7 @@ export const recentActivities = [
   {
     time: "3:35pm",
     title: "New Persona Submitted",
-    description:
-      'ESG Company "GreenFlow Inc." submitted a new persona for approval.',
+    description: 'ESG Company "GreenFlow Inc." submitted a new persona for approval.',
   },
   {
     time: "2:15pm",
@@ -68,14 +61,12 @@ export const recentActivities = [
   {
     time: "2:01pm",
     title: "Data Locked",
-    description:
-      "Regulator data for Q2 2025 was reviewed and locked by Supervisor.",
+    description: "Regulator data for Q2 2025 was reviewed and locked by Supervisor.",
   },
   {
     time: "12:00pm",
     title: "Persona Approved",
-    description:
-      'Persona "Michael Adeniran" from EcoBank was approved and granted access.',
+    description: 'Persona "Michael Adeniran" from EcoBank was approved and granted access.',
   },
   {
     time: "10:50am",

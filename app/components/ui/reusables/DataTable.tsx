@@ -109,10 +109,7 @@ export function DataTable<TData>({
                   >
                     {header.isPlaceholder
                       ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -123,24 +120,15 @@ export function DataTable<TData>({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="hover:bg-gray-50">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={`py-4 border-b border-gray-300`}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                    <TableCell key={cell.id} className={`py-4 border-b border-gray-300`}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center "
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center ">
                   No results.
                 </TableCell>
               </TableRow>
@@ -174,13 +162,9 @@ export function DataTable<TData>({
         <div className="flex items-center space-x-6 lg:space-x-8">
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}{" "}
-              -{" "}
+              {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} -{" "}
               {Math.min(
-                (table.getState().pagination.pageIndex + 1) *
-                  table.getState().pagination.pageSize,
+                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
                 table.getFilteredRowModel().rows.length
               )}{" "}
               of {table.getFilteredRowModel().rows.length}

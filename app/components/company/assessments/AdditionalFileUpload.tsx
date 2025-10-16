@@ -23,20 +23,16 @@ interface AdditionalFileUploadProps {
   initialData?: FileData[];
 }
 
-export function AdditionalFileUpload({
-  onFieldsChange,
-  initialData,
-}: AdditionalFileUploadProps) {
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>(
-    initialData || []
-  );
+export function AdditionalFileUpload({ onFieldsChange, initialData }: AdditionalFileUploadProps) {
+  const [additionalFields, setAdditionalFields] = useState<FileData[]>(initialData || []);
   const [uploading, setUploading] = useState<{ [key: number]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
-    if (initialData) {
+    if (initialData && JSON.stringify(initialData) !== JSON.stringify(additionalFields)) {
       setAdditionalFields(initialData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData]);
 
   const handleAddField = () => {
@@ -51,10 +47,7 @@ export function AdditionalFileUpload({
     onFieldsChange?.(newFields);
   };
 
-  const handleFileChange = async (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -109,54 +102,47 @@ export function AdditionalFileUpload({
     }
 
     const newFields = additionalFields.map((item, i) =>
-      i === index
-        ? { ...item, file: null, url: undefined, publicId: undefined }
-        : item
+      i === index ? { ...item, file: null, url: undefined, publicId: undefined } : item
     );
     setAdditionalFields(newFields);
     onFieldsChange?.(newFields);
   };
 
-  const handleNameChange = (
-    index: number,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleNameChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const name = event.target.value;
-    const newFields = additionalFields.map((item, i) =>
-      i === index ? { ...item, name } : item
-    );
+    const newFields = additionalFields.map((item, i) => (i === index ? { ...item, name } : item));
     setAdditionalFields(newFields);
     onFieldsChange?.(newFields);
   };
 
   return (
-    <div>
+    <div className="space-y-4">
       {additionalFields.map((fieldData, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 border border-gray-300 rounded-lg bg-white"
+          className="flex flex-col md:flex-row gap-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
         >
-          <div>
+          <div className="flex-1 min-w-0">
             <Label className="text-sm font-medium mb-2 block text-gray-700">
               Name of file/evidence
             </Label>
             <Input
-              placeholder="Enter the name of the file/evidence you are about to upload"
+              placeholder="Enter the name of the file/evidence"
               value={fieldData.name}
               onChange={(e) => handleNameChange(index, e)}
-              className="border-gray-300"
+              className="border-gray-300 w-full"
               disabled={uploading[index] || deleting[index]}
             />
           </div>
-          <div className="relative">
-            <Label className="text-sm font-medium mb-2 block text-gray-700">
-              Upload File
-            </Label>
-            <div className="flex items-center gap-2">
+
+          <div className="flex-1 min-w-0">
+            <Label className="text-sm font-medium mb-2 block text-gray-700">Upload File</Label>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 border-gray-300 text-gray-600 hover:bg-gray-50 flex items-center justify-between"
+                className="flex-1 border-gray-300 text-gray-600 hover:bg-gray-50 flex items-center justify-start whitespace-nowrap min-w-0"
                 onClick={() => {
                   const input = document.getElementById(
                     `additional-file-${index}`
@@ -165,63 +151,70 @@ export function AdditionalFileUpload({
                 }}
                 disabled={uploading[index] || deleting[index]}
               >
-                <div className="flex items-center">
-                  <CloudUpload className="h-4 w-4 mr-2" />
-                  <span className="truncate">
-                    {fieldData.file
-                      ? fieldData.file.name
-                      : "Select file you want to upload (max. 10mb)"}
-                  </span>
+                <div className="flex items-center gap-2 min-w-0">
+                  {uploading[index] ? (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      <span className="truncate">Uploading...</span>
+                    </>
+                  ) : deleting[index] ? (
+                    <>
+                      <LoadingSpinner size="sm" />
+                      <span className="truncate text-red-500">Deleting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CloudUpload className="h-4 w-4 shrink-0" />
+                      <span className="truncate">
+                        {fieldData.file?.name ?? "Select file (max. 10MB)"}
+                      </span>
+                    </>
+                  )}
                 </div>
               </Button>
-              {fieldData.file && (
+
+              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                {fieldData.file && !uploading[index] && !deleting[index] && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveFile(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
-                  className="absolute right-16 top-1/2 -mt-1 transform -translate-y-1/2"
-                  onClick={() => handleRemoveFile(index)}
-                  disabled={deleting[index]}
+                  onClick={() => handleRemoveField(index)}
+                  className="border-red-300 text-red-500 hover:bg-red-50"
+                  disabled={uploading[index] || deleting[index]}
                 >
-                  <X className="h-4 w-4 text-red-500" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
-              )}
-              {uploading[index] && (
-                <div className="absolute right-1/2 top-1/2 transform translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-500">
-                  <LoadingSpinner size="sm" /> Uploading...
-                </div>
-              )}
-              {deleting[index] && (
-                <div className="absolute right-1/2 top-1/2 transform translate-x-1/2 -translate-y-1/2 flex items-center gap-2 text-red-500">
-                  <LoadingSpinner size="sm" /> Deleting...
-                </div>
-              )}
-              <Input
-                id={`additional-file-${index}`}
-                type="file"
-                className="hidden"
-                onChange={(e) => handleFileChange(index, e)}
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => handleRemoveField(index)}
-                className="border-red-300 text-red-500 hover:bg-red-50"
-                disabled={uploading[index] || deleting[index]}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              </div>
             </div>
+
+            <Input
+              id={`additional-file-${index}`}
+              type="file"
+              className="hidden"
+              onChange={(e) => handleFileChange(index, e)}
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            />
           </div>
         </div>
       ))}
+
       <Button
         type="button"
         variant="outline"
         onClick={handleAddField}
-        className="w-full border-gray-300 text-gray-600 hover:bg-gray-50 mt-4"
+        className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
       >
         <Plus className="h-4 w-4 mr-2" />
         Add More Files

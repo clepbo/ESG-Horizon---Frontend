@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import {
@@ -10,8 +10,21 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { Button } from "@/app/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/app/components/ui/table";
 import { TableFilters, TableRowType } from "@/types/table";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
 import { StatusButton } from "../StatusButton";
@@ -20,22 +33,18 @@ import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/ex
 import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
 // import { getReport } from "@/app/(company)/reports-and-analytics/components/service/get-report";
 
-
-
-
 const columnHelper = createColumnHelper<TableRowType>();
-
 const columns = [
-  columnHelper.accessor(row => `${row.startMonth} ${row.startYear}`, {
+  columnHelper.accessor((row) => `${row.startMonth} ${row.startYear}`, {
     id: "startingPeriod",
     header: "Starting Period",
-    cell: (info) => info.getValue()
+    cell: (info) => info.getValue(),
   }),
 
-  columnHelper.accessor(row => `${row.endMonth} ${row.endYear}`, {
+  columnHelper.accessor((row) => `${row.endMonth} ${row.endYear}`, {
     id: "endingPeriod",
     header: "Ending Period",
-    cell: (info) => info.getValue()
+    cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("subsidiary", {
     header: "Subsidiaries",
@@ -43,15 +52,22 @@ const columns = [
   }),
   columnHelper.accessor("status", {
     header: "Status",
-    cell: (info) => <StatusButton progress={90}
-      status={info.getValue() as "Working on it" | "Awaiting Review" | "In Progress"}
-    />
+    cell: (info) => (
+      <StatusButton
+        progress={90}
+        status={info.getValue() as "Working on it" | "Awaiting Review" | "In Progress"}
+      />
+    ),
   }),
   columnHelper.display({
     id: "actions",
     header: "Quick Actions",
     cell: (info) => (
-      <Button variant="default" size="sm" className="rounded-sm font-semibold text-white bg-green-400 hover:bg-green-600">
+      <Button
+        variant="default"
+        size="sm"
+        className="rounded-sm font-semibold text-white bg-green-400 hover:bg-green-600"
+      >
         <Link href={`/reports-and-analytics/${info.row.original.id}`}>View Report</Link>
       </Button>
     ),
@@ -65,11 +81,9 @@ export function DataTable() {
     date: "",
   });
 
-
   const report = useReport();
 
   const data = report.data || [];
-
 
   const table = useReactTable({
     data,
@@ -84,9 +98,7 @@ export function DataTable() {
     },
     globalFilterFn: (row, columnId, filterValue) => {
       const search = filterValue.toLowerCase();
-      const combinedPeriod = `${row.original.startMonth} ${row.original.startYear}`.toLowerCase()
-      ;
-
+      const combinedPeriod = `${row.original.startMonth} ${row.original.startYear}`.toLowerCase();
       return (
         combinedPeriod.includes(search) ||
         row.original.endingPeriod?.toLowerCase().includes(search) ||
@@ -106,14 +118,13 @@ export function DataTable() {
   });
 
   const handleYearFilter = (year: string) => {
-    setFilters((prev) => ({ ...prev, date: year }))
+    setFilters((prev) => ({ ...prev, date: year }));
     if (year === "all") {
-      table.getColumn("startingPeriod")?.setFilterValue(undefined)
+      table.getColumn("startingPeriod")?.setFilterValue(undefined);
     } else {
-      table.getColumn("startingPeriod")?.setFilterValue(year)
+      table.getColumn("startingPeriod")?.setFilterValue(year);
     }
-  }
-
+  };
 
   const handleStatusFilter = (status: string) => {
     setFilters((prev) => ({ ...prev, status }));
@@ -129,9 +140,11 @@ export function DataTable() {
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
       <div className="flex items-center justify-between gap-4">
-
-        <SearchInput placeholder="Search by subsidiary" value={filters.search}
-          onChange={(e) => table.setGlobalFilter(e.target.value)} />
+        <SearchInput
+          placeholder="Search by subsidiary"
+          value={filters.search}
+          onChange={(e) => table.setGlobalFilter(e.target.value)}
+        />
         <Button className={`text-white font-semibold`} onClick={() => exportToCSV(data)}>
           Export CSV
         </Button>
@@ -175,7 +188,10 @@ export function DataTable() {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="border-b border-gray-300 font-semibold text-gray-700">
+                  <TableHead
+                    key={header.id}
+                    className="border-b border-gray-300 font-semibold text-gray-700"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -252,8 +268,7 @@ export function DataTable() {
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <span className="sr-only">Go to previous page</span>
-              ‹
+              <span className="sr-only">Go to previous page</span>‹
             </Button>
             <Button
               variant="outline"
@@ -261,8 +276,7 @@ export function DataTable() {
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              <span className="sr-only">Go to next page</span>
-              ›
+              <span className="sr-only">Go to next page</span>›
             </Button>
           </div>
         </div>

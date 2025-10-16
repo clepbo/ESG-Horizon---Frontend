@@ -7,19 +7,22 @@ import { useAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentHub from "../hub/AssessmentHub";
 
 export default function AssessmentPage() {
-    const { id } = useParams<{ id: string }>();
-    const { data, isLoading } = useAssessment(Number(id));
-    const { dispatch } = useAssessmentContext();
+  const { id } = useParams<{ id: string }>();
+  const { data, isLoading } = useAssessment(Number(id));
+  const { dispatch } = useAssessmentContext();
 
-    useEffect(() => {
-        if (data) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: data.id });
-            dispatch({ type: "LOAD_SAVED_DATA", payload: data.assessmentData });
-            dispatch({ type: "SET_VIEW", payload: "ghg-stationary-sources" });
-        }
-    }, [data, dispatch]);
+  useEffect(() => {
+    if (data) {
+      dispatch({ type: "SET_ASSESSMENT_ID", payload: Number(id) });
+      dispatch({
+        type: "LOAD_SAVED_DATA",
+        payload: { ...data.assessmentData, assessmentId: Number(id) },
+      });
+      dispatch({ type: "SET_VIEW", payload: "ghg-stationary-sources" });
+    }
+  }, [data, dispatch, id]);
 
-    if (isLoading) return <div className="p-10">Loading assessment...</div>;
+  if (isLoading) return <div className="p-10">Loading assessment...</div>;
 
-    return <AssessmentHub />;
+  return <AssessmentHub />;
 }

@@ -50,8 +50,7 @@ const editCompanySchema = z.object({
         return websiteRegex.test(val);
       },
       {
-        message:
-          "Please enter a valid website URL (e.g., https://www.example.com)",
+        message: "Please enter a valid website URL (e.g., https://www.example.com)",
       }
     ),
   isoCountryCode: z.string().min(2, "Country is required"),
@@ -94,12 +93,9 @@ export default function EditCompanyModal({
     },
   });
 
-  const { mutate: updateCompany, isPending: isUpdating } =
-    useUpdateCompanyDetails();
+  const { mutate: updateCompany, isPending: isUpdating } = useUpdateCompanyDetails();
 
-  const [companyLogo, setCompanyLogo] = useState(
-    company.company_logo_url || null
-  );
+  const [companyLogo, setCompanyLogo] = useState(company.company_logo_url || null);
 
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
@@ -108,8 +104,7 @@ export default function EditCompanyModal({
       toast.info("Please wait for the logo upload to finish before updating.");
       return;
     }
-    const countryData =
-      countries[data.isoCountryCode as keyof typeof countries];
+    const countryData = countries[data.isoCountryCode as keyof typeof countries];
     const countryName = countryData?.name || data.isoCountryCode;
 
     const payload = {
@@ -172,9 +167,7 @@ export default function EditCompanyModal({
           <CircleX size={28} />
         </button>
 
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">
-          Edit Company Information
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Edit Company Information</h2>
 
         <div className="flex items-center gap-4 mb-8">
           <div className="relative w-20 h-20">
@@ -196,20 +189,11 @@ export default function EditCompanyModal({
           </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          <FormField
-            label="Company Name"
-            {...register("name")}
-            error={errors.name}
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField label="Company Name" {...register("name")} error={errors.name} />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Industry
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
             <Controller
               name="industryId"
               control={control}
@@ -249,9 +233,7 @@ export default function EditCompanyModal({
               }}
             />
             {errors.industryId && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.industryId.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.industryId.message}</p>
             )}
           </div>
 
@@ -263,9 +245,7 @@ export default function EditCompanyModal({
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <Controller
               name="contact_phone"
               control={control}
@@ -274,31 +254,21 @@ export default function EditCompanyModal({
                   {...field}
                   defaultCountry={watch("isoCountryCode") as CountryCode}
                   className={`rounded-md border px-3 py-2 w-full focus:outline-none focus:ring-2 ${
-                    errors.contact_phone
-                      ? "border-red-500"
-                      : "border-gray-300 focus:ring-green-500"
+                    errors.contact_phone ? "border-red-500" : "border-gray-300 focus:ring-green-500"
                   }`}
                   labels={en}
                 />
               )}
             />
             {errors.contact_phone && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.contact_phone.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.contact_phone.message}</p>
             )}
           </div>
 
-          <FormField
-            label="Website"
-            {...register("website")}
-            error={errors.website}
-          />
+          <FormField label="Website" {...register("website")} error={errors.website} />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Country
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <Controller
               name="isoCountryCode"
               control={control}
@@ -318,9 +288,7 @@ export default function EditCompanyModal({
                     showOptionLabel
                     className="w-full"
                     selectButtonClassName={`w-full h-12 rounded-lg border px-3 text-left ${
-                      errors.isoCountryCode
-                        ? "border-red-500"
-                        : "border-neutral-200"
+                      errors.isoCountryCode ? "border-red-500" : "border-neutral-200"
                     }`}
                   />
                 );
@@ -328,17 +296,11 @@ export default function EditCompanyModal({
             />
 
             {errors.isoCountryCode && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.isoCountryCode.message}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{errors.isoCountryCode.message}</p>
             )}
           </div>
 
-          <FormField
-            label="Platform Users Count"
-            value={companyUsersCount}
-            disabled
-          />
+          <FormField label="Platform Users Count" value={companyUsersCount} disabled />
 
           <FormField
             label="Address"
@@ -351,14 +313,14 @@ export default function EditCompanyModal({
             <button
               type="button"
               onClick={onClose}
-              className="border border-green-500 text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50 cursor-pointer"
+              className="border bg-[var(--color-primary)]  text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50 cursor-pointer"
             >
               Close
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="bg-green-500 text-white px-6 py-2 rounded-md text-sm hover:bg-green-600 cursor-pointer disabled:opacity-50"
+              className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm cursor-pointer disabled:opacity-50"
             >
               {isPending ? "Please wait..." : "Update"}
             </button>
