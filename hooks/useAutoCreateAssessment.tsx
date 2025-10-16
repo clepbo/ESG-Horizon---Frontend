@@ -8,12 +8,12 @@ export const useAutoCreateAssessment = () => {
 
   useEffect(() => {
     // Create only if this is a *brand new* assessment
-    if (!state.assessmentId) {
+    if (!state.assessmentData.assessmentId) {
       createAssessment()
         .then((newId) => {
           dispatch({ type: "SET_ASSESSMENT_ID", payload: newId });
         })
         .catch((err) => console.error("Failed to auto-create assessment", err));
     }
-  }, [state.assessmentId, createAssessment, dispatch]);
+  }, [state.assessmentData.assessmentId, createAssessment, dispatch]);
 };

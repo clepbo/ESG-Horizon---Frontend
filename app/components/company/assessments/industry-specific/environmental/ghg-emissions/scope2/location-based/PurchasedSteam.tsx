@@ -192,6 +192,7 @@ export function PurchasedSteamForm({
             files,
             additionalFields: additionalFields as FileMetadata[],
           },
+          lastSavedForm: "ghg-location-based-steam",
         },
       },
       {

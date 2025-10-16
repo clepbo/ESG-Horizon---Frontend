@@ -194,6 +194,7 @@ export function OilGasOperations({
             ...state.assessmentData.stationarySources,
             oilGasOperations: payload,
           },
+          lastSavedForm: "ghg-stationary-sources-oil-gas",
         },
       },
       {

@@ -7,10 +7,12 @@ import { PurchasedSteamForm } from "./PurchasedSteam";
 import { PurchasedHeatingForm } from "./PurchasedHeating";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface LocationBasedFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
+  initialStep?: StepKey;
 }
 
 const steps = [
@@ -21,8 +23,13 @@ const steps = [
 ];
 type StepKey = "electricity" | "cooling" | "steam" | "heating";
 
-export function LocationBasedForm({ onBack, onContinueToNextAssessment }: LocationBasedFormProps) {
-  const [currentStep, setCurrentStep] = useState<StepKey>("electricity");
+export function LocationBasedForm({
+  onBack,
+  onContinueToNextAssessment,
+  initialStep,
+}: LocationBasedFormProps) {
+  useAutoCreateAssessment();
+  const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
