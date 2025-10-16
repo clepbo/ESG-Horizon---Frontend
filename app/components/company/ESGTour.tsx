@@ -73,10 +73,16 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
   const handleCardClick = (index: number, href: string, onAction?: () => void): void => {
     setLoadingIndex(index);
     setTimeout(() => {
-      if (onAction) {
-        onAction();
+      const clickedCard = tourCards[index];
+      if (clickedCard.title === "View Tutorials or Walkthrough") {
+        alert("This feature is coming soon. Stay tuned!");
+        setLoadingIndex(null);
       } else {
-        window.location.href = href;
+        if (onAction) {
+          onAction();
+        } else {
+          window.location.href = href;
+        }
       }
     }, 500);
   };
