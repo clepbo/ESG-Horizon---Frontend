@@ -44,13 +44,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
         {hasData ? (
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={esgJourney} barCategoryGap={10}>
-              {/* <--- 2. Add CartesianGrid for horizontal lines (and customize appearance) */}
-              <CartesianGrid
-                strokeDasharray="3 3" // Optional: makes the lines dashed
-                vertical={false} // This hides the vertical lines
-                stroke="#E5E7EB" // Set the color for the grid lines
-                opacity={0.7} // Set opacity (like the visual)
-              />
+              <CartesianGrid vertical={false} stroke="#E5E7EB" opacity={0.7} />
 
               <XAxis
                 dataKey="month"

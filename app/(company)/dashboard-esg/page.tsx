@@ -85,7 +85,7 @@ export default function DashboardPage() {
                 trend="down"
                 trendValue="7%"
                 icon={<Leaf className="w-5 h-5" />}
-                iconSrc={"/icons/overall-esg.svg"}
+                iconSrc={"/icons/leafgreen.svg"}
                 bottomBarColor="bg-[#228A3D]"
                 height="50px"
                 gradientClass="bg-gradient-to-b from-[#409E56] to-[#248F3A] bg-fixed"

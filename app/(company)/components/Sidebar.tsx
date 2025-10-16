@@ -20,7 +20,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const navItems = [
   { name: "Reports", href: "/reports-and-analytics", icon: BarChart3 },
-  { name: "Ranking", href: "/ranking", icon: TrendingUp },
+  { name: "KPIs", href: "/ranking", icon: TrendingUp },
 ];
 
 const assessmentSubLinks = [
@@ -58,17 +58,6 @@ export default function Sidebar() {
     }
   };
 
-  const dropdownVariants = {
-    hidden: { opacity: 0, height: 0, y: -5 },
-    visible: {
-      opacity: 1,
-      height: "auto",
-      y: 0,
-      transition: { duration: 0.25, ease: "easeOut" },
-    },
-    exit: { opacity: 0, height: 0, y: -5, transition: { duration: 0.2 } },
-  };
-
   return (
     <aside className="h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 w-[64px] md:w-[270px]">
       <div className="p-2 md:p-4 border-b border-gray-100">
@@ -93,58 +82,72 @@ export default function Sidebar() {
           </div>
         </Link>
 
-        <div className="mb-1 hidden md:flex items-center space-x-2 bg-[#b4eddf] rounded-md px-3 py-2">
+        <div className="mb-1 hidden md:flex items-center space-x-2 bg-teal-600 rounded-md px-3 py-2">
           <Image
             src={user?.company?.company_logo_url || "/image.png"}
             alt="Company Logo"
-            width={28}
+            width={40}
             height={20}
             className="object-contain rounded-2xl"
           />
-          <span className="text-sm font-medium text-[#001D34]">
+          <span className="text-sm font-medium text-white">
             {user?.company?.name || "Company Name"}
           </span>
         </div>
       </div>
 
+      {/* Nav section */}
       <div className="flex-grow p-2 md:p-4 overflow-y-auto mt-0">
         <nav className="space-y-1">
-          <Link
-            href="/dashboard-esg"
-            className={clsx(
-              "flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2",
-              pathname.startsWith("/dashboard-esg")
-                ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                : "text-[#001D34] hover:bg-[#E8F5EE]"
-            )}
+          {/* Dashboard */}
+          <motion.div
+            whileHover={{ opacity: 1, scale: 1.03 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            <LayoutDashboard
+            <Link
+              href="/dashboard-esg"
               className={clsx(
-                "h-5 w-5 flex-shrink-0",
+                "flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2",
                 pathname.startsWith("/dashboard-esg")
-                  ? "text-[var(--color-primary)]"
-                  : "text-[#001D34]"
+                  ? "bg-teal-600 text-white"
+                  : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
               )}
-            />
-            <span className="hidden md:inline ml-3">Dashboard</span>
-          </Link>
+            >
+              <LayoutDashboard
+                className={clsx(
+                  "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                  pathname.startsWith("/dashboard-esg") ? "text-white" : "text-teal-600"
+                )}
+              />
+              <motion.span
+                className="hidden md:inline ml-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                Dashboard
+              </motion.span>
+            </Link>
+          </motion.div>
 
-          <div>
+          {/* Assessments with dropdown */}
+          <motion.div
+            whileHover={{ opacity: 1, scale: 1.03 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
             <button
               onClick={() => setAssessmentsOpen((prev) => !prev)}
               className={clsx(
-                "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
+                "w-full flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2 cursor-pointer",
                 pathname.startsWith("/assessments")
-                  ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                  : "text-[#001D34] hover:bg-[#E8F5EE]"
+                  ? "bg-teal-600 text-white"
+                  : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
               )}
             >
               <ClipboardList
                 className={clsx(
-                  "h-5 w-5 flex-shrink-0",
-                  pathname.startsWith("/assessments")
-                    ? "text-[var(--color-primary)]"
-                    : "text-[#001D34]"
+                  "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                  pathname.startsWith("/assessments") ? "text-white" : "text-teal-600"
                 )}
               />
               <span className="hidden md:inline ml-3">Assessments</span>
@@ -162,7 +165,7 @@ export default function Sidebar() {
                   initial={{ opacity: 0, height: 0, y: -5 }}
                   animate={{ opacity: 1, height: "auto", y: 0 }}
                   exit={{ opacity: 0, height: 0, y: -5 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
                   className="ml-6 mt-1 space-y-1 overflow-hidden"
                 >
                   {assessmentSubLinks.map((sub) => {
@@ -173,10 +176,10 @@ export default function Sidebar() {
                         key={sub.name}
                         href={sub.href}
                         className={clsx(
-                          "block text-sm rounded px-2 py-1 transition-all",
+                          "block text-sm rounded px-2 py-1 transition-all duration-300 ease-in-out",
                           isSubActive
-                            ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                            : "text-[#001D34] hover:bg-[#E8F5EE]"
+                            ? "bg-teal-600 text-white"
+                            : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
                         )}
                       >
                         {sub.name}
@@ -186,48 +189,63 @@ export default function Sidebar() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
 
+          {/* Other menu items */}
           {navItems.map(({ name, href, icon: Icon }) => {
             const isActive = pathname.startsWith(href);
             return (
-              <Link
+              <motion.div
                 key={name}
-                href={href}
-                className={clsx(
-                  "flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2",
-                  isActive
-                    ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                    : "text-[#001D34] hover:bg-[#E8F5EE]"
-                )}
+                whileHover={{ opacity: 1, scale: 1.03 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
               >
-                <Icon
+                <Link
+                  href={href}
                   className={clsx(
-                    "h-5 w-5 flex-shrink-0",
-                    isActive ? "text-[var(--color-primary)]" : "text-[#001D34]"
+                    "flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2",
+                    isActive
+                      ? "bg-teal-600 text-white"
+                      : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
                   )}
-                />
-                <span className="hidden md:inline ml-3">{name}</span>
-              </Link>
+                >
+                  <Icon
+                    className={clsx(
+                      "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                      isActive ? "text-white" : "text-teal-600"
+                    )}
+                  />
+                  <motion.span
+                    className="hidden md:inline ml-3"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {name}
+                  </motion.span>
+                </Link>
+              </motion.div>
             );
           })}
 
-          <div>
+          {/* Settings with dropdown */}
+          <motion.div
+            whileHover={{ opacity: 1, scale: 1.03 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
             <button
               onClick={() => setSettingsOpen((prev) => !prev)}
               className={clsx(
-                "w-full flex items-center justify-center md:justify-start rounded-md transition-colors px-2 md:px-4 py-2 cursor-pointer",
+                "w-full flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2 cursor-pointer",
                 pathname.startsWith("/settings-esg")
-                  ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                  : "text-[#001D34] hover:bg-[#E8F5EE]"
+                  ? "bg-teal-600 text-white"
+                  : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
               )}
             >
               <Settings
                 className={clsx(
-                  "h-5 w-5 flex-shrink-0",
-                  pathname.startsWith("/settings-esg")
-                    ? "text-[var(--color-primary)]"
-                    : "text-[#001D34]"
+                  "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                  pathname.startsWith("/settings-esg") ? "text-white" : "text-teal-600"
                 )}
               />
               <span className="hidden md:inline ml-3">Settings</span>
@@ -245,22 +263,21 @@ export default function Sidebar() {
                   initial={{ opacity: 0, height: 0, y: -5 }}
                   animate={{ opacity: 1, height: "auto", y: 0 }}
                   exit={{ opacity: 0, height: 0, y: -5 }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
                   className="ml-6 mt-1 space-y-1 overflow-hidden"
                 >
                   {settingsSubLinks.map((sub) => {
                     const isSubActive =
                       pathname === sub.href || pathname.startsWith(sub.href + "/");
-
                     return (
                       <Link
                         key={sub.name}
                         href={sub.href}
                         className={clsx(
-                          "block text-sm rounded px-2 py-1 transition-all",
+                          "block text-sm rounded px-2 py-1 transition-all duration-300 ease-in-out",
                           isSubActive
-                            ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                            : "text-[#001D34] hover:bg-[#E8F5EE]"
+                            ? "bg-teal-600 text-white"
+                            : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
                         )}
                       >
                         {sub.name}
@@ -270,10 +287,11 @@ export default function Sidebar() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </nav>
       </div>
 
+      {/* Logout */}
       <div className="px-2 md:px-4 pb-4 border-t border-gray-100">
         <button
           onClick={handleLogout}
