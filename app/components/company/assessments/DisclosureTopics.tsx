@@ -216,6 +216,7 @@ export function DisclosureTopics({
       <GhgEmissionsAssessment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialForm={initialForm as any}
         initialStep={initialStep}
       />

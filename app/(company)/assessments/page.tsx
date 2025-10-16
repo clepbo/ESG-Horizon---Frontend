@@ -36,6 +36,7 @@ export default function NewAssessmentPage() {
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rejection_reason: (a as any).rejection_reason,
       };
     }) ?? [];
