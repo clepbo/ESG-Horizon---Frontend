@@ -10,7 +10,6 @@ import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentDetailsModal from "./AssessmentDetailsModal";
-
 export interface Assessment {
   id: number;
   startPeriod: string;
@@ -133,7 +132,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
               key="continue"
               size="sm"
               className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded-sm"
-              onClick={() => router.push(`/assessments/${info.row.original.id}`)}
+              onClick={() => router.push(`/assessments/${assessment.id}`)}
             >
               Continue
             </Button>

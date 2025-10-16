@@ -104,3 +104,12 @@ export const formatNumberToTwoDecimals = (value: string | number | null | undefi
     useGrouping: false, // Prevents thousands separators (e.g., 1,000)
   });
 };
+
+export const formattedDate = (date: string) =>
+  new Date(date).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });

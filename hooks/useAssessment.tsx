@@ -595,7 +595,12 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
     case "LOAD_SAVED_DATA":
       return {
         ...state,
-        assessmentData: action.payload,
+        // assessmentData: action.payload,
+        assessmentData: {
+          ...state.assessmentData,
+          ...action.payload,
+          assessmentId: state.assessmentData.assessmentId ?? action.payload.assessmentId,
+        },
         isLoading: false,
         error: null,
       };

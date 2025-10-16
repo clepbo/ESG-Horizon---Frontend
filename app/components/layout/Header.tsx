@@ -24,7 +24,7 @@ export default function Header() {
           height={36}
           className={`rounded-full object-cover ${isFallbackImage ? "opacity-50 blur-[1px]" : ""}`}
         />
-        <div className="flex flex-col justify-center items-start text-sm">
+        <div className="flex flex-col justify-center items-center text-sm">
           <span className="text-gray-900 font-medium ">
             {user ? `${user.first_name} ${user.last_name}` : "Loading..."}
           </span>

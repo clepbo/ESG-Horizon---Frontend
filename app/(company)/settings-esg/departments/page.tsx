@@ -1,26 +1,17 @@
 "use client";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Plus, Search } from "lucide-react";
 import Header from "@/app/(company)/components/Header";
 import DepartmentsTable from "@/app/components/company/teams/DepartmentsTable";
 import AddDepartmentModal from "@/app/components/company/teams/AddDepartmentModal";
-import { Input } from "@/app/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/app/components/ui/select";
 import { companyService } from "@/services/company.service";
 import { CreateDepartment, Department, departmentService } from "@/services/department.service";
 import { User } from "@/services/user.service";
-import RoleGuard from "@/lib/RoleGuard";
 import { getCurrentUser } from "@/lib/utils";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import TableManagementControls from "@/app/components/company/TableManagementControls";
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -121,9 +112,11 @@ export default function DepartmentsPage() {
       const matchesSearch =
         dept.name.toLowerCase().includes(searchLower) || leadName.includes(searchLower);
 
-      return matchesSearch;
+      const matchesStatus = statusFilter === "Status" || dept.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
     });
-  }, [departments, search]);
+  }, [departments, search, statusFilter]);
 
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
     setModalTab(tab);
@@ -145,54 +138,23 @@ export default function DepartmentsPage() {
       >
         <Header />
 
-        {/* Title & Add Button */}
-        <div className="flex justify-between">
-          <div className="mt-4">
-            <h2 className="text-2xl font-semibold">Departments</h2>
-            <p className="text-gray-600">Manage company departments and their assigned members</p>
-          </div>
-
-          <div className="flex justify-between items-center mb-6 mt-4">
-            <RoleGuard allowedRoles={["company_esg_admin"]}>
-              <button
-                className="border bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
-                onClick={() => openModalWithTab("department")}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add Department
-              </button>
-            </RoleGuard>
-          </div>
-        </div>
-
-        {/* Search + Filters */}
-        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white rounded-lg p-4 shadow-sm">
-          <div className="relative w-full">
-            <Input
-              id="search-input"
-              placeholder="Search by department or lead"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
-              <Search className="h-3.5 w-3.5" />
-              Search
-            </button>
-          </div>
-
-          <div className="flex gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Status">Status</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <TableManagementControls
+          title="Departments"
+          description="Manage company departments and their assigned members"
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by department or lead"
+          addButtonLabel="Add Department"
+          onAdd={() => openModalWithTab("department")}
+          filters={[
+            {
+              label: "Status",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: ["Status", "Active", "Inactive"],
+            },
+          ]}
+        />
 
         {loading ? (
           <div className="">

@@ -357,7 +357,7 @@ export default function CompanySetupModal({
         <div className="absolute inset-4 bg-green-200/20 rounded-md shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
           <div className="flex items-center p-6">
             <button
-              onClick={() => window.history.back()}
+              onClick={onClose}
               className="flex items-center btn-xs bg-white shadow-md px-3 py-2 rounded-md transition-shadow duration-300 hover:shadow-lg text-sm hover:cursor-pointer"
             >
               <ArrowLeft size={16} className="text-gray-400" />

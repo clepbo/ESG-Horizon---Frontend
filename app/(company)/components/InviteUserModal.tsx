@@ -32,9 +32,9 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const ROLE_OPTIONS = [
-    { value: "company_esg_subadmin", label: "Company ESG Subadmin" },
-    { value: "company_esg_data_officer", label: "Company ESG Data Officer" },
-    { value: "company_esg_viewer", label: "Company ESG Viewer" },
+    { value: "company_esg_subadmin", label: "Company SubAdmin" },
+    { value: "company_esg_data_officer", label: "Company Data Officer" },
+    { value: "company_esg_viewer", label: "Company Viewer" },
   ];
   const [role, setRole] = useState(ROLE_OPTIONS[0]?.value || "");
 

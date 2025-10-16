@@ -16,13 +16,10 @@ import Image from "next/image";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const navItems = [
-  {
-    name: "Reports",
-    href: "/reports-and-analytics",
-    icon: BarChart3,
-  },
+  { name: "Reports", href: "/reports-and-analytics", icon: BarChart3 },
   { name: "Ranking", href: "/ranking", icon: TrendingUp },
 ];
 
@@ -35,11 +32,7 @@ const assessmentSubLinks = [
 const settingsSubLinks = [
   { name: "My Profile", href: "/settings-esg/account" },
   { name: "Company Info", href: "/settings-esg/company" },
-  {
-    name: "Subsidiaries",
-    href: "/settings-esg/subsidiaries",
-    // icon: Building2,
-  },
+  { name: "Subsidiaries", href: "/settings-esg/subsidiaries" },
   { name: "Departments", href: "/settings-esg/departments" },
   { name: "Teams", href: "/settings-esg/teams" },
 ];
@@ -51,18 +44,9 @@ export default function Sidebar() {
   const [assessmentsOpen, setAssessmentsOpen] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && user) {
-      localStorage.setItem("lastVisitedPage_name", user.email || "");
-      localStorage.setItem("lastVisitedPage_role", user.role?.name || "");
-      localStorage.setItem("lastVisitedPage_page", pathname);
-    }
-  }, [pathname, user]);
-
-  useEffect(() => {
     const isSettingsPage = pathname.startsWith("/settings-esg");
-    setSettingsOpen(isSettingsPage);
-
     const isAssessmentsPage = pathname.startsWith("/assessments");
+    setSettingsOpen(isSettingsPage);
     setAssessmentsOpen(isAssessmentsPage);
   }, [pathname]);
 
@@ -72,6 +56,17 @@ export default function Sidebar() {
     } catch (error) {
       console.error("Logout failed:", error);
     }
+  };
+
+  const dropdownVariants = {
+    hidden: { opacity: 0, height: 0, y: -5 },
+    visible: {
+      opacity: 1,
+      height: "auto",
+      y: 0,
+      transition: { duration: 0.25, ease: "easeOut" },
+    },
+    exit: { opacity: 0, height: 0, y: -5, transition: { duration: 0.2 } },
   };
 
   return (
@@ -86,7 +81,6 @@ export default function Sidebar() {
               width={140}
               height={60}
               priority
-              style={{ width: "auto", height: "auto" }}
               className="hidden md:block object-contain"
             />
             <Image
@@ -94,13 +88,11 @@ export default function Sidebar() {
               alt="Logo Icon"
               width={32}
               height={32}
-              style={{ width: "auto", height: "auto" }}
               className="md:hidden object-contain"
             />
           </div>
         </Link>
 
-        {/* Company Info */}
         <div className="mb-1 hidden md:flex items-center space-x-2 bg-[#b4eddf] rounded-md px-3 py-2">
           <Image
             src={user?.company?.company_logo_url || "/image.png"}
@@ -116,7 +108,6 @@ export default function Sidebar() {
       </div>
 
       <div className="flex-grow p-2 md:p-4 overflow-y-auto mt-0">
-        {/* Navigation */}
         <nav className="space-y-1">
           <Link
             href="/dashboard-esg"
@@ -130,12 +121,14 @@ export default function Sidebar() {
             <LayoutDashboard
               className={clsx(
                 "h-5 w-5 flex-shrink-0",
-                pathname.startsWith("/dashboard-esg") ? "text-[#007A4D]" : "text-[#001D34]"
+                pathname.startsWith("/dashboard-esg")
+                  ? "text-[var(--color-primary)]"
+                  : "text-[#001D34]"
               )}
             />
             <span className="hidden md:inline ml-3">Dashboard</span>
           </Link>
-          {/* Assessments Dropdown */}
+
           <div>
             <button
               onClick={() => setAssessmentsOpen((prev) => !prev)}
@@ -162,27 +155,37 @@ export default function Sidebar() {
               )}
             </button>
 
-            {assessmentsOpen && (
-              <div className="ml-6 mt-1 space-y-1">
-                {assessmentSubLinks.map((sub) => {
-                  const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
-                  return (
-                    <Link
-                      key={sub.name}
-                      href={sub.href}
-                      className={clsx(
-                        "block text-sm rounded px-2 py-1 transition-all",
-                        isSubActive
-                          ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                          : "text-[#001D34] hover:bg-[#E8F5EE]"
-                      )}
-                    >
-                      {sub.name}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+            <AnimatePresence initial={false}>
+              {assessmentsOpen && (
+                <motion.div
+                  key="assessments"
+                  initial={{ opacity: 0, height: 0, y: -5 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -5 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="ml-6 mt-1 space-y-1 overflow-hidden"
+                >
+                  {assessmentSubLinks.map((sub) => {
+                    const isSubActive =
+                      pathname === sub.href || pathname.startsWith(sub.href + "/");
+                    return (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className={clsx(
+                          "block text-sm rounded px-2 py-1 transition-all",
+                          isSubActive
+                            ? "bg-[#DFFAE5] text-[var(--color-primary)]"
+                            : "text-[#001D34] hover:bg-[#E8F5EE]"
+                        )}
+                      >
+                        {sub.name}
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {navItems.map(({ name, href, icon: Icon }) => {
@@ -209,7 +212,6 @@ export default function Sidebar() {
             );
           })}
 
-          {/* Settings Dropdown */}
           <div>
             <button
               onClick={() => setSettingsOpen((prev) => !prev)}
@@ -236,28 +238,38 @@ export default function Sidebar() {
               )}
             </button>
 
-            {settingsOpen && (
-              <div className="ml-6 mt-1 space-y-1">
-                {settingsSubLinks.map((sub) => {
-                  const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
+            <AnimatePresence initial={false}>
+              {settingsOpen && (
+                <motion.div
+                  key="settings"
+                  initial={{ opacity: 0, height: 0, y: -5 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -5 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="ml-6 mt-1 space-y-1 overflow-hidden"
+                >
+                  {settingsSubLinks.map((sub) => {
+                    const isSubActive =
+                      pathname === sub.href || pathname.startsWith(sub.href + "/");
 
-                  return (
-                    <Link
-                      key={sub.name}
-                      href={sub.href}
-                      className={clsx(
-                        "block text-sm rounded px-2 py-1 transition-all",
-                        isSubActive
-                          ? "bg-[#DFFAE5] text-[var(--color-primary)]"
-                          : "text-[#001D34] hover:bg-[#E8F5EE]"
-                      )}
-                    >
-                      {sub.name}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+                    return (
+                      <Link
+                        key={sub.name}
+                        href={sub.href}
+                        className={clsx(
+                          "block text-sm rounded px-2 py-1 transition-all",
+                          isSubActive
+                            ? "bg-[#DFFAE5] text-[var(--color-primary)]"
+                            : "text-[#001D34] hover:bg-[#E8F5EE]"
+                        )}
+                      >
+                        {sub.name}
+                      </Link>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </nav>
       </div>

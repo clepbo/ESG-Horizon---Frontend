@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface NotificationItem {
   title: string;
@@ -37,10 +38,20 @@ export default function NotificationsSettings() {
     },
   ]);
 
+  const [saving, setSaving] = useState(false);
+
   const toggleNotification = (index: number) => {
     setNotifications((prev) =>
       prev.map((n, i) => (i === index ? { ...n, enabled: !n.enabled } : n))
     );
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    // simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    toast.success("Notification preferences updated successfully");
+    setSaving(false);
   };
 
   return (
@@ -71,8 +82,16 @@ export default function NotificationsSettings() {
           <button className="px-5 py-2 border border-green-500 text-green-500 rounded hover:bg-green-50">
             Close
           </button>
-          <button className="px-5 py-2 bg-[var(--color-primary)]  hover:bg-teal-600 text-white rounded ">
-            Save
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`px-5 py-2 rounded text-white ${
+              saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[var(--color-primary)] hover:bg-teal-600"
+            }`}
+          >
+            {saving ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

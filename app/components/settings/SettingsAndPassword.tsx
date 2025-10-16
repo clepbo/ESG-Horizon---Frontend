@@ -57,23 +57,38 @@ export default function SecurityAndPassword() {
           Manage your account security and access controls
         </p>
 
-        <div className="flex justify-between items-center py-3 ">
+        <div className="flex justify-between items-center py-3">
           <div>
             <p className="font-medium">Two-Factor Authentication</p>
             <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
           </div>
-          <ToggleSwitch checked={twoFactor} onChange={() => setTwoFactor(!twoFactor)} />
+
+          <div
+            className="relative group cursor-not-allowed"
+            title="Subscribe to unlock this feature"
+          >
+            <ToggleSwitch checked={false} onChange={() => {}} disabled />
+            <span className="absolute right-0 -top-8 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-sm whitespace-nowrap">
+              Subscribe to access this feature
+            </span>
+          </div>
         </div>
 
-        <div className="flex justify-between items-center py-3 ">
+        <div className="flex justify-between items-center py-3">
           <div>
             <p className="font-medium">Login Notifications</p>
             <p className="text-sm text-gray-500">Get notified of new login attempts</p>
           </div>
-          <ToggleSwitch
-            checked={loginNotifications}
-            onChange={() => setLoginNotifications(!loginNotifications)}
-          />
+
+          <div
+            className="relative group cursor-not-allowed"
+            title="Your plan doesn’t include this feature"
+          >
+            <ToggleSwitch checked={false} onChange={() => {}} disabled />
+            <span className="absolute right-0 -top-8 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-sm whitespace-nowrap">
+              Upgrade your plan to enable this
+            </span>
+          </div>
         </div>
       </div>
 
@@ -132,10 +147,24 @@ export default function SecurityAndPassword() {
   );
 }
 
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+function ToggleSwitch({
+  checked,
+  onChange,
+  disabled = false,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
   return (
     <label className="inline-flex items-center cursor-pointer">
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+      />
       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 relative transition-all">
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
