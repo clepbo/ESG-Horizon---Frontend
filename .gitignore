@@ -23,6 +23,7 @@ out/
 
 # Editor directories and files
 .vscode/
+.settings.json
 .idea/
 *.suo
 *.ntvs*
