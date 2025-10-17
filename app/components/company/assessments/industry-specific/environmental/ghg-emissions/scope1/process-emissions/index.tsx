@@ -5,10 +5,12 @@ import { CementManufacturing } from "./CementManufacturing";
 import { GasFlaring } from "./GasFlaring";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface ProcessEmissionsFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
+  initialStep?: StepKey;
 }
 
 const steps = ["Cement Manufacturing", "Gas Flaring"];
@@ -18,8 +20,10 @@ type StepKey = "cement-manufacturing" | "gas-flaring";
 export function ProcessEmissionsForm({
   onBack,
   onContinueToNextAssessment,
+  initialStep,
 }: ProcessEmissionsFormProps) {
-  const [currentStep, setCurrentStep] = useState<StepKey>("cement-manufacturing");
+  useAutoCreateAssessment();
+  const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "cement-manufacturing");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);

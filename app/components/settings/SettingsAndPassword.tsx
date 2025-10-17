@@ -10,8 +10,8 @@ import { authService } from "@/services/auth.service";
 
 export default function SecurityAndPassword() {
   const { user } = useAuth();
-  const [twoFactor, setTwoFactor] = useState(false);
-  const [loginNotifications, setLoginNotifications] = useState(false);
+  // const [twoFactor, setTwoFactor] = useState(false);
+  // const [loginNotifications, setLoginNotifications] = useState(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");

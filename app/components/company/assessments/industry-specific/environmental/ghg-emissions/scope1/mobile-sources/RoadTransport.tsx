@@ -227,6 +227,7 @@ export function RoadTransport({
             ...state.assessmentData.mobileSources,
             roadTransport: payload,
           },
+          lastSavedForm: "ghg-mobile-sources-road-transport",
         },
       },
       {

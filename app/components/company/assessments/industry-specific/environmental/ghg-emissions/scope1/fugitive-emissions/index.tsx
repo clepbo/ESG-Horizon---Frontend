@@ -5,10 +5,12 @@ import { VentingNaturalGas } from "./VentingNaturalGas";
 import { HFCLeaks } from "./HFCLeaks";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface FugitiveEmissionsFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
+  initialStep?: StepKey;
 }
 
 const steps = ["venting-natural-gas", "hfc-leaks"] as const;
@@ -17,8 +19,10 @@ type StepKey = (typeof steps)[number];
 export function FugitiveEmissionsForm({
   onBack,
   onContinueToNextAssessment,
+  initialStep,
 }: FugitiveEmissionsFormProps) {
-  const [currentStep, setCurrentStep] = useState<StepKey>("venting-natural-gas");
+  useAutoCreateAssessment();
+  const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "venting-natural-gas");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);

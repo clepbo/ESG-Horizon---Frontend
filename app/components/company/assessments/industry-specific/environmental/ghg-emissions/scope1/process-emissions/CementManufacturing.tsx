@@ -155,6 +155,7 @@ export function CementManufacturing({
             ...state.assessmentData.processEmissions,
             cementManufacturing: payload,
           },
+          lastSavedForm: "ghg-process-emissions-cement-manufacturing",
         },
       },
       {

@@ -167,6 +167,7 @@ export function GasFlaring({
             ...state.assessmentData.processEmissions,
             gasFlaring: payload,
           },
+          lastSavedForm: "ghg-process-emissions-gas-flaring",
         },
       },
       {

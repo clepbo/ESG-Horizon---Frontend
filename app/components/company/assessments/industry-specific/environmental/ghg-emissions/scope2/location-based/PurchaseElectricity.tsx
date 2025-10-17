@@ -156,6 +156,7 @@ export function PurchasedElectricityForm({
             files,
             additionalFields: additionalFields as FileMetadata[],
           },
+          lastSavedForm: "ghg-location-based-electricity",
         },
       },
       {
