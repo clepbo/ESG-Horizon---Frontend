@@ -3,7 +3,7 @@ import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
 import { ArrowRight, Zap } from "lucide-react";
 import Image from "next/image";
-
+import { useRouter } from "next/navigation";
 interface AssessmentHubCardProps {
   icon?: React.ElementType;
   iconSrc?: string;
@@ -22,6 +22,8 @@ export default function AssessmentHubCard({
   completed,
 }: AssessmentHubCardProps) {
   const FallbackIcon = Icon || Zap;
+
+  const router = useRouter();
 
   return (
     <Card className="bg-white border border-border hover:shadow-md transition-shadow">
@@ -67,6 +69,7 @@ export default function AssessmentHubCard({
               ? " !border-gray-400 !text-gray-600 hover:bg-transparent hover:text-gray-600"
               : "")
           }
+          onClick={() => router.push("/assessments")}
           disabled={progress <= 0}
         >
           {progress <= 0 ? "Not started" : "Continue Assessment"}
