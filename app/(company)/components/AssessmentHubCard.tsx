@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
-import { ArrowRight, Zap } from "lucide-react"; // Import a generic fallback icon (Zap)
-import Image from "next/image"; // <--- 1. Import next/image
+import { ArrowRight, Zap } from "lucide-react";
+import Image from "next/image";
 
 interface AssessmentHubCardProps {
-  icon?: React.ElementType; // <--- 2. Make icon optional (for fallback)
-  iconSrc?: string; // <--- 3. Add optional image source
+  icon?: React.ElementType;
+  iconSrc?: string;
   type: string;
   description: string;
   progress: number;
@@ -15,13 +15,12 @@ interface AssessmentHubCardProps {
 
 export default function AssessmentHubCard({
   icon: Icon,
-  iconSrc, // <--- 4. Destructure iconSrc
+  iconSrc,
   type,
   description,
   progress,
   completed,
 }: AssessmentHubCardProps) {
-  // Use the passed icon, or Zap as the ultimate default fallback
   const FallbackIcon = Icon || Zap;
 
   return (
@@ -29,17 +28,15 @@ export default function AssessmentHubCard({
       <CardHeader className="pb-4">
         <div className="flex flex-col items-start gap-4">
           <div className={` rounded-lg flex items-center justify-center `}>
-            {/* 5. Conditional Rendering: Image first, then Lucide fallback */}
             {iconSrc ? (
               <Image
                 src={iconSrc}
                 alt={`${type} icon`}
-                width={24} // Set dimensions for next/image
+                width={24}
                 height={24}
                 className="w-12 h-12 object-contain"
               />
             ) : (
-              // Fallback to the provided Icon component or the Zap default
               <FallbackIcon className="w-6 h-6 text-white" />
             )}
           </div>
