@@ -105,27 +105,30 @@ export function ESGCard({
             className={`p-2 pt-4 flex h-4/5 flex-col gap-2 bg-gradient-to-b ${gradientClass} text-white`}
           >
             {/* <div className="flex items-center justify-between p-2"> */}
-            <div className="">
+            <div className="flex justify-between">
               <h4 className={` text-xs font-medium`}>{title}</h4>
-            </div>
-            <div className=" flex items-center justify-between">
-              <p className={` ${main ? "text-5xl" : "text-3xl"} font-bold mt-1`}>
-                {formattedScore}
-                <span className="text-xl">/{maxScore} </span>{" "}
-              </p>
               <div className=" rounded-lg flex items-center justify-center">
                 {iconSrc ? (
                   <Image
                     src={iconSrc}
                     alt={`${title} icon`}
-                    width={50}
-                    height={50}
+                    width={40}
+                    height={40}
                     className="object-contain"
                   />
                 ) : (
                   icon
                 )}
               </div>
+            </div>
+            <div className=" flex items-center justify-between">
+              <div
+                className={`flex flex-wrap items-baseline gap-x-1 ${main ? "text-5xl" : "text-3xl"} font-bold mt-1 max-w-full`}
+              >
+                <span className="shrink-0">{formattedScore}</span>
+                <span className="text-xl shrink-0">/{maxScore}</span>
+              </div>
+
               {/* </div> */}
             </div>
           </div>
