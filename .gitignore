@@ -36,5 +36,3 @@ out/
 .netlify
 .vercel
 
-# Visual Studio Code
-.vscode/
