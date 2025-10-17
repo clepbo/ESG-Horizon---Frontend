@@ -22,7 +22,6 @@ out/
 .env.production.local
 
 # Editor directories and files
-.vscode/
 .idea/
 *.suo
 *.ntvs*
@@ -35,3 +34,6 @@ out/
 # Local Netlify folder
 .netlify
 .vercel
+
+# Visual Studio Code
+.vscode/
