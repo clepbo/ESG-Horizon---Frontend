@@ -177,6 +177,7 @@ export function PurchasedCoolingForm({
             files,
             additionalFields: additionalFields as FileMetadata[],
           },
+          lastSavedForm: "ghg-location-based-cooling",
         },
       },
       {

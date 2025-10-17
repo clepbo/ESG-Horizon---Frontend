@@ -216,6 +216,7 @@ export function MarineAviation({
             ...state.assessmentData.mobileSources,
             marineAviation: payload,
           },
+          lastSavedForm: "ghg-mobile-sources-marine-aviation",
         },
       },
       {

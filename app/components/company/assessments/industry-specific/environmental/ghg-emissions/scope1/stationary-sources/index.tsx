@@ -12,6 +12,7 @@ interface StationarySourcesFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   onBackToHub: () => void;
+  initialStep?: StepKey;
 }
 
 const steps = ["Electricity & Heat", "Industrial Processes", "Oil & Gas"];
@@ -21,9 +22,10 @@ export function StationarySourcesForm({
   onBack,
   onContinueToNextAssessment,
   onBackToHub,
+  initialStep,
 }: StationarySourcesFormProps) {
   useAutoCreateAssessment();
-  const [currentStep, setCurrentStep] = useState<StepKey>("electricity-heat");
+  const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);

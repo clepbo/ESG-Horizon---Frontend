@@ -171,6 +171,7 @@ export function VentingNaturalGas({
             ...state.assessmentData.fugitiveEmissions,
             ventingNaturalGas: payload,
           },
+          lastSavedForm: "ghg-fugitive-emissions-venting-natural-gas",
         },
       },
       {

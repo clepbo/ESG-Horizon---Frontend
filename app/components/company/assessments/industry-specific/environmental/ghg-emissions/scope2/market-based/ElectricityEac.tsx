@@ -167,6 +167,7 @@ export function ElectricityEACForm({
             files,
             additionalFields: additionalFields as FileMetadata[],
           },
+          lastSavedForm: "ghg-market-based-electricityEAC",
         },
       },
       {

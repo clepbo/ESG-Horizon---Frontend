@@ -267,6 +267,7 @@ export function VehicleEquipment({
             ...state.assessmentData.mobileSources,
             vehicleEquipment: payload,
           },
+          lastSavedForm: "ghg-mobile-sources-vehicle-equipment",
         },
       },
       {
