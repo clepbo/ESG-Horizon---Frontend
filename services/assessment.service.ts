@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "@/lib/api/axios";
 import { AssessmentData } from "@/hooks/useAssessment";
 
