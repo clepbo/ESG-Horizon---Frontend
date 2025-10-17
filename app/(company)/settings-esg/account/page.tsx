@@ -98,24 +98,6 @@ export default function AccountPage() {
                 </div>
 
                 <hr className="border-gray-200" />
-
-                {/* Time Zone */}
-                <div className="flex items-center justify-between py-4">
-                  <div>
-                    <p className="font-medium">Time Zone</p>
-                    <p className="text-sm text-gray-500">Set your local time zone</p>
-                  </div>
-                  <Select defaultValue="utc">
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Select time zone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="utc">UTC</SelectItem>
-                      <SelectItem value="est">EST</SelectItem>
-                      <SelectItem value="pst">PST</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </>
           )}
