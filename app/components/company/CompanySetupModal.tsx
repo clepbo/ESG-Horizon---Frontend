@@ -107,7 +107,9 @@ export default function CompanySetupModal({
           id: formData.subsidiaryId,
           name: formData.subsidiaryName,
           industryId: formData.industryId,
-          teamLead_email: formData.managerEmail,
+          teamLead: {
+            email: formData.managerEmail,
+          },
           address: formData.address,
           status: "active",
         };
@@ -152,7 +154,9 @@ export default function CompanySetupModal({
           id: Date.now(),
           name: formData.subsidiaryName,
           industryId: formData.industryId,
-          teamLead_email: formData.managerEmail,
+          teamLead: {
+            email: formData.managerEmail,
+          },
           address: formData.address,
           status: "active",
         };
