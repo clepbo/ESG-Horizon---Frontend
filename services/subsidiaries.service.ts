@@ -37,8 +37,8 @@ export const subsidiariesService = {
     const data = await api.patch(`/subsidiary/${payload.id}`, payload);
     return data;
   },
-  getSubsidiariesById: async () => {
-    const data = await api.get(`/subsidiary`);
+  getSubsidiariesById: async (id: number) => {
+    const data = await api.get(`/subsidiary/${id}`);
     return data;
   },
   deleteSubsidiaries: async (id: number) => {

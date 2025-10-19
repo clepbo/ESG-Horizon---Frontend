@@ -32,7 +32,7 @@ export const useCompanySubsidiaries = () => {
 export const useSubsidiary = (subsidiaryId: number) => {
   return useQuery<Subsidiary>({
     queryKey: ["subsidiary", subsidiaryId],
-    queryFn: () => subsidiariesService.getSubsidiariesById(),
+    queryFn: () => subsidiariesService.getSubsidiariesById(subsidiaryId),
     enabled: !!subsidiaryId,
   });
 };
