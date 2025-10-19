@@ -11,8 +11,10 @@ export type Subsidiary = {
   };
   address: string;
   status: string;
-  teamLead_email?: string;
-  teamLead_name?: string;
+  teamLead?: {
+    name?: string;
+    email?: string;
+  };
   teamLeadId?: number;
 };
 

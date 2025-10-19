@@ -36,11 +36,13 @@ export function DataTable<TData>({
   data,
   columns,
   filterOptions = [],
+  searchPlaceholder = "Search all columns...",
 }: {
   data: TData[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   filterOptions?: FilterOption[];
+  searchPlaceholder?: string;
 }) {
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -66,7 +68,7 @@ export function DataTable<TData>({
       {/* Search and Filters */}
       <div className="flex items-center justify-between gap-4">
         <SearchInput
-          placeholder="Search all columns..."
+          placeholder={searchPlaceholder}
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />

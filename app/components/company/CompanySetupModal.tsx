@@ -218,7 +218,7 @@ export default function CompanySetupModal({
         subsidiaryId: subsidiaryData.id,
         subsidiaryName: subsidiaryData.name,
         industryId: subsidiaryData.industryId || 0,
-        managerEmail: subsidiaryData.teamLead_email || "",
+        managerEmail: subsidiaryData.teamLead?.email || "",
         address: subsidiaryData.address || "",
       });
     } else if (type === "department") {
