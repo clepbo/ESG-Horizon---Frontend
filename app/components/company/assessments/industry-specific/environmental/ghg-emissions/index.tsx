@@ -10,6 +10,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { ArrowLeft, ChevronRight, Info } from "lucide-react";
 import { StationarySourcesForm } from "./scope1/stationary-sources";
 import { MobileSourcesForm } from "./scope1/mobile-sources";
@@ -231,7 +237,52 @@ export function GhgEmissionsAssessment({
                     <div className="flex items-center w-full relative">
                       <span className="text-lg font-semibold flex items-center gap-2">
                         {scope.title}
-                        <Info className="h-4 w-4 text-muted-foreground" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {/* Info icon acts as the trigger for the tooltip */}
+                            <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            align="start"
+                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                          >
+                            {/* Dynamically set the content based on the scope ID */}
+                            {scope.id === "scope-1" && (
+                              <>
+                                <h6 className="font-semibold mb-1">Scope 1 - Direct Emissions</h6>
+                                <p>
+                                  Emissions from sources your company owns or directly controls
+                                  (e.g., fuel combustion, company vehicles, generators).
+                                </p>
+                              </>
+                            )}
+
+                            {scope.id === "scope-2" && (
+                              <>
+                                <h6 className="font-semibold mb-1">
+                                  Scope 2 - Indirect Energy Emissions
+                                </h6>
+                                <p>
+                                  Emissions from purchased elelctricity, steam, heating, or cooling
+                                  that your company consumes.
+                                </p>
+                              </>
+                            )}
+
+                            {scope.id === "scope-3" && (
+                              <>
+                                <h6 className="font-semibold mb-1">
+                                  Scope 3 - Value Chain Emissions
+                                </h6>
+                                <p>
+                                  All other indirect emissions outside your direct control - such as
+                                  suppliers, transportation, waste, business travel or product use.
+                                </p>
+                              </>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
                       </span>
                       <span className="flex-1 h-0.5 bg-gray-300 mx-3 self-center" />
                     </div>
