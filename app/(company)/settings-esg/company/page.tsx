@@ -22,8 +22,8 @@ export default function CompanyPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
-  const [ifrs, setIfrs] = useState(true);
-  const [issb, setIssb] = useState(true);
+  const [ifrsIssb, setIfrsIssb] = useState(true);
+
   const [gri, setGri] = useState(false);
   const [requireAssessmentReview, setRequireAssessmentReview] = useState(
     companyData?.requireAssessmentReview || false
@@ -105,36 +105,15 @@ export default function CompanyPage() {
 
         <div className="flex justify-between items-center py-3">
           <div>
-            <p className="font-medium">IFRS S1</p>
+            <p className="font-medium">IFRS ISSB</p>
             <p className="text-sm text-gray-500">
               International sustainability disclosure standards
             </p>
           </div>
           <div className="relative group">
             <ToggleSwitch
-              checked={ifrs}
-              onChange={() => setIfrs(!ifrs)}
-              disabled={!isCompanyAdmin}
-            />
-            {!isCompanyAdmin && (
-              <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                Only Company Admin can switch this
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex justify-between items-center py-3">
-          <div>
-            <p className="font-medium">ISSB</p>
-            <p className="text-sm text-gray-500">
-              International sustainability disclosure standards
-            </p>
-          </div>
-          <div className="relative group">
-            <ToggleSwitch
-              checked={issb}
-              onChange={() => setIssb(!issb)}
+              checked={ifrsIssb}
+              onChange={() => setIfrsIssb(!ifrsIssb)}
               disabled={!isCompanyAdmin}
             />
             {!isCompanyAdmin && (
