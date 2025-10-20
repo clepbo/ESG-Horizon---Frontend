@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Leaf, Users, Building, Loader2 } from "lucide-react";
-// import Sidebar from "../components/Sidebar";
+import { Leaf, Users, Building } from "lucide-react";
 import Header from "../components/Header";
 import { ESGCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
@@ -15,15 +14,15 @@ import { useCompanyDashboard } from "@/services/hooks/dashboard.hooks";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export default function DashboardPage() {
-  const initialShowTour = !localStorage.getItem("esg-tour-completed");
+  const storedTourStatus = localStorage.getItem("esg-tour-completed");
+  const hasUserOptedOut = storedTourStatus === "true";
+  const initialShowTour = !hasUserOptedOut;
   const [showTour, setShowTour] = useState(initialShowTour);
+
   const { user } = useAuth();
   const { data, isLoading, isError } = useCompanyDashboard();
 
-  const handleTourComplete = () => {
-    localStorage.setItem("esg-tour-completed", "true");
-    setShowTour(false);
-  };
+  const handleTourComplete = () => setShowTour(false);
 
   if (showTour) {
     return <ESGTour firstName={user?.first_name || ""} onComplete={handleTourComplete} />;
