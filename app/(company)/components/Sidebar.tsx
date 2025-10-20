@@ -59,7 +59,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 w-[64px] md:w-[270px] flex-shrink-0">
+    <aside className="h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 w-[64px] md:w-[270px] flex-shrink-0 z-51">
       <div className="p-2 md:p-4 border-b border-gray-100">
         {/* Logo */}
         <Link href="/dashboard-esg">
