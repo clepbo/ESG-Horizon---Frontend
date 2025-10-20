@@ -108,6 +108,7 @@ export const useRejectAssessment = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { message: string; data: any },
     Error,
     { assessmentId: number; reason: string }
