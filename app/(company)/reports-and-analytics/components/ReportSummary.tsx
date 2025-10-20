@@ -4,7 +4,7 @@ import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AssessmentAll, { PillarAssessmentCard } from "./AssessmentAll";
+import AssessmentAll, { generateEnvironmentalData, PillarAssessmentCard } from "./AssessmentAll";
 import Link from "next/link";
 import { exportPNG, generatePDF } from "./exportFiles";
 import {
@@ -57,9 +57,9 @@ interface ReportSummaryProps {
 // Helper function to generate assessment data from real data
 function generateAssessmentData(reportData: any) {
   if (!reportData) return [];
-  
+
   const { report, percentage_emission_summary } = reportData;
-  
+
   return [
     {
       title: "Total Emissions",
@@ -112,7 +112,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
   const calculateProgress = () => {
     const { report } = props.reportData || {};
     if (!report) return 0;
-    
+
     // Simple progress calculation - adjust based on your needs
     return report.progress || 0;
   };
@@ -121,16 +121,16 @@ const ReportSummary = (props: ReportSummaryProps) => {
   const getReportingPeriod = () => {
     const { summary } = props.reportData || {};
     if (!summary?.startMonth) return "Not specified";
-    
+
     const { startMonth, startYear, endMonth, endYear } = summary.startMonth;
     return `${startMonth} ${startYear} - ${endMonth} ${endYear}`;
   };
 
   // Get subsidiary name
   const getSubsidiary = () => {
-    return props.reportData?.summary?.startMonth?.subsidiary || 
-           props.reportData?.report?.subsidiary || 
-           "Not specified";
+    return props.reportData?.summary?.startMonth?.subsidiary ||
+      props.reportData?.report?.subsidiary ||
+      "Not specified";
   };
 
   // Get status based on progress
@@ -151,13 +151,14 @@ const ReportSummary = (props: ReportSummaryProps) => {
   }
 
   const { reportData } = props;
-  
+
   if (!reportData) {
     return <div>Loading report data...</div>;
   }
 
   const { report, percentage_emission_summary } = reportData;
   const assessmentData = generateAssessmentData(reportData);
+
 
   return (
     <div className="min-h-screen p-4 lg:p-8">
@@ -186,10 +187,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                 <h3 className="text-sm font-medium text-foreground">Status</h3>
                 <div className="">
                   <div
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${
-                      getStatus() === "Completed" ? "bg-green-500" : 
-                      getStatus() === "In Progress" ? "bg-orange-500" : "bg-gray-500"
-                    } text-white text-xs font-medium`}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${getStatus() === "Completed" ? "bg-green-500" :
+                        getStatus() === "In Progress" ? "bg-orange-500" : "bg-gray-500"
+                      } text-white text-xs font-medium`}
                   >
                     {getStatus()}
                   </div>
@@ -242,21 +242,21 @@ const ReportSummary = (props: ReportSummaryProps) => {
             <AssessmentAll heading={"All"} reportData={reportData} data={[]} />
           </TabsContent>
           <TabsContent value="environment">
-            <PillarAssessmentCard 
-              heading="Environmental" 
-              data={assessmentData} 
+            <PillarAssessmentCard
+              heading="Environmental"
+              data={generateEnvironmentalData()}
             />
           </TabsContent>
           <TabsContent value="social">
-            <PillarAssessmentCard 
-              heading="Social" 
-              data={assessmentData} 
+            <PillarAssessmentCard
+              heading="Social"
+              data={generateEnvironmentalData()}
             />
           </TabsContent>
           <TabsContent value="governance">
-            <PillarAssessmentCard 
-              heading="Governance" 
-              data={assessmentData} 
+            <PillarAssessmentCard
+              heading="Governance"
+              data={generateEnvironmentalData()}
             />
           </TabsContent>
         </Tabs>
@@ -276,7 +276,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 1</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_one)} tCO₂e ({Math.round(percentage_emission_summary.scope1_emission_summary)}%)
+                      {formatNumber(report.ghg_scope_one)} tCO₂e ({parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2))}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -296,7 +296,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 2</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_two)} tCO₂e ({Math.round(percentage_emission_summary.scope2_emission_summary)}%)
+                      {formatNumber(report.ghg_scope_two)} tCO₂e ({parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2))}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -316,7 +316,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 3</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_three)} tCO₂e ({Math.round(percentage_emission_summary.scope3_emission_summary)}%)
+                      {formatNumber(report.ghg_scope_three)} tCO₂e ({parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2))}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">

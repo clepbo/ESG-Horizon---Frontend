@@ -119,7 +119,7 @@ export default function AssessmentAll({ reportData }: AssessmentAllProps) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
       colorClass: "bg-orange-500",
-      percentage: Math.round(reportData.percentage_emission_summary.scope1_emission_summary),
+      percentage: parseFloat(reportData.percentage_emission_summary.scope1_emission_summary.toFixed(2)),
       textColorClass: "text-orange-500",
     },
     {
@@ -128,7 +128,7 @@ export default function AssessmentAll({ reportData }: AssessmentAllProps) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
       colorClass: "bg-blue-500",
-      percentage: Math.round(reportData.percentage_emission_summary.scope2_emission_summary),
+      percentage: parseFloat(reportData.percentage_emission_summary.scope2_emission_summary.toFixed(2)),
       textColorClass: "text-blue-500",
     },
     {
@@ -137,7 +137,7 @@ export default function AssessmentAll({ reportData }: AssessmentAllProps) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
       colorClass: "bg-purple-500",
-      percentage: Math.round(reportData.percentage_emission_summary.scope3_emission_summary),
+      percentage: parseFloat(reportData.percentage_emission_summary.scope3_emission_summary.toFixed(2)),
       textColorClass: "text-purple-500",
     },
   ] : data;
@@ -229,4 +229,130 @@ export function PillarAssessmentCard({
       </Card>
     </div>
   );
+}
+
+
+
+export function generateEnvironmentalData() {
+  return [
+    {
+      title: "Total Environmental",
+      value: 0,
+      unit: "tCO₂e",
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      percentage: null,
+      colorClass: "",
+      textColorClass: "text-foreground",
+    },
+    {
+      title: "Scope 1",
+      value: 0,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+      colorClass: "bg-orange-500",
+      percentage: 0,
+      textColorClass: "text-orange-500",
+    },
+    {
+      title: "Scope 2",
+      value: 0,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+      colorClass: "bg-blue-500",
+      percentage: 0,
+      textColorClass: "text-blue-500",
+    },
+    {
+      title: "Scope 3",
+      value: 0,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+      colorClass: "bg-purple-500",
+      percentage: 0,
+      textColorClass: "text-purple-500",
+    },
+  ];
+}
+
+
+export function generateGovernanceData() {
+  return [
+    {
+      title: "Total Governance",
+      value: 0,
+      unit: "metrics",
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      percentage: null,
+      colorClass: "",
+      textColorClass: "text-foreground",
+    },
+    {
+      title: "Category 1",
+      value: 0,
+      unit: "metrics",
+      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+      colorClass: "bg-orange-500",
+      percentage: 0,
+      textColorClass: "text-orange-500",
+    },
+    {
+      title: "Category 2",
+      value: 0,
+      unit: "metrics",
+      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+      colorClass: "bg-blue-500",
+      percentage: 0,
+      textColorClass: "text-blue-500",
+    },
+    {
+      title: "Category 3",
+      value: 0,
+      unit: "metrics",
+      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+      colorClass: "bg-purple-500",
+      percentage: 0,
+      textColorClass: "text-purple-500",
+    },
+  ];
+}
+
+export function generateSocialData() {
+  return [
+    {
+      title: "Total Social",
+      value: 0,
+      unit: "metrics",
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      percentage: null,
+      colorClass: "",
+      textColorClass: "text-foreground",
+    },
+    {
+      title: "Category 1",
+      value: 0,
+      unit: "metrics",
+      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+      colorClass: "bg-orange-500",
+      percentage: 0,
+      textColorClass: "text-orange-500",
+    },
+    {
+      title: "Category 2",
+      value: 0,
+      unit: "metrics",
+      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+      colorClass: "bg-blue-500",
+      percentage: 0,
+      textColorClass: "text-blue-500",
+    },
+    {
+      title: "Category 3",
+      value: 0,
+      unit: "metrics",
+      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+      colorClass: "bg-purple-500",
+      percentage: 0,
+      textColorClass: "text-purple-500",
+    },
+  ];
 }
