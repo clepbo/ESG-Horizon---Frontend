@@ -93,11 +93,9 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
 
   const handleContinueToDashboard = () => {
     setIsVisible(false);
-    // ✅ Call the unified onComplete handler
     if (onComplete) {
       onComplete();
     }
-    // No localStorage here - tour shows on refresh! (Correct)
   };
 
   const handleOptOut = () => {
@@ -105,10 +103,8 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
   };
 
   const handleConfirmOptOut = () => {
-    // ✅ Sets localStorage for permanent dismissal (Correct)
     localStorage.setItem("esg-tour-completed", "true");
     setIsVisible(false);
-    // ✅ Call the unified onComplete handler
     if (onComplete) {
       onComplete();
     }
