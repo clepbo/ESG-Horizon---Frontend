@@ -29,6 +29,7 @@ export default function FullReport() {
     }
     return;
   }
+  
 
   return (
     <motion.div

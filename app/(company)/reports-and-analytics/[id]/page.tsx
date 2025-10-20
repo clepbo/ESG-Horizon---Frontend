@@ -7,14 +7,13 @@ import { useSingleReport } from "../components/service/useReport";
 import { useParams } from "next/navigation";
 
 export default function Pages() {
-  const loading = false;
-
   const params = useParams();
-  const data = useSingleReport(Number(params?.id));
+  const { data, isLoading, error } = useSingleReport(Number(params?.id));
 
-  console.log(`Single Report Data, ${data.data}`);
+  // Proper logging
+  console.log("Single Report Data:", data);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <React.Suspense fallback={<div>Loading...</div>}>
         <ReportSummarySkeleton />
@@ -22,6 +21,15 @@ export default function Pages() {
     );
   }
 
+  if (error) {
+    return <div>Error loading report</div>;
+  }
+
+  if (!data) {
+    return <div>No report data found</div>;
+  }
+
+  // Use the actual data from your API response
   return (
     <motion.div
       className="grid"
@@ -34,16 +42,7 @@ export default function Pages() {
         duration: 0.5,
       }}
     >
-      <ReportSummary
-        reportingPeriod="January 2021 - June 2021"
-        subsidiary="Dangote Sugar"
-        status="In Progress"
-        progress={70}
-        totalEmissions={26230}
-        scope1={16300}
-        scope2={7500}
-        scope3={3030}
-      />
+      <ReportSummary reportData={data} />
     </motion.div>
   );
 }

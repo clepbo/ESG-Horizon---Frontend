@@ -3,6 +3,50 @@ import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
 import React from "react";
 
+
+export function generateAssessmentData(reportData: any) {
+  const { report, percentage_emission_summary } = reportData;
+  
+  return [
+    {
+      title: "Total Emissions",
+      value: report.ghg_total_emissions,
+      unit: "tCO₂e",
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      percentage: null,
+      colorClass: "",
+      textColorClass: "text-foreground",
+    },
+    {
+      title: "Scope 1",
+      value: report.ghg_scope_one,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+      colorClass: "bg-orange-500",
+      percentage: Math.round(percentage_emission_summary.scope1_emission_summary),
+      textColorClass: "text-orange-500",
+    },
+    {
+      title: "Scope 2",
+      value: report.ghg_scope_two,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+      colorClass: "bg-blue-500",
+      percentage: Math.round(percentage_emission_summary.scope2_emission_summary),
+      textColorClass: "text-blue-500",
+    },
+    {
+      title: "Scope 3",
+      value: report.ghg_scope_three,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+      colorClass: "bg-purple-500",
+      percentage: Math.round(percentage_emission_summary.scope3_emission_summary),
+      textColorClass: "text-purple-500",
+    },
+  ];
+}
+
 export const data: AssessmentItem[] = [
   {
     title: "Total Emissions",
@@ -42,7 +86,62 @@ export const data: AssessmentItem[] = [
     textColorClass: "text-purple-500",
   },
 ];
-export default function AssessmentAll() {
+interface AssessmentAllProps {
+  reportData?: {
+    report: {
+      ghg_total_emissions: number;
+      ghg_scope_one: number;
+      ghg_scope_two: number;
+      ghg_scope_three: number;
+    };
+    percentage_emission_summary: {
+      scope1_emission_summary: number;
+      scope2_emission_summary: number;
+      scope3_emission_summary: number;
+    };
+  };
+}
+
+export default function AssessmentAll({ reportData }: AssessmentAllProps) {
+  const displayData = reportData ? [
+    {
+      title: "Total Emissions",
+      value: reportData.report.ghg_total_emissions,
+      unit: "tCO₂e",
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      percentage: null,
+      colorClass: "",
+      textColorClass: "text-foreground",
+    },
+    {
+      title: "Scope 1",
+      value: reportData.report.ghg_scope_one,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+      colorClass: "bg-orange-500",
+      percentage: Math.round(reportData.percentage_emission_summary.scope1_emission_summary),
+      textColorClass: "text-orange-500",
+    },
+    {
+      title: "Scope 2",
+      value: reportData.report.ghg_scope_two,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+      colorClass: "bg-blue-500",
+      percentage: Math.round(reportData.percentage_emission_summary.scope2_emission_summary),
+      textColorClass: "text-blue-500",
+    },
+    {
+      title: "Scope 3",
+      value: reportData.report.ghg_scope_three,
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+      colorClass: "bg-purple-500",
+      percentage: Math.round(reportData.percentage_emission_summary.scope3_emission_summary),
+      textColorClass: "text-purple-500",
+    },
+  ] : data;
+
   return (
     <div className="w-full">
       <Card className="bg-white border-0 shadow-sm w-full">
@@ -52,7 +151,7 @@ export default function AssessmentAll() {
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {data.map((item, index) => (
+            {displayData.map((item, index) => (
               <Card className="bg-white shadow-sm border" key={index}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">

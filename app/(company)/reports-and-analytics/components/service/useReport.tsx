@@ -23,7 +23,8 @@ export function useSingleReport(id: number) {
     queryKey: ["single-report", id],
     queryFn: async () => {
       const response = await apiUtil.get(`/report/${id}`);
-      return response.data;
+      // console.log("RES", response)
+      return response;
     },
     enabled: !!id,
     retry: 1,
