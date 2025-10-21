@@ -196,6 +196,7 @@ export function IndustrialProcessesForm({
               files,
             },
           },
+          lastSavedForm: "ghg-stationary-sources-industrial-processes",
         },
       },
       {
@@ -400,7 +401,7 @@ export function IndustrialProcessesForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                className="justify-self-center bg-teal-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
                 {isSaving ? (

@@ -25,6 +25,7 @@ export interface Company {
   staff_strength?: string;
   category?: string;
   company_type?: string;
+  requireAssessmentReview?: boolean;
 }
 
 interface BulkCreateData {

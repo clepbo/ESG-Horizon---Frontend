@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "@/lib/api/axios";
 import { AssessmentData } from "@/hooks/useAssessment";
 
@@ -27,6 +28,16 @@ export interface SubmitAssessmentResponse {
   totals?: TotalsResponse;
 }
 
+// Helper function to ensure subsidiary is set (use company name if empty)
+const ensureSubsidiary = (data: Partial<AssessmentData>): Partial<AssessmentData> => {
+  if (!data.subsidiary || data.subsidiary.trim() === "") {
+    // If no subsidiary, we'll let the backend handle it or use a default
+    // The frontend should have already set this in handleProceed
+    return { ...data, subsidiary: data.subsidiary || "Self" };
+  }
+  return data;
+};
+
 export const assessmentService = {
   getAssessments: async () => {
     const { data } = await api.get("/assessments");
@@ -34,8 +45,8 @@ export const assessmentService = {
   },
 
   getAssessment: async (assessmentId: number) => {
-    const { data } = await api.get(`/assessments/${assessmentId}`);
-    return data;
+    const response = await api.get(`/assessments/${assessmentId}`);
+    return response;
   },
 
   createAssessment: async (): Promise<number> => {
@@ -48,7 +59,8 @@ export const assessmentService = {
     data: Partial<AssessmentData>;
   }): Promise<SaveAssessmentResponse> => {
     const { assessmentId, data: assessmentData } = payload;
-    return await api.post(`/assessments/${assessmentId}/save`, assessmentData);
+    const dataWithSubsidiary = ensureSubsidiary(assessmentData);
+    return await api.post(`/assessments/${assessmentId}/save`, dataWithSubsidiary);
   },
 
   submitAssessment: async (payload: {
@@ -56,41 +68,25 @@ export const assessmentService = {
     data: Partial<AssessmentData>;
   }): Promise<SubmitAssessmentResponse> => {
     const { assessmentId, data: assessmentData } = payload;
-    const response = await api.post(`/assessments/${assessmentId}/submit`, assessmentData);
+    const dataWithSubsidiary = ensureSubsidiary(assessmentData);
+    const response = await api.post(`/assessments/${assessmentId}/submit`, dataWithSubsidiary);
     return response;
   },
 
-  approveAssessment: async (assessmentId: number): Promise<{ message: string }> => {
+  approveAssessment: async (assessmentId: number): Promise<{ message: string; data: any }> => {
     const response = await api.post(`/assessments/${assessmentId}/approve`);
     return response;
   },
 
-  unapproveAssessment: async (
+  rejectAssessment: async (
     assessmentId: number,
-    rejectionReason: string
-  ): Promise<{ message: string }> => {
-    const response = await api.post(`/assessments/${assessmentId}/unapprove`, { rejectionReason });
+    reason: string
+  ): Promise<{ message: string; data: any }> => {
+    const response = await api.post(`/assessments/${assessmentId}/reject`, { reason });
     return response;
   },
 
   deleteAssessment: async (assessmentId: number): Promise<void> => {
-    try {
-      await api.delete(`/assessments/${assessmentId}`);
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof error.response === "object" &&
-        error.response !== null &&
-        "status" in error.response
-      ) {
-        const status = (error.response as { status: number }).status;
-        if (status >= 200 && status < 300) {
-          return;
-        }
-      }
-      throw error;
-    }
+    await api.delete(`/assessments/${assessmentId}`);
   },
 };

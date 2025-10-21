@@ -89,10 +89,13 @@ export default function AssessmentHub() {
   ]);
 
   const handleProceed = async () => {
+    // Use company name if no subsidiary is selected (assessment for the company itself)
+    const subsidiaryValue = state.assessmentData.subsidiary || user?.company?.name || "Self";
+
     dispatch({
       type: "UPDATE_BASIC_DATA",
       payload: {
-        subsidiary: state.assessmentData.subsidiary,
+        subsidiary: subsidiaryValue,
         startMonth: state.assessmentData.startMonth,
         startYear: state.assessmentData.startYear,
         endMonth: state.assessmentData.endMonth,
@@ -103,8 +106,12 @@ export default function AssessmentHub() {
   };
 
   const handleBack = () => {
-    dispatch({ type: "RESET_ASSESSMENT" });
-    dispatch({ type: "SET_VIEW", payload: "hub" });
+    if (state.isContinueMode) {
+      router.push("/assessments");
+    } else {
+      dispatch({ type: "RESET_ASSESSMENT" });
+      dispatch({ type: "SET_VIEW", payload: "hub" });
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -126,8 +133,41 @@ export default function AssessmentHub() {
     );
   }
 
+  if (state.currentView.startsWith("ghg-")) {
+    const withoutPrefix = state.currentView.substring(4); // Remove "ghg-"
+
+    const formPatterns = [
+      "stationary-sources",
+      "mobile-sources",
+      "process-emissions",
+      "fugitive-emissions",
+      "location-based",
+      "market-based",
+    ];
+
+    // Find which form pattern matches
+    let form = "";
+    let step = "";
+
+    for (const pattern of formPatterns) {
+      if (withoutPrefix.startsWith(pattern + "-")) {
+        form = pattern;
+        step = withoutPrefix.substring(pattern.length + 1); // +1 for the hyphen
+        break;
+      }
+    }
+
+    return (
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView="ghg"
+        initialForm={form}
+        initialStep={step}
+      />
+    );
+  }
+
   const isFormValid =
-    state.assessmentData.subsidiary &&
     state.assessmentData.startMonth &&
     state.assessmentData.startYear &&
     state.assessmentData.endMonth &&
@@ -174,7 +214,13 @@ export default function AssessmentHub() {
                   disabled={isLoading}
                 >
                   <SelectTrigger className="mt-3 w-full hover:cursor-pointer border border-slate-300 transition-colors focus:ring-2 focus:ring-green-500">
-                    <SelectValue placeholder={isLoading ? "Loading..." : "Choose a subsidiary"} />
+                    <SelectValue
+                      placeholder={
+                        isLoading
+                          ? "Loading..."
+                          : `Choose a subsidiary or leave empty for ${user?.company?.name || "company"} assessment`
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {error && (

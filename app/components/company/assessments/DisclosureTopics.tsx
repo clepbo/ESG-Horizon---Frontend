@@ -23,6 +23,7 @@ interface DisclosureTopicsProps {
   initialView?: "topics" | "ghg";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialForm?: "stationary-sources" | any;
+  initialStep?: string;
 }
 
 interface MetricCard {
@@ -33,14 +34,21 @@ interface MetricCard {
 
 interface MetricSection {
   title: string;
-  tooltip: string;
+  tooltip: {
+    title: string;
+    description: string;
+  };
   cards: MetricCard[];
 }
 
 const industrySpecificMetrics: MetricSection[] = [
   {
-    title: "Environment",
-    tooltip: "Environmental sustainability metrics and indicators",
+    title: "Environmental",
+    tooltip: {
+      title: "Environmental",
+      description:
+        "Covers your organization's impact on nature—including energy use, emissions, waste, water, and resource efficiency.",
+    },
     cards: [
       {
         title: "Greenhouse Gas Emissions",
@@ -63,7 +71,11 @@ const industrySpecificMetrics: MetricSection[] = [
   },
   {
     title: "Social Capital",
-    tooltip: "Community and stakeholder relationship metrics",
+    tooltip: {
+      title: "Social Capital",
+      description:
+        "Assesses how your company engages with communities, customers, and society through responsibility, trust, and ethical practices.",
+    },
     cards: [
       {
         title: "Security, Human Rights & Rights of Indigenous Peoples",
@@ -78,7 +90,11 @@ const industrySpecificMetrics: MetricSection[] = [
   },
   {
     title: "Human Capital",
-    tooltip: "Employee-related sustainability metrics",
+    tooltip: {
+      title: "Human Capital",
+      description:
+        "Focuses on employee wellbeing—covering health and safety, diversity, training, and fair treatment in the workplace.",
+    },
     cards: [
       {
         title: "Workforce Health & Safety",
@@ -89,7 +105,11 @@ const industrySpecificMetrics: MetricSection[] = [
   },
   {
     title: "Business Model and Innovation",
-    tooltip: "Strategic business sustainability metrics",
+    tooltip: {
+      title: "Business Model and Innovation",
+      description:
+        "Evaluates how your products, services, and operations integrate sustainability and long-term resilience.",
+    },
     cards: [
       {
         title: "Reserves Valuation & Capital Expenditures",
@@ -98,8 +118,12 @@ const industrySpecificMetrics: MetricSection[] = [
     ],
   },
   {
-    title: "Business and Governance",
-    tooltip: "Corporate governance and compliance metrics",
+    title: "Leadership and Governance",
+    tooltip: {
+      title: "Leadership and Governance",
+      description:
+        "Measures accountability - including ethics, transparency, anticorruption practices, and oversight from management.",
+    },
     cards: [
       {
         title: "Business Ethics & Transparency",
@@ -120,72 +144,100 @@ const industrySpecificMetrics: MetricSection[] = [
 
 const supplementaryMetrics: MetricSection[] = [
   {
-    title: "Environment",
-    tooltip: "Additional environmental metrics",
+    title: "Environmental",
+    tooltip: {
+      title: "Environmental",
+      description:
+        "Covers your organization's impact on nature—including energy use, emissions, waste, water, and resource efficiency.",
+    },
     cards: [
       {
-        title: "Waste Management",
-        subtitle: "Waste reduction and recycling programs",
+        title: "Greenhouse Gas Emissions",
+        subtitle: "Report total CO2-equivalent emissions from Subsidiaries and supply chains",
+        clickable: true,
       },
       {
-        title: "Energy Efficiency",
-        subtitle: "Energy consumption and efficiency metrics",
+        title: "Air Quality",
+        subtitle: "Assess pollutant emissions and their impact on local air quality",
+      },
+      {
+        title: "Water Management",
+        subtitle: "Evaluate water use, conservation, and treatment practices",
+      },
+      {
+        title: "Biodiversity Impact",
+        subtitle: "Identify and measure impacts on ecosystems, species, and natural habitats",
       },
     ],
   },
   {
     title: "Social Capital",
-    tooltip: "Additional social impact metrics",
+    tooltip: {
+      title: "Social Capital",
+      description:
+        "Assesses how your company engages with communities, customers, and society through responsibility, trust, and ethical practices.",
+    },
     cards: [
       {
-        title: "Stakeholder Engagement",
-        subtitle: "Stakeholder consultation and feedback systems",
+        title: "Security, Human Rights & Rights of Indigenous Peoples",
+        subtitle:
+          "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
       },
       {
-        title: "Local Economic Impact",
-        subtitle: "Economic contribution to local communities",
+        title: "Community Relations",
+        subtitle: "Report engagement strategies and impact on local  communities",
       },
     ],
   },
   {
     title: "Human Capital",
-    tooltip: "Additional workforce metrics",
+    tooltip: {
+      title: "Human Capital",
+      description:
+        "Focuses on employee wellbeing—covering health and safety, diversity, training, and fair treatment in the workplace.",
+    },
     cards: [
       {
-        title: "Diversity & Inclusion",
-        subtitle: "Workforce diversity and inclusion programs",
-      },
-      {
-        title: "Training & Development",
-        subtitle: "Employee skill development and training programs",
+        title: "Workforce Health & Safety",
+        subtitle:
+          "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
       },
     ],
   },
   {
     title: "Business Model and Innovation",
-    tooltip: "Additional business strategy metrics",
+    tooltip: {
+      title: "Business Model and Innovation",
+      description:
+        "Evaluates how your products, services, and operations integrate sustainability and long-term resilience.",
+    },
     cards: [
       {
-        title: "Innovation Investment",
-        subtitle: "R&D spending on sustainable technologies",
-      },
-      {
-        title: "Supply Chain Management",
-        subtitle: "Sustainable supply chain practices",
+        title: "Reserves Valuation & Capital Expenditures",
+        subtitle: "Report on investment strategies and valuation of natural rsource reserves",
       },
     ],
   },
   {
-    title: "Business and Governance",
-    tooltip: "Additional governance metrics",
+    title: "Leadership and Governance",
+    tooltip: {
+      title: "Leadership and Governance",
+      description:
+        "Measures accountability - including ethics, transparency, anticorruption practices, and oversight from management.",
+    },
     cards: [
       {
-        title: "Board Composition",
-        subtitle: "Board diversity and independence metrics",
+        title: "Business Ethics & Transparency",
+        subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
       },
       {
-        title: "Executive Compensation",
-        subtitle: "ESG-linked executive compensation structures",
+        title: "Management of the Legal & Regulatory Environment",
+        subtitle: "Evaluate compliance with applicable laws and regulations",
+      },
+      {
+        title: "Critical Incident Risk Management",
+        subtitle:
+          "Report preparedness plans and response strategies for major Subsidiaryal incidents",
       },
     ],
   },
@@ -194,7 +246,8 @@ const supplementaryMetrics: MetricSection[] = [
 export function DisclosureTopics({
   onBack,
   initialView = "topics",
-  initialForm = "stationary-sources",
+  initialForm,
+  initialStep,
 }: DisclosureTopicsProps) {
   // const [currentView, setCurrentView] = useState<"topics" | "ghg">("topics");
   const [currentView, setCurrentView] = useState(initialView);
@@ -214,14 +267,16 @@ export function DisclosureTopics({
       <GhgEmissionsAssessment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
-        initialForm={initialForm}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        initialForm={initialForm as any}
+        initialStep={initialStep}
       />
     );
   }
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-green-50 p-6">
+      <div className="min-h-screen bg-green-50 p-6 ">
         <div className="max-w-7xl mx-auto space-y-6">
           <Button
             variant="outline"
@@ -260,8 +315,19 @@ export function DisclosureTopics({
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-muted-foreground" />
                           </TooltipTrigger>
-                          <TooltipContent side="top" align="start">
-                            <p>Metrics specific to your industry sector</p>
+                          <TooltipContent
+                            side="top"
+                            align="center"
+                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl  border-none"
+                          >
+                            <h6>Industry-Specific Metrics</h6>
+                            <p>
+                              These are core ESG assessment metrics that are most relevant to your
+                              industry. They reflect the Disclosure Topi key risks, impacts, and
+                              regulatory expectations sustainability-related risks and opportunities
+                              specific to your sector, and are required for consistent benchmarking
+                              and disclosure.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </span>
@@ -279,8 +345,13 @@ export function DisclosureTopics({
                                 <TooltipTrigger asChild>
                                   <Info className="h-4 w-4 text-muted-foreground" />
                                 </TooltipTrigger>
-                                <TooltipContent side="top" align="start">
-                                  <p>{section.tooltip}</p>
+                                <TooltipContent
+                                  side="top"
+                                  align="start"
+                                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                                >
+                                  <h6 className="font-semibold mb-1">{section.tooltip.title}</h6>
+                                  <p>{section.tooltip.description}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </h4>
@@ -326,8 +397,17 @@ export function DisclosureTopics({
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-muted-foreground" />
                           </TooltipTrigger>
-                          <TooltipContent side="top" align="start">
-                            <p>Additional metrics to complement core reporting</p>
+                          <TooltipContent
+                            side="top"
+                            align="center"
+                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                          >
+                            <h6>Supplementary Metrics</h6>
+                            <p>
+                              These are optional metrics that provide additioanl insight into your
+                              sustainability performance. They are not mandatory but can be reported
+                              to demonstrate leadership, transparency, or broader impact.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </span>
@@ -345,8 +425,13 @@ export function DisclosureTopics({
                                 <TooltipTrigger asChild>
                                   <Info className="h-4 w-4 text-muted-foreground" />
                                 </TooltipTrigger>
-                                <TooltipContent side="top" align="start">
-                                  <p>{section.tooltip}</p>
+                                <TooltipContent
+                                  side="top"
+                                  align="start"
+                                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                                >
+                                  <h6 className="font-semibold mb-1">{section.tooltip.title}</h6>
+                                  <p>{section.tooltip.description}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </h3>

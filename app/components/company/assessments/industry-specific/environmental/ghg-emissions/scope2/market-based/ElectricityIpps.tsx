@@ -168,6 +168,7 @@ export function ElectricityIppsForm({
             files,
             additionalFields: additionalFields as FileMetadata[],
           },
+          lastSavedForm: "ghg-market-based-electricityIPP",
         },
       },
       {

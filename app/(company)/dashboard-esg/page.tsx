@@ -1,40 +1,35 @@
 "use client";
 import { useState } from "react";
-import { Leaf, Users, Building, Loader2 } from "lucide-react";
-// import Sidebar from "../components/Sidebar";
+import { Leaf, Users, Building } from "lucide-react";
 import Header from "../components/Header";
 import { ESGCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
 import RecentActivities from "../components/RecentActivities";
-import { IndustryLeaderboard } from "../components/IndustryLeaderboard";
 import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
 import ReportTable from "../components/ReportTab";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import { useCompanyDashboard } from "@/services/hooks/dashboard.hooks";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export default function DashboardPage() {
-  const initialShowTour = !localStorage.getItem("esg-tour-completed");
+  const storedTourStatus = localStorage.getItem("esg-tour-completed");
+  const hasUserOptedOut = storedTourStatus === "true";
+  const initialShowTour = !hasUserOptedOut;
   const [showTour, setShowTour] = useState(initialShowTour);
+
   const { user } = useAuth();
   const { data, isLoading, isError } = useCompanyDashboard();
 
-  const handleTourComplete = () => {
-    localStorage.setItem("esg-tour-completed", "true");
-    setShowTour(false);
-  };
+  const handleTourComplete = () => setShowTour(false);
 
   if (showTour) {
     return <ESGTour firstName={user?.first_name || ""} onComplete={handleTourComplete} />;
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (isError || !data) {
@@ -89,7 +84,7 @@ export default function DashboardPage() {
                 trend="down"
                 trendValue="7%"
                 icon={<Leaf className="w-5 h-5" />}
-                iconSrc={"/icons/overall-esg.svg"}
+                iconSrc={"/icons/leafgreen.svg"}
                 bottomBarColor="bg-[#228A3D]"
                 height="50px"
                 gradientClass="bg-gradient-to-b from-[#409E56] to-[#248F3A] bg-fixed"
@@ -118,15 +113,14 @@ export default function DashboardPage() {
               />
             </div>
           </div>
-          <div className="h-full">
-            <ESGJourneyChart esgJourney={data.esgJourney} />
+          <div className="">
+            <RecentActivities activities={data.recentActivities} />
           </div>
         </div>
 
         {/* Recent Activities + Industry Leaderboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 mt-8 grid-rows-1">
-          <RecentActivities activities={data.recentActivities} />
-          <IndustryLeaderboard />
+        <div className="w-full mt-6 mb-6">
+          <ESGJourneyChart esgJourney={data.esgJourney} />
         </div>
 
         {/* Assessment HUb CArd */}
@@ -138,24 +132,21 @@ export default function DashboardPage() {
               description="Measure your environmental impact, resource usage and conservation efforts."
               progress={75}
               completed="6 of 8 sections completed"
-              icon={Leaf}
-              iconBg="bg-[var(--color-tertiary)]"
+              iconSrc={"/icons/leaftwo.svg"}
             />
             <AssessmentHubCard
               type="Social"
               description="Evaluate labor practices, human rights, community impact and product responsibility."
               progress={0}
               completed="0 sections completed"
-              icon={Users}
-              iconBg="bg-teal-500"
+              iconSrc={"/icons/userstwo.svg"}
             />
             <AssessmentHubCard
               type="Governance"
               description="Evaluate financial governance, market presence, procurement practices and more."
               progress={0}
               completed="0 sections completed"
-              icon={Building}
-              iconBg="bg-[var(--color-secondary)]"
+              iconSrc={"/icons/injusticetwo.svg"}
             />
           </div>
         </div>

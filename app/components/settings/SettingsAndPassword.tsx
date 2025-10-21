@@ -10,8 +10,8 @@ import { authService } from "@/services/auth.service";
 
 export default function SecurityAndPassword() {
   const { user } = useAuth();
-  const [twoFactor, setTwoFactor] = useState(false);
-  const [loginNotifications, setLoginNotifications] = useState(false);
+  // const [twoFactor, setTwoFactor] = useState(false);
+  // const [loginNotifications, setLoginNotifications] = useState(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -121,7 +121,7 @@ export default function SecurityAndPassword() {
 
         {/* Footer Buttons */}
         <div className="flex justify-end gap-3 mt-6">
-          <button className="border bg-[var(--color-primary)]   text-gray-700 px-6 py-2 rounded-md text-sm hover:bg-green-50">
+          <button className="border bg-[var(--color-primary)]   text-white px-6 py-2 rounded-md text-sm hover:bg-green-50">
             Close
           </button>
           <button

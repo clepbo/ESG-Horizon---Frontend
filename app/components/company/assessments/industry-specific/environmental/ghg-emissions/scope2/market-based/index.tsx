@@ -7,10 +7,12 @@ import { ResidualForm } from "./Residual";
 import { CoolingSteamForm } from "./CoolingSteam";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface MarketBasedFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
+  initialStep?: StepKey;
 }
 
 const steps = [
@@ -22,8 +24,13 @@ const steps = [
 
 type StepKey = "electricityIPP" | "electricityEAC" | "residual" | "coolingSteam";
 
-export function MarketBasedForm({ onBack, onContinueToNextAssessment }: MarketBasedFormProps) {
-  const [currentStep, setCurrentStep] = useState<StepKey>("electricityIPP");
+export function MarketBasedForm({
+  onBack,
+  onContinueToNextAssessment,
+  initialStep,
+}: MarketBasedFormProps) {
+  useAutoCreateAssessment();
+  const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
