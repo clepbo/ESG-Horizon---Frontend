@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import { OverallSummary } from "./components/OverallSummaryCard";
 import { useParams } from "next/navigation";
 import { useSingleReport } from "./components/service/useReport";
+import { getReadableTopSources, transformFuelBreakdownData } from "./components/utils/getTop5Sources";
 
 export default function FullReport() {
   const scopeKeys = ["Scope 1", "Scope 2", "Scope 3"];
@@ -33,7 +34,7 @@ export default function FullReport() {
   }
  const params = useParams();
   const { data, isLoading, error } = useSingleReport(Number(params?.id));
-  console.log("Report", data)
+  console.log("Report", data?.top_5_sources)
 if (!data) {
     return (
       <div className="w-full grid gap-4 p-4">
@@ -105,7 +106,7 @@ if (!data) {
           color={"purple-500"}
         />
       </div>
-      <FullReportSummary />
+      <FullReportSummary  data={transformFuelBreakdownData(data?.top_5_sources?.breakdown)}/>
     </motion.div>
   );
 }
