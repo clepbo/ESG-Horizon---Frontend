@@ -24,7 +24,7 @@ export default function SearchInput({
       />
       <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-600 px-3 py-1.5 text-xs text-white hover:bg-opacity-90 cursor-pointer">
         <Search className="h-3.5 w-3.5" />
-        Search
+        <span className="hidden md:inline">Search</span>
       </button>
     </div>
   );
