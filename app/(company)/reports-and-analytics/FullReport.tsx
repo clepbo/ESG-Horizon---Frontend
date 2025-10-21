@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { OverallSummary } from "./components/OverallSummaryCard";
 import {
   Select,
   SelectContent,
@@ -16,6 +15,9 @@ import { emissionsData } from "./components/data/reportData";
 import FullReportSummary from "./components/FullReportSummary";
 import { exportPNG, generatePDF } from "./components/exportFiles";
 import { motion } from "framer-motion";
+import { OverallSummary } from "./components/OverallSummaryCard";
+import { useParams } from "next/navigation";
+import { useSingleReport } from "./components/service/useReport";
 
 export default function FullReport() {
   const scopeKeys = ["Scope 1", "Scope 2", "Scope 3"];
@@ -29,7 +31,18 @@ export default function FullReport() {
     }
     return;
   }
-  
+ const params = useParams();
+  const { data, isLoading, error } = useSingleReport(Number(params?.id));
+  console.log("Report", data)
+if (!data) {
+    return (
+      <div className="w-full grid gap-4 p-4">
+        <div className="text-center p-8 bg-gray-50 rounded-lg">
+          <p className="text-gray-600">No report data found</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -63,13 +76,13 @@ export default function FullReport() {
             </SelectContent>
           </Select>
         </div>
-        <OverallSummary />
+        <OverallSummary report={data}  />
       </div>
       <div className={`grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm`}>
-        <EmissionInventoryWrapper />
+        <EmissionInventoryWrapper report={data}/>
         <hr className="text-gray-300" />
-        <ComparativeTrendAnalysis data={trendData} keys={scopeKeys} colors={scopeColors} />
-        <hr className="text-gray-300" />
+        {/* <ComparativeTrendAnalysis data={trendData} keys={scopeKeys} colors={scopeColors} />
+        <hr className="text-gray-300" /> */}
 
         <EmissionProgressComponent
           data={emissionsData}

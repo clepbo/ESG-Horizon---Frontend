@@ -11,7 +11,7 @@ export default function Pages() {
   const { data, isLoading, error } = useSingleReport(Number(params?.id));
 
   // Proper logging
-  console.log("Single Report Data:", data);
+
 
   if (isLoading) {
     return (

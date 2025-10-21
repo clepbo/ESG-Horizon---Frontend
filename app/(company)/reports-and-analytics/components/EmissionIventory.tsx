@@ -93,11 +93,35 @@ export default function GHGEmissionsInventory({
   );
 }
 
-const scopeData = [
-  { name: "Scope 1 (Direct)", value: 69.7, color: "#FF6B3D" },
-  { name: "Scope 2 (Indirect Energy)", value: 24, color: "#3E9BFF" },
-  { name: "Scope 3 (Value Chain)", value: 10, color: "#9B4DFF" },
+
+function getScopeData(summary: any) {
+  const colors = {
+    scope1: "#FF6B3D",
+    scope2: "#3E9BFF",
+    scope3: "#9B4DFF",
+  };
+
+  return [
+  {
+    name: "Scope 1 (Direct)",
+    value: parseFloat((summary?.scope1_emission_summary ?? 0).toFixed(2)),
+    color: colors.scope1,
+  },
+  {
+    name: "Scope 2 (Indirect Energy)",
+    value: parseFloat((summary?.scope2_emission_summary ?? 0).toFixed(2)),
+    color: colors.scope2,
+  },
+  {
+    name: "Scope 3 (Value Chain)",
+    value: parseFloat((summary?.scope3_emission_summary ?? 0).toFixed(2)),
+    color: colors.scope3,
+  },
 ];
+
+}
+
+
 
 const fuelMixData = [
   { name: "Diesel", "Scope 1": 2000, "Scope 2": 800, "Scope 3": 200 },
@@ -108,16 +132,37 @@ const fuelMixData = [
   { name: "Other Fuels", "Scope 1": 1000, "Scope 2": 600, "Scope 3": 300 },
 ];
 
+
+// ---------- Utility Function ----------
+function getFuelMixData(fuelMixBreakdown: any[]) {
+  if (!Array.isArray(fuelMixBreakdown)) return [];
+
+  // Convert fuelType to readable form
+  const formatFuelType = (type: string) =>
+    type
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+  // Map backend response to chart-friendly structure
+  return fuelMixBreakdown.map((item) => ({
+    name: formatFuelType(item.fuelType),
+    "Scope 1": item.scope1 ?? 0,
+    "Scope 2": item.scope2 ?? 0,
+    "Scope 3": item.scope3 ?? 0,
+  }));
+}
+
 const fuelKeys = ["Scope 1", "Scope 2", "Scope 3"];
 const fuelColors = ["#FF6B3D", "#3E9BFF", "#9B4DFF"];
 
-export function EmissionInventoryWrapper() {
+export function EmissionInventoryWrapper({report}: any) {
   return (
     <div className="">
       <h2 className="text-2xl font-semibold mb-4">GHG Emission Inventory</h2>
       <GHGEmissionsInventory
-        scopeData={scopeData}
-        fuelMixData={fuelMixData}
+        scopeData={getScopeData(report?.percentage_emission_summary)}
+        fuelMixData={getFuelMixData(report?.fuel_mix_breakdown)}
         fuelKeys={fuelKeys}
         fuelColors={fuelColors}
       />

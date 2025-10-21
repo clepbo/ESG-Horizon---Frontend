@@ -37,6 +37,7 @@ interface ReportSummaryProps {
       ghg_datacount_scope_two: number;
       ghg_datacount_scope_three: number;
     };
+    status: string,
     percentage_emission_summary: {
       scope1_emission_summary: number;
       scope2_emission_summary: number;
@@ -135,10 +136,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
   // Get status based on progress
   const getStatus = () => {
-    const progress = calculateProgress();
-    if (progress >= 100) return "Completed";
-    if (progress >= 50) return "In Progress";
-    return "Not Started";
+    return props?.reportData?.status
   };
 
   async function exportfile(value: string) {
