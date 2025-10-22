@@ -15,46 +15,46 @@ import { exportPNG, generatePDF } from "./components/exportFiles";
 import { motion } from "framer-motion";
 import { OverallSummary } from "./components/OverallSummaryCard";
 import { useParams } from "next/navigation";
-import { useSingleReport, useSingleReportDetail } from "./components/service/useReport";
+import { useSingleReport } from "./components/service/useReport";
 import {
   transformFuelBreakdownData,
 } from "./components/utils/getTop5Sources";
 
 export default function FullReport() {
   const params = useParams();
-  const { data, isLoading, error } =  useSingleReportDetail(Number(params?.id));
+  // const { data, isLoading, error } =  useSingleReportDetail(Number(params?.id));
+  const { data, isLoading, isError } = useSingleReport(Number(params?.id));
 
-  console.log("FullReport", data)
+  console.log("FullReport", data, params)
 
-  // ✅ 1. Handle loading and errors properly
-  if (isLoading) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-500">
-        Loading report data...
-      </div>
-    );
-  }
+ 
+  // if (data.isLoading) {
+  //   return (
+  //     <div className="w-full flex justify-center items-center py-12 text-gray-500">
+  //       Loading report data...
+  //     </div>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-red-500">
-        Failed to load report.
-      </div>
-    );
-  }
+  // if (data.isError) {
+  //   return (
+  //     <div className="w-full flex justify-center items-center py-12 text-red-500">
+  //       Failed to load report.
+  //     </div>
+  //   );
+  // }
 
-  if (!data) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-600">
-        No report data found.
-      </div>
-    );
-  }
+  // if (!data) {
+  //   return (
+  //     <div className="w-full flex justify-center items-center py-12 text-gray-600">
+  //       No report data found.
+  //     </div>
+  //   );
+  // }
 
-  // ✅ 2. Check if data has expected structure before rendering
-  const breakdown = data?.top_5_sources?.breakdown || [];
 
-  // ✅ 3. Handle export file option
+  const breakdown = data?.data?.top_5_sources?.breakdown || [];
+
   function exportFile(value: string) {
     if (value === "pdf") {
       generatePDF("detail");
@@ -127,7 +127,6 @@ export default function FullReport() {
         />
       </div>
 
-      {/* ✅ Use transformed breakdown only if it exists */}
       {breakdown.length > 0 ? (
         <FullReportSummary data={transformFuelBreakdownData(breakdown)} />
       ) : (
