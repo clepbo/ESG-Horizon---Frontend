@@ -115,7 +115,7 @@ export default function Sidebar() {
       <aside className="hidden lg:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 w-[270px] flex-shrink-0">
         <div className="p-4 border-b border-gray-100">
           <Link href="/dashboard-esg">
-            <div className="mb-4 flex justify-start">
+            <div className="mb-4 flex justify-center md:justify-start">
               <Image
                 src="/logo-new.png"
                 alt="ESG Horizon Logo"
