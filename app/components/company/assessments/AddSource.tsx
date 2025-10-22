@@ -110,16 +110,35 @@ export function AddSource({
     setTempEmissionFactor(source.emissionFactor);
   };
 
+  // const handleSaveClick = (id: string) => {
+  //   onSourcesChange(
+  //     sources.map((source) =>
+  //       source.id === id ? { ...source, emissionFactor: tempEmissionFactor || 0 } : source
+  //     )
+  //   );
+  //   setEditingFactorId(null);
+  //   setTempEmissionFactor(null);
+  // };
   const handleSaveClick = (id: string) => {
     onSourcesChange(
-      sources.map((source) =>
-        source.id === id ? { ...source, emissionFactor: tempEmissionFactor || 0 } : source
-      )
+      sources.map((source) => {
+        if (source.id === id) {
+          const newEmissionFactor = tempEmissionFactor ?? 0;
+          const isChanged = newEmissionFactor !== source.emissionFactor;
+
+          return {
+            ...source,
+            emissionFactor: newEmissionFactor,
+
+            source: isChanged ? "" : source.source,
+          };
+        }
+        return source;
+      })
     );
     setEditingFactorId(null);
     setTempEmissionFactor(null);
   };
-
   const handleCancelClick = () => {
     setEditingFactorId(null);
     setTempEmissionFactor(null);
@@ -262,9 +281,16 @@ export function AddSource({
                               </div>
                             </>
                           )}
-                          <p className="text-xs text-muted-foreground">
+                          {/* <p className="text-xs text-muted-foreground">
                             Source: {source.source || "IPCC 2006, Vintage: 2006"}
-                          </p>
+                          </p> */}
+                          {source.source ? (
+                            <p className="text-xs text-muted-foreground">Source: {source.source}</p>
+                          ) : (
+                            <p className="text-xs italic text-gray-400">
+                              Custom emission factor (no standard source)
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>

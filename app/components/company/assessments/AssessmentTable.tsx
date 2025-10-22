@@ -4,12 +4,13 @@ import { JSX, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, CircleHelp } from "lucide-react";
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentDetailsModal from "./AssessmentDetailsModal";
+
 export type AssessmentStatus =
   | "in_progress"
   | "awaiting_review"
@@ -32,8 +33,34 @@ interface AssessmentTableProps {
 
 const columnHelper = createColumnHelper<Assessment>();
 
+function RejectionReasonModal({
+  open,
+  onClose,
+  reason,
+}: {
+  open: boolean;
+  onClose: () => void;
+  reason: string | undefined;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">Rejection Reason</h2>
+        <p className="text-gray-600">{reason || "No reason provided."}</p>
+        <div className="mt-4 flex justify-end">
+          <Button onClick={onClose} variant="outline">
+            Close
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AssessmentTable({ data }: AssessmentTableProps) {
   const router = useRouter();
+
   const [modalData, setModalData] = useState({
     open: false,
     assessmentId: null as number | null,
@@ -41,6 +68,8 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+  const [reasonOpen, setReasonOpen] = useState(false);
+  const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
 
   const deleteMutation = useDeleteAssessment();
 
@@ -49,7 +78,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
   const handleOpenModal = (assessmentId: number) => {
     setModalData({
       open: true,
-      assessmentId: assessmentId,
+      assessmentId,
     });
   };
 
@@ -58,26 +87,26 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     setDetailsOpen(true);
   };
 
+  const handleOpenReason = (reason: string | undefined) => {
+    setSelectedReason(reason);
+    setReasonOpen(true);
+  };
+
   const handleDeleteConfirm = () => {
     const idToDelete = modalData.assessmentId;
     if (!idToDelete) return;
 
     deleteMutation.mutate(idToDelete, {
       onSuccess: () => {
-        setModalData({
-          open: false,
-          assessmentId: null,
-        });
+        setModalData({ open: false, assessmentId: null });
       },
       onError: (error: Error) => {
         console.error("Deletion failed:", error);
-        setModalData({
-          open: false,
-          assessmentId: null,
-        });
+        setModalData({ open: false, assessmentId: null });
       },
     });
   };
+
   const columns = [
     columnHelper.accessor("startPeriod", {
       header: "Starting Period",
@@ -91,7 +120,9 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
+        const assessment = info.row.original;
         const status = info.getValue();
+
         const getStatusDisplay = (status: AssessmentStatus) => {
           switch (status) {
             case "in_progress":
@@ -108,11 +139,24 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
               return { label: status, variant: "outline" as const };
           }
         };
+
         const { label, variant } = getStatusDisplay(status);
+
         return (
-          <Badge variant={variant} className="capitalize">
-            {label}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={variant} className="capitalize">
+              {label}
+            </Badge>
+
+            {status === "unapproved_rejected" && assessment.rejection_reason && (
+              <button
+                onClick={() => handleOpenReason(assessment.rejection_reason)}
+                className="text-gray-500 hover:text-gray-700 cursor-pointer"
+              >
+                <CircleHelp className="h-5 w-5" />
+              </button>
+            )}
+          </div>
         );
       },
     }),
@@ -227,18 +271,15 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
   return (
     <section className="shadow-md">
       <DataTable data={validData} columns={columns} filterOptions={filterOptions} />
+
       <ConfirmModal
         open={modalData.open}
         title="Confirm Deletion"
         message="Are you sure you want to delete this assessment? This action cannot be undone."
-        onCancel={() =>
-          setModalData({
-            open: false,
-            assessmentId: null,
-          })
-        }
+        onCancel={() => setModalData({ open: false, assessmentId: null })}
         onConfirm={handleDeleteConfirm}
       />
+
       <AssessmentDetailsModal
         open={detailsOpen}
         onClose={() => {
@@ -246,6 +287,12 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
           setSelectedAssessment(null);
         }}
         assessment={selectedAssessment}
+      />
+
+      <RejectionReasonModal
+        open={reasonOpen}
+        onClose={() => setReasonOpen(false)}
+        reason={selectedReason}
       />
     </section>
   );

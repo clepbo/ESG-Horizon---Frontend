@@ -112,7 +112,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden lg:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 w-[270px] flex-shrink-0">
+      <aside className="hidden lg:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 w-[270px] flex-shrink-0 z-51">
         <div className="p-4 border-b border-gray-100">
           <Link href="/dashboard-esg">
             <div className="mb-4 flex justify-center md:justify-start">

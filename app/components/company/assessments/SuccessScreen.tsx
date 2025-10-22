@@ -22,7 +22,7 @@ export function SuccessScreen({
   onBackToHub,
 }: SuccessScreenProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-[var(--color-primary)]  rounded-xl shadow-2xl px-8 py-10 max-w-md w-full flex flex-col items-center animate-fade-in-slow">
         <CheckCircle className="h-16 w-16 text-white mb-6" />
         <h2 className="text-2xl font-bold text-white mb-2 text-center">
