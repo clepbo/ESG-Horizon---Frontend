@@ -130,43 +130,45 @@ export function DataTable() {
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
         <SearchInput
           placeholder="Search by subsidiary"
           value={filters.search}
           onChange={(e) => table.setGlobalFilter(e.target.value)}
         />
-        <Button className={`text-white font-semibold`} onClick={() => exportToCSV(data)}>
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button className={`text-white font-semibold`} onClick={() => exportToCSV(data)}>
+            Export CSV
+          </Button>
 
-        <div className="flex items-center gap-2">
-          <Select onValueChange={handleStatusFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-              {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Working on it">Working on it</SelectItem>
-              <SelectItem value="Awaiting Review">Awaiting Review</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select onValueChange={handleStatusFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Status" />
+                {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Working on it">Working on it</SelectItem>
+                <SelectItem value="Awaiting Review">Awaiting Review</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select onValueChange={(value) => handleYearFilter(value)}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Date" />
-              {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Dates</SelectItem>
-              <SelectItem value="2021">2021</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select onValueChange={(value) => handleYearFilter(value)}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Date" />
+                {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Dates</SelectItem>
+                <SelectItem value="2021">2021</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

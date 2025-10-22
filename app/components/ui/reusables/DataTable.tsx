@@ -64,7 +64,7 @@ export function DataTable<TData>({
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Search and Filters */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
         <SearchInput
           placeholder="Search all columns..."
           value={globalFilter}
