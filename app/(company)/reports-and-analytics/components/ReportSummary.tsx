@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
+import { formatLabel } from "./utils/dataTransfomer";
 
 interface ReportSummaryProps {
   reportData?: {
@@ -185,11 +186,11 @@ const ReportSummary = (props: ReportSummaryProps) => {
                 <h3 className="text-sm font-medium text-foreground">Status</h3>
                 <div className="">
                   <div
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${getStatus() === "Completed" ? "bg-green-500" :
-                        getStatus() === "In Progress" ? "bg-orange-500" : "bg-gray-500"
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${getStatus() === "approved" || getStatus() === "submitted-approved" ? "bg-green-500" :
+                        getStatus() === "unapproved" ? "bg-orange-500" : "bg-gray-500"
                       } text-white text-xs font-medium`}
                   >
-                    {getStatus()}
+                    {formatLabel(getStatus())}
                   </div>
                   <div className="flex items-center gap-1">
                     <Progress value={calculateProgress()} className="h-2" />

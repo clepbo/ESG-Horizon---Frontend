@@ -52,7 +52,7 @@ function formatFuelType(fuelType: string): string {
 
 
 
-export function formatLabel(input: string): string {
+export function formatLabel(input: string  | undefined): string {
   if (!input) return '';
 
   // Replace underscores and hyphens with spaces
