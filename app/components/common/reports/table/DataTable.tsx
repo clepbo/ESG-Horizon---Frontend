@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -82,12 +82,29 @@ export function DataTable() {
     date: "",
   });
 
+
+
+
   const report = useReport();
 
   const data = report.data || [];
 
+const filteredData = useMemo(() => {
+  return data.filter((item: any) => {
+    return (
+      item.subsidiary != null &&
+      item.subsidiary !== "" &&
+      item.startYear != null &&
+      item.startMonth != null &&
+      item.endYear != null &&
+      item.endMonth != null
+    );
+  });
+}, [data]);
+
+
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

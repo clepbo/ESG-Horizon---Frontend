@@ -63,43 +63,56 @@ function generateAssessmentData(reportData: any) {
   const { report, percentage_emission_summary } = reportData;
 
   return [
-    {
-      title: "Total Emissions",
-      value: report.ghg_total_emissions,
-      unit: "tCO₂e",
-      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
-      percentage: null,
-      colorClass: "",
-      textColorClass: "text-foreground",
-    },
-    {
-      title: "Scope 1",
-      value: report.ghg_scope_one,
-      unit: "tCO₂e",
-      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
-      colorClass: "bg-orange-500",
-      percentage: Math.round(percentage_emission_summary.scope1_emission_summary),
-      textColorClass: "text-orange-500",
-    },
-    {
-      title: "Scope 2",
-      value: report.ghg_scope_two,
-      unit: "tCO₂e",
-      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
-      colorClass: "bg-blue-500",
-      percentage: Math.round(percentage_emission_summary.scope2_emission_summary),
-      textColorClass: "text-blue-500",
-    },
-    {
-      title: "Scope 3",
-      value: report.ghg_scope_three,
-      unit: "tCO₂e",
-      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
-      colorClass: "bg-purple-500",
-      percentage: Math.round(percentage_emission_summary.scope3_emission_summary),
-      textColorClass: "text-purple-500",
-    },
-  ];
+  {
+    title: "Total Emissions",
+    value: Number(report?.ghg_total_emissions ?? 0),
+    unit: "tCO₂e",
+    icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+    percentage: null,
+    colorClass: "",
+    textColorClass: "text-foreground",
+  },
+  {
+    title: "Scope 1",
+    value: Number(report?.ghg_scope_one ?? 0),
+    unit: "tCO₂e",
+    icon: (
+      <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />
+    ),
+    colorClass: "bg-orange-500",
+    percentage: Math.round(
+      Number(percentage_emission_summary?.scope1_emission_summary ?? 0)
+    ),
+    textColorClass: "text-orange-500",
+  },
+  {
+    title: "Scope 2",
+    value: Number(report?.ghg_scope_two ?? 0),
+    unit: "tCO₂e",
+    icon: (
+      <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />
+    ),
+    colorClass: "bg-blue-500",
+    percentage: Math.round(
+      Number(percentage_emission_summary?.scope2_emission_summary ?? 0)
+    ),
+    textColorClass: "text-blue-500",
+  },
+  {
+    title: "Scope 3",
+    value: Number(report?.ghg_scope_three ?? 0),
+    unit: "tCO₂e",
+    icon: (
+      <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />
+    ),
+    colorClass: "bg-purple-500",
+    percentage: Math.round(
+      Number(percentage_emission_summary?.scope3_emission_summary ?? 0)
+    ),
+    textColorClass: "text-purple-500",
+  },
+];
+
 }
 
 const ReportSummary = (props: ReportSummaryProps) => {
@@ -204,7 +217,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-2 lg:justify-end no-export" id="hide1">
                 <Button className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-2 rounded-lg">
-                  <Link href={`/reports-and-analytics/${report.id}/report`}>View Full Report</Link>
+                  <Link href={`/reports-and-analytics/${report?.id}/report`}>View Full Report</Link>
                 </Button>
 
                 <Select value={selected} onValueChange={exportfile}>

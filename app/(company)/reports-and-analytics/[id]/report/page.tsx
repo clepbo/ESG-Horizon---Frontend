@@ -3,13 +3,9 @@ import React from "react";
 import FullReport from "../../FullReport";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
-import { useSingleReport } from "../../components/service/useReport";
 export default function pages() {
 
-   const params = useParams();
-    const { data, isLoading, error } = useSingleReport(Number(params?.id));
-    console.log("REPOTR", data)
+
   return (
     <motion.div
       className="grid w-full gap-4"

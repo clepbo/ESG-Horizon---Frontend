@@ -8,12 +8,12 @@ interface SummaryProps {
   report: any
 }
 
-export function OverallSummary({report}: SummaryProps) {
+export function OverallSummary({ report }: SummaryProps) {
   const data = [
     {
       title: "Total Emissions",
       value: report?.report?.ghg_total_emissions
-,
+      ,
       unit: "tCO₂e",
       icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
       percentage: null,
@@ -23,7 +23,7 @@ export function OverallSummary({report}: SummaryProps) {
     {
       title: "Scope 1",
       value: report?.report?.ghg_scope_one
-,
+      ,
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
       colorClass: "bg-orange-500",
@@ -69,7 +69,9 @@ export function OverallSummary({report}: SummaryProps) {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-2xl font-semibold"> {item.value.toLocaleString()} </p>
+                    <p className="text-2xl font-semibold">
+                      {item.value != null ? item.value.toLocaleString() : "0"}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {index === 0 ? item.unit : `${item.percentage}% of total emissions`}
                     </p>

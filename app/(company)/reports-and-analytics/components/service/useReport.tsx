@@ -31,3 +31,16 @@ export function useSingleReport(id: number) {
     refetchOnWindowFocus: false,
   });
 }
+export function useSingleReportDetail(id: number) {
+  return useQuery({
+    queryKey: ["single-report-detail", id],
+    queryFn: async () => {
+      const response = await apiUtil.get(`/report/${id}`);
+      // console.log("RES", response)
+      return response;
+    },
+    enabled: !!id,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+}
