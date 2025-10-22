@@ -27,10 +27,11 @@ import {
 } from "@/app/components/ui/table";
 import { TableFilters, TableRowType } from "@/types/table";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
-import { StatusButton } from "../StatusButton";
+import { StatusButton, StatusButtonProps, StatusVariant } from "../StatusButton";
 import Link from "next/link";
 import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
 import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
+import { formatLabel } from "@/app/(company)/reports-and-analytics/components/utils/dataTransfomer";
 // import { getReport } from "@/app/(company)/reports-and-analytics/components/service/get-report";
 
 const columnHelper = createColumnHelper<TableRowType>();
@@ -55,7 +56,7 @@ const columns = [
     cell: (info) => (
       <StatusButton
         progress={90}
-        status={info.getValue() as "Working on it" | "Awaiting Review" | "In Progress"}
+        status={info.getValue() as StatusVariant}
       />
     ),
   }),
@@ -66,7 +67,7 @@ const columns = [
       <Button
         variant="default"
         size="sm"
-        className="rounded-sm font-semibold text-white bg-green-400 hover:bg-green-600"
+        className="rounded-sm font-semibold text-white bg-primary hover:bg-green-600"
       >
         <Link href={`/reports-and-analytics/${info.row.original.id}`}>View Report</Link>
       </Button>
@@ -157,10 +158,10 @@ export function DataTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="awaiting-review"> Awaiting Review </SelectItem>
               <SelectItem value="approved"> Approved </SelectItem>
-              <SelectItem value="submitted"> Submitted </SelectItem>
-              <SelectItem value="unapproved"> Unapproved</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
+              <SelectItem value="submitted"> Submitted</SelectItem>
+              <SelectItem value="unapproved">Unapproved</SelectItem>
             </SelectContent>
           </Select>
 

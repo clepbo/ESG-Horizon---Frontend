@@ -2,39 +2,47 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/app/components/ui/button";
+import { formatLabel } from "@/app/(company)/reports-and-analytics/components/utils/dataTransfomer";
 
-type StatusVariant = "status-working" | "status-awaiting" | "status-progress";
+export type StatusVariant = "awaiting-review" | "approved" | "submitted-approved" | "unapproved" | string;
 
-interface StatusButtonProps {
-  status: "Working on it" | "Awaiting Review" | "In Progress";
+export interface StatusButtonProps {
+  status: StatusVariant;
   progress?: number;
 }
 
 export function StatusButton({ status, progress = 0 }: StatusButtonProps) {
+  const normalizedStatus = status
+  ?.toString()
+  .trim()
+  .toLowerCase()
+  .replace(/[_\s]+/g, "-");
+
   const getStyles = (status: StatusButtonProps["status"]) => {
-    switch (status) {
-      case "Working on it":
+    switch (normalizedStatus) {
+      case "approved":
         return {
-          variant: "status-working" as StatusVariant,
-          buttonClass: "bg-green-500 text-white hover:bg-green-600",
+          variant: "approved" as StatusVariant,
+          buttonClass: "bg-primary text-white hover:bg-green-600",
           barClass: "bg-green-500",
         };
-      case "Awaiting Review":
+      case "submitted-approved":
         return {
-          variant: "status-awaiting" as StatusVariant,
-          buttonClass: "bg-blue-500 text-white hover:bg-blue-600",
-          barClass: "bg-blue-500",
+          variant: "submitted-approved" as StatusVariant,
+          buttonClass: "bg-primary text-white hover:bg-green-600",
+          barClass: "bg-green-500",
         };
-      case "In Progress":
+  
+      case "unapproved":
         return {
-          variant: "status-progress" as StatusVariant,
+          variant: "unapproved" as StatusVariant,
           buttonClass: "bg-orange-500 text-white hover:bg-orange-600",
           barClass: "bg-orange-500",
         };
       default:
         return {
           variant: "secondary" as StatusVariant,
-          buttonClass: "bg-gray-300 text-gray-800 hover:bg-gray-400",
+          buttonClass: "bg-blue-600 text-white hover:bg-green-400",
           barClass: "bg-gray-400",
         };
     }
@@ -45,7 +53,7 @@ export function StatusButton({ status, progress = 0 }: StatusButtonProps) {
   return (
     <div className="flex flex-col items-center gap-1 w-fit">
       <Button size="sm" className={cn("rounded-full px-3 py-1 text-xs font-medium", buttonClass)}>
-        {status}
+        {formatLabel(status)}
       </Button>
       {/* Progress bar */}
       <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">

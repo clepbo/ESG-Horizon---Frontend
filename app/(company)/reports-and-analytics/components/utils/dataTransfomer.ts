@@ -49,3 +49,15 @@ function formatFuelType(fuelType: string): string {
   
   return formatMap[fuelType] || fuelType;
 }
+
+
+
+export function formatLabel(input: string): string {
+  if (!input) return '';
+
+  // Replace underscores and hyphens with spaces
+  const formatted = input.replace(/[_-]+/g, ' ').toLowerCase();
+
+  // Capitalize the first letter
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
