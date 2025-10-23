@@ -123,16 +123,6 @@ export function AddSource({
     setEditingFactorId(source.id);
     setTempEmissionFactor(source.emissionFactor);
   };
-
-  // const handleSaveClick = (id: string) => {
-  //   onSourcesChange(
-  //     sources.map((source) =>
-  //       source.id === id ? { ...source, emissionFactor: tempEmissionFactor || 0 } : source
-  //     )
-  //   );
-  //   setEditingFactorId(null);
-  //   setTempEmissionFactor(null);
-  // };
   const handleSaveClick = (id: string) => {
     // onSourcesChange(
     //   sources.map((source) =>
@@ -144,7 +134,7 @@ export function AddSource({
     // Note: The emissionFactor field is of type number in SourceData, so we assert
     const factorToSave = tempEmissionFactor ?? 0;
     updateSource(id, "emissionFactor", String(factorToSave)); // Re-use updateSource logic to ensure sources state is updated
-
+    updateSource(id, "source", "");
     setEditingFactorId(null);
     setTempEmissionFactor(null);
   };
