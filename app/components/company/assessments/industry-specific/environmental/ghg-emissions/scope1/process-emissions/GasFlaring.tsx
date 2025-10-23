@@ -180,6 +180,38 @@ export function GasFlaring({
     );
   };
 
+  // const handleSubmit = () => {
+  //   const assessmentId = state.assessmentData.assessmentId;
+  //   if (!assessmentId) {
+  //     toast.error("Assessment ID missing");
+  //     return;
+  //   }
+
+  //   if (!validateForm()) return;
+
+  //   dispatch({
+  //     type: "UPDATE_PROCESS_GAS_FLARING",
+  //     payload: {
+  //       gasVolume,
+  //       carbonContent,
+  //       files,
+  //       additionalFields: additionalFields as FileMetadata[],
+  //     },
+  //   });
+
+  //   submitAssessment(
+  //     {
+  //       assessmentId,
+  //       data: state.assessmentData,
+  //     },
+  //     {
+  //       onSuccess: (res) => {
+  //         toast.success("Assessment submitted!");
+  //         onSubmit(res.totals ?? null);
+  //       },
+  //     }
+  //   );
+  // };
   const handleSubmit = () => {
     const assessmentId = state.assessmentData.assessmentId;
     if (!assessmentId) {
@@ -189,20 +221,31 @@ export function GasFlaring({
 
     if (!validateForm()) return;
 
+    const payload = {
+      gasVolume,
+      carbonContent,
+      files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
+
+    // Update local state
     dispatch({
       type: "UPDATE_PROCESS_GAS_FLARING",
-      payload: {
-        gasVolume,
-        carbonContent,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
     submitAssessment(
       {
         assessmentId,
-        data: state.assessmentData,
+        data: {
+          ...state.assessmentData,
+          processEmissions: {
+            ...state.assessmentData.processEmissions,
+            gasFlaring: payload,
+          },
+
+          lastSavedForm: "ghg-process-emissions-cement-manufacturing",
+        },
       },
       {
         onSuccess: (res) => {

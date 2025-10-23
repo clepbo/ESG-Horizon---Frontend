@@ -274,6 +274,7 @@ export function PurchasedHeatingForm({
               files,
               additionalFields: additionalFields as FileMetadata[],
             },
+            lastSavedForm: "ghg-location-based-electricity",
           },
         },
         {
