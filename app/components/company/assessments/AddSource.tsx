@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -19,6 +19,7 @@ import {
 } from "@/app/components/ui/tooltip";
 import { Trash2, Plus, AlertTriangle, RefreshCcw, Info } from "lucide-react";
 import type { FuelOption, UnitOption } from "@/lib/fuelDataFile";
+import { calculateTCO2eForSource, formatTCO2eOutput } from "@/lib/utils";
 
 export interface SourceData {
   id: string;
@@ -52,6 +53,19 @@ export function AddSource({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [editingFactorId, setEditingFactorId] = useState<string | null>(null);
   const [tempEmissionFactor, setTempEmissionFactor] = useState<number | null>(null);
+
+  const calculatedEmissions = useMemo(() => {
+    return sources.reduce(
+      (acc, source) => {
+        acc[source.id] = calculateTCO2eForSource({
+          volume: source.volume,
+          emissionFactor: source.emissionFactor,
+        });
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+  }, [sources]);
 
   const addSource = () => {
     const defaultFuelType = fuelTypeOptions[0] || {
@@ -120,22 +134,17 @@ export function AddSource({
   //   setTempEmissionFactor(null);
   // };
   const handleSaveClick = (id: string) => {
-    onSourcesChange(
-      sources.map((source) => {
-        if (source.id === id) {
-          const newEmissionFactor = tempEmissionFactor ?? 0;
-          const isChanged = newEmissionFactor !== source.emissionFactor;
+    // onSourcesChange(
+    //   sources.map((source) =>
+    //     source.id === id ? { ...source, emissionFactor: tempEmissionFactor || 0 } : source
+    //   )
+    // );
+    // setEditingFactorId(null);
+    // setTempEmissionFactor(null);
+    // Note: The emissionFactor field is of type number in SourceData, so we assert
+    const factorToSave = tempEmissionFactor ?? 0;
+    updateSource(id, "emissionFactor", String(factorToSave)); // Re-use updateSource logic to ensure sources state is updated
 
-          return {
-            ...source,
-            emissionFactor: newEmissionFactor,
-
-            source: isChanged ? "" : source.source,
-          };
-        }
-        return source;
-      })
-    );
     setEditingFactorId(null);
     setTempEmissionFactor(null);
   };
@@ -169,6 +178,8 @@ export function AddSource({
         ) : (
           sources.map((source) => {
             const isEditing = editingFactorId === source.id;
+            const tCO2e = calculatedEmissions[source.id];
+            const formattedTCO2e = formatTCO2eOutput(tCO2e);
 
             return (
               <Card key={source.id} className="p-4 relative">
@@ -234,12 +245,12 @@ export function AddSource({
                                     <RefreshCcw className="h-4 w-4" />
                                   </Button>
                                 </div>
-                                <span className="text-sm text-gray-700">kgCO₂/litre</span>
+                                <span className="text-sm text-gray-700">kgCO₂/unit</span>
                               </>
                             ) : (
                               <>
                                 <span className="text-xs">
-                                  {source.emissionFactor || 2.68} kgCO₂/litre
+                                  {source.emissionFactor || 2.68} kgCO₂/unit
                                 </span>
                                 <Button
                                   type="button"
@@ -296,6 +307,53 @@ export function AddSource({
                     </div>
                     <div className="flex flex-col space-y-2">
                       <Label htmlFor={`volume-${source.id}`}>{volumeLabel}</Label>
+                      <div className="relative pb-5">
+                        {" "}
+                        <Input
+                          id={`volume-${source.id}`}
+                          type="number"
+                          placeholder={volumePlaceholder}
+                          value={source.volume}
+                          onChange={(e) => updateSource(source.id, "volume", e.target.value)}
+                          onBlur={() => validateSource(source)}
+                          className={errors[`${source.id}-volume`] ? "border-destructive" : ""}
+                        />
+                        {tCO2e > 0 && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className="absolute bottom-0 right-0 flex items-center pr-1.5 cursor-pointer transform translate-y-3"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                  }}
+                                  style={{ zIndex: 20 }}
+                                >
+                                  <span className="text-sm font-semibold bg-teal-100 text-teal-700 px-2 py-1 rounded-full whitespace-nowrap shadow-md border border-teal-200">
+                                    {formattedTCO2e}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-white border border-teal-600 text-teal-800 shadow-lg">
+                                <p className="font-semibold text-center">Volume Emission</p>
+                                <p className="text-xs">
+                                  This is the tCO₂e emission calculated from the volume and emission
+                                  factor here.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>{" "}
+                      {/* End of relative container */}
+                      {errors[`${source.id}-volume`] && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors[`${source.id}-volume`]}
+                        </p>
+                      )}
+                    </div>
+                    {/* <div className="flex flex-col space-y-2">
+                      <Label htmlFor={`volume-${source.id}`}>{volumeLabel}</Label>
                       <Input
                         id={`volume-${source.id}`}
                         type="number"
@@ -305,12 +363,15 @@ export function AddSource({
                         onBlur={() => validateSource(source)}
                         className={errors[`${source.id}-volume`] ? "border-destructive" : ""}
                       />
+
+                      <p className="text-sm font-medium text-teal-600">{formattedTCO2e}</p>
+
                       {errors[`${source.id}-volume`] && (
                         <p className="text-sm text-destructive mt-1">
                           {errors[`${source.id}-volume`]}
                         </p>
                       )}
-                    </div>
+                    </div> */}
                     <div className="flex flex-col space-y-2">
                       <Label htmlFor={`unit-${source.id}`}>Unit</Label>
                       <Select
