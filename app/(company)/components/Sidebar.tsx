@@ -98,10 +98,6 @@ export default function Sidebar() {
           <span className="text-sm font-medium text-white">
             {user?.company?.name || "Company Name"}
           </span>
-
-          {!user?.company?.company_logo_url && user?.company?.name && (
-            <span className="text-xs text-white/50">— Logo Missing</span>
-          )}
         </div>
 
         {/* <div className="mb-1 hidden md:flex items-center space-x-2 bg-teal-600 rounded-md px-3 py-2">
