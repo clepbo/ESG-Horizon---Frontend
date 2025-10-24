@@ -17,6 +17,7 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface PurchasedElectricityFormProps {
   onBack: () => void;
@@ -41,7 +42,9 @@ export function PurchasedElectricityForm({
 }: PurchasedElectricityFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [electricityConsumed, setElectricityConsumed] = useState("");
+  
+  // Use formatted number hook for electricity consumed
+  const electricityConsumed = useFormattedNumber("");
   const [supplier, setSupplier] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -64,8 +67,8 @@ export function PurchasedElectricityForm({
     >;
 
     if (existingData) {
-      setElectricityConsumed(existingData.electricityConsumed ?? "");
-
+      // Initialize the hook with saved value
+      electricityConsumed.setRawValue(existingData.electricityConsumed?.toString() ?? "");
       setSupplier(existingData.supplier ?? "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -76,11 +79,11 @@ export function PurchasedElectricityForm({
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      electricityConsumed,
+      electricityConsumed.rawValue,
       supplier,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [electricityConsumed, supplier, files, additionalFields]);
+  }, [electricityConsumed.rawValue, supplier, files, additionalFields]);
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -124,8 +127,22 @@ export function PurchasedElectricityForm({
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
+
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
+  };
+
+  const handleElectricityConsumedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    electricityConsumed.handleChange(value);
+    
+    // Clear error if present
+    if (errors.electricityConsumed) {
+      setErrors((prev) => ({
+        ...prev,
+        electricityConsumed: undefined,
+      }));
+    }
   };
 
   const handleSaveAndContinue = () => {
@@ -138,7 +155,7 @@ export function PurchasedElectricityForm({
     dispatch({
       type: "UPDATE_ELECTRICITY",
       payload: {
-        electricityConsumed,
+        electricityConsumed: electricityConsumed.rawValue,
         supplier,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -151,7 +168,7 @@ export function PurchasedElectricityForm({
         data: {
           ...state.assessmentData,
           electricity: {
-            electricityConsumed,
+            electricityConsumed: electricityConsumed.rawValue,
             supplier,
             files,
             additionalFields: additionalFields as FileMetadata[],
@@ -173,7 +190,7 @@ export function PurchasedElectricityForm({
     dispatch({
       type: "UPDATE_ELECTRICITY",
       payload: {
-        electricityConsumed,
+        electricityConsumed: electricityConsumed.rawValue,
         supplier,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -220,6 +237,7 @@ export function PurchasedElectricityForm({
       }
     }
   };
+
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -259,17 +277,10 @@ export function PurchasedElectricityForm({
               <div className="space-y-4 ml-6">
                 <Label>Total Electricity Consumed (kwh)</Label>
                 <Input
-                  type="number"
+                  type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter total electricity consumed in kWh"
-                  value={electricityConsumed}
-                  onChange={(e) => {
-                    setElectricityConsumed(e.target.value);
-                    if (errors.electricityConsumed)
-                      setErrors((prev) => ({
-                        ...prev,
-                        electricityConsumed: undefined,
-                      }));
-                  }}
+                  value={electricityConsumed.displayValue} // Use displayValue for formatted display
+                  onChange={handleElectricityConsumedChange}
                   className={`w-full border-gray-400 ${
                     errors.electricityConsumed ? "border-red-500" : ""
                   }`}

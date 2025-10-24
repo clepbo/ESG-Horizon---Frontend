@@ -5,7 +5,14 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Save,
+  CheckCircle2,
+  CloudUpload,
+  ArrowRight,
+  X,
+} from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -17,6 +24,9 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
+
+
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -40,30 +50,34 @@ export function CementManufacturing({
   totalSteps,
 }: CO2ReleaseProps) {
   const { state, dispatch } = useAssessment();
-  const [cementQuantity, setCementQuantity] = useState<number>(0);
+
+  // ✅ Integrate the hook
+  const { rawValue: cementQuantity, displayValue: cementQuantityDisplay, handleChange: handleCementChange, setRawValue: setCementRaw } = useFormattedNumber("0");
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
     cementQuantity?: string;
-    calciumOxide?: string;
-    magnesiumOxide?: string;
     files?: string;
   }>({});
+
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
 
   useEffect(() => {
-    const existingData = state.assessmentData.processEmissions?.cementManufacturing;
+    const existingData =
+      state.assessmentData.processEmissions?.cementManufacturing;
     if (existingData) {
-      setCementQuantity(existingData.cementQuantity);
+      setCementRaw(existingData.cementQuantity?.toString() || "0");
       setFiles(
-        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
+        existingData.files ||
+          Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
@@ -71,8 +85,8 @@ export function CementManufacturing({
 
   const { filled, total } = useMemo(() => {
     const hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-    return calculateProgress([cementQuantity > 0, hasFiles]);
+      Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
+    return calculateProgress([Number(cementQuantity) > 0, hasFiles]);
   }, [cementQuantity, files, additionalFields]);
 
   const validateForm = () => {
@@ -80,18 +94,19 @@ export function CementManufacturing({
       cementQuantity?: string;
       files?: string;
     } = {};
-    if (cementQuantity <= 0) {
+    if (Number(cementQuantity) <= 0) {
       newErrors.cementQuantity = "Please enter a positive quantity of cement produced";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    field: string,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     if (file.size > 10 * 1024 * 1024) {
       setErrors((prev) => ({
         ...prev,
@@ -99,12 +114,9 @@ export function CementManufacturing({
       }));
       return;
     }
-
     try {
-      setUploading((prev) => ({ ...prev, [field]: true })); // start spinner
-
+      setUploading((prev) => ({ ...prev, [field]: true }));
       const uploaded = await uploadService.uploadImage(file);
-
       if (uploaded?.url) {
         setFiles((prev) => ({
           ...prev,
@@ -116,7 +128,6 @@ export function CementManufacturing({
             publicId: uploaded.publicId,
           },
         }));
-
         toast.success(`${file.name} uploaded successfully`);
       } else {
         toast.error("Failed to upload file");
@@ -125,9 +136,8 @@ export function CementManufacturing({
       console.error(err);
       toast.error("Error uploading file");
     } finally {
-      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
-
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
@@ -139,7 +149,7 @@ export function CementManufacturing({
     }
 
     const payload = {
-      cementQuantity,
+      cementQuantity: Number(cementQuantity), // ✅ Save raw number
       files,
       additionalFields: additionalFields as FileMetadata[],
     };
@@ -160,7 +170,7 @@ export function CementManufacturing({
       },
       {
         onSuccess: () => {
-          setCementQuantity(0);
+          setCementRaw("0");
           setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
           setAdditionalFields([]);
           setShowSaveSuccess(true);
@@ -175,7 +185,7 @@ export function CementManufacturing({
     dispatch({
       type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
       payload: {
-        cementQuantity,
+        cementQuantity: Number(cementQuantity),
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -191,41 +201,29 @@ export function CementManufacturing({
     const file = files[key];
     if (file?.publicId) {
       try {
-        // Start the deleting state for this specific file
         setDeleting((prev) => ({ ...prev, [key]: true }));
-
         await uploadService.deleteImage(file.publicId);
         toast.success("File deleted successfully");
       } catch (err) {
         toast.error("Failed to delete file");
         console.error(err);
       } finally {
-        // Stop the deleting state regardless of success or failure
         setDeleting((prev) => ({ ...prev, [key]: false }));
-
-        // Always remove the file from local state and clear the input field
         setFiles((prev) => ({
           ...prev,
           [key]: null,
         }));
-
-        if (inputRefs.current[key]) {
-          inputRefs.current[key]!.value = "";
-        }
-
+        if (inputRefs.current[key]) inputRefs.current[key]!.value = "";
         if (errors.files) {
           setErrors((prev) => ({ ...prev, files: undefined }));
         }
       }
     } else {
-      // If there is no publicId, just remove the file from the local state
       setFiles((prev) => ({
         ...prev,
         [key]: null,
       }));
-      if (inputRefs.current[key]) {
-        inputRefs.current[key]!.value = "";
-      }
+      if (inputRefs.current[key]) inputRefs.current[key]!.value = "";
     }
   };
 
@@ -250,6 +248,7 @@ export function CementManufacturing({
             </p>
           </div>
         </div>
+
         <Card className="bg-gray-50 mt-6 mb-8 pt-6">
           <CardContent className="space-y-8">
             <AssessmentProgressBar
@@ -259,6 +258,8 @@ export function CementManufacturing({
               totalFields={total}
               isSubmitted={false}
             />
+
+            {/* Cement Quantity */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-4 block">
                 1.1 Cement Manufacturing
@@ -270,16 +271,10 @@ export function CementManufacturing({
                   </Label>
                   <Input
                     id="cement-quantity"
-                    type="number"
+                    type="text"
                     placeholder="Enter quantity of cement produced"
-                    value={cementQuantity || ""}
-                    onChange={(e) => {
-                      setCementQuantity(Number(e.target.value));
-                      setErrors((prev) => ({
-                        ...prev,
-                        cementQuantity: undefined,
-                      }));
-                    }}
+                    value={cementQuantityDisplay}
+                    onChange={(e) => handleCementChange(e.target.value)}
                     className={`w-full border-gray-400 ${
                       errors.cementQuantity ? "border-red-500 focus:border-red-500" : ""
                     }`}
@@ -293,6 +288,8 @@ export function CementManufacturing({
                 </div>
               </div>
             </div>
+
+            {/* File Upload */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-4 block">
                 1.2 Document/Evidence Upload
@@ -303,7 +300,7 @@ export function CementManufacturing({
                   {uploadFields.map((field) => (
                     <div key={field} className="flex flex-col gap-2">
                       <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">{field}</Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
+                      <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all">
                         <Label
                           htmlFor={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                           className="cursor-pointer flex flex-col items-center gap-2"
@@ -340,7 +337,7 @@ export function CementManufacturing({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
@@ -353,6 +350,7 @@ export function CementManufacturing({
                   ))}
                 </div>
               </div>
+
               <div className="mt-6">
                 <AdditionalFileUpload
                   onFieldsChange={handleAdditionalFieldsChange}
@@ -360,6 +358,8 @@ export function CementManufacturing({
                 />
               </div>
             </div>
+
+            {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
@@ -367,9 +367,9 @@ export function CementManufacturing({
                 className="justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Previous
+                <ArrowLeft className="h-4 w-4" /> Previous
               </Button>
+
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
@@ -379,21 +379,19 @@ export function CementManufacturing({
               >
                 {isSaving ? (
                   <>
-                    <LoadingSpinner size="sm" className="mr-2" />
-                    Saving...
+                    <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
                 ) : showSaveSuccess ? (
                   <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Saved!
+                    <CheckCircle2 className="h-4 w-4 mr-2" /> Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save & Continue Later
+                    <Save className="h-4 w-4 mr-2" /> Save & Continue Later
                   </>
                 )}
               </Button>
+
               <Button
                 variant="outline"
                 onClick={handleNext}
@@ -401,8 +399,7 @@ export function CementManufacturing({
                 className="justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
-                Next
-                <ArrowRight className="h-4 w-4" />
+                Next <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>
