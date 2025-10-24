@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { tableData } from "./data";
 import {
   useReactTable,
   getCoreRowModel,
@@ -27,14 +28,13 @@ import {
 } from "@/app/components/ui/table";
 import { TableFilters, TableRowType } from "@/types/table";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
-import { StatusButton, StatusButtonProps, StatusVariant } from "../StatusButton";
+import { StatusButton, StatusVariant } from "../StatusButton";
 import Link from "next/link";
 import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
 import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
-import { formatLabel } from "@/app/(company)/reports-and-analytics/components/utils/dataTransfomer";
-// import { getReport } from "@/app/(company)/reports-and-analytics/components/service/get-report";
 
 const columnHelper = createColumnHelper<TableRowType>();
+
 const columns = [
   columnHelper.accessor((row) => `${row.startMonth} ${row.startYear}`, {
     id: "startingPeriod",
@@ -82,14 +82,10 @@ export function DataTable() {
     date: "",
   });
 
-
-
-
   const report = useReport();
-
   const data = report.data || [];
 
-const filteredData = useMemo(() => {
+  const filteredData = useMemo(() => {
   return data.filter((item: any) => {
     return (
       item.subsidiary != null &&
@@ -101,7 +97,6 @@ const filteredData = useMemo(() => {
     );
   });
 }, [data]);
-
 
   const table = useReactTable({
     data: filteredData,
@@ -116,14 +111,11 @@ const filteredData = useMemo(() => {
     },
     globalFilterFn: (row, columnId, filterValue) => {
       const search = filterValue.toLowerCase();
-      const combinedPeriod = `${row.original.startMonth} ${row.original.startYear}`.toLowerCase();
       return (
-        combinedPeriod.includes(search) ||
-        row.original.endingPeriod?.toLowerCase().includes(search) ||
-        row.original.endMonth?.toLowerCase().includes(search) ||
-        row.original.endYear?.toLowerCase().includes(search) ||
-        row.original.subsidiary?.toLowerCase().includes(search) ||
-        row.original.status?.toLowerCase().includes(search)
+        row.original.startingPeriod.toLowerCase().includes(search) ||
+        row.original.endingPeriod.toLowerCase().includes(search) ||
+        row.original.subsidiary.toLowerCase().includes(search) ||
+        row.original.status.toLowerCase().includes(search)
       );
     },
     state: {
@@ -153,7 +145,6 @@ const filteredData = useMemo(() => {
     }
   };
 
-  // console.log("Loging Report Data...", report.data)
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
@@ -168,35 +159,34 @@ const filteredData = useMemo(() => {
             Export CSV
           </Button>
 
-        <div className="flex items-center gap-2">
-          <Select onValueChange={handleStatusFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-              {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="awaiting-review"> Awaiting Review </SelectItem>
-              <SelectItem value="approved"> Approved </SelectItem>
-              <SelectItem value="submitted"> Submitted</SelectItem>
-              <SelectItem value="unapproved">Unapproved</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <Select onValueChange={handleStatusFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Status" />
+                {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Working on it">Working on it</SelectItem>
+                <SelectItem value="Awaiting Review">Awaiting Review</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select onValueChange={(value) => handleYearFilter(value)}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Date" />
-              {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Dates</SelectItem>
-              <SelectItem value="2021">2021</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select onValueChange={(value) => handleYearFilter(value)}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Date" />
+                {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Dates</SelectItem>
+                <SelectItem value="2021">2021</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -300,7 +290,6 @@ const filteredData = useMemo(() => {
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
