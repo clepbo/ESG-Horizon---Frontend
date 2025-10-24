@@ -23,7 +23,7 @@ export default function FullReport() {
   // const { data, isLoading, error } =  useSingleReportDetail(Number(params?.id));
   const { data, isError } = useSingleReport(Number(params?.id));
 
-  console.log("FullReport", data);
+  // console.log("FullReport", data);
 
   // if (isLoading) {
   //   return (
@@ -50,7 +50,7 @@ export default function FullReport() {
   // }
 
   const breakdown = data?.top_5_sources?.breakdown || [];
-  console.log("BDown", breakdown)
+  // console.log("BDown", breakdown)
 
   function exportFile(value: string) {
     if (value === "pdf") {
