@@ -11,7 +11,7 @@ interface EmissionSource {
   scope: string;
 }
 
-export default function FullReportSummary({data}: any) {
+export default function FullReportSummary({ data }: any) {
   const emissionSources: EmissionSource[] = [
     {
       id: 1,
@@ -130,7 +130,7 @@ export default function FullReportSummary({data}: any) {
         </CardHeader>
         <CardContent>
           <ul className="space-y-3">
-            {data.map((source: any, index:number) => (
+            {data.map((source: any, index: number) => (
               <li
                 key={source.id}
                 className="flex items-center justify-between p-2 border rounded-lg"

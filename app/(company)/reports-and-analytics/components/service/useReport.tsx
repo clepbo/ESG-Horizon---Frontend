@@ -31,4 +31,3 @@ export function useSingleReport(id: number) {
     refetchOnWindowFocus: false,
   });
 }
-

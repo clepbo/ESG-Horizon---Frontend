@@ -4,7 +4,12 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/app/components/ui/button";
 import { formatLabel } from "@/app/(company)/reports-and-analytics/components/utils/dataTransfomer";
 
-export type StatusVariant = "awaiting-review" | "approved" | "submitted-approved" | "unapproved" | string;
+export type StatusVariant =
+  | "awaiting-review"
+  | "approved"
+  | "submitted-approved"
+  | "unapproved"
+  | string;
 
 export interface StatusButtonProps {
   status: StatusVariant;
@@ -13,10 +18,10 @@ export interface StatusButtonProps {
 
 export function StatusButton({ status, progress = 0 }: StatusButtonProps) {
   const normalizedStatus = status
-  ?.toString()
-  .trim()
-  .toLowerCase()
-  .replace(/[_\s]+/g, "-");
+    ?.toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
 
   const getStyles = (status: StatusButtonProps["status"]) => {
     switch (normalizedStatus) {
@@ -32,7 +37,7 @@ export function StatusButton({ status, progress = 0 }: StatusButtonProps) {
           buttonClass: "bg-primary text-white hover:bg-green-600",
           barClass: "bg-green-500",
         };
-  
+
       case "unapproved":
         return {
           variant: "unapproved" as StatusVariant,

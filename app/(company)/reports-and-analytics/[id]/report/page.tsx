@@ -3,10 +3,8 @@ import React from "react";
 import FullReport from "../../FullReport";
 import BackButton from "@/app/components/ui/reusables/BackButton";
 import { motion } from "framer-motion";
-import { useSingleReport } from "../../components/service/useReport";
 import { useParams } from "next/navigation";
 export default function pages() {
-
   const params = useParams();
   return (
     <motion.div

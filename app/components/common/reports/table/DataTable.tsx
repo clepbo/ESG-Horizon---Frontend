@@ -53,12 +53,7 @@ const columns = [
   }),
   columnHelper.accessor("status", {
     header: "Status",
-    cell: (info) => (
-      <StatusButton
-        progress={90}
-        status={info.getValue() as StatusVariant}
-      />
-    ),
+    cell: (info) => <StatusButton progress={90} status={info.getValue() as StatusVariant} />,
   }),
   columnHelper.display({
     id: "actions",
@@ -86,17 +81,17 @@ export function DataTable() {
   const data = report.data || [];
 
   const filteredData = useMemo(() => {
-  return data.filter((item: any) => {
-    return (
-      item.subsidiary != null &&
-      item.subsidiary !== "" &&
-      item.startYear != null &&
-      item.startMonth != null &&
-      item.endYear != null &&
-      item.endMonth != null
-    );
-  });
-}, [data]);
+    return data.filter((item: any) => {
+      return (
+        item.subsidiary != null &&
+        item.subsidiary !== "" &&
+        item.startYear != null &&
+        item.startMonth != null &&
+        item.endYear != null &&
+        item.endMonth != null
+      );
+    });
+  }, [data]);
 
   const table = useReactTable({
     data: filteredData,

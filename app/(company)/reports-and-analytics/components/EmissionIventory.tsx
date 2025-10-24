@@ -93,7 +93,6 @@ export default function GHGEmissionsInventory({
   );
 }
 
-
 function getScopeData(summary: any) {
   const colors = {
     scope1: "#FF6B3D",
@@ -102,26 +101,23 @@ function getScopeData(summary: any) {
   };
 
   return [
-  {
-    name: "Scope 1 (Direct)",
-    value: parseFloat((summary?.scope1_emission_summary ?? 0).toFixed(2)),
-    color: colors.scope1,
-  },
-  {
-    name: "Scope 2 (Indirect Energy)",
-    value: parseFloat((summary?.scope2_emission_summary ?? 0).toFixed(2)),
-    color: colors.scope2,
-  },
-  {
-    name: "Scope 3 (Value Chain)",
-    value: parseFloat((summary?.scope3_emission_summary ?? 0).toFixed(2)),
-    color: colors.scope3,
-  },
-];
-
+    {
+      name: "Scope 1 (Direct)",
+      value: parseFloat((summary?.scope1_emission_summary ?? 0).toFixed(2)),
+      color: colors.scope1,
+    },
+    {
+      name: "Scope 2 (Indirect Energy)",
+      value: parseFloat((summary?.scope2_emission_summary ?? 0).toFixed(2)),
+      color: colors.scope2,
+    },
+    {
+      name: "Scope 3 (Value Chain)",
+      value: parseFloat((summary?.scope3_emission_summary ?? 0).toFixed(2)),
+      color: colors.scope3,
+    },
+  ];
 }
-
-
 
 const fuelMixData = [
   { name: "Diesel", "Scope 1": 2000, "Scope 2": 800, "Scope 3": 200 },
@@ -131,7 +127,6 @@ const fuelMixData = [
   { name: "Biomass", "Scope 1": 2000, "Scope 2": 2000, "Scope 3": 800 },
   { name: "Other Fuels", "Scope 1": 1000, "Scope 2": 600, "Scope 3": 300 },
 ];
-
 
 // ---------- Utility Function ----------
 function getFuelMixData(fuelMixBreakdown: any[]) {
@@ -156,7 +151,7 @@ function getFuelMixData(fuelMixBreakdown: any[]) {
 const fuelKeys = ["Scope 1", "Scope 2", "Scope 3"];
 const fuelColors = ["#FF6B3D", "#3E9BFF", "#9B4DFF"];
 
-export function EmissionInventoryWrapper({report}: any) {
+export function EmissionInventoryWrapper({ report }: any) {
   return (
     <div className="">
       <h2 className="text-2xl font-semibold mb-4">GHG Emission Inventory</h2>

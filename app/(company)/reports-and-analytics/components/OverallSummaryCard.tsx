@@ -1,19 +1,18 @@
-'use client'
+"use client";
 import { Card, CardContent } from "@/app/components/ui/card";
 // import { Progress } from "@/app/components/ui/progress";
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
 
 interface SummaryProps {
-  report: any
+  report: any;
 }
 
 export function OverallSummary({ report }: SummaryProps) {
   const data = [
     {
       title: "Total Emissions",
-      value: report?.report?.ghg_total_emissions
-      ,
+      value: report?.report?.ghg_total_emissions,
       unit: "tCO₂e",
       icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
       percentage: null,
@@ -22,8 +21,7 @@ export function OverallSummary({ report }: SummaryProps) {
     },
     {
       title: "Scope 1",
-      value: report?.report?.ghg_scope_one
-      ,
+      value: report?.report?.ghg_scope_one,
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
       colorClass: "bg-orange-500",

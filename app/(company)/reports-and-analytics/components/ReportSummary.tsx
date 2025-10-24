@@ -38,7 +38,7 @@ interface ReportSummaryProps {
       ghg_datacount_scope_two: number;
       ghg_datacount_scope_three: number;
     };
-    status: string,
+    status: string;
     percentage_emission_summary: {
       scope1_emission_summary: number;
       scope2_emission_summary: number;
@@ -63,56 +63,43 @@ function generateAssessmentData(reportData: any) {
   const { report, percentage_emission_summary } = reportData;
 
   return [
-  {
-    title: "Total Emissions",
-    value: Number(report?.ghg_total_emissions ?? 0),
-    unit: "tCO₂e",
-    icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
-    percentage: null,
-    colorClass: "",
-    textColorClass: "text-foreground",
-  },
-  {
-    title: "Scope 1",
-    value: Number(report?.ghg_scope_one ?? 0),
-    unit: "tCO₂e",
-    icon: (
-      <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />
-    ),
-    colorClass: "bg-orange-500",
-    percentage: Math.round(
-      Number(percentage_emission_summary?.scope1_emission_summary ?? 0)
-    ),
-    textColorClass: "text-orange-500",
-  },
-  {
-    title: "Scope 2",
-    value: Number(report?.ghg_scope_two ?? 0),
-    unit: "tCO₂e",
-    icon: (
-      <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />
-    ),
-    colorClass: "bg-blue-500",
-    percentage: Math.round(
-      Number(percentage_emission_summary?.scope2_emission_summary ?? 0)
-    ),
-    textColorClass: "text-blue-500",
-  },
-  {
-    title: "Scope 3",
-    value: Number(report?.ghg_scope_three ?? 0),
-    unit: "tCO₂e",
-    icon: (
-      <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />
-    ),
-    colorClass: "bg-purple-500",
-    percentage: Math.round(
-      Number(percentage_emission_summary?.scope3_emission_summary ?? 0)
-    ),
-    textColorClass: "text-purple-500",
-  },
-];
-
+    {
+      title: "Total Emissions",
+      value: Number(report?.ghg_total_emissions ?? 0),
+      unit: "tCO₂e",
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      percentage: null,
+      colorClass: "",
+      textColorClass: "text-foreground",
+    },
+    {
+      title: "Scope 1",
+      value: Number(report?.ghg_scope_one ?? 0),
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+      colorClass: "bg-orange-500",
+      percentage: Math.round(Number(percentage_emission_summary?.scope1_emission_summary ?? 0)),
+      textColorClass: "text-orange-500",
+    },
+    {
+      title: "Scope 2",
+      value: Number(report?.ghg_scope_two ?? 0),
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+      colorClass: "bg-blue-500",
+      percentage: Math.round(Number(percentage_emission_summary?.scope2_emission_summary ?? 0)),
+      textColorClass: "text-blue-500",
+    },
+    {
+      title: "Scope 3",
+      value: Number(report?.ghg_scope_three ?? 0),
+      unit: "tCO₂e",
+      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+      colorClass: "bg-purple-500",
+      percentage: Math.round(Number(percentage_emission_summary?.scope3_emission_summary ?? 0)),
+      textColorClass: "text-purple-500",
+    },
+  ];
 }
 
 const ReportSummary = (props: ReportSummaryProps) => {
@@ -120,7 +107,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
   // Format number with commas
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(Math.round(num));
+    return new Intl.NumberFormat("en-US").format(Math.round(num));
   };
 
   // Calculate progress percentage
@@ -143,14 +130,16 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
   // Get subsidiary name
   const getSubsidiary = () => {
-    return props.reportData?.summary?.startMonth?.subsidiary ||
+    return (
+      props.reportData?.summary?.startMonth?.subsidiary ||
       props.reportData?.report?.subsidiary ||
-      "Not specified";
+      "Not specified"
+    );
   };
 
   // Get status based on progress
   const getStatus = () => {
-    return props?.reportData?.status
+    return props?.reportData?.status;
   };
 
   async function exportfile(value: string) {
@@ -170,7 +159,6 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
   const { report, percentage_emission_summary } = reportData;
   const assessmentData = generateAssessmentData(reportData);
-
 
   return (
     <div className="min-h-screen p-4 lg:p-8">
@@ -199,9 +187,13 @@ const ReportSummary = (props: ReportSummaryProps) => {
                 <h3 className="text-sm font-medium text-foreground">Status</h3>
                 <div className="">
                   <div
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${getStatus() === "approved" || getStatus() === "submitted-approved" ? "bg-green-500" :
-                        getStatus() === "unapproved" ? "bg-orange-500" : "bg-gray-500"
-                      } text-white text-xs font-medium`}
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${
+                      getStatus() === "approved" || getStatus() === "submitted-approved"
+                        ? "bg-green-500"
+                        : getStatus() === "unapproved"
+                          ? "bg-orange-500"
+                          : "bg-gray-500"
+                    } text-white text-xs font-medium`}
                   >
                     {formatLabel(getStatus())}
                   </div>
@@ -254,22 +246,13 @@ const ReportSummary = (props: ReportSummaryProps) => {
             <AssessmentAll heading={"All"} reportData={reportData} data={[]} />
           </TabsContent>
           <TabsContent value="environment">
-            <PillarAssessmentCard
-              heading="Environmental"
-              data={generateEnvironmentalData()}
-            />
+            <PillarAssessmentCard heading="Environmental" data={generateEnvironmentalData()} />
           </TabsContent>
           <TabsContent value="social">
-            <PillarAssessmentCard
-              heading="Social"
-              data={generateEnvironmentalData()}
-            />
+            <PillarAssessmentCard heading="Social" data={generateEnvironmentalData()} />
           </TabsContent>
           <TabsContent value="governance">
-            <PillarAssessmentCard
-              heading="Governance"
-              data={generateEnvironmentalData()}
-            />
+            <PillarAssessmentCard heading="Governance" data={generateEnvironmentalData()} />
           </TabsContent>
         </Tabs>
 
@@ -288,7 +271,8 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 1</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_one)} tCO₂e ({parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2))}%)
+                      {formatNumber(report.ghg_scope_one)} tCO₂e (
+                      {parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2))}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -308,7 +292,8 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 2</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_two)} tCO₂e ({parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2))}%)
+                      {formatNumber(report.ghg_scope_two)} tCO₂e (
+                      {parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2))}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -328,7 +313,8 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 3</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_three)} tCO₂e ({parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2))}%)
+                      {formatNumber(report.ghg_scope_three)} tCO₂e (
+                      {parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2))}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -351,19 +337,25 @@ const ReportSummary = (props: ReportSummaryProps) => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">Scope 1 Sources</span>
                   <span className="text-sm text-muted-foreground">
-                    {report.ghg_datacount_scope_one > 0 ? `${report.ghg_datacount_scope_one} Sources` : 'No data'}
+                    {report.ghg_datacount_scope_one > 0
+                      ? `${report.ghg_datacount_scope_one} Sources`
+                      : "No data"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">Scope 2 Sources</span>
                   <span className="text-sm text-muted-foreground">
-                    {report.ghg_datacount_scope_two > 0 ? `${report.ghg_datacount_scope_two} Sources` : 'No data'}
+                    {report.ghg_datacount_scope_two > 0
+                      ? `${report.ghg_datacount_scope_two} Sources`
+                      : "No data"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">Scope 3 Sources</span>
                   <span className="text-sm text-muted-foreground">
-                    {report.ghg_datacount_scope_three > 0 ? `${report.ghg_datacount_scope_three} Sources` : 'No data'}
+                    {report.ghg_datacount_scope_three > 0
+                      ? `${report.ghg_datacount_scope_three} Sources`
+                      : "No data"}
                   </span>
                 </div>
               </div>

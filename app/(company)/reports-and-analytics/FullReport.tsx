@@ -16,19 +16,16 @@ import { motion } from "framer-motion";
 import { OverallSummary } from "./components/OverallSummaryCard";
 import { useParams } from "next/navigation";
 import { useSingleReport } from "./components/service/useReport";
-import {
-  transformFuelBreakdownData,
-} from "./components/utils/getTop5Sources";
+import { transformFuelBreakdownData } from "./components/utils/getTop5Sources";
 
 export default function FullReport() {
   const params = useParams();
   // const { data, isLoading, error } =  useSingleReportDetail(Number(params?.id));
-  const { data, isLoading, isError } = useSingleReport(Number(params?.id));
+  const { data, isError } = useSingleReport(Number(params?.id));
 
-  console.log("FullReport", data, params)
+  console.log("FullReport", data);
 
- 
-  // if (data.isLoading) {
+  // if (isLoading) {
   //   return (
   //     <div className="w-full flex justify-center items-center py-12 text-gray-500">
   //       Loading report data...
@@ -36,13 +33,13 @@ export default function FullReport() {
   //   );
   // }
 
-  // if (data.isError) {
-  //   return (
-  //     <div className="w-full flex justify-center items-center py-12 text-red-500">
-  //       Failed to load report.
-  //     </div>
-  //   );
-  // }
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
 
   // if (!data) {
   //   return (
@@ -51,7 +48,6 @@ export default function FullReport() {
   //     </div>
   //   );
   // }
-
 
   const breakdown = data?.data?.top_5_sources?.breakdown || [];
 

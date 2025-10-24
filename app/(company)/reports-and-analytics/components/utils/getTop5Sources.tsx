@@ -21,13 +21,12 @@ export function getReadableTopSources(data: TopSources) {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
 
-  return data.breakdown.slice(0,5).map((item) => ({
+  return data.breakdown.slice(0, 5).map((item) => ({
     fuelType: formatFuelType(item.fuelType),
     volume: item.volume,
     percentage: parseFloat(item.percentage.toFixed(2)),
   }));
 }
-
 
 // utils/fuelTransformers.ts
 
@@ -49,14 +48,14 @@ export function transformFuelBreakdownData(
   } = {}
 ): FuelBreakdownItem[] {
   const { limit = 5 } = options;
-  
+
   if (!breakdownData || !Array.isArray(breakdownData)) return [];
-  
-  return breakdownData.slice(0, limit).map(item => ({
+
+  return breakdownData.slice(0, limit).map((item) => ({
     fuelType: formatFuelType(item.fuelType),
     volume: item.volume,
     percentage: parseFloat(item.percentage.toFixed(2)),
-    originalType: item.fuelType
+    originalType: item.fuelType,
   }));
 }
 
@@ -64,10 +63,10 @@ export function transformFuelBreakdownData(
  * Transforms fuel type by splitting on "-" and capitalizing each part
  */
 function formatFuelType(fuelType: string): string {
-  if (!fuelType || typeof fuelType !== 'string') return 'Unknown Fuel';
-  
+  if (!fuelType || typeof fuelType !== "string") return "Unknown Fuel";
+
   return fuelType
-    .split('-')
-    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(' ');
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
 }

@@ -12,7 +12,6 @@ export default function Pages() {
 
   // Proper logging
 
-
   if (isLoading) {
     return (
       <React.Suspense fallback={<div>Loading...</div>}>
