@@ -83,17 +83,40 @@ export default function Sidebar() {
         </Link>
 
         <div className="mb-1 hidden md:flex items-center space-x-2 bg-teal-600 rounded-md px-3 py-2">
-          <Image
-            src={user?.company?.company_logo_url || "/image.png"}
-            alt="Company Logo"
-            width={40}
-            height={20}
-            className="object-contain rounded-2xl"
-          />
+          {user?.company?.company_logo_url ? (
+            <Image
+              src={user.company.company_logo_url}
+              alt={`${user.company.name || "Company"} Logo`}
+              width={40}
+              height={20}
+              className="object-contain rounded-2xl"
+            />
+          ) : (
+            <span className="text-xs text-white/75">No logo</span>
+          )}
+
           <span className="text-sm font-medium text-white">
             {user?.company?.name || "Company Name"}
           </span>
         </div>
+
+        {/* <div className="mb-1 hidden md:flex items-center space-x-2 bg-teal-600 rounded-md px-3 py-2">
+          {user?.company?.company_logo_url && (
+            <Image
+              src={user?.company?.company_logo_url || "/image.png"}
+              alt="Company Logo"
+              width={40}
+              height={20}
+              className="object-contain rounded-2xl"
+            />
+          )}
+          <span className="text-sm font-medium text-white">
+            {user?.company?.name || "Company Name"}
+          </span>
+          {!user?.company?.company_logo_url && (
+            <span className="text-xs text-muted">No company logo uploaded.</span>
+          )}
+        </div> */}
       </div>
 
       {/* Nav section */}

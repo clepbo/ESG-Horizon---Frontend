@@ -157,15 +157,16 @@ const filteredData = useMemo(() => {
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
         <SearchInput
           placeholder="Search by subsidiary"
           value={filters.search}
           onChange={(e) => table.setGlobalFilter(e.target.value)}
         />
-        <Button className={`text-white font-semibold`} onClick={() => exportToCSV(data)}>
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button className={`text-white font-semibold`} onClick={() => exportToCSV(data)}>
+            Export CSV
+          </Button>
 
         <div className="flex items-center gap-2">
           <Select onValueChange={handleStatusFilter}>
@@ -299,6 +300,7 @@ const filteredData = useMemo(() => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }
