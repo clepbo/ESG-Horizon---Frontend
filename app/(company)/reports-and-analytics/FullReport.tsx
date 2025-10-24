@@ -49,7 +49,8 @@ export default function FullReport() {
   //   );
   // }
 
-  const breakdown = data?.data?.top_5_sources?.breakdown || [];
+  const breakdown = data?.top_5_sources?.breakdown || [];
+  console.log("BDown", breakdown)
 
   function exportFile(value: string) {
     if (value === "pdf") {

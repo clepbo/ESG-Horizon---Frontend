@@ -12,19 +12,19 @@ interface EmissionSource {
 }
 
 export default function FullReportSummary({ data }: any) {
-  const emissionSources: EmissionSource[] = [
-    {
-      id: 1,
-      name: "Diesel Generators",
-      location: "Port Harcourt Refinery",
-      value: 4420,
-      scope: "Scope 1",
-    },
-    { id: 2, name: "Marine Vessels", location: "Lagos Terminal", value: 3660, scope: "Scope 3" },
-    { id: 3, name: "Grid Electricity", location: "All facilities", value: 3200, scope: "Scope 2" },
-    { id: 4, name: "Company Trucks", location: "Warri Depot", value: 2490, scope: "Scope 1" },
-    { id: 5, name: "Process Flaring", location: "Kaduna Terminal", value: 2150, scope: "Scope 1" },
-  ];
+  // const emissionSources: EmissionSource[] = [
+  //   {
+  //     id: 1,
+  //     name: "Diesel Generators",
+  //     location: "Port Harcourt Refinery",
+  //     value: 4420,
+  //     scope: "Scope 1",
+  //   },
+  //   { id: 2, name: "Marine Vessels", location: "Lagos Terminal", value: 3660, scope: "Scope 3" },
+  //   { id: 3, name: "Grid Electricity", location: "All facilities", value: 3200, scope: "Scope 2" },
+  //   { id: 4, name: "Company Trucks", location: "Warri Depot", value: 2490, scope: "Scope 1" },
+  //   { id: 5, name: "Process Flaring", location: "Kaduna Terminal", value: 2150, scope: "Scope 1" },
+  // ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
