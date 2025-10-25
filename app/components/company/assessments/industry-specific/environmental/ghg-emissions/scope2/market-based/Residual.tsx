@@ -17,6 +17,8 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
+
 
 interface ResidualFormProps {
   onBack: () => void;
@@ -41,7 +43,15 @@ export function ResidualForm({
 }: ResidualFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [electricityConsumed, setElectricityConsumed] = useState("");
+  
+  // Use the formatted number hook for electricity consumed
+  const {
+    rawValue: electricityConsumedRaw,
+    displayValue: electricityConsumedDisplay,
+    handleChange: handleElectricityConsumedChange,
+    setRawValue: setElectricityConsumedRaw
+  } = useFormattedNumber("");
+  
   const [residualMixFactor, setResidualMixFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -61,25 +71,32 @@ export function ResidualForm({
   useEffect(() => {
     const existingData = state.assessmentData.residual;
     if (existingData) {
-      setElectricityConsumed(existingData.electricityConsumed || "");
+      // Initialize with existing data using the formatted number hook
+      if (existingData.electricityConsumed) {
+        setElectricityConsumedRaw(existingData.electricityConsumed);
+      } else {
+        setElectricityConsumedRaw("");
+      }
       setResidualMixFactor(existingData.residualMixFactor || "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.residual]);
+  }, [state.assessmentData.residual, setElectricityConsumedRaw]);
+
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      electricityConsumed,
+      electricityConsumedRaw,
       residualMixFactor,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [electricityConsumed, residualMixFactor, files, additionalFields]);
+  }, [electricityConsumedRaw, residualMixFactor, files, additionalFields]);
+
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (!electricityConsumed || Number(electricityConsumed) <= 0) {
+    if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
       newErrors.electricityConsumed = "Please enter a valid positive number.";
     }
     if (!residualMixFactor || Number(residualMixFactor) <= 0) {
@@ -89,6 +106,7 @@ export function ResidualForm({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -144,7 +162,7 @@ export function ResidualForm({
     dispatch({
       type: "UPDATE_RESIDUAL",
       payload: {
-        electricityConsumed,
+        electricityConsumed: electricityConsumedRaw,
         residualMixFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -157,7 +175,7 @@ export function ResidualForm({
         data: {
           ...state.assessmentData,
           residual: {
-            electricityConsumed,
+            electricityConsumed: electricityConsumedRaw,
             residualMixFactor,
             files,
             additionalFields: additionalFields as FileMetadata[],
@@ -170,7 +188,7 @@ export function ResidualForm({
           setShowSaveSuccess(true);
 
           // reset fields if desired
-          setElectricityConsumed("");
+          setElectricityConsumedRaw("");
           setResidualMixFactor("");
           setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
           setAdditionalFields([]);
@@ -187,7 +205,7 @@ export function ResidualForm({
     dispatch({
       type: "UPDATE_RESIDUAL",
       payload: {
-        electricityConsumed,
+        electricityConsumed: electricityConsumedRaw,
         residualMixFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -200,6 +218,7 @@ export function ResidualForm({
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
   };
+
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
     if (file?.publicId) {
@@ -241,6 +260,7 @@ export function ResidualForm({
       }
     }
   };
+
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -284,11 +304,11 @@ export function ResidualForm({
                   Total electricity consumed (kWh)
                 </Label>
                 <Input
-                  type="number"
+                  type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter total electricity consumed"
-                  value={electricityConsumed}
+                  value={electricityConsumedDisplay} // Use the formatted display value
                   onChange={(e) => {
-                    setElectricityConsumed(e.target.value);
+                    handleElectricityConsumedChange(e.target.value); // Use the hook's handler
                     if (errors.electricityConsumed)
                       setErrors((prev) => ({
                         ...prev,
