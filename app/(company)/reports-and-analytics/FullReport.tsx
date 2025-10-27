@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { OverallSummary } from "./components/OverallSummaryCard";
 import {
   Select,
   SelectContent,
@@ -9,30 +8,61 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { EmissionInventoryWrapper } from "./components/EmissionIventory";
-import { trendData } from "./components/data/trendData";
-import ComparativeTrendAnalysis from "./components/charts/ComparativeTrendAnalysis";
-import EmissionProgressComponent from "./components/EmissionProgressComponents";
 import { emissionsData } from "./components/data/reportData";
+import EmissionProgressComponent from "./components/EmissionProgressComponents";
 import FullReportSummary from "./components/FullReportSummary";
 import { exportPNG, generatePDF } from "./components/exportFiles";
 import { motion } from "framer-motion";
+import { OverallSummary } from "./components/OverallSummaryCard";
+import { useParams } from "next/navigation";
+import { useSingleReport } from "./components/service/useReport";
+import { transformFuelBreakdownData } from "./components/utils/getTop5Sources";
 
 export default function FullReport() {
-  const scopeKeys = ["Scope 1", "Scope 2", "Scope 3"];
-  const scopeColors = ["#FF6B3D", "#3E9BFF", "#9B4DFF"];
+  const params = useParams();
+  // const { data, isLoading, error } =  useSingleReportDetail(Number(params?.id));
+  const { data, isError } = useSingleReport(Number(params?.id));
+
+  // console.log("FullReport", data);
+
+  // if (isLoading) {
+  //   return (
+  //     <div className="w-full flex justify-center items-center py-12 text-gray-500">
+  //       Loading report data...
+  //     </div>
+  //   );
+  // }
+
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
+
+  // if (!data) {
+  //   return (
+  //     <div className="w-full flex justify-center items-center py-12 text-gray-600">
+  //       No report data found.
+  //     </div>
+  //   );
+  // }
+
+  const breakdown = data?.top_5_sources?.breakdown || [];
+  // console.log("BDown", breakdown)
 
   function exportFile(value: string) {
     if (value === "pdf") {
       generatePDF("detail");
-    } else {
+    } else if (value === "png") {
       exportPNG("detail");
     }
-    return;
   }
 
   return (
     <motion.div
-      className={`w-full grid gap-4`}
+      className="w-full grid gap-4"
       id="detail"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -43,11 +73,10 @@ export default function FullReport() {
         duration: 0.5,
       }}
     >
-      <div className={`grid w-full gap-4 lg:gap-8 rounded-lg`}>
-        <div className={`flex flex-col md:flex-row justify-between w-full items-center no-export`}>
+      <div className="grid w-full gap-4 lg:gap-8 rounded-lg">
+        <div className="flex flex-col md:flex-row justify-between w-full items-center no-export">
           <h1 className="text-2xl lg:text-3xl font-semibold text-foreground">
-            {" "}
-            Greenhouse Gas Emissions{" "}
+            Greenhouse Gas Emissions
           </h1>
           <Select onValueChange={exportFile}>
             <SelectTrigger className="w-[180px]">
@@ -57,41 +86,51 @@ export default function FullReport() {
               <SelectItem value="none" disabled>
                 Select file format
               </SelectItem>
-              <SelectItem value="pdf"> PDF</SelectItem>
-              <SelectItem value="csv">PNG</SelectItem>
+              <SelectItem value="pdf">PDF</SelectItem>
+              <SelectItem value="png">PNG</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        <OverallSummary />
+
+        {/* ✅ Safely render OverallSummary */}
+        <OverallSummary report={data} />
       </div>
-      <div className={`grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm`}>
-        <EmissionInventoryWrapper />
-        <hr className="text-gray-300" />
-        <ComparativeTrendAnalysis data={trendData} keys={scopeKeys} colors={scopeColors} />
+
+      <div className="grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm">
+        <EmissionInventoryWrapper report={data} />
         <hr className="text-gray-300" />
 
         <EmissionProgressComponent
           data={emissionsData}
-          title={"Scope 1: Direct Emissions"}
+          title="Scope 1: Direct Emissions"
           total={32900}
-          color={"orange-500"}
+          color="orange-500"
         />
         <hr className="text-gray-300" />
+
         <EmissionProgressComponent
           data={emissionsData}
-          title={"Scope 2: Indirect Energy Emissions"}
+          title="Scope 2: Indirect Energy Emissions"
           total={30900}
-          color={"blue-500"}
+          color="blue-500"
         />
         <hr className="text-gray-300" />
+
         <EmissionProgressComponent
           data={emissionsData}
-          title={"Scope 3: Value Chain Emissions"}
+          title="Scope 3: Value Chain Emissions"
           total={44900}
-          color={"purple-500"}
+          color="purple-500"
         />
       </div>
-      <FullReportSummary />
+
+      {breakdown.length > 0 ? (
+        <FullReportSummary data={transformFuelBreakdownData(breakdown)} />
+      ) : (
+        <div className="text-center text-gray-500 py-4 bg-gray-50 rounded">
+          No emission source breakdown data available
+        </div>
+      )}
     </motion.div>
   );
 }

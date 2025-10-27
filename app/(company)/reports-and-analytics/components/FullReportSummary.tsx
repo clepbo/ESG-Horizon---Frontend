@@ -11,20 +11,20 @@ interface EmissionSource {
   scope: string;
 }
 
-export default function FullReportSummary() {
-  const emissionSources: EmissionSource[] = [
-    {
-      id: 1,
-      name: "Diesel Generators",
-      location: "Port Harcourt Refinery",
-      value: 4420,
-      scope: "Scope 1",
-    },
-    { id: 2, name: "Marine Vessels", location: "Lagos Terminal", value: 3660, scope: "Scope 3" },
-    { id: 3, name: "Grid Electricity", location: "All facilities", value: 3200, scope: "Scope 2" },
-    { id: 4, name: "Company Trucks", location: "Warri Depot", value: 2490, scope: "Scope 1" },
-    { id: 5, name: "Process Flaring", location: "Kaduna Terminal", value: 2150, scope: "Scope 1" },
-  ];
+export default function FullReportSummary({ data }: any) {
+  // const emissionSources: EmissionSource[] = [
+  //   {
+  //     id: 1,
+  //     name: "Diesel Generators",
+  //     location: "Port Harcourt Refinery",
+  //     value: 4420,
+  //     scope: "Scope 1",
+  //   },
+  //   { id: 2, name: "Marine Vessels", location: "Lagos Terminal", value: 3660, scope: "Scope 3" },
+  //   { id: 3, name: "Grid Electricity", location: "All facilities", value: 3200, scope: "Scope 2" },
+  //   { id: 4, name: "Company Trucks", location: "Warri Depot", value: 2490, scope: "Scope 1" },
+  //   { id: 5, name: "Process Flaring", location: "Kaduna Terminal", value: 2150, scope: "Scope 1" },
+  // ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -130,22 +130,22 @@ export default function FullReportSummary() {
         </CardHeader>
         <CardContent>
           <ul className="space-y-3">
-            {emissionSources.map((source) => (
+            {data.map((source: any, index: number) => (
               <li
                 key={source.id}
                 className="flex items-center justify-between p-2 border rounded-lg"
               >
                 <div className="flex items-center space-x-3">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-200 text-green-700 text-sm font-semibold">
-                    {source.id}
+                    {index + 1}
                   </span>
                   <div>
-                    <p className="font-medium">{source.name}</p>
-                    <p className="text-xs text-muted-foreground">{source.location}</p>
+                    <p className="font-medium">{source.fuelType}</p>
+                    <p className="text-xs text-muted-foreground">{source.location ?? ""}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-sm">{source.value.toLocaleString()}</p>
+                  <p className="font-medium text-sm">{source.volume.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground border rounded-3xl px-1 whitespace-nowrap">
                     {source.scope}
                   </p>
