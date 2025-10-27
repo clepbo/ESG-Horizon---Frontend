@@ -49,15 +49,15 @@ export function PurchasedSteamForm({
 }: PurchasedSteamFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
+
   // Use the formatted number hook for steam consumed
   const {
     rawValue: steamConsumedRaw,
     displayValue: steamConsumedDisplay,
     handleChange: handleSteamConsumedChange,
-    setRawValue: setSteamConsumedRaw
+    setRawValue: setSteamConsumedRaw,
   } = useFormattedNumber("");
-  
+
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");

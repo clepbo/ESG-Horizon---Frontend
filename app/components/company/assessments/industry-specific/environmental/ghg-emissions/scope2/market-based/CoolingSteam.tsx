@@ -20,7 +20,6 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
-
 interface CoolingSteamFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -46,15 +45,15 @@ export function CoolingSteamForm({
 }: CoolingSteamFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
+
   // Use the formatted number hook for energy consumed
   const {
     rawValue: energyConsumedRaw,
     displayValue: energyConsumedDisplay,
     handleChange: handleEnergyConsumedChange,
-    setRawValue: setEnergyConsumedRaw
+    setRawValue: setEnergyConsumedRaw,
   } = useFormattedNumber("");
-  
+
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))

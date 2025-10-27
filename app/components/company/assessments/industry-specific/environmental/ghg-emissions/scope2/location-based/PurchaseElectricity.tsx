@@ -42,7 +42,7 @@ export function PurchasedElectricityForm({
 }: PurchasedElectricityFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
+
   // Use formatted number hook for electricity consumed
   const electricityConsumed = useFormattedNumber("");
   const [supplier, setSupplier] = useState("");
@@ -135,7 +135,7 @@ export function PurchasedElectricityForm({
   const handleElectricityConsumedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     electricityConsumed.handleChange(value);
-    
+
     // Clear error if present
     if (errors.electricityConsumed) {
       setErrors((prev) => ({

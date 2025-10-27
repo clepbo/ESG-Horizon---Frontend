@@ -19,7 +19,6 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
-
 interface ResidualFormProps {
   onBack: () => void;
   onNext: () => void;
@@ -43,15 +42,15 @@ export function ResidualForm({
 }: ResidualFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
+
   // Use the formatted number hook for electricity consumed
   const {
     rawValue: electricityConsumedRaw,
     displayValue: electricityConsumedDisplay,
     handleChange: handleElectricityConsumedChange,
-    setRawValue: setElectricityConsumedRaw
+    setRawValue: setElectricityConsumedRaw,
   } = useFormattedNumber("");
-  
+
   const [residualMixFactor, setResidualMixFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))

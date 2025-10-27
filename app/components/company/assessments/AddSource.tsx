@@ -174,16 +174,22 @@ function SourceRow({
                     <div className="flex items-start text-yellow-600 bg-yellow-500/10 p-2 rounded-md border border-yellow-600">
                       <AlertTriangle className="h-4 w-4 mt-1 mr-2 flex-shrink-0" />
                       <p className="text-xs">
-                        Editing emission factors will change your total emissions
-                        calculations. Only update with verified data to ensure accurate
-                        reporting.
+                        Editing emission factors will change your total emissions calculations. Only
+                        update with verified data to ensure accurate reporting.
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <Button onClick={() => handleSaveClick(source.id)} className="text-xs text-white">
+                      <Button
+                        onClick={() => handleSaveClick(source.id)}
+                        className="text-xs text-white"
+                      >
                         Save
                       </Button>
-                      <Button variant="outline" onClick={handleCancelClick} className="text-xs border-gray-300">
+                      <Button
+                        variant="outline"
+                        onClick={handleCancelClick}
+                        className="text-xs border-gray-300"
+                      >
                         Cancel
                       </Button>
                     </div>
@@ -233,8 +239,8 @@ function SourceRow({
                     <TooltipContent className="bg-white border border-teal-600 text-teal-800 shadow-lg">
                       <p className="font-semibold text-center">Volume Emission</p>
                       <p className="text-xs">
-                        This is the tCO₂e emission calculated from the volume and emission
-                        factor here.
+                        This is the tCO₂e emission calculated from the volume and emission factor
+                        here.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -249,7 +255,10 @@ function SourceRow({
 
           <div className="flex flex-col space-y-2">
             <Label htmlFor={`unit-${source.id}`}>Unit</Label>
-            <Select value={source.unit} onValueChange={(value) => updateSource(source.id, "unit", value)}>
+            <Select
+              value={source.unit}
+              onValueChange={(value) => updateSource(source.id, "unit", value)}
+            >
               <SelectTrigger id={`unit-${source.id}`}>
                 <SelectValue placeholder="Select unit" />
               </SelectTrigger>
@@ -292,13 +301,16 @@ export function AddSource({
   const [tempEmissionFactor, setTempEmissionFactor] = useState<number | null>(null);
 
   const calculatedEmissions = useMemo(() => {
-    return sources.reduce((acc, source) => {
-      acc[source.id] = calculateTCO2eForSource({
-        volume: source.volume,
-        emissionFactor: source.emissionFactor,
-      });
-      return acc;
-    }, {} as Record<string, number>);
+    return sources.reduce(
+      (acc, source) => {
+        acc[source.id] = calculateTCO2eForSource({
+          volume: source.volume,
+          emissionFactor: source.emissionFactor,
+        });
+        return acc;
+      },
+      {} as Record<string, number>
+    );
   }, [sources]);
 
   const addSource = () => {
@@ -390,7 +402,9 @@ export function AddSource({
       {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="space-y-4">
         {sources.length === 0 ? (
-          <p className="text-muted-foreground text-center">No sources added yet. Click &quot;Add Source&quot; to begin.</p>
+          <p className="text-muted-foreground text-center">
+            No sources added yet. Click &quot;Add Source&quot; to begin.
+          </p>
         ) : (
           sources.map((source) => {
             const isEditing = editingFactorId === source.id;

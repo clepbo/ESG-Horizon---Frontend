@@ -80,10 +80,10 @@ export function VentingNaturalGas({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    
+
     // Use the hook's handleChange method
     volumeOfGasVented.handleChange(value);
-    
+
     // Clear error if present
     if (errors.volumeOfGasVented) {
       setErrors((prev) => {
@@ -96,7 +96,7 @@ export function VentingNaturalGas({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     // Use rawValue for validation
     if (!volumeOfGasVented.rawValue || Number(volumeOfGasVented.rawValue) < 0) {
       newErrors.volumeOfGasVented = "Value cannot be negative or empty";
@@ -408,7 +408,6 @@ export function VentingNaturalGas({
     </div>
   );
 }
-
 
 // "use client";
 

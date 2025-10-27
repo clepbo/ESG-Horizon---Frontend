@@ -5,14 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import {
-  ArrowLeft,
-  Save,
-  CheckCircle2,
-  CloudUpload,
-  ArrowRight,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -25,8 +18,6 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-
-
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -52,7 +43,12 @@ export function CementManufacturing({
   const { state, dispatch } = useAssessment();
 
   // ✅ Integrate the hook
-  const { rawValue: cementQuantity, displayValue: cementQuantityDisplay, handleChange: handleCementChange, setRawValue: setCementRaw } = useFormattedNumber("0");
+  const {
+    rawValue: cementQuantity,
+    displayValue: cementQuantityDisplay,
+    handleChange: handleCementChange,
+    setRawValue: setCementRaw,
+  } = useFormattedNumber("0");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -71,21 +67,18 @@ export function CementManufacturing({
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
 
   useEffect(() => {
-    const existingData =
-      state.assessmentData.processEmissions?.cementManufacturing;
+    const existingData = state.assessmentData.processEmissions?.cementManufacturing;
     if (existingData) {
       setCementRaw(existingData.cementQuantity?.toString() || "0");
       setFiles(
-        existingData.files ||
-          Object.fromEntries(uploadFields.map((field) => [field, null]))
+        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
   }, [state.assessmentData.processEmissions?.cementManufacturing]);
 
   const { filled, total } = useMemo(() => {
-    const hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
+    const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
     return calculateProgress([Number(cementQuantity) > 0, hasFiles]);
   }, [cementQuantity, files, additionalFields]);
 
@@ -101,10 +94,7 @@ export function CementManufacturing({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFileChange = async (
-    field: string,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {

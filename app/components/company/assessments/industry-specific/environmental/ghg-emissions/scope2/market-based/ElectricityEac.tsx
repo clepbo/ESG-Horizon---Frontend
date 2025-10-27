@@ -19,7 +19,6 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
-
 interface ElectricityEACFormProps {
   onBack: () => void;
   onNext: () => void;
@@ -43,15 +42,15 @@ export function ElectricityEACForm({
 }: ElectricityEACFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
+
   // Use the formatted number hook for grid electricity
   const {
     rawValue: gridElectricityRaw,
     displayValue: gridElectricityDisplay,
     handleChange: handleGridElectricityChange,
-    setRawValue: setGridElectricityRaw
+    setRawValue: setGridElectricityRaw,
   } = useFormattedNumber("");
-  
+
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))

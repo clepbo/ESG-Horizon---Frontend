@@ -21,7 +21,6 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
-
 interface HFCLeaksProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -110,7 +109,7 @@ export function HFCLeaks({
   const handleOthersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     others.handleChange(value);
-    
+
     // Clear error if present
     if (errors.others) {
       setErrors((prev) => {
@@ -124,7 +123,7 @@ export function HFCLeaks({
   const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     refrigerantAdded.handleChange(value);
-    
+
     // Clear error if present
     if (errors.refrigerantAdded) {
       setErrors((prev) => {

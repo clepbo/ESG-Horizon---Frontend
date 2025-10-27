@@ -11,14 +11,15 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import type { AssessmentData, FileMetadata } from "@/hooks/useAssessment";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
-import { AdditionalFileUpload, FileData } from "@/app/components/company/assessments/AdditionalFileUpload";
+import {
+  AdditionalFileUpload,
+  FileData,
+} from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-
-
 
 interface GasFlaringProps {
   onBack: () => void;
@@ -46,7 +47,6 @@ export function GasFlaring({
 }: GasFlaringProps) {
   const { state, dispatch } = useAssessment();
 
-
   const {
     rawValue: gasVolume,
     displayValue: gasVolumeDisplay,
@@ -67,7 +67,11 @@ export function GasFlaring({
 
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [errors, setErrors] = useState<{ gasVolume?: string; carbonContent?: string; files?: string }>({});
+  const [errors, setErrors] = useState<{
+    gasVolume?: string;
+    carbonContent?: string;
+    files?: string;
+  }>({});
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
@@ -76,23 +80,29 @@ export function GasFlaring({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.processEmissions?.gasFlaring as NonNullable<AssessmentData["processEmissions"]>["gasFlaring"];
+    const existingData = state.assessmentData.processEmissions?.gasFlaring as NonNullable<
+      AssessmentData["processEmissions"]
+    >["gasFlaring"];
     if (existingData) {
       setGasVolumeRaw(existingData.gasVolume?.toString() || "0");
       setCarbonContentRaw(existingData.carbonContent?.toString() || "0");
-      setFiles(existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null])));
+      setFiles(
+        existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
       setAdditionalFields(existingData.additionalFields || []);
     }
   }, [state.assessmentData.processEmissions?.gasFlaring]);
 
   const { filled, total } = useMemo(() => {
-    const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
     return calculateProgress([Number(gasVolume) > 0, Number(carbonContent) > 0, hasFiles]);
   }, [gasVolume, carbonContent, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: { gasVolume?: string; carbonContent?: string; files?: string } = {};
-    if (Number(gasVolume) <= 0) newErrors.gasVolume = "Please enter a positive volume of gas flared";
+    if (Number(gasVolume) <= 0)
+      newErrors.gasVolume = "Please enter a positive volume of gas flared";
     if (Number(carbonContent) <= 0 || Number(carbonContent) > 100)
       newErrors.carbonContent = "Please enter a valid percentage (0-100)";
     setErrors(newErrors);
@@ -215,7 +225,12 @@ export function GasFlaring({
 
     submitAssessment(
       { assessmentId, data: state.assessmentData },
-      { onSuccess: (res) => { toast.success("Assessment submitted!"); onSubmit(res.totals ?? null); } }
+      {
+        onSuccess: (res) => {
+          toast.success("Assessment submitted!");
+          onSubmit(res.totals ?? null);
+        },
+      }
     );
   };
 
@@ -233,7 +248,8 @@ export function GasFlaring({
           <div>
             <h3 className="text-2xl font-bold text-foreground">Process Emissions</h3>
             <p className="text-muted-foreground text-base">
-              Greenhouse gases released during industrial or chemical processes, not from fuel combustion.
+              Greenhouse gases released during industrial or chemical processes, not from fuel
+              combustion.
             </p>
           </div>
         </div>
@@ -275,14 +291,18 @@ export function GasFlaring({
                     onChange={(e) => handleCarbonContentChange(e.target.value)}
                     className={`w-full border-gray-400 ${errors.carbonContent ? "border-red-500 focus:border-red-500" : ""}`}
                   />
-                  {errors.carbonContent && <p className="text-sm text-red-500">{errors.carbonContent}</p>}
+                  {errors.carbonContent && (
+                    <p className="text-sm text-red-500">{errors.carbonContent}</p>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* File uploads */}
             <div>
-              <Label className="text-md font-semibold mb-2 block">1.2 Document/Evidence Upload</Label>
+              <Label className="text-md font-semibold mb-2 block">
+                1.2 Document/Evidence Upload
+              </Label>
               <div className="ml-6">
                 {errors.files && <p className="text-sm text-red-500">{errors.files}</p>}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -302,7 +322,9 @@ export function GasFlaring({
                         <Input
                           id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                           type="file"
-                          ref={(el) => { inputRefs.current[field] = el; }}
+                          ref={(el) => {
+                            inputRefs.current[field] = el;
+                          }}
                           className="hidden"
                           onChange={(e) => handleFileChange(field, e)}
                           accept=".pdf,.jpg,.jpeg,.png"
@@ -339,7 +361,10 @@ export function GasFlaring({
               </div>
 
               <div className="mt-6">
-                <AdditionalFileUpload onFieldsChange={handleAdditionalFieldsChange} initialData={additionalFields} />
+                <AdditionalFileUpload
+                  onFieldsChange={handleAdditionalFieldsChange}
+                  initialData={additionalFields}
+                />
               </div>
             </div>
 

@@ -47,15 +47,15 @@ export function PurchasedHeatingForm({
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [heatingPurchased, setHeatingPurchased] = useState("");
-  
+
   // Use the formatted number hook for heating consumed
   const {
     rawValue: heatingConsumedRaw,
     displayValue: heatingConsumedDisplay,
     handleChange: handleHeatingConsumedChange,
-    setRawValue: setHeatingConsumedRaw
+    setRawValue: setHeatingConsumedRaw,
   } = useFormattedNumber("");
-  
+
   const [supplierName, setSupplierName] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -82,14 +82,14 @@ export function PurchasedHeatingForm({
 
     if (existingData) {
       setHeatingPurchased(existingData.heatingPurchased || "");
-      
+
       // Initialize with existing data using the formatted number hook
       if (existingData.heatingConsumed) {
         setHeatingConsumedRaw(existingData.heatingConsumed);
       } else {
         setHeatingConsumedRaw("");
       }
-      
+
       setSupplierName(existingData.supplierName || "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
