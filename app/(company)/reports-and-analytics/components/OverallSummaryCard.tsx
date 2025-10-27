@@ -1,8 +1,16 @@
 "use client";
 import { Card, CardContent } from "@/app/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 // import { Progress } from "@/app/components/ui/progress";
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
+import { exportPNG, generatePDF } from "./exportFiles";
 
 interface SummaryProps {
   report: any;
@@ -48,13 +56,39 @@ export function OverallSummary({ report }: SummaryProps) {
     },
   ];
 
+  function exportFile(value: string) {
+    if (value === "pdf") {
+      generatePDF("detail");
+    } else if (value === "png") {
+      exportPNG("detail");
+    }
+  }
+
   return (
     <div className="w-full">
       <Card className="bg-white border-0 shadow-sm w-full">
         <CardContent className="p-6 lg:p-8">
-          <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-6">
-            Overall Emissions Summary
-          </h2>
+          <div className="flex justify-between">
+            <h2 className="text-xl lg:text-2xl font-semibold text-foreground mb-6">
+              {/* Overall Emissions Summary */}
+              Greenhouse Gas Emissions
+            </h2>
+
+            <div>
+              <Select onValueChange={exportFile}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Export report" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none" disabled>
+                    Select file format
+                  </SelectItem>
+                  <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="png">PNG</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {data.map((item, index) => (

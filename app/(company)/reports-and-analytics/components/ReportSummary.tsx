@@ -162,15 +162,18 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
   return (
     <div className="min-h-screen p-4 lg:p-8">
-      <div className="my-4">
+      <div className="my-4 flex space-x-4">
         <BackButton />
+        <span>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-foreground ">Summary View</h1>
+        </span>
       </div>
       <div className="max-w-7xl mx-auto space-y-6" id="section">
         {/* Main Report Card */}
         <Card className="border-0 shadow-sm bg-white">
           <CardContent className="p-6 lg:p-8">
-            <h1 className="text-2xl lg:text-3xl font-semibold text-foreground mb-8">
-              ESG Summary Report
+            <h1 className="text-2xl font-semibold text-foreground mb-8">
+              {`${getSubsidiary()} (${getReportingPeriod()})`}
             </h1>
             <div className="grid grid-flow-col auto-cols-auto items-start gap-4">
               <div className="space-y-2 ">
