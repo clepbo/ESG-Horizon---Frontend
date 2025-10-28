@@ -293,6 +293,7 @@ export function HFCLeaks({
             ...state.assessmentData.fugitiveEmissions,
             hfcLeaks: payload,
           },
+          lastSavedForm: "ghg-fugitive-emissions-venting-natural-gas",
         },
       },
       {

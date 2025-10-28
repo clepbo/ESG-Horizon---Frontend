@@ -373,7 +373,27 @@ export function AddSource({
 
   const handleSaveClick = (id: string) => {
     const factorToSave = tempEmissionFactor ?? 0;
-    updateSource(id, "emissionFactor", String(factorToSave));
+
+    onSourcesChange(
+      sources.map((source) => {
+        if (source.id === id) {
+          const selectedFuel = fuelTypeOptions.find((option) => option.value === source.fuelType);
+          const defaultFactor = selectedFuel?.emissionFactor ?? 0;
+
+          return {
+            ...source,
+            emissionFactor: factorToSave,
+
+            source:
+              factorToSave !== defaultFactor
+                ? "Custom emission factor (user edited)"
+                : selectedFuel?.source || "IPCC 2006, Vintage: 2006",
+          };
+        }
+        return source;
+      })
+    );
+
     setEditingFactorId(null);
     setTempEmissionFactor(null);
   };

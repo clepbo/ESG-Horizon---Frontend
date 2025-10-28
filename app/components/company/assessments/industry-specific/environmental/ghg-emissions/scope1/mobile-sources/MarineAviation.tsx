@@ -263,6 +263,7 @@ export function MarineAviation({
             ...state.assessmentData.mobileSources,
             marineAviation: payload,
           },
+          lastSavedForm: "ghg-mobile-sources-road-transport",
         },
       },
       {
