@@ -386,7 +386,7 @@ export function AddSource({
 
             source:
               factorToSave !== defaultFactor
-                ? "Custom emission factor (no standard source)"
+                ? "Custom emission factor (user edited)"
                 : selectedFuel?.source || "IPCC 2006, Vintage: 2006",
           };
         }
