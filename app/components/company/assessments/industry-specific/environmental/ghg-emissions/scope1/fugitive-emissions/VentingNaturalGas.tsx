@@ -17,6 +17,7 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { toast } from "react-toastify";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface VentingNaturalGasProps {
   onBack: () => void;
@@ -43,9 +44,10 @@ export function VentingNaturalGas({
 
   const ventingNaturalGas = assessmentData.fugitiveEmissions?.ventingNaturalGas;
 
-  const [formState, setFormState] = useState({
-    volumeOfGasVented: ventingNaturalGas?.volumeOfGasVented?.toString() ?? "",
-  });
+  // Use the formatted number hook for volumeOfGasVented
+  const volumeOfGasVented = useFormattedNumber(
+    ventingNaturalGas?.volumeOfGasVented?.toString() ?? ""
+  );
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -62,38 +64,41 @@ export function VentingNaturalGas({
 
   useEffect(() => {
     if (ventingNaturalGas) {
-      setFormState({
-        volumeOfGasVented: ventingNaturalGas.volumeOfGasVented?.toString() ?? "",
-      });
+      // Initialize the hook with the saved value
+      volumeOfGasVented.setRawValue(ventingNaturalGas.volumeOfGasVented?.toString() ?? "");
       if (ventingNaturalGas.files) setFiles(ventingNaturalGas.files);
       setAdditionalFields(ventingNaturalGas.additionalFields || []);
     }
   }, [ventingNaturalGas]);
 
   const { filled, total } = useMemo(() => {
-    const hasVolume = formState.volumeOfGasVented !== "";
+    const hasVolume = volumeOfGasVented.rawValue !== "";
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
     return calculateProgress([hasVolume, hasFiles]);
-  }, [formState.volumeOfGasVented, files, additionalFields]);
+  }, [volumeOfGasVented.rawValue, files, additionalFields]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (/^\d*\.?\d*$/.test(value)) {
-      setFormState((prev) => ({ ...prev, [name]: value }));
-      if (errors[name]) {
-        setErrors((prev) => {
-          const copy = { ...prev };
-          delete copy[name];
-          return copy;
-        });
-      }
+    const { value } = e.target;
+
+    // Use the hook's handleChange method
+    volumeOfGasVented.handleChange(value);
+
+    // Clear error if present
+    if (errors.volumeOfGasVented) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.volumeOfGasVented;
+        return copy;
+      });
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formState.volumeOfGasVented || Number(formState.volumeOfGasVented) < 0) {
+
+    // Use rawValue for validation
+    if (!volumeOfGasVented.rawValue || Number(volumeOfGasVented.rawValue) < 0) {
       newErrors.volumeOfGasVented = "Value cannot be negative or empty";
     }
     setErrors(newErrors);
@@ -155,7 +160,8 @@ export function VentingNaturalGas({
     if (!validateForm()) return;
 
     const payload = {
-      volumeOfGasVented: Number(formState.volumeOfGasVented),
+      // Use rawValue for saving
+      volumeOfGasVented: Number(volumeOfGasVented.rawValue),
       files,
       additionalFields: additionalFields as FileMetadata[],
     };
@@ -195,7 +201,8 @@ export function VentingNaturalGas({
     dispatch({
       type: "UPDATE_FUGITIVE_VENTING",
       payload: {
-        volumeOfGasVented: Number(formState.volumeOfGasVented),
+        // Use rawValue for saving
+        volumeOfGasVented: Number(volumeOfGasVented.rawValue),
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -271,10 +278,8 @@ export function VentingNaturalGas({
                   id="volumeOfGasVented"
                   name="volumeOfGasVented"
                   placeholder="Provide the measured or estimated volume (m³)"
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={formState.volumeOfGasVented}
+                  type="text" // Changed from "number" to "text" to display formatted value
+                  value={volumeOfGasVented.displayValue} // Use displayValue for the input
                   onChange={handleChange}
                   className={`w-full border-gray-400 rounded-lg ${
                     errors.volumeOfGasVented ? "border-red-500" : ""

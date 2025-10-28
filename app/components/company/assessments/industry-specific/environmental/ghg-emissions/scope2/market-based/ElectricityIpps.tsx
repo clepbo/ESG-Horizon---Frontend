@@ -17,6 +17,7 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface ElectricityIppsFormProps {
   onBack: () => void;
@@ -42,7 +43,15 @@ export function ElectricityIppsForm({
 }: ElectricityIppsFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [electricityConsumed, setElectricityConsumed] = useState("");
+
+  // Use the formatted number hook for electricity consumed
+  const {
+    rawValue: electricityConsumedRaw,
+    displayValue: electricityConsumedDisplay,
+    handleChange: handleElectricityConsumedChange,
+    setRawValue: setElectricityConsumedRaw,
+  } = useFormattedNumber("");
+
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -62,22 +71,25 @@ export function ElectricityIppsForm({
   useEffect(() => {
     const existingData = state.assessmentData.ipps;
     if (existingData) {
-      setElectricityConsumed(existingData.electricityConsumed || "");
+      // Initialize with existing data using the formatted number hook
+      if (existingData.electricityConsumed) {
+        setElectricityConsumedRaw(existingData.electricityConsumed);
+      }
       setEmissionFactor(existingData.emissionFactor || "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.ipps]);
+  }, [state.assessmentData?.ipps, setElectricityConsumedRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      electricityConsumed,
+      electricityConsumedRaw,
       emissionFactor,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [electricityConsumed, emissionFactor, files, additionalFields]);
+  }, [electricityConsumedRaw, emissionFactor, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: {
@@ -86,7 +98,7 @@ export function ElectricityIppsForm({
       files?: string;
     } = {};
 
-    if (!electricityConsumed || Number(electricityConsumed) <= 0) {
+    if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
       newErrors.electricityConsumed = "Please enter a valid positive number.";
     }
     if (!emissionFactor || Number(emissionFactor) <= 0) {
@@ -96,6 +108,7 @@ export function ElectricityIppsForm({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -150,7 +163,7 @@ export function ElectricityIppsForm({
     dispatch({
       type: "UPDATE_IPPS",
       payload: {
-        electricityConsumed,
+        electricityConsumed: electricityConsumedRaw,
         emissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -163,7 +176,7 @@ export function ElectricityIppsForm({
         data: {
           ...state.assessmentData,
           ipps: {
-            electricityConsumed,
+            electricityConsumed: electricityConsumedRaw,
             emissionFactor,
             files,
             additionalFields: additionalFields as FileMetadata[],
@@ -174,12 +187,10 @@ export function ElectricityIppsForm({
       {
         onSuccess: () => {
           setShowSaveSuccess(true);
-
-          setElectricityConsumed("");
+          setElectricityConsumedRaw("");
           setEmissionFactor("");
           setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
           setAdditionalFields([]);
-
           onBackToHub();
         },
       }
@@ -192,7 +203,7 @@ export function ElectricityIppsForm({
     dispatch({
       type: "UPDATE_IPPS",
       payload: {
-        electricityConsumed,
+        electricityConsumed: electricityConsumedRaw,
         emissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -205,6 +216,7 @@ export function ElectricityIppsForm({
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
   };
+
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
     if (file?.publicId) {
@@ -282,18 +294,16 @@ export function ElectricityIppsForm({
                 1.1 Purchased Electricity (from Independent Power Producers – IPPs)
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Total Electricity Consumed (kwh)</Label>
+                <Label>Amount of Energy Cooling Energy Consumed (kWh)</Label>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Enter total electricity consumed in kWh"
-                  value={electricityConsumed}
+                  value={electricityConsumedDisplay}
                   onChange={(e) => {
-                    setElectricityConsumed(e.target.value);
-                    if (errors.electricityConsumed)
-                      setErrors((prev) => ({
-                        ...prev,
-                        electricityConsumed: undefined,
-                      }));
+                    handleElectricityConsumedChange(e.target.value);
+                    if (errors.electricityConsumed) {
+                      setErrors((prev) => ({ ...prev, electricityConsumed: undefined }));
+                    }
                   }}
                   className={`w-full border-gray-400 ${
                     errors.electricityConsumed ? "border-red-500" : ""
@@ -305,7 +315,7 @@ export function ElectricityIppsForm({
               )}
             </div>
 
-            {/* Emission Factor */}
+            {/* Emission Factor - This remains as regular number input */}
             <div className="space-y-4 ml-6">
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 Supplier-specific Emission Factor
@@ -380,7 +390,7 @@ export function ElectricityIppsForm({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { tableData } from "./data";
 import {
   useReactTable,
@@ -28,44 +28,43 @@ import {
 } from "@/app/components/ui/table";
 import { TableFilters, TableRowType } from "@/types/table";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
-import { StatusButton } from "../StatusButton";
+import { StatusButton, StatusVariant } from "../StatusButton";
 import Link from "next/link";
 import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
+import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
 
 const columnHelper = createColumnHelper<TableRowType>();
-const reportId = 1;
+
 const columns = [
-  columnHelper.accessor("startingPeriod", {
+  columnHelper.accessor((row) => `${row.startMonth} ${row.startYear}`, {
+    id: "startingPeriod",
     header: "Starting Period",
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor("endingPeriod", {
+
+  columnHelper.accessor((row) => `${row.endMonth} ${row.endYear}`, {
+    id: "endingPeriod",
     header: "Ending Period",
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor("subsidiaries", {
+  columnHelper.accessor("subsidiary", {
     header: "Subsidiaries",
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("status", {
     header: "Status",
-    cell: (info) => (
-      <StatusButton
-        progress={90}
-        status={info.getValue() as "Working on it" | "Awaiting Review" | "In Progress"}
-      />
-    ),
+    cell: (info) => <StatusButton progress={90} status={info.getValue() as StatusVariant} />,
   }),
   columnHelper.display({
     id: "actions",
     header: "Quick Actions",
-    cell: () => (
+    cell: (info) => (
       <Button
         variant="default"
         size="sm"
-        className="rounded-sm font-semibold text-white bg-[var(--color-primary)]  hover:bg-teal-600"
+        className="rounded-sm font-semibold text-white bg-primary hover:bg-green-600"
       >
-        <Link href={`/reports-and-analytics/${reportId}`}>View Report</Link>
+        <Link href={`/reports-and-analytics/${info.row.original.id}`}>View Report</Link>
       </Button>
     ),
   }),
@@ -78,10 +77,24 @@ export function DataTable() {
     date: "",
   });
 
-  const [data] = useState(tableData);
+  const report = useReport();
+  const data = report.data || [];
+
+  const filteredData = useMemo(() => {
+    return data.filter((item: any) => {
+      return (
+        item.subsidiary != null &&
+        item.subsidiary !== "" &&
+        item.startYear != null &&
+        item.startMonth != null &&
+        item.endYear != null &&
+        item.endMonth != null
+      );
+    });
+  }, [data]);
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -96,7 +109,7 @@ export function DataTable() {
       return (
         row.original.startingPeriod.toLowerCase().includes(search) ||
         row.original.endingPeriod.toLowerCase().includes(search) ||
-        row.original.subsidiaries.toLowerCase().includes(search) ||
+        row.original.subsidiary.toLowerCase().includes(search) ||
         row.original.status.toLowerCase().includes(search)
       );
     },
