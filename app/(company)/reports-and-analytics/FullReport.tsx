@@ -1,22 +1,17 @@
 "use client";
 import React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/components/ui/select";
+
 import { EmissionInventoryWrapper } from "./components/EmissionIventory";
 import { emissionsData } from "./components/data/reportData";
 import EmissionProgressComponent from "./components/EmissionProgressComponents";
 import FullReportSummary from "./components/FullReportSummary";
-import { exportPNG, generatePDF } from "./components/exportFiles";
+// import { exportPNG, generatePDF } from "./components/exportFiles";
 import { motion } from "framer-motion";
 import { OverallSummary } from "./components/OverallSummaryCard";
 import { useParams } from "next/navigation";
 import { useSingleReport } from "./components/service/useReport";
 import { transformFuelBreakdownData } from "./components/utils/getTop5Sources";
+import BackButton from "@/app/components/ui/reusables/BackButton";
 
 export default function FullReport() {
   const params = useParams();
@@ -52,14 +47,6 @@ export default function FullReport() {
   const breakdown = data?.top_5_sources?.breakdown || [];
   // console.log("BDown", breakdown)
 
-  function exportFile(value: string) {
-    if (value === "pdf") {
-      generatePDF("detail");
-    } else if (value === "png") {
-      exportPNG("detail");
-    }
-  }
-
   return (
     <motion.div
       className="w-full grid gap-4"
@@ -74,22 +61,11 @@ export default function FullReport() {
       }}
     >
       <div className="grid w-full gap-4 lg:gap-8 rounded-lg">
-        <div className="flex flex-col md:flex-row justify-between w-full items-center no-export">
-          <h1 className="text-2xl lg:text-3xl font-semibold text-foreground">
-            Greenhouse Gas Emissions
-          </h1>
-          <Select onValueChange={exportFile}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Export report" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none" disabled>
-                Select file format
-              </SelectItem>
-              <SelectItem value="pdf">PDF</SelectItem>
-              <SelectItem value="png">PNG</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className=" flex space-x-4">
+          <BackButton />
+          <span>
+            <h1 className="text-2xl lg:text-3xl font-semibold text-foreground ">Detailed View</h1>
+          </span>
         </div>
 
         {/* ✅ Safely render OverallSummary */}
