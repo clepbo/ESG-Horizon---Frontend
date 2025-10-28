@@ -211,24 +211,40 @@ export function GasFlaring({
       toast.error("Assessment ID missing");
       return;
     }
+
     if (!validateForm()) return;
+
+    const payload = {
+      gasVolume: Number(gasVolume),
+      carbonContent: Number(carbonContent),
+      files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
 
     dispatch({
       type: "UPDATE_PROCESS_GAS_FLARING",
-      payload: {
-        gasVolume: Number(gasVolume),
-        carbonContent: Number(carbonContent),
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
     submitAssessment(
-      { assessmentId, data: state.assessmentData },
+      {
+        assessmentId,
+        data: {
+          ...state.assessmentData,
+          processEmissions: {
+            ...state.assessmentData.processEmissions,
+            gasFlaring: payload,
+          },
+          lastSavedForm: "ghg-process-emissions-gas-flaring",
+        },
+      },
       {
         onSuccess: (res) => {
           toast.success("Assessment submitted!");
           onSubmit(res.totals ?? null);
+        },
+        onError: () => {
+          toast.error("Failed to submit assessment. Please try again.");
         },
       }
     );

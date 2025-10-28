@@ -158,7 +158,7 @@ export default function EditCompanyModal({
   const isPending = isUpdating || isUploadingImage;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
+    <div className="fixed inset-0 z-60 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto">
       <div className="relative w-full bg-white rounded-2xl shadow-2xl p-6 md:p-10 max-h-[90vh] overflow-y-auto max-w-4xl">
         <button
           onClick={onClose}

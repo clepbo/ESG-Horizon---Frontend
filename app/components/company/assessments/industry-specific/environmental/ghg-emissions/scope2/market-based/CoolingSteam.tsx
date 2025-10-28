@@ -220,6 +220,7 @@ export function CoolingSteamForm({
         data: {
           ...state.assessmentData,
           coolingSteam: buildPayload(),
+          lastSavedForm: "ghg-market-based-electricityIPP",
         },
       },
       {
