@@ -8,8 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
 import {
@@ -20,6 +18,8 @@ import {
   Trash2,
   CircleHelp,
   FileText,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
@@ -77,6 +77,63 @@ function RejectionReasonModal({
   );
 }
 
+/* 🧩 Each row’s Action Dropdown — isolated state */
+function ActionDropdown({
+  assessment,
+  status,
+  getActionIcon,
+  actionLabel,
+  onActionClick,
+  onGenerateReport,
+  onDelete,
+  deletePending,
+}: any) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-[110px] justify-between rounded-sm border-teal-600"
+        >
+          Action
+          {isOpen ? (
+            <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
+          ) : (
+            <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
+        <DropdownMenuItem onClick={onActionClick}>
+          {getActionIcon(actionLabel)}
+          {actionLabel}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={onGenerateReport}>
+          <FileText className="mr-2 h-4 w-4" />
+          Generate Report
+        </DropdownMenuItem>
+
+        {status !== "awaiting_review" &&
+          status !== "submitted_approved" &&
+          status !== "approved" && (
+            <DropdownMenuItem
+              onClick={onDelete}
+              className="text-red-600 focus:text-red-600"
+              disabled={deletePending}
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Delete
+            </DropdownMenuItem>
+          )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function AssessmentTable({ data }: AssessmentTableProps) {
   const router = useRouter();
   const [showReportSuccess, setShowReportSuccess] = useState(false);
@@ -84,17 +141,15 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     open: false,
     assessmentId: null as number | null,
   });
-
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
 
   const deleteMutation = useDeleteAssessment();
-
-  const [dateRange, setDateRange] = useState<{ startMonth: string; endMonth: string } | undefined>(
-    undefined
-  );
+  const [dateRange, setDateRange] = useState<
+    { startMonth: string; endMonth: string } | undefined
+  >();
 
   const filteredData = dateRange
     ? data.filter((a) => {
@@ -108,12 +163,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
 
   const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);
 
-  const handleOpenModal = (assessmentId: number) => {
-    setModalData({
-      open: true,
-      assessmentId,
-    });
-  };
+  const handleOpenModal = (assessmentId: number) => setModalData({ open: true, assessmentId });
 
   const handleOpenDetails = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
@@ -130,15 +180,14 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     if (!idToDelete) return;
 
     deleteMutation.mutate(idToDelete, {
-      onSuccess: () => {
-        setModalData({ open: false, assessmentId: null });
-      },
+      onSuccess: () => setModalData({ open: false, assessmentId: null }),
       onError: (error: Error) => {
         console.error("Deletion failed:", error);
         setModalData({ open: false, assessmentId: null });
       },
     });
   };
+
   const getActionIcon = (label: string) => {
     switch (label) {
       case "View":
@@ -154,16 +203,23 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     }
   };
 
+  const handleGenerateReport = (id: number) => {
+    const assessment = data.find((a) => a.id === id);
+    if (assessment) {
+      setSelectedAssessment(assessment);
+    }
+    console.log(`Generating report for assessment ID: ${id}`);
+    setTimeout(() => {
+      setShowReportSuccess(true);
+    }, 500);
+  };
+
   const columns = [
-    columnHelper.accessor("startPeriod", {
-      header: "Starting Period",
-    }),
-    columnHelper.accessor("endPeriod", {
-      header: "Ending Period",
-    }),
-    columnHelper.accessor("subsidiary", {
-      header: "Subsidiaries",
-    }),
+    columnHelper.accessor("startPeriod", { header: "Starting Period" }),
+    columnHelper.accessor("endPeriod", { header: "Ending Period" }),
+    columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
+
+    // ✅ Progress circle
     columnHelper.display({
       id: "progress",
       header: "Progress",
@@ -219,6 +275,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
+    // ✅ Status
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
@@ -263,6 +320,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
+    // ✅ Independent dropdown per row
     columnHelper.display({
       id: "actions",
       header: "Quick Actions",
@@ -297,51 +355,16 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         const actionLabel = getActionLabel();
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-[110px] justify-between rounded-sm border-teal-600"
-              >
-                Action
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="ml-1 h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md ">
-              <DropdownMenuItem onClick={handleActionClick}>
-                {getActionIcon(actionLabel)}
-                {actionLabel}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => handleGenerateReport(assessment.id)}>
-                <FileText className="mr-2 h-4 w-4" />
-                Generate Report
-              </DropdownMenuItem>
-
-              {status !== "awaiting_review" &&
-                status !== "submitted_approved" &&
-                status !== "approved" && (
-                  <DropdownMenuItem
-                    onClick={() => handleOpenModal(assessment.id)}
-                    className="text-red-600 focus:text-red-600"
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
-                  </DropdownMenuItem>
-                )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ActionDropdown
+            assessment={assessment}
+            status={status}
+            getActionIcon={getActionIcon}
+            actionLabel={actionLabel}
+            onActionClick={handleActionClick}
+            onGenerateReport={() => handleGenerateReport(assessment.id)}
+            onDelete={() => handleOpenModal(assessment.id)}
+            deletePending={deleteMutation.isPending}
+          />
         );
       },
     }),
@@ -360,17 +383,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       ],
     },
   ];
-  const handleGenerateReport = (id: number) => {
-    const assessment = data.find((a) => a.id === id);
-    if (assessment) {
-      setSelectedAssessment(assessment);
-    }
-
-    console.log(`Generating report for assessment ID: ${id}`);
-    setTimeout(() => {
-      setShowReportSuccess(true);
-    }, 500);
-  };
 
   return (
     <section className="shadow-md">
