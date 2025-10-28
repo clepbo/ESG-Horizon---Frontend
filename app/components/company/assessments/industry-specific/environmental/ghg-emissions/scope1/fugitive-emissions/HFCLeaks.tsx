@@ -19,6 +19,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface HFCLeaksProps {
   onBack: () => void;
@@ -48,14 +49,16 @@ export function HFCLeaks({
 
   const hfcLeaks = state.assessmentData.fugitiveEmissions?.hfcLeaks;
 
+  // Use formatted number hooks for numeric fields
+  const others = useFormattedNumber(hfcLeaks?.others?.toString() ?? "");
+  const refrigerantAdded = useFormattedNumber(hfcLeaks?.refrigerantAdded?.toString() ?? "");
+
   const [formState, setFormState] = useState({
     R134a: Boolean(hfcLeaks?.R134a),
     R410A: Boolean(hfcLeaks?.R410A),
     R404A: Boolean(hfcLeaks?.R404A),
     R407C: Boolean(hfcLeaks?.R407C),
     R507A: Boolean(hfcLeaks?.R507A),
-    others: hfcLeaks?.others ?? "",
-    refrigerantAdded: hfcLeaks?.refrigerantAdded ?? "",
   });
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(hfcLeaks?.files || {});
@@ -74,8 +77,8 @@ export function HFCLeaks({
   const labelClass = "text-gray-700 text-sm font-medium";
   const { filled, total } = useMemo(() => {
     const numericFields = [
-      formState.others,
-      formState.refrigerantAdded,
+      others.rawValue,
+      refrigerantAdded.rawValue,
       formState.R134a,
       formState.R410A,
       formState.R404A,
@@ -88,12 +91,12 @@ export function HFCLeaks({
       if (typeof value === "boolean") {
         return value;
       }
-      return value !== "" && value !== 0;
+      return value !== "" && value !== "0";
     });
     const progressStatus = [...numericProgress, hasFiles];
 
     return calculateProgress(progressStatus);
-  }, [formState, files, additionalFields]);
+  }, [formState, files, additionalFields, others.rawValue, refrigerantAdded.rawValue]);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
@@ -103,12 +106,32 @@ export function HFCLeaks({
     }));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleOthersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    others.handleChange(value);
+
+    // Clear error if present
+    if (errors.others) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.others;
+        return copy;
+      });
+    }
+  };
+
+  const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    refrigerantAdded.handleChange(value);
+
+    // Clear error if present
+    if (errors.refrigerantAdded) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy.refrigerantAdded;
+        return copy;
+      });
+    }
   };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,8 +183,8 @@ export function HFCLeaks({
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (formState.refrigerantAdded == "") {
-      newErrors.refrigerantAdded = "Quantity cannot be empty";
+    if (!refrigerantAdded.rawValue || Number(refrigerantAdded.rawValue) < 0) {
+      newErrors.refrigerantAdded = "Quantity cannot be empty or negative";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -186,8 +209,8 @@ export function HFCLeaks({
       R404A: formState.R404A,
       R407C: formState.R407C,
       R507A: formState.R507A,
-      others: Number(formState.others),
-      refrigerantAdded: Number(formState.refrigerantAdded),
+      others: Number(others.rawValue) || 0,
+      refrigerantAdded: Number(refrigerantAdded.rawValue),
       files: files,
       additionalFields: additionalFields as FileMetadata[],
     };
@@ -214,9 +237,11 @@ export function HFCLeaks({
             R404A: false,
             R407C: false,
             R507A: false,
-            others: "",
-            refrigerantAdded: "",
           });
+
+          // Reset the formatted number hooks
+          others.setRawValue("");
+          refrigerantAdded.setRawValue("");
 
           setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
           setAdditionalFields([]);
@@ -251,8 +276,8 @@ export function HFCLeaks({
       R404A: formState.R404A,
       R407C: formState.R407C,
       R507A: formState.R507A,
-      others: isNaN(Number(formState.others)) ? 0 : Number(formState.others),
-      refrigerantAdded: Number(formState.refrigerantAdded),
+      others: Number(others.rawValue) || 0,
+      refrigerantAdded: Number(refrigerantAdded.rawValue),
       files: files,
       additionalFields: additionalFields as FileMetadata[],
     };
@@ -304,6 +329,7 @@ export function HFCLeaks({
       <span className="text-gray-700 text-sm font-medium">{label}</span>
     </label>
   );
+
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
   };
@@ -350,6 +376,7 @@ export function HFCLeaks({
       }
     }
   };
+
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -406,28 +433,26 @@ export function HFCLeaks({
                   <Input
                     id="others"
                     name="others"
-                    type="number"
-                    min={0}
-                    step="any"
-                    value={formState.others}
-                    onChange={handleChange}
+                    type="text" // Changed from "number" to "text" to display formatted value
+                    value={others.displayValue} // Use displayValue for formatted display
+                    onChange={handleOthersChange}
                     className="w-full max-w-lg"
+                    placeholder="Enter amount"
                   />
                 </div>
 
                 <div className="flex flex-col w-full">
                   <Label htmlFor="refrigerantAdded" className={labelClass}>
-                    Quantity/Total mass of refreigerant leak in kg
+                    Quantity/Total mass of refrigerant leak in kg
                   </Label>
                   <Input
                     id="refrigerantAdded"
                     name="refrigerantAdded"
-                    type="number"
-                    min={0}
-                    step="any"
-                    value={formState.refrigerantAdded}
-                    onChange={handleChange}
+                    type="text" // Changed from "number" to "text" to display formatted value
+                    value={refrigerantAdded.displayValue} // Use displayValue for formatted display
+                    onChange={handleRefrigerantAddedChange}
                     className={`w-full ${errors.refrigerantAdded ? "border-red-500" : ""}`}
+                    placeholder="Enter quantity in kg"
                   />
                   {errors.refrigerantAdded && (
                     <p className="text-red-600 text-xs mt-1">{errors.refrigerantAdded}</p>

@@ -17,6 +17,7 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface ElectricityEACFormProps {
   onBack: () => void;
@@ -41,7 +42,15 @@ export function ElectricityEACForm({
 }: ElectricityEACFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [gridElectricity, setGridElectricity] = useState("");
+
+  // Use the formatted number hook for grid electricity
+  const {
+    rawValue: gridElectricityRaw,
+    displayValue: gridElectricityDisplay,
+    handleChange: handleGridElectricityChange,
+    setRawValue: setGridElectricityRaw,
+  } = useFormattedNumber("");
+
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -63,27 +72,32 @@ export function ElectricityEACForm({
   useEffect(() => {
     const existingData = state.assessmentData.eac;
     if (existingData) {
-      setGridElectricity(existingData.gridElectricity || "");
+      // Initialize with existing data using the formatted number hook
+      if (existingData.gridElectricity) {
+        setGridElectricityRaw(existingData.gridElectricity);
+      } else {
+        setGridElectricityRaw("");
+      }
       setEmissionFactor(existingData.emissionFactor || "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.eac]);
+  }, [state.assessmentData?.eac, setGridElectricityRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      gridElectricity,
+      gridElectricityRaw,
       emissionFactor,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [gridElectricity, emissionFactor, files, additionalFields]);
+  }, [gridElectricityRaw, emissionFactor, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (!gridElectricity || Number(gridElectricity) <= 0) {
+    if (!gridElectricityRaw || Number(gridElectricityRaw) <= 0) {
       newErrors.gridElectricity = "Please enter a valid positive number.";
     }
     if (!emissionFactor || Number(emissionFactor) <= 0) {
@@ -149,7 +163,7 @@ export function ElectricityEACForm({
     dispatch({
       type: "UPDATE_EAC",
       payload: {
-        gridElectricity,
+        gridElectricity: gridElectricityRaw,
         emissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -162,7 +176,7 @@ export function ElectricityEACForm({
         data: {
           ...state.assessmentData,
           eac: {
-            gridElectricity,
+            gridElectricity: gridElectricityRaw,
             emissionFactor,
             files,
             additionalFields: additionalFields as FileMetadata[],
@@ -174,7 +188,7 @@ export function ElectricityEACForm({
         onSuccess: () => {
           setShowSaveSuccess(true);
 
-          setGridElectricity("");
+          setGridElectricityRaw("");
           setEmissionFactor("");
           setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
           setAdditionalFields([]);
@@ -191,7 +205,7 @@ export function ElectricityEACForm({
     dispatch({
       type: "UPDATE_EAC",
       payload: {
-        gridElectricity,
+        gridElectricity: gridElectricityRaw,
         emissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -285,11 +299,11 @@ export function ElectricityEACForm({
                   Total grid electricity consumed (kWh)
                 </Label>
                 <Input
-                  type="number"
+                  type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter total grid electricity consumed"
-                  value={gridElectricity}
+                  value={gridElectricityDisplay} // Use the formatted display value
                   onChange={(e) => {
-                    setGridElectricity(e.target.value);
+                    handleGridElectricityChange(e.target.value); // Use the hook's handler
                     if (errors.gridElectricity)
                       setErrors((prev) => ({
                         ...prev,
