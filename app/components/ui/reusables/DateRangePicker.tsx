@@ -100,7 +100,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
   const displayText =
     value?.startMonth && value?.endMonth
       ? `${value.startMonth} → ${value.endMonth}`
-      : "Start month → End month";
+      : "Start Date → End Date";
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -132,37 +132,40 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
         {value?.startMonth && value?.endMonth && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
         )}
 
-        <PopoverContent className="w-auto p-0 pointer-events-auto z-50" align="start">
+        <PopoverContent
+          className="w-auto p-0 pointer-events-auto z-50 border-none shadow-sm"
+          align="start"
+        >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="border-b">
               <TabsList className="w-full grid grid-cols-4 h-12 bg-transparent rounded-none">
                 <TabsTrigger
                   value="day"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
                 >
                   Day
                 </TabsTrigger>
                 <TabsTrigger
                   value="week"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
                 >
                   Week
                 </TabsTrigger>
                 <TabsTrigger
                   value="month"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
                 >
                   Month
                 </TabsTrigger>
                 <TabsTrigger
                   value="year"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
                 >
                   Year
                 </TabsTrigger>
@@ -238,7 +241,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
                   size="sm"
                   onClick={handleApply}
                   disabled={tempStartMonth === null || tempEndMonth === null}
-                  className="bg-primary hover:bg-primary/90 disabled:opacity-50"
+                  className="bg-primary hover:bg-primary/90 disabled:opacity-50 text-white"
                 >
                   Apply
                 </Button>

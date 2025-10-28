@@ -12,13 +12,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
-import { Eye, RefreshCcw, SquarePen, PlayCircle, Trash2, CircleHelp, FileText } from "lucide-react";
+import {
+  Eye,
+  BadgeAlert,
+  SquarePen,
+  SquareArrowOutUpRight,
+  Trash2,
+  CircleHelp,
+  FileText,
+} from "lucide-react";
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentDetailsModal from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
+import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -70,7 +79,7 @@ function RejectionReasonModal({
 
 export function AssessmentTable({ data }: AssessmentTableProps) {
   const router = useRouter();
-
+  const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [modalData, setModalData] = useState({
     open: false,
     assessmentId: null as number | null,
@@ -135,11 +144,11 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       case "View":
         return <Eye className="mr-2 h-4 w-4 " />;
       case "Review":
-        return <RefreshCcw className="mr-2 h-4 w-4" />;
+        return <BadgeAlert className="mr-2 h-4 w-4" />;
       case "Update":
         return <SquarePen className="mr-2 h-4 w-4 " />;
       case "Continue":
-        return <PlayCircle className="mr-2 h-4 w-4 " />;
+        return <SquareArrowOutUpRight className="mr-2 h-4 w-4 " />;
       default:
         return null;
     }
@@ -351,9 +360,15 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     },
   ];
   const handleGenerateReport = (id: number) => {
+    const assessment = data.find((a) => a.id === id);
+    if (assessment) {
+      setSelectedAssessment(assessment);
+    }
+
     console.log(`Generating report for assessment ID: ${id}`);
-    // TODO: integrate report generation logic or API here
-    alert(`Report generation for assessment ID: ${id} is not implemented yet.`);
+    setTimeout(() => {
+      setShowReportSuccess(true);
+    }, 500);
   };
 
   return (
@@ -389,6 +404,25 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         onClose={() => setReasonOpen(false)}
         reason={selectedReason}
       />
+
+      {showReportSuccess && selectedAssessment && (
+        <SuccessScreen
+          assessmentName="report"
+          type="report"
+          reportId={selectedAssessment.id}
+          onContinue={() => {
+            setShowReportSuccess(false);
+            router.push(`/reports-and-analytics/${selectedAssessment.id}`);
+          }}
+          onBackToHub={() => {
+            setShowReportSuccess(false);
+            router.push("/assessments");
+          }}
+          totals={undefined}
+          sectionKey={undefined}
+          nextAssessment={null}
+        />
+      )}
     </section>
   );
 }
