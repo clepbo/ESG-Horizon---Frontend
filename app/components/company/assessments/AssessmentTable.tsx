@@ -319,9 +319,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md ">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
               <DropdownMenuItem onClick={handleActionClick}>
                 {getActionIcon(actionLabel)}
                 {actionLabel}
