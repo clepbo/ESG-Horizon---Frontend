@@ -299,7 +299,11 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="w-[110px] justify-between rounded-sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-[110px] justify-between rounded-sm border-teal-600"
+              >
                 Action
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -314,7 +318,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-44 border-none shadow-md">
+            <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md ">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
