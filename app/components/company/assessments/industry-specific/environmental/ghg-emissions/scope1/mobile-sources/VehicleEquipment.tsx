@@ -300,6 +300,22 @@ export function VehicleEquipment({
 
     onNext();
   };
+  const handlePrevious = () => {
+    if (!validateForm()) return;
+
+    dispatch({
+      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
+      payload: {
+        forkliftFuelType,
+        heavyDutyFuelType,
+        tractorFuelType,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
+  };
 
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
@@ -507,7 +523,7 @@ export function VehicleEquipment({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >

@@ -236,6 +236,26 @@ export function PurchasedHeatingForm({
       }
     );
   };
+  const handlePrevious = () => {
+    const assessmentId = state.assessmentData.assessmentId;
+    if (!assessmentId) {
+      toast.error("Cannot submit: Assessment ID missing.");
+      return;
+    }
+
+    dispatch({
+      type: "UPDATE_HEATING",
+      payload: {
+        heatingPurchased,
+        heatingConsumed: heatingConsumedRaw,
+        supplierName,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
+  };
 
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
@@ -467,7 +487,7 @@ export function PurchasedHeatingForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
