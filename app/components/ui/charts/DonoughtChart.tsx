@@ -31,20 +31,22 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
           startAngle={90}
           endAngle={-270}
           dataKey="value"
+          labelLine={false}
+          label={({ cx, cy }) => (
+            <text 
+              x={cx} 
+              y={cy} 
+              textAnchor="middle" 
+              dominantBaseline="middle"
+              className="text-base font-semibold"
+            >
+              {percentage}%
+            </text>
+          )}
         >
           <Cell fill={color} />
           <Cell fill="#E5E7EB" />
         </Pie>
-        {/* Center text using Recharts Text component */}
-        <text
-          x={50}
-          y={50}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          className="text-base font-semibold"
-        >
-          {percentage}%
-        </text>
       </PieChart>
       <div className="text-sm">
         <p className="font-semibold">{label}</p>
@@ -101,7 +103,7 @@ export function GaugeChart({ current, target, baseline }: GaugeChartProps) {
     <div className="flex flex-col items-center justify-center gap-4">
       <h3 className="text-lg font-semibold mb-2">Overall ESG Performance</h3>
 
-      <div className="relative">
+      {/* <div className="relative">
         <PieChart width={300} height={200}>
           <Pie
             data={data}
@@ -120,7 +122,7 @@ export function GaugeChart({ current, target, baseline }: GaugeChartProps) {
           <p className="text-xl font-bold">{current.toLocaleString()} tCO₂e ({percentage}%)</p>
           <p className="text-sm text-gray-600">Current Emission</p>
         </div>
-      </div>
+      </div> */}
 
       {/* <div className="flex justify-between w-full mt-4 text-sm">
         <div className="text-center">
@@ -132,6 +134,81 @@ export function GaugeChart({ current, target, baseline }: GaugeChartProps) {
           <p>Target Year Emission</p>
         </div>
       </div> */}
+    </div>
+  );
+}
+
+
+
+
+
+
+interface GaugeChartProps {
+  baselineEmission: number;
+  currentEmission: number;
+  targetEmission: number;
+}
+
+export function RechartsGaugeChart({ 
+  baselineEmission, 
+  currentEmission, 
+  targetEmission 
+}: GaugeChartProps) {
+  const percentage = Math.round((currentEmission / baselineEmission) * 100);
+  
+  const data = [
+    { name: 'Progress', value: percentage, color: '#3b82f6' },
+    { name: 'Remaining', value: 100 - percentage, color: '#e5e7eb' },
+  ];
+
+  return (
+    <div className="flex flex-col items-center p-6 bg-white rounded-lg">
+      <div className="relative mb-8">
+        <PieChart width={200} height={120}>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="100%"
+            startAngle={180}
+            endAngle={0}
+            innerRadius={80}
+            outerRadius={100}
+            dataKey="value"
+            stroke="none"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Pie>
+        </PieChart>
+        
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-8 text-center">
+          <div className="text-2xl font-bold text-gray-900">{percentage}%</div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 gap-4 w-full max-w-md">
+        <div className="text-center p-3 bg-gray-50 rounded-lg">
+          <div className="text-lg font-semibold text-gray-900">
+            {baselineEmission.toLocaleString()} tCO₂e
+          </div>
+          <div className="text-sm text-gray-600">Baseline Year Emission</div>
+        </div>
+        
+        <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="text-lg font-semibold text-blue-700">
+            {currentEmission.toLocaleString()} tCO₂e ({percentage}%)
+          </div>
+          <div className="text-sm text-blue-600">Current Emission</div>
+        </div>
+        
+        <div className="text-center p-3 bg-green-50 rounded-lg">
+          <div className="text-lg font-semibold text-gray-900">
+            {targetEmission.toLocaleString()} tCO₂e
+          </div>
+          <div className="text-sm text-gray-600">Target Year Emission</div>
+        </div>
+      </div>
     </div>
   );
 }

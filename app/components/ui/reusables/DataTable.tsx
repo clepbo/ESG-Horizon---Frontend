@@ -61,6 +61,7 @@ export function DataTable<TData>({
     onGlobalFilterChange: setGlobalFilter,
   });
 
+  
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Search and Filters */}
