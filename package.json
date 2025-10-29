@@ -38,6 +38,7 @@
     "countries-list": "^3.1.1",
     "framer-motion": "^12.23.12",
     "highcharts": "^12.4.0",
+    "highcharts-more": "^0.1.7",
     "highcharts-react-official": "^3.2.3",
     "html-to-image": "^1.2.0",
     "jose": "^6.0.12",
