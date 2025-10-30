@@ -2,7 +2,7 @@ import { CustomButton } from '@/app/components/ui/reusables/CustomButton'
 import { Edit } from 'lucide-react'
 import React from 'react'
 import InitialTargetPage from './InitialTargetPage'
-import { GeneralTargetForm } from './StepOne'
+import { GeneralTargetForm } from './GeneralSetTarget'
 import { GeneralTargetData } from '@/types/target'
 import { TargetSetting } from './TargetSetting'
 

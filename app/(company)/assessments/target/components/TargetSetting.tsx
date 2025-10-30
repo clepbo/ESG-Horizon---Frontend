@@ -2,7 +2,7 @@
 
 import { GeneralTargetData, TargetType } from '@/types/target';
 import { useState } from 'react';
-import { GeneralTargetForm } from './StepOne';
+import { GeneralTargetForm } from './GeneralSetTarget';
 import { TargetTypeSelector } from './TargetTypeSelector';
 import SetTargetByScope from './SetTargetByScope';
 
@@ -31,6 +31,7 @@ export function TargetSetting() {
             <GeneralTargetForm 
               data={generalTargetData}
               onChange={setGeneralTargetData}
+              
             />
           )}
           
