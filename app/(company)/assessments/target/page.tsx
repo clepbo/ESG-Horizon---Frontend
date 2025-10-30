@@ -3,6 +3,7 @@
 import ComingSoon from "@/app/components/coming-soon";
 import Header from "../../components/Header";
 import { motion } from "framer-motion";
+import TargetHomePage from "./components/TargetHomePage";
 
 export default function Page() {
   return (
@@ -19,7 +20,7 @@ export default function Page() {
         }}
       >
         <Header />
-        <ComingSoon />
+        <TargetHomePage />
       </motion.main>
     </div>
   );
