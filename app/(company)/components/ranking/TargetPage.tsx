@@ -1,4 +1,3 @@
-
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
 import { Plus, Edit } from "lucide-react";
@@ -57,12 +56,7 @@ const ESGPerformance = () => {
             startAngle={90}
             endAngle={-270}
           >
-            <PolarAngleAxis
-              type="number"
-              domain={[0, 100]}
-              angleAxisId={0}
-              tick={false}
-            />
+            <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
             <RadialBar
               background={{ fill: "hsl(var(--gauge-bg))" }}
               dataKey="value"
@@ -85,9 +79,7 @@ const ESGPerformance = () => {
     <Card className="w-full p-6 md:p-8">
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground md:text-3xl">
-          Targets and Performance
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground md:text-3xl">Targets and Performance</h1>
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" className="gap-2">
             <Plus className="h-4 w-4" />
@@ -105,7 +97,7 @@ const ESGPerformance = () => {
         <h2 className="mb-8 text-center text-xl font-semibold text-foreground">
           Overall ESG Performance
         </h2>
-        
+
         <div className="flex flex-col items-center">
           {/* Main Gauge */}
           <div className="relative mb-6">
@@ -120,12 +112,7 @@ const ESGPerformance = () => {
               startAngle={180}
               endAngle={0}
             >
-              <PolarAngleAxis
-                type="number"
-                domain={[0, 100]}
-                angleAxisId={0}
-                tick={false}
-              />
+              <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
               <RadialBar
                 background={{ fill: "hsl(var(--target))" }}
                 dataKey="value"
@@ -133,23 +120,21 @@ const ESGPerformance = () => {
                 fill="hsl(var(--primary))"
               />
             </RadialBarChart>
-            
+
             {/* Gauge needle/indicator */}
-            <div 
+            <div
               className="absolute left-1/2 top-[200px] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
               style={{
                 transform: `translate(-50%, -50%) rotate(${(percentage / 100) * 180 - 90}deg)`,
-                transformOrigin: '50% 100%',
+                transformOrigin: "50% 100%",
               }}
             >
-              <div className="h-28 w-1 origin-bottom bg-primary" style={{ marginLeft: '2px' }} />
+              <div className="h-28 w-1 origin-bottom bg-primary" style={{ marginLeft: "2px" }} />
             </div>
-            
+
             {/* Center text */}
             <div className="absolute left-1/2 top-[180px] -translate-x-1/2 text-center">
-              <div className="text-4xl font-bold text-foreground">
-                17,425 tCO₂e ({percentage}%)
-              </div>
+              <div className="text-4xl font-bold text-foreground">17,425 tCO₂e ({percentage}%)</div>
               <div className="mt-1 text-sm text-muted-foreground">Current Emission</div>
             </div>
           </div>
@@ -157,20 +142,12 @@ const ESGPerformance = () => {
           {/* Baseline and Target */}
           <div className="grid w-full max-w-2xl grid-cols-1 gap-8 sm:grid-cols-2">
             <div className="text-center">
-              <div className="text-2xl font-bold text-baseline">
-                26,830 tCO₂e
-              </div>
-              <div className="mt-1 text-sm text-muted-foreground">
-                Baseline Year Emission
-              </div>
+              <div className="text-2xl font-bold text-baseline">26,830 tCO₂e</div>
+              <div className="mt-1 text-sm text-muted-foreground">Baseline Year Emission</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-target">
-                11,537 tCO₂e
-              </div>
-              <div className="mt-1 text-sm text-muted-foreground">
-                Target Year Emission
-              </div>
+              <div className="text-2xl font-bold text-target">11,537 tCO₂e</div>
+              <div className="mt-1 text-sm text-muted-foreground">Target Year Emission</div>
             </div>
           </div>
         </div>

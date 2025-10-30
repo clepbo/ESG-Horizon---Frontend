@@ -14,10 +14,7 @@ interface MiniDonutChartProps {
 }
 
 export function MiniDonutChart({ label, percentage, value, color }: MiniDonutChartProps) {
-  const data = [
-    { value: percentage },
-    { value: 100 - percentage },
-  ];
+  const data = [{ value: percentage }, { value: 100 - percentage }];
 
   return (
     <div className="flex flex-col items-center text-center space-y-2">
@@ -33,10 +30,10 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
           dataKey="value"
           labelLine={false}
           label={({ cx, cy }) => (
-            <text 
-              x={cx} 
-              y={cy} 
-              textAnchor="middle" 
+            <text
+              x={cx}
+              y={cy}
+              textAnchor="middle"
               dominantBaseline="middle"
               className="text-base font-semibold"
             >
@@ -56,7 +53,6 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
   );
 }
 
-
 interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
 }
@@ -66,23 +62,20 @@ export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) 
     <div className={cn("w-full rounded-lg bg-white p-6 shadow-sm", className)}>
       {/* {title && <h2 className="text-lg font-semibold mb-4">{title}</h2>} */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold mb-4">{title}
-
-        </h2>
+        <h2 className="text-lg font-semibold mb-4">{title}</h2>
         <div className="flex flex-wrap justify-end gap-3">
-        <CustomButton variant="outlined" icon={<Plus />}>
-          Set New Target
-        </CustomButton>
-        <CustomButton variant="filled" icon={<Edit />}>
-          Edit Target
-        </CustomButton>
-      </div>
+          <CustomButton variant="outlined" icon={<Plus />}>
+            Set New Target
+          </CustomButton>
+          <CustomButton variant="filled" icon={<Edit />}>
+            Edit Target
+          </CustomButton>
+        </div>
       </div>
       {children}
     </div>
   );
 };
-
 
 interface GaugeChartProps {
   current: number;
@@ -92,10 +85,7 @@ interface GaugeChartProps {
 
 export function GaugeChart({ current, target, baseline }: GaugeChartProps) {
   const percentage = Math.round((current / baseline) * 100);
-  const data = [
-    { value: percentage },
-    { value: 100 - percentage },
-  ];
+  const data = [{ value: percentage }, { value: 100 - percentage }];
 
   const COLORS = ["#009688", "#D6F4F0"];
 
@@ -138,27 +128,22 @@ export function GaugeChart({ current, target, baseline }: GaugeChartProps) {
   );
 }
 
-
-
-
-
-
 interface GaugeChartProps {
   baselineEmission: number;
   currentEmission: number;
   targetEmission: number;
 }
 
-export function RechartsGaugeChart({ 
-  baselineEmission, 
-  currentEmission, 
-  targetEmission 
+export function RechartsGaugeChart({
+  baselineEmission,
+  currentEmission,
+  targetEmission,
 }: GaugeChartProps) {
   const percentage = Math.round((currentEmission / baselineEmission) * 100);
-  
+
   const data = [
-    { name: 'Progress', value: percentage, color: '#3b82f6' },
-    { name: 'Remaining', value: 100 - percentage, color: '#e5e7eb' },
+    { name: "Progress", value: percentage, color: "#3b82f6" },
+    { name: "Remaining", value: 100 - percentage, color: "#e5e7eb" },
   ];
 
   return (
@@ -181,12 +166,12 @@ export function RechartsGaugeChart({
             ))}
           </Pie>
         </PieChart>
-        
+
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-8 text-center">
           <div className="text-2xl font-bold text-gray-900">{percentage}%</div>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 gap-4 w-full max-w-md">
         <div className="text-center p-3 bg-gray-50 rounded-lg">
           <div className="text-lg font-semibold text-gray-900">
@@ -194,14 +179,14 @@ export function RechartsGaugeChart({
           </div>
           <div className="text-sm text-gray-600">Baseline Year Emission</div>
         </div>
-        
+
         <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
           <div className="text-lg font-semibold text-blue-700">
             {currentEmission.toLocaleString()} tCO₂e ({percentage}%)
           </div>
           <div className="text-sm text-blue-600">Current Emission</div>
         </div>
-        
+
         <div className="text-center p-3 bg-green-50 rounded-lg">
           <div className="text-lg font-semibold text-gray-900">
             {targetEmission.toLocaleString()} tCO₂e

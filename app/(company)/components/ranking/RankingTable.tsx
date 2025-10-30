@@ -107,23 +107,20 @@ export default function RankingTable() {
         header: "ESG Score",
         accessorKey: "esgScore",
         cell: ({ getValue }) => {
-  const valueStr = getValue() as string;
-  const value = Number(valueStr.split("/")[0]);
-  const color =
-    value >= 80
-      ? "bg-green-100 text-green-600"
-      : value >= 70
-      ? "bg-blue-100 text-blue-600"
-      : "bg-yellow-100 text-yellow-600";
-  return (
-    <span
-      className={`px-2 py-1 text-xs font-semibold rounded-full ${color}`}
-    >
-      {valueStr}
-    </span>
-  );
-},
-
+          const valueStr = getValue() as string;
+          const value = Number(valueStr.split("/")[0]);
+          const color =
+            value >= 80
+              ? "bg-green-100 text-green-600"
+              : value >= 70
+                ? "bg-blue-100 text-blue-600"
+                : "bg-yellow-100 text-yellow-600";
+          return (
+            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${color}`}>
+              {valueStr}
+            </span>
+          );
+        },
       },
     ],
     []
@@ -133,12 +130,7 @@ export default function RankingTable() {
     {
       label: "Industries",
       columnId: "industry",
-      options: [
-        "E-Commerce",
-        "Oil & Gas",
-        "Airlines",
-        "Insurance",
-      ],
+      options: ["E-Commerce", "Oil & Gas", "Airlines", "Insurance"],
     },
     {
       label: "Sectors",
@@ -162,31 +154,27 @@ export default function RankingTable() {
       {/* Filter Leaderboards Section */}
       <div className="bg-white p-4 rounded-md shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <h2 className="text-gray-800 font-semibold text-lg">
-            Filter Leader boards
-          </h2>
+          <h2 className="text-gray-800 font-semibold text-lg">Filter Leader boards</h2>
           <CustomButton variant="filled" className="">
             Reset Filters
           </CustomButton>
         </div>
 
         <div className="bg-white p-6 rounded-md shadow-sm text-center">
-        <h3 className="text-lg font-semibold text-gray-800">
-          ESG Performance Rankings
-        </h3>
-        <div className="text-4xl font-bold text-primary my-2">4/<span className="text-sm text-black">490</span></div>
-        <p className="text-gray-500 text-sm mb-6">
-          Your organization’s rank based on your filter
-        </p>
-      </div>
-      <div className="bg-white rounded-md shadow-sm text-center">
-
-        <DataTable data={data} columns={columns} filterOptions={filterOptions} />
-      </div>
+          <h3 className="text-lg font-semibold text-gray-800">ESG Performance Rankings</h3>
+          <div className="text-4xl font-bold text-primary my-2">
+            4/<span className="text-sm text-black">490</span>
+          </div>
+          <p className="text-gray-500 text-sm mb-6">
+            Your organization’s rank based on your filter
+          </p>
+        </div>
+        <div className="bg-white rounded-md shadow-sm text-center">
+          <DataTable data={data} columns={columns} filterOptions={filterOptions} />
+        </div>
       </div>
 
       {/* ESG Rankings Summary */}
-      
     </div>
   );
 }

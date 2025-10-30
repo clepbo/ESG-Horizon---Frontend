@@ -1,17 +1,17 @@
 "use client";
 
 import { Plus, Edit } from "lucide-react";
-import { GaugeChart, KpiCard, MiniDonutChart, RechartsGaugeChart } from "@/app/components/ui/charts/DonoughtChart";
+import {
+  GaugeChart,
+  KpiCard,
+  MiniDonutChart,
+  RechartsGaugeChart,
+} from "@/app/components/ui/charts/DonoughtChart";
 import SpeedometerGauge from "./CustomGuageChart";
-
-
-
-
 
 export default function PerformanceOverview() {
   return (
     <KpiCard title="Targets and Performance" className="space-y-6 w-full">
-  
       <div className="flex items-center justify-center">
         <SpeedometerGauge score={120} initialEmission="2,30900 C002te" />
       </div>
