@@ -199,6 +199,19 @@ export function PurchasedElectricityForm({
 
     onNext();
   };
+  const handlePrevious = () => {
+    dispatch({
+      type: "UPDATE_ELECTRICITY",
+      payload: {
+        electricityConsumed: electricityConsumed.rawValue,
+        supplier,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
+  };
 
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
@@ -383,7 +396,7 @@ export function PurchasedElectricityForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous

@@ -231,6 +231,19 @@ export function CoolingSteamForm({
       }
     );
   };
+  const handlePrevious = () => {
+    if (!validateForm()) return;
+
+    const assessmentId = state.assessmentData.assessmentId;
+    if (!assessmentId) {
+      toast.error("Cannot submit: Assessment ID missing.");
+      return;
+    }
+
+    dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
+
+    onBack();
+  };
 
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
@@ -426,7 +439,7 @@ export function CoolingSteamForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />

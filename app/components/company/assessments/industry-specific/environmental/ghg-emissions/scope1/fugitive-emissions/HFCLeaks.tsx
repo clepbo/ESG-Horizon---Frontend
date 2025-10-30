@@ -304,6 +304,35 @@ export function HFCLeaks({
       }
     );
   };
+  const handlePrevious = () => {
+    const { assessmentId } = state.assessmentData;
+
+    if (!assessmentId) {
+      toast.error("Cannot submit: Assessment ID is missing.");
+      return;
+    }
+
+    if (!validateForm()) {
+      toast.error("Please fix validation errors before submitting.");
+      return;
+    }
+
+    const payload = {
+      R134a: formState.R134a,
+      R410A: formState.R410A,
+      R404A: formState.R404A,
+      R407C: formState.R407C,
+      R507A: formState.R507A,
+      others: Number(others.rawValue) || 0,
+      refrigerantAdded: Number(refrigerantAdded.rawValue),
+      files: files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
+
+    dispatch({ type: "UPDATE_FUGITIVE_HFC_LEAKS", payload });
+
+    onBack();
+  };
 
   const renderCheckbox = (name: keyof typeof formState, label: string) => (
     <label key={name} className="flex items-center cursor-pointer space-x-2 py-2">
@@ -534,7 +563,7 @@ export function HFCLeaks({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onBack}
+                  onClick={handlePrevious}
                   className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                   aria-label="Previous step"
                 >

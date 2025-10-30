@@ -12,7 +12,7 @@ export default function SearchInput({
   placeholder?: string;
 }) {
   return (
-    <div className="relative w-full max-w-3xl">
+    <div className="relative w-full max-w-lg">
       <input
         id="search-input"
         name="search"
