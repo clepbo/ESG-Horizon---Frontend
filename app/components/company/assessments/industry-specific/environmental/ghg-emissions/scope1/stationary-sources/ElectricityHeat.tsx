@@ -270,6 +270,20 @@ export function ElectricityHeatForm({
     onNext();
   };
 
+  const handlePrevious = () => {
+    dispatch({
+      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+      payload: {
+        dieselGenerators,
+        gasTurbines,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
+  };
+
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -409,7 +423,7 @@ export function ElectricityHeatForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >

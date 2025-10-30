@@ -249,6 +249,29 @@ export function GasFlaring({
       }
     );
   };
+  const handlePrevious = () => {
+    const assessmentId = state.assessmentData.assessmentId;
+    if (!assessmentId) {
+      toast.error("Assessment ID missing");
+      return;
+    }
+
+    if (!validateForm()) return;
+
+    const payload = {
+      gasVolume: Number(gasVolume),
+      carbonContent: Number(carbonContent),
+      files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
+
+    dispatch({
+      type: "UPDATE_PROCESS_GAS_FLARING",
+      payload,
+    });
+
+    onBack();
+  };
 
   return (
     <div className="min-h-screen bg-green-50 p-6">
@@ -388,7 +411,7 @@ export function GasFlaring({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous

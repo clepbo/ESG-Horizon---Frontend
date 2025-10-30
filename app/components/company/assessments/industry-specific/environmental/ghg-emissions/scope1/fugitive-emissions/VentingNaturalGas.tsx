@@ -209,6 +209,20 @@ export function VentingNaturalGas({
     });
     onNext();
   };
+  const handlePrevious = () => {
+    if (!validateForm()) return;
+
+    dispatch({
+      type: "UPDATE_FUGITIVE_VENTING",
+      payload: {
+        // Use rawValue for saving
+        volumeOfGasVented: Number(volumeOfGasVented.rawValue),
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+    onBack();
+  };
 
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
@@ -361,7 +375,7 @@ export function VentingNaturalGas({
               <Button
                 type="button"
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />

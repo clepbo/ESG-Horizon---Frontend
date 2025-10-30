@@ -214,6 +214,21 @@ export function ElectricityEACForm({
 
     onNext();
   };
+  const handlePrevious = () => {
+    if (!validateForm()) return;
+
+    dispatch({
+      type: "UPDATE_EAC",
+      payload: {
+        gridElectricity: gridElectricityRaw,
+        emissionFactor,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
+  };
 
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
@@ -486,7 +501,7 @@ export function ElectricityEACForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-teal-600 text-teal-700 hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
