@@ -156,7 +156,7 @@ export default function AssessmentDetailsModal({
   const statusDisplay = getStatusDisplay(fullAssessment?.status || assessment.status);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60 p-4">
       <div className="bg-white rounded-lg p-8 w-full max-w-6xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-start justify-between gap-4 mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Assessment Details</h2>

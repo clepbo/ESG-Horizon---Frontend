@@ -1,9 +1,11 @@
 "use client";
 import React from "react";
 import FullReport from "../../FullReport";
-import BackButton from "@/app/components/ui/reusables/BackButton";
+// import BackButton from "@/app/components/ui/reusables/BackButton";
 import { motion } from "framer-motion";
+import { useParams } from "next/navigation";
 export default function pages() {
+  const params = useParams();
   return (
     <motion.div
       className="grid w-full gap-4"
@@ -16,7 +18,6 @@ export default function pages() {
         duration: 0.5,
       }}
     >
-      <BackButton />
       <FullReport />
     </motion.div>
   );

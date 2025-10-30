@@ -1,8 +1,8 @@
 "use client";
 
-import ComingSoon from "@/app/components/coming-soon";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
+import RankingHome from "../components/ranking/RankingHome";
 
 export default function Page() {
   return (
@@ -19,7 +19,7 @@ export default function Page() {
         }}
       >
         <Header />
-        <ComingSoon />
+        <RankingHome />
       </motion.main>
     </div>
   );

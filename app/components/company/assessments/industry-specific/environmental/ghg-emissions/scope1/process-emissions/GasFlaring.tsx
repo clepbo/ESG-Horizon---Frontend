@@ -19,6 +19,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface GasFlaringProps {
   onBack: () => void;
@@ -45,11 +46,26 @@ export function GasFlaring({
   isSubmitted,
 }: GasFlaringProps) {
   const { state, dispatch } = useAssessment();
-  const [gasVolume, setGasVolume] = useState<number>(0);
-  const [carbonContent, setCarbonContent] = useState<number>(0);
+
+  const {
+    rawValue: gasVolume,
+    displayValue: gasVolumeDisplay,
+    handleChange: handleGasVolumeChange,
+    setRawValue: setGasVolumeRaw,
+  } = useFormattedNumber("0");
+
+  const {
+    rawValue: carbonContent,
+    displayValue: carbonContentDisplay,
+    handleChange: handleCarbonContentChange,
+    setRawValue: setCarbonContentRaw,
+  } = useFormattedNumber("0");
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
+
+  const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
     gasVolume?: string;
@@ -57,20 +73,19 @@ export function GasFlaring({
     files?: string;
   }>({});
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
 
+  // Load existing data
   useEffect(() => {
     const existingData = state.assessmentData.processEmissions?.gasFlaring as NonNullable<
       AssessmentData["processEmissions"]
     >["gasFlaring"];
     if (existingData) {
-      setGasVolume(existingData.gasVolume ?? 0);
-      setCarbonContent(existingData.carbonContent ?? 0);
+      setGasVolumeRaw(existingData.gasVolume?.toString() || "0");
+      setCarbonContentRaw(existingData.carbonContent?.toString() || "0");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -81,41 +96,29 @@ export function GasFlaring({
   const { filled, total } = useMemo(() => {
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-    return calculateProgress([gasVolume > 0, carbonContent > 0, hasFiles]);
+    return calculateProgress([Number(gasVolume) > 0, Number(carbonContent) > 0, hasFiles]);
   }, [gasVolume, carbonContent, files, additionalFields]);
 
   const validateForm = () => {
-    const newErrors: {
-      gasVolume?: string;
-      carbonContent?: string;
-      files?: string;
-    } = {};
-    if (gasVolume <= 0) {
+    const newErrors: { gasVolume?: string; carbonContent?: string; files?: string } = {};
+    if (Number(gasVolume) <= 0)
       newErrors.gasVolume = "Please enter a positive volume of gas flared";
-    }
-    if (carbonContent <= 0 || carbonContent > 100) {
+    if (Number(carbonContent) <= 0 || Number(carbonContent) > 100)
       newErrors.carbonContent = "Please enter a valid percentage (0-100)";
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     if (file.size > 10 * 1024 * 1024) {
-      setErrors((prev) => ({
-        ...prev,
-        files: `File "${field}" exceeds 10MB limit`,
-      }));
+      setErrors((prev) => ({ ...prev, files: `File "${field}" exceeds 10MB limit` }));
       return;
     }
-
     try {
-      setUploading((prev) => ({ ...prev, [field]: true })); // start spinner
-
+      setUploading((prev) => ({ ...prev, [field]: true }));
       const uploaded = await uploadService.uploadImage(file);
-
       if (uploaded?.url) {
         setFiles((prev) => ({
           ...prev,
@@ -127,7 +130,6 @@ export function GasFlaring({
             publicId: uploaded.publicId,
           },
         }));
-
         toast.success(`${file.name} uploaded successfully`);
       } else {
         toast.error("Failed to upload file");
@@ -136,11 +138,34 @@ export function GasFlaring({
       console.error(err);
       toast.error("Error uploading file");
     } finally {
-      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
-
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
+
+  const handleRemoveFile = async (key: string) => {
+    const file = files[key];
+    if (file?.publicId) {
+      try {
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+        await uploadService.deleteImage(file.publicId);
+        toast.success("File deleted successfully");
+      } catch (err) {
+        toast.error("Failed to delete file");
+        console.error(err);
+      } finally {
+        setDeleting((prev) => ({ ...prev, [key]: false }));
+        setFiles((prev) => ({ ...prev, [key]: null }));
+        if (inputRefs.current[key]) inputRefs.current[key]!.value = "";
+        if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
+      }
+    } else {
+      setFiles((prev) => ({ ...prev, [key]: null }));
+      if (inputRefs.current[key]) inputRefs.current[key]!.value = "";
+    }
+  };
+
+  const handleAdditionalFieldsChange = (fields: FileData[]) => setAdditionalFields(fields);
 
   const handleSaveAndContinue = () => {
     const assessmentId = state.assessmentData.assessmentId;
@@ -150,10 +175,10 @@ export function GasFlaring({
     }
 
     const payload = {
-      gasVolume,
-      carbonContent,
+      gasVolume: Number(gasVolume),
+      carbonContent: Number(carbonContent),
       files,
-      additionalFields: additionalFields as FileMetadata[], // ✅ cast
+      additionalFields: additionalFields as FileMetadata[],
     };
 
     dispatch({ type: "UPDATE_PROCESS_GAS_FLARING", payload });
@@ -189,70 +214,65 @@ export function GasFlaring({
 
     if (!validateForm()) return;
 
+    const payload = {
+      gasVolume: Number(gasVolume),
+      carbonContent: Number(carbonContent),
+      files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
+
     dispatch({
       type: "UPDATE_PROCESS_GAS_FLARING",
-      payload: {
-        gasVolume,
-        carbonContent,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
     submitAssessment(
       {
         assessmentId,
-        data: state.assessmentData,
+        data: {
+          ...state.assessmentData,
+          processEmissions: {
+            ...state.assessmentData.processEmissions,
+            gasFlaring: payload,
+          },
+          lastSavedForm: "ghg-process-emissions-gas-flaring",
+        },
       },
       {
         onSuccess: (res) => {
           toast.success("Assessment submitted!");
           onSubmit(res.totals ?? null);
         },
+        onError: () => {
+          toast.error("Failed to submit assessment. Please try again.");
+        },
       }
     );
   };
-
-  const handleRemoveFile = async (key: string) => {
-    const file = files[key];
-    if (file?.publicId) {
-      try {
-        setDeleting((prev) => ({ ...prev, [key]: true }));
-
-        await uploadService.deleteImage(file.publicId);
-        toast.success("File deleted successfully");
-      } catch (err) {
-        toast.error("Failed to delete file");
-        console.error(err);
-      } finally {
-        setDeleting((prev) => ({ ...prev, [key]: false }));
-
-        setFiles((prev) => ({
-          ...prev,
-          [key]: null,
-        }));
-
-        if (inputRefs.current[key]) {
-          inputRefs.current[key]!.value = "";
-        }
-
-        if (errors.files) {
-          setErrors((prev) => ({ ...prev, files: undefined }));
-        }
-      }
-    } else {
-      setFiles((prev) => ({
-        ...prev,
-        [key]: null,
-      }));
-      if (inputRefs.current[key]) {
-        inputRefs.current[key]!.value = "";
-      }
+  const handlePrevious = () => {
+    const assessmentId = state.assessmentData.assessmentId;
+    if (!assessmentId) {
+      toast.error("Assessment ID missing");
+      return;
     }
+
+    if (!validateForm()) return;
+
+    const payload = {
+      gasVolume: Number(gasVolume),
+      carbonContent: Number(carbonContent),
+      files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
+
+    dispatch({
+      type: "UPDATE_PROCESS_GAS_FLARING",
+      payload,
+    });
+
+    onBack();
   };
-  const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    setAdditionalFields(fields);
-  };
+
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -261,10 +281,8 @@ export function GasFlaring({
             variant="outline"
             onClick={onBack}
             className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
-            aria-label="Go back to previous step"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back
+            <ArrowLeft className="h-4 w-4" /> Back
           </Button>
           <div>
             <h3 className="text-2xl font-bold text-foreground">Process Emissions</h3>
@@ -274,6 +292,7 @@ export function GasFlaring({
             </p>
           </div>
         </div>
+
         <Card className="animate-in slide-in-from-bottom-4 duration-500 bg-gray-50 mt-6 mb-8 pt-6">
           <CardContent className="space-y-8">
             <AssessmentProgressBar
@@ -283,6 +302,8 @@ export function GasFlaring({
               totalFields={total}
               isSubmitted={isSubmitted}
             />
+
+            {/* Gas Volume & Carbon Content */}
             <div>
               <Label className="text-md font-semibold mb-2 block">1.1 Gas Flaring</Label>
               <div className="space-y-4 ml-6">
@@ -290,54 +311,33 @@ export function GasFlaring({
                   <Label htmlFor="gas-volume">Volume of Gas Flared (m³)</Label>
                   <Input
                     id="gas-volume"
-                    type="number"
+                    type="text"
                     placeholder="Enter volume of gas flared"
-                    value={gasVolume || ""}
-                    onChange={(e) => {
-                      setGasVolume(Number(e.target.value));
-                      setErrors((prev) => ({
-                        ...prev,
-                        gasVolume: undefined,
-                      }));
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.gasVolume ? "border-red-500 focus:border-red-500" : ""
-                    }`}
-                    aria-describedby={errors.gasVolume ? "gas-volume-error" : undefined}
+                    value={gasVolumeDisplay}
+                    onChange={(e) => handleGasVolumeChange(e.target.value)}
+                    className={`w-full border-gray-400 ${errors.gasVolume ? "border-red-500 focus:border-red-500" : ""}`}
                   />
-                  {errors.gasVolume && (
-                    <p id="gas-volume-error" className="text-sm text-red-500">
-                      {errors.gasVolume}
-                    </p>
-                  )}
+                  {errors.gasVolume && <p className="text-sm text-red-500">{errors.gasVolume}</p>}
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="carbon-content">Carbon Content/Composition (% by volume)</Label>
                   <Input
                     id="carbon-content"
-                    type="number"
+                    type="text"
                     placeholder="Enter carbon content percentage"
-                    value={carbonContent || ""}
-                    onChange={(e) => {
-                      setCarbonContent(Number(e.target.value));
-                      setErrors((prev) => ({
-                        ...prev,
-                        carbonContent: undefined,
-                      }));
-                    }}
-                    className={`w-full border-gray-400 ${
-                      errors.carbonContent ? "border-red-500 focus:border-red-500" : ""
-                    }`}
-                    aria-describedby={errors.carbonContent ? "carbon-content-error" : undefined}
+                    value={carbonContentDisplay}
+                    onChange={(e) => handleCarbonContentChange(e.target.value)}
+                    className={`w-full border-gray-400 ${errors.carbonContent ? "border-red-500 focus:border-red-500" : ""}`}
                   />
                   {errors.carbonContent && (
-                    <p id="carbon-content-error" className="text-sm text-red-500">
-                      {errors.carbonContent}
-                    </p>
+                    <p className="text-sm text-red-500">{errors.carbonContent}</p>
                   )}
                 </div>
               </div>
             </div>
+
+            {/* File uploads */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
                 1.2 Document/Evidence Upload
@@ -348,7 +348,7 @@ export function GasFlaring({
                   {uploadFields.map((field) => (
                     <div key={field} className="flex flex-col gap-2">
                       <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">{field}</Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
+                      <Card className="p-4 flex flex-col items-center justify-center border hover:border-solid hover:border-primary transition-all">
                         <Label
                           htmlFor={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
                           className="cursor-pointer flex flex-col items-center gap-2"
@@ -385,7 +385,7 @@ export function GasFlaring({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
@@ -398,6 +398,7 @@ export function GasFlaring({
                   ))}
                 </div>
               </div>
+
               <div className="mt-6">
                 <AdditionalFileUpload
                   onFieldsChange={handleAdditionalFieldsChange}
@@ -405,46 +406,43 @@ export function GasFlaring({
                 />
               </div>
             </div>
+
+            {/* Buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
-                aria-label="Previous step"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Previous
+                <ArrowLeft className="h-4 w-4" /> Previous
               </Button>
+
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
                 className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
-                aria-label="Save and continue later"
               >
                 {isSaving ? (
                   <>
-                    <LoadingSpinner size="sm" className="mr-2" />
-                    Saving...
+                    <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
                 ) : showSaveSuccess ? (
                   <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Saved!
+                    <CheckCircle2 className="h-4 w-4 mr-2" /> Saved!
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save & Continue Later
+                    <Save className="h-4 w-4 mr-2" /> Save & Continue Later
                   </>
                 )}
               </Button>
+
               <Button
                 variant="outline"
                 onClick={handleSubmit}
                 disabled={isSaving || isSubmitting}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
-                aria-label="Next step"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>

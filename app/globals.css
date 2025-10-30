@@ -219,6 +219,7 @@
   body {
     /* Prevent overscroll bounce effect */
     overscroll-behavior-y: none;
+    font-family: var(--font-poppins), sans-serif;
   }
 
   h1,

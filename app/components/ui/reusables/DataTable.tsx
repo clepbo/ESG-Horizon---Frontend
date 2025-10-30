@@ -32,17 +32,19 @@ export interface FilterOption {
   columnId: string;
   options: string[];
 }
+
 export function DataTable<TData>({
   data,
   columns,
   filterOptions = [],
   searchPlaceholder = "Search all columns...",
+  customFilters,
 }: {
   data: TData[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   filterOptions?: FilterOption[];
   searchPlaceholder?: string;
+  customFilters?: React.ReactNode;
 }) {
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -53,26 +55,22 @@ export function DataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: {
-      pagination: {
-        pageSize: 5,
-      },
+      pagination: { pageSize: 5 },
     },
-    state: {
-      globalFilter: globalFilter,
-    },
+    state: { globalFilter },
     onGlobalFilterChange: setGlobalFilter,
   });
 
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Search and Filters */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
         <SearchInput
           placeholder={searchPlaceholder}
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {filterOptions.map((filter) => (
             <Select
               key={filter.columnId}
@@ -95,20 +93,20 @@ export function DataTable<TData>({
               </SelectContent>
             </Select>
           ))}
+
+          {/* 👇 Custom Filter (DateRangePicker) */}
+          {customFilters}
         </div>
       </div>
 
-      {/* Table Display */}
-      <div className="">
+      {/* Table */}
+      <div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="border-b border-gray-300 font-semibold text-gray-700"
-                  >
+                  <TableHead key={header.id} className="border-b border-gray-300 font-semibold">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -122,7 +120,7 @@ export function DataTable<TData>({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="hover:bg-gray-50">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={`py-4 border-b border-gray-300`}>
+                    <TableCell key={cell.id} className="py-4 border-b border-gray-300">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -130,7 +128,7 @@ export function DataTable<TData>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center ">
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -162,16 +160,14 @@ export function DataTable<TData>({
           </Select>
         </div>
         <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">
-              {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} -{" "}
-              {Math.min(
-                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}{" "}
-              of {table.getFilteredRowModel().rows.length}
-            </p>
-          </div>
+          <p className="text-sm font-medium">
+            {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} -{" "}
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}{" "}
+            of {table.getFilteredRowModel().rows.length}
+          </p>
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -179,7 +175,7 @@ export function DataTable<TData>({
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <span className="sr-only">Go to previous page</span>‹
+              ‹
             </Button>
             <Button
               variant="outline"
@@ -187,7 +183,7 @@ export function DataTable<TData>({
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              <span className="sr-only">Go to next page</span>›
+              ›
             </Button>
           </div>
         </div>

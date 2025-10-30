@@ -256,7 +256,7 @@ export default function AssessmentHub() {
                       <SelectTrigger className="w-32 border border-slate-300 hover:cursor-pointer focus:ring-2 focus:ring-green-500">
                         <SelectValue placeholder="Month" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-48 overflow-y-auto">
                         {months.map((month) => (
                           <SelectItem key={month} value={month}>
                             {month}
@@ -282,7 +282,6 @@ export default function AssessmentHub() {
                   </div>
 
                   {/* Ending Period */}
-                  {/* Ending Period */}
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <label className="text-sm text-foreground w-28">Ending Period</label>
@@ -300,7 +299,7 @@ export default function AssessmentHub() {
                         >
                           <SelectValue placeholder="Month" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-48 overflow-y-auto">
                           {months.map((month) => (
                             <SelectItem key={month} value={month}>
                               {month}

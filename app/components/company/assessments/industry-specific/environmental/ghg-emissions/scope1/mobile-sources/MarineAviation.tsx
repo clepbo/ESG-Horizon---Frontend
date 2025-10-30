@@ -263,6 +263,7 @@ export function MarineAviation({
             ...state.assessmentData.mobileSources,
             marineAviation: payload,
           },
+          lastSavedForm: "ghg-mobile-sources-road-transport",
         },
       },
       {
@@ -271,6 +272,30 @@ export function MarineAviation({
         },
       }
     );
+  };
+  const handlePrevious = () => {
+    const { assessmentId } = state.assessmentData;
+
+    if (!assessmentId) {
+      toast.error("Cannot submit: Assessment ID is missing.");
+      return;
+    }
+
+    if (!validateForm()) {
+      toast.error("Please fix validation errors before submitting.");
+      return;
+    }
+
+    const payload = {
+      air,
+      marine,
+      files,
+      additionalFields: additionalFields as FileMetadata[],
+    };
+
+    dispatch({ type: "UPDATE_MOBILE_MARINE_AVIATION", payload });
+
+    onBack();
   };
 
   const handleRemoveFile = async (key: string) => {
@@ -465,7 +490,7 @@ export function MarineAviation({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >

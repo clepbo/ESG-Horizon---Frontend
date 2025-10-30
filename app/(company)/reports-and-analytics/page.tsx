@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 export default function page() {
   return (
     <motion.div
-      className="grid gap-2 "
+      // className="grid gap-2 "
+      className="flex flex-col gap-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{

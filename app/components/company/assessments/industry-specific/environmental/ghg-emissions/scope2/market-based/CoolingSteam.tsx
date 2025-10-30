@@ -18,6 +18,7 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
@@ -44,7 +45,15 @@ export function CoolingSteamForm({
 }: CoolingSteamFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [energyConsumed, setEnergyConsumed] = useState("");
+
+  // Use the formatted number hook for energy consumed
+  const {
+    rawValue: energyConsumedRaw,
+    displayValue: energyConsumedDisplay,
+    handleChange: handleEnergyConsumedChange,
+    setRawValue: setEnergyConsumedRaw,
+  } = useFormattedNumber("");
+
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -66,7 +75,12 @@ export function CoolingSteamForm({
   useEffect(() => {
     const existingData = state.assessmentData.coolingSteam;
     if (existingData) {
-      setEnergyConsumed(existingData.energyConsumed || "");
+      // Initialize with existing data using the formatted number hook
+      if (existingData.energyConsumed) {
+        setEnergyConsumedRaw(existingData.energyConsumed);
+      } else {
+        setEnergyConsumedRaw("");
+      }
       setEmissionFactor(existingData.emissionFactor || "");
 
       setFiles(
@@ -74,19 +88,19 @@ export function CoolingSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.coolingSteam]);
+  }, [state.assessmentData.coolingSteam, setEnergyConsumedRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      energyConsumed,
+      energyConsumedRaw,
       emissionFactor,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [energyConsumed, emissionFactor, files, additionalFields]);
+  }, [energyConsumedRaw, emissionFactor, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
-    if (!energyConsumed || Number(energyConsumed) <= 0)
+    if (!energyConsumedRaw || Number(energyConsumedRaw) <= 0)
       newErrors.energyConsumed = "Energy consumed is required";
     if (!emissionFactor || Number(emissionFactor) <= 0)
       newErrors.emissionFactor = "Emission factor is required";
@@ -139,7 +153,7 @@ export function CoolingSteamForm({
   };
 
   const resetForm = () => {
-    setEnergyConsumed("");
+    setEnergyConsumedRaw("");
     setEmissionFactor("");
     setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
     setAdditionalFields([]);
@@ -152,7 +166,7 @@ export function CoolingSteamForm({
   };
 
   const buildPayload = () => ({
-    energyConsumed,
+    energyConsumed: energyConsumedRaw,
     emissionFactor,
     files,
     additionalFields: additionalFields as FileMetadata[],
@@ -206,6 +220,7 @@ export function CoolingSteamForm({
         data: {
           ...state.assessmentData,
           coolingSteam: buildPayload(),
+          lastSavedForm: "ghg-market-based-electricityIPP",
         },
       },
       {
@@ -215,6 +230,19 @@ export function CoolingSteamForm({
         },
       }
     );
+  };
+  const handlePrevious = () => {
+    if (!validateForm()) return;
+
+    const assessmentId = state.assessmentData.assessmentId;
+    if (!assessmentId) {
+      toast.error("Cannot submit: Assessment ID missing.");
+      return;
+    }
+
+    dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
+
+    onBack();
   };
 
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
@@ -296,11 +324,11 @@ export function CoolingSteamForm({
                   Quantity consumed
                 </Label>
                 <Input
-                  type="number"
+                  type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter cooling/steam energy consumed (kWh)"
-                  value={energyConsumed}
+                  value={energyConsumedDisplay} // Use the formatted display value
                   onChange={(e) => {
-                    setEnergyConsumed(e.target.value);
+                    handleEnergyConsumedChange(e.target.value); // Use the hook's handler
                     if (errors.energyConsumed)
                       setErrors({
                         ...errors,
@@ -411,7 +439,7 @@ export function CoolingSteamForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />

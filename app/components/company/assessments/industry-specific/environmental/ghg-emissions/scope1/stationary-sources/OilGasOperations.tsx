@@ -236,6 +236,7 @@ export function OilGasOperations({
             ...state.assessmentData.stationarySources,
             oilGasOperations: payload,
           },
+          lastSavedForm: "ghg-stationary-sources-electricity-heat",
         },
       },
       {
@@ -245,6 +246,26 @@ export function OilGasOperations({
         },
       }
     );
+  };
+  const handlePrevious = () => {
+    const { assessmentId } = state.assessmentData;
+    if (typeof assessmentId !== "number") {
+      toast.error("Cannot submit: Missing assessment ID");
+      return;
+    }
+
+    const payload = {
+      onShoreProduction,
+      additionalFields: normalizeFiles(additionalFields),
+      files,
+    };
+
+    dispatch({
+      type: "UPDATE_STATIONARY_OIL_GAS",
+      payload,
+    });
+
+    onBack();
   };
 
   const handleRemoveFile = async (key: string) => {
@@ -390,7 +411,7 @@ export function OilGasOperations({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
@@ -414,7 +435,7 @@ export function OilGasOperations({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >

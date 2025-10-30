@@ -65,6 +65,7 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
         i === index
           ? {
               ...item,
+              name: item.name || file.name,
               file: file,
               url: uploaded.url,
               publicId: uploaded.publicId,
@@ -166,7 +167,13 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
                     <>
                       <CloudUpload className="h-4 w-4 shrink-0" />
                       <span className="truncate">
-                        {fieldData.file?.name ?? "Select file (max. 10MB)"}
+                        {/* {fieldData.file?.name ?? "Select file (max. 10MB)"} */}
+                        <span className="truncate">
+                          {fieldData.file?.name ||
+                            fieldData.name ||
+                            fieldData.url?.split("/").pop() ||
+                            "Select file (max. 10MB)"}
+                        </span>
                       </span>
                     </>
                   )}

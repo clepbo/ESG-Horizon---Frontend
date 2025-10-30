@@ -19,6 +19,7 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface PurchasedSteamFormProps {
   onBack: () => void;
@@ -48,7 +49,15 @@ export function PurchasedSteamForm({
 }: PurchasedSteamFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [steamConsumed, setSteamConsumed] = useState("");
+
+  // Use the formatted number hook for steam consumed
+  const {
+    rawValue: steamConsumedRaw,
+    displayValue: steamConsumedDisplay,
+    handleChange: handleSteamConsumedChange,
+    setRawValue: setSteamConsumedRaw,
+  } = useFormattedNumber("");
+
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
@@ -71,7 +80,12 @@ export function PurchasedSteamForm({
     const existingData = state.assessmentData.steam;
 
     if (existingData) {
-      setSteamConsumed(existingData.volume || "");
+      // Initialize with existing data using the formatted number hook
+      if (existingData.volume) {
+        setSteamConsumedRaw(existingData.volume);
+      } else {
+        setSteamConsumedRaw("");
+      }
 
       setSelectedSources(existingData.selectedSources || []);
       setOtherComments(existingData.otherComments || "");
@@ -80,9 +94,10 @@ export function PurchasedSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.steam]);
+  }, [state.assessmentData.steam, setSteamConsumedRaw]);
+
   const { total, filled } = calculateProgress([
-    steamConsumed,
+    steamConsumedRaw,
     Array.isArray(selectedSources) && selectedSources.length > 0,
     Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
   ]);
@@ -94,7 +109,7 @@ export function PurchasedSteamForm({
   //         files?: string;
   //     } = {};
 
-  //     if (!steamConsumed || Number(steamConsumed) <= 0) {
+  //     if (!steamConsumedRaw || Number(steamConsumedRaw) <= 0) {
   //         newErrors.steamConsumed = "Please enter a valid positive number";
   //     }
 
@@ -158,6 +173,7 @@ export function PurchasedSteamForm({
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
+
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
   };
@@ -172,7 +188,7 @@ export function PurchasedSteamForm({
     dispatch({
       type: "UPDATE_STEAM",
       payload: {
-        volume: steamConsumed,
+        volume: steamConsumedRaw,
         selectedSources,
         otherComments,
         files,
@@ -186,7 +202,7 @@ export function PurchasedSteamForm({
         data: {
           ...state.assessmentData,
           steam: {
-            volume: steamConsumed,
+            volume: steamConsumedRaw,
             selectedSources,
             otherComments,
             files,
@@ -209,7 +225,7 @@ export function PurchasedSteamForm({
     dispatch({
       type: "UPDATE_STEAM",
       payload: {
-        volume: steamConsumed,
+        volume: steamConsumedRaw,
         selectedSources,
         otherComments,
         files,
@@ -218,6 +234,20 @@ export function PurchasedSteamForm({
     });
 
     onNext();
+  };
+  const handlePrevious = () => {
+    dispatch({
+      type: "UPDATE_STEAM",
+      payload: {
+        volume: steamConsumedRaw,
+        selectedSources,
+        otherComments,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
   };
 
   const handleRemoveFile = async (key: string) => {
@@ -295,10 +325,15 @@ export function PurchasedSteamForm({
                 <Label htmlFor="steam-consumed">Steam Consumed (tonnes)</Label>
                 <Input
                   id="steam-consumed"
-                  type="number"
+                  type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter amount in tonnes"
-                  value={steamConsumed}
-                  onChange={(e) => setSteamConsumed(e.target.value)}
+                  value={steamConsumedDisplay} // Use the formatted display value
+                  onChange={(e) => {
+                    handleSteamConsumedChange(e.target.value); // Use the hook's handler
+                    if (errors.steamConsumed) {
+                      setErrors((prev) => ({ ...prev, steamConsumed: undefined }));
+                    }
+                  }}
                   className={`w-full border-gray-400 ${
                     errors.steamConsumed ? "border-red-500" : ""
                   }`}
@@ -414,7 +449,7 @@ export function PurchasedSteamForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous

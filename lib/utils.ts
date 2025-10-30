@@ -105,11 +105,45 @@ export const formatNumberToTwoDecimals = (value: string | number | null | undefi
   });
 };
 
-export const formattedDate = (date: string) =>
-  new Date(date).toLocaleString("en-US", {
+export const formattedDate = (date: string): string => {
+  const dateObj = new Date(date);
+
+  if (isNaN(dateObj.getTime())) {
+    return "n/a";
+  }
+
+  return dateObj.toLocaleString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+interface SourceDataForCalculation {
+  volume: number | string;
+  emissionFactor: number;
+}
+
+export function calculateTCO2eForSource(data: SourceDataForCalculation): number {
+  const { volume, emissionFactor } = data;
+
+  const numericalVolume = Number(volume);
+  if (isNaN(numericalVolume) || numericalVolume <= 0 || emissionFactor < 0) {
+    return 0;
+  }
+
+  const kgCO2e = numericalVolume * emissionFactor;
+
+  const tCO2e = kgCO2e / 1000;
+
+  return parseFloat(tCO2e.toFixed(3));
+}
+
+export function formatTCO2eOutput(tCO2eValue: number): string {
+  if (tCO2eValue === 0) {
+    return "0.000 tCO2e";
+  }
+  return `${tCO2eValue.toFixed(3)} tCO2e`;
+}

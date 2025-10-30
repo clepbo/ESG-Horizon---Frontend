@@ -74,6 +74,20 @@ export default function CompanySetupModal({
   const [newUsers, setNewUsers] = useState<User[]>([]);
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (!editingItem) {
       setFormData({
         subsidiaryId: 0,
@@ -273,6 +287,15 @@ export default function CompanySetupModal({
 
   const handleFinalSubmit = async () => {
     setLoadingIsDone(true);
+    const usersPayload = newUsers
+      .filter((item) => item.id > 9999999999)
+      .map((item) => ({
+        email: item.email,
+        roleName: item?.role?.name,
+        subsidiaryName: allSubsidiaries.find((sub) => sub.id === item.subsidiaryId)?.name, // Optional: Include subsidiaryName for clarity/robustness
+        departmentName: item?.department?.name,
+      }));
+
     const payload = {
       subsidiaries: newSubsidiaries
         .filter((item) => item.id > 9999999999)
@@ -280,8 +303,17 @@ export default function CompanySetupModal({
           ...item,
           industryId: typeof item.industry === "object" ? item.industry?.id : item.industryId || 0,
         })),
-      departments: newDepartments.filter((item) => item.id > 9999999999),
-      users: newUsers.filter((item) => item.id > 9999999999),
+      // departments: newDepartments.filter((item) => item.id > 9999999999),
+      // users: newUsers.filter((item) => item.id > 9999999999),
+      departments: newDepartments
+        .filter((item) => item.id > 9999999999)
+        .map((item) => ({
+          name: item.name,
+          subsidiaryName: allSubsidiaries.find((sub) => sub.id === item.subsidiaryId)?.name,
+          leadId: item.lead?.id,
+          leadEmail: item.lead?.email,
+        })),
+      users: usersPayload,
     };
 
     try {
@@ -346,6 +378,8 @@ export default function CompanySetupModal({
   const allDepartments = [...(departments || []), ...newDepartments];
   const allUsers = [...(companyUsers || []), ...newUsers];
   const allIndustries = industries || [];
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex">

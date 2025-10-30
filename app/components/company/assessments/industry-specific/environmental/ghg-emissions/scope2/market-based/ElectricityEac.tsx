@@ -17,6 +17,7 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 
 interface ElectricityEACFormProps {
   onBack: () => void;
@@ -41,7 +42,15 @@ export function ElectricityEACForm({
 }: ElectricityEACFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [gridElectricity, setGridElectricity] = useState("");
+
+  // Use the formatted number hook for grid electricity
+  const {
+    rawValue: gridElectricityRaw,
+    displayValue: gridElectricityDisplay,
+    handleChange: handleGridElectricityChange,
+    setRawValue: setGridElectricityRaw,
+  } = useFormattedNumber("");
+
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -63,27 +72,32 @@ export function ElectricityEACForm({
   useEffect(() => {
     const existingData = state.assessmentData.eac;
     if (existingData) {
-      setGridElectricity(existingData.gridElectricity || "");
+      // Initialize with existing data using the formatted number hook
+      if (existingData.gridElectricity) {
+        setGridElectricityRaw(existingData.gridElectricity);
+      } else {
+        setGridElectricityRaw("");
+      }
       setEmissionFactor(existingData.emissionFactor || "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.eac]);
+  }, [state.assessmentData?.eac, setGridElectricityRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      gridElectricity,
+      gridElectricityRaw,
       emissionFactor,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [gridElectricity, emissionFactor, files, additionalFields]);
+  }, [gridElectricityRaw, emissionFactor, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (!gridElectricity || Number(gridElectricity) <= 0) {
+    if (!gridElectricityRaw || Number(gridElectricityRaw) <= 0) {
       newErrors.gridElectricity = "Please enter a valid positive number.";
     }
     if (!emissionFactor || Number(emissionFactor) <= 0) {
@@ -149,7 +163,7 @@ export function ElectricityEACForm({
     dispatch({
       type: "UPDATE_EAC",
       payload: {
-        gridElectricity,
+        gridElectricity: gridElectricityRaw,
         emissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -162,7 +176,7 @@ export function ElectricityEACForm({
         data: {
           ...state.assessmentData,
           eac: {
-            gridElectricity,
+            gridElectricity: gridElectricityRaw,
             emissionFactor,
             files,
             additionalFields: additionalFields as FileMetadata[],
@@ -174,7 +188,7 @@ export function ElectricityEACForm({
         onSuccess: () => {
           setShowSaveSuccess(true);
 
-          setGridElectricity("");
+          setGridElectricityRaw("");
           setEmissionFactor("");
           setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
           setAdditionalFields([]);
@@ -191,7 +205,7 @@ export function ElectricityEACForm({
     dispatch({
       type: "UPDATE_EAC",
       payload: {
-        gridElectricity,
+        gridElectricity: gridElectricityRaw,
         emissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -199,6 +213,21 @@ export function ElectricityEACForm({
     });
 
     onNext();
+  };
+  const handlePrevious = () => {
+    if (!validateForm()) return;
+
+    dispatch({
+      type: "UPDATE_EAC",
+      payload: {
+        gridElectricity: gridElectricityRaw,
+        emissionFactor,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
   };
 
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
@@ -285,11 +314,11 @@ export function ElectricityEACForm({
                   Total grid electricity consumed (kWh)
                 </Label>
                 <Input
-                  type="number"
+                  type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter total grid electricity consumed"
-                  value={gridElectricity}
+                  value={gridElectricityDisplay} // Use the formatted display value
                   onChange={(e) => {
-                    setGridElectricity(e.target.value);
+                    handleGridElectricityChange(e.target.value); // Use the hook's handler
                     if (errors.gridElectricity)
                       setErrors((prev) => ({
                         ...prev,
@@ -331,7 +360,7 @@ export function ElectricityEACForm({
                   accept=".pdf,.jpg,.jpeg,.png"
                 />
 
-                {files["EAC / REC Certificate"] && (
+                {/* {files["EAC / REC Certificate"] && (
                   <div className="flex items-center gap-2 mt-2">
                     <p className="text-sm text-green-600 break-words max-w-full text-center">
                       Uploaded: {files["EAC / REC Certificate"]!.name}
@@ -344,7 +373,31 @@ export function ElectricityEACForm({
                       <X />
                     </button>
                   </div>
-                )}
+                )} */}
+                {uploading["EAC / REC Certificate"] ? (
+                  <div className="flex items-center gap-2 mt-2 text-gray-500">
+                    <LoadingSpinner size="sm" /> Uploading...
+                  </div>
+                ) : deleting["EAC / REC Certificate"] ? (
+                  <div className="flex items-center gap-2 mt-2 text-red-500">
+                    <LoadingSpinner size="sm" /> Deleting...
+                  </div>
+                ) : files["EAC / REC Certificate"] ? (
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
+                      Uploaded: {files["EAC / REC Certificate"]!.name}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile("EAC / REC Certificate")}
+                      disabled={deleting["EAC / REC Certificate"]}
+                      className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
+                      aria-label="Remove uploaded EAC/REC certificate"
+                    >
+                      <X />
+                    </button>
+                  </div>
+                ) : null}
               </Card>
             </div>
 
@@ -448,7 +501,7 @@ export function ElectricityEACForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="cursor-pointer justify-self-start border-teal-600 text-teal-700 hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous

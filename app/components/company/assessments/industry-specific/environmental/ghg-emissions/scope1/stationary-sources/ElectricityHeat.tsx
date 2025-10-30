@@ -101,9 +101,7 @@ export function ElectricityHeatForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  // }, [state.assessmentData.stationarySources?.electricityHeat, dieselFuelOptions, gasFuelOptions]);
+  }, [state.assessmentData.stationarySources?.electricityHeat, dieselFuelOptions, gasFuelOptions]);
 
   const { filled, total } = useMemo(() => {
     const hasDieselData = dieselGenerators.some(
@@ -132,6 +130,7 @@ export function ElectricityHeatForm({
       newErrors.dieselGenerators = "Please add at least one fuel source with a positive volume.";
       newErrors.gasTurbines = "Please add at least one fuel source with a positive volume.";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -185,79 +184,70 @@ export function ElectricityHeatForm({
       }
     );
   };
-  const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
-    type ErrorStateType = {
-      dieselGenerators?: string;
-      gasTurbines?: string;
-      files?: string;
-    };
 
+  const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, files: `File "${field}" exceeds 10MB limit` }));
       return;
     }
 
     try {
-      setUploading((prev: Record<string, boolean>) => ({
-        ...prev,
-        [field]: true,
-      }));
+      setUploading((prev) => ({ ...prev, [field]: true }));
+
       const uploaded = await uploadService.uploadImage(file);
 
       if (uploaded?.url) {
+        setFiles((prev) => ({
+          ...prev,
+          [field]: {
+            name: file.name,
+            size: file.size,
+            lastModified: file.lastModified,
+            url: uploaded.url,
+            publicId: uploaded.publicId,
+          },
+        }));
+
+        toast.success(`${file.name} uploaded successfully`);
       } else {
         toast.error("Failed to upload file");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      toast.error("Error uploading file");
     } finally {
-      setUploading((prev: Record<string, boolean>) => ({
-        ...prev,
-        [field]: false,
-      }));
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
 
-    if (errors.files) {
-      setErrors((prev: ErrorStateType) => ({
-        ...prev,
-        files: undefined,
-      }));
-    }
+    if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
 
-    type ErrorStateType = {
-      dieselGenerators?: string;
-      gasTurbines?: string;
-      files?: string;
-    };
-
     if (file?.publicId) {
       try {
+        setDeleting((prev) => ({ ...prev, [key]: true }));
+        await uploadService.deleteImage(file.publicId);
+        toast.success("File deleted successfully");
+        setFiles((prev) => ({ ...prev, [key]: null }));
       } catch (err) {
-        console.log(err);
+        console.error(err);
+        toast.error("Failed to delete file");
       } finally {
-        setDeleting((prev: Record<string, boolean>) => ({
-          ...prev,
-          [key]: false,
-        }));
-
+        setDeleting((prev) => ({ ...prev, [key]: false }));
         if (inputRefs.current[key]) {
           inputRefs.current[key]!.value = "";
         }
-
         if (errors.files) {
-          setErrors((prev: ErrorStateType) => ({
-            ...prev,
-            files: undefined,
-          }));
+          setErrors((prev) => ({ ...prev, files: undefined }));
         }
       }
     } else {
+      setFiles((prev) => ({ ...prev, [key]: null }));
       if (inputRefs.current[key]) {
         inputRefs.current[key]!.value = "";
       }
@@ -278,6 +268,20 @@ export function ElectricityHeatForm({
     });
 
     onNext();
+  };
+
+  const handlePrevious = () => {
+    dispatch({
+      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+      payload: {
+        dieselGenerators,
+        gasTurbines,
+        files,
+        additionalFields: additionalFields as FileMetadata[],
+      },
+    });
+
+    onBack();
   };
 
   return (
@@ -409,12 +413,7 @@ export function ElectricityHeatForm({
               <div className="mt-6">
                 <AdditionalFileUpload
                   onFieldsChange={(newFields) => {
-                    dispatch({
-                      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-                      payload: {
-                        additionalFields: newFields as FileMetadata[],
-                      },
-                    });
+                    setAdditionalFields(newFields);
                   }}
                   initialData={additionalFields}
                 />
@@ -424,7 +423,7 @@ export function ElectricityHeatForm({
             <div className="grid grid-cols-3 gap-4 pt-8">
               <Button
                 variant="outline"
-                onClick={onBack}
+                onClick={handlePrevious}
                 className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
