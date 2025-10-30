@@ -167,16 +167,17 @@ credits: {
       name: 'Speed',
       data: [score],
       tooltip: {
-        valueSuffix: ' km/h'
+        valueSuffix: ''
       },
-      dataLabels: {
-        format: '{y} km/h',
-        borderWidth: 0,
-        color: '#333333',
-        style: {
-          fontSize: '16px'
-        }
-      },
+     dataLabels: {
+  format: `tCO<sub>2</sub>e`,
+  useHTML: true,
+  borderWidth: 0,
+  color: '#333333',
+  style: {
+    fontSize: '16px'
+  }
+},
       dial: {
         radius: '80%',
         backgroundColor: '#119B95',
