@@ -29,7 +29,7 @@ export function GeneralTargetSummary({
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       {/* Target Summary Card */}
-      <Card>
+      <Card className="shadow-md">
         <CardHeader>
           
           <CardTitle className="text-lg font-semibold">
