@@ -407,7 +407,7 @@ export function MarineAviation({
               <div className="space-y-4 ml-6">
                 <AddSource
                   title="Fuel Sources"
-                  fuelTypeOptions={airOptions}
+                  fuelTypeOptions={marineOptions}
                   unitOptions={unitOptions}
                   sources={marine}
                   onSourcesChange={setMarine}
