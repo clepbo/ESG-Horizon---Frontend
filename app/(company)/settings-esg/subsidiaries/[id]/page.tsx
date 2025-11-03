@@ -4,10 +4,12 @@ import { useState } from "react";
 import { notFound, useRouter, useParams } from "next/navigation";
 import { FiPlus } from "react-icons/fi";
 import { ArrowLeft } from "lucide-react";
-import { useSubsidiary, useSubsidiaryUsers } from "@/services/hooks/subsidiaries.hooks";
-import { useCompanyDepartments } from "@/services/hooks/department.hooks";
+import {
+  useSubsidiary,
+  useSubsidiaryUsers,
+  useSubsidiaryDepartments,
+} from "@/services/hooks/subsidiaries.hooks";
 import { Button } from "@/app/components/ui/button";
-
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { User } from "@/services/user.service";
@@ -44,9 +46,11 @@ export default function SubsidiaryDetailsPage() {
     isLoading: isUsersLoading,
     refetch: refetchUsers,
   } = useSubsidiaryUsers(subsidiaryId);
-
-  const { data: departmentsData, isLoading: isDepartmentsLoading } =
-    useCompanyDepartments(subsidiaryId);
+  const {
+    data: departmentsData,
+    isLoading: isDepartmentLoading,
+    refetch: refetchDepartments,
+  } = useSubsidiaryDepartments(subsidiaryId);
 
   interface SubmissionData {
     users: User[];
@@ -69,7 +73,7 @@ export default function SubsidiaryDetailsPage() {
     toast.success("Subsidiary updated successfully!");
   };
 
-  if (isSubsidiaryLoading || isUsersLoading || isDepartmentsLoading) {
+  if (isSubsidiaryLoading || isUsersLoading || isDepartmentLoading) {
     return <PageSkeleton />;
   }
 
