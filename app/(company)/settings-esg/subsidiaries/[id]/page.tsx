@@ -73,7 +73,7 @@ export default function SubsidiaryDetailsPage() {
     toast.success("Subsidiary updated successfully!");
   };
 
-  if (isSubsidiaryLoading || isUsersLoading || isDepartmentLoading) {
+  if (isSubsidiaryLoading || isUsersLoading) {
     return <PageSkeleton />;
   }
 
