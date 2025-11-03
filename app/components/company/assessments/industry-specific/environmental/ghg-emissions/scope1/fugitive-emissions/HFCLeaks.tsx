@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -73,6 +73,12 @@ export function HFCLeaks({
 
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [stepIndex]);
 
   const labelClass = "text-gray-700 text-sm font-medium";
   const { filled, total } = useMemo(() => {
@@ -408,7 +414,7 @@ export function HFCLeaks({
   };
 
   return (
-    <div className="min-h-screen bg-green-50 p-6">
+    <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4">
           <Button
