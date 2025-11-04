@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { Textarea } from "@/app/components/ui/textarea";
-import { useFormattedNumber } from "@/hooks/useNumberFormater";
+// import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { GeneralTargetData } from "@/types/target";
-import { useEffect, useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { GeneralTargetSummary } from "./general/GeneralTargetSummary";
 import { SuccessModal } from "./SuccessModal";
@@ -25,7 +25,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Modal state
 
   // Use the formatting hook for targetEmission
-  const targetEmissionFormatter = useFormattedNumber(data.targetEmission || "");
+  // const targetEmissionFormatter = useFormattedNumber(data.targetEmission || "");
 
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
@@ -77,11 +77,11 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
   // };
 
   // Sync the formatter when data changes externally
-  useEffect(() => {
-    if (data.targetEmission !== Number(targetEmissionFormatter.rawValue)) {
-      targetEmissionFormatter.setRawValue(String(data.targetEmission || ""));
-    }
-  }, [data.targetEmission, targetEmissionFormatter]);
+  // useEffect(() => {
+  //   if (data.targetEmission !== Number(targetEmissionFormatter.rawValue)) {
+  //     targetEmissionFormatter.setRawValue(String(data.targetEmission || ""));
+  //   }
+  // }, [data.targetEmission, targetEmissionFormatter]);
 
   const handleContinue = () => {
     if (step === 0) {

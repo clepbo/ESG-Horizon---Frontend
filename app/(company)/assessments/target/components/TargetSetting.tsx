@@ -2,9 +2,10 @@
 
 import { GeneralTargetData, TargetType } from "@/types/target";
 import { useState } from "react";
-import { GeneralTargetForm } from "./GeneralSetTarget";
 import { TargetTypeSelector } from "./TargetTypeSelector";
+import { GeneralTargetForm } from "./GeneralSetTarget";
 import SetTargetByScope from "./SetTargetByScope";
+
 
 export function TargetSetting() {
   const [selectedType, setSelectedType] = useState<TargetType>("general");
@@ -24,14 +25,14 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            // <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
-            <h2> Testing General target form </h2>
+            <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
+            // <h2> Testing General target form </h2>
           )}
 
           {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
-              {/* <SetTargetByScope /> */}
-              <h2> Testing Targeting page issues</h2>
+              <SetTargetByScope />
+              {/* <h2> Testing Targeting page issues</h2> */}
             </div>
           )}
         </div>
