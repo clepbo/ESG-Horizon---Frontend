@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { subsidiariesService, Subsidiary } from "../subsidiaries.service";
 import { User } from "../user.service";
+import { Department } from "../department.service";
 
 /**
  * Custom hook to fetch all subsidiaries.
@@ -32,7 +33,7 @@ export const useCompanySubsidiaries = () => {
 export const useSubsidiary = (subsidiaryId: number) => {
   return useQuery<Subsidiary>({
     queryKey: ["subsidiary", subsidiaryId],
-    queryFn: () => subsidiariesService.getSubsidiariesById(),
+    queryFn: () => subsidiariesService.getSubsidiariesById(subsidiaryId),
     enabled: !!subsidiaryId,
   });
 };
@@ -50,7 +51,13 @@ export const useSubsidiaryUsers = (subsidiaryId: number) => {
     enabled: !!subsidiaryId,
   });
 };
-
+export const useSubsidiaryDepartments = (subsidiaryId: number) => {
+  return useQuery<Department[]>({
+    queryKey: ["subsidiaryDepartments", subsidiaryId],
+    queryFn: () => subsidiariesService.getCompanySubsidiaryDepartments(subsidiaryId),
+    enabled: !!subsidiaryId,
+  });
+};
 /**
  * Custom hook for creating a new subsidiary.
  * @returns A mutation object with mutate function and status.
