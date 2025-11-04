@@ -70,20 +70,6 @@ export default function SetTargetByScope() {
     }));
   };
 
-  // Handle the formatted target emission input specifically
-  // const handleTargetEmissionChange = (inputValue: string) => {
-  //   targetEmissionFormatter.handleChange(inputValue);
-
-  //   // Update the actual data with the raw numeric value
-  //   const numericValue =
-  //     targetEmissionFormatter.rawValue === "" ? null : Number(targetEmissionFormatter.rawValue);
-  //   setScopeTargetData((prev) => ({
-  //     ...prev,
-  //     targetEmission: numericValue,
-  //   }));
-  // };
-
-  // Sync the formatter when data changes externally
   useEffect(() => {
     if (scopeTargetData.targetEmission !== Number(targetEmissionFormatter.rawValue)) {
       targetEmissionFormatter.setRawValue(String(scopeTargetData.targetEmission || ""));
