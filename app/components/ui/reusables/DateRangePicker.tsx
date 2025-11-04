@@ -133,7 +133,6 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
   };
   const displayYear = selectionMode === "start" ? tempStartYear : tempEndYear;
   const selectedMonth = selectionMode === "start" ? tempStartMonth : tempEndMonth;
-  // selectedYear is still based on selectionMode, but we'll use tempStartYear/tempEndYear directly for styling
 
   const displayText = useMemo(() => {
     if (value?.startMonth && value?.endMonth) {
@@ -163,7 +162,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
           <Button
             variant="outline"
             className={cn(
-              "w-full sm:w-auto md:w-[250px] justify-start text-left font-normal pr-10",
+              "w-full sm:w-auto max-w-[250px] justify-start text-left font-normal pr-10",
               !value?.startMonth && "text-muted-foreground"
             )}
           >
