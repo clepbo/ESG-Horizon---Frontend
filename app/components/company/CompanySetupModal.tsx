@@ -121,7 +121,9 @@ export default function CompanySetupModal({
           id: formData.subsidiaryId,
           name: formData.subsidiaryName,
           industryId: formData.industryId,
-          teamLead_email: formData.managerEmail,
+          teamLead: {
+            email: formData.managerEmail,
+          },
           address: formData.address,
           status: "active",
         };
@@ -166,7 +168,9 @@ export default function CompanySetupModal({
           id: Date.now(),
           name: formData.subsidiaryName,
           industryId: formData.industryId,
-          teamLead_email: formData.managerEmail,
+          teamLead: {
+            email: formData.managerEmail,
+          },
           address: formData.address,
           status: "active",
         };
@@ -232,7 +236,7 @@ export default function CompanySetupModal({
         subsidiaryId: subsidiaryData.id,
         subsidiaryName: subsidiaryData.name,
         industryId: subsidiaryData.industryId || 0,
-        managerEmail: subsidiaryData.teamLead_email || "",
+        managerEmail: subsidiaryData.teamLead?.email || "",
         address: subsidiaryData.address || "",
       });
     } else if (type === "department") {
