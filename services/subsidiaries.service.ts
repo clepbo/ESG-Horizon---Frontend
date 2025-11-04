@@ -11,8 +11,10 @@ export type Subsidiary = {
   };
   address: string;
   status: string;
-  teamLead_email?: string;
-  teamLead_name?: string;
+  teamLead?: {
+    name?: string;
+    email?: string;
+  };
   teamLeadId?: number;
 };
 
@@ -37,12 +39,16 @@ export const subsidiariesService = {
     const data = await api.patch(`/subsidiary/${payload.id}`, payload);
     return data;
   },
-  getSubsidiariesById: async () => {
-    const data = await api.get(`/subsidiary`);
+  getSubsidiariesById: async (id: number) => {
+    const data = await api.get(`/subsidiary/${id}`);
     return data;
   },
   deleteSubsidiaries: async (id: number) => {
     const data = await api.delete(`/subsidiary/${id}`);
+    return data;
+  },
+  getCompanySubsidiaryDepartments: async (id: number) => {
+    const data = await api.get(`/subsidiary/${id}/company`);
     return data;
   },
 };

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { SquarePen, Trash2 } from "lucide-react";
+import { Eye, SquarePen, Trash2 } from "lucide-react";
 import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
 import EditSubsidiaryModal from "@/app/components/company/subsidiaries/EditSubsidiary";
 import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import { Subsidiary } from "@/services/subsidiaries.service";
 import { Card } from "../../ui/card";
+import { useRouter } from "next/navigation";
 
 interface SubsidiaryTableProps {
   subsidiaries: Subsidiary[];
@@ -16,6 +17,7 @@ interface SubsidiaryTableProps {
 }
 
 export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: SubsidiaryTableProps) {
+  const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedSubsidiary, setSelectedSubsidiary] = useState<Subsidiary | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -49,6 +51,10 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
       setSubsidiaryToDelete(null);
       setIsDeleteOpen(false);
     }
+  };
+  const handleViewClick = (id: string | number) => {
+    router.push(`/settings-esg/subsidiaries/${id}`);
+    console.log("subisidiary id", id);
   };
 
   return (
@@ -88,6 +94,13 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
                         title="Edit"
                       >
                         <SquarePen className="w-4 h-4 text-gray-600" />
+                      </button>
+                      <button
+                        className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleViewClick(subsidiary.id)}
+                        title="View"
+                      >
+                        <Eye className="w-4 h-4" />
                       </button>
                       <button
                         className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
