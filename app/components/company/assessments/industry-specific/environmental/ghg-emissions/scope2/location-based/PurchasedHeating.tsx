@@ -75,6 +75,12 @@ export function PurchasedHeatingForm({
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
 
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [stepIndex]);
+
   const isPending = isSaving || isSubmitting;
 
   useEffect(() => {
@@ -296,7 +302,7 @@ export function PurchasedHeatingForm({
   };
 
   return (
-    <div className="min-h-screen bg-green-50 p-6">
+    <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-6 mb-4">

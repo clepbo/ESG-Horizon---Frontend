@@ -67,6 +67,12 @@ export function MarineAviation({
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
 
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [stepIndex]);
+
   const getInitialSources = (
     existingSources: SourceData[] | undefined,
     fuelOptions: FuelOption[]
@@ -340,7 +346,7 @@ export function MarineAviation({
     }
   };
   return (
-    <div className="min-h-screen bg-green-50 p-6">
+    <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4">
           <Button
@@ -407,7 +413,7 @@ export function MarineAviation({
               <div className="space-y-4 ml-6">
                 <AddSource
                   title="Fuel Sources"
-                  fuelTypeOptions={airOptions}
+                  fuelTypeOptions={marineOptions}
                   unitOptions={unitOptions}
                   sources={marine}
                   onSourcesChange={setMarine}

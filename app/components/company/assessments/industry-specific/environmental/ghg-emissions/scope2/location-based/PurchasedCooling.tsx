@@ -71,6 +71,12 @@ export function PurchasedCoolingForm({
 
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
 
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [stepIndex]);
+
   useEffect(() => {
     const existingData = state.assessmentData.cooling;
 
@@ -257,7 +263,7 @@ export function PurchasedCoolingForm({
     }
   };
   return (
-    <div className="min-h-screen bg-green-50 p-6">
+    <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-6 mb-4">
