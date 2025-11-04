@@ -24,7 +24,8 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
+            // <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
+            <h2> Testing General target form </h2>
           )}
 
           {selectedType === "scope" && (
