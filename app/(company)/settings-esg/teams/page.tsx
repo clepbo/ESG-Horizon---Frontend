@@ -77,7 +77,7 @@ export default function TeamsPage() {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [users, search, roleFilter, statusFilter]);
+  }, [users, search, roleFilter, statusFilter, ROLE_OPTIONS, STATUS_OPTIONS]);
 
   const handleStatusUpdate = async (id: number, newStatus: TeamUserStatus) => {
     try {

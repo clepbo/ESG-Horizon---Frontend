@@ -3,7 +3,6 @@
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import React, { useState } from "react";
 import PerformanceOverview from "./PerformanceOverview";
-import ESGPerformance from "./TargetPage";
 import ESGLeaderboard from "./RankingTable";
 
 export default function RankingHome() {

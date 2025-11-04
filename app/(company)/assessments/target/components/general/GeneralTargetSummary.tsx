@@ -20,7 +20,7 @@ export function GeneralTargetSummary({
   targetYear = 2030,
   baselineYear = 2024,
   onPrevious,
-  onSetTarget
+  onSetTarget,
 }: TargetSummaryProps) {
   const totalReduction = baselineEmission - targetEmission;
   const yearsDifference = targetYear - baselineYear;
@@ -31,22 +31,18 @@ export function GeneralTargetSummary({
       {/* Target Summary Card */}
       <Card className="shadow-md">
         <CardHeader>
-          
-          <CardTitle className="text-lg font-semibold">
-           
-            Target Summary
-            </CardTitle>
+          <CardTitle className="text-lg font-semibold">Target Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Main Reduction Target */}
           <div className="text-center space-y-2">
             <TrendingDown className={`justify-self-auto mx-auto text-green-600 font-semibold`} />
             <h6 className="text-2xl font-semibold text-gray-900">
-               
               {reductionPercentage}% Reduction Target
             </h6>
             <p className="text-gray-600">
-              From {baselineEmission.toLocaleString()} to {targetEmission.toLocaleString()} tCO₂e by {targetYear}
+              From {baselineEmission.toLocaleString()} to {targetEmission.toLocaleString()} tCO₂e by{" "}
+              {targetYear}
             </p>
           </div>
 
@@ -54,14 +50,11 @@ export function GeneralTargetSummary({
           <div className="space-y-4 mx-2 lg:mx-14">
             <h6 className="font-semibold text-gray-900">Target Details</h6>
 
-            
             <div className="flex flex-col gap-4 w-full">
               {/* Timeline */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Timeline:</div>
-                <div className="text-sm font-semibold text-gray-900">
-                  {yearsDifference} years
-                </div>
+                <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
               </div>
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600"> Target ({targetYear}):</div>
@@ -72,7 +65,7 @@ export function GeneralTargetSummary({
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600"> Annual Rate: </div>
                 <div className={`text-sm font-semibold text-green-600`}>
-                 {Math.round(annualRate).toLocaleString()} tCO₂e/year
+                  {Math.round(annualRate).toLocaleString()} tCO₂e/year
                 </div>
               </div>
             </div>
@@ -82,7 +75,7 @@ export function GeneralTargetSummary({
 
       {/* Action Buttons */}
       <div className="flex justify-between">
-        <CustomButton 
+        <CustomButton
           icon={<FaCaretLeft className="mr-2" />}
           variant="outlined"
           onClick={onPrevious}
@@ -90,11 +83,8 @@ export function GeneralTargetSummary({
         >
           Previous
         </CustomButton>
-        
-        <CustomButton 
-          onClick={onSetTarget}
-          className=""
-        >
+
+        <CustomButton onClick={onSetTarget} className="">
           Set Target
         </CustomButton>
       </div>

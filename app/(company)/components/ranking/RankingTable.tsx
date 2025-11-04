@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Button } from "@/app/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";

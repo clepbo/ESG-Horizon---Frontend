@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Card, CardHeader, CardContent, CardTitle } from "@/app/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Progress } from "@radix-ui/react-progress";
 import React from "react";
 
-interface EmissionSource {
-  id: number;
-  name: string;
-  location: string;
-  value: number;
-  scope: string;
-}
+// interface EmissionSource {
+//   id: number;
+//   name: string;
+//   location: string;
+//   value: number;
+//   scope: string;
+// }
 
 export default function FullReportSummary({ data }: any) {
   // const emissionSources: EmissionSource[] = [

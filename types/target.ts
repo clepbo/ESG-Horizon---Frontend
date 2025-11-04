@@ -7,4 +7,4 @@ export interface GeneralTargetData {
   totalReduction: number | null;
 }
 
-export type TargetType = 'general' | 'scope';
+export type TargetType = "general" | "scope";

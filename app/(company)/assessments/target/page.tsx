@@ -1,6 +1,5 @@
 "use client";
 
-import ComingSoon from "@/app/components/coming-soon";
 import Header from "../../components/Header";
 import { motion } from "framer-motion";
 import TargetHomePage from "./components/TargetHomePage";
