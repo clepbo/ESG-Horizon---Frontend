@@ -37,11 +37,13 @@ export function DataTable<TData>({
   data,
   columns,
   filterOptions = [],
+  searchPlaceholder = "Search all columns...",
   customFilters,
 }: {
   data: TData[];
   columns: ColumnDef<TData, any>[];
   filterOptions?: FilterOption[];
+  searchPlaceholder?: string;
   customFilters?: React.ReactNode;
 }) {
   const [globalFilter, setGlobalFilter] = useState("");
@@ -64,7 +66,7 @@ export function DataTable<TData>({
       {/* Search and Filters */}
       <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
         <SearchInput
-          placeholder="Search all columns..."
+          placeholder={searchPlaceholder}
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
