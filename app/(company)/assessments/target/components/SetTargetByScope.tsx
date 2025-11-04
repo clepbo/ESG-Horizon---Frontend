@@ -88,7 +88,7 @@ export default function SetTargetByScope() {
     if (scopeTargetData.targetEmission !== Number(targetEmissionFormatter.rawValue)) {
       targetEmissionFormatter.setRawValue(String(scopeTargetData.targetEmission || ""));
     }
-  }, [scopeTargetData.targetEmission, targetEmissionFormatter]);
+  }, [scopeTargetData.targetEmission]);
 
   const handleContinue = () => {
     if (step === 0) {
