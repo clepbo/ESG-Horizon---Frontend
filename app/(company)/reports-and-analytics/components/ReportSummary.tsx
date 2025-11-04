@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -57,50 +59,50 @@ interface ReportSummaryProps {
 }
 
 // Helper function to generate assessment data from real data
-function generateAssessmentData(reportData: any) {
-  if (!reportData) return [];
+// function generateAssessmentData(reportData: any) {
+//   if (!reportData) return [];
 
-  const { report, percentage_emission_summary } = reportData;
+//   const { report, percentage_emission_summary } = reportData;
 
-  return [
-    {
-      title: "Total Emissions",
-      value: Number(report?.ghg_total_emissions ?? 0),
-      unit: "tCO₂e",
-      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
-      percentage: null,
-      colorClass: "",
-      textColorClass: "text-foreground",
-    },
-    {
-      title: "Scope 1",
-      value: Number(report?.ghg_scope_one ?? 0),
-      unit: "tCO₂e",
-      icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
-      colorClass: "bg-orange-500",
-      percentage: Math.round(Number(percentage_emission_summary?.scope1_emission_summary ?? 0)),
-      textColorClass: "text-orange-500",
-    },
-    {
-      title: "Scope 2",
-      value: Number(report?.ghg_scope_two ?? 0),
-      unit: "tCO₂e",
-      icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
-      colorClass: "bg-blue-500",
-      percentage: Math.round(Number(percentage_emission_summary?.scope2_emission_summary ?? 0)),
-      textColorClass: "text-blue-500",
-    },
-    {
-      title: "Scope 3",
-      value: Number(report?.ghg_scope_three ?? 0),
-      unit: "tCO₂e",
-      icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
-      colorClass: "bg-purple-500",
-      percentage: Math.round(Number(percentage_emission_summary?.scope3_emission_summary ?? 0)),
-      textColorClass: "text-purple-500",
-    },
-  ];
-}
+//   return [
+//     {
+//       title: "Total Emissions",
+//       value: Number(report?.ghg_total_emissions ?? 0),
+//       unit: "tCO₂e",
+//       icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+//       percentage: null,
+//       colorClass: "",
+//       textColorClass: "text-foreground",
+//     },
+//     {
+//       title: "Scope 1",
+//       value: Number(report?.ghg_scope_one ?? 0),
+//       unit: "tCO₂e",
+//       icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+//       colorClass: "bg-orange-500",
+//       percentage: Math.round(Number(percentage_emission_summary?.scope1_emission_summary ?? 0)),
+//       textColorClass: "text-orange-500",
+//     },
+//     {
+//       title: "Scope 2",
+//       value: Number(report?.ghg_scope_two ?? 0),
+//       unit: "tCO₂e",
+//       icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+//       colorClass: "bg-blue-500",
+//       percentage: Math.round(Number(percentage_emission_summary?.scope2_emission_summary ?? 0)),
+//       textColorClass: "text-blue-500",
+//     },
+//     {
+//       title: "Scope 3",
+//       value: Number(report?.ghg_scope_three ?? 0),
+//       unit: "tCO₂e",
+//       icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+//       colorClass: "bg-purple-500",
+//       percentage: Math.round(Number(percentage_emission_summary?.scope3_emission_summary ?? 0)),
+//       textColorClass: "text-purple-500",
+//     },
+//   ];
+// }
 
 const ReportSummary = (props: ReportSummaryProps) => {
   const [selected, setSelected] = useState<string | undefined>(undefined);
@@ -158,7 +160,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
   }
 
   const { report, percentage_emission_summary } = reportData;
-  const assessmentData = generateAssessmentData(reportData);
+  // const assessmentData = generateAssessmentData(reportData);
 
   return (
     <div className="min-h-screen p-4 lg:p-8">

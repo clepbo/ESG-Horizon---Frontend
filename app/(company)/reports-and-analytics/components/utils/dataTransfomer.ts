@@ -1,5 +1,4 @@
-// Add these functions to your utils/dataTransformers.ts
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function transformScopeDataForCharts(reportData: any) {
   if (!reportData) return [];
 

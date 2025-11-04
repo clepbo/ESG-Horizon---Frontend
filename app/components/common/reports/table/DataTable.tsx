@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import { useMemo, useState } from "react";
-import { tableData } from "./data";
+// import { tableData } from "./data";
 import {
   useReactTable,
   getCoreRowModel,

@@ -81,7 +81,7 @@ export function CementManufacturing({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.processEmissions?.cementManufacturing]);
+  }, [state.assessmentData.processEmissions?.cementManufacturing, setCementRaw]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);

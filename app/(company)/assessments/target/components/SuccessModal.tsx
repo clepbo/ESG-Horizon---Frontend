@@ -1,5 +1,11 @@
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle, Dialog } from "@/components/ui/dialog";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  Dialog,
+} from "@/components/ui/dialog";
 import { CheckCircle } from "lucide-react";
 
 interface SuccessModalProps {
@@ -23,7 +29,7 @@ export function SuccessModal({ isOpen, onClose, onContinue }: SuccessModalProps)
             Set Successfully!
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="flex justify-center pt-4">
           <CustomButton
             onClick={onContinue}

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 
 import React from "react";
@@ -93,7 +95,11 @@ export default function GHGEmissionsInventory({
   );
 }
 
-function getScopeData(summary: any) {
+function getScopeData(summary: {
+  scope1_emission_summary: any;
+  scope2_emission_summary: any;
+  scope3_emission_summary: any;
+}) {
   const colors = {
     scope1: "#FF6B3D",
     scope2: "#3E9BFF",
@@ -119,14 +125,14 @@ function getScopeData(summary: any) {
   ];
 }
 
-const fuelMixData = [
-  { name: "Diesel", "Scope 1": 2000, "Scope 2": 800, "Scope 3": 200 },
-  { name: "Natural Gas", "Scope 1": 1000, "Scope 2": 600, "Scope 3": 300 },
-  { name: "Coal", "Scope 1": 1800, "Scope 2": 1600, "Scope 3": 600 },
-  { name: "Grid Electricity", "Scope 1": 200, "Scope 2": 1400, "Scope 3": 300 },
-  { name: "Biomass", "Scope 1": 2000, "Scope 2": 2000, "Scope 3": 800 },
-  { name: "Other Fuels", "Scope 1": 1000, "Scope 2": 600, "Scope 3": 300 },
-];
+// const fuelMixData = [
+//   { name: "Diesel", "Scope 1": 2000, "Scope 2": 800, "Scope 3": 200 },
+//   { name: "Natural Gas", "Scope 1": 1000, "Scope 2": 600, "Scope 3": 300 },
+//   { name: "Coal", "Scope 1": 1800, "Scope 2": 1600, "Scope 3": 600 },
+//   { name: "Grid Electricity", "Scope 1": 200, "Scope 2": 1400, "Scope 3": 300 },
+//   { name: "Biomass", "Scope 1": 2000, "Scope 2": 2000, "Scope 3": 800 },
+//   { name: "Other Fuels", "Scope 1": 1000, "Scope 2": 600, "Scope 3": 300 },
+// ];
 
 // ---------- Utility Function ----------
 function getFuelMixData(fuelMixBreakdown: any[]) {

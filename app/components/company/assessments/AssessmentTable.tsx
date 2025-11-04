@@ -79,7 +79,6 @@ function RejectionReasonModal({
 
 /* 🧩 Each row’s Action Dropdown — isolated state */
 function ActionDropdown({
-  assessment,
   status,
   getActionIcon,
   actionLabel,

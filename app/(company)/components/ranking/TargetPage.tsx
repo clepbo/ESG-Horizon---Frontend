@@ -14,7 +14,6 @@ const ESGPerformance = () => {
   // Main gauge data
   const baseline = 26830;
   const current = 17425;
-  const target = 11537;
   const percentage = Math.round((current / baseline) * 100);
 
   // Scope data

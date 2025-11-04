@@ -54,7 +54,6 @@ function SourceRow({
   validateSource,
   errors,
   isEditing,
-  editingFactorId,
   tempEmissionFactor,
   setTempEmissionFactor,
   handleEditClick,
@@ -292,26 +291,26 @@ export function AddSource({
   unitOptions,
   sources,
   onSourcesChange,
-  volumeLabel = "Volume of Fuel Consumed",
-  volumePlaceholder = "Enter total volume consumed",
+  // volumeLabel = "Volume of Fuel Consumed",
+  // volumePlaceholder = "Enter total volume consumed",
   error,
 }: AddSourceProps) {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [editingFactorId, setEditingFactorId] = useState<string | null>(null);
   const [tempEmissionFactor, setTempEmissionFactor] = useState<number | null>(null);
 
-  const calculatedEmissions = useMemo(() => {
-    return sources.reduce(
-      (acc, source) => {
-        acc[source.id] = calculateTCO2eForSource({
-          volume: source.volume,
-          emissionFactor: source.emissionFactor,
-        });
-        return acc;
-      },
-      {} as Record<string, number>
-    );
-  }, [sources]);
+  // const calculatedEmissions = useMemo(() => {
+  //   return sources.reduce(
+  //     (acc, source) => {
+  //       acc[source.id] = calculateTCO2eForSource({
+  //         volume: source.volume,
+  //         emissionFactor: source.emissionFactor,
+  //       });
+  //       return acc;
+  //     },
+  //     {} as Record<string, number>
+  //   );
+  // }, [sources]);
 
   const addSource = () => {
     const defaultFuelType = fuelTypeOptions[0] || {

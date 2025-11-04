@@ -83,11 +83,9 @@ interface GaugeChartProps {
   baseline: number;
 }
 
-export function GaugeChart({ current, target, baseline }: GaugeChartProps) {
-  const percentage = Math.round((current / baseline) * 100);
-  const data = [{ value: percentage }, { value: 100 - percentage }];
-
-  const COLORS = ["#009688", "#D6F4F0"];
+export function GaugeChart() {
+  // const percentage = Math.round((current / baseline) * 100);
+  // const data = [{ value: percentage }, { value: 100 - percentage }];
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
