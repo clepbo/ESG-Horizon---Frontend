@@ -1,12 +1,6 @@
 "use client";
 
-import { Plus, Edit } from "lucide-react";
-import {
-  GaugeChart,
-  KpiCard,
-  MiniDonutChart,
-  RechartsGaugeChart,
-} from "@/app/components/ui/charts/DonoughtChart";
+import { KpiCard, MiniDonutChart } from "@/app/components/ui/charts/DonoughtChart";
 import SpeedometerGauge from "./CustomGuageChart";
 
 export default function PerformanceOverview() {

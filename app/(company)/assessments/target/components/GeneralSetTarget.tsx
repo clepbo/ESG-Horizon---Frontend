@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -9,7 +10,6 @@ import { useEffect, useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { GeneralTargetSummary } from "./general/GeneralTargetSummary";
 import { SuccessModal } from "./SuccessModal";
-
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
@@ -23,64 +23,65 @@ export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
 export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetFormProps) {
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Modal state
-  
+
   // Use the formatting hook for targetEmission
   const targetEmissionFormatter = useFormattedNumber(data.targetEmission || "");
 
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
-    
-    if (field === 'reductionPercentage') {
-      processedValue = value === '' ? null : Number(value);
+
+    if (field === "reductionPercentage") {
+      processedValue = value === "" ? null : Number(value);
       // Auto-calculate target emission when percentage changes
       if (processedValue !== null && data.baselineYear && data.targetYear) {
         const baselineEmission = 26830; // Fixed baseline from image
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission - targetEmission;
-        
+
         onChange({
           ...data,
           reductionPercentage: processedValue,
           targetEmission: Math.round(targetEmission),
-          totalReduction: Math.round(totalReduction)
+          totalReduction: Math.round(totalReduction),
         });
         return;
       }
     }
-    
-    if (field === 'baselineYear' || field === 'targetYear') {
-      processedValue = value === '' ? null : Number(value);
+
+    if (field === "baselineYear" || field === "targetYear") {
+      processedValue = value === "" ? null : Number(value);
     }
 
     // Handle targetEmission changes from formatted input
-    if (field === 'targetEmission') {
-      processedValue = value === '' ? null : Number(value);
+    if (field === "targetEmission") {
+      processedValue = value === "" ? null : Number(value);
     }
 
     onChange({
       ...data,
-      [field]: processedValue
+      [field]: processedValue,
     });
   };
 
   // Handle the formatted target emission input specifically
-  const handleTargetEmissionChange = (inputValue: string) => {
-    targetEmissionFormatter.handleChange(inputValue);
-    
-    // Update the actual data with the raw numeric value
-    const numericValue = targetEmissionFormatter.rawValue === '' ? null : Number(targetEmissionFormatter.rawValue);
-    onChange({
-      ...data,
-      targetEmission: numericValue
-    });
-  };
+  // const handleTargetEmissionChange = (inputValue: string) => {
+  //   targetEmissionFormatter.handleChange(inputValue);
+
+  //   // Update the actual data with the raw numeric value
+  //   const numericValue =
+  //     targetEmissionFormatter.rawValue === "" ? null : Number(targetEmissionFormatter.rawValue);
+  //   onChange({
+  //     ...data,
+  //     targetEmission: numericValue,
+  //   });
+  // };
 
   // Sync the formatter when data changes externally
   useEffect(() => {
     if (data.targetEmission !== Number(targetEmissionFormatter.rawValue)) {
       targetEmissionFormatter.setRawValue(String(data.targetEmission || ""));
     }
-  }, [data.targetEmission]);
+  }, [data.targetEmission, targetEmissionFormatter]);
 
   const handleContinue = () => {
     if (step === 0) {
@@ -98,7 +99,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
   const handleSetTarget = () => {
     // Call the onComplete callback with the data
     onComplete?.(data);
-    
+
     // Open the success modal
     setIsSuccessModalOpen(true);
   };
@@ -106,7 +107,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
   const handleModalContinue = () => {
     // Close the modal
     setIsSuccessModalOpen(false);
-    
+
     // You can add additional logic here for what happens after modal "Continue"
     // For example: reset the form, navigate away, etc.
     console.log("Modal continue clicked - target setup complete!");
@@ -141,8 +142,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
                     id="reductionPercentage"
                     type="number"
                     placeholder="e.g. 30"
-                    value={data.reductionPercentage ?? ''}
-                    onChange={(e) => handleInputChange('reductionPercentage', e.target.value)}
+                    value={data.reductionPercentage ?? ""}
+                    onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
                     className="w-full"
                   />
                 </div>
@@ -151,13 +152,15 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
                   <Label htmlFor="baselineYear">Baseline Year</Label>
                   <select
                     id="baselineYear"
-                    value={data.baselineYear ?? ''}
-                    onChange={(e) => handleInputChange('baselineYear', e.target.value)}
+                    value={data.baselineYear ?? ""}
+                    onChange={(e) => handleInputChange("baselineYear", e.target.value)}
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select year</option>
-                    {years.map(year => (
-                      <option key={year} value={year}>{year}</option>
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -166,13 +169,15 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
                   <Label htmlFor="targetYear">Target Year</Label>
                   <select
                     id="targetYear"
-                    value={data.targetYear ?? ''}
-                    onChange={(e) => handleInputChange('targetYear', e.target.value)}
+                    value={data.targetYear ?? ""}
+                    onChange={(e) => handleInputChange("targetYear", e.target.value)}
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select year</option>
-                    {years.map(year => (
-                      <option key={year} value={year}>{year}</option>
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -184,7 +189,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
                   id="description"
                   placeholder="Describe your general reduction strategy..."
                   value={data.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
                   rows={3}
                 />
               </div>
@@ -207,7 +212,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
                     {calculatedTargetEmission.toLocaleString()} tCO₂e
                   </div>
                 </div>
-                <hr className="text-gray-300"/>
+                <hr className="text-gray-300" />
                 <div className="space-y-2 flex items-center justify-between w-full">
                   <Label>Total Reduction:</Label>
                   <div className="text-sm text-red-500 font-semibold">
@@ -219,8 +224,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
           </Card>
 
           <div className="flex justify-center">
-            <CustomButton 
-              icon={<FaCaretRight />} 
+            <CustomButton
+              icon={<FaCaretRight />}
               onClick={handleContinue}
               className="text-white px-6 py-2"
               disabled={!data.reductionPercentage || !data.baselineYear || !data.targetYear}
