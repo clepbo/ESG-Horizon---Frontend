@@ -34,7 +34,7 @@ const FULL_MONTHS = [
 ];
 
 type SelectionMode = "start" | "end";
-type ActiveTab = "day" | "week" | "month" | "year";
+type ActiveTab = "month" | "year";
 
 export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -84,9 +84,13 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
       setIsOpen(false);
       setSelectionMode("start");
     } else if (activeTab === "year" && tempStartYear !== null && tempEndYear !== null) {
+      // FIX 2: Ensure chronological order
+      const start = Math.min(tempStartYear, tempEndYear);
+      const end = Math.max(tempStartYear, tempEndYear);
+
       onChange?.({
-        startMonth: `${tempStartYear}`,
-        endMonth: `${tempEndYear}`,
+        startMonth: `${start}`,
+        endMonth: `${end}`,
       });
       setIsOpen(false);
       setSelectionMode("start");
@@ -129,7 +133,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
   };
   const displayYear = selectionMode === "start" ? tempStartYear : tempEndYear;
   const selectedMonth = selectionMode === "start" ? tempStartMonth : tempEndMonth;
-  const selectedYear = selectionMode === "start" ? tempStartYear : tempEndYear;
+  // selectedYear is still based on selectionMode, but we'll use tempStartYear/tempEndYear directly for styling
 
   const displayText = useMemo(() => {
     if (value?.startMonth && value?.endMonth) {
@@ -159,7 +163,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
           <Button
             variant="outline"
             className={cn(
-              "w-full sm:w-auto min-w-[300px] justify-start text-left font-normal pr-10",
+              "w-full sm:w-auto md:w-[250px] justify-start text-left font-normal pr-10",
               !value?.startMonth && "text-muted-foreground"
             )}
           >
@@ -179,23 +183,11 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
 
         <PopoverContent
           className="w-auto p-0 pointer-events-auto z-50 border-none shadow-sm"
-          align="start"
+          align="end"
         >
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <div className="border-b">
-              <TabsList className="w-full grid grid-cols-4 h-12 bg-transparent rounded-none">
-                <TabsTrigger
-                  value="day"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
-                >
-                  Day
-                </TabsTrigger>
-                <TabsTrigger
-                  value="week"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
-                >
-                  Week
-                </TabsTrigger>
+              <TabsList className="w-full grid grid-cols-2 h-12 bg-transparent rounded-none">
                 <TabsTrigger
                   value="month"
                   className="data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none"
@@ -254,7 +246,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
                     className={cn(
                       "px-4 py-2 text-sm rounded-md transition-colors hover:bg-muted",
                       selectedMonth === index
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        ? "bg-primary text-white hover:bg-primary/90"
                         : "bg-background border border-border"
                     )}
                   >
@@ -324,8 +316,9 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
                     className={cn(
                       "px-4 py-2 text-sm rounded-md transition-colors hover:bg-muted",
 
-                      selectedYear === year
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      // FIX 1: Highlight if year is EITHER the start or end year
+                      tempStartYear === year || tempEndYear === year
+                        ? "bg-primary text-white hover:bg-primary/90"
                         : "bg-background border border-border"
                     )}
                   >
