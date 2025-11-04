@@ -434,5 +434,7 @@ export default function SetTargetByScope() {
     );
   }
 
-  return null;
+  // return null;
+
+return <h2> Troubleshooting the error</h2>;
 }
