@@ -10,12 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/app/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { ArrowLeft, ChevronRight, Info } from "lucide-react";
 import { StationarySourcesForm } from "./scope1/stationary-sources";
 import { MobileSourcesForm } from "./scope1/mobile-sources";

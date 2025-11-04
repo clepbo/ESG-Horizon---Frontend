@@ -1,10 +1,9 @@
 "use client";
 
-import ComingSoon from "@/app/components/coming-soon";
 import Header from "../../components/Header";
 import { motion } from "framer-motion";
 
-export default function Page() {
+export default function TasksPage() {
   return (
     <div className="flex h-screen bg-green-50 overflow-hidden">
       <motion.main
@@ -19,7 +18,7 @@ export default function Page() {
         }}
       >
         <Header />
-        <ComingSoon />
+        <p>le tasks</p>
       </motion.main>
     </div>
   );
