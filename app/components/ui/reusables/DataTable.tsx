@@ -70,7 +70,7 @@ export function DataTable<TData>({
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex  items-center gap-2">
           {filterOptions.map((filter) => (
             <Select
               key={filter.columnId}
