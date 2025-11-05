@@ -28,7 +28,7 @@ out/
 *.ntvs*
 *.njsproj
 *.sln
-
+tsconfig.tsbuildinfo
 # MacOS
 .DS_Store
 
