@@ -122,6 +122,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
   const calculatedTargetEmission = data.targetEmission || 0;
   const calculatedTotalReduction = data.totalReduction || 0;
 
+  console.log("DATA...", data)
+
   return (
     <>
       {step === 0 ? (
@@ -239,8 +241,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
           reductionPercentage={data.reductionPercentage || 0}
           baselineEmission={baselineEmission}
           targetEmission={calculatedTargetEmission}
-          targetYear={data.targetYear || 2030}
-          baselineYear={data.baselineYear || 2024}
+          targetYear={data?.targetYear ?? 0}
+          baselineYear={data.baselineYear || 0}
           onPrevious={handlePrevious}
           onSetTarget={handleSetTarget}
         />
