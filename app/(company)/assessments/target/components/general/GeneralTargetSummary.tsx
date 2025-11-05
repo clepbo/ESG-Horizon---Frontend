@@ -11,6 +11,7 @@ interface TargetSummaryProps {
   baselineYear: number;
   onPrevious: () => void;
   onSetTarget: () => void;
+  isLoading? : boolean;
 }
 
 export function GeneralTargetSummary({
@@ -22,9 +23,10 @@ export function GeneralTargetSummary({
   onPrevious,
   onSetTarget,
 }: TargetSummaryProps) {
+  // Fix: Calculate total reduction correctly
   const totalReduction = baselineEmission - targetEmission;
-  const yearsDifference = targetYear - baselineYear;
-  const annualRate = totalReduction / yearsDifference;
+  const yearsDifference = Math.abs(targetYear - baselineYear);
+  const annualRate = yearsDifference > 0 ? totalReduction / yearsDifference : 0;
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -56,14 +58,18 @@ export function GeneralTargetSummary({
                 <div className="text-sm font-medium text-gray-600">Timeline:</div>
                 <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
               </div>
+              
+              {/* Total Reduction - FIXED */}
               <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600"> Target ({targetYear}):</div>
+                <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
                 <div className="text-sm font-semibold text-red-600">
-                  {totalReduction.toLocaleString()} tCO₂e
+                  -{totalReduction.toLocaleString()} tCO₂e
                 </div>
               </div>
+              
+              {/* Annual Rate */}
               <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600"> Annual Rate: </div>
+                <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
                 <div className={`text-sm font-semibold text-green-600`}>
                   {Math.round(annualRate).toLocaleString()} tCO₂e/year
                 </div>

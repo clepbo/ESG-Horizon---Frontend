@@ -1,4 +1,5 @@
 export interface GeneralTargetData {
+  name?: string | null;
   reductionPercentage: number | null;
   baselineYear: number | null;
   targetYear: number | null;
