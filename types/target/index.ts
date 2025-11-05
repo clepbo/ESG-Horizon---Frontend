@@ -18,7 +18,6 @@ export interface ScopeTargetPayload {
   description: string;
   baselineYear: number;
   targetYear: number;
-  reductionPercentage: number;
   scopes: {
     scope1: ScopeTarget;
     scope2: ScopeTarget;

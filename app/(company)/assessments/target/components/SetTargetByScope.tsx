@@ -4,52 +4,115 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { GeneralTargetData } from "@/types/target";
 import { useEffect, useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { years } from "./GeneralSetTarget";
 import { ScopeSummary } from "./scope/ScopeTargetSummary";
 import { SuccessModal } from "./SuccessModal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import apiUtil from "@/lib/api/axios";
+import { useAuth } from "@/context/AuthContext";
+import { TargetPayload } from "@/types/target/index";
+import { useRouter } from 'next/navigation';
 
 interface ScopeData {
   scope: string;
   timeline: number;
   targetReduction: number;
   annualRate: number;
+  reductionPercentage: number;
+  baselineYear: number;
+  targetYear: number;
+  description: string;
+  targetEmission: number;
+  totalReduction: number;
+}
+
+interface ScopeTargetData {
+  scope1: GeneralTargetData;
+  scope2: GeneralTargetData;
+  scope3: GeneralTargetData;
 }
 
 export default function SetTargetByScope() {
-  const [scopeTargetData, setScopeTargetData] = useState<GeneralTargetData>({
-    reductionPercentage: null,
-    baselineYear: null,
-    targetYear: null,
-    description: "",
-    targetEmission: null,
-    totalReduction: null,
+  const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
+    scope1: {
+      reductionPercentage: null,
+      baselineYear: null,
+      targetYear: null,
+      description: "",
+      targetEmission: null,
+      totalReduction: null,
+    },
+    scope2: {
+      reductionPercentage: null,
+      baselineYear: null,
+      targetYear: null,
+      description: "",
+      targetEmission: null,
+      totalReduction: null,
+    },
+    scope3: {
+      reductionPercentage: null,
+      baselineYear: null,
+      targetYear: null,
+      description: "",
+      targetEmission: null,
+      totalReduction: null,
+    },
   });
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const router = useRouter();
 
-  // Use the formatting hook for targetEmission
-  const targetEmissionFormatter = useFormattedNumber(scopeTargetData.targetEmission || "");
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const companyId = user?.company?.id;
 
-  const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
-    let processedValue: number | string | null | any = value;
+  const baseline = useQuery({
+    queryKey: ["baseline", companyId],
+    queryFn: () => {
+      if (!companyId) throw new Error('Company ID not available');
+      return apiUtil.get(`/target/baseline/${companyId}`);
+    },
+    enabled: !!companyId,
+  });
+
+  const createTarget = useMutation({
+    mutationFn: async (targetData: TargetPayload) => {
+      if (!companyId) throw new Error('Company ID not available');
+      return apiUtil.post(`/target`, targetData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['baseline'] });
+      queryClient.invalidateQueries({ queryKey: ['targets'] });
+    },
+  });
+
+  // Get baseline data from the query
+  const baselineData = baseline.data?.data || baseline.data;
+  const baselineEmission = baselineData?.totalSum || baselineData?.totalEmissions || baselineData?.emissions || 26830;
+  const baselineYear = baselineData?.startYear || baselineData?.baselineYear || baselineData?.year || 2024;
+
+  const handleScopeInputChange = (scope: keyof ScopeTargetData, field: keyof GeneralTargetData, value: string | number) => {
+    let processedValue: any = value;
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
-      // Auto-calculate target emission when percentage changes
-      if (processedValue !== null && scopeTargetData.baselineYear && scopeTargetData.targetYear) {
-        const baselineEmission = 26830; // Fixed baseline from image
+      // Auto-calculate target emission when percentage changes using actual baseline
+      if (processedValue !== null && scopeTargetData[scope].baselineYear && scopeTargetData[scope].targetYear) {
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission - targetEmission;
 
-        setScopeTargetData((prev) => ({
+        setScopeTargetData(prev => ({
           ...prev,
-          reductionPercentage: processedValue,
-          targetEmission: Math.round(targetEmission),
-          totalReduction: Math.round(totalReduction),
+          [scope]: {
+            ...prev[scope],
+            reductionPercentage: processedValue,
+            targetEmission: Math.round(targetEmission),
+            totalReduction: Math.round(totalReduction),
+          }
         }));
         return;
       }
@@ -64,26 +127,34 @@ export default function SetTargetByScope() {
       processedValue = value === "" ? null : Number(value);
     }
 
-    setScopeTargetData((prev) => ({
+    setScopeTargetData(prev => ({
       ...prev,
-      [field]: processedValue,
+      [scope]: {
+        ...prev[scope],
+        [field]: processedValue,
+      }
     }));
   };
 
+  // Set default baseline year from API if available for all scopes
   useEffect(() => {
-    if (scopeTargetData.targetEmission !== Number(targetEmissionFormatter.rawValue)) {
-      targetEmissionFormatter.setRawValue(String(scopeTargetData.targetEmission || ""));
+    if (baselineYear) {
+      setScopeTargetData(prev => ({
+        scope1: { ...prev.scope1, baselineYear: prev.scope1.baselineYear || baselineYear },
+        scope2: { ...prev.scope2, baselineYear: prev.scope2.baselineYear || baselineYear },
+        scope3: { ...prev.scope3, baselineYear: prev.scope3.baselineYear || baselineYear },
+      }));
     }
-  }, [scopeTargetData.targetEmission]);
+  }, [baselineYear]);
 
   const handleContinue = () => {
     if (step === 0) {
-      // Validate required fields before proceeding
-      if (
-        scopeTargetData.reductionPercentage &&
-        scopeTargetData.baselineYear &&
-        scopeTargetData.targetYear
-      ) {
+      // Validate required fields for all scopes before proceeding
+      const isScope1Valid = scopeTargetData.scope1.reductionPercentage && scopeTargetData.scope1.baselineYear && scopeTargetData.scope1.targetYear;
+      const isScope2Valid = scopeTargetData.scope2.reductionPercentage && scopeTargetData.scope2.baselineYear && scopeTargetData.scope2.targetYear;
+      const isScope3Valid = scopeTargetData.scope3.reductionPercentage && scopeTargetData.scope3.baselineYear && scopeTargetData.scope3.targetYear;
+      
+      if (isScope1Valid && isScope2Valid && isScope3Valid) {
         setStep(1);
       }
     }
@@ -93,36 +164,106 @@ export default function SetTargetByScope() {
     setStep(0);
   };
 
-  const handleSetTarget = () => {
-    // Open the success modal
-    setIsSuccessModalOpen(true);
+  const handleSetTarget = async () => {
+    try {
+      // Prepare the target payload with unique name and individual scope percentages
+      const uniqueName = `Scope Target ${scopeTargetData.scope1.baselineYear}-${scopeTargetData.scope1.targetYear}`;
+      
+      const targetPayload: any = {
+        name: uniqueName,
+        type: "SCOPE",
+        description: "Scope-based emissions reduction target",
+        baselineYear: scopeTargetData.scope1.baselineYear!,
+        targetYear: scopeTargetData.scope1.targetYear!,
+        scopes: {
+          scope1: {
+            reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0
+          },
+          scope2: {
+            reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0
+          },
+          scope3: {
+            reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0
+          }
+        }
+      };
+
+      // Call the mutation
+      await createTarget.mutateAsync(targetPayload);
+      
+      // Open the success modal
+      setIsSuccessModalOpen(true);
+    } catch (error) {
+      console.error("Failed to create target:", error);
+    }
   };
 
   const handleModalContinue = () => {
     // Close the modal
     setIsSuccessModalOpen(false);
-    // Add any additional logic here for after modal continue
+    
+    // Redirect to ranking page
+    router.push('/ranking');
   };
 
   const handleModalClose = () => {
     setIsSuccessModalOpen(false);
   };
 
-  // Mock scope data - replace with your actual data
+  // Prepare scope data for summary
   const scopesData: ScopeData[] = [
-    { scope: "Scope 1", timeline: 6, targetReduction: 5366, annualRate: 894 },
-    { scope: "Scope 2", timeline: 6, targetReduction: 5366, annualRate: 894 },
-    { scope: "Scope 3", timeline: 6, targetReduction: 5366, annualRate: 894 },
+    { 
+      scope: "Scope 1", 
+      timeline: Math.abs((scopeTargetData.scope1.targetYear || 0) - (scopeTargetData.scope1.baselineYear || 0)), 
+      targetReduction: scopeTargetData.scope1.totalReduction || 0, 
+      annualRate: (scopeTargetData.scope1.totalReduction || 0) / Math.abs((scopeTargetData.scope1.targetYear || 1) - (scopeTargetData.scope1.baselineYear || 0)),
+      reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0,
+      baselineYear: scopeTargetData.scope1.baselineYear || 0,
+      targetYear: scopeTargetData.scope1.targetYear || 0,
+      description: scopeTargetData.scope1.description || "",
+      targetEmission: scopeTargetData.scope1.targetEmission || 0,
+      totalReduction: scopeTargetData.scope1.totalReduction || 0,
+    },
+    { 
+      scope: "Scope 2", 
+      timeline: Math.abs((scopeTargetData.scope2.targetYear || 0) - (scopeTargetData.scope2.baselineYear || 0)), 
+      targetReduction: scopeTargetData.scope2.totalReduction || 0, 
+      annualRate: (scopeTargetData.scope2.totalReduction || 0) / Math.abs((scopeTargetData.scope2.targetYear || 1) - (scopeTargetData.scope2.baselineYear || 0)),
+      reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
+      baselineYear: scopeTargetData.scope2.baselineYear || 0,
+      targetYear: scopeTargetData.scope2.targetYear || 0,
+      description: scopeTargetData.scope2.description || "",
+      targetEmission: scopeTargetData.scope2.targetEmission || 0,
+      totalReduction: scopeTargetData.scope2.totalReduction || 0,
+    },
+    { 
+      scope: "Scope 3", 
+      timeline: Math.abs((scopeTargetData.scope3.targetYear || 0) - (scopeTargetData.scope3.baselineYear || 0)), 
+      targetReduction: scopeTargetData.scope3.totalReduction || 0, 
+      annualRate: (scopeTargetData.scope3.totalReduction || 0) / Math.abs((scopeTargetData.scope3.targetYear || 1) - (scopeTargetData.scope3.baselineYear || 0)),
+      reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
+      baselineYear: scopeTargetData.scope3.baselineYear || 0,
+      targetYear: scopeTargetData.scope3.targetYear || 0,
+      description: scopeTargetData.scope3.description || "",
+      targetEmission: scopeTargetData.scope3.targetEmission || 0,
+      totalReduction: scopeTargetData.scope3.totalReduction || 0,
+    },
   ];
-
-  // Calculate dynamic values for display
-
-  const calculatedTargetEmission = scopeTargetData.targetEmission || 0;
-  const calculatedTotalReduction = scopeTargetData.totalReduction || 0;
 
   if (step === 0) {
     return (
       <div className="space-y-6 text-left">
+        {/* Show loading state for baseline */}
+        {baseline.isLoading && (
+          <div className="text-center py-4">Loading baseline data...</div>
+        )}
+        
+        {baseline.isError && (
+          <div className="text-center py-4 text-red-500">
+            Error loading baseline data
+          </div>
+        )}
+
         {/* Scope 1 Card */}
         <Card>
           <CardHeader>
@@ -140,8 +281,8 @@ export default function SetTargetByScope() {
                   id="scope1-reductionPercentage"
                   type="number"
                   placeholder="e.g. 30"
-                  value={scopeTargetData.reductionPercentage ?? ""}
-                  onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
+                  value={scopeTargetData.scope1.reductionPercentage ?? ""}
+                  onChange={(e) => handleScopeInputChange("scope1", "reductionPercentage", e.target.value)}
                   className="w-full"
                 />
               </div>
@@ -150,8 +291,8 @@ export default function SetTargetByScope() {
                 <Label htmlFor="scope1-baselineYear">Baseline Year</Label>
                 <select
                   id="scope1-baselineYear"
-                  value={scopeTargetData.baselineYear ?? ""}
-                  onChange={(e) => handleInputChange("baselineYear", e.target.value)}
+                  value={scopeTargetData.scope1.baselineYear ?? baselineYear}
+                  onChange={(e) => handleScopeInputChange("scope1", "baselineYear", e.target.value)}
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
@@ -161,14 +302,19 @@ export default function SetTargetByScope() {
                     </option>
                   ))}
                 </select>
+                {baselineYear && (
+                  <p className="text-xs text-gray-500">
+                    Suggested: {baselineYear} (from your baseline data)
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="scope1-targetYear">Target Year</Label>
                 <select
                   id="scope1-targetYear"
-                  value={scopeTargetData.targetYear ?? ""}
-                  onChange={(e) => handleInputChange("targetYear", e.target.value)}
+                  value={scopeTargetData.scope1.targetYear ?? ""}
+                  onChange={(e) => handleScopeInputChange("scope1", "targetYear", e.target.value)}
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
@@ -186,8 +332,8 @@ export default function SetTargetByScope() {
               <Textarea
                 id="scope1-description"
                 placeholder="Describe your scope-based reduction strategy..."
-                value={scopeTargetData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                value={scopeTargetData.scope1.description}
+                onChange={(e) => handleScopeInputChange("scope1", "description", e.target.value)}
                 rows={3}
               />
             </div>
@@ -195,20 +341,25 @@ export default function SetTargetByScope() {
             {/* Target Calculation */}
             <div className="flex flex-col w-full gap-2 justify-end">
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Baseline (2024):</Label>
-                <div className="text-sm text-gray-900 font-semibold">26,830 tCO₂e</div>
+                <Label>Baseline ({scopeTargetData.scope1.baselineYear || baselineYear}):</Label>
+                <div className="text-sm text-gray-900 font-semibold">
+                  {baselineEmission.toLocaleString()} tCO₂e
+                  {baseline.data && (
+                    <span className="text-xs text-green-600 ml-2">✓ From your data</span>
+                  )}
+                </div>
               </div>
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Target (2030):</Label>
+                <Label>Target ({scopeTargetData.scope1.targetYear || 2030}):</Label>
                 <div className="text-sm text-primary font-semibold">
-                  {calculatedTargetEmission.toLocaleString()} tCO₂e
+                  {(scopeTargetData.scope1.targetEmission || 0).toLocaleString()} tCO₂e
                 </div>
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Total:</Label>
+                <Label>Total Reduction:</Label>
                 <div className="text-sm text-red-500 font-semibold">
-                  -{calculatedTotalReduction.toLocaleString()} tCO₂e
+                  -{(scopeTargetData.scope1.totalReduction || 0).toLocaleString()} tCO₂e
                 </div>
               </div>
             </div>
@@ -232,8 +383,8 @@ export default function SetTargetByScope() {
                   id="scope2-reductionPercentage"
                   type="number"
                   placeholder="e.g. 30"
-                  value={scopeTargetData.reductionPercentage ?? ""}
-                  onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
+                  value={scopeTargetData.scope2.reductionPercentage ?? ""}
+                  onChange={(e) => handleScopeInputChange("scope2", "reductionPercentage", e.target.value)}
                   className="w-full"
                 />
               </div>
@@ -242,8 +393,8 @@ export default function SetTargetByScope() {
                 <Label htmlFor="scope2-baselineYear">Baseline Year</Label>
                 <select
                   id="scope2-baselineYear"
-                  value={scopeTargetData.baselineYear ?? ""}
-                  onChange={(e) => handleInputChange("baselineYear", e.target.value)}
+                  value={scopeTargetData.scope2.baselineYear ?? baselineYear}
+                  onChange={(e) => handleScopeInputChange("scope2", "baselineYear", e.target.value)}
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
@@ -259,8 +410,8 @@ export default function SetTargetByScope() {
                 <Label htmlFor="scope2-targetYear">Target Year</Label>
                 <select
                   id="scope2-targetYear"
-                  value={scopeTargetData.targetYear ?? ""}
-                  onChange={(e) => handleInputChange("targetYear", e.target.value)}
+                  value={scopeTargetData.scope2.targetYear ?? ""}
+                  onChange={(e) => handleScopeInputChange("scope2", "targetYear", e.target.value)}
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
@@ -278,8 +429,8 @@ export default function SetTargetByScope() {
               <Textarea
                 id="scope2-description"
                 placeholder="Describe your scope-based reduction strategy..."
-                value={scopeTargetData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                value={scopeTargetData.scope2.description}
+                onChange={(e) => handleScopeInputChange("scope2", "description", e.target.value)}
                 rows={3}
               />
             </div>
@@ -287,20 +438,22 @@ export default function SetTargetByScope() {
             {/* Target Calculation */}
             <div className="flex flex-col w-full gap-2 justify-end">
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Baseline (2024):</Label>
-                <div className="text-sm text-gray-900 font-semibold">26,830 tCO₂e</div>
+                <Label>Baseline ({scopeTargetData.scope2.baselineYear || baselineYear}):</Label>
+                <div className="text-sm text-gray-900 font-semibold">
+                  {baselineEmission.toLocaleString()} tCO₂e
+                </div>
               </div>
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Target (2030):</Label>
+                <Label>Target ({scopeTargetData.scope2.targetYear || 2030}):</Label>
                 <div className="text-sm text-primary font-semibold">
-                  {calculatedTargetEmission.toLocaleString()} tCO₂e
+                  {(scopeTargetData.scope2.targetEmission || 0).toLocaleString()} tCO₂e
                 </div>
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Total:</Label>
+                <Label>Total Reduction:</Label>
                 <div className="text-sm text-red-500 font-semibold">
-                  -{calculatedTotalReduction.toLocaleString()} tCO₂e
+                  -{(scopeTargetData.scope2.totalReduction || 0).toLocaleString()} tCO₂e
                 </div>
               </div>
             </div>
@@ -324,8 +477,8 @@ export default function SetTargetByScope() {
                   id="scope3-reductionPercentage"
                   type="number"
                   placeholder="e.g. 30"
-                  value={scopeTargetData.reductionPercentage ?? ""}
-                  onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
+                  value={scopeTargetData.scope3.reductionPercentage ?? ""}
+                  onChange={(e) => handleScopeInputChange("scope3", "reductionPercentage", e.target.value)}
                   className="w-full"
                 />
               </div>
@@ -334,8 +487,8 @@ export default function SetTargetByScope() {
                 <Label htmlFor="scope3-baselineYear">Baseline Year</Label>
                 <select
                   id="scope3-baselineYear"
-                  value={scopeTargetData.baselineYear ?? ""}
-                  onChange={(e) => handleInputChange("baselineYear", e.target.value)}
+                  value={scopeTargetData.scope3.baselineYear ?? baselineYear}
+                  onChange={(e) => handleScopeInputChange("scope3", "baselineYear", e.target.value)}
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
@@ -351,8 +504,8 @@ export default function SetTargetByScope() {
                 <Label htmlFor="scope3-targetYear">Target Year</Label>
                 <select
                   id="scope3-targetYear"
-                  value={scopeTargetData.targetYear ?? ""}
-                  onChange={(e) => handleInputChange("targetYear", e.target.value)}
+                  value={scopeTargetData.scope3.targetYear ?? ""}
+                  onChange={(e) => handleScopeInputChange("scope3", "targetYear", e.target.value)}
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
@@ -370,8 +523,8 @@ export default function SetTargetByScope() {
               <Textarea
                 id="scope3-description"
                 placeholder="Describe your scope-based reduction strategy..."
-                value={scopeTargetData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                value={scopeTargetData.scope3.description}
+                onChange={(e) => handleScopeInputChange("scope3", "description", e.target.value)}
                 rows={3}
               />
             </div>
@@ -379,20 +532,22 @@ export default function SetTargetByScope() {
             {/* Target Calculation */}
             <div className="flex flex-col w-full gap-2 justify-end">
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Baseline (2024):</Label>
-                <div className="text-sm text-gray-900 font-semibold">26,830 tCO₂e</div>
+                <Label>Baseline ({scopeTargetData.scope3.baselineYear || baselineYear}):</Label>
+                <div className="text-sm text-gray-900 font-semibold">
+                  {baselineEmission.toLocaleString()} tCO₂e
+                </div>
               </div>
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Target (2030):</Label>
+                <Label>Target ({scopeTargetData.scope3.targetYear || 2030}):</Label>
                 <div className="text-sm text-primary font-semibold">
-                  {calculatedTargetEmission.toLocaleString()} tCO₂e
+                  {(scopeTargetData.scope3.targetEmission || 0).toLocaleString()} tCO₂e
                 </div>
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">
-                <Label>Total:</Label>
+                <Label>Total Reduction:</Label>
                 <div className="text-sm text-red-500 font-semibold">
-                  -{calculatedTotalReduction.toLocaleString()} tCO₂e
+                  -{(scopeTargetData.scope3.totalReduction || 0).toLocaleString()} tCO₂e
                 </div>
               </div>
             </div>
@@ -405,12 +560,13 @@ export default function SetTargetByScope() {
             onClick={handleContinue}
             className="text-white px-6 py-2"
             disabled={
-              !scopeTargetData.reductionPercentage ||
-              !scopeTargetData.baselineYear ||
-              !scopeTargetData.targetYear
+              !scopeTargetData.scope1.reductionPercentage || !scopeTargetData.scope1.baselineYear || !scopeTargetData.scope1.targetYear ||
+              !scopeTargetData.scope2.reductionPercentage || !scopeTargetData.scope2.baselineYear || !scopeTargetData.scope2.targetYear ||
+              !scopeTargetData.scope3.reductionPercentage || !scopeTargetData.scope3.baselineYear || !scopeTargetData.scope3.targetYear ||
+              baseline.isLoading
             }
           >
-            Continue
+            {baseline.isLoading ? "Loading Baseline..." : "Continue"}
           </CustomButton>
         </div>
       </div>
@@ -424,6 +580,7 @@ export default function SetTargetByScope() {
           scopes={scopesData}
           onPrevious={handlePrevious}
           onSetTarget={handleSetTarget}
+          isLoading={createTarget.isPending}
         />
         <SuccessModal
           isOpen={isSuccessModalOpen}
