@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-// import { tableData } from "./data";
 import {
   useReactTable,
   getCoreRowModel,
@@ -32,6 +31,7 @@ import { StatusButton, StatusVariant } from "../StatusButton";
 import Link from "next/link";
 import { exportToCSV } from "@/app/(company)/reports-and-analytics/components/exportFiles";
 import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
+import { Card, CardContent } from "@/app/components/ui/card";
 
 const columnHelper = createColumnHelper<TableRowType>();
 
@@ -78,7 +78,7 @@ export function DataTable() {
   });
 
   const report = useReport();
-  const data = report.data || [];
+  const data: any[] = report.data || []; // Replace with report.data when it's available
 
   const filteredData = useMemo(() => {
     return data.filter((item: any) => {
@@ -116,7 +116,6 @@ export function DataTable() {
     state: {
       globalFilter: filters.search,
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onGlobalFilterChange: (value: any) => {
       setFilters((prev) => ({ ...prev, search: value }));
     },
@@ -140,6 +139,36 @@ export function DataTable() {
     }
   };
 
+  if (data.length === 0) {
+    return (
+      <Card className="max-w-4xl w-full mx-auto p-15 rounded-md bg-white border-none mb-10 shadow-md">
+        <CardContent className="flex flex-col items-center justify-center text-center">
+          <p className="text-2xl font-semibold text-gray-700 mb-4">
+            You haven&apos;t generated any <br /> reports yet
+          </p>
+          <p className="text-lg text-gray-500 mb-6 text-center">
+            Once you complete an assessment, you can generate your first ESG <br /> report to track
+            performance and share insights with stakeholders.
+          </p>
+
+          <div className="flex justify-center gap-4">
+            <Link href="/assessments/new-assessment">
+              <Button className="bg-white text--[var(--color-primary)] border border-[var(--color-primary)] transform hover:scale-[1.02] hover:text-white">
+                Start an Assessment
+              </Button>
+            </Link>
+            <Button
+              disabled
+              className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm cursor-not-allowed"
+            >
+              Generate Report
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
       {/* Header with search and filters */}
@@ -158,7 +187,6 @@ export function DataTable() {
             <Select onValueChange={handleStatusFilter}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Status" />
-                {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
@@ -171,14 +199,13 @@ export function DataTable() {
             <Select onValueChange={(value) => handleYearFilter(value)}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Date" />
-                {/* <ChevronDown className="h-4 w-4 opacity-50" /> */}
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Dates</SelectItem>
-                <SelectItem value="2021">2021</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
+              <SelectContent side="top">
+                {[2021, 2022, 2023, 2024].map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
