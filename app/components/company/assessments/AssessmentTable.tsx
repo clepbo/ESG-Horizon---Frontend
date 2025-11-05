@@ -77,7 +77,6 @@ function RejectionReasonModal({
   );
 }
 
-/* 🧩 Each row’s Action Dropdown — isolated state */
 function ActionDropdown({
   status,
   getActionIcon,
@@ -218,7 +217,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     columnHelper.accessor("endPeriod", { header: "Ending Period" }),
     columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
 
-    // ✅ Progress circle
     columnHelper.display({
       id: "progress",
       header: "Progress",
@@ -274,7 +272,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
-    // ✅ Status
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
@@ -319,7 +316,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
-    // ✅ Independent dropdown per row
     columnHelper.display({
       id: "actions",
       header: "Quick Actions",
@@ -390,7 +386,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         columns={columns}
         filterOptions={filterOptions}
         customFilters={
-          <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[300px]" />
+          <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[250px]" />
         }
       />
 
