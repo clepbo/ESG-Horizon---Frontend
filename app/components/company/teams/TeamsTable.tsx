@@ -1,10 +1,8 @@
 import { useState, ReactNode, useMemo } from "react";
-import { Ban, CircleCheckBig, RotateCcw, SquarePen } from "lucide-react";
-
+import { Ban, CircleCheckBig, RotateCcw, SquarePen, ChevronDown, ChevronUp } from "lucide-react";
 import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
 import Image from "next/image";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
-
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import EditUserModal from "../../common/users/EditUserModal";
 import { TeamUserStatus, User } from "@/services/user.service";
@@ -12,6 +10,13 @@ import RoleGuard from "@/lib/RoleGuard";
 import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
 import RoleDefinitionsModal from "../../settings/RoleDefinitionsModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/app/components/ui/dropdown-menu";
+import { Button } from "../../ui/button";
 
 type Props = {
   users: User[];
@@ -91,6 +96,63 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
     },
   };
 
+  function TeamActionDropdown({ user, statusActions, onEdit, onStatusChange }: any) {
+    const [isOpen, setIsOpen] = useState(false);
+    const currentAction = statusActions[user.status];
+
+    return (
+      <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-[110px] justify-between rounded-sm border-teal-600"
+          >
+            Actions
+            {isOpen ? (
+              <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
+            ) : (
+              <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-44 shadow-md border-teal-600">
+          <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+            <DropdownMenuItem onClick={onEdit}>
+              <SquarePen className="mr-2 h-4 w-4" />
+              Edit User
+            </DropdownMenuItem>
+          </RoleGuard>
+
+          {currentAction && (
+            <RoleGuard
+              allowedRoles={[
+                "company_esg_admin",
+                "company_esg_subadmin",
+                "super_admin",
+                "platform_subadmin",
+                "platform_data_officer",
+              ]}
+            >
+              <DropdownMenuItem
+                onClick={onStatusChange}
+                className={currentAction.color
+                  .replace("border-", "text-")
+                  .replace("hover:bg-", "hover:text-")}
+              >
+                <span className="flex gap-2">
+                  {currentAction.icon}
+                  {currentAction.title}
+                </span>
+              </DropdownMenuItem>
+            </RoleGuard>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
   return (
     <div>
       <div className="relative overflow-x-auto bg-white rounded-lg mt-2 shadow">
@@ -105,8 +167,8 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                 <tr>
                   <th className="px-4 py-3">User</th>
                   <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Subsidiary</th>
+                  <th className="px-4 py-3">Role/Status</th>
                   <th className="px-4 py-3">Last Active</th>
                   <th className="px-4 py-3">Quick Actions</th>
                 </tr>
@@ -141,48 +203,33 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       )}
                     </td>
 
-                    <td className="px-4 py-3">{formatRoleName(user.role?.name || "")}</td>
+                    <td className="px-4 py-3">
+                      {user.subsidiary?.name ? (
+                        user.subsidiary?.name
+                      ) : (
+                        <span className="text-gray-400 text-sm">-</span>
+                      )}
+                    </td>
 
                     <td className="px-4 py-3">
-                      <StatusBadge status={user.status} />
+                      <div className="flex flex-col">
+                        {formatRoleName(user.role?.name || "")}
+                        <span className="mt-1">
+                          <StatusBadge status={user.status} />
+                        </span>
+                      </div>
                     </td>
 
                     <td className="px-4 py-3">{formattedDate(String(user.last_login) || "")}</td>
-
-                    <td className="px-4 py-3 flex space-x-2">
-                      {/* Edit user button */}
-                      <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
-                        <button
-                          className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => handleView(user.id)}
-                        >
-                          <SquarePen className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </RoleGuard>
-
-                      {/* Status change button */}
-                      {statusActions[user.status] && (
-                        <RoleGuard
-                          allowedRoles={[
-                            "company_esg_admin",
-                            "company_esg_subadmin",
-                            "super_admin",
-                            "platform_subadmin",
-                            "platform_data_officer",
-                          ]}
-                        >
-                          <button
-                            className={`rounded-md border p-2 cursor-pointer ${
-                              statusActions[user.status].color
-                            }`}
-                            onClick={() =>
-                              openStatusModal(user.id, statusActions[user.status].newStatus)
-                            }
-                          >
-                            {statusActions[user.status].icon}
-                          </button>
-                        </RoleGuard>
-                      )}
+                    <td className="px-4 py-3">
+                      <TeamActionDropdown
+                        user={user}
+                        statusActions={statusActions}
+                        onEdit={() => handleView(user.id)}
+                        onStatusChange={() =>
+                          openStatusModal(user.id, statusActions[user.status].newStatus)
+                        }
+                      />
                     </td>
                   </tr>
                 ))}
