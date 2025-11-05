@@ -25,7 +25,7 @@ const navItems = [
 ];
 
 const assessmentSubLinks = [
-  { name: "New Assessment", href: "/assessments" },
+  { name: "New Assessment", href: "/assessments/new-assessment" },
   { name: "Tasks", href: "/assessments/tasks" },
   { name: "Target", href: "/assessments/target" },
 ];
@@ -52,10 +52,10 @@ export default function Sidebar() {
     setAssessmentsOpen(isAssessmentsPage);
   }, [pathname]);
 
-  useEffect(() => {
-    setSettingsOpen(false);
-    setAssessmentsOpen(false);
-  }, [pathname]);
+  // useEffect(() => {
+  //   setSettingsOpen(false);
+  //   setAssessmentsOpen(false);
+  // }, [pathname]);
 
   const handleAssessmentsClick = () => {
     setAssessmentsOpen((prev) => !prev);
