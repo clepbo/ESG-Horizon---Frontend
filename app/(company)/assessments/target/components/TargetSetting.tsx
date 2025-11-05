@@ -31,8 +31,8 @@ export function TargetSetting() {
 
           {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
-              <SetTargetByScope />
-              {/* <h2> Testing Targeting page issues</h2> */}
+              {/* <SetTargetByScope /> */}
+              <h2> Testing Targeting scope page issues</h2>
             </div>
           )}
         </div>
