@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
@@ -163,11 +163,11 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     <>
       {step === 0 && (
         <div className="space-y-6">
-          <Card>
+          <div>
             {/* <CardHeader> */}
               <div className="text-lg">General Reduction Target</div>
             {/* </CardHeader> */}
-            <CardContent className="space-y-6">
+            <div className="space-y-6">
               <p className="text-sm text-gray-600">
                 Set your overall emissions reduction target across all scopes
               </p>
@@ -230,14 +230,14 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   rows={3}
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
+          <div>
             {/* <CardHeader> */}
               <div className="text-lg font-semibold">Target Calculation</div>
             {/* </CardHeader> */}
-            <CardContent className="space-y-4 w-full">
+            <div className="space-y-4 w-full">
               <div className="flex flex-col w-full gap-2">
                 <div className="space-y-2 flex items-center justify-between w-full">
                   <Label>Baseline {baseline?.data?.startYear} :</Label>
@@ -260,8 +260,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           <div className="flex justify-center">
             <CustomButton
@@ -279,25 +279,25 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       {
         step === 1 && (
           baseline.isLoading ? (
-            <Card>
-              <CardContent className="flex justify-center items-center p-8">
+            <div>
+              <div className="flex justify-center items-center p-8">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <div className="text-lg text-gray-600">Calculating your target summary...</div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ) : baseline.error ? (
-            <Card>
-              <CardContent className="flex justify-center items-center p-8">
+            <div>
+              <div className="flex justify-center items-center p-8">
                 <div className="text-center">
                   <div className="text-lg text-red-500 mb-2">Failed to load baseline data</div>
                   <CustomButton onClick={handlePrevious} className="mt-4">
                     Go Back
                   </CustomButton>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ) : (
             <GeneralTargetSummary
               reductionPercentage={data.reductionPercentage || 0}
