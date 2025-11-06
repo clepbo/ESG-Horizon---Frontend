@@ -4,6 +4,7 @@ import withBundleAnalyzer from "@next/bundle-analyzer";
 const isBundleAnalyze = process.env.ANALYZE === "true";
 
 const nextConfig: NextConfig = {
+  reactStrictMode: false,
   trailingSlash: true,
   images: {
     loader: "custom",
