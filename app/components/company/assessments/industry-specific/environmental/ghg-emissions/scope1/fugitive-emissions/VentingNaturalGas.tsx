@@ -68,14 +68,25 @@ export function VentingNaturalGas({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // useEffect(() => {
+  //   if (ventingNaturalGas) {
+  //     // Initialize the hook with the saved value
+  //     volumeOfGasVented.setRawValue(ventingNaturalGas.volumeOfGasVented?.toString() ?? "");
+  //     if (ventingNaturalGas.files) setFiles(ventingNaturalGas.files);
+  //     setAdditionalFields(ventingNaturalGas.additionalFields || []);
+  //   }
+  //   // }, [ventingNaturalGas, volumeOfGasVented]);
+  // }, [ventingNaturalGas]);
+
   useEffect(() => {
     if (ventingNaturalGas) {
-      // Initialize the hook with the saved value
-      volumeOfGasVented.setRawValue(ventingNaturalGas.volumeOfGasVented?.toString() ?? "");
+      const savedValue = ventingNaturalGas.volumeOfGasVented;
+      // Only set the value if it exists and is greater than 0
+      volumeOfGasVented.setRawValue(savedValue && savedValue > 0 ? savedValue.toString() : "");
       if (ventingNaturalGas.files) setFiles(ventingNaturalGas.files);
       setAdditionalFields(ventingNaturalGas.additionalFields || []);
     }
-    // }, [ventingNaturalGas, volumeOfGasVented]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ventingNaturalGas]);
 
   const { filled, total } = useMemo(() => {
