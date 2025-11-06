@@ -4,8 +4,8 @@ import { GeneralTargetData, TargetType } from "@/types/target";
 import { Suspense, useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
 import { GeneralTargetForm } from "./GeneralSetTarget";
-import SetTargetByScope from "./SetTargetByScope";
-import { Skeleton } from "@/components/ui/skeleton";
+// import SetTargetByScope from "./SetTargetByScope";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export function TargetSetting() {
   const [selectedType, setSelectedType] = useState<TargetType>("general");
@@ -25,7 +25,7 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            <Suspense fallback={<Skeleton />}>
+            <Suspense fallback={<CardSkeleton />}>
 
               <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
             </Suspense>
