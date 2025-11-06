@@ -9,7 +9,6 @@ export interface TargetPayload {
   baselineYear: number;
   targetYear: number;
   reductionPercentage: number;
-  
 }
 
 export interface ScopeTargetPayload {

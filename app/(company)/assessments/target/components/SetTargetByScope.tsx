@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 interface ScopeData {
   scope: string;
@@ -73,7 +73,7 @@ export default function SetTargetByScope() {
   const baseline = useQuery({
     queryKey: ["baseline", companyId],
     queryFn: async () => {
-      if (!companyId) throw new Error('Company ID not available');
+      if (!companyId) throw new Error("Company ID not available");
       return await apiUtil.get(`/target/baseline/${companyId}`);
     },
     enabled: !!companyId,
@@ -81,38 +81,48 @@ export default function SetTargetByScope() {
 
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
-      if (!companyId) throw new Error('Company ID not available');
-      return apiUtil.post(`/target/${companyId}`, targetData);
+      if (!companyId) throw new Error("Company ID not available");
+      return await apiUtil.post(`/target/${companyId}`, targetData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['baseline'] });
-      queryClient.invalidateQueries({ queryKey: ['targets'] });
+      queryClient.invalidateQueries({ queryKey: ["baseline"] });
+      queryClient.invalidateQueries({ queryKey: ["targets"] });
     },
   });
 
   // Get baseline data from the query
   const baselineData = baseline.data?.data || baseline.data;
-  const baselineEmission = baselineData?.totalSum || baselineData?.totalEmissions || baselineData?.emissions || 26830;
-  const baselineYear = baselineData?.startYear || baselineData?.baselineYear || baselineData?.year || 2024;
+  const baselineEmission =
+    baselineData?.totalSum || baselineData?.totalEmissions || baselineData?.emissions || 26830;
+  const baselineYear =
+    baselineData?.startYear || baselineData?.baselineYear || baselineData?.year || 2024;
 
-  const handleScopeInputChange = (scope: keyof ScopeTargetData, field: keyof GeneralTargetData, value: string | number) => {
+  const handleScopeInputChange = (
+    scope: keyof ScopeTargetData,
+    field: keyof GeneralTargetData,
+    value: string | number
+  ) => {
     let processedValue: any = value;
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
       // Auto-calculate target emission when percentage changes using actual baseline
-      if (processedValue !== null && scopeTargetData[scope].baselineYear && scopeTargetData[scope].targetYear) {
+      if (
+        processedValue !== null &&
+        scopeTargetData[scope].baselineYear &&
+        scopeTargetData[scope].targetYear
+      ) {
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission - targetEmission;
 
-        setScopeTargetData(prev => ({
+        setScopeTargetData((prev) => ({
           ...prev,
           [scope]: {
             ...prev[scope],
             reductionPercentage: processedValue,
             targetEmission: Math.round(targetEmission),
             totalReduction: Math.round(totalReduction),
-          }
+          },
         }));
         return;
       }
@@ -127,19 +137,19 @@ export default function SetTargetByScope() {
       processedValue = value === "" ? null : Number(value);
     }
 
-    setScopeTargetData(prev => ({
+    setScopeTargetData((prev) => ({
       ...prev,
       [scope]: {
         ...prev[scope],
         [field]: processedValue,
-      }
+      },
     }));
   };
 
   // Set default baseline year from API if available for all scopes
   useEffect(() => {
     if (baselineYear) {
-      setScopeTargetData(prev => ({
+      setScopeTargetData((prev) => ({
         scope1: { ...prev.scope1, baselineYear: prev.scope1.baselineYear || baselineYear },
         scope2: { ...prev.scope2, baselineYear: prev.scope2.baselineYear || baselineYear },
         scope3: { ...prev.scope3, baselineYear: prev.scope3.baselineYear || baselineYear },
@@ -150,10 +160,19 @@ export default function SetTargetByScope() {
   const handleContinue = () => {
     if (step === 0) {
       // Validate required fields for all scopes before proceeding
-      const isScope1Valid = scopeTargetData.scope1.reductionPercentage && scopeTargetData.scope1.baselineYear && scopeTargetData.scope1.targetYear;
-      const isScope2Valid = scopeTargetData.scope2.reductionPercentage && scopeTargetData.scope2.baselineYear && scopeTargetData.scope2.targetYear;
-      const isScope3Valid = scopeTargetData.scope3.reductionPercentage && scopeTargetData.scope3.baselineYear && scopeTargetData.scope3.targetYear;
-      
+      const isScope1Valid =
+        scopeTargetData.scope1.reductionPercentage &&
+        scopeTargetData.scope1.baselineYear &&
+        scopeTargetData.scope1.targetYear;
+      const isScope2Valid =
+        scopeTargetData.scope2.reductionPercentage &&
+        scopeTargetData.scope2.baselineYear &&
+        scopeTargetData.scope2.targetYear;
+      const isScope3Valid =
+        scopeTargetData.scope3.reductionPercentage &&
+        scopeTargetData.scope3.baselineYear &&
+        scopeTargetData.scope3.targetYear;
+
       if (isScope1Valid && isScope2Valid && isScope3Valid) {
         setStep(1);
       }
@@ -168,7 +187,7 @@ export default function SetTargetByScope() {
     try {
       // Prepare the target payload with unique name and individual scope percentages
       const uniqueName = `Scope Target ${scopeTargetData.scope1.baselineYear}-${scopeTargetData.scope1.targetYear}`;
-      
+
       const targetPayload: any = {
         name: uniqueName,
         type: "SCOPE",
@@ -177,20 +196,20 @@ export default function SetTargetByScope() {
         targetYear: scopeTargetData.scope1.targetYear!,
         scopes: {
           scope1: {
-            reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0
+            reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0,
           },
           scope2: {
-            reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0
+            reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
           },
           scope3: {
-            reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0
-          }
-        }
+            reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
+          },
+        },
       };
 
       // Call the mutation
       await createTarget.mutateAsync(targetPayload);
-      
+
       // Open the success modal
       setIsSuccessModalOpen(true);
     } catch (error) {
@@ -201,9 +220,9 @@ export default function SetTargetByScope() {
   const handleModalContinue = () => {
     // Close the modal
     setIsSuccessModalOpen(false);
-    
+
     // Redirect to ranking page
-    router.push('/ranking');
+    router.push("/ranking");
   };
 
   const handleModalClose = () => {
@@ -212,11 +231,17 @@ export default function SetTargetByScope() {
 
   // Prepare scope data for summary
   const scopesData: ScopeData[] = [
-    { 
-      scope: "Scope 1", 
-      timeline: Math.abs((scopeTargetData.scope1.targetYear || 0) - (scopeTargetData.scope1.baselineYear || 0)), 
-      targetReduction: scopeTargetData.scope1.totalReduction || 0, 
-      annualRate: (scopeTargetData.scope1.totalReduction || 0) / Math.abs((scopeTargetData.scope1.targetYear || 1) - (scopeTargetData.scope1.baselineYear || 0)),
+    {
+      scope: "Scope 1",
+      timeline: Math.abs(
+        (scopeTargetData.scope1.targetYear || 0) - (scopeTargetData.scope1.baselineYear || 0)
+      ),
+      targetReduction: scopeTargetData.scope1.totalReduction || 0,
+      annualRate:
+        (scopeTargetData.scope1.totalReduction || 0) /
+        Math.abs(
+          (scopeTargetData.scope1.targetYear || 1) - (scopeTargetData.scope1.baselineYear || 0)
+        ),
       reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0,
       baselineYear: scopeTargetData.scope1.baselineYear || 0,
       targetYear: scopeTargetData.scope1.targetYear || 0,
@@ -224,11 +249,17 @@ export default function SetTargetByScope() {
       targetEmission: scopeTargetData.scope1.targetEmission || 0,
       totalReduction: scopeTargetData.scope1.totalReduction || 0,
     },
-    { 
-      scope: "Scope 2", 
-      timeline: Math.abs((scopeTargetData.scope2.targetYear || 0) - (scopeTargetData.scope2.baselineYear || 0)), 
-      targetReduction: scopeTargetData.scope2.totalReduction || 0, 
-      annualRate: (scopeTargetData.scope2.totalReduction || 0) / Math.abs((scopeTargetData.scope2.targetYear || 1) - (scopeTargetData.scope2.baselineYear || 0)),
+    {
+      scope: "Scope 2",
+      timeline: Math.abs(
+        (scopeTargetData.scope2.targetYear || 0) - (scopeTargetData.scope2.baselineYear || 0)
+      ),
+      targetReduction: scopeTargetData.scope2.totalReduction || 0,
+      annualRate:
+        (scopeTargetData.scope2.totalReduction || 0) /
+        Math.abs(
+          (scopeTargetData.scope2.targetYear || 1) - (scopeTargetData.scope2.baselineYear || 0)
+        ),
       reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
       baselineYear: scopeTargetData.scope2.baselineYear || 0,
       targetYear: scopeTargetData.scope2.targetYear || 0,
@@ -236,11 +267,17 @@ export default function SetTargetByScope() {
       targetEmission: scopeTargetData.scope2.targetEmission || 0,
       totalReduction: scopeTargetData.scope2.totalReduction || 0,
     },
-    { 
-      scope: "Scope 3", 
-      timeline: Math.abs((scopeTargetData.scope3.targetYear || 0) - (scopeTargetData.scope3.baselineYear || 0)), 
-      targetReduction: scopeTargetData.scope3.totalReduction || 0, 
-      annualRate: (scopeTargetData.scope3.totalReduction || 0) / Math.abs((scopeTargetData.scope3.targetYear || 1) - (scopeTargetData.scope3.baselineYear || 0)),
+    {
+      scope: "Scope 3",
+      timeline: Math.abs(
+        (scopeTargetData.scope3.targetYear || 0) - (scopeTargetData.scope3.baselineYear || 0)
+      ),
+      targetReduction: scopeTargetData.scope3.totalReduction || 0,
+      annualRate:
+        (scopeTargetData.scope3.totalReduction || 0) /
+        Math.abs(
+          (scopeTargetData.scope3.targetYear || 1) - (scopeTargetData.scope3.baselineYear || 0)
+        ),
       reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
       baselineYear: scopeTargetData.scope3.baselineYear || 0,
       targetYear: scopeTargetData.scope3.targetYear || 0,
@@ -254,14 +291,10 @@ export default function SetTargetByScope() {
     return (
       <div className="space-y-6 text-left">
         {/* Show loading state for baseline */}
-        {baseline.isLoading && (
-          <div className="text-center py-4">Loading baseline data...</div>
-        )}
-        
+        {baseline.isLoading && <div className="text-center py-4">Loading baseline data...</div>}
+
         {baseline.isError && (
-          <div className="text-center py-4 text-red-500">
-            Error loading baseline data
-          </div>
+          <div className="text-center py-4 text-red-500">Error loading baseline data</div>
         )}
 
         {/* Scope 1 Card */}
@@ -282,7 +315,9 @@ export default function SetTargetByScope() {
                   type="number"
                   placeholder="e.g. 30"
                   value={scopeTargetData.scope1.reductionPercentage ?? ""}
-                  onChange={(e) => handleScopeInputChange("scope1", "reductionPercentage", e.target.value)}
+                  onChange={(e) =>
+                    handleScopeInputChange("scope1", "reductionPercentage", e.target.value)
+                  }
                   className="w-full"
                 />
               </div>
@@ -384,7 +419,9 @@ export default function SetTargetByScope() {
                   type="number"
                   placeholder="e.g. 30"
                   value={scopeTargetData.scope2.reductionPercentage ?? ""}
-                  onChange={(e) => handleScopeInputChange("scope2", "reductionPercentage", e.target.value)}
+                  onChange={(e) =>
+                    handleScopeInputChange("scope2", "reductionPercentage", e.target.value)
+                  }
                   className="w-full"
                 />
               </div>
@@ -478,7 +515,9 @@ export default function SetTargetByScope() {
                   type="number"
                   placeholder="e.g. 30"
                   value={scopeTargetData.scope3.reductionPercentage ?? ""}
-                  onChange={(e) => handleScopeInputChange("scope3", "reductionPercentage", e.target.value)}
+                  onChange={(e) =>
+                    handleScopeInputChange("scope3", "reductionPercentage", e.target.value)
+                  }
                   className="w-full"
                 />
               </div>
@@ -560,9 +599,15 @@ export default function SetTargetByScope() {
             onClick={handleContinue}
             className="text-white px-6 py-2"
             disabled={
-              !scopeTargetData.scope1.reductionPercentage || !scopeTargetData.scope1.baselineYear || !scopeTargetData.scope1.targetYear ||
-              !scopeTargetData.scope2.reductionPercentage || !scopeTargetData.scope2.baselineYear || !scopeTargetData.scope2.targetYear ||
-              !scopeTargetData.scope3.reductionPercentage || !scopeTargetData.scope3.baselineYear || !scopeTargetData.scope3.targetYear ||
+              !scopeTargetData.scope1.reductionPercentage ||
+              !scopeTargetData.scope1.baselineYear ||
+              !scopeTargetData.scope1.targetYear ||
+              !scopeTargetData.scope2.reductionPercentage ||
+              !scopeTargetData.scope2.baselineYear ||
+              !scopeTargetData.scope2.targetYear ||
+              !scopeTargetData.scope3.reductionPercentage ||
+              !scopeTargetData.scope3.baselineYear ||
+              !scopeTargetData.scope3.targetYear ||
               baseline.isLoading
             }
           >

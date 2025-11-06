@@ -14,7 +14,7 @@ interface ScopeSummaryProps {
   targetYear?: number;
   onPrevious: () => void;
   onSetTarget: () => void;
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
 export function ScopeSummary({
@@ -22,7 +22,7 @@ export function ScopeSummary({
   targetYear = 2030,
   onPrevious,
   onSetTarget,
-  isLoading = false
+  isLoading = false,
 }: ScopeSummaryProps) {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -68,7 +68,7 @@ export function ScopeSummary({
         </CustomButton>
 
         <CustomButton onClick={onSetTarget} className="px-6 py-2">
-         { isLoading ? "Loading..." : " Set Target"}
+          {isLoading ? "Loading..." : " Set Target"}
         </CustomButton>
       </div>
     </div>
