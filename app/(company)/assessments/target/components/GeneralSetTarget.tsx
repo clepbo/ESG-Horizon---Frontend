@@ -315,11 +315,11 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       } */}
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
-      <SuccessModal
+      {/* <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={handleModalClose}
         onContinue={handleModalContinue}
-      />
+      /> */}
     </>
   );
 }
