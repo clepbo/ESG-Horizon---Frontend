@@ -43,7 +43,7 @@ export function GeneralTargetSummary({
               {reductionPercentage}% Reduction Target
             </h6>
             <p className="text-gray-600">
-              From {baselineEmission.toLocaleString()} to {targetEmission.toLocaleString()} tCO₂e by{" "}
+              From {baselineEmission?.toLocaleString()} to {targetEmission?.toLocaleString()} tCO₂e by{" "}
               {targetYear}
             </p>
           </div>
@@ -63,7 +63,7 @@ export function GeneralTargetSummary({
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
                 <div className="text-sm font-semibold text-red-600">
-                  -{totalReduction.toLocaleString()} tCO₂e
+                  -{totalReduction?.toLocaleString()} tCO₂e
                 </div>
               </div>
 
@@ -71,7 +71,7 @@ export function GeneralTargetSummary({
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
                 <div className={`text-sm font-semibold text-green-600`}>
-                  {Math.round(annualRate).toLocaleString()} tCO₂e/year
+                  {Math.round(annualRate)?.toLocaleString()} tCO₂e/year
                 </div>
               </div>
             </div>

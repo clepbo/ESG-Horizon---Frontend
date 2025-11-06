@@ -152,13 +152,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   // Calculate dynamic values for display
   const baselineEmission = 26830; // Fixed baseline from image
   const calculatedTargetEmission = data?.reductionPercentage
-    ? baseline?.data?.totalSum * (1 - data.reductionPercentage / 100)
+    ? baseline?.data?.totalSum * (1 - data?.reductionPercentage / 100)
     : 0;
   const calculatedTotalReduction = data?.reductionPercentage
-    ? baselineEmission * (data.reductionPercentage / 100)
+    ? baselineEmission * (data?.reductionPercentage / 100)
     : 0;
 
-  // console.log("Gen", data);
+  // console.log("Gen", data?);
   return (
     <>
       {step === 0 && (
@@ -179,7 +179,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                     id="reductionPercentage"
                     type="number"
                     placeholder="e.g. 30"
-                    value={data.reductionPercentage ?? ""}
+                    value={data?.reductionPercentage ?? ""}
                     onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
                     className="w-full"
                   />
@@ -189,7 +189,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   <Label htmlFor="baselineYear">Baseline Year</Label>
                   <select
                     id="baselineYear"
-                    value={data.baselineYear ?? ""}
+                    value={data?.baselineYear ?? ""}
                     onChange={(e) => handleInputChange("baselineYear", e.target.value)}
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -206,7 +206,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   <Label htmlFor="targetYear">Target Year</Label>
                   <select
                     id="targetYear"
-                    value={data.targetYear ?? ""}
+                    value={data?.targetYear ?? ""}
                     onChange={(e) => handleInputChange("targetYear", e.target.value)}
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -225,7 +225,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 <Textarea
                   id="description"
                   placeholder="Describe your general reduction strategy..."
-                  value={data.description}
+                  value={data?.description}
                   onChange={(e) => handleInputChange("description", e.target.value)}
                   rows={3}
                 />
@@ -247,7 +247,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Target ({data.targetYear || 0}):</Label>
+                  <Label>Target ({data?.targetYear || 0}):</Label>
                   <div className="text-sm text-primary font-semibold">
                     {calculatedTargetEmission.toLocaleString()} tCO₂e
                   </div>
@@ -268,7 +268,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               icon={<FaCaretRight />}
               onClick={handleContinue}
               className="text-white px-6 py-2"
-              disabled={!data.reductionPercentage || !data.baselineYear || !data.targetYear}
+              disabled={!data?.reductionPercentage || !data?.baselineYear || !data?.targetYear}
             >
               Continue
             </CustomButton>
@@ -300,14 +300,14 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             </Card>
           ) : (
             <GeneralTargetSummary
-              reductionPercentage={data.reductionPercentage || 0}
+              reductionPercentage={data?.reductionPercentage || 0}
               baselineEmission={baseline?.data?.totalSum ?? 0}
               targetEmission={calculatedTargetEmission ?? 0}
               targetYear={data?.targetYear ?? 0}
               baselineYear={baseline?.data?.startYear || 0}
               onPrevious={handlePrevious}
               onSetTarget={handleSetTarget}
-              isLoading={createTarget.isPending}
+              isLoading={createTarget?.isPending}
             />
           )
         )
