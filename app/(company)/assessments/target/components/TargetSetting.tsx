@@ -4,6 +4,7 @@ import { GeneralTargetData, TargetType } from "@/types/target";
 import { useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
 import GeneralTargetForm from "./GeneralSetTarget";
+import SetTargetByScope from "./SetTargetByScope";
 // import SetTargetByScope from "./SetTargetByScope";
 
 export function TargetSetting() {
@@ -29,13 +30,13 @@ export function TargetSetting() {
        
           )}
 
-          {/* {selectedType === "scope" && (
+          {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
            
                 <SetTargetByScope />
            
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>
