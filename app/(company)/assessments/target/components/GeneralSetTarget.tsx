@@ -164,9 +164,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       {step === 0 && (
         <div className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">General Reduction Target</CardTitle>
-            </CardHeader>
+            {/* <CardHeader> */}
+              <div className="text-lg">General Reduction Target</div>
+            {/* </CardHeader> */}
             <CardContent className="space-y-6">
               <p className="text-sm text-gray-600">
                 Set your overall emissions reduction target across all scopes
@@ -234,9 +234,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Target Calculation</CardTitle>
-            </CardHeader>
+            {/* <CardHeader> */}
+              <div className="text-lg font-semibold">Target Calculation</div>
+            {/* </CardHeader> */}
             <CardContent className="space-y-4 w-full">
               <div className="flex flex-col w-full gap-2">
                 <div className="space-y-2 flex items-center justify-between w-full">
