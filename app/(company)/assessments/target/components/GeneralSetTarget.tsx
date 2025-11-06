@@ -160,7 +160,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
 
   return (
     <>
-      {step === 0 ? (
+    {
+      step === 0 && (
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -273,7 +274,10 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
             </CustomButton>
           </div>
         </div>
-      ) :  (
+      )
+    }
+    {
+      step === 1 && (
         <GeneralTargetSummary
           reductionPercentage={data.reductionPercentage || 0}
           baselineEmission={baseline?.data?.totalSum ?? 0}
@@ -284,7 +288,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
           onSetTarget={handleSetTarget}
           // isLoading={createTarget.isPending}
         />
-      ) }
+      )
+    }
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
       <SuccessModal
