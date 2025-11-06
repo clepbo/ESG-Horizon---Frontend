@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client"
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
@@ -27,7 +28,7 @@ export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
 
 export default function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetFormProps) {
   const [step, setStep] = useState(0);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Modal state
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const { user } = useAuth();
   const queryClient = useQueryClient();

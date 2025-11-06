@@ -1,7 +1,7 @@
 "use client";
 
 import { GeneralTargetData, TargetType } from "@/types/target";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
 import GeneralTargetForm from "./GeneralSetTarget";
 // import SetTargetByScope from "./SetTargetByScope";
@@ -25,16 +25,16 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            <Suspense fallback={<CardSkeleton />}>
+          
               <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
-            </Suspense>
+       
           )}
 
           {/* {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
-              <Suspense fallback={<Skeleton />}>
+           
                 <SetTargetByScope />
-              </Suspense>
+           
             </div>
           )} */}
         </div>
