@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -30,6 +30,19 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
+  // In your GeneralTargetForm component, add this at the top
+const safeData = useMemo(() => {
+  return {
+    reductionPercentage: data?.reductionPercentage ?? null,
+    baselineYear: data?.baselineYear ?? null,
+    targetYear: data?.targetYear ?? null,
+    description: data?.description ?? "",
+    targetEmission: data?.targetEmission ?? null,
+    totalReduction: data?.totalReduction ?? null,
+  };
+}, [data]);
+
+// Then use safeData instead of data throughout your component
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const companyId = user?.company?.id;
@@ -65,13 +78,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
       // Auto-calculate target emission when percentage changes using actual baseline
-      if (processedValue !== null && data.baselineYear && data.targetYear) {
+      if (processedValue !== null && safeData.baselineYear && safeData.targetYear) {
         const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission * (processedValue / 100);
 
         onChange({
-          ...data,
+          ...safeData,
           reductionPercentage: processedValue,
           targetEmission: Math.round(targetEmission),
           totalReduction: Math.round(totalReduction),
@@ -90,7 +103,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
 
     onChange({
-      ...data,
+      ...safeData,
       [field]: processedValue,
     });
   };
@@ -98,7 +111,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const handleContinue = () => {
     if (step === 0) {
       // Validate required fields before proceeding
-      if (data.reductionPercentage && data.baselineYear && data.targetYear) {
+      if (safeData.reductionPercentage && safeData.baselineYear && safeData.targetYear) {
         setStep(1);
       }
     }
@@ -152,11 +165,11 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
   // Calculate dynamic values for display
   const baselineEmission = 26830; // Fixed baseline from image
-  const calculatedTargetEmission = data?.reductionPercentage
-    ? baseline?.data?.totalSum * (1 - data?.reductionPercentage / 100)
+  const calculatedTargetEmission = safeData?.reductionPercentage
+    ? baseline?.data?.totalSum * (1 - safeData?.reductionPercentage / 100)
     : 0;
-  const calculatedTotalReduction = data?.reductionPercentage
-    ? baselineEmission * (data?.reductionPercentage / 100)
+  const calculatedTotalReduction = safeData?.reductionPercentage
+    ? baselineEmission * (safeData?.reductionPercentage / 100)
     : 0;
 
   // console.log("Gen", data?);
@@ -248,7 +261,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Target ({data?.targetYear || 0}):</Label>
+                  <Label>Target ({safeData?.targetYear || 0}):</Label>
                   <div className="text-sm text-primary font-semibold">
                     {calculatedTargetEmission.toLocaleString()} tCO₂e
                   </div>
@@ -269,7 +282,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               icon={<FaCaretRight />}
               onClick={handleContinue}
               className="text-white px-6 py-2"
-              disabled={!data?.reductionPercentage || !data?.baselineYear || !data?.targetYear}
+              disabled={!safeData?.reductionPercentage || !data?.baselineYear || !data?.targetYear}
             >
               Continue
             </CustomButton>
@@ -301,10 +314,10 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             </Card>
           ) : (
             <GeneralTargetSummary
-              reductionPercentage={data?.reductionPercentage || 0}
+              reductionPercentage={safeData?.reductionPercentage || 0}
               baselineEmission={baseline?.data?.totalSum ?? 0}
               targetEmission={calculatedTargetEmission ?? 0}
-              targetYear={data?.targetYear ?? 0}
+              targetYear={safeData?.targetYear ?? 0}
               baselineYear={baseline?.data?.startYear || 0}
               onPrevious={handlePrevious}
               onSetTarget={handleSetTarget}
