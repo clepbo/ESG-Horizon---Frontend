@@ -25,7 +25,10 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
+            <Suspense fallback={<Skeleton />}>
+
+              <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
+            </Suspense>
             // <h2> Testing General target form </h2>
           )}
 

@@ -108,30 +108,31 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
   };
 
   const handleSetTarget = async () => {
-    const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
-    try {
-      // Prepare the target payload
-      const targetPayload: TargetPayload = {
-        name: data.name || uniqueName,
-        type: "GENERAL",
-        description: data.description || "General emissions reduction target",
-        baselineYear: data.baselineYear!,
-        targetYear: data.targetYear!,
-        reductionPercentage: data.reductionPercentage || 0,
-      };
+    // const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
+    // try {
+    //   // Prepare the target payload
+    //   const targetPayload: TargetPayload = {
+    //     name: data.name || uniqueName,
+    //     type: "GENERAL",
+    //     description: data.description || "General emissions reduction target",
+    //     baselineYear: data.baselineYear!,
+    //     targetYear: data.targetYear!,
+    //     reductionPercentage: data.reductionPercentage || 0,
+    //   };
 
-      // Call the mutation
-      await createTarget.mutateAsync(targetPayload);
+    //   // Call the mutation
+    //   await createTarget.mutateAsync(targetPayload);
 
-      // Call the onComplete callback with the data
-      onComplete?.(data);
+    //   // Call the onComplete callback with the data
+    //   onComplete?.(data);
 
-      // Open the success modal
-      setIsSuccessModalOpen(true);
-    } catch (error) {
-      console.error("Failed to create target:", error);
-      // You might want to show an error toast/message here
-    }
+    //   // Open the success modal
+    //   setIsSuccessModalOpen(true);
+    // } catch (error) {
+    //   console.error("Failed to create target:", error);
+    //   throw new Error(`Error: ${error}`)
+    // }
+    setIsSuccessModalOpen(true);
   };
 
   const handleModalContinue = () => {
@@ -275,13 +276,13 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
       ) : step === 1 ? (
         <GeneralTargetSummary
           reductionPercentage={data.reductionPercentage || 0}
-          baselineEmission={baseline?.data?.totalSum}
-          targetEmission={calculatedTargetEmission}
+          baselineEmission={baseline?.data?.totalSum ?? 0}
+          targetEmission={calculatedTargetEmission ?? 0}
           targetYear={data?.targetYear ?? 0}
           baselineYear={baseline?.data?.startYear || 0}
           onPrevious={handlePrevious}
           onSetTarget={handleSetTarget}
-          isLoading={createTarget.isPending}
+          // isLoading={createTarget.isPending}
         />
       ) : null}
 
