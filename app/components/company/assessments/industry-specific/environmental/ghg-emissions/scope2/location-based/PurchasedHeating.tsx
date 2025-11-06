@@ -20,6 +20,7 @@ import {
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 interface PurchasedHeatingFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -56,6 +57,7 @@ export function PurchasedHeatingForm({
     setRawValue: setHeatingConsumedRaw,
   } = useFormattedNumber("");
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [supplierName, setSupplierName] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -524,7 +526,7 @@ export function PurchasedHeatingForm({
 
               <Button
                 variant="outline"
-                onClick={handleSubmit}
+                onClick={() => setShowConfirmDialog(true)}
                 disabled={isPending}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
@@ -533,6 +535,18 @@ export function PurchasedHeatingForm({
             </div>
           </CardContent>
         </Card>
+        <SubmitConfirmationDialog
+          isOpen={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          onSave={() => {
+            setShowConfirmDialog(false);
+            handleSaveAndContinue();
+          }}
+          onSubmit={() => {
+            setShowConfirmDialog(false);
+            handleSubmit();
+          }}
+        />
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 
 interface MarineAviationProps {
   onBack: () => void;
@@ -60,6 +61,7 @@ export function MarineAviation({
     marine?: string;
     files?: string;
   }>({});
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const airOptions = useMemo(() => getFuelOptions("air"), []);
   const marineOptions = useMemo(() => getFuelOptions("marine"), []);
@@ -517,7 +519,7 @@ export function MarineAviation({
               </Button>
               <Button
                 variant="outline"
-                onClick={handleSubmit}
+                onClick={() => setShowConfirmDialog(true)}
                 disabled={isSaving || isSubmitting}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit assessment"
@@ -527,6 +529,18 @@ export function MarineAviation({
             </div>
           </CardContent>
         </Card>
+        <SubmitConfirmationDialog
+          isOpen={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          onSave={() => {
+            setShowConfirmDialog(false);
+            handleSaveAndContinue();
+          }}
+          onSubmit={() => {
+            setShowConfirmDialog(false);
+            handleSubmit();
+          }}
+        />
       </div>
     </div>
   );

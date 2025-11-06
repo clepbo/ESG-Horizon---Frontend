@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 
 interface HFCLeaksProps {
   onBack: () => void;
@@ -61,6 +62,7 @@ export function HFCLeaks({
     R507A: Boolean(hfcLeaks?.R507A),
   });
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(hfcLeaks?.files || {});
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -595,7 +597,7 @@ export function HFCLeaks({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={handleSubmit}
+                  onClick={() => setShowConfirmDialog(true)}
                   disabled={isSaving || isSubmitting}
                   className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                   aria-label="Submit form"
@@ -606,6 +608,18 @@ export function HFCLeaks({
             </form>
           </CardContent>
         </Card>
+        <SubmitConfirmationDialog
+          isOpen={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          onSave={() => {
+            setShowConfirmDialog(false);
+            handleSaveAndContinue();
+          }}
+          onSubmit={() => {
+            setShowConfirmDialog(false);
+            handleSubmit();
+          }}
+        />
       </div>
     </div>
   );

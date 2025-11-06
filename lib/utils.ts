@@ -147,3 +147,11 @@ export function formatTCO2eOutput(tCO2eValue: number): string {
   }
   return `${tCO2eValue.toFixed(3)} tCO2e`;
 }
+
+export function formatStatus(status: any | any[]): string {
+  if (!status) return "";
+  const words = status
+    .split("_")
+    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));
+  return words.join(" ");
+}

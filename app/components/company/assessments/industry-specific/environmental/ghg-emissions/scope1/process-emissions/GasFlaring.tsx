@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 
 interface GasFlaringProps {
   onBack: () => void;
@@ -65,6 +66,7 @@ export function GasFlaring({
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
@@ -442,7 +444,7 @@ export function GasFlaring({
 
               <Button
                 variant="outline"
-                onClick={handleSubmit}
+                onClick={() => setShowConfirmDialog(true)}
                 disabled={isSaving || isSubmitting}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
@@ -451,6 +453,18 @@ export function GasFlaring({
             </div>
           </CardContent>
         </Card>
+        <SubmitConfirmationDialog
+          isOpen={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          onSave={() => {
+            setShowConfirmDialog(false);
+            handleSaveAndContinue();
+          }}
+          onSubmit={() => {
+            setShowConfirmDialog(false);
+            handleSubmit();
+          }}
+        />
       </div>
     </div>
   );

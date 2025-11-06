@@ -30,7 +30,7 @@ import SearchInput from "@/app/components/ui/reusables/SearchInput";
 export interface FilterOption {
   label: string;
   columnId: string;
-  options: string[];
+  options: (string | { label: string; value: string })[];
 }
 
 export function DataTable<TData>({
@@ -85,12 +85,26 @@ export function DataTable<TData>({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All {filter.label}</SelectItem>
+                {filter.options.map((option) => {
+                  const value = typeof option === "string" ? option : option.value;
+                  const label = typeof option === "string" ? option : option.label;
+
+                  return (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+
+              {/* <SelectContent>
+                <SelectItem value="all">All {filter.label}</SelectItem>
                 {filter.options.map((option) => (
                   <SelectItem key={option} value={option}>
                     {option}
                   </SelectItem>
                 ))}
-              </SelectContent>
+              </SelectContent> */}
             </Select>
           ))}
 

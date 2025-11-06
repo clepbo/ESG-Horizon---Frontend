@@ -21,6 +21,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
+import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 
 interface OilGasOperationsProps {
   onBack: () => void;
@@ -54,6 +55,8 @@ export function OilGasOperations({
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
+
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
@@ -487,7 +490,7 @@ export function OilGasOperations({
               </Button>
               <Button
                 variant="outline"
-                onClick={handleSubmit}
+                onClick={() => setShowConfirmDialog(true)}
                 disabled={isPending}
                 className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit form"
@@ -497,6 +500,18 @@ export function OilGasOperations({
             </div>
           </CardContent>
         </Card>
+        <SubmitConfirmationDialog
+          isOpen={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          onSave={() => {
+            setShowConfirmDialog(false);
+            handleSaveAndContinue();
+          }}
+          onSubmit={() => {
+            setShowConfirmDialog(false);
+            handleSubmit();
+          }}
+        />
       </div>
     </div>
   );

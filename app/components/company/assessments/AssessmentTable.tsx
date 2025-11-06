@@ -28,6 +28,7 @@ import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 import AssessmentDetailsModal from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+import { formatStatus } from "@/lib/utils";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -272,34 +273,70 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
+    // columnHelper.accessor("status", {
+    //   header: "Status",
+    //   cell: (info) => {
+    //     const assessment = info.row.original;
+    //     const status = info.getValue();
+
+    //     const getStatusDisplay = (status: AssessmentStatus) => {
+    //       switch (status) {
+    //         case "in_progress":
+    //           return { label: "In Progress", variant: "yellow" as const };
+    //         case "awaiting_review":
+    //           return { label: "Awaiting Review", variant: "primaryBlue" as const };
+    //         case "submitted_approved":
+    //           return { label: "Submitted-Approved", variant: "successGreen" as const };
+    //         case "approved":
+    //           return { label: "Approved", variant: "successGreen" as const };
+    //         case "unapproved_rejected":
+    //           return { label: "Unapproved/Rejected", variant: "destructive" as const };
+    //         default:
+    //           return { label: status, variant: "outline" as const };
+    //       }
+    //     };
+
+    //     const { label, variant } = getStatusDisplay(status);
+
+    //     return (
+    //       <div className="flex items-center gap-2">
+    //         <Badge variant={variant} className="capitalize">
+    //           {label}
+    //         </Badge>
+
+    //         {status === "unapproved_rejected" && assessment.rejection_reason && (
+    //           <button
+    //             onClick={() => handleOpenReason(assessment.rejection_reason)}
+    //             className="text-gray-500 hover:text-gray-700 cursor-pointer"
+    //           >
+    //             <CircleHelp className="h-5 w-5" />
+    //           </button>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // }),
+
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
         const assessment = info.row.original;
         const status = info.getValue();
 
-        const getStatusDisplay = (status: AssessmentStatus) => {
-          switch (status) {
-            case "in_progress":
-              return { label: "In Progress", variant: "yellow" as const };
-            case "awaiting_review":
-              return { label: "Awaiting Review", variant: "primaryBlue" as const };
-            case "submitted_approved":
-              return { label: "Submitted-Approved", variant: "successGreen" as const };
-            case "approved":
-              return { label: "Approved", variant: "successGreen" as const };
-            case "unapproved_rejected":
-              return { label: "Unapproved/Rejected", variant: "destructive" as const };
-            default:
-              return { label: status, variant: "outline" as const };
-          }
+        const variantMap: Record<AssessmentStatus, string> = {
+          in_progress: "yellow",
+          awaiting_review: "primaryBlue",
+          submitted_approved: "successGreen",
+          approved: "successGreen",
+          unapproved_rejected: "destructive",
         };
 
-        const { label, variant } = getStatusDisplay(status);
+        const label = formatStatus(status);
+        const variant = variantMap[status] || "outline";
 
         return (
           <div className="flex items-center gap-2">
-            <Badge variant={variant} className="capitalize">
+            <Badge variant={variant as any} className="capitalize">
               {label}
             </Badge>
 
@@ -365,6 +402,20 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     }),
   ];
 
+  // const filterOptions: FilterOption[] = [
+  //   {
+  //     label: "Status",
+  //     columnId: "status",
+  //     options: [
+  //       "in_progress",
+  //       "awaiting_review",
+  //       "submitted_approved",
+  //       "approved",
+  //       "unapproved_rejected",
+  //     ],
+  //   },
+  // ];
+
   const filterOptions: FilterOption[] = [
     {
       label: "Status",
@@ -375,7 +426,10 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         "submitted_approved",
         "approved",
         "unapproved_rejected",
-      ],
+      ].map((value) => ({
+        label: formatStatus(value as AssessmentStatus),
+        value,
+      })),
     },
   ];
 

@@ -1,409 +1,273 @@
-"use client";
+// "use client";
 
-import Header from "../../components/Header";
-import { motion } from "framer-motion";
-import { useState } from "react";
-import { createColumnHelper } from "@tanstack/react-table";
-import { Badge } from "@/app/components/ui/badge";
-import { Button } from "@/app/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu";
-import {
-  Eye,
-  BadgeAlert,
-  SquarePen,
-  SquareArrowOutUpRight,
-  Trash2,
-  CircleHelp,
-  FileText,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
-import { useRouter } from "next/navigation";
-import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
-import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
-import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+// import { useState } from "react";
+// import { motion } from "framer-motion";
+// import { Plus } from "lucide-react";
+// import { toast } from "@/hooks/use-toast";
+// import { Button } from "@/app/components/ui/button";
+// import { TaskTable } from "@/app/components/company/tasks/TaskTable";
+// import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
+// import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialog";
 
-export type AssessmentStatus =
-  | "in_progress"
-  | "awaiting_review"
-  | "submitted_approved"
-  | "approved"
-  | "unapproved_rejected";
+// type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
+// export interface ITask {
+//   id: string;
+//   taskName: string;
+//   assignedTo: string;
+//   dateAssigned: string;
+//   dueDate: string;
+//   progress: number;
+//   status: TaskStatus;
+//   description?: string;
+//   priority?: "low" | "medium" | "high";
+// }
 
-export interface Assessment {
-  id: number;
-  startPeriod: string;
-  endPeriod: string;
-  subsidiary: string;
-  status: AssessmentStatus;
-  rejection_reason?: string;
-  progress?: number;
-}
+// const mockTasks: ITask[] = [
+//   {
+//     id: "1",
+//     taskName: "Design new landing page",
+//     assignedTo: "Ada Lovelace",
+//     dateAssigned: "2025-11-01",
+//     dueDate: "2025-11-15",
+//     progress: 75,
+//     status: "in-progress",
+//     description:
+//       "Create a modern, responsive landing page for the new product launch. Include hero section, features, testimonials, and CTA.",
+//     priority: "high",
+//   },
+//   {
+//     id: "2",
+//     taskName: "Update user documentation",
+//     assignedTo: "Julious Aghahowa",
+//     dateAssigned: "2025-11-02",
+//     dueDate: "2025-11-10",
+//     progress: 100,
+//     status: "completed",
+//     description:
+//       "Revise and update all user-facing documentation to reflect the latest product changes.",
+//     priority: "medium",
+//   },
+//   {
+//     id: "3",
+//     taskName: "Implement authentication system",
+//     assignedTo: "KCee Limpopo",
+//     dateAssigned: "2025-11-03",
+//     dueDate: "2025-11-20",
+//     progress: 40,
+//     status: "in-progress",
+//     description:
+//       "Build a secure authentication system with OAuth support and multi-factor authentication.",
+//     priority: "high",
+//   },
+//   {
+//     id: "4",
+//     taskName: "Database optimization",
+//     assignedTo: "Abubakar Tafawa-Balewa",
+//     dateAssigned: "2025-11-04",
+//     dueDate: "2025-11-12",
+//     progress: 0,
+//     status: "pending",
+//     description:
+//       "Optimize database queries and add proper indexing to improve application performance.",
+//     priority: "medium",
+//   },
+//   {
+//     id: "5",
+//     taskName: "Mobile app testing",
+//     assignedTo: "Sherlock Holmes",
+//     dateAssigned: "2025-11-01",
+//     dueDate: "2025-11-08",
+//     progress: 60,
+//     status: "on-hold",
+//     description:
+//       "Comprehensive testing of the mobile application across different devices and OS versions.",
+//     priority: "high",
+//   },
+//   {
+//     id: "6",
+//     taskName: "Marketing campaign analysis",
+//     assignedTo: "Jim Moriarty",
+//     dateAssigned: "2025-10-28",
+//     dueDate: "2025-11-06",
+//     progress: 100,
+//     status: "approved",
+//     description:
+//       "Analyze the performance metrics of Q4 marketing campaigns and provide actionable insights.",
+//     priority: "low",
+//   },
+//   {
+//     id: "7",
+//     taskName: "API integration",
+//     assignedTo: "Irene Adler",
+//     dateAssigned: "2025-11-05",
+//     dueDate: "2025-11-25",
+//     progress: 20,
+//     status: "in-progress",
+//     description: "Integrate third-party payment processing API and ensure PCI compliance.",
+//     priority: "high",
+//   },
+//   {
+//     id: "8",
+//     taskName: "Security audit report",
+//     assignedTo: "Dr. John Watson",
+//     dateAssigned: "2025-10-30",
+//     dueDate: "2025-11-05",
+//     progress: 100,
+//     status: "rejected",
+//     description:
+//       "Conduct comprehensive security audit and document all findings with remediation steps.",
+//     priority: "high",
+//   },
+// ];
 
-const columnHelper = createColumnHelper<Assessment>();
+// export default function TasksPage() {
+//   const router = useRouter();
+//   const [showReportSuccess, setShowReportSuccess] = useState(false);
+//   const [_modalData, setModalData] = useState({
+//     open: false,
+//     assessmentId: null as number | null,
+//   });
+//   const [_detailsOpen, setDetailsOpen] = useState(false);
+//   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
+//   const [reasonOpen, setReasonOpen] = useState(false);
+//   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
 
-function RejectionReasonModal({
-  open,
-  onClose,
-  reason,
-}: {
-  open: boolean;
-  onClose: () => void;
-  reason: string | undefined;
-}) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Rejection Reason</h2>
-        <p className="text-gray-600">{reason || "No reason provided."}</p>
-        <div className="mt-4 flex justify-end">
-          <Button onClick={onClose} variant="outline">
-            Close
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+//   const handleViewTask = (task: ITask) => {
+//     setSelectedTask(task);
+//     setIsDetailDrawerOpen(true);
+//   };
 
-/* 🧩 Each row’s Action Dropdown — isolated state */
-function ActionDropdown({
-  status,
-  getActionIcon,
-  actionLabel,
-  onActionClick,
-  onGenerateReport,
-  onDelete,
-  deletePending,
-}: any) {
-  const [isOpen, setIsOpen] = useState(false);
+//   const handleOpenReason = (reason: string | undefined) => {
+//     setSelectedReason(reason);
+//     setReasonOpen(true);
+//   };
 
-  return (
-    <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-[110px] justify-between rounded-sm border-teal-600"
-        >
-          Action
-          {isOpen ? (
-            <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
-          ) : (
-            <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+//   // const handleDeleteConfirm = () => {
+//   //   const idToDelete = modalData.assessmentId;
+//   //   if (!idToDelete) return;
 
-      <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        <DropdownMenuItem onClick={onActionClick}>
-          {getActionIcon(actionLabel)}
-          {actionLabel}
-        </DropdownMenuItem>
+//   //   deleteMutation.mutate(idToDelete, {
+//   //     onSuccess: () => setModalData({ open: false, assessmentId: null }),
+//   //     onError: (error: Error) => {
+//   //       console.error("Deletion failed:", error);
+//   //       setModalData({ open: false, assessmentId: null });
+//   //     },
+//   //   });
+//   // };
 
-        <DropdownMenuItem onClick={onGenerateReport}>
-          <FileText className="mr-2 h-4 w-4" />
-          Generate Report
-        </DropdownMenuItem>
+//   const handleDeleteTask = (taskId: string) => {
+//     const task = tasks.find((t) => t.id === taskId);
+//     setTasks(tasks.filter((t) => t.id !== taskId));
+//     toast({
+//       title: "Task Deleted",
+//       description: `${task?.taskName} has been deleted.`,
+//       variant: "destructive",
+//     });
+//   };
 
-        {status !== "awaiting_review" &&
-          status !== "submitted_approved" &&
-          status !== "approved" && (
-            <DropdownMenuItem
-              onClick={onDelete}
-              className="text-red-600 focus:text-red-600"
-              disabled={deletePending}
-            >
-              <Trash2 className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
-          )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+//   const handleReassignTask = (taskId: string) => {
+//     const task = tasks.find((t) => t.id === taskId);
+//     toast({
+//       title: "Reassign Task",
+//       description: `Reassigning task: ${task?.taskName}`,
+//     });
+//   };
 
-export default function TasksPage() {
-  const router = useRouter();
-  const [showReportSuccess, setShowReportSuccess] = useState(false);
-  const [_modalData, setModalData] = useState({
-    open: false,
-    assessmentId: null as number | null,
-  });
-  const [_detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
-  const [reasonOpen, setReasonOpen] = useState(false);
-  const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
+//   const handleApproveTask = (taskId: string) => {
+//     setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: "approved" as const } : t)));
+//     const task = tasks.find((t) => t.id === taskId);
+//     toast({
+//       title: "Task Approved",
+//       description: `${task?.taskName} has been approved.`,
+//     });
+//   };
 
-  const deleteMutation = useDeleteAssessment();
-  const [dateRange, setDateRange] = useState<
-    { startMonth: string; endMonth: string } | undefined
-  >();
+//   const handleRejectTask = (taskId: string) => {
+//     setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: "rejected" as const } : t)));
+//     const task = tasks.find((t) => t.id === taskId);
+//     toast({
+//       title: "Task Rejected",
+//       description: `${task?.taskName} has been rejected.`,
+//       variant: "destructive",
+//     });
+//   };
 
-  const handleOpenModal = (assessmentId: number) => setModalData({ open: true, assessmentId });
+//   const handleSendReminder = (taskId: string) => {
+//     const task = tasks.find((t) => t.id === taskId);
+//     toast({
+//       title: "Reminder Sent",
+//       description: `Reminder sent to ${task?.assignedTo} for task: ${task?.taskName}`,
+//     });
+//   };
 
-  const handleOpenDetails = (assessment: Assessment) => {
-    setSelectedAssessment(assessment);
-    setDetailsOpen(true);
-  };
+//   const handleAssignTask = (taskData: any) => {
+//     const newTask: ITask = {
+//       id: String(tasks.length + 1),
+//       ...taskData,
+//     };
+//     setTasks([newTask, ...tasks]);
+//     toast({
+//       title: "Task Assigned",
+//       description: `${newTask.taskName} has been assigned to ${newTask.assignedTo}.`,
+//     });
+//   };
 
-  const handleOpenReason = (reason: string | undefined) => {
-    setSelectedReason(reason);
-    setReasonOpen(true);
-  };
+//   return (
+//     <motion.main
+//       className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
+//       initial={{ opacity: 0, y: 20 }}
+//       animate={{ opacity: 1, y: 0 }}
+//       transition={{
+//         type: "spring",
+//         stiffness: 200,
+//         damping: 25,
+//         duration: 0.5,
+//       }}
+//     >
+//       <div className="container mx-auto">
+//         {/* Header */}
+//         <div className="flex items-center justify-between mb-8">
+//           <div className="space-y- mb-6">
+//             <h1 className="text-2xl font-semibold text-foreground">Tasks</h1>
+//             <p className="text-base text-muted-foreground">
+//               Keep track of all assessment and reporting tasks assigned across teams and
+//               departments.
+//             </p>
+//           </div>
+//           <Button onClick={() => setIsAssignDialogOpen(true)} size="sm" className="text-white">
+//             <Plus className="mr-2 h-5 w-5" />
+//             Assign Task
+//           </Button>
+//         </div>
 
-  // const handleDeleteConfirm = () => {
-  //   const idToDelete = modalData.assessmentId;
-  //   if (!idToDelete) return;
+//         {/* Task Table */}
+//         <section className="shadow-md">
+//           <TaskTable
+//             tasks={tasks}
+//             onViewTask={handleViewTask}
+//             onEditTask={handleEditTask}
+//             onDeleteTask={handleDeleteTask}
+//             onReassignTask={handleReassignTask}
+//             onApproveTask={handleApproveTask}
+//             onRejectTask={handleRejectTask}
+//             onSendReminder={handleSendReminder}
+//           />
+//         </section>
 
-  //   deleteMutation.mutate(idToDelete, {
-  //     onSuccess: () => setModalData({ open: false, assessmentId: null }),
-  //     onError: (error: Error) => {
-  //       console.error("Deletion failed:", error);
-  //       setModalData({ open: false, assessmentId: null });
-  //     },
-  //   });
-  // };
+//         {/* Task Detail Drawer */}
+//         <TaskDetailDrawer
+//           task={selectedTask}
+//           open={isDetailDrawerOpen}
+//           onOpenChange={setIsDetailDrawerOpen}
+//         />
 
-  const getActionIcon = (label: string) => {
-    switch (label) {
-      case "View":
-        return <Eye className="mr-2 h-4 w-4 " />;
-      case "Review":
-        return <BadgeAlert className="mr-2 h-4 w-4" />;
-      case "Update":
-        return <SquarePen className="mr-2 h-4 w-4 " />;
-      case "Continue":
-        return <SquareArrowOutUpRight className="mr-2 h-4 w-4 " />;
-      default:
-        return null;
-    }
-  };
-
-  const columns = [
-    columnHelper.accessor("startPeriod", { header: "Starting Period" }),
-    columnHelper.accessor("endPeriod", { header: "Ending Period" }),
-    columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
-
-    // ✅ Progress circle
-    columnHelper.display({
-      id: "progress",
-      header: "Progress",
-      cell: (info) => {
-        const percentage = info.row.original.progress ?? 0;
-        const radius = 16;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (percentage / 100) * circumference;
-        const index = info.row.index;
-
-        return (
-          <div className="relative flex items-center justify-center w-10 h-10">
-            <svg
-              width="40"
-              height="40"
-              className="rotate-[-90deg]"
-              style={{ position: "absolute", top: 0, left: 0 }}
-            >
-              <circle
-                cx="20"
-                cy="20"
-                r={radius}
-                stroke="#e5e7eb"
-                strokeWidth="4"
-                fill="transparent"
-              />
-              <defs>
-                <linearGradient id={`grad-${index}`} x1="0%" y1="100%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#ef4444" />
-                  <stop offset="30%" stopColor="#f97316" />
-                  <stop offset="65%" stopColor="#eab308" />
-                  <stop offset="100%" stopColor="#22c55e" />
-                </linearGradient>
-              </defs>
-              <circle
-                cx="20"
-                cy="20"
-                r={radius}
-                stroke={`url(#grad-${index})`}
-                strokeWidth="4"
-                fill="transparent"
-                strokeDasharray={circumference}
-                strokeDashoffset={offset}
-                strokeLinecap="round"
-                className="transition-all duration-700 ease-in-out"
-              />
-            </svg>
-            <span className="absolute text-xs font-semibold text-gray-800">
-              {percentage > 0 ? `${percentage}%` : "N/A"}
-            </span>
-          </div>
-        );
-      },
-    }),
-
-    // ✅ Status
-    columnHelper.accessor("status", {
-      header: "Status",
-      cell: (info) => {
-        const assessment = info.row.original;
-        const status = info.getValue();
-
-        const getStatusDisplay = (status: AssessmentStatus) => {
-          switch (status) {
-            case "in_progress":
-              return { label: "In Progress", variant: "yellow" as const };
-            case "awaiting_review":
-              return { label: "Awaiting Review", variant: "primaryBlue" as const };
-            case "submitted_approved":
-              return { label: "Submitted-Approved", variant: "successGreen" as const };
-            case "approved":
-              return { label: "Approved", variant: "successGreen" as const };
-            case "unapproved_rejected":
-              return { label: "Unapproved/Rejected", variant: "destructive" as const };
-            default:
-              return { label: status, variant: "outline" as const };
-          }
-        };
-
-        const { label, variant } = getStatusDisplay(status);
-
-        return (
-          <div className="flex items-center gap-2">
-            <Badge variant={variant} className="capitalize">
-              {label}
-            </Badge>
-
-            {status === "unapproved_rejected" && assessment.rejection_reason && (
-              <button
-                onClick={() => handleOpenReason(assessment.rejection_reason)}
-                className="text-gray-500 hover:text-gray-700 cursor-pointer"
-              >
-                <CircleHelp className="h-5 w-5" />
-              </button>
-            )}
-          </div>
-        );
-      },
-    }),
-
-    // ✅ Independent dropdown per row
-    columnHelper.display({
-      id: "actions",
-      header: "Quick Actions",
-      cell: ({ row }) => {
-        const assessment = row.original;
-        const status = assessment.status;
-
-        const handleActionClick = () => {
-          if (status === "in_progress" || status === "unapproved_rejected") {
-            router.push(`/assessments/${assessment.id}`);
-          } else {
-            handleOpenDetails(assessment);
-          }
-        };
-
-        const getActionLabel = () => {
-          switch (status) {
-            case "in_progress":
-              return "Continue";
-            case "awaiting_review":
-              return "Review";
-            case "unapproved_rejected":
-              return "Update";
-            case "submitted_approved":
-            case "approved":
-              return "View";
-            default:
-              return "View";
-          }
-        };
-
-        const actionLabel = getActionLabel();
-
-        return (
-          <ActionDropdown
-            assessment={assessment}
-            status={status}
-            getActionIcon={getActionIcon}
-            actionLabel={actionLabel}
-            onActionClick={handleActionClick}
-            onGenerateReport={() => {}}
-            onDelete={() => handleOpenModal(assessment.id)}
-            deletePending={deleteMutation.isPending}
-          />
-        );
-      },
-    }),
-  ];
-
-  const filterOptions: FilterOption[] = [
-    {
-      label: "Status",
-      columnId: "status",
-      options: [
-        "in_progress",
-        "awaiting_review",
-        "submitted_approved",
-        "approved",
-        "unapproved_rejected",
-      ],
-    },
-  ];
-
-  return (
-    <motion.main
-      className="flex-1 h-full overflow-y-auto p-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 25,
-        duration: 0.5,
-      }}
-    >
-      <Header />
-      <section className="shadow-md">
-        <DataTable
-          data={[]}
-          columns={columns}
-          filterOptions={filterOptions}
-          customFilters={
-            <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[300px]" />
-          }
-        />
-
-        <RejectionReasonModal
-          open={reasonOpen}
-          onClose={() => setReasonOpen(false)}
-          reason={selectedReason}
-        />
-
-        {showReportSuccess && selectedAssessment && (
-          <SuccessScreen
-            assessmentName="report"
-            type="report"
-            reportId={selectedAssessment.id}
-            onContinue={() => {
-              setShowReportSuccess(false);
-              router.push(`/reports-and-analytics/${selectedAssessment.id}`);
-            }}
-            onBackToHub={() => {
-              setShowReportSuccess(false);
-              router.push("/assessments");
-            }}
-            totals={undefined}
-            sectionKey={undefined}
-            nextAssessment={null}
-          />
-        )}
-      </section>
-    </motion.main>
-  );
-}
+//         {/* Assign Task Dialog */}
+//         <AssignTaskDialog
+//           open={isAssignDialogOpen}
+//           onOpenChange={setIsAssignDialogOpen}
+//           onSubmit={handleAssignTask}
+//         />
+//       </div>
+//     </motion.main>
+//   );
+// }

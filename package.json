@@ -36,6 +36,7 @@
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "countries-list": "^3.1.1",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "highcharts": "^12.4.0",
     "highcharts-more": "^0.1.7",

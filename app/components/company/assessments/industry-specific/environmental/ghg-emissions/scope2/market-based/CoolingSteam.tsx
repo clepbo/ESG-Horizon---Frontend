@@ -19,6 +19,7 @@ import {
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
@@ -53,6 +54,7 @@ export function CoolingSteamForm({
     setRawValue: setEnergyConsumedRaw,
   } = useFormattedNumber("");
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -484,6 +486,18 @@ export function CoolingSteamForm({
             </div>
           </CardContent>
         </Card>
+        <SubmitConfirmationDialog
+          isOpen={showConfirmDialog}
+          onClose={() => setShowConfirmDialog(false)}
+          onSave={() => {
+            setShowConfirmDialog(false);
+            handleSaveAndContinue();
+          }}
+          onSubmit={() => {
+            setShowConfirmDialog(false);
+            handleSubmit();
+          }}
+        />
       </div>
     </div>
   );

@@ -78,7 +78,7 @@ export function DataTable() {
   });
 
   const report = useReport();
-  const data: any[] = report.data || []; // Replace with report.data when it's available
+  const data: any[] = report.data || [];
 
   const filteredData = useMemo(() => {
     return data.filter((item: any) => {
