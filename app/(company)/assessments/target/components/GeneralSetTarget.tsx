@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -30,19 +30,6 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  // In your GeneralTargetForm component, add this at the top
-const safeData = useMemo(() => {
-  return {
-    reductionPercentage: data?.reductionPercentage ?? null,
-    baselineYear: data?.baselineYear ?? null,
-    targetYear: data?.targetYear ?? null,
-    description: data?.description ?? "",
-    targetEmission: data?.targetEmission ?? null,
-    totalReduction: data?.totalReduction ?? null,
-  };
-}, [data]);
-
-// Then use safeData instead of data throughout your component
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const companyId = user?.company?.id;
@@ -78,13 +65,13 @@ const safeData = useMemo(() => {
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
       // Auto-calculate target emission when percentage changes using actual baseline
-      if (processedValue !== null && safeData.baselineYear && safeData.targetYear) {
+      if (processedValue !== null && data.baselineYear && data.targetYear) {
         const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission * (processedValue / 100);
 
         onChange({
-          ...safeData,
+          ...data,
           reductionPercentage: processedValue,
           targetEmission: Math.round(targetEmission),
           totalReduction: Math.round(totalReduction),
@@ -103,7 +90,7 @@ const safeData = useMemo(() => {
     }
 
     onChange({
-      ...safeData,
+      ...data,
       [field]: processedValue,
     });
   };
@@ -111,7 +98,7 @@ const safeData = useMemo(() => {
   const handleContinue = () => {
     if (step === 0) {
       // Validate required fields before proceeding
-      if (safeData.reductionPercentage && safeData.baselineYear && safeData.targetYear) {
+      if (data.reductionPercentage && data.baselineYear && data.targetYear) {
         setStep(1);
       }
     }
@@ -122,31 +109,31 @@ const safeData = useMemo(() => {
   };
 
   const handleSetTarget = async () => {
-    // const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
-    // try {
-    //   // Prepare the target payload
-    //   const targetPayload: TargetPayload = {
-    //     name: data.name || uniqueName,
-    //     type: "GENERAL",
-    //     description: data.description || "General emissions reduction target",
-    //     baselineYear: data.baselineYear!,
-    //     targetYear: data.targetYear!,
-    //     reductionPercentage: data.reductionPercentage || 0,
-    //   };
+    const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
+    try {
+      // Prepare the target payload
+      const targetPayload: TargetPayload = {
+        name: data.name || uniqueName,
+        type: "GENERAL",
+        description: data.description || "General emissions reduction target",
+        baselineYear: data.baselineYear!,
+        targetYear: data.targetYear!,
+        reductionPercentage: data.reductionPercentage || 0,
+      };
 
-    //   // Call the mutation
-    //   await createTarget.mutateAsync(targetPayload);
+      // Call the mutation
+      await createTarget.mutateAsync(targetPayload);
 
-    //   // Call the onComplete callback with the data
-    //   onComplete?.(data);
+      // Call the onComplete callback with the data
+      onComplete?.(data);
 
-    //   // Open the success modal
-    //   setIsSuccessModalOpen(true);
-    // } catch (error) {
-    //   console.error("Failed to create target:", error);
-    //   throw new Error(`Error: ${error}`)
-    // }
-    setIsSuccessModalOpen(true);
+      // Open the success modal
+      setIsSuccessModalOpen(true);
+    } catch (error) {
+      console.error("Failed to create target:", error);
+      throw new Error(`Error: ${error}`)
+    }
+    
   };
 
   const handleModalContinue = () => {
@@ -165,11 +152,11 @@ const safeData = useMemo(() => {
 
   // Calculate dynamic values for display
   const baselineEmission = 26830; // Fixed baseline from image
-  const calculatedTargetEmission = safeData?.reductionPercentage
-    ? baseline?.data?.totalSum * (1 - safeData?.reductionPercentage / 100)
+  const calculatedTargetEmission = data?.reductionPercentage
+    ? baseline?.data?.totalSum * (1 - data?.reductionPercentage / 100)
     : 0;
-  const calculatedTotalReduction = safeData?.reductionPercentage
-    ? baselineEmission * (safeData?.reductionPercentage / 100)
+  const calculatedTotalReduction = data?.reductionPercentage
+    ? baselineEmission * (data?.reductionPercentage / 100)
     : 0;
 
   // console.log("Gen", data?);
@@ -261,7 +248,7 @@ const safeData = useMemo(() => {
                   </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Target ({safeData?.targetYear || 0}):</Label>
+                  <Label>Target ({data?.targetYear || 0}):</Label>
                   <div className="text-sm text-primary font-semibold">
                     {calculatedTargetEmission.toLocaleString()} tCO₂e
                   </div>
@@ -282,7 +269,7 @@ const safeData = useMemo(() => {
               icon={<FaCaretRight />}
               onClick={handleContinue}
               className="text-white px-6 py-2"
-              disabled={!safeData?.reductionPercentage || !data?.baselineYear || !data?.targetYear}
+              disabled={!data?.reductionPercentage || !data?.baselineYear || !data?.targetYear}
             >
               Continue
             </CustomButton>
@@ -290,7 +277,7 @@ const safeData = useMemo(() => {
         </div>
       )}
 
-      {
+      {/* {
         step === 1 && (
           baseline.isLoading ? (
             <Card>
@@ -314,10 +301,10 @@ const safeData = useMemo(() => {
             </Card>
           ) : (
             <GeneralTargetSummary
-              reductionPercentage={safeData?.reductionPercentage || 0}
+              reductionPercentage={data?.reductionPercentage || 0}
               baselineEmission={baseline?.data?.totalSum ?? 0}
               targetEmission={calculatedTargetEmission ?? 0}
-              targetYear={safeData?.targetYear ?? 0}
+              targetYear={data?.targetYear ?? 0}
               baselineYear={baseline?.data?.startYear || 0}
               onPrevious={handlePrevious}
               onSetTarget={handleSetTarget}
@@ -325,7 +312,7 @@ const safeData = useMemo(() => {
             />
           )
         )
-      }
+      } */}
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
       <SuccessModal
