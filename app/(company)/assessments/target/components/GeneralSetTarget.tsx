@@ -273,7 +273,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
             </CustomButton>
           </div>
         </div>
-      ) : step === 1 ? (
+      ) :  (
         <GeneralTargetSummary
           reductionPercentage={data.reductionPercentage || 0}
           baselineEmission={baseline?.data?.totalSum ?? 0}
@@ -284,7 +284,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
           onSetTarget={handleSetTarget}
           // isLoading={createTarget.isPending}
         />
-      ) : null}
+      ) }
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
       <SuccessModal
