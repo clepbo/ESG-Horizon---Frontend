@@ -1,10 +1,11 @@
 "use client";
 
 import { GeneralTargetData, TargetType } from "@/types/target";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
 import { GeneralTargetForm } from "./GeneralSetTarget";
 import SetTargetByScope from "./SetTargetByScope";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 export function TargetSetting() {
@@ -31,7 +32,10 @@ export function TargetSetting() {
 
           {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
+              <Suspense fallback={<Skeleton />}>
+
               <SetTargetByScope />
+              </Suspense>
               {/* <h2> Testing Targeting scope page issues</h2> */}
             </div>
           )}

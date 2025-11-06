@@ -72,9 +72,9 @@ export default function SetTargetByScope() {
 
   const baseline = useQuery({
     queryKey: ["baseline", companyId],
-    queryFn: () => {
+    queryFn: async () => {
       if (!companyId) throw new Error('Company ID not available');
-      return apiUtil.get(`/target/baseline/${companyId}`);
+      return await apiUtil.get(`/target/baseline/${companyId}`);
     },
     enabled: !!companyId,
   });
@@ -82,7 +82,7 @@ export default function SetTargetByScope() {
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
       if (!companyId) throw new Error('Company ID not available');
-      return apiUtil.post(`/target`, targetData);
+      return apiUtil.post(`/target/${companyId}`, targetData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['baseline'] });
