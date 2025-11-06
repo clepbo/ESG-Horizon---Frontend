@@ -82,7 +82,7 @@ export default function SetTargetByScope() {
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
       if (!companyId) throw new Error('Company ID not available');
-      return apiUtil.post(`/target/${companyId}`, targetData);
+      return await apiUtil.post(`/target/${companyId}`, targetData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['baseline'] });
