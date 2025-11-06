@@ -3,7 +3,7 @@
 import { GeneralTargetData, TargetType } from "@/types/target";
 import { Suspense, useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
-import GeneralTargetForm  from "./GeneralSetTarget";
+import GeneralTargetForm from "./GeneralSetTarget";
 // import SetTargetByScope from "./SetTargetByScope";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
@@ -26,7 +26,6 @@ export function TargetSetting() {
 
           {selectedType === "general" && (
             <Suspense fallback={<CardSkeleton />}>
-
               <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
             </Suspense>
           )}
