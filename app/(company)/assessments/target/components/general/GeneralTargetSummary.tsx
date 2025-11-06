@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { TrendingDown } from "lucide-react";

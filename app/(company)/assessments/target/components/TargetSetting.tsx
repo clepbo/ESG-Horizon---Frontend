@@ -5,7 +5,6 @@ import { useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
 import GeneralTargetForm from "./GeneralSetTarget";
 // import SetTargetByScope from "./SetTargetByScope";
-import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export function TargetSetting() {
   const [selectedType, setSelectedType] = useState<TargetType>("general");

@@ -1,3 +1,5 @@
+"use client"
+
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { Edit } from "lucide-react";
 import React from "react";
