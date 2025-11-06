@@ -29,17 +29,15 @@ export function TargetSetting() {
 
               <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
             </Suspense>
-            // <h2> Testing General target form </h2>
           )}
 
-          {selectedType === "scope" && (
+          {/* {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
               <Suspense fallback={<Skeleton />}>
                 <SetTargetByScope />
               </Suspense>
-              {/* <h2> Testing Targeting scope page issues</h2> */}
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
