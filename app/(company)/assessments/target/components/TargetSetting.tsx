@@ -3,7 +3,7 @@
 import { GeneralTargetData, TargetType } from "@/types/target";
 import { Suspense, useState } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
-import { GeneralTargetForm } from "./GeneralSetTarget";
+import GeneralTargetForm  from "./GeneralSetTarget";
 // import SetTargetByScope from "./SetTargetByScope";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
@@ -18,7 +18,6 @@ export function TargetSetting() {
     totalReduction: null,
   });
 
-  console.log("GEN DATA",generalTargetData)
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
