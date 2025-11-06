@@ -477,8 +477,8 @@ export function CoolingSteamForm({
               </Button>
               <Button
                 variant="outline"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
+                onClick={() => setShowConfirmDialog(true)}
+                disabled={isSaving}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
