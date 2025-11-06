@@ -75,7 +75,8 @@ export function VentingNaturalGas({
       if (ventingNaturalGas.files) setFiles(ventingNaturalGas.files);
       setAdditionalFields(ventingNaturalGas.additionalFields || []);
     }
-  }, [ventingNaturalGas, volumeOfGasVented]);
+    // }, [ventingNaturalGas, volumeOfGasVented]);
+  }, [ventingNaturalGas]);
 
   const { filled, total } = useMemo(() => {
     const hasVolume = volumeOfGasVented.rawValue !== "";
