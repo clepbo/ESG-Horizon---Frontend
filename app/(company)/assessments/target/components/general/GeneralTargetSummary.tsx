@@ -11,7 +11,7 @@ interface TargetSummaryProps {
   baselineYear: number;
   onPrevious: () => void;
   onSetTarget: () => void;
-  isLoading? : boolean;
+  isLoading?: boolean;
 }
 
 export function GeneralTargetSummary({
@@ -58,7 +58,7 @@ export function GeneralTargetSummary({
                 <div className="text-sm font-medium text-gray-600">Timeline:</div>
                 <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
               </div>
-              
+
               {/* Total Reduction - FIXED */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
@@ -66,7 +66,7 @@ export function GeneralTargetSummary({
                   -{totalReduction.toLocaleString()} tCO₂e
                 </div>
               </div>
-              
+
               {/* Annual Rate */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Annual Rate:</div>

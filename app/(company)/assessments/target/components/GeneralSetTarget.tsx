@@ -14,7 +14,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
@@ -25,20 +25,18 @@ export interface GeneralTargetFormProps {
 const currentYear = new Date().getFullYear();
 export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
 
-
 export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetFormProps) {
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Modal state
-
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const companyId = user?.company?.id;
 
-   const baseline = useQuery({
+  const baseline = useQuery({
     queryKey: ["baseline", companyId],
     queryFn: () => {
-      if (!companyId) throw new Error('Company ID not available');
+      if (!companyId) throw new Error("Company ID not available");
       return apiUtil.get(`/target/baseline/${companyId}`);
     },
     enabled: !!companyId,
@@ -48,56 +46,53 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
 
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
-      if (!companyId) throw new Error('Company ID not available');
+      if (!companyId) throw new Error("Company ID not available");
       return apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['baseline'] });
-      queryClient.invalidateQueries({ queryKey: ['targets'] });
+      queryClient.invalidateQueries({ queryKey: ["baseline"] });
+      queryClient.invalidateQueries({ queryKey: ["targets"] });
     },
   });
-
-
 
   // Use the formatting hook for targetEmission
   // const targetEmissionFormatter = useFormattedNumber(data.targetEmission || "");
 
- const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
-  let processedValue: any = value;
+  const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
+    let processedValue: any = value;
 
-  if (field === "reductionPercentage") {
-    processedValue = value === "" ? null : Number(value);
-    // Auto-calculate target emission when percentage changes using actual baseline
-    if (processedValue !== null && data.baselineYear && data.targetYear) {
-      const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
-      const targetEmission = baselineEmission * (1 - processedValue / 100);
-      const totalReduction = baselineEmission * (processedValue / 100);
+    if (field === "reductionPercentage") {
+      processedValue = value === "" ? null : Number(value);
+      // Auto-calculate target emission when percentage changes using actual baseline
+      if (processedValue !== null && data.baselineYear && data.targetYear) {
+        const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
+        const targetEmission = baselineEmission * (1 - processedValue / 100);
+        const totalReduction = baselineEmission * (processedValue / 100);
 
-      onChange({
-        ...data,
-        reductionPercentage: processedValue,
-        targetEmission: Math.round(targetEmission),
-        totalReduction: Math.round(totalReduction),
-      });
-      return;
+        onChange({
+          ...data,
+          reductionPercentage: processedValue,
+          targetEmission: Math.round(targetEmission),
+          totalReduction: Math.round(totalReduction),
+        });
+        return;
+      }
     }
-  }
 
-  if (field === "baselineYear" || field === "targetYear") {
-    processedValue = value === "" ? null : Number(value);
-  }
+    if (field === "baselineYear" || field === "targetYear") {
+      processedValue = value === "" ? null : Number(value);
+    }
 
-  // Handle targetEmission changes from formatted input
-  if (field === "targetEmission") {
-    processedValue = value === "" ? null : Number(value);
-  }
+    // Handle targetEmission changes from formatted input
+    if (field === "targetEmission") {
+      processedValue = value === "" ? null : Number(value);
+    }
 
-  onChange({
-    ...data,
-    [field]: processedValue,
-  });
-};
-
+    onChange({
+      ...data,
+      [field]: processedValue,
+    });
+  };
 
   const handleContinue = () => {
     if (step === 0) {
@@ -112,8 +107,8 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
     setStep(0);
   };
 
- const handleSetTarget = async () => {
-  const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`
+  const handleSetTarget = async () => {
+    const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
     try {
       // Prepare the target payload
       const targetPayload: TargetPayload = {
@@ -123,15 +118,14 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
         baselineYear: data.baselineYear!,
         targetYear: data.targetYear!,
         reductionPercentage: data.reductionPercentage || 0,
-        
       };
 
       // Call the mutation
       await createTarget.mutateAsync(targetPayload);
-      
+
       // Call the onComplete callback with the data
       onComplete?.(data);
-      
+
       // Open the success modal
       setIsSuccessModalOpen(true);
     } catch (error) {
@@ -146,7 +140,7 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
 
     // You can add additional logic here for what happens after modal "Continue"
     // For example: reset the form, navigate away, etc.
-    router.push('/ranking');
+    router.push("/ranking");
     console.log("Modal continue clicked - target setup complete!");
   };
 
@@ -156,13 +150,12 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
 
   // Calculate dynamic values for display
   const baselineEmission = 26830; // Fixed baseline from image
-  const calculatedTargetEmission = data?.reductionPercentage 
-  ? baseline?.data?.totalSum * (1 - data.reductionPercentage / 100)
-  : 0;
- const calculatedTotalReduction = data?.reductionPercentage 
-  ? baselineEmission * (data.reductionPercentage / 100)
-  : 0;
-
+  const calculatedTargetEmission = data?.reductionPercentage
+    ? baseline?.data?.totalSum * (1 - data.reductionPercentage / 100)
+    : 0;
+  const calculatedTotalReduction = data?.reductionPercentage
+    ? baselineEmission * (data.reductionPercentage / 100)
+    : 0;
 
   return (
     <>
@@ -246,7 +239,10 @@ export function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetF
               <div className="flex flex-col w-full gap-2">
                 <div className="space-y-2 flex items-center justify-between w-full">
                   <Label>Baseline {baseline?.data?.startYear} :</Label>
-                  <div className="text-sm text-gray-900 font-semibold"> {baseline?.data?.totalSum} tCO₂e</div>
+                  <div className="text-sm text-gray-900 font-semibold">
+                    {" "}
+                    {baseline?.data?.totalSum} tCO₂e
+                  </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
                   <Label>Target ({data.targetYear || 0}):</Label>

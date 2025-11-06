@@ -30,7 +30,6 @@ export default function RankingHome() {
       </div>
 
       {target === "target" ? <PerformanceOverview /> : <ESGLeaderboard />}
-    
     </div>
   );
 }
