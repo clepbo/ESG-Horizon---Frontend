@@ -627,11 +627,11 @@ export default function SetTargetByScope() {
           onSetTarget={handleSetTarget}
           isLoading={createTarget.isPending}
         />
-        <SuccessModal
+        {/* <SuccessModal
           isOpen={isSuccessModalOpen}
           onClose={handleModalClose}
           onContinue={handleModalContinue}
-        />
+        /> */}
       </>
     );
   }
