@@ -300,7 +300,7 @@ export default function SetTargetByScope() {
         {/* Scope 1 Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg text-left font-normal">Scope 1 Target</CardTitle>
+            <div className="text-lg text-left font-normal">Scope 1 Target</div>
           </CardHeader>
           <CardContent className="space-y-6">
             <p className="text-sm text-gray-600 text-left">
@@ -404,7 +404,7 @@ export default function SetTargetByScope() {
         {/* Scope 2 Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg text-left font-normal">Scope 2 Target</CardTitle>
+            <div className="text-lg text-left font-normal">Scope 2 Target</div>
           </CardHeader>
           <CardContent className="space-y-6">
             <p className="text-sm text-gray-600 text-left">

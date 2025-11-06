@@ -33,7 +33,7 @@ export function GeneralTargetSummary({
       {/* Target Summary Card */}
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Target Summary</CardTitle>
+          <div className="text-lg font-semibold">Target Summary</div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Main Reduction Target */}

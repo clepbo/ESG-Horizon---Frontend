@@ -94,7 +94,6 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     });
   };
 
-  console.log("Continue Data:", data.reductionPercentage, data.baselineYear, data.targetYear)
   const handleContinue = () => {
     if (step === 0) {
       // Validate required fields before proceeding
@@ -277,7 +276,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         </div>
       )}
 
-      {
+      {/* {
         step === 1 && (
           baseline.isLoading ? (
             <Card>
@@ -300,27 +299,26 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               </CardContent>
             </Card>
           ) : (
-            // <GeneralTargetSummary
-            //   reductionPercentage={data.reductionPercentage || 0}
-            //   baselineEmission={baseline?.data?.totalSum ?? 0}
-            //   targetEmission={calculatedTargetEmission ?? 0}
-            //   targetYear={data?.targetYear ?? 0}
-            //   baselineYear={baseline?.data?.startYear || 0}
-            //   onPrevious={handlePrevious}
-            //   onSetTarget={handleSetTarget}
-            //   isLoading={createTarget.isPending}
-            // />
-            <h2> Summary for General target Setting...</h2>
+            <GeneralTargetSummary
+              reductionPercentage={data.reductionPercentage || 0}
+              baselineEmission={baseline?.data?.totalSum ?? 0}
+              targetEmission={calculatedTargetEmission ?? 0}
+              targetYear={data?.targetYear ?? 0}
+              baselineYear={baseline?.data?.startYear || 0}
+              onPrevious={handlePrevious}
+              onSetTarget={handleSetTarget}
+              isLoading={createTarget.isPending}
+            />
           )
         )
-      }
+      } */}
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
-      <SuccessModal
+      {/* <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={handleModalClose}
         onContinue={handleModalContinue}
-      />
+      /> */}
     </>
   );
 }
