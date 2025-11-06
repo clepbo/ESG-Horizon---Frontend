@@ -277,7 +277,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         </div>
       )}
 
-      {/* {
+      {
         step === 1 && (
           baseline.isLoading ? (
             <Card>
@@ -312,7 +312,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             />
           )
         )
-      } */}
+      }
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
       {/* <SuccessModal
