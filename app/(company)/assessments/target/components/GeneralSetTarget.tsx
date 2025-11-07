@@ -16,6 +16,7 @@ import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
+import Dialog from "@/app/components/ui/dialog";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
@@ -315,11 +316,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       }
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
-      {/* <SuccessModal
+      <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={handleModalClose}
         onContinue={handleModalContinue}
-      /> */}
+      />
+
+  
     </>
   );
 }

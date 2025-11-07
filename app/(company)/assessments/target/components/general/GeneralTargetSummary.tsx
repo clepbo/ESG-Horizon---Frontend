@@ -24,6 +24,7 @@ export function GeneralTargetSummary({
   baselineYear = 2024,
   onPrevious,
   onSetTarget,
+  isLoading = false
 }: TargetSummaryProps) {
   // Fix: Calculate total reduction correctly
   const totalReduction = baselineEmission - targetEmission;
@@ -93,7 +94,7 @@ export function GeneralTargetSummary({
         </CustomButton>
 
         <CustomButton onClick={onSetTarget} className="">
-          Set Target
+          { isLoading ? "Setting Target..." : "Set Target"}
         </CustomButton>
       </div>
     </div>

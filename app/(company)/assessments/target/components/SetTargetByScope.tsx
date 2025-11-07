@@ -82,7 +82,7 @@ export default function SetTargetByScope() {
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
-      return await apiUtil.post(`/target/${companyId}`, targetData);
+      return await apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
@@ -129,7 +129,7 @@ export default function SetTargetByScope() {
     }
 
     if (field === "baselineYear" || field === "targetYear") {
-      processedValue = value === "" ? null : Number(value);
+      processedValue = value === 0 ? null : Number(value);
     }
 
     // Handle targetEmission changes from formatted input
@@ -186,13 +186,12 @@ export default function SetTargetByScope() {
   const handleSetTarget = async () => {
     try {
       // Prepare the target payload with unique name and individual scope percentages
-      const uniqueName = `Scope Target ${scopeTargetData.scope1.baselineYear}-${scopeTargetData.scope1.targetYear}`;
-
+      const uniqueName = `Scope Target ${scopeTargetData.scope1.baselineYear}-${scopeTargetData.scope1.targetYear}-${Date.now()}`;
       const targetPayload: any = {
         name: uniqueName,
         type: "SCOPE",
         description: "Scope-based emissions reduction target",
-        baselineYear: scopeTargetData.scope1.baselineYear!,
+        baselineYear: Number(scopeTargetData.scope1.baselineYear!),
         targetYear: scopeTargetData.scope1.targetYear!,
         scopes: {
           scope1: {
@@ -627,11 +626,11 @@ export default function SetTargetByScope() {
           onSetTarget={handleSetTarget}
           isLoading={createTarget.isPending}
         />
-        {/* <SuccessModal
+        <SuccessModal
           isOpen={isSuccessModalOpen}
           onClose={handleModalClose}
           onContinue={handleModalContinue}
-        /> */}
+        />
       </>
     );
   }
