@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { TrendingDown } from "lucide-react";
 import { FaCaretLeft } from "react-icons/fa";
+import { calculateTimelineYear } from "../../utils";
 
 interface TargetSummaryProps {
   reductionPercentage: number;
@@ -14,6 +15,7 @@ interface TargetSummaryProps {
   onPrevious: () => void;
   onSetTarget: () => void;
   isLoading?: boolean;
+  annualRate: number;
 }
 
 export function GeneralTargetSummary({
@@ -23,13 +25,13 @@ export function GeneralTargetSummary({
   targetYear = 2030,
   baselineYear = 2024,
   onPrevious,
+  annualRate,
   onSetTarget,
   isLoading = false,
 }: TargetSummaryProps) {
   // Fix: Calculate total reduction correctly
   const totalReduction = baselineEmission - targetEmission;
-  const yearsDifference = Math.abs(targetYear - baselineYear);
-  const annualRate = yearsDifference > 0 ? totalReduction / yearsDifference : 0;
+  const yearsDifference = calculateTimelineYear(baselineYear, targetYear);
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
@@ -74,7 +76,7 @@ export function GeneralTargetSummary({
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
                 <div className={`text-sm font-semibold text-green-600`}>
-                  {Math.round(annualRate)?.toLocaleString()} tCO₂e/year
+                  {annualRate} tCO₂e/year
                 </div>
               </div>
             </div>

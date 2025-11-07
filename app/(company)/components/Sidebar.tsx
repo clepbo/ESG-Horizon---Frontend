@@ -27,7 +27,7 @@ const navItems = [
 const assessmentSubLinks = [
   { name: "New Assessment", href: "/assessments/new-assessment" },
   { name: "Tasks", href: "/assessments/tasks" },
-  { name: "Target", href: "/assessments/target" },
+  // { name: "Target", href: "/assessments/target" },
 ];
 
 const settingsSubLinks = [

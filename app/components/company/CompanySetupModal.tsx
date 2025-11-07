@@ -16,7 +16,6 @@ import { formatRoleName } from "@/lib/utils";
 interface CompanySetupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSubmit: (data: any) => void;
   initialTab?: "subsidiary" | "department" | "user";
 }

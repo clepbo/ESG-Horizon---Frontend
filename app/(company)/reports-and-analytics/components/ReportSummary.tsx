@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -17,8 +15,6 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useState } from "react";
-import { TrendingUp } from "lucide-react";
-import { GoDotFill } from "react-icons/go";
 import { formatLabel } from "./utils/dataTransfomer";
 
 interface ReportSummaryProps {

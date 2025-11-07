@@ -132,11 +132,11 @@ function ActionDropdown({
 export default function TasksPage() {
   const router = useRouter();
   const [showReportSuccess, setShowReportSuccess] = useState(false);
-  const [modalData, setModalData] = useState({
+  const [_modalData, setModalData] = useState({
     open: false,
     assessmentId: null as number | null,
   });
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [_detailsOpen, setDetailsOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
@@ -158,18 +158,18 @@ export default function TasksPage() {
     setReasonOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    const idToDelete = modalData.assessmentId;
-    if (!idToDelete) return;
+  // const handleDeleteConfirm = () => {
+  //   const idToDelete = modalData.assessmentId;
+  //   if (!idToDelete) return;
 
-    deleteMutation.mutate(idToDelete, {
-      onSuccess: () => setModalData({ open: false, assessmentId: null }),
-      onError: (error: Error) => {
-        console.error("Deletion failed:", error);
-        setModalData({ open: false, assessmentId: null });
-      },
-    });
-  };
+  //   deleteMutation.mutate(idToDelete, {
+  //     onSuccess: () => setModalData({ open: false, assessmentId: null }),
+  //     onError: (error: Error) => {
+  //       console.error("Deletion failed:", error);
+  //       setModalData({ open: false, assessmentId: null });
+  //     },
+  //   });
+  // };
 
   const getActionIcon = (label: string) => {
     switch (label) {

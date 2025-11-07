@@ -48,8 +48,8 @@ export default function SubsidiaryDetailsPage() {
   } = useSubsidiaryUsers(subsidiaryId);
   const {
     data: departmentsData,
-    isLoading: isDepartmentLoading,
-    refetch: refetchDepartments,
+    // isLoading: isDepartmentLoading,
+    // refetch: refetchDepartments,
   } = useSubsidiaryDepartments(subsidiaryId);
 
   interface SubmissionData {
@@ -61,7 +61,7 @@ export default function SubsidiaryDetailsPage() {
     setIsModalOpen(true);
   };
 
-  const handleModalSubmit = (data: SubmissionData) => {
+  const handleModalSubmit = () => {
     toast.success("User(s) invited successfully!");
     setIsModalOpen(false);
     refetchUsers();

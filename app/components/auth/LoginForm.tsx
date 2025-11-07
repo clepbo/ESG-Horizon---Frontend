@@ -92,7 +92,6 @@ export default function LoginForm() {
     setLoading(true);
     try {
       await socialLogin(provider);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const message =
         error?.response?.data?.message || error?.message || "Login failed. Please try again.";

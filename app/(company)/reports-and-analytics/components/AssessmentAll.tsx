@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Card, CardContent } from "@/app/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
