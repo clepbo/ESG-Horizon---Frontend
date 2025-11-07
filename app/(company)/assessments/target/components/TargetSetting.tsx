@@ -25,16 +25,12 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-          
-              <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
-       
+            <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
           )}
 
           {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
-           
-                <SetTargetByScope />
-           
+              <SetTargetByScope />
             </div>
           )}
         </div>
