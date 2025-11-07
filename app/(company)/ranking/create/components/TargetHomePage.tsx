@@ -15,7 +15,6 @@ export default function TargetHomePage() {
         </div>
         <CustomButton icon={<Edit />}> Edit Target </CustomButton>
       </div>
-      {/* <InitialTargetPage /> */}
       <TargetSetting />
     </section>
   );
