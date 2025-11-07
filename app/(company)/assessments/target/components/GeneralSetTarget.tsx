@@ -45,7 +45,6 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
-      if (!companyId) throw new Error("Company ID not available");
       return apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {

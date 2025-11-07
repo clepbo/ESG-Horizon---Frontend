@@ -44,7 +44,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
-      return apiUtil.post(`/target`, targetData);
+      return await apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
@@ -105,14 +105,14 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   };
 
   const handleSetTarget = async () => {
-    const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
+    const uniqueName = `Carbon Target ${base?.data?.startYear}-${data.targetYear}`;
     try {
       // Prepare the target payload
       const targetPayload: TargetPayload = {
         name: data.name || uniqueName,
         type: "GENERAL",
         description: data.description || "General emissions reduction target",
-        baselineYear: data.baselineYear!,
+        baselineYear: Number(base?.data?.startYear),
         targetYear: data.targetYear!,
         reductionPercentage: data.reductionPercentage || 0,
       };
@@ -134,15 +134,20 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const yearDifference =
     data && base?.data?.startYear ? (base.data.startYear ?? 0) - (data.targetYear ?? 0) : 0;
 
-  const emissionPercentage = CalculateEmissionPercentage(
-    data.reductionPercentage ?? 0,
-    base?.data?.totalSum
-  );
-  const annualRate = Number(Math.abs(emissionPercentage / yearDifference).toFixed(2));
-  const totalReduction = Math.abs(
-    CalculateEmissionPercentage(data.reductionPercentage ?? 0, base?.data?.totalSum) /
-      yearDifference
-  );
+ 
+  const reduction = calculateTotal(
+    base?.data?.totalSum,
+    CalculateEmissionPercentage(
+      data.reductionPercentage ?? 0,
+      base?.data?.totalSum
+    )
+  )
+  const annualRate = (+reduction / yearDifference).toFixed(3);
+
+  // const totalReduction = Math.abs(
+  //   CalculateEmissionPercentage(data.reductionPercentage ?? 0, base?.data?.totalSum) /
+  //   yearDifference
+  // );
 
   const handleModalContinue = () => {
     // Close the modal
@@ -154,7 +159,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     console.log("Modal continue clicked - target setup complete!");
   };
 
-  console.log("DT", totalReduction);
+  // console.log("DT", totalReduction);
 
   const handleModalClose = () => {
     setIsSuccessModalOpen(false);
@@ -180,7 +185,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="reductionPercentage">Reduction Percentage (%)</Label>
+                  <Label htmlFor="reductionPercentage" className="">Reduction Percentage (%) <CustomTooltip detail={<TooltipMessage title={"Reduction Percentage"} message={"The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."} />} /> </Label>
                   <Input
                     id="reductionPercentage"
                     type="number"
@@ -192,7 +197,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="baselineYear">Baseline Year</Label>
+                  <Label htmlFor="baselineYear">Baseline Year <CustomTooltip detail={<TooltipMessage title={"Baseline Year"} message={"The reference year used to measure progress — typically the year you first started tracking emissions."} />} /> </Label>
                   <select
                     id="baselineYear"
                     disabled
@@ -210,7 +215,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="targetYear">Target Year</Label>
+                  <Label htmlFor="targetYear">Target Year <CustomTooltip detail={<TooltipMessage title={"Target Year"} message={"The year by which your company plans to achieve the set reduction goal."} />} /></Label>
                   <select
                     id="targetYear"
                     value={data?.targetYear ?? ""}
@@ -346,7 +351,7 @@ The negative sign (in red) indicates a reduction in emissions.`}
           </Card>
         ) : (
           <GeneralTargetSummary
-            annualRate={annualRate}
+            annualRate={Number(annualRate)}
             reductionPercentage={data?.reductionPercentage || 0}
             baselineEmission={base?.data?.totalSum ?? 0}
             targetEmission={calculatedTargetEmission ?? 0}
