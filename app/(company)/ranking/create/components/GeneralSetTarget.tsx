@@ -131,7 +131,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
   };
 
-  const yearDifference = base?.data?.startYear - data?.targetYear!;
+  const yearDifference =
+    data && base?.data?.startYear ? (base.data.startYear ?? 0) - (data.targetYear ?? 0) : 0;
+
   const emissionPercentage = CalculateEmissionPercentage(
     data.reductionPercentage ?? 0,
     base?.data?.totalSum

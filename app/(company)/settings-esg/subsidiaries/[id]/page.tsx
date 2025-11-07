@@ -52,10 +52,6 @@ export default function SubsidiaryDetailsPage() {
     // refetch: refetchDepartments,
   } = useSubsidiaryDepartments(subsidiaryId);
 
-  interface SubmissionData {
-    users: User[];
-  }
-
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
     setModalTab(tab);
     setIsModalOpen(true);

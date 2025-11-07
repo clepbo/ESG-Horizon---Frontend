@@ -21,7 +21,6 @@ import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-em
 interface DisclosureTopicsProps {
   onBack: () => void;
   initialView?: "topics" | "ghg";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialForm?: "stationary-sources" | any;
   initialStep?: string;
 }
@@ -267,7 +266,6 @@ export function DisclosureTopics({
       <GhgEmissionsAssessment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initialForm={initialForm as any}
         initialStep={initialStep}
       />
