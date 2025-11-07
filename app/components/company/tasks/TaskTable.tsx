@@ -1,21 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
-import { createColumnHelper } from "@tanstack/react-table";
-import { DataTable } from "../../ui/reusables/DataTable";
-import { ITask } from "@/app/(company)/assessments/tasks/page";
+import { DataTable, FilterOption } from "../../ui/reusables/DataTable";
 import { DateRangePicker } from "../../ui/reusables/DateRangePicker";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu";
-
+} from "../../ui/dropdown-menu";
 import {
   Eye,
   Edit,
@@ -28,6 +25,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 
+import { ITask } from "@/app/(company)/assessments/tasks/page";
+
 interface TaskTableProps {
   tasks: ITask[];
   onViewTask: (task: ITask) => void;
@@ -39,37 +38,24 @@ interface TaskTableProps {
   onSendReminder: (taskId: string) => void;
 }
 
-type SortOption = "due-oldest" | "due-newest" | "progress-highest" | "progress-lowest";
-
-const SORT_OPTIONS: { label: string; value: SortOption }[] = [
-  { label: "Due Date (Oldest/Newest)", value: "due-oldest" },
-  { label: "Due Date (Newest/Oldest)", value: "due-newest" },
-  { label: "Progress (Highest/Lowest)", value: "progress-highest" },
-  { label: "Progress (Lowest/Highest)", value: "progress-lowest" },
-];
-
 const columnHelper = createColumnHelper<ITask>();
 
-const getStatusBadge = (status: ITask["status"]) => {
-  const variants: Record<
-    ITask["status"],
-    { variant: "default" | "secondary" | "destructive" | "outline"; className: string }
-  > = {
-    pending: { variant: "secondary", className: "bg-muted text-muted-foreground" },
-    "in-progress": { variant: "default", className: "bg-info text-white" },
-    completed: { variant: "default", className: "bg-success text-white" },
-    "on-hold": { variant: "outline", className: "bg-warning-100 text-warning-600 border-warning" },
-    approved: { variant: "default", className: "bg-success text-white" },
-    rejected: { variant: "destructive", className: "bg-danger text-white" },
-  };
-
-  const config = variants[status];
-
-  return (
-    <Badge variant={config.variant} className={config.className}>
-      {status.replace("-", " ")}
-    </Badge>
-  );
+const getStatusVariant = (status: ITask["status"]) => {
+  switch (status) {
+    case "pending":
+      return "secondary";
+    case "in-progress":
+      return "yellow";
+    case "completed":
+    case "approved":
+      return "successGreen";
+    case "on-hold":
+      return "yellow";
+    case "rejected":
+      return "destructive";
+    default:
+      return "outline";
+  }
 };
 
 function ActionDropdown({
@@ -99,41 +85,41 @@ function ActionDropdown({
         <Button
           variant="outline"
           size="sm"
-          className="w-[110px] justify-between rounded-sm border-primary"
+          className="w-[110px] justify-between rounded-sm border-teal-600"
         >
           Action
           {isOpen ? (
-            <ChevronUp className="ml-1 h-4 w-4" />
+            <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
           ) : (
-            <ChevronDown className="ml-1 h-4 w-4" />
+            <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
           )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-44 border-primary shadow-md">
-        <DropdownMenuItem onClick={() => onViewTask(task)} className="cursor-pointer">
+      <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
+        <DropdownMenuItem onClick={() => onViewTask(task)}>
           <Eye className="mr-2 h-4 w-4" /> View
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onEditTask(task)} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => onEditTask(task)}>
           <Edit className="mr-2 h-4 w-4" /> Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onSendReminder(task.id)} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => onSendReminder(task.id)}>
           <Bell className="mr-2 h-4 w-4" /> Send Reminder
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onReassignTask(task.id)} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => onReassignTask(task.id)}>
           <UserPlus className="mr-2 h-4 w-4" /> Reassign
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onApproveTask(task.id)} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => onApproveTask(task.id)}>
           <CheckCircle className="mr-2 h-4 w-4 text-success" /> Approve
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRejectTask(task.id)} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => onRejectTask(task.id)}>
           <XCircle className="mr-2 h-4 w-4 text-destructive" /> Reject
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => onDeleteTask(task.id)}
-          className="cursor-pointer text-destructive focus:text-destructive"
+          className="text-red-600 focus:text-red-600"
         >
           <Trash2 className="mr-2 h-4 w-4" /> Delete
         </DropdownMenuItem>
@@ -152,10 +138,42 @@ export function TaskTable({
   onRejectTask,
   onSendReminder,
 }: TaskTableProps) {
-  const [sortOption, setSortOption] = useState<SortOption>("due-oldest");
-  const [dateRange, setDateRange] = useState<{ startMonth: string; endMonth: string } | undefined>(
-    undefined
-  );
+  const [dateRange, setDateRange] = useState<
+    { startMonth: string; endMonth: string } | undefined
+  >();
+
+  const filteredTasks = useMemo(() => {
+    if (!dateRange) return tasks;
+
+    const MONTHS = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const [startMonthName, startYearStr] = dateRange.startMonth.split(", ");
+    const [endMonthName, endYearStr] = dateRange.endMonth.split(", ");
+
+    const startMonthIndex = MONTHS.indexOf(startMonthName);
+    const endMonthIndex = MONTHS.indexOf(endMonthName);
+
+    const startDate = new Date(Number(startYearStr), startMonthIndex, 1);
+    const endDate = new Date(Number(endYearStr), endMonthIndex + 1, 0);
+
+    return tasks.filter((task) => {
+      const taskDate = new Date(task.dueDate);
+      return taskDate >= startDate && taskDate <= endDate;
+    });
+  }, [tasks, dateRange]);
 
   const columns = [
     columnHelper.accessor("taskName", { header: "Task Name" }),
@@ -171,11 +189,64 @@ export function TaskTable({
     columnHelper.display({
       id: "progress",
       header: "Progress",
-      cell: (info) => `${info.row.original.progress}%`,
+      cell: (info) => {
+        const percentage = info.row.original.progress ?? 0;
+        const radius = 16;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (percentage / 100) * circumference;
+        const index = info.row.index;
+
+        return (
+          <div className="relative flex items-center justify-center w-10 h-10">
+            <svg
+              width="40"
+              height="40"
+              className="rotate-[-90deg]"
+              style={{ position: "absolute", top: 0, left: 0 }}
+            >
+              <circle
+                cx="20"
+                cy="20"
+                r={radius}
+                stroke="#e5e7eb"
+                strokeWidth="4"
+                fill="transparent"
+              />
+              <defs>
+                <linearGradient id={`grad-${index}`} x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#ef4444" />
+                  <stop offset="30%" stopColor="#f97316" />
+                  <stop offset="65%" stopColor="#eab308" />
+                  <stop offset="100%" stopColor="#22c55e" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="20"
+                cy="20"
+                r={radius}
+                stroke={`url(#grad-${index})`}
+                strokeWidth="4"
+                fill="transparent"
+                strokeDasharray={circumference}
+                strokeDashoffset={offset}
+                strokeLinecap="round"
+                className="transition-all duration-700 ease-in-out"
+              />
+            </svg>
+            <span className="absolute text-xs font-semibold text-gray-800">
+              {percentage > 0 ? `${percentage}%` : "N/A"}
+            </span>
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("status", {
       header: "Status",
-      cell: (info) => getStatusBadge(info.getValue()),
+      cell: (info) => (
+        <Badge variant={getStatusVariant(info.getValue())} className="capitalize">
+          {info.getValue().replace("-", " ")}
+        </Badge>
+      ),
     }),
     columnHelper.display({
       id: "actions",
@@ -195,76 +266,31 @@ export function TaskTable({
     }),
   ];
 
-  const filteredTasks = useMemo(() => {
-    let filtered = [...tasks];
-
-    if (dateRange) {
-      const MONTHS = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const [startMonthName, startYearStr] = dateRange.startMonth.split(", ");
-      const [endMonthName, endYearStr] = dateRange.endMonth.split(", ");
-
-      const startMonthIndex = MONTHS.indexOf(startMonthName);
-      const startYear = Number(startYearStr);
-
-      const endMonthIndex = MONTHS.indexOf(endMonthName);
-      const endYear = Number(endYearStr);
-
-      const startDate = new Date(startYear, startMonthIndex, 1);
-      const endDate = new Date(endYear, endMonthIndex + 1, 0);
-
-      filtered = filtered.filter((task) => {
-        const taskDate = new Date(task.dueDate);
-        return taskDate >= startDate && taskDate <= endDate;
-      });
-    }
-
-    filtered.sort((a, b) => {
-      switch (sortOption) {
-        case "due-oldest":
-          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-        case "due-newest":
-          return new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime();
-        case "progress-highest":
-          return (b.progress || 0) - (a.progress || 0);
-        case "progress-lowest":
-          return (a.progress || 0) - (b.progress || 0);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [tasks, sortOption, dateRange]);
-
-  const filterOptions = [
+  const filterOptions: FilterOption[] = [
     {
-      label: "Sort",
-      columnId: "sort",
-      options: SORT_OPTIONS.map((opt) => opt.label),
+      label: "Status",
+      columnId: "status",
+      options: [
+        { label: "Pending", value: "pending" },
+        { label: "In Progress", value: "in-progress" },
+        { label: "Completed", value: "completed" },
+        { label: "Approved", value: "approved" },
+        { label: "Rejected", value: "rejected" },
+        { label: "On Hold", value: "on-hold" },
+      ],
     },
   ];
 
   return (
-    <DataTable
-      data={filteredTasks}
-      columns={columns}
-      filterOptions={filterOptions}
-      customFilters={
-        <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[250px]" />
-      }
-    />
+    <section className="shadow-md">
+      <DataTable
+        data={filteredTasks}
+        columns={columns}
+        filterOptions={filterOptions}
+        customFilters={
+          <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[250px]" />
+        }
+      />
+    </section>
   );
 }
