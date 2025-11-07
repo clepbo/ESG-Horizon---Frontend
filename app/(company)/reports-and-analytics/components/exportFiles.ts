@@ -39,7 +39,6 @@ export async function exportPNG(id: string, fileName = "esg-report.png") {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function exportToCSV(data: any[], fileName = "table-data.csv") {
   if (!data || !data.length) return;
 

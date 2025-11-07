@@ -5,15 +5,20 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { Textarea } from "@/app/components/ui/textarea";
+// import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { GeneralTargetData } from "@/types/target";
 import { FaCaretRight } from "react-icons/fa";
 import { GeneralTargetSummary } from "./general/GeneralTargetSummary";
 import { SuccessModal } from "./SuccessModal";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
+import { useBaseline } from "@/app/(company)/components/ranking/services";
+import CustomTooltip from "./CustomTooltip";
+import { TooltipMessage } from "./TooltipMessage";
+import { CalculateEmissionPercentage, calculateTotal } from "../utils";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
@@ -32,16 +37,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const queryClient = useQueryClient();
   const companyId = user?.company?.id;
 
-  const baseline = useQuery({
-    queryKey: ["baseline", companyId],
-    queryFn: () => {
-      if (!companyId) throw new Error("Company ID not available");
-      return apiUtil.get(`/target/baseline/${companyId}`);
-    },
-    enabled: !!companyId,
-  });
-
   const router = useRouter();
+
+  const base = useBaseline(companyId);
 
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
@@ -64,7 +62,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       processedValue = value === "" ? null : Number(value);
       // Auto-calculate target emission when percentage changes using actual baseline
       if (processedValue !== null && data.baselineYear && data.targetYear) {
-        const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
+        const baselineEmission = base?.data?.totalSum || 0; // Use actual baseline
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission * (processedValue / 100);
 
@@ -96,9 +94,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const handleContinue = () => {
     if (step === 0) {
       // Validate required fields before proceeding
-      if (data.reductionPercentage && data.baselineYear && data.targetYear) {
-        setStep(1);
-      }
+      // if (data.reductionPercentage && data.baselineYear && data.targetYear) {
+      setStep(1);
+      // }
     }
   };
 
@@ -133,6 +131,19 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
   };
 
+  const yearDifference =
+    data && base?.data?.startYear ? (base.data.startYear ?? 0) - (data.targetYear ?? 0) : 0;
+
+  const emissionPercentage = CalculateEmissionPercentage(
+    data.reductionPercentage ?? 0,
+    base?.data?.totalSum
+  );
+  const annualRate = Number(Math.abs(emissionPercentage / yearDifference).toFixed(2));
+  const totalReduction = Math.abs(
+    CalculateEmissionPercentage(data.reductionPercentage ?? 0, base?.data?.totalSum) /
+      yearDifference
+  );
+
   const handleModalContinue = () => {
     // Close the modal
     setIsSuccessModalOpen(false);
@@ -143,20 +154,17 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     console.log("Modal continue clicked - target setup complete!");
   };
 
+  console.log("DT", totalReduction);
+
   const handleModalClose = () => {
     setIsSuccessModalOpen(false);
   };
 
   // Calculate dynamic values for display
-  const baselineEmission = 26830; // Fixed baseline from image
   const calculatedTargetEmission = data?.reductionPercentage
-    ? baseline?.data?.totalSum * (1 - data?.reductionPercentage / 100)
-    : 0;
-  const calculatedTotalReduction = data?.reductionPercentage
-    ? baselineEmission * (data?.reductionPercentage / 100)
+    ? base?.data?.totalSum * (1 - data?.reductionPercentage / 100)
     : 0;
 
-  // console.log("Gen", data?);
   return (
     <>
       {step === 0 && (
@@ -187,8 +195,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   <Label htmlFor="baselineYear">Baseline Year</Label>
                   <select
                     id="baselineYear"
-                    value={data?.baselineYear ?? ""}
-                    onChange={(e) => handleInputChange("baselineYear", e.target.value)}
+                    disabled
+                    value={base?.data?.startYear ?? ""}
+                    // onChange={(e) => handleInputChange("baselineYear", e.target.value)}
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select year</option>
@@ -209,11 +218,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select year</option>
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
+                    {years
+                      .filter((year) => year >= (base?.data?.startYear ?? currentYear)) // 👈 filter from baseline year
+                      .map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
@@ -230,7 +241,6 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               </div>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">Target Calculation</CardTitle>
@@ -238,23 +248,62 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             <CardContent className="space-y-4 w-full">
               <div className="flex flex-col w-full gap-2">
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Baseline {baseline?.data?.startYear} :</Label>
+                  <Label className="flex items-center gap-1">
+                    Baseline ({base?.data?.startYear}){" "}
+                  </Label>
                   <div className="text-sm text-gray-900 font-semibold">
                     {" "}
-                    {baseline?.data?.totalSum} tCO₂e
+                    {base?.data?.totalSum} tCO₂e
                   </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Target ({data?.targetYear || 0}):</Label>
+                  <Label className="flex items-center">
+                    Target: ({data?.targetYear || 0})
+                    <CustomTooltip
+                      detail={
+                        <TooltipMessage
+                          title={"Target"}
+                          message={`This shows the company's emission goal 
+                      for the target year (${data?.targetYear}) after applying the emissions's reduction percentage. A 20% reduction from the
+                      baseline of 26,830 means: 26,830 * (1 - reduction %/100) = 21,464 tCO₂e. Your own results to: ${CalculateEmissionPercentage(data?.reductionPercentage ?? 0, base?.data?.totalSum)} tCO₂e`}
+                        />
+                      }
+                    />{" "}
+                  </Label>
                   <div className="text-sm text-primary font-semibold">
-                    {calculatedTargetEmission.toLocaleString()} tCO₂e
+                    {CalculateEmissionPercentage(
+                      data.reductionPercentage ?? 0,
+                      base?.data?.totalSum
+                    )}{" "}
+                    tCO₂e
                   </div>
                 </div>
                 <hr className="text-gray-300" />
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Total Reduction:</Label>
+                  <Label>
+                    Total Reduction:{" "}
+                    <CustomTooltip
+                      detail={
+                        <TooltipMessage
+                          title={"Total"}
+                          message={`The total (displayed as –5,366 tCO₂e) represents the amount of emissions the company needs to cut to reach its target.
+
+It is calculated as:Target – Baseline = 21,464 – 26,830 = –5,366 tCO₂e.
+
+The negative sign (in red) indicates a reduction in emissions.`}
+                        />
+                      }
+                    />
+                  </Label>
                   <div className="text-sm text-red-500 font-semibold">
-                    -{calculatedTotalReduction.toLocaleString()} tCO₂e
+                    {calculateTotal(
+                      base?.data?.totalSum,
+                      CalculateEmissionPercentage(
+                        data.reductionPercentage ?? 0,
+                        base?.data?.totalSum
+                      )
+                    )}{" "}
+                    tCO₂e
                   </div>
                 </div>
               </div>
@@ -266,7 +315,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               icon={<FaCaretRight />}
               onClick={handleContinue}
               className="text-white px-6 py-2"
-              disabled={!data?.reductionPercentage || !data?.baselineYear || !data?.targetYear}
+              disabled={!data?.reductionPercentage || !base?.data?.startYear || !data?.targetYear}
             >
               Continue
             </CustomButton>
@@ -275,7 +324,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       )}
 
       {step === 1 &&
-        (baseline.isLoading ? (
+        (base.isLoading ? (
           <Card>
             <CardContent className="flex justify-center items-center p-8">
               <div className="flex flex-col items-center space-y-4">
@@ -284,7 +333,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               </div>
             </CardContent>
           </Card>
-        ) : baseline.error ? (
+        ) : base.error ? (
           <Card>
             <CardContent className="flex justify-center items-center p-8">
               <div className="text-center">
@@ -297,11 +346,12 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
           </Card>
         ) : (
           <GeneralTargetSummary
+            annualRate={annualRate}
             reductionPercentage={data?.reductionPercentage || 0}
-            baselineEmission={baseline?.data?.totalSum ?? 0}
+            baselineEmission={base?.data?.totalSum ?? 0}
             targetEmission={calculatedTargetEmission ?? 0}
             targetYear={data?.targetYear ?? 0}
-            baselineYear={baseline?.data?.startYear || 0}
+            baselineYear={base?.data?.startYear || 0}
             onPrevious={handlePrevious}
             onSetTarget={handleSetTarget}
             isLoading={createTarget?.isPending}

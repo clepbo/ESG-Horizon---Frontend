@@ -64,7 +64,6 @@ export default function SubsidiariesPage() {
   }, [user]);
 
   const deleteSubsidiary = useDeleteSubsidiary((id: number) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setSubsidiaries((prev: any[]) => prev.filter((s) => s.id !== id));
   });
 

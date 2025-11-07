@@ -1,7 +1,10 @@
+"use client";
+
 import { Button } from "@/app/components/ui/button";
 import { Card } from "@/app/components/ui/card";
 import { Plus, Edit } from "lucide-react";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
+import { useRouter } from "next/navigation";
 
 interface ScopeData {
   name: string;
@@ -11,6 +14,8 @@ interface ScopeData {
 }
 
 const ESGPerformance = () => {
+  const router = useRouter();
+
   // Main gauge data
   const baseline = 26830;
   const current = 17425;
@@ -23,7 +28,7 @@ const ESGPerformance = () => {
     { name: "Scope 3", value: 11, emission: "3,030 tCO2e", color: "hsl(var(--scope-3))" },
   ];
 
-  // Gauge chart data for main performance
+  // Gauge chart data
   const gaugeData = [
     {
       name: "Performance",
@@ -40,7 +45,6 @@ const ESGPerformance = () => {
         fill: data.color,
       },
     ];
-
     return (
       <div className="flex flex-col items-center">
         <div className="relative">
@@ -80,7 +84,11 @@ const ESGPerformance = () => {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-foreground md:text-3xl">Targets and Performance</h1>
         <div className="flex flex-wrap gap-3">
-          <Button variant="outline" className="gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => router.push("/ranking/create")}
+          >
             <Plus className="h-4 w-4" />
             Set New Target
           </Button>
@@ -96,9 +104,7 @@ const ESGPerformance = () => {
         <h2 className="mb-8 text-center text-xl font-semibold text-foreground">
           Overall ESG Performance
         </h2>
-
         <div className="flex flex-col items-center">
-          {/* Main Gauge */}
           <div className="relative mb-6">
             <RadialBarChart
               width={400}
@@ -119,8 +125,6 @@ const ESGPerformance = () => {
                 fill="hsl(var(--primary))"
               />
             </RadialBarChart>
-
-            {/* Gauge needle/indicator */}
             <div
               className="absolute left-1/2 top-[200px] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary"
               style={{
@@ -130,8 +134,6 @@ const ESGPerformance = () => {
             >
               <div className="h-28 w-1 origin-bottom bg-primary" style={{ marginLeft: "2px" }} />
             </div>
-
-            {/* Center text */}
             <div className="absolute left-1/2 top-[180px] -translate-x-1/2 text-center">
               <div className="text-4xl font-bold text-foreground">17,425 tCO₂e ({percentage}%)</div>
               <div className="mt-1 text-sm text-muted-foreground">Current Emission</div>
