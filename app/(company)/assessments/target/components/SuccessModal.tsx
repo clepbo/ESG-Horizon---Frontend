@@ -1,14 +1,12 @@
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import CustomDialog from "@/app/components/ui/reusables/CustomDialog";
 
-
 import { CheckCircle } from "lucide-react";
 
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
   onContinue: () => void;
-  
 }
 
 export function SuccessModal({ isOpen, onClose, onContinue }: SuccessModalProps) {
@@ -19,12 +17,8 @@ export function SuccessModal({ isOpen, onClose, onContinue }: SuccessModalProps)
           <div className="flex justify-center mb-2">
             <CheckCircle className="h-16 w-16" />
           </div>
-          <div className="text-2xl font-semibold text-center">
-            Your Emission Target Has Been
-          </div>
-          <div className="text-xl font-semibold text-center text-white">
-            Set Successfully!
-          </div>
+          <div className="text-2xl font-semibold text-center">Your Emission Target Has Been</div>
+          <div className="text-xl font-semibold text-center text-white">Set Successfully!</div>
         </div>
 
         <div className="flex justify-center pt-4">

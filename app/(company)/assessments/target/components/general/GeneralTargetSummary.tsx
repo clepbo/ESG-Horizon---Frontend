@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
@@ -24,7 +24,7 @@ export function GeneralTargetSummary({
   baselineYear = 2024,
   onPrevious,
   onSetTarget,
-  isLoading = false
+  isLoading = false,
 }: TargetSummaryProps) {
   // Fix: Calculate total reduction correctly
   const totalReduction = baselineEmission - targetEmission;
@@ -46,8 +46,8 @@ export function GeneralTargetSummary({
               {reductionPercentage}% Reduction Target
             </h6>
             <p className="text-gray-600">
-              From {baselineEmission?.toLocaleString()} to {targetEmission?.toLocaleString()} tCO₂e by{" "}
-              {targetYear}
+              From {baselineEmission?.toLocaleString()} to {targetEmission?.toLocaleString()} tCO₂e
+              by {targetYear}
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export function GeneralTargetSummary({
         </CustomButton>
 
         <CustomButton onClick={onSetTarget} className="">
-          { isLoading ? "Setting Target..." : "Set Target"}
+          {isLoading ? "Setting Target..." : "Set Target"}
         </CustomButton>
       </div>
     </div>

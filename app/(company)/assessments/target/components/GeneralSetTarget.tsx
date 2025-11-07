@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
@@ -132,9 +132,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       setIsSuccessModalOpen(true);
     } catch (error) {
       console.error("Failed to create target:", error);
-      throw new Error(`Error: ${error}`)
+      throw new Error(`Error: ${error}`);
     }
-    
   };
 
   const handleModalContinue = () => {
@@ -278,42 +277,39 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         </div>
       )}
 
-      {
-        step === 1 && (
-          baseline.isLoading ? (
-            <Card>
-              <CardContent className="flex justify-center items-center p-8">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                  <div className="text-lg text-gray-600">Calculating your target summary...</div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : baseline.error ? (
-            <Card>
-              <CardContent className="flex justify-center items-center p-8">
-                <div className="text-center">
-                  <div className="text-lg text-red-500 mb-2">Failed to load baseline data</div>
-                  <CustomButton onClick={handlePrevious} className="mt-4">
-                    Go Back
-                  </CustomButton>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <GeneralTargetSummary
-              reductionPercentage={data?.reductionPercentage || 0}
-              baselineEmission={baseline?.data?.totalSum ?? 0}
-              targetEmission={calculatedTargetEmission ?? 0}
-              targetYear={data?.targetYear ?? 0}
-              baselineYear={baseline?.data?.startYear || 0}
-              onPrevious={handlePrevious}
-              onSetTarget={handleSetTarget}
-              isLoading={createTarget?.isPending}
-            />
-          )
-        )
-      }
+      {step === 1 &&
+        (baseline.isLoading ? (
+          <Card>
+            <CardContent className="flex justify-center items-center p-8">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <div className="text-lg text-gray-600">Calculating your target summary...</div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : baseline.error ? (
+          <Card>
+            <CardContent className="flex justify-center items-center p-8">
+              <div className="text-center">
+                <div className="text-lg text-red-500 mb-2">Failed to load baseline data</div>
+                <CustomButton onClick={handlePrevious} className="mt-4">
+                  Go Back
+                </CustomButton>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <GeneralTargetSummary
+            reductionPercentage={data?.reductionPercentage || 0}
+            baselineEmission={baseline?.data?.totalSum ?? 0}
+            targetEmission={calculatedTargetEmission ?? 0}
+            targetYear={data?.targetYear ?? 0}
+            baselineYear={baseline?.data?.startYear || 0}
+            onPrevious={handlePrevious}
+            onSetTarget={handleSetTarget}
+            isLoading={createTarget?.isPending}
+          />
+        ))}
 
       {/* Success Modal - rendered outside the step condition so it's always available */}
       <SuccessModal
@@ -321,8 +317,6 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         onClose={handleModalClose}
         onContinue={handleModalContinue}
       />
-
-  
     </>
   );
 }
