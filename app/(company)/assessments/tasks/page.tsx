@@ -8,6 +8,7 @@ import { Button } from "@/app/components/ui/button";
 import { TaskTable } from "@/app/components/company/tasks/TaskTable";
 import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
 import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialog";
+import { useRouter } from "next/navigation";
 
 type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
 export interface ITask {
@@ -125,6 +126,7 @@ export default function TasksPage() {
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const router = useRouter();
 
   const handleViewTask = (task: ITask) => {
     setSelectedTask(task);
@@ -217,7 +219,11 @@ export default function TasksPage() {
               departments.
             </p>
           </div>
-          <Button onClick={() => setIsAssignDialogOpen(true)} size="sm" className="text-white">
+          <Button
+            onClick={() => router.push("/assessments/tasks/assign")}
+            size="sm"
+            className="text-white"
+          >
             <Plus className="mr-2 h-5 w-5" />
             Assign Task
           </Button>
