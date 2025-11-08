@@ -8,6 +8,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Department } from "@/services/department.service";
 import { Card } from "../../ui/card";
+import ActionDropdown from "../../ui/reusables/ActionDropdown";
 
 type Props = {
   departments: Department[];
@@ -65,23 +66,22 @@ export default function DepartmentsTable({ departments }: Props) {
                       <td className="px-4 py-3">{dept.contact_email || ""}</td>
                       <td className="px-4 py-3">-</td>
 
-                      <td className="px-4 py-3 flex space-x-2">
-                        {/* View */}
-                        <button
-                          className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => router.push(`/settings-esg/departments/${dept.id}`)}
-                          title="View"
-                        >
-                          <Eye className="w-4 h-4 text-gray-600" />
-                        </button>
-                        {/* Edit button */}
-                        <button
-                          className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => handleEditClick(dept)}
-                          title="Edit Department"
-                        >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
+                      <td className="px-4 py-3">
+                        <ActionDropdown
+                          actions={[
+                            {
+                              label: "View",
+                              icon: <Eye className="w-4 h-4 text-gray-600" />,
+                              onClick: () => router.push(`/settings-esg/departments/${dept.id}`),
+                            },
+                            {
+                              label: "Edit Department",
+                              icon: <Edit className="w-4 h-4 text-gray-600" />,
+                              onClick: () => handleEditClick(dept),
+                            },
+                          ]}
+                          buttonLabel="Actions"
+                        />
                       </td>
                     </tr>
                   );
