@@ -243,12 +243,6 @@ export function PurchasedHeatingForm({
     );
   };
   const handlePrevious = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID missing.");
-      return;
-    }
-
     dispatch({
       type: "UPDATE_HEATING",
       payload: {
@@ -341,7 +335,9 @@ export function PurchasedHeatingForm({
 
             {/* 4.1 Purchased Heating */}
             <div className="ml-6">
-              <Label className="text-md font-medium mb-2 block">4.1 Purchased Heating</Label>
+              <Label className="text-md font-medium mb-2 block">
+                4.1 Purchased Heating <span className="text-red-500">*</span>
+              </Label>
               <RadioGroup
                 value={heatingPurchased}
                 onValueChange={(val) => {

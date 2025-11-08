@@ -265,8 +265,6 @@ export function RoadTransport({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_MOBILE_ROAD_TRANSPORT",
       payload: {
@@ -358,7 +356,8 @@ export function RoadTransport({
             {/* 1.1 Fleet of Diesel Trucks */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.1 Fleet of Diesel Trucks for Product Distribution and Logistics
+                1.1 Fleet of Diesel Trucks for Product Distribution and Logistics{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource
@@ -377,7 +376,8 @@ export function RoadTransport({
             {/* 1.2 Company Cars and Buses */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.2 Company Cars and Buses Used for Employee Transportation
+                1.2 Company Cars and Buses Used for Employee Transportation{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource

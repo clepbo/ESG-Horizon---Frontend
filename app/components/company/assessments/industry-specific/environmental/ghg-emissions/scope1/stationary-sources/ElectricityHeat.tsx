@@ -131,15 +131,18 @@ export function ElectricityHeatForm({
     const hasValidDiesel = dieselGenerators.some((s) => s.volume && Number(s.volume) > 0);
     const hasValidGas = gasTurbines.some((s) => s.volume && Number(s.volume) > 0);
 
-    if (!hasValidDiesel && !hasValidGas) {
-      newErrors.dieselGenerators = "Please add at least one fuel source with a positive volume.";
-      newErrors.gasTurbines = "Please add at least one fuel source with a positive volume.";
+    if (!hasValidDiesel) {
+      newErrors.dieselGenerators =
+        "Please enter at least one diesel generator value with a positive volume.";
+    }
+
+    if (!hasValidGas) {
+      newErrors.gasTurbines = "Please enter at least one gas turbine value with a positive volume.";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSaveAndContinue = () => {
     const assessmentId = state.assessmentData.assessmentId;
 
@@ -331,7 +334,7 @@ export function ElectricityHeatForm({
 
             <div>
               <Label className="text-md font-medium mb-2 block">
-                1.1 Diesel-Powered Generators
+                1.1 Diesel-Powered Generators <span className="text-red-500">*</span>
               </Label>
               <AddSource
                 title="Fuel Sources"
@@ -345,7 +348,9 @@ export function ElectricityHeatForm({
               />
             </div>
             <div>
-              <Label className="text-md font-medium mb-2 block">1.2 Gas-Fired Turbines</Label>
+              <Label className="text-md font-medium mb-2 block">
+                1.2 Gas-Fired Turbines <span className="text-red-500">*</span>
+              </Label>
               <AddSource
                 title="Fuel Sources"
                 fuelTypeOptions={gasFuelOptions}

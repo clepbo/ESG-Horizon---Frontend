@@ -221,8 +221,6 @@ export function ElectricityEACForm({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_EAC",
       payload: {
@@ -317,7 +315,7 @@ export function ElectricityEACForm({
               </Label>
               <div className="space-y-4 ml-6">
                 <Label className="text-base font-medium text-gray-900 mb-2 block">
-                  Total grid electricity consumed (kWh)
+                  Total grid electricity consumed (kWh) <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   type="text" // Changed from "number" to "text" to display formatted value
@@ -410,7 +408,7 @@ export function ElectricityEACForm({
             {/* Emission Factor */}
             <div className="ml-6">
               <Label className="text-base font-medium text-gray-900 mb-2 block">
-                Emission Factor Applied
+                Emission Factor Applied <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="number"

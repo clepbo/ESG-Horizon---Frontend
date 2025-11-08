@@ -173,6 +173,23 @@ export function OilGasOperations({
       publicId: f.publicId ?? "",
     }));
 
+  const validateForm = () => {
+    const newErrors: {
+      onShoreProduction?: string;
+      files?: string;
+    } = {};
+    const hasValidOnShoreProduction = onShoreProduction.some(
+      (s) => s.volume && Number(s.volume) > 0
+    );
+
+    if (!hasValidOnShoreProduction) {
+      newErrors.onShoreProduction = "Please enter at least one fuel source with a positive volume.";
+    }
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSaveAndContinue = () => {
     const { assessmentId } = state.assessmentData;
     if (typeof assessmentId !== "number") {
@@ -216,6 +233,7 @@ export function OilGasOperations({
   };
 
   const handleSubmit = () => {
+    if (!validateForm()) return;
     const { assessmentId } = state.assessmentData;
     if (typeof assessmentId !== "number") {
       toast.error("Cannot submit: Missing assessment ID");
@@ -254,12 +272,6 @@ export function OilGasOperations({
     );
   };
   const handlePrevious = () => {
-    const { assessmentId } = state.assessmentData;
-    if (typeof assessmentId !== "number") {
-      toast.error("Cannot submit: Missing assessment ID");
-      return;
-    }
-
     const payload = {
       onShoreProduction,
       additionalFields: normalizeFiles(additionalFields),
@@ -353,7 +365,8 @@ export function OilGasOperations({
             {/* 1.1 Heaters and Boilers at Oil Production Facilities */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                3.1 Heaters and Boilers at Oil Production Facilities
+                3.1 Heaters and Boilers at Oil Production Facilities{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource

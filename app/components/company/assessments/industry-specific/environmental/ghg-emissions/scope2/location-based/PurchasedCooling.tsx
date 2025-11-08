@@ -153,6 +153,25 @@ export function PurchasedCoolingForm({
     setAdditionalFields(fields);
   };
 
+  const validateForm = () => {
+    const newErrors: {
+      coolingConsumed?: string;
+      selectedSystems?: string;
+      files?: string;
+    } = {};
+    const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
+    if (!hasValidCooling) {
+      newErrors.coolingConsumed =
+        "Please enter a valid cooling consumption value (greater than 0).";
+    }
+    if (selectedSystems.length === 0) {
+      newErrors.selectedSystems = "Please select at least one cooling system type.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSaveAndContinue = () => {
     const assessmentId = state.assessmentData.assessmentId;
     if (!assessmentId) {
@@ -197,6 +216,7 @@ export function PurchasedCoolingForm({
   };
 
   const handleNext = () => {
+    if (!validateForm()) return;
     dispatch({
       type: "UPDATE_COOLING",
       payload: {
@@ -297,7 +317,10 @@ export function PurchasedCoolingForm({
             <div>
               <Label className="text-md font-semibold mb-2 block">2.1 Purchased Cooling</Label>
               <div className="space-y-4 ml-6">
-                <Label>Amount of Energy Cooling Energy Consumed (kWh)</Label>
+                <Label>
+                  Amount of Energy Cooling Energy Consumed (kWh){" "}
+                  <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="cooling-consumed"
                   type="number"
@@ -316,7 +339,9 @@ export function PurchasedCoolingForm({
 
             {/* Cooling System Types */}
             <div>
-              <Label className="text-md font-medium mb-2 block ml-6">Type of Cooling System</Label>
+              <Label className="text-md font-medium mb-2 block ml-6">
+                Type of Cooling System <span className="text-red-500">*</span>
+              </Label>
               <div className="space-y-3 ml-6">
                 {coolingSystemTypes.map((system) => (
                   <div key={system.id} className="flex items-center space-x-2">

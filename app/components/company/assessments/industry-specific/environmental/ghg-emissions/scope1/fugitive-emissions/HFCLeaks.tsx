@@ -311,18 +311,6 @@ export function HFCLeaks({
     );
   };
   const handlePrevious = () => {
-    const { assessmentId } = state.assessmentData;
-
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID is missing.");
-      return;
-    }
-
-    if (!validateForm()) {
-      toast.error("Please fix validation errors before submitting.");
-      return;
-    }
-
     const payload = {
       R134a: formState.R134a,
       R410A: formState.R410A,
@@ -451,7 +439,9 @@ export function HFCLeaks({
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label className={labelClass}>Types of hydrofluorocarbons (HFCs) used.</Label>
+                <Label className={labelClass}>
+                  Types of hydrofluorocarbons (HFCs) used. <span className="text-red-500">*</span>
+                </Label>
                 <div className="space-y-1 ml-2">
                   {renderCheckbox("R134a", "R-134a")}
                   {renderCheckbox("R410A", "R-410A")}
@@ -479,7 +469,8 @@ export function HFCLeaks({
 
                 <div className="flex flex-col w-full">
                   <Label htmlFor="refrigerantAdded" className={labelClass}>
-                    Quantity/Total mass of refrigerant leak in kg
+                    Quantity/Total mass of refrigerant leak in kg{" "}
+                    <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="refrigerantAdded"

@@ -189,7 +189,6 @@ export function CementManufacturing({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
     dispatch({
       type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
       payload: {
@@ -270,7 +269,7 @@ export function CementManufacturing({
             {/* Cement Quantity */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-4 block">
-                1.1 Cement Manufacturing
+                1.1 Cement Manufacturing <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-6 ml-6">
                 <div className="space-y-4">

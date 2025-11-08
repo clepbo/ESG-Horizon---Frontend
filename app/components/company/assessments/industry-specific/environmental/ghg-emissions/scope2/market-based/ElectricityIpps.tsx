@@ -219,8 +219,6 @@ export function ElectricityIppsForm({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_IPPS",
       payload: {
@@ -315,7 +313,10 @@ export function ElectricityIppsForm({
                 1.1 Purchased Electricity (from Independent Power Producers – IPPs)
               </Label>
               <div className="space-y-4 ml-6">
-                <Label>Amount of Energy Cooling Energy Consumed (kWh)</Label>
+                <Label>
+                  Amount of Energy Cooling Energy Consumed (kWh){" "}
+                  <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   type="text"
                   placeholder="Enter total electricity consumed in kWh"
@@ -339,7 +340,7 @@ export function ElectricityIppsForm({
             {/* Emission Factor - This remains as regular number input */}
             <div className="space-y-4 ml-6">
               <Label className="text-base font-medium text-gray-900 mb-2 block">
-                Supplier-specific Emission Factor
+                Supplier-specific Emission Factor <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="number"

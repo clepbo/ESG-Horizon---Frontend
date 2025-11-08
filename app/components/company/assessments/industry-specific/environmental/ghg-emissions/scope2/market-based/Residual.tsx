@@ -220,8 +220,6 @@ export function ResidualForm({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_RESIDUAL",
       payload: {
@@ -321,7 +319,7 @@ export function ResidualForm({
               </Label>
               <div className="space-y-4 ml-6">
                 <Label className="text-base font-medium text-gray-900 mb-2 block">
-                  Total electricity consumed (kWh)
+                  Total electricity consumed (kWh) <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   type="text" // Changed from "number" to "text" to display formatted value
@@ -348,7 +346,7 @@ export function ResidualForm({
             {/* Residual Mix Factor */}
             <div className="ml-6">
               <Label className="text-base font-medium text-gray-900 mb-2 block ">
-                Residual Mix emission factor applied
+                Residual Mix emission factor applied <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="number"

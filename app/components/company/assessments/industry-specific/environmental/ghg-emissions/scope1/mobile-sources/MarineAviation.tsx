@@ -280,18 +280,6 @@ export function MarineAviation({
     );
   };
   const handlePrevious = () => {
-    const { assessmentId } = state.assessmentData;
-
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID is missing.");
-      return;
-    }
-
-    if (!validateForm()) {
-      toast.error("Please fix validation errors before submitting.");
-      return;
-    }
-
     const payload = {
       air,
       marine,
@@ -388,7 +376,7 @@ export function MarineAviation({
             <div>
               <Label className="text-md font-semibold mb-2 block">
                 1.1 Helicopters Used for Transporting Personnel and Equipment to Offshore Oil
-                Platforms
+                Platforms <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource
@@ -408,7 +396,7 @@ export function MarineAviation({
             <div>
               <Label className="text-md font-semibold mb-2 block">
                 1.2 Company-owned Boats and Vessels for Transport in the Niger Delta and Offshore
-                Subsidiaries
+                Subsidiaries <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource
