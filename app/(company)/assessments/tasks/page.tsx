@@ -1,13 +1,13 @@
-// "use client";
+"use client";
 
-// import { useState } from "react";
-// import { motion } from "framer-motion";
-// import { Plus } from "lucide-react";
-// import { toast } from "@/hooks/use-toast";
-// import { Button } from "@/app/components/ui/button";
-// import { TaskTable } from "@/app/components/company/tasks/TaskTable";
-// import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
-// import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialog";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { Button } from "@/app/components/ui/button";
+import { TaskTable } from "@/app/components/company/tasks/TaskTable";
+import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
+import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialog";
 
 // type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
 // export interface ITask {
@@ -119,6 +119,51 @@
 //     priority: "high",
 //   },
 // ];
+
+export default function TasksPage() {
+    return (
+    <motion.main
+      className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 25,
+        duration: 0.5,
+      }}
+    >
+      <div className="container mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="space-y- mb-6">
+            <h1 className="text-2xl font-semibold text-foreground">Tasks</h1>
+            <p className="text-base text-muted-foreground">
+              Keep track of all assessment and reporting tasks assigned across teams and
+              departments.
+            </p>
+          </div>
+          <Button size="sm" className="text-white">
+            <Plus className="mr-2 h-5 w-5" />
+            Assign Task
+          </Button>
+        </div>
+         <section className="shadow-md">
+           <TaskTable
+             tasks={[]}
+             onViewTask={() => {}}
+             onEditTask={() => {}}
+             onDeleteTask={() => {}}
+             onReassignTask={() => {}}
+             onApproveTask={() => {}}
+             onRejectTask={() => {}}
+             onSendReminder={() => {}}
+           />
+         </section>
+        </div>
+      </motion.main>
+    )
+}
 
 // export default function TasksPage() {
 //   const router = useRouter();
