@@ -42,7 +42,7 @@ const CustomTooltip: React.FC<TooltipButtonProps> = ({ detail }) => {
 
       {visible && (
         <div
-          className={`absolute z-10 w-max max-w-xs bg-gray-800 text-white text-xs rounded-md px-3 py-2 shadow-md ${
+          className={`absolute z-10 w-max max-w-[200px] bg-gray-800 text-white text-xs rounded-md px-3 py-2 shadow-md ${
             position === "top" ? "bottom-full mb-1" : "top-full mt-1"
           }`}
         >
