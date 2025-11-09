@@ -10,7 +10,6 @@ export function calculateTotal(baseAmount: number, target: number) {
   return parseFloat(result.toFixed(2)); // returns number
 }
 
-
 export function calculateTimelineYear(baseYear: number, targetYear: number) {
   const result = targetYear - baseYear;
   return Number(result).toFixed(0);
