@@ -228,12 +228,9 @@ export function VentingNaturalGas({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_FUGITIVE_VENTING",
       payload: {
-        // Use rawValue for saving
         volumeOfGasVented: Number(volumeOfGasVented.rawValue),
         files,
         additionalFields: additionalFields as FileMetadata[],
@@ -300,7 +297,8 @@ export function VentingNaturalGas({
             {/* Volume of Gas Vented */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                1.1 Venting of Natural Gas from Wells and Processing Facilities
+                1.1 Venting of Natural Gas from Wells and Processing Facilities{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <Label className="text-sm font-medium mb-1 ml-1 text-gray-700 pt-2">

@@ -69,8 +69,7 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment } = useSubmitAssessment();
-
+  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -237,8 +236,6 @@ export function CoolingSteamForm({
     );
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     const assessmentId = state.assessmentData.assessmentId;
     if (!assessmentId) {
       toast.error("Cannot submit: Assessment ID missing.");
@@ -326,7 +323,7 @@ export function CoolingSteamForm({
               </Label>
               <div className="space-y-4 ml-6">
                 <Label className="text-base font-medium text-gray-900 mb-2 block">
-                  Quantity consumed
+                  Quantity consumed <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   type="text" // Changed from "number" to "text" to display formatted value
@@ -350,7 +347,7 @@ export function CoolingSteamForm({
             {/* Emission Factor */}
             <div className="ml-6">
               <Label className="text-md font-medium mb-2 block">
-                Supplier-specific emission factor applied
+                Supplier-specific emission factor applied <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="number"
@@ -479,10 +476,10 @@ export function CoolingSteamForm({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
+                disabled={isSubmitting}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
-                {isSaving ? "Submitting..." : "Submit"}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>

@@ -307,8 +307,6 @@ export function VehicleEquipment({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
       payload: {
@@ -403,7 +401,8 @@ export function VehicleEquipment({
             {/* 1.1 Forklifts and Other Machinery */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.1 Forklifts and Other Machinery Used in Warehouses and Factory Floors
+                1.1 Forklifts and Other Machinery Used in Warehouses and Factory Floors{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource
@@ -422,7 +421,8 @@ export function VehicleEquipment({
             {/* 1.2 Heavy-duty Vehicles and Equipment */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.2 Heavy-duty Vehicles and Equipment Used in Construction and Mining Subsidiaries
+                1.2 Heavy-duty Vehicles and Equipment Used in Construction and Mining Subsidiaries{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource
@@ -441,7 +441,8 @@ export function VehicleEquipment({
             {/* 1.3 Tractors and Other Machinery */}
             <div>
               <Label className="text-md font-semibold mb-2 block">
-                1.3 Tractors and Other Machinery on Large Commercial Farms
+                1.3 Tractors and Other Machinery on Large Commercial Farms{" "}
+                <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource

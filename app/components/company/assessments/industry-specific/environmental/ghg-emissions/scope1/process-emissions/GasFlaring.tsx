@@ -256,14 +256,6 @@ export function GasFlaring({
     );
   };
   const handlePrevious = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Assessment ID missing");
-      return;
-    }
-
-    if (!validateForm()) return;
-
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
@@ -311,10 +303,12 @@ export function GasFlaring({
 
             {/* Gas Volume & Carbon Content */}
             <div>
-              <Label className="text-md font-semibold mb-2 block">1.1 Gas Flaring</Label>
+              <Label className="text-md font-semibold mb-2 block">1.1 Gas Flaring </Label>
               <div className="space-y-4 ml-6">
                 <div className="space-y-2">
-                  <Label htmlFor="gas-volume">Volume of Gas Flared (m³)</Label>
+                  <Label htmlFor="gas-volume">
+                    Volume of Gas Flared (m³) <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="gas-volume"
                     type="text"
@@ -327,7 +321,9 @@ export function GasFlaring({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="carbon-content">Carbon Content/Composition (% by volume)</Label>
+                  <Label htmlFor="carbon-content">
+                    Carbon Content/Composition (% by volume) <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="carbon-content"
                     type="text"

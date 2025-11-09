@@ -184,6 +184,26 @@ export function PurchasedSteamForm({
     setAdditionalFields(fields);
   };
 
+  const validateForm = () => {
+    const newErrors: {
+      steamConsumed?: string;
+      selectedSources?: string;
+      files?: string;
+    } = {};
+
+    const hasValidSteam = steamConsumedRaw && Number(steamConsumedRaw) > 0;
+    if (!hasValidSteam) {
+      newErrors.steamConsumed = "Please enter a valid positive number for steam consumed.";
+    }
+
+    if (selectedSources.length === 0) {
+      newErrors.selectedSources = "Please select at least one steam source.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSaveAndContinue = () => {
     const assessmentId = state.assessmentData.assessmentId;
     if (!assessmentId) {
@@ -228,6 +248,7 @@ export function PurchasedSteamForm({
   };
 
   const handleNext = () => {
+    if (!validateForm()) return;
     dispatch({
       type: "UPDATE_STEAM",
       payload: {
@@ -328,7 +349,9 @@ export function PurchasedSteamForm({
             <div>
               <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
               <div className="space-y-4 ml-6">
-                <Label htmlFor="steam-consumed">Steam Consumed (tonnes)</Label>
+                <Label htmlFor="steam-consumed">
+                  Steam Consumed (tonnes) <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="steam-consumed"
                   type="text" // Changed from "number" to "text" to display formatted value
@@ -352,7 +375,9 @@ export function PurchasedSteamForm({
 
             {/* Steam Sources */}
             <div>
-              <Label className="text-md font-medium mb-2 block">Source of Steam</Label>
+              <Label className="text-md font-medium mb-2 block">
+                Source of Steam <span className="text-red-500">*</span>
+              </Label>
               <div className="space-y-3 ml-6">
                 {steamSources.map((src) => (
                   <div key={src.id} className="flex items-center space-x-2">

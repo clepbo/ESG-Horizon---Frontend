@@ -234,8 +234,6 @@ export function IndustrialProcessesForm({
     onNext();
   };
   const handlePrevious = () => {
-    if (!validateForm()) return;
-
     dispatch({
       type: "UPDATE_STATIONARY_INDUSTRIAL",
       payload: {
@@ -324,7 +322,7 @@ export function IndustrialProcessesForm({
             {/* 1.1 Boilers and Furnaces in Manufacturing */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                2.1 Boilers and Furnaces in Manufacturing
+                2.1 Boilers and Furnaces in Manufacturing <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
                 <AddSource

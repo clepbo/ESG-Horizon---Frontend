@@ -151,6 +151,26 @@ export function PurchasedElectricityForm({
     }
   };
 
+  const validateForm = () => {
+    const newErrors: {
+      electricityConsumed?: string;
+      supplier?: string;
+      files?: string;
+    } = {};
+
+    const hasValidElectricity =
+      electricityConsumed.rawValue && Number(electricityConsumed.rawValue) > 0;
+    if (!hasValidElectricity) {
+      newErrors.electricityConsumed = "Please enter a valid electricity consumption value.";
+    }
+    if (!supplier.trim()) {
+      newErrors.supplier = "Please enter your electricity supplier.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSaveAndContinue = () => {
     const assessmentId = state.assessmentData.assessmentId;
     if (!assessmentId) {
@@ -193,6 +213,7 @@ export function PurchasedElectricityForm({
   };
 
   const handleNext = () => {
+    if (!validateForm()) return;
     dispatch({
       type: "UPDATE_ELECTRICITY",
       payload: {
@@ -294,7 +315,9 @@ export function PurchasedElectricityForm({
             <div>
               <Label className="text-md font-semibold mb-2 block">1.1 Purchased Electricity</Label>
               <div className="space-y-4 ml-6">
-                <Label>Total Electricity Consumed (kwh)</Label>
+                <Label>
+                  Total Electricity Consumed (kwh) <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter total electricity consumed in kWh"
@@ -312,7 +335,9 @@ export function PurchasedElectricityForm({
 
             {/* Electricity Supplier */}
             <div className="space-y-4 ml-6">
-              <Label>Electricity Supplier</Label>
+              <Label>
+                Electricity Supplier <span className="text-red-500">*</span>
+              </Label>
               <Input
                 placeholder="Enter supplier name"
                 value={supplier}
