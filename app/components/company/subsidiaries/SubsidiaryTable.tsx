@@ -9,6 +9,7 @@ import Pagination from "@/app/components/ui/reusables/Pagination";
 import { Subsidiary } from "@/services/subsidiaries.service";
 import { Card } from "../../ui/card";
 import { useRouter } from "next/navigation";
+import ActionDropdown from "../../ui/reusables/ActionDropdown";
 
 interface SubsidiaryTableProps {
   subsidiaries: Subsidiary[];
@@ -87,28 +88,28 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
                     <td className="px-4 py-3">
                       <StatusBadge status={subsidiary.status} />
                     </td>
-                    <td className="px-4 py-3 flex gap-2">
-                      <button
-                        className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleEditClick(subsidiary)}
-                        title="Edit"
-                      >
-                        <SquarePen className="w-4 h-4 text-gray-600" />
-                      </button>
-                      <button
-                        className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleViewClick(subsidiary.id)}
-                        title="View"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleDeleteClick(subsidiary)}
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-600" />
-                      </button>
+                    <td className="px-4 py-3">
+                      <ActionDropdown
+                        actions={[
+                          {
+                            label: "Edit",
+                            icon: <SquarePen className="w-4 h-4 text-gray-600" />,
+                            onClick: () => handleEditClick(subsidiary),
+                          },
+                          {
+                            label: "View",
+                            icon: <Eye className="w-4 h-4 text-gray-600" />,
+                            onClick: () => handleViewClick(subsidiary.id),
+                          },
+                          {
+                            label: "Delete",
+                            icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                            colorClass: "text-red-600 hover:bg-red-50",
+                            onClick: () => handleDeleteClick(subsidiary),
+                          },
+                        ]}
+                        buttonLabel="Actions"
+                      />
                     </td>
                   </tr>
                 ))}

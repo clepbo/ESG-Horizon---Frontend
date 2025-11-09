@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
 import { Button } from "../../ui/button";
+import ActionDropdown from "../../ui/reusables/ActionDropdown";
 
 type Props = {
   users: User[];
@@ -96,62 +97,62 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
     },
   };
 
-  function TeamActionDropdown({ user, statusActions, onEdit, onStatusChange }: any) {
-    const [isOpen, setIsOpen] = useState(false);
-    const currentAction = statusActions[user.status];
+  // function TeamActionDropdown({ user, statusActions, onEdit, onStatusChange }: any) {
+  //   const [isOpen, setIsOpen] = useState(false);
+  //   const currentAction = statusActions[user.status];
 
-    return (
-      <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-[110px] justify-between rounded-sm border-teal-600"
-          >
-            Actions
-            {isOpen ? (
-              <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
-            ) : (
-              <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
-            )}
-          </Button>
-        </DropdownMenuTrigger>
+  //   return (
+  //     <DropdownMenu onOpenChange={(open) => setIsOpen(open)}>
+  //       <DropdownMenuTrigger asChild>
+  //         <Button
+  //           variant="outline"
+  //           size="sm"
+  //           className="w-[110px] justify-between rounded-sm border-teal-600"
+  //         >
+  //           Actions
+  //           {isOpen ? (
+  //             <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
+  //           ) : (
+  //             <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
+  //           )}
+  //         </Button>
+  //       </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="w-44 shadow-md border-teal-600">
-          <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
-            <DropdownMenuItem onClick={onEdit}>
-              <SquarePen className="mr-2 h-4 w-4" />
-              Edit User
-            </DropdownMenuItem>
-          </RoleGuard>
+  //       <DropdownMenuContent align="end" className="w-44 shadow-md border-teal-600">
+  //         <RoleGuard allowedRoles={["company_esg_admin", "company_esg_subadmin"]}>
+  //           <DropdownMenuItem onClick={onEdit}>
+  //             <SquarePen className="mr-2 h-4 w-4" />
+  //             Edit User
+  //           </DropdownMenuItem>
+  //         </RoleGuard>
 
-          {currentAction && (
-            <RoleGuard
-              allowedRoles={[
-                "company_esg_admin",
-                "company_esg_subadmin",
-                "super_admin",
-                "platform_subadmin",
-                "platform_data_officer",
-              ]}
-            >
-              <DropdownMenuItem
-                onClick={onStatusChange}
-                className={currentAction.color
-                  .replace("border-", "text-")
-                  .replace("hover:bg-", "hover:text-")}
-              >
-                <span className="flex gap-2">
-                  {currentAction.icon}
-                  {currentAction.title}
-                </span>
-              </DropdownMenuItem>
-            </RoleGuard>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
+  //         {currentAction && (
+  //           <RoleGuard
+  //             allowedRoles={[
+  //               "company_esg_admin",
+  //               "company_esg_subadmin",
+  //               "super_admin",
+  //               "platform_subadmin",
+  //               "platform_data_officer",
+  //             ]}
+  //           >
+  //             <DropdownMenuItem
+  //               onClick={onStatusChange}
+  //               className={currentAction.color
+  //                 .replace("border-", "text-")
+  //                 .replace("hover:bg-", "hover:text-")}
+  //             >
+  //               <span className="flex gap-2">
+  //                 {currentAction.icon}
+  //                 {currentAction.title}
+  //               </span>
+  //             </DropdownMenuItem>
+  //           </RoleGuard>
+  //         )}
+  //       </DropdownMenuContent>
+  //     </DropdownMenu>
+  //   );
+  // }
 
   return (
     <div>
@@ -221,14 +222,25 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                     </td>
 
                     <td className="px-4 py-3">{formattedDate(String(user.last_login) || "")}</td>
+
                     <td className="px-4 py-3">
-                      <TeamActionDropdown
-                        user={user}
-                        statusActions={statusActions}
-                        onEdit={() => handleView(user.id)}
-                        onStatusChange={() =>
-                          openStatusModal(user.id, statusActions[user.status].newStatus)
-                        }
+                      <ActionDropdown
+                        actions={[
+                          {
+                            label: "Edit User",
+                            icon: <SquarePen className="w-4 h-4" />,
+                            onClick: () => handleView(user.id),
+                          },
+                          {
+                            label: statusActions[user.status].title,
+                            icon: statusActions[user.status].icon,
+                            colorClass: statusActions[user.status].color
+                              .replace("border-", "text-")
+                              .replace("hover:bg-", "hover:text-"),
+                            onClick: () =>
+                              openStatusModal(user.id, statusActions[user.status].newStatus),
+                          },
+                        ]}
                       />
                     </td>
                   </tr>
