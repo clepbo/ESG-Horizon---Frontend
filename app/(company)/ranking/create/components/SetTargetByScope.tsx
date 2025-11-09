@@ -10,7 +10,7 @@ import { years } from "./GeneralSetTarget";
 import { ScopeSummary } from "./scope/ScopeTargetSummary";
 import { SuccessModal } from "./SuccessModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import apiUtil from "@/lib/api/axios";
+import api from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
@@ -73,7 +73,7 @@ export default function SetTargetByScope() {
     queryKey: ["baseline", companyId],
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
-      return await apiUtil.get(`/target/baseline/${companyId}`);
+      return await api.get(`/target/baseline/${companyId}`);
     },
     enabled: !!companyId,
   });
@@ -81,7 +81,7 @@ export default function SetTargetByScope() {
   const createTarget = useMutation({
     mutationFn: async (targetData: TargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
-      return await apiUtil.post(`/target`, targetData);
+      return await api.post(`/target`, targetData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["baseline"] });

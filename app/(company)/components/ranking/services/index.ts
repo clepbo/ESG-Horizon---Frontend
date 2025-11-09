@@ -1,4 +1,4 @@
-import apiUtil from "@/lib/api/axios";
+import api from "@/lib/api/axios";
 import { ScopeTargetPayload, TargetPayload } from "@/types/target/index";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ export const useBaseline = (companyId?: number) => {
     queryKey: ["baseline", companyId],
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
-      const response = await apiUtil.get(`/target/baseline/${companyId}`);
+      const response = await api.get(`/target/baseline/${companyId}`);
       return response;
     },
     enabled: !!companyId,
@@ -22,7 +22,7 @@ export const useCreateTarget = (companyId?: string) => {
   return useMutation({
     mutationFn: async (targetData: TargetPayload | ScopeTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
-      const response = await apiUtil.post(`/target`, targetData);
+      const response = await api.post(`/target`, targetData);
       return response.data;
     },
     onSuccess: () => {
