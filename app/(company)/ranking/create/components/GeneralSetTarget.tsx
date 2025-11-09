@@ -134,14 +134,10 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const yearDifference =
     data && base?.data?.startYear ? (base.data.startYear ?? 0) - (data.targetYear ?? 0) : 0;
 
- 
   const reduction = calculateTotal(
     base?.data?.totalSum,
-    CalculateEmissionPercentage(
-      data.reductionPercentage ?? 0,
-      base?.data?.totalSum
-    )
-  )
+    CalculateEmissionPercentage(data.reductionPercentage ?? 0, base?.data?.totalSum)
+  );
   const annualRate = (+reduction / yearDifference).toFixed(3);
 
   // const totalReduction = Math.abs(
@@ -185,7 +181,19 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="reductionPercentage" className="">Reduction Percentage (%) <CustomTooltip detail={<TooltipMessage title={"Reduction Percentage"} message={"The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."} />} /> </Label>
+                  <Label htmlFor="reductionPercentage" className="">
+                    Reduction Percentage (%){" "}
+                    <CustomTooltip
+                      detail={
+                        <TooltipMessage
+                          title={"Reduction Percentage"}
+                          message={
+                            "The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."
+                          }
+                        />
+                      }
+                    />{" "}
+                  </Label>
                   <Input
                     id="reductionPercentage"
                     type="number"
@@ -197,7 +205,19 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="baselineYear">Baseline Year <CustomTooltip detail={<TooltipMessage title={"Baseline Year"} message={"The reference year used to measure progress — typically the year you first started tracking emissions."} />} /> </Label>
+                  <Label htmlFor="baselineYear">
+                    Baseline Year{" "}
+                    <CustomTooltip
+                      detail={
+                        <TooltipMessage
+                          title={"Baseline Year"}
+                          message={
+                            "The reference year used to measure progress — typically the year you first started tracking emissions."
+                          }
+                        />
+                      }
+                    />{" "}
+                  </Label>
                   <select
                     id="baselineYear"
                     disabled
@@ -215,7 +235,19 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="targetYear">Target Year <CustomTooltip detail={<TooltipMessage title={"Target Year"} message={"The year by which your company plans to achieve the set reduction goal."} />} /></Label>
+                  <Label htmlFor="targetYear">
+                    Target Year{" "}
+                    <CustomTooltip
+                      detail={
+                        <TooltipMessage
+                          title={"Target Year"}
+                          message={
+                            "The year by which your company plans to achieve the set reduction goal."
+                          }
+                        />
+                      }
+                    />
+                  </Label>
                   <select
                     id="targetYear"
                     value={data?.targetYear ?? ""}
