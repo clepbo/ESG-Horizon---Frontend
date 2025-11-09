@@ -253,14 +253,15 @@ type AssessmentAction =
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "UPDATE_PROGRESS"; payload: AssessmentProgress[] }
   | {
-    type: "SET_COMPUTED_DATA"; payload: { 
-      assessmentId: number; 
-      progress: AssessmentProgress[]; 
-      scopeTotals: ScopeTotals; 
-      totals: TotalsResponse | undefined; 
-      status: string;
-    }
-  };
+      type: "SET_COMPUTED_DATA";
+      payload: {
+        assessmentId: number;
+        progress: AssessmentProgress[];
+        scopeTotals: ScopeTotals;
+        totals: TotalsResponse | undefined;
+        status: string;
+      };
+    };
 
 const initialState: AssessmentState = {
   currentView: "hub",
@@ -654,12 +655,12 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
           ...state.assessmentData,
           progress: action.payload,
         },
-      };  
+      };
     case "SET_COMPUTED_DATA":
       return {
         ...state,
         assessmentId: action.payload.assessmentId,
-        progress: action.payload.progress, 
+        progress: action.payload.progress,
         scopeTotals: action.payload.scopeTotals,
         assessmentData: {
           ...state.assessmentData,
