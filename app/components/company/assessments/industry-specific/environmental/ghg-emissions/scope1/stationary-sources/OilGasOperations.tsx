@@ -9,7 +9,7 @@ import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -58,8 +58,10 @@ export function OilGasOperations({
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  // const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  // const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
 
   const isPending = isSaving || isSubmitting;
 
@@ -193,26 +195,29 @@ export function OilGasOperations({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
-    if (typeof assessmentId !== "number") {
-      toast.error("Cannot save: Missing assessment ID");
-      return;
-    }
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       onShoreProduction,
       additionalFields: normalizeFiles(additionalFields),
       files,
+      progressPercent,
     };
 
     dispatch({
       type: "UPDATE_STATIONARY_OIL_GAS",
       payload,
     });
-
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -222,31 +227,39 @@ export function OilGasOperations({
           },
           lastSavedForm: "ghg-stationary-sources-oil-gas",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          setTimeout(() => {
-            setShowSaveSuccess(false);
-            onBackToHub();
-          }, 2000);
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        onBackToHub();
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+    }
   };
 
   const handleSubmit = () => {
     if (!validateForm()) return;
-    const { assessmentId } = state.assessmentData;
-    if (typeof assessmentId !== "number") {
-      toast.error("Cannot submit: Missing assessment ID");
-      return;
-    }
+
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       onShoreProduction,
       additionalFields: normalizeFiles(additionalFields),
       files,
+      progressPercent,
     };
 
     dispatch({
@@ -254,7 +267,7 @@ export function OilGasOperations({
       payload,
     });
 
-    submitAssessment(
+    submitAssessmentCallback(
       {
         assessmentId,
         data: {
@@ -268,12 +281,16 @@ export function OilGasOperations({
       },
       {
         onSuccess: (res) => {
-          toast.success("Assessment submitted successfully!");
+          if (!assessmentId && res.assessment.id) {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+          }
+
           onSubmit(res.totals ?? null);
         },
       }
     );
   };
+
   const handlePrevious = () => {
     const payload = {
       onShoreProduction,
@@ -458,7 +475,7 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -467,8 +484,8 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isPending} // Use combined pending state
-                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                disabled={isPending}
+                className="justify-self-center bg-teal-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
                 {isSaving ? (
@@ -492,7 +509,7 @@ export function OilGasOperations({
                 variant="outline"
                 onClick={() => setShowConfirmDialog(true)}
                 disabled={isPending}
-                className="justify-self-end hover:cursor-pointer border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit form"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}

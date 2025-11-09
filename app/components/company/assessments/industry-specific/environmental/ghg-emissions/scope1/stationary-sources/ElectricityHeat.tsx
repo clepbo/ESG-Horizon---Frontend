@@ -144,12 +144,7 @@ export function ElectricityHeatForm({
     return Object.keys(newErrors).length === 0;
   };
   const handleSaveAndContinue = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const assessmentId = state.assessmentId;
 
     dispatch({
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",

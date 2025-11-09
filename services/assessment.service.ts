@@ -2,9 +2,10 @@
 import api from "@/lib/api/axios";
 import { AssessmentData } from "@/hooks/useAssessment";
 
-interface SaveAssessmentResponse {
+export interface SaveAssessmentResponse {
   message: string;
   data: AssessmentData;
+  assessmentId: number;
 }
 
 export interface TotalsBreakdown {
@@ -21,10 +22,25 @@ export interface TotalsResponse {
   };
   computedAt: string;
 }
+export interface AssessmentProgress {
+  section: string;
+  completed: boolean;
+  progress: number; // 0-100
+}
+
+export interface ScopeTotals {
+  scope1: number;
+  scope2: number;
+  scope3: number;
+  total: number;
+}
+
 export interface SubmitAssessmentResponse {
   message: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assessment: any;
+  progress: AssessmentProgress[];
+  scopeTotals: ScopeTotals;
   totals?: TotalsResponse;
 }
 
@@ -49,27 +65,51 @@ export const assessmentService = {
     return response;
   },
 
-  createAssessment: async (): Promise<number> => {
-    const response = await api.post("/assessments/create");
-    return response.assessmentId;
-  },
+  // saveAssessment: async (payload: {
+  //   assessmentId: number;
+  //   data: Partial<AssessmentData>;
+  // }): Promise<SaveAssessmentResponse> => {
+  //   const { assessmentId, data: assessmentData } = payload;
+  //   const dataWithSubsidiary = ensureSubsidiary(assessmentData);
+  //   return await api.post(`/assessments/${assessmentId}/save`, dataWithSubsidiary);
+  // },
+
+  // submitAssessment: async (assessmentId: number, data: Partial<AssessmentData>): Promise<SubmitAssessmentResponse> => {
+  //   const dataWithSubsidiary = ensureSubsidiary(data);
+  //   const response = await api.post(`/assessments/${assessmentId}/submit`, dataWithSubsidiary);
+  //   return response;
+  // },
 
   saveAssessment: async (payload: {
-    assessmentId: number;
+    // 💡 assessmentId is now optional/nullable
+    assessmentId?: number | null; 
     data: Partial<AssessmentData>;
   }): Promise<SaveAssessmentResponse> => {
     const { assessmentId, data: assessmentData } = payload;
     const dataWithSubsidiary = ensureSubsidiary(assessmentData);
-    return await api.post(`/assessments/${assessmentId}/save`, dataWithSubsidiary);
+    
+    // 💡 NEW URL LOGIC: Use /save or /save/:id
+    const url = assessmentId 
+      ? `/assessments/save/${assessmentId}` 
+      : "/assessments/save";
+
+    // Backend returns { message, data: assessment, assessmentId: number }
+    return await api.post(url, dataWithSubsidiary); 
   },
 
-  submitAssessment: async (payload: {
-    assessmentId: number;
-    data: Partial<AssessmentData>;
-  }): Promise<SubmitAssessmentResponse> => {
-    const { assessmentId, data: assessmentData } = payload;
-    const dataWithSubsidiary = ensureSubsidiary(assessmentData);
-    const response = await api.post(`/assessments/${assessmentId}/submit`, dataWithSubsidiary);
+  submitAssessment: async (
+    // 💡 assessmentId is now optional/nullable
+    assessmentId: number | null | undefined, 
+    data: Partial<AssessmentData>
+  ): Promise<SubmitAssessmentResponse> => {
+    const dataWithSubsidiary = ensureSubsidiary(data);
+    
+    // 💡 NEW URL LOGIC: Use /submit or /submit/:id
+    const url = assessmentId 
+      ? `/assessments/submit/${assessmentId}` 
+      : "/assessments/submit";
+      
+    const response = await api.post(url, dataWithSubsidiary);
     return response;
   },
 

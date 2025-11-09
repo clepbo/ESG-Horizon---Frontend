@@ -60,6 +60,56 @@ export function calculateProgress(fields: (string | FileMetadata | boolean | nul
   return { total, filled };
 }
 
+export function computeProgressPercent({
+  stepIndex,
+  totalSteps,
+  fieldsCompleted,
+  totalFields,
+}: {
+  stepIndex: number;
+  totalSteps: number;
+  fieldsCompleted: number;
+  totalFields: number;
+}) {
+  const overallProgress = (stepIndex - 1) / totalSteps;
+  const inputProgress = totalFields > 0 ? fieldsCompleted / totalFields : 0;
+  return Math.round((overallProgress + inputProgress / totalSteps) * 100);
+}
+
+export function getAssessmentProgressForTable(assessment: any): number {
+  const lastSavedForm: string = assessment.assessmentData?.lastSavedForm || "";
+  if (!lastSavedForm) return 0;
+
+  const cleaned = lastSavedForm.replace(/^ghg-/, ""); // remove prefix
+  const parts = cleaned.split("-");
+
+  // map group keys
+  const groupMap: Record<string, string> = {
+    "stationary-sources": "stationarySources",
+    "mobile-sources": "mobileSources",
+    "fugitive-emissions": "fugitiveEmissions",
+    "process-emissions": "processEmissions",
+    "location-based": "locationBased",
+    "market-based": "marketBased",
+  };
+
+  const groupKey = groupMap[parts.slice(0, 2).join("-")];
+  if (!groupKey) return 0;
+
+  const formKey = camelCase(parts.slice(2).join("-"));
+  const group = assessment.assessmentData?.[groupKey];
+  if (!group) return 0;
+
+  const form = group[formKey];
+  if (!form) return 0;
+
+  return form.progressPercent ?? 0;
+}
+
+function camelCase(str: string) {
+  return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+}
+
 export const handleAxiosError = (error: unknown, defaultMessage?: string): string => {
   let errorMessage = defaultMessage || "Request Failed. Please try again.";
   if (typeof error === "object" && error !== null && "response" in error) {

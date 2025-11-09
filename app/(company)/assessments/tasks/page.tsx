@@ -7,7 +7,6 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/app/components/ui/button";
 import { TaskTable } from "@/app/components/company/tasks/TaskTable";
 import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
-import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialog";
 import { useRouter } from "next/navigation";
 
 type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
@@ -125,7 +124,6 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<ITask[]>(mockTasks);
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
-  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const router = useRouter();
 
   const handleViewTask = (task: ITask) => {
@@ -185,18 +183,6 @@ export default function TasksPage() {
     });
   };
 
-  const handleAssignTask = (taskData: any) => {
-    const newTask: ITask = {
-      id: String(tasks.length + 1),
-      ...taskData,
-    };
-    setTasks([newTask, ...tasks]);
-    toast({
-      title: "Task Assigned",
-      description: `${newTask.taskName} has been assigned to ${newTask.assignedTo}.`,
-    });
-  };
-
   return (
     <motion.main
       className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
@@ -248,13 +234,6 @@ export default function TasksPage() {
           task={selectedTask}
           open={isDetailDrawerOpen}
           onOpenChange={setIsDetailDrawerOpen}
-        />
-
-        {/* Assign Task Dialog */}
-        <AssignTaskDialog
-          open={isAssignDialogOpen}
-          onOpenChange={setIsAssignDialogOpen}
-          onSubmit={handleAssignTask}
         />
       </div>
     </motion.main>

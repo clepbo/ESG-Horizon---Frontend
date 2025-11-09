@@ -7,7 +7,6 @@ import { ResidualForm } from "./Residual";
 import { CoolingSteamForm } from "./CoolingSteam";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface MarketBasedFormProps {
   onBack: () => void;
@@ -29,7 +28,6 @@ export function MarketBasedForm({
   onContinueToNextAssessment,
   initialStep,
 }: MarketBasedFormProps) {
-  useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
