@@ -10,7 +10,7 @@ import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -21,10 +21,11 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useRouter } from "next/navigation";
 interface PurchasedHeatingFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -74,8 +75,9 @@ export function PurchasedHeatingForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -160,25 +162,77 @@ export function PurchasedHeatingForm({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID missing.");
-      return;
-    }
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      heatingPurchased,
+      heatingConsumed: heatingConsumedRaw,
+      supplierName,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
 
     dispatch({
       type: "UPDATE_HEATING",
-      payload: {
-        heatingPurchased,
-        heatingConsumed: heatingConsumedRaw,
-        supplierName,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
-    saveAssessment(
+    try {
+      const response = await saveAssessmentMutate({
+        assessmentId,
+        data: {
+          ...state.assessmentData,
+          heating: {
+            heatingPurchased,
+            heatingConsumed: heatingConsumedRaw,
+            supplierName,
+            files,
+            additionalFields: normalizeFiles(additionalFields),
+          },
+          lastSavedForm: "ghg-location-based-heating",
+        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+      }
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
+  };
+
+  const handleSubmit = () => {
+    const assessmentId = state.assessmentId;
+
+    const payload = {
+      heatingPurchased,
+      heatingConsumed: heatingConsumedRaw,
+      supplierName,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+    };
+
+    dispatch({
+      type: "UPDATE_HEATING",
+      payload,
+    });
+
+    submitAssessmentCallback(
       {
         assessmentId,
         data: {
@@ -188,62 +242,26 @@ export function PurchasedHeatingForm({
             heatingConsumed: heatingConsumedRaw,
             supplierName,
             files,
-            additionalFields: additionalFields as FileMetadata[],
+            additionalFields: normalizeFiles(additionalFields),
           },
           lastSavedForm: "ghg-location-based-heating",
         },
       },
       {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          toast.success("Heating data saved.");
-          onBackToHub();
-        },
-      }
-    );
-  };
-
-  const handleSubmit = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID missing.");
-      return;
-    }
-
-    dispatch({
-      type: "UPDATE_HEATING",
-      payload: {
-        heatingPurchased,
-        heatingConsumed: heatingConsumedRaw,
-        supplierName,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
-    submitAssessment(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          heating: {
-            heatingPurchased,
-            heatingConsumed: heatingConsumedRaw,
-            supplierName,
-            files,
-            additionalFields: additionalFields as FileMetadata[],
-          },
-          lastSavedForm: "ghg-location-based-electricity",
-        },
-      },
-      {
         onSuccess: (res) => {
+          if (!assessmentId && res.assessment?.id) {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+          }
           toast.success("Assessment submitted successfully!");
-          onSubmit(res.totals ?? null);
+          onSubmit(res.totals ?? null); // CALLBACK
+        },
+        onError: () => {
+          toast.error("Failed to submit");
         },
       }
     );
   };
+
   const handlePrevious = () => {
     dispatch({
       type: "UPDATE_HEATING",

@@ -6,7 +6,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -18,11 +18,12 @@ import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useRouter } from "next/navigation";
 
 interface ElectricityHeatFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -60,7 +61,9 @@ export function ElectricityHeatForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
   const [errors, setErrors] = useState<ElectricityHeatErrors>({});
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const dieselFuelOptions = useMemo(() => getFuelOptions("dieselGenerators"), []);
   const gasFuelOptions = useMemo(() => getFuelOptions("gasTurbines"), []);
@@ -143,49 +146,61 @@ export function ElectricityHeatForm({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const handleSaveAndContinue = () => {
+
+  const handleSaveAndContinue = async () => {
     const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      dieselGenerators,
+      gasTurbines,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+      progressPercent,
+    };
 
     dispatch({
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-      payload: {
-        dieselGenerators,
-        gasTurbines,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
           stationarySources: {
             ...state.assessmentData.stationarySources,
-            electricityHeat: {
-              dieselGenerators,
-              gasTurbines,
-              files,
-              additionalFields: additionalFields as FileMetadata[],
-            },
+            electricityHeat: payload,
           },
           lastSavedForm: "ghg-stationary-sources-electricity-heat",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
+      });
 
-          setDieselGenerators(getInitialSources([], dieselFuelOptions));
-          setGasTurbines(getInitialSources([], gasFuelOptions));
-          setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
-          setAdditionalFields([]);
-
-          onBackToHub();
-        },
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
       }
-    );
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {

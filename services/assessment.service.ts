@@ -25,7 +25,7 @@ export interface TotalsResponse {
 export interface AssessmentProgress {
   section: string;
   completed: boolean;
-  progress: number; // 0-100
+  progress: number;
 }
 
 export interface ScopeTotals {
@@ -44,11 +44,8 @@ export interface SubmitAssessmentResponse {
   totals?: TotalsResponse;
 }
 
-// Helper function to ensure subsidiary is set (use company name if empty)
 const ensureSubsidiary = (data: Partial<AssessmentData>): Partial<AssessmentData> => {
   if (!data.subsidiary || data.subsidiary.trim() === "") {
-    // If no subsidiary, we'll let the backend handle it or use a default
-    // The frontend should have already set this in handleProceed
     return { ...data, subsidiary: data.subsidiary || "Self" };
   }
   return data;
@@ -65,50 +62,26 @@ export const assessmentService = {
     return response;
   },
 
-  // saveAssessment: async (payload: {
-  //   assessmentId: number;
-  //   data: Partial<AssessmentData>;
-  // }): Promise<SaveAssessmentResponse> => {
-  //   const { assessmentId, data: assessmentData } = payload;
-  //   const dataWithSubsidiary = ensureSubsidiary(assessmentData);
-  //   return await api.post(`/assessments/${assessmentId}/save`, dataWithSubsidiary);
-  // },
-
-  // submitAssessment: async (assessmentId: number, data: Partial<AssessmentData>): Promise<SubmitAssessmentResponse> => {
-  //   const dataWithSubsidiary = ensureSubsidiary(data);
-  //   const response = await api.post(`/assessments/${assessmentId}/submit`, dataWithSubsidiary);
-  //   return response;
-  // },
-
   saveAssessment: async (payload: {
-    // 💡 assessmentId is now optional/nullable
-    assessmentId?: number | null; 
+    assessmentId?: number | null;
     data: Partial<AssessmentData>;
   }): Promise<SaveAssessmentResponse> => {
     const { assessmentId, data: assessmentData } = payload;
     const dataWithSubsidiary = ensureSubsidiary(assessmentData);
-    
-    // 💡 NEW URL LOGIC: Use /save or /save/:id
-    const url = assessmentId 
-      ? `/assessments/save/${assessmentId}` 
-      : "/assessments/save";
 
-    // Backend returns { message, data: assessment, assessmentId: number }
-    return await api.post(url, dataWithSubsidiary); 
+    const url = assessmentId ? `/assessments/save/${assessmentId}` : "/assessments/save";
+
+    return await api.post(url, dataWithSubsidiary);
   },
 
   submitAssessment: async (
-    // 💡 assessmentId is now optional/nullable
-    assessmentId: number | null | undefined, 
+    assessmentId: number | null | undefined,
     data: Partial<AssessmentData>
   ): Promise<SubmitAssessmentResponse> => {
     const dataWithSubsidiary = ensureSubsidiary(data);
-    
-    // 💡 NEW URL LOGIC: Use /submit or /submit/:id
-    const url = assessmentId 
-      ? `/assessments/submit/${assessmentId}` 
-      : "/assessments/submit";
-      
+
+    const url = assessmentId ? `/assessments/submit/${assessmentId}` : "/assessments/submit";
+
     const response = await api.post(url, dataWithSubsidiary);
     return response;
   },

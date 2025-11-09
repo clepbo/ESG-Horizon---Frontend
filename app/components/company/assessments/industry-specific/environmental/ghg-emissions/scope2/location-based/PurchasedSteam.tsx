@@ -10,7 +10,7 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -20,11 +20,12 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 
 interface PurchasedSteamFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -74,7 +75,8 @@ export function PurchasedSteamForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -102,10 +104,16 @@ export function PurchasedSteamForm({
     }
   }, [state.assessmentData.steam, setSteamConsumedRaw]);
 
-  const { total, filled } = calculateProgress([
+  // const { total, filled } = calculateProgress([
+  //   steamConsumedRaw,
+  //   Array.isArray(selectedSources) && selectedSources.length > 0,
+  //   Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
+  // ]);
+
+  const { filled, total } = calculateProgress([
     steamConsumedRaw,
     Array.isArray(selectedSources) && selectedSources.length > 0,
-    Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
+    Object.values(files).some(Boolean) || additionalFields.some((f) => f.file),
   ]);
 
   // const validateForm = () => {
@@ -204,26 +212,32 @@ export function PurchasedSteamForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID missing.");
-      return;
-    }
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      volume: steamConsumedRaw, // string
+      selectedSources,
+      otherComments,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
 
     dispatch({
       type: "UPDATE_STEAM",
-      payload: {
-        volume: steamConsumedRaw,
-        selectedSources,
-        otherComments,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -232,21 +246,25 @@ export function PurchasedSteamForm({
             selectedSources,
             otherComments,
             files,
-            additionalFields: additionalFields as FileMetadata[],
+            additionalFields: normalizeFiles(additionalFields),
           },
           lastSavedForm: "ghg-location-based-steam",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          toast.success("Steam data saved.");
-          onBackToHub();
-        },
-      }
-    );
-  };
+      });
 
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        setShowSaveSuccess(true);
+      }
+
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
+  };
   const handleNext = () => {
     if (!validateForm()) return;
     dispatch({

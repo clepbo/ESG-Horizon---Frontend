@@ -22,6 +22,7 @@ import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
 import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useRouter } from "next/navigation";
 
 interface OilGasOperationsProps {
   onBack: () => void;
@@ -58,8 +59,7 @@ export function OilGasOperations({
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
-  // const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  // const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  const router = useRouter();
   const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
   const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
 
@@ -236,7 +236,8 @@ export function OilGasOperations({
 
       setShowSaveSuccess(true);
       setTimeout(() => {
-        onBackToHub();
+        // onBackToHub();
+        router.push("/assessments/new-assessment");
       }, 2000);
     } catch (error) {
       console.error("Save failed:", error);

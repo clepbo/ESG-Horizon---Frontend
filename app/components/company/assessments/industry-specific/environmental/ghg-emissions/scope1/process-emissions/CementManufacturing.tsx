@@ -9,7 +9,7 @@ import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucid
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import {
   AdditionalFileUpload,
   FileData,
@@ -18,11 +18,12 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 
 interface CO2ReleaseProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -64,7 +65,9 @@ export function CementManufacturing({
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -137,23 +140,30 @@ export function CementManufacturing({
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
-    if (!assessmentId) {
-      toast.error("Assessment ID missing");
-      return;
-    }
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
-      cementQuantity: Number(cementQuantity), // ✅ Save raw number
+      cementQuantity: Number(cementQuantity),
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_PROCESS_CEMENT_MANUFACTURING", payload });
+    dispatch({
+      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
+      payload,
+    });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -163,17 +173,20 @@ export function CementManufacturing({
           },
           lastSavedForm: "ghg-process-emissions-cement-manufacturing",
         },
-      },
-      {
-        onSuccess: () => {
-          setCementRaw("0");
-          setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
-          setAdditionalFields([]);
-          setShowSaveSuccess(true);
-          onBackToHub();
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {
