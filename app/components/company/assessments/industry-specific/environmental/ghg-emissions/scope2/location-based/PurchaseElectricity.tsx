@@ -81,7 +81,8 @@ export function PurchasedElectricityForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.electricity, electricityConsumed]);
+    // }, [state.assessmentData?.electricity, electricityConsumed]);
+  }, [state.assessmentData?.electricity]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
