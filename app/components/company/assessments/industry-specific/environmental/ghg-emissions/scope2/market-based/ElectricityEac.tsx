@@ -51,7 +51,13 @@ export function ElectricityEACForm({
     setRawValue: setGridElectricityRaw,
   } = useFormattedNumber("");
 
-  const [emissionFactor, setEmissionFactor] = useState("");
+  const {
+    rawValue: emissionFactorRaw,
+    displayValue: emissionFactorDisplay,
+    handleChange: handleEmissionFactorChange,
+    setRawValue: setEmissionFactorRaw,
+  } = useFormattedNumber("");
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -84,7 +90,11 @@ export function ElectricityEACForm({
       } else {
         setGridElectricityRaw("");
       }
-      setEmissionFactor(existingData.emissionFactor || "");
+      if (existingData.emissionFactor) {
+        setEmissionFactorRaw(existingData.emissionFactor);
+      } else {
+        setEmissionFactorRaw("");
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -95,10 +105,10 @@ export function ElectricityEACForm({
   const { filled, total } = useMemo(() => {
     return calculateProgress([
       gridElectricityRaw,
-      emissionFactor,
+      emissionFactorRaw,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [gridElectricityRaw, emissionFactor, files, additionalFields]);
+  }, [gridElectricityRaw, emissionFactorRaw, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -106,7 +116,7 @@ export function ElectricityEACForm({
     if (!gridElectricityRaw || Number(gridElectricityRaw) <= 0) {
       newErrors.gridElectricity = "Please enter a valid positive number.";
     }
-    if (!emissionFactor || Number(emissionFactor) <= 0) {
+    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0) {
       newErrors.emissionFactor = "Please enter a valid positive emission factor.";
     }
 
@@ -170,7 +180,7 @@ export function ElectricityEACForm({
       type: "UPDATE_EAC",
       payload: {
         gridElectricity: gridElectricityRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -183,7 +193,7 @@ export function ElectricityEACForm({
           ...state.assessmentData,
           eac: {
             gridElectricity: gridElectricityRaw,
-            emissionFactor,
+            emissionFactor: emissionFactorRaw,
             files,
             additionalFields: additionalFields as FileMetadata[],
           },
@@ -195,7 +205,7 @@ export function ElectricityEACForm({
           setShowSaveSuccess(true);
 
           setGridElectricityRaw("");
-          setEmissionFactor("");
+          setEmissionFactorRaw("");
           setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
           setAdditionalFields([]);
 
@@ -212,7 +222,7 @@ export function ElectricityEACForm({
       type: "UPDATE_EAC",
       payload: {
         gridElectricity: gridElectricityRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -225,7 +235,7 @@ export function ElectricityEACForm({
       type: "UPDATE_EAC",
       payload: {
         gridElectricity: gridElectricityRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -411,17 +421,16 @@ export function ElectricityEACForm({
                 Emission Factor Applied <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
+                type="text"
                 step="0.0001"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactor}
+                value={emissionFactorDisplay}
                 onChange={(e) => {
-                  setEmissionFactor(e.target.value);
-                  if (errors.emissionFactor)
-                    setErrors((prev) => ({
-                      ...prev,
-                      emissionFactor: undefined,
-                    }));
+                  handleEmissionFactorChange(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    emissionFactor: undefined,
+                  }));
                 }}
                 className={`w-full border-gray-400 ${
                   errors.emissionFactor ? "border-red-500" : ""
