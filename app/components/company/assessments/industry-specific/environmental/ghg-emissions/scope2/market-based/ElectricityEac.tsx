@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -18,11 +18,12 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 
 interface ElectricityEACFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -67,7 +68,8 @@ export function ElectricityEACForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -151,33 +153,39 @@ export function ElectricityEACForm({
       console.error(err);
       toast.error("Error uploading file");
     } finally {
-      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
 
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      gridElectricity: gridElectricityRaw,
+      emissionFactor,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
 
     dispatch({
       type: "UPDATE_EAC",
-      payload: {
-        gridElectricity: gridElectricityRaw,
-        emissionFactor,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -185,24 +193,24 @@ export function ElectricityEACForm({
             gridElectricity: gridElectricityRaw,
             emissionFactor,
             files,
-            additionalFields: additionalFields as FileMetadata[],
+            additionalFields: normalizeFiles(additionalFields),
           },
           lastSavedForm: "ghg-market-based-electricityEAC",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
+      });
 
-          setGridElectricityRaw("");
-          setEmissionFactor("");
-          setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
-          setAdditionalFields([]);
-
-          onBackToHub();
-        },
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
       }
-    );
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {

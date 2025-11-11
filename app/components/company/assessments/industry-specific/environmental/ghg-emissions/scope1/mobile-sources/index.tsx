@@ -6,7 +6,6 @@ import { VehicleEquipment } from "./VehicleEquipment";
 import { MarineAviation } from "./MarineAviation";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface MobileSourcesFormProps {
   onBack: () => void;
@@ -22,7 +21,6 @@ export function MobileSourcesForm({
   onContinueToNextAssessment,
   initialStep,
 }: MobileSourcesFormProps) {
-  useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "road-transport");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

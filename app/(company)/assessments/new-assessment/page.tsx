@@ -9,8 +9,10 @@ import { AssessmentData } from "@/hooks/useAssessment";
 import Header from "../../components/Header";
 import { motion } from "framer-motion";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { AssessmentProvider } from "@/hooks/useAssessment";
+import { getAssessmentProgressForTable } from "@/lib/utils";
 
-export default function NewAssessmentPage() {
+function NewAssessmentPage() {
   const router = useRouter();
   const { data: assessments, isLoading, isError } = useAssessments();
 
@@ -36,6 +38,8 @@ export default function NewAssessmentPage() {
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
+        progress: getAssessmentProgressForTable(a),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         rejection_reason: (a as any).rejection_reason,
       };
     }) ?? [];
@@ -115,5 +119,13 @@ export default function NewAssessmentPage() {
         </div>
       </motion.main>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <AssessmentProvider>
+      <NewAssessmentPage />
+    </AssessmentProvider>
   );
 }
