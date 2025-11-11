@@ -60,6 +60,90 @@ export function calculateProgress(fields: (string | FileMetadata | boolean | nul
   return { total, filled };
 }
 
+export function computeProgressPercent({
+  stepIndex,
+  totalSteps,
+  fieldsCompleted,
+  totalFields,
+}: {
+  stepIndex: number;
+  totalSteps: number;
+  fieldsCompleted: number;
+  totalFields: number;
+}) {
+  const overallProgress = (stepIndex - 1) / totalSteps;
+  const inputProgress = totalFields > 0 ? fieldsCompleted / totalFields : 0;
+  return Math.round((overallProgress + inputProgress / totalSteps) * 100);
+}
+
+export function getAssessmentProgressForTable(assessment: any): number {
+  const { assessmentData, status } = assessment || {};
+  if (!assessmentData) return 0;
+
+  if (status?.startsWith("submitted") || status === "approved") return 100;
+
+  const lastSavedForm: string = assessmentData.lastSavedForm || "";
+  if (!lastSavedForm) return 0;
+
+  const cleaned = lastSavedForm.replace(/^ghg-/, "");
+  const parts = cleaned.split("-");
+
+  const groupMap: Record<string, string> = {
+    "stationary-sources": "stationarySources",
+    "mobile-sources": "mobileSources",
+    "fugitive-emissions": "fugitiveEmissions",
+    "process-emissions": "processEmissions",
+    "location-based": "locationBased",
+    "market-based": "marketBased",
+  };
+
+  const groupKey = groupMap[parts.slice(0, 2).join("-")];
+  if (!groupKey) return 0;
+
+  const formKeyMap: Record<string, string[]> = {
+    stationarySources: [
+      "electricityHeat",
+      "oilGasOperations",
+      "industrialProcesses",
+      "otherCombustion",
+      "emergencyGenerators",
+      "refrigerationAC",
+    ],
+    mobileSources: [
+      "companyOwnedVehicles",
+      "employeeTransportation",
+      "businessTravel",
+      "logistics",
+    ],
+    fugitiveEmissions: ["fugitiveSources"],
+    processEmissions: ["processSources"],
+    locationBased: ["electricity", "cooling", "steam", "heating"],
+    marketBased: ["electricityIPP", "electricityEAC", "residual", "coolingSteam"],
+  };
+
+  const group = assessmentData[groupKey];
+  if (!group) return 0;
+
+  const rawFormKey = camelCase(parts.slice(2).join("-"));
+  let form = group[rawFormKey];
+
+  if (!form) {
+    const possibleKeys = formKeyMap[groupKey];
+    for (const key of possibleKeys) {
+      if (group[key]?.progressPercent) {
+        form = group[key];
+        break;
+      }
+    }
+  }
+
+  return form?.progressPercent ?? 0;
+}
+
+function camelCase(str: string) {
+  return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+}
+
 export const handleAxiosError = (error: unknown, defaultMessage?: string): string => {
   let errorMessage = defaultMessage || "Request Failed. Please try again.";
   if (typeof error === "object" && error !== null && "response" in error) {
@@ -91,17 +175,14 @@ export const formatNumberToTwoDecimals = (value: string | number | null | undefi
 
   const numberValue = Number(value);
 
-  // Check if the conversion resulted in a valid, finite number
   if (isNaN(numberValue) || !isFinite(numberValue)) {
-    // If invalid, return "N/A" or "0" depending on desired UX for dashboard scores
     return "0";
   }
 
-  // Use toLocaleString with 'undefined' to automatically use the user's system locale.
   return numberValue.toLocaleString(undefined, {
-    minimumFractionDigits: 0, // Allows 12.00 to become "12"
-    maximumFractionDigits: 2, // Ensures a max of two decimals
-    useGrouping: false, // Prevents thousands separators (e.g., 1,000)
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+    useGrouping: false,
   });
 };
 

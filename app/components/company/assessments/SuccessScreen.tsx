@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/ui/button";
 import { TotalsResponse } from "@/services/assessment.service";
 import { CheckCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface SuccessScreenProps {
   assessmentName: string;
@@ -11,7 +12,7 @@ interface SuccessScreenProps {
   nextAssessment: string | null;
   totals?: TotalsResponse;
   onContinue: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   reportId?: string | number;
 }
 
@@ -24,6 +25,11 @@ export function SuccessScreen({
   onContinue,
   onBackToHub,
 }: SuccessScreenProps) {
+  const router = useRouter();
+  const handleBackToHub = () => {
+    router.push("/assessments/new-assessment");
+  };
+
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-[var(--color-primary)]  rounded-xl shadow-2xl px-8 py-10 max-w-md w-full flex flex-col items-center animate-fade-in-slow">
@@ -66,7 +72,7 @@ export function SuccessScreen({
           <Button
             className="w-full bg-[var(--color-primary)]  hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-lg transition-all duration-300  hover:border-green-200 hover:cursor-pointer"
             variant="outline"
-            onClick={onBackToHub}
+            onClick={handleBackToHub}
           >
             Go to Assessment Hub
           </Button>

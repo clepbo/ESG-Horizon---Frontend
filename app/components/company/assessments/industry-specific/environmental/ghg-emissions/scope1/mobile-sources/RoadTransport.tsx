@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -19,11 +19,12 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useRouter } from "next/navigation";
 
 interface RoadTransportProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -61,8 +62,8 @@ export function RoadTransport({
 
   const vehicleFleetOptions = useMemo(() => getFuelOptions("vehicleFleet"), []);
   const carsBusesOptions = useMemo(() => getFuelOptions("carsBuses"), []);
-
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -207,25 +208,37 @@ export function RoadTransport({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
 
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       vehicleFleet,
       carsBuses,
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_MOBILE_ROAD_TRANSPORT", payload });
+    dispatch({
+      type: "UPDATE_MOBILE_ROAD_TRANSPORT",
+      payload,
+    });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -235,18 +248,20 @@ export function RoadTransport({
           },
           lastSavedForm: "ghg-mobile-sources-road-transport",
         },
-      },
-      {
-        onSuccess: () => {
-          setVehicleFleet([]);
-          setCarsBuses([]);
-          setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
-          setAdditionalFields([]);
+      });
 
-          onBackToHub();
-        },
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
       }
-    );
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {

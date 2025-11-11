@@ -10,7 +10,7 @@ import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucid
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
 import {
@@ -20,11 +20,12 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useRouter } from "next/navigation";
 
 interface VehicleEquipmentProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -60,7 +61,8 @@ export function VehicleEquipment({
     files?: string;
   }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -246,26 +248,38 @@ export function VehicleEquipment({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
 
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       forkliftFuelType,
       heavyDutyFuelType,
       tractorFuelType,
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT", payload });
+    dispatch({
+      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
+      payload,
+    });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -275,19 +289,20 @@ export function VehicleEquipment({
           },
           lastSavedForm: "ghg-mobile-sources-vehicle-equipment",
         },
-      },
-      {
-        onSuccess: () => {
-          setForkliftFuelType([]);
-          setHeavyDutyFuelType([]);
-          setTractorFuelType([]);
-          setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
-          setAdditionalFields([]);
+      });
 
-          onBackToHub();
-        },
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {

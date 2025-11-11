@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -20,11 +20,12 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useRouter } from "next/navigation";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -76,8 +77,10 @@ export function CoolingSteamForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -188,65 +191,91 @@ export function CoolingSteamForm({
     additionalFields: additionalFields as FileMetadata[],
   });
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
 
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const assessmentId = state.assessmentId;
 
-    dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
-    saveAssessment(
-      {
+    const payload = {
+      ...buildPayload(),
+      progressPercent,
+    };
+
+    dispatch({
+      type: "UPDATE_COOLING_STEAM",
+      payload,
+    });
+
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
           coolingSteam: buildPayload(),
           lastSavedForm: "ghg-market-based-coolingSteam",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          toast.success(
-            "Cooling/Steam data saved. You can continue later from where you left off."
-          );
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setShowSaveSuccess(true);
+      toast.success("Cooling/Steam data saved. You can continue later from where you left off.");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleSubmit = () => {
     if (!validateForm()) return;
 
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID missing.");
-      return;
-    }
+    const assessmentId = state.assessmentId;
 
-    dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
+    const payload = buildPayload();
 
-    submitAssessment(
+    dispatch({
+      type: "UPDATE_COOLING_STEAM",
+      payload,
+    });
+
+    submitAssessmentCallback(
       {
         assessmentId,
         data: {
           ...state.assessmentData,
-          coolingSteam: buildPayload(),
-          lastSavedForm: "ghg-market-based-electricityIPP",
+          coolingSteam: payload,
+          lastSavedForm: "ghg-market-based-coolingSteam",
         },
       },
       {
-        onSuccess: (response) => {
-          onSubmit(response.totals ?? null);
+        onSuccess: (res) => {
+          if (!assessmentId && res.assessment?.id) {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+          }
+          toast.success("Assessment submitted successfully!");
+          onSubmit(res.totals ?? null);
           resetForm();
+        },
+        onError: () => {
+          toast.error("Failed to submit");
         },
       }
     );
   };
+
   const handlePrevious = () => {
     const assessmentId = state.assessmentData.assessmentId;
     if (!assessmentId) {
@@ -486,8 +515,8 @@ export function CoolingSteamForm({
               </Button>
               <Button
                 variant="outline"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
+                onClick={() => setShowConfirmDialog(true)}
+                disabled={isSaving}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
