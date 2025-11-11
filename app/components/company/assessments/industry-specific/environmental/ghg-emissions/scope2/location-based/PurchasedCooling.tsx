@@ -179,7 +179,7 @@ export function PurchasedCoolingForm({
     return Object.keys(newErrors).length === 0;
   };
 
-    const handleSaveAndContinue = async () => {
+  const handleSaveAndContinue = async () => {
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -233,7 +233,7 @@ export function PurchasedCoolingForm({
       toast.error("Failed to save");
     }
   };
-  
+
   const handleNext = () => {
     if (!validateForm()) return;
     dispatch({

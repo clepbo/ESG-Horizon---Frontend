@@ -8,179 +8,114 @@ import { Button } from "@/app/components/ui/button";
 import { TaskTable } from "@/app/components/company/tasks/TaskTable";
 import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
 import { useRouter } from "next/navigation";
+import {
+  useCompanyTasks,
+  useApproveTask,
+  useRejectTask,
+  useReassignTask,
+  useDeleteTask,
+  useSendTaskReminder,
+} from "@/services/hooks/assignTask.hooks";
+import { ITask, TaskStatus } from "@/services/assignTask.service";
 
-type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
-export interface ITask {
-  id: string;
+// Frontend-friendly task shape for the table
+export interface FrontendTask {
+  id: number;
   taskName: string;
-  assignedTo: string;
+  assignedTo: string; // comma-separated names
   dateAssigned: string;
   dueDate: string;
-  progress: number;
   status: TaskStatus;
   description?: string;
   priority?: "low" | "medium" | "high";
 }
 
-const mockTasks: ITask[] = [
-  {
-    id: "1",
-    taskName: "Design new landing page",
-    assignedTo: "Ada Lovelace",
-    dateAssigned: "2025-11-01",
-    dueDate: "2025-11-15",
-    progress: 75,
-    status: "in-progress",
-    description:
-      "Create a modern, responsive landing page for the new product launch. Include hero section, features, testimonials, and CTA.",
-    priority: "high",
-  },
-  {
-    id: "2",
-    taskName: "Update user documentation",
-    assignedTo: "Julious Aghahowa",
-    dateAssigned: "2025-11-02",
-    dueDate: "2025-11-10",
-    progress: 100,
-    status: "completed",
-    description:
-      "Revise and update all user-facing documentation to reflect the latest product changes.",
-    priority: "medium",
-  },
-  {
-    id: "3",
-    taskName: "Implement authentication system",
-    assignedTo: "KCee Limpopo",
-    dateAssigned: "2025-11-03",
-    dueDate: "2025-11-20",
-    progress: 40,
-    status: "in-progress",
-    description:
-      "Build a secure authentication system with OAuth support and multi-factor authentication.",
-    priority: "high",
-  },
-  {
-    id: "4",
-    taskName: "Database optimization",
-    assignedTo: "Abubakar Tafawa-Balewa",
-    dateAssigned: "2025-11-04",
-    dueDate: "2025-11-12",
-    progress: 0,
-    status: "pending",
-    description:
-      "Optimize database queries and add proper indexing to improve application performance.",
-    priority: "medium",
-  },
-  {
-    id: "5",
-    taskName: "Mobile app testing",
-    assignedTo: "Sherlock Holmes",
-    dateAssigned: "2025-11-01",
-    dueDate: "2025-11-08",
-    progress: 60,
-    status: "on-hold",
-    description:
-      "Comprehensive testing of the mobile application across different devices and OS versions.",
-    priority: "high",
-  },
-  {
-    id: "6",
-    taskName: "Marketing campaign analysis",
-    assignedTo: "Jim Moriarty",
-    dateAssigned: "2025-10-28",
-    dueDate: "2025-11-06",
-    progress: 100,
-    status: "approved",
-    description:
-      "Analyze the performance metrics of Q4 marketing campaigns and provide actionable insights.",
-    priority: "low",
-  },
-  {
-    id: "7",
-    taskName: "API integration",
-    assignedTo: "Irene Adler",
-    dateAssigned: "2025-11-05",
-    dueDate: "2025-11-25",
-    progress: 20,
-    status: "in-progress",
-    description: "Integrate third-party payment processing API and ensure PCI compliance.",
-    priority: "high",
-  },
-  {
-    id: "8",
-    taskName: "Security audit report",
-    assignedTo: "Dr. John Watson",
-    dateAssigned: "2025-10-30",
-    dueDate: "2025-11-05",
-    progress: 100,
-    status: "rejected",
-    description:
-      "Conduct comprehensive security audit and document all findings with remediation steps.",
-    priority: "high",
-  },
-];
-
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<ITask[]>(mockTasks);
-  const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
-  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   const router = useRouter();
+  const [selectedTask, setSelectedTask] = useState<FrontendTask | null>(null);
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
 
-  const handleViewTask = (task: ITask) => {
+  const { data: tasks = [], isLoading, isError, error } = useCompanyTasks();
+  if (isError) console.error("Company tasks fetch error:", error);
+
+  // --- Map backend tasks to frontend shape for table ---
+  const tasksForTable: FrontendTask[] = tasks.map((t: ITask) => ({
+    id: t.id,
+    taskName: t.taskName,
+    assignedTo: t.assignments.length
+      ? t.assignments.map((a) => `${a.user.first_name} ${a.user.last_name}`).join(", ")
+      : "Unassigned",
+
+    dateAssigned: t.createdAt,
+    dueDate: t.dueDate,
+    status: t.status,
+    description: t.description || "",
+    priority: t.priority || "medium",
+  }));
+
+  // Mutations
+  const approveTaskMutation = useApproveTask();
+  const rejectTaskMutation = useRejectTask();
+  const reassignTaskMutation = useReassignTask();
+  const deleteTaskMutation = useDeleteTask();
+  const sendReminderMutation = useSendTaskReminder();
+
+  // Handlers
+  const handleViewTask = (task: FrontendTask) => {
     setSelectedTask(task);
     setIsDetailDrawerOpen(true);
   };
 
-  const handleEditTask = (task: ITask) => {
-    toast({
-      title: "Edit Task",
-      description: `Editing task: ${task.taskName}`,
-    });
+  const handleEditTask = (task: FrontendTask) => {
+    toast({ title: "Edit Task", description: `Editing task: ${task.taskName}` });
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    setTasks(tasks.filter((t) => t.id !== taskId));
-    toast({
-      title: "Task Deleted",
-      description: `${task?.taskName} has been deleted.`,
-      variant: "destructive",
-    });
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await deleteTaskMutation.mutateAsync(taskId);
+      toast({
+        title: "Task Deleted",
+        description: "Task deleted successfully.",
+        variant: "destructive",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
-  const handleReassignTask = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    toast({
-      title: "Reassign Task",
-      description: `Reassigning task: ${task?.taskName}`,
-    });
+  const handleReassignTask = async (taskId: number) => {
+    toast({ title: "Reassign Task", description: `Reassigning task ID: ${taskId}` });
   };
 
-  const handleApproveTask = (taskId: string) => {
-    setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: "approved" as const } : t)));
-    const task = tasks.find((t) => t.id === taskId);
-    toast({
-      title: "Task Approved",
-      description: `${task?.taskName} has been approved.`,
-    });
+  const handleApproveTask = async (taskId: number) => {
+    try {
+      await approveTaskMutation.mutateAsync(taskId);
+      toast({ title: "Task Approved", description: "Task has been approved." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
-  const handleRejectTask = (taskId: string) => {
-    setTasks(tasks.map((t) => (t.id === taskId ? { ...t, status: "rejected" as const } : t)));
-    const task = tasks.find((t) => t.id === taskId);
-    toast({
-      title: "Task Rejected",
-      description: `${task?.taskName} has been rejected.`,
-      variant: "destructive",
-    });
+  const handleRejectTask = async (taskId: number) => {
+    try {
+      await rejectTaskMutation.mutateAsync(taskId);
+      toast({
+        title: "Task Rejected",
+        description: "Task has been rejected.",
+        variant: "destructive",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
-  const handleSendReminder = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    toast({
-      title: "Reminder Sent",
-      description: `Reminder sent to ${task?.assignedTo} for task: ${task?.taskName}`,
-    });
+  const handleSendReminder = async (taskId: number) => {
+    try {
+      await sendReminderMutation.mutateAsync(taskId);
+      toast({ title: "Reminder Sent", description: `Reminder sent for task ID: ${taskId}` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   return (
@@ -188,12 +123,7 @@ export default function TasksPage() {
       className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 25,
-        duration: 0.5,
-      }}
+      transition={{ type: "spring", stiffness: 200, damping: 25, duration: 0.5 }}
     >
       <div className="container mx-auto">
         {/* Header */}
@@ -210,15 +140,14 @@ export default function TasksPage() {
             size="sm"
             className="text-white"
           >
-            <Plus className="mr-2 h-5 w-5" />
-            Assign Task
+            <Plus className="mr-2 h-5 w-5" /> Assign Task
           </Button>
         </div>
 
         {/* Task Table */}
         <section className="shadow-md">
           <TaskTable
-            tasks={tasks}
+            tasks={tasksForTable}
             onViewTask={handleViewTask}
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
@@ -226,6 +155,7 @@ export default function TasksPage() {
             onApproveTask={handleApproveTask}
             onRejectTask={handleRejectTask}
             onSendReminder={handleSendReminder}
+            isLoading={isLoading}
           />
         </section>
 
@@ -240,40 +170,145 @@ export default function TasksPage() {
   );
 }
 
+// "use client";
+
+// import { useState } from "react";
+// import { motion } from "framer-motion";
+// import { Plus } from "lucide-react";
+// import { toast } from "@/hooks/use-toast";
+// import { Button } from "@/app/components/ui/button";
+// import { TaskTable } from "@/app/components/company/tasks/TaskTable";
+// import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
+// import { useRouter } from "next/navigation";
+
+// type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
+// export interface ITask {
+//   id: string;
+//   taskName: string;
+//   assignedTo: string;
+//   dateAssigned: string;
+//   dueDate: string;
+//   progress: number;
+//   status: TaskStatus;
+//   description?: string;
+//   priority?: "low" | "medium" | "high";
+// }
+
+// const mockTasks: ITask[] = [
+//   {
+//     id: "1",
+//     taskName: "Design new landing page",
+//     assignedTo: "Ada Lovelace",
+//     dateAssigned: "2025-11-01",
+//     dueDate: "2025-11-15",
+//     progress: 75,
+//     status: "in-progress",
+//     description:
+//       "Create a modern, responsive landing page for the new product launch. Include hero section, features, testimonials, and CTA.",
+//     priority: "high",
+//   },
+//   {
+//     id: "2",
+//     taskName: "Update user documentation",
+//     assignedTo: "Julious Aghahowa",
+//     dateAssigned: "2025-11-02",
+//     dueDate: "2025-11-10",
+//     progress: 100,
+//     status: "completed",
+//     description:
+//       "Revise and update all user-facing documentation to reflect the latest product changes.",
+//     priority: "medium",
+//   },
+//   {
+//     id: "3",
+//     taskName: "Implement authentication system",
+//     assignedTo: "KCee Limpopo",
+//     dateAssigned: "2025-11-03",
+//     dueDate: "2025-11-20",
+//     progress: 40,
+//     status: "in-progress",
+//     description:
+//       "Build a secure authentication system with OAuth support and multi-factor authentication.",
+//     priority: "high",
+//   },
+//   {
+//     id: "4",
+//     taskName: "Database optimization",
+//     assignedTo: "Abubakar Tafawa-Balewa",
+//     dateAssigned: "2025-11-04",
+//     dueDate: "2025-11-12",
+//     progress: 0,
+//     status: "pending",
+//     description:
+//       "Optimize database queries and add proper indexing to improve application performance.",
+//     priority: "medium",
+//   },
+//   {
+//     id: "5",
+//     taskName: "Mobile app testing",
+//     assignedTo: "Sherlock Holmes",
+//     dateAssigned: "2025-11-01",
+//     dueDate: "2025-11-08",
+//     progress: 60,
+//     status: "on-hold",
+//     description:
+//       "Comprehensive testing of the mobile application across different devices and OS versions.",
+//     priority: "high",
+//   },
+//   {
+//     id: "6",
+//     taskName: "Marketing campaign analysis",
+//     assignedTo: "Jim Moriarty",
+//     dateAssigned: "2025-10-28",
+//     dueDate: "2025-11-06",
+//     progress: 100,
+//     status: "approved",
+//     description:
+//       "Analyze the performance metrics of Q4 marketing campaigns and provide actionable insights.",
+//     priority: "low",
+//   },
+//   {
+//     id: "7",
+//     taskName: "API integration",
+//     assignedTo: "Irene Adler",
+//     dateAssigned: "2025-11-05",
+//     dueDate: "2025-11-25",
+//     progress: 20,
+//     status: "in-progress",
+//     description: "Integrate third-party payment processing API and ensure PCI compliance.",
+//     priority: "high",
+//   },
+//   {
+//     id: "8",
+//     taskName: "Security audit report",
+//     assignedTo: "Dr. John Watson",
+//     dateAssigned: "2025-10-30",
+//     dueDate: "2025-11-05",
+//     progress: 100,
+//     status: "rejected",
+//     description:
+//       "Conduct comprehensive security audit and document all findings with remediation steps.",
+//     priority: "high",
+//   },
+// ];
+
 // export default function TasksPage() {
+//   const [tasks, setTasks] = useState<ITask[]>(mockTasks);
+//   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+//   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
 //   const router = useRouter();
-//   const [showReportSuccess, setShowReportSuccess] = useState(false);
-//   const [_modalData, setModalData] = useState({
-//     open: false,
-//     assessmentId: null as number | null,
-//   });
-//   const [_detailsOpen, setDetailsOpen] = useState(false);
-//   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
-//   const [reasonOpen, setReasonOpen] = useState(false);
-//   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
 
 //   const handleViewTask = (task: ITask) => {
 //     setSelectedTask(task);
 //     setIsDetailDrawerOpen(true);
 //   };
 
-//   const handleOpenReason = (reason: string | undefined) => {
-//     setSelectedReason(reason);
-//     setReasonOpen(true);
+//   const handleEditTask = (task: ITask) => {
+//     toast({
+//       title: "Edit Task",
+//       description: `Editing task: ${task.taskName}`,
+//     });
 //   };
-
-//   // const handleDeleteConfirm = () => {
-//   //   const idToDelete = modalData.assessmentId;
-//   //   if (!idToDelete) return;
-
-//   //   deleteMutation.mutate(idToDelete, {
-//   //     onSuccess: () => setModalData({ open: false, assessmentId: null }),
-//   //     onError: (error: Error) => {
-//   //       console.error("Deletion failed:", error);
-//   //       setModalData({ open: false, assessmentId: null });
-//   //     },
-//   //   });
-//   // };
 
 //   const handleDeleteTask = (taskId: string) => {
 //     const task = tasks.find((t) => t.id === taskId);
@@ -320,18 +355,6 @@ export default function TasksPage() {
 //     });
 //   };
 
-//   const handleAssignTask = (taskData: any) => {
-//     const newTask: ITask = {
-//       id: String(tasks.length + 1),
-//       ...taskData,
-//     };
-//     setTasks([newTask, ...tasks]);
-//     toast({
-//       title: "Task Assigned",
-//       description: `${newTask.taskName} has been assigned to ${newTask.assignedTo}.`,
-//     });
-//   };
-
 //   return (
 //     <motion.main
 //       className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
@@ -354,7 +377,11 @@ export default function TasksPage() {
 //               departments.
 //             </p>
 //           </div>
-//           <Button onClick={() => setIsAssignDialogOpen(true)} size="sm" className="text-white">
+//           <Button
+//             onClick={() => router.push("/assessments/tasks/assign")}
+//             size="sm"
+//             className="text-white"
+//           >
 //             <Plus className="mr-2 h-5 w-5" />
 //             Assign Task
 //           </Button>
@@ -379,13 +406,6 @@ export default function TasksPage() {
 //           task={selectedTask}
 //           open={isDetailDrawerOpen}
 //           onOpenChange={setIsDetailDrawerOpen}
-//         />
-
-//         {/* Assign Task Dialog */}
-//         <AssignTaskDialog
-//           open={isAssignDialogOpen}
-//           onOpenChange={setIsAssignDialogOpen}
-//           onSubmit={handleAssignTask}
 //         />
 //       </div>
 //     </motion.main>
