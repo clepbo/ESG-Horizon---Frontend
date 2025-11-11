@@ -51,8 +51,12 @@ export function ResidualForm({
     handleChange: handleElectricityConsumedChange,
     setRawValue: setElectricityConsumedRaw,
   } = useFormattedNumber("");
-
-  const [residualMixFactor, setResidualMixFactor] = useState("");
+  const {
+    rawValue: residualMixFactorRaw,
+    displayValue: residualMixFactorDisplay,
+    handleChange: handleResidualMixFactorChange,
+    setRawValue: setResidualMixFactorRaw,
+  } = useFormattedNumber("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -84,7 +88,11 @@ export function ResidualForm({
       } else {
         setElectricityConsumedRaw("");
       }
-      setResidualMixFactor(existingData.residualMixFactor || "");
+      if (existingData.residualMixFactor) {
+        setResidualMixFactorRaw(existingData.residualMixFactor);
+      } else {
+        setResidualMixFactorRaw("");
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -95,10 +103,10 @@ export function ResidualForm({
   const { filled, total } = useMemo(() => {
     return calculateProgress([
       electricityConsumedRaw,
-      residualMixFactor,
+      residualMixFactorRaw,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [electricityConsumedRaw, residualMixFactor, files, additionalFields]);
+  }, [electricityConsumedRaw, residualMixFactorRaw, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -106,7 +114,7 @@ export function ResidualForm({
     if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
       newErrors.electricityConsumed = "Please enter a valid positive number.";
     }
-    if (!residualMixFactor || Number(residualMixFactor) <= 0) {
+    if (!residualMixFactorRaw || Number(residualMixFactorRaw) <= 0) {
       newErrors.residualMixFactor = "Please enter a valid positive emission factor.";
     }
 
@@ -211,7 +219,7 @@ export function ResidualForm({
       toast.error("Failed to save");
     }
   };
-
+  
   const handleNext = () => {
     if (!validateForm()) return;
 
@@ -219,7 +227,7 @@ export function ResidualForm({
       type: "UPDATE_RESIDUAL",
       payload: {
         electricityConsumed: electricityConsumedRaw,
-        residualMixFactor,
+        residualMixFactor: residualMixFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -232,7 +240,7 @@ export function ResidualForm({
       type: "UPDATE_RESIDUAL",
       payload: {
         electricityConsumed: electricityConsumedRaw,
-        residualMixFactor,
+        residualMixFactor: residualMixFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -357,12 +365,11 @@ export function ResidualForm({
                 Residual Mix emission factor applied <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
-                step="0.0001"
+                type="text"
                 placeholder="Enter factor (kg CO₂e/kWh) based on Nigerian grid residual mix"
-                value={residualMixFactor}
+                value={residualMixFactorDisplay}
                 onChange={(e) => {
-                  setResidualMixFactor(e.target.value);
+                  handleResidualMixFactorChange(e.target.value);
                   if (errors.residualMixFactor)
                     setErrors((prev) => ({
                       ...prev,

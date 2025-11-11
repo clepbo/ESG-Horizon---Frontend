@@ -53,7 +53,13 @@ export function ElectricityIppsForm({
     setRawValue: setElectricityConsumedRaw,
   } = useFormattedNumber("");
 
-  const [emissionFactor, setEmissionFactor] = useState("");
+  const {
+    rawValue: emissionFactorRaw,
+    displayValue: emissionFactorDisplay,
+    handleChange: handleEmissionFactorChange,
+    setRawValue: setEmissionFactorRaw,
+  } = useFormattedNumber("");
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -83,21 +89,23 @@ export function ElectricityIppsForm({
       if (existingData.electricityConsumed) {
         setElectricityConsumedRaw(existingData.electricityConsumed);
       }
-      setEmissionFactor(existingData.emissionFactor || "");
+      if (existingData.emissionFactor) {
+        setEmissionFactorRaw(existingData.emissionFactor);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.ipps, setElectricityConsumedRaw]);
+  }, [state.assessmentData?.ipps, setElectricityConsumedRaw, setEmissionFactorRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
       electricityConsumedRaw,
-      emissionFactor,
+      emissionFactorRaw,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [electricityConsumedRaw, emissionFactor, files, additionalFields]);
+  }, [electricityConsumedRaw, emissionFactorRaw, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: {
@@ -109,7 +117,7 @@ export function ElectricityIppsForm({
     if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
       newErrors.electricityConsumed = "Please enter a valid positive number.";
     }
-    if (!emissionFactor || Number(emissionFactor) <= 0) {
+    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0) {
       newErrors.emissionFactor = "Please enter a valid positive emission factor.";
     }
 
@@ -212,6 +220,7 @@ export function ElectricityIppsForm({
     }
   };
 
+
   const handleNext = () => {
     if (!validateForm()) return;
 
@@ -219,7 +228,7 @@ export function ElectricityIppsForm({
       type: "UPDATE_IPPS",
       payload: {
         electricityConsumed: electricityConsumedRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -232,7 +241,7 @@ export function ElectricityIppsForm({
       type: "UPDATE_IPPS",
       payload: {
         electricityConsumed: electricityConsumedRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -352,12 +361,11 @@ export function ElectricityIppsForm({
                 Supplier-specific Emission Factor <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
-                step="0.0001"
+                type="text" // Change from "number" to "text"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactor}
+                value={emissionFactorDisplay}
                 onChange={(e) => {
-                  setEmissionFactor(e.target.value);
+                  handleEmissionFactorChange(e.target.value);
                   if (errors.emissionFactor)
                     setErrors((prev) => ({
                       ...prev,

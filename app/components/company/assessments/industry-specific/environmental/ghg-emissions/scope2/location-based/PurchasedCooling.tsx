@@ -19,6 +19,7 @@ import { AssessmentProgressBar } from "@/app/components/company/assessments/Asse
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 interface PurchasedCoolingFormProps {
   onBack: () => void;
@@ -54,7 +55,8 @@ export function PurchasedCoolingForm({
 }: PurchasedCoolingFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [coolingConsumed, setCoolingConsumed] = useState("");
+  // const [coolingConsumed, setCoolingConsumed] = useState("");
+  const coolingConsumed = useFormattedNumber("");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -83,7 +85,8 @@ export function PurchasedCoolingForm({
     const existingData = state.assessmentData.cooling;
 
     if (existingData) {
-      setCoolingConsumed(existingData.coolingConsumed || "");
+      // setCoolingConsumed(existingData.coolingConsumed || "");
+      coolingConsumed.setRawValue(existingData.coolingConsumed?.toString() || "");
       setSelectedSystems(existingData.selectedSystems || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
@@ -95,10 +98,10 @@ export function PurchasedCoolingForm({
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      coolingConsumed,
+      coolingConsumed.rawValue,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [coolingConsumed, files, additionalFields]);
+  }, [coolingConsumed.rawValue, files, additionalFields]);
 
   const handleSystemChange = (systemId: string, checked: boolean) => {
     setSelectedSystems((prev) =>
@@ -161,7 +164,9 @@ export function PurchasedCoolingForm({
       selectedSystems?: string;
       files?: string;
     } = {};
-    const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
+    // const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
+    const hasValidCooling =
+      coolingConsumed.rawValue.trim() !== "" && Number(coolingConsumed.rawValue) > 0;
     if (!hasValidCooling) {
       newErrors.coolingConsumed =
         "Please enter a valid cooling consumption value (greater than 0).";
@@ -174,7 +179,7 @@ export function PurchasedCoolingForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = async () => {
+    const handleSaveAndContinue = async () => {
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -228,12 +233,13 @@ export function PurchasedCoolingForm({
       toast.error("Failed to save");
     }
   };
+  
   const handleNext = () => {
     if (!validateForm()) return;
     dispatch({
       type: "UPDATE_COOLING",
       payload: {
-        coolingConsumed,
+        coolingConsumed: coolingConsumed.rawValue,
         selectedSystems,
         otherComments,
         files,
@@ -247,7 +253,7 @@ export function PurchasedCoolingForm({
     dispatch({
       type: "UPDATE_COOLING",
       payload: {
-        coolingConsumed,
+        coolingConsumed: coolingConsumed.rawValue,
         selectedSystems,
         otherComments,
         files,
@@ -334,12 +340,27 @@ export function PurchasedCoolingForm({
                   Amount of Energy Cooling Energy Consumed (kWh){" "}
                   <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                {/* <Input
                   id="cooling-consumed"
                   type="number"
                   placeholder="Enter amount in kWh"
                   value={coolingConsumed}
                   onChange={(e) => setCoolingConsumed(e.target.value)}
+                  className={`w-full border-gray-400 ${
+                    errors.coolingConsumed ? "border-red-500" : ""
+                  }`}
+                /> */}
+                <Input
+                  id="cooling-consumed"
+                  type="text" // Changed from "number" to "text"
+                  placeholder="Enter amount in kWh"
+                  value={coolingConsumed.displayValue}
+                  onChange={(e) => {
+                    coolingConsumed.handleChange(e.target.value);
+                    if (errors.coolingConsumed) {
+                      setErrors((prev) => ({ ...prev, coolingConsumed: undefined }));
+                    }
+                  }}
                   className={`w-full border-gray-400 ${
                     errors.coolingConsumed ? "border-red-500" : ""
                   }`}

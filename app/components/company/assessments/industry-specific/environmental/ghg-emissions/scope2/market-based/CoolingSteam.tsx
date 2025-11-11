@@ -55,8 +55,14 @@ export function CoolingSteamForm({
     setRawValue: setEnergyConsumedRaw,
   } = useFormattedNumber("");
 
+  const {
+    rawValue: emissionFactorRaw,
+    displayValue: emissionFactorDisplay,
+    handleChange: handleEmissionFactorChange,
+    setRawValue: setEmissionFactorRaw,
+  } = useFormattedNumber("");
+
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [emissionFactor, setEmissionFactor] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -90,7 +96,11 @@ export function CoolingSteamForm({
       } else {
         setEnergyConsumedRaw("");
       }
-      setEmissionFactor(existingData.emissionFactor || "");
+      if (existingData.emissionFactor) {
+        setEmissionFactorRaw(existingData.emissionFactor);
+      } else {
+        setEmissionFactorRaw("");
+      }
 
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -102,16 +112,16 @@ export function CoolingSteamForm({
   const { filled, total } = useMemo(() => {
     return calculateProgress([
       energyConsumedRaw,
-      emissionFactor,
+      emissionFactorRaw,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [energyConsumedRaw, emissionFactor, files, additionalFields]);
+  }, [energyConsumedRaw, emissionFactorRaw, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
     if (!energyConsumedRaw || Number(energyConsumedRaw) <= 0)
       newErrors.energyConsumed = "Energy consumed is required";
-    if (!emissionFactor || Number(emissionFactor) <= 0)
+    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0)
       newErrors.emissionFactor = "Emission factor is required";
 
     setErrors(newErrors);
@@ -163,7 +173,7 @@ export function CoolingSteamForm({
 
   const resetForm = () => {
     setEnergyConsumedRaw("");
-    setEmissionFactor("");
+    setEmissionFactorRaw("");
     setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
     setAdditionalFields([]);
     setErrors({});
@@ -176,7 +186,7 @@ export function CoolingSteamForm({
 
   const buildPayload = () => ({
     energyConsumed: energyConsumedRaw,
-    emissionFactor,
+    emissionFactor: emissionFactorRaw,
     files,
     additionalFields: additionalFields as FileMetadata[],
   });
@@ -381,17 +391,16 @@ export function CoolingSteamForm({
                 Supplier-specific emission factor applied <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
+                type="text"
                 step="0.0001"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactor}
+                value={emissionFactorDisplay}
                 onChange={(e) => {
-                  setEmissionFactor(e.target.value);
-                  if (errors.emissionFactor)
-                    setErrors({
-                      ...errors,
-                      emissionFactor: undefined,
-                    });
+                  handleEmissionFactorChange(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    emissionFactor: undefined,
+                  }));
                 }}
               />
               {errors.emissionFactor && (
