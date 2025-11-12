@@ -7,7 +7,7 @@ interface ScopeData {
   timeline: number;
   targetReduction: number;
   annualRate: number;
-  targetYear: number
+  targetYear: number;
 }
 
 interface ScopeSummaryProps {
@@ -39,7 +39,9 @@ export function ScopeSummary({
                   <div className="text-sm font-semibold text-gray-900">{scope.timeline} years</div>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                  <div className="text-sm font-medium text-gray-600">Target ({scope.targetYear}):</div>
+                  <div className="text-sm font-medium text-gray-600">
+                    Target ({scope.targetYear}):
+                  </div>
                   <div className="text-sm font-semibold text-green-500">
                     {scope.targetReduction.toLocaleString()} tCO₂e
                   </div>

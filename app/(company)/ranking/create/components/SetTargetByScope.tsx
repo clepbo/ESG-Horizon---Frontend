@@ -205,19 +205,19 @@ export default function SetTargetByScope() {
             reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0,
             targetEmission: scope1TargetEmission,
             baselineYearEmission: base?.ghg_scope_one,
-            currentEmission: null
+            currentEmission: null,
           },
           scope2: {
             reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
             targetEmission: scope2TargetEmission,
             baselineYearEmission: base?.ghg_scope_two,
-            currentEmission: null
+            currentEmission: null,
           },
           scope3: {
             reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
             targetEmission: scope3TargetEmission,
             baselineYearEmission: base?.ghg_scope_three,
-            currentEmission: null
+            currentEmission: null,
           },
         },
       };
@@ -285,17 +285,14 @@ export default function SetTargetByScope() {
     )
   );
 
-
-
-
   const scopesData: ScopeData[] = [
     {
       scope: "Scope 1",
       timeline: scope1Timeline,
       targetReduction: CalculateEmissionPercentage(
-                      scopeTargetData?.scope1?.reductionPercentage ?? 0,
-                      baseline?.data?.ghg_scope_one
-                    ),
+        scopeTargetData?.scope1?.reductionPercentage ?? 0,
+        baseline?.data?.ghg_scope_one
+      ),
       annualRate: Number(scope1TargetEmission) / scope1Timeline,
 
       reductionPercentage: scope1TargetEmission,

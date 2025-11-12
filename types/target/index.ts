@@ -9,9 +9,9 @@ export interface TargetPayload {
   baselineYear: number;
   targetYear: number;
   reductionPercentage: number;
-  targetEmission: number,
-  baselineYearEmission: number,
-  currentEmission: number | null,
+  targetEmission: number;
+  baselineYearEmission: number;
+  currentEmission: number | null;
 }
 
 export interface ScopeTargetPayload {
