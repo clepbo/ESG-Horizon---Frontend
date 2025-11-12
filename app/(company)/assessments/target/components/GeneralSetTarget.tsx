@@ -116,6 +116,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         baselineYear: data.baselineYear!,
         targetYear: data.targetYear!,
         reductionPercentage: data.reductionPercentage || 0,
+        targetEmission: data.targetEmission || null,
+        baselineYearEmission: baseline?.data?.totalSum, 
+        currentEmission: null
       };
 
       // Call the mutation
