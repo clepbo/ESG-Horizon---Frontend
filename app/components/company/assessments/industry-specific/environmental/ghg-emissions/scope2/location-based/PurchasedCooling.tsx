@@ -10,7 +10,7 @@ import { Checkbox } from "@/app/components/ui/checkbox";
 import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import {
   AdditionalFileUpload,
   FileData,
@@ -19,10 +19,12 @@ import { AssessmentProgressBar } from "@/app/components/company/assessments/Asse
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 interface PurchasedCoolingFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -53,7 +55,8 @@ export function PurchasedCoolingForm({
 }: PurchasedCoolingFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  const [coolingConsumed, setCoolingConsumed] = useState("");
+  // const [coolingConsumed, setCoolingConsumed] = useState("");
+  const coolingConsumed = useFormattedNumber("");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -69,7 +72,8 @@ export function PurchasedCoolingForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +85,8 @@ export function PurchasedCoolingForm({
     const existingData = state.assessmentData.cooling;
 
     if (existingData) {
-      setCoolingConsumed(existingData.coolingConsumed || "");
+      // setCoolingConsumed(existingData.coolingConsumed || "");
+      coolingConsumed.setRawValue(existingData.coolingConsumed?.toString() || "");
       setSelectedSystems(existingData.selectedSystems || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
@@ -93,10 +98,10 @@ export function PurchasedCoolingForm({
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
-      coolingConsumed,
+      coolingConsumed.rawValue,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [coolingConsumed, files, additionalFields]);
+  }, [coolingConsumed.rawValue, files, additionalFields]);
 
   const handleSystemChange = (systemId: string, checked: boolean) => {
     setSelectedSystems((prev) =>
@@ -159,7 +164,9 @@ export function PurchasedCoolingForm({
       selectedSystems?: string;
       files?: string;
     } = {};
-    const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
+    // const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
+    const hasValidCooling =
+      coolingConsumed.rawValue.trim() !== "" && Number(coolingConsumed.rawValue) > 0;
     if (!hasValidCooling) {
       newErrors.coolingConsumed =
         "Please enter a valid cooling consumption value (greater than 0).";
@@ -172,47 +179,59 @@ export function PurchasedCoolingForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID missing.");
-      return;
-    }
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      coolingConsumed: coolingConsumed || "",
+      selectedSystems,
+      otherComments,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
 
     dispatch({
       type: "UPDATE_COOLING",
-      payload: {
-        coolingConsumed,
-        selectedSystems,
-        otherComments,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
           cooling: {
-            coolingConsumed,
+            coolingConsumed: coolingConsumed || "",
             selectedSystems,
             otherComments,
             files,
-            additionalFields: additionalFields as FileMetadata[],
+            additionalFields: normalizeFiles(additionalFields),
           },
           lastSavedForm: "ghg-location-based-cooling",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          toast.success("Cooling data saved.");
-          onBackToHub();
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {
@@ -220,7 +239,7 @@ export function PurchasedCoolingForm({
     dispatch({
       type: "UPDATE_COOLING",
       payload: {
-        coolingConsumed,
+        coolingConsumed: coolingConsumed.rawValue,
         selectedSystems,
         otherComments,
         files,
@@ -234,7 +253,7 @@ export function PurchasedCoolingForm({
     dispatch({
       type: "UPDATE_COOLING",
       payload: {
-        coolingConsumed,
+        coolingConsumed: coolingConsumed.rawValue,
         selectedSystems,
         otherComments,
         files,
@@ -321,12 +340,27 @@ export function PurchasedCoolingForm({
                   Amount of Energy Cooling Energy Consumed (kWh){" "}
                   <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                {/* <Input
                   id="cooling-consumed"
                   type="number"
                   placeholder="Enter amount in kWh"
                   value={coolingConsumed}
                   onChange={(e) => setCoolingConsumed(e.target.value)}
+                  className={`w-full border-gray-400 ${
+                    errors.coolingConsumed ? "border-red-500" : ""
+                  }`}
+                /> */}
+                <Input
+                  id="cooling-consumed"
+                  type="text" // Changed from "number" to "text"
+                  placeholder="Enter amount in kWh"
+                  value={coolingConsumed.displayValue}
+                  onChange={(e) => {
+                    coolingConsumed.handleChange(e.target.value);
+                    if (errors.coolingConsumed) {
+                      setErrors((prev) => ({ ...prev, coolingConsumed: undefined }));
+                    }
+                  }}
                   className={`w-full border-gray-400 ${
                     errors.coolingConsumed ? "border-red-500" : ""
                   }`}

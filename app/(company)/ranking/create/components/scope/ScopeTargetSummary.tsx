@@ -7,11 +7,11 @@ interface ScopeData {
   timeline: number;
   targetReduction: number;
   annualRate: number;
+  targetYear: number;
 }
 
 interface ScopeSummaryProps {
   scopes: ScopeData[];
-  targetYear?: number;
   onPrevious: () => void;
   onSetTarget: () => void;
   isLoading?: boolean;
@@ -19,7 +19,6 @@ interface ScopeSummaryProps {
 
 export function ScopeSummary({
   scopes,
-  targetYear = 2030,
   onPrevious,
   onSetTarget,
   isLoading = false,
@@ -40,7 +39,9 @@ export function ScopeSummary({
                   <div className="text-sm font-semibold text-gray-900">{scope.timeline} years</div>
                 </div>
                 <div className="flex items-center justify-between w-full">
-                  <div className="text-sm font-medium text-gray-600">Target ({targetYear}):</div>
+                  <div className="text-sm font-medium text-gray-600">
+                    Target ({scope.targetYear}):
+                  </div>
                   <div className="text-sm font-semibold text-green-500">
                     {scope.targetReduction.toLocaleString()} tCO₂e
                   </div>

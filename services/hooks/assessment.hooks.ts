@@ -1,7 +1,56 @@
 import { toast } from "react-toastify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { assessmentService, SubmitAssessmentResponse } from "@/services/assessment.service";
-import { AssessmentData } from "@/hooks/useAssessment";
+import {
+  assessmentService,
+  SubmitAssessmentResponse,
+  AssessmentProgress,
+  ScopeTotals,
+  TotalsResponse,
+  SaveAssessmentResponse,
+} from "@/services/assessment.service";
+import { useAssessment as useAssessmentContext, AssessmentData } from "@/hooks/useAssessment";
+import { useEffect } from "react";
+
+interface RawAssessmentResponse {
+  data: {
+    id: number;
+    assessmentData:
+      | (AssessmentData & {
+          __computed?: {
+            progress?: AssessmentProgress[];
+            scopeTotals?: ScopeTotals;
+            totals?: TotalsResponse;
+            computedAt?: string;
+          };
+        })
+      | null;
+    status: string;
+    startMonth?: string;
+    startYear?: string;
+    endMonth?: string;
+    endYear?: string;
+    subsidiary?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    rejection_reason?: string | null;
+    reviewedAt?: string | null;
+  };
+}
+
+const mapServerResponseToState = (rawResponse: RawAssessmentResponse): AssessmentData => {
+  const rawAssessment = rawResponse.data;
+  const assessmentData = (rawAssessment.assessmentData || {}) as AssessmentData;
+  const computed = (assessmentData as any).__computed || {};
+
+  return {
+    ...assessmentData,
+    id: rawAssessment.id,
+    status: rawAssessment.status,
+    progress: computed.progress || assessmentData.progress,
+    scopeTotals: computed.scopeTotals || assessmentData.scopeTotals,
+    totals: computed.totals || assessmentData.totals,
+  };
+};
 
 export const useAssessments = () => {
   return useQuery({
@@ -10,41 +59,54 @@ export const useAssessments = () => {
   });
 };
 
-export const useAssessment = (assessmentId: number) => {
-  return useQuery({
+export const useAssessment = (assessmentId?: number) => {
+  const { dispatch } = useAssessmentContext();
+
+  const query = useQuery({
     queryKey: ["assessment", assessmentId],
-    queryFn: () => assessmentService.getAssessment(assessmentId),
+    queryFn: () => assessmentService.getAssessment(assessmentId!),
     enabled: !!assessmentId,
   });
-};
 
-export const useCreateAssessment = () => {
-  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (query.data) {
+      const flattenedData = mapServerResponseToState(query.data);
+      dispatch({ type: "LOAD_SAVED_DATA", payload: flattenedData });
+    }
+  }, [query.data, dispatch]);
 
-  return useMutation<number, Error>({
-    mutationFn: assessmentService.createAssessment,
-    onSuccess: (assessmentId) => {
-      queryClient.invalidateQueries({ queryKey: ["assessments"] });
-      console.log("Created assessment with ID:", assessmentId);
-    },
-    onError: () => {
-      toast.error("Failed to create a new assessment.");
-    },
-  });
+  return query;
 };
 
 export const useSaveAssessment = () => {
   const queryClient = useQueryClient();
+  const { dispatch, state } = useAssessmentContext();
 
   return useMutation<
-    { message: string; data: AssessmentData },
+    SaveAssessmentResponse,
     Error,
-    { assessmentId: number; data: Partial<AssessmentData> }
+    { assessmentId?: number | null; data: Partial<AssessmentData> }
   >({
-    mutationFn: assessmentService.saveAssessment,
-    onSuccess: () => {
+    mutationFn: ({ assessmentId, data }) => {
+      const dataWithProgress = { ...data, progress: state.assessmentData.progress };
+      return assessmentService.saveAssessment({ assessmentId, data: dataWithProgress });
+    },
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       toast.success("Assessment data saved successfully!");
+
+      const savedProgress = (response.data as any).assessmentData?.__computed?.progress || [];
+
+      dispatch({
+        type: "SET_COMPUTED_DATA",
+        payload: {
+          assessmentId: response.assessmentId,
+          progress: savedProgress,
+          scopeTotals: state.scopeTotals,
+          totals: state.assessmentData.totals,
+          status: response.data.status ?? "",
+        },
+      });
     },
     onError: () => {
       toast.error("Failed to save data. Please try again.");
@@ -54,18 +116,35 @@ export const useSaveAssessment = () => {
 
 export const useSubmitAssessment = () => {
   const queryClient = useQueryClient();
+  const { dispatch, state } = useAssessmentContext();
 
   return useMutation<
     SubmitAssessmentResponse,
     Error,
-    { assessmentId: number; data: Partial<AssessmentData> }
+    { assessmentId?: number | null; data: Partial<AssessmentData> }
   >({
-    mutationFn: assessmentService.submitAssessment,
-    onSuccess: (data) => {
+    mutationFn: async ({ assessmentId, data }) => {
+      const dataWithProgress = { ...data, progress: state.assessmentData.progress };
+      return assessmentService.submitAssessment(assessmentId, dataWithProgress);
+    },
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard-data"] });
+      toast.success("Assessment submitted successfully!");
+
+      dispatch({
+        type: "SET_COMPUTED_DATA",
+        payload: {
+          assessmentId: response.assessment.id,
+          progress: response.progress,
+          scopeTotals: response.scopeTotals,
+          totals: response.totals,
+          status: response.assessment.status,
+        },
+      });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Assessment submission error:", error);
       toast.error("Failed to submit assessment. Please try again.");
     },
   });
@@ -108,7 +187,6 @@ export const useRejectAssessment = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { message: string; data: any },
     Error,
     { assessmentId: number; reason: string }

@@ -1,5 +1,6 @@
 "use client";
 
+import { TotalsResponse, ScopeTotals, AssessmentProgress } from "@/services/assessment.service";
 import React, { createContext, useContext, useReducer, type ReactNode } from "react";
 
 export interface FileData {
@@ -39,7 +40,10 @@ export interface AssessmentData {
   startYear: string;
   endMonth: string;
   endYear: string;
-  lastSavedForm?: string; // Track which form was last saved
+  lastSavedForm?: string;
+  progress?: any;
+  scopeTotals?: ScopeTotals;
+  totals?: TotalsResponse;
 
   // Scope 1
   stationarySources?: {
@@ -175,13 +179,24 @@ export interface AssessmentState {
   assessmentData: AssessmentData;
   isLoading: boolean;
   error: string | null;
-  isContinueMode: boolean; // Track if user is continuing an existing assessment
+  isContinueMode: boolean;
+  progress: AssessmentProgress[];
+  scopeTotals: ScopeTotals;
+  lastSubmittedAt?: string;
 }
 
 type AssessmentAction =
   | { type: "SET_VIEW"; payload: string }
   | { type: "SET_ASSESSMENT_ID"; payload: number }
   | { type: "SET_CONTINUE_MODE"; payload: boolean }
+  | {
+      type: "UPDATE_ASSESSMENT_METADATA";
+      payload: {
+        progress?: AssessmentProgress[];
+        scopeTotals?: ScopeTotals;
+        lastSubmittedAt?: string;
+      };
+    }
   | { type: "UPDATE_BASIC_DATA"; payload: Partial<AssessmentData> }
   | {
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
@@ -235,7 +250,18 @@ type AssessmentAction =
   | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
   | { type: "RESET_ASSESSMENT" }
   | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_ERROR"; payload: string | null };
+  | { type: "SET_ERROR"; payload: string | null }
+  | { type: "UPDATE_PROGRESS"; payload: AssessmentProgress[] }
+  | {
+      type: "SET_COMPUTED_DATA";
+      payload: {
+        assessmentId: number;
+        progress: AssessmentProgress[];
+        scopeTotals: ScopeTotals;
+        totals: TotalsResponse | undefined;
+        status: string;
+      };
+    };
 
 const initialState: AssessmentState = {
   currentView: "hub",
@@ -377,6 +403,13 @@ const initialState: AssessmentState = {
   },
   isLoading: false,
   error: null,
+  progress: [],
+  scopeTotals: {
+    scope1: 0,
+    scope2: 0,
+    scope3: 0,
+    total: 0,
+  },
 };
 
 function assessmentReducer(state: AssessmentState, action: AssessmentAction): AssessmentState {
@@ -604,10 +637,38 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
       return {
         ...state,
         assessmentId: action.payload.assessmentId ?? state.assessmentId,
+        progress: action.payload.progress || state.progress,
+        scopeTotals: action.payload.scopeTotals || state.scopeTotals,
         assessmentData: {
           ...state.assessmentData,
           ...action.payload,
           assessmentId: action.payload.assessmentId ?? state.assessmentData.assessmentId,
+        },
+        isLoading: false,
+        error: null,
+      };
+    case "UPDATE_PROGRESS":
+      return {
+        ...state,
+        progress: action.payload,
+        assessmentData: {
+          ...state.assessmentData,
+          progress: action.payload,
+        },
+      };
+    case "SET_COMPUTED_DATA":
+      return {
+        ...state,
+        assessmentId: action.payload.assessmentId,
+        progress: action.payload.progress,
+        scopeTotals: action.payload.scopeTotals,
+        assessmentData: {
+          ...state.assessmentData,
+          assessmentId: action.payload.assessmentId,
+          status: action.payload.status,
+          progress: action.payload.progress,
+          scopeTotals: action.payload.scopeTotals,
+          totals: action.payload.totals,
         },
         isLoading: false,
         error: null,

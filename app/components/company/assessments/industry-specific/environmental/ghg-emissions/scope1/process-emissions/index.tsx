@@ -5,7 +5,6 @@ import { CementManufacturing } from "./CementManufacturing";
 import { GasFlaring } from "./GasFlaring";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface ProcessEmissionsFormProps {
   onBack: () => void;
@@ -22,7 +21,6 @@ export function ProcessEmissionsForm({
   onContinueToNextAssessment,
   initialStep,
 }: ProcessEmissionsFormProps) {
-  useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "cement-manufacturing");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

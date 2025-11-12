@@ -7,7 +7,179 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/app/components/ui/button";
 import { TaskTable } from "@/app/components/company/tasks/TaskTable";
 import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
-import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialog";
+import { useRouter } from "next/navigation";
+import {
+  useCompanyTasks,
+  useApproveTask,
+  useRejectTask,
+  // useReassignTask,
+  useDeleteTask,
+  useSendTaskReminder,
+} from "@/services/hooks/assignTask.hooks";
+import { ITask, TaskStatus } from "@/services/assignTask.service";
+
+// Frontend-friendly task shape for the table
+export interface FrontendTask {
+  id: number;
+  taskName: string;
+  assignedTo: string; // comma-separated names
+  dateAssigned: string;
+  dueDate: string;
+  status: TaskStatus;
+  description?: string;
+  priority?: "low" | "medium" | "high";
+}
+
+export default function TasksPage() {
+  const router = useRouter();
+  const [selectedTask, setSelectedTask] = useState<FrontendTask | null>(null);
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
+
+  const { data: tasks = [], isLoading, isError, error } = useCompanyTasks();
+  if (isError) console.error("Company tasks fetch error:", error);
+
+  // --- Map backend tasks to frontend shape for table ---
+  const tasksForTable: FrontendTask[] = tasks.map((t: ITask) => ({
+    id: t.id,
+    taskName: t.taskName,
+    assignedTo: t.assignments.length
+      ? t.assignments.map((a) => `${a.user.first_name} ${a.user.last_name}`).join(", ")
+      : "Unassigned",
+
+    dateAssigned: t.createdAt,
+    dueDate: t.dueDate,
+    status: t.status,
+    description: t.description || "",
+    priority: t.priority || "medium",
+  }));
+
+  // Mutations
+  const approveTaskMutation = useApproveTask();
+  const rejectTaskMutation = useRejectTask();
+  // const reassignTaskMutation = useReassignTask();
+  const deleteTaskMutation = useDeleteTask();
+  const sendReminderMutation = useSendTaskReminder();
+
+  // Handlers
+  const handleViewTask = (task: FrontendTask) => {
+    setSelectedTask(task);
+    setIsDetailDrawerOpen(true);
+  };
+
+  const handleEditTask = (task: FrontendTask) => {
+    toast({ title: "Edit Task", description: `Editing task: ${task.taskName}` });
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await deleteTaskMutation.mutateAsync(taskId);
+      toast({
+        title: "Task Deleted",
+        description: "Task deleted successfully.",
+        variant: "destructive",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleReassignTask = async (taskId: number) => {
+    toast({ title: "Reassign Task", description: `Reassigning task ID: ${taskId}` });
+  };
+
+  const handleApproveTask = async (taskId: number) => {
+    try {
+      await approveTaskMutation.mutateAsync(taskId);
+      toast({ title: "Task Approved", description: "Task has been approved." });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleRejectTask = async (taskId: number) => {
+    try {
+      await rejectTaskMutation.mutateAsync(taskId);
+      toast({
+        title: "Task Rejected",
+        description: "Task has been rejected.",
+        variant: "destructive",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleSendReminder = async (taskId: number) => {
+    try {
+      await sendReminderMutation.mutateAsync(taskId);
+      toast({ title: "Reminder Sent", description: `Reminder sent for task ID: ${taskId}` });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  return (
+    <motion.main
+      className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 25, duration: 0.5 }}
+    >
+      <div className="container mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="space-y- mb-6">
+            <h1 className="text-2xl font-semibold text-foreground">Tasks</h1>
+            <p className="text-base text-muted-foreground">
+              Keep track of all assessment and reporting tasks assigned across teams and
+              departments.
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push("/assessments/tasks/assign")}
+            size="sm"
+            className="text-white"
+          >
+            <Plus className="mr-2 h-5 w-5" /> Assign Task
+          </Button>
+        </div>
+
+        {/* Task Table */}
+        <section className="shadow-md">
+          <TaskTable
+            tasks={tasksForTable}
+            onViewTask={handleViewTask}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
+            onReassignTask={handleReassignTask}
+            onApproveTask={handleApproveTask}
+            onRejectTask={handleRejectTask}
+            onSendReminder={handleSendReminder}
+            isLoading={isLoading}
+          />
+        </section>
+
+        {/* Task Detail Drawer */}
+        <TaskDetailDrawer
+          task={selectedTask}
+          open={isDetailDrawerOpen}
+          onOpenChange={setIsDetailDrawerOpen}
+        />
+      </div>
+    </motion.main>
+  );
+}
+
+// "use client";
+
+// import { useState } from "react";
+// import { motion } from "framer-motion";
+// import { Plus } from "lucide-react";
+// import { toast } from "@/hooks/use-toast";
+// import { Button } from "@/app/components/ui/button";
+// import { TaskTable } from "@/app/components/company/tasks/TaskTable";
+// import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
+// import { useRouter } from "next/navigation";
 
 // type TaskStatus = "pending" | "in-progress" | "completed" | "on-hold" | "approved" | "rejected";
 // export interface ITask {
@@ -120,85 +292,23 @@ import { AssignTaskDialog } from "@/app/components/company/tasks/AssignTaskDialo
 //   },
 // ];
 
-export default function TasksPage() {
-    return (
-    <motion.main
-      className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 25,
-        duration: 0.5,
-      }}
-    >
-      <div className="container mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="space-y- mb-6">
-            <h1 className="text-2xl font-semibold text-foreground">Tasks</h1>
-            <p className="text-base text-muted-foreground">
-              Keep track of all assessment and reporting tasks assigned across teams and
-              departments.
-            </p>
-          </div>
-          <Button size="sm" className="text-white">
-            <Plus className="mr-2 h-5 w-5" />
-            Assign Task
-          </Button>
-        </div>
-         <section className="shadow-md">
-           <TaskTable
-             tasks={[]}
-             onViewTask={() => {}}
-             onEditTask={() => {}}
-             onDeleteTask={() => {}}
-             onReassignTask={() => {}}
-             onApproveTask={() => {}}
-             onRejectTask={() => {}}
-             onSendReminder={() => {}}
-           />
-         </section>
-        </div>
-      </motion.main>
-    )
-}
-
 // export default function TasksPage() {
+//   const [tasks, setTasks] = useState<ITask[]>(mockTasks);
+//   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+//   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
 //   const router = useRouter();
-//   const [showReportSuccess, setShowReportSuccess] = useState(false);
-//   const [_modalData, setModalData] = useState({
-//     open: false,
-//     assessmentId: null as number | null,
-//   });
-//   const [_detailsOpen, setDetailsOpen] = useState(false);
-//   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
-//   const [reasonOpen, setReasonOpen] = useState(false);
-//   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
 
 //   const handleViewTask = (task: ITask) => {
 //     setSelectedTask(task);
 //     setIsDetailDrawerOpen(true);
 //   };
 
-//   const handleOpenReason = (reason: string | undefined) => {
-//     setSelectedReason(reason);
-//     setReasonOpen(true);
+//   const handleEditTask = (task: ITask) => {
+//     toast({
+//       title: "Edit Task",
+//       description: `Editing task: ${task.taskName}`,
+//     });
 //   };
-
-//   // const handleDeleteConfirm = () => {
-//   //   const idToDelete = modalData.assessmentId;
-//   //   if (!idToDelete) return;
-
-//   //   deleteMutation.mutate(idToDelete, {
-//   //     onSuccess: () => setModalData({ open: false, assessmentId: null }),
-//   //     onError: (error: Error) => {
-//   //       console.error("Deletion failed:", error);
-//   //       setModalData({ open: false, assessmentId: null });
-//   //     },
-//   //   });
-//   // };
 
 //   const handleDeleteTask = (taskId: string) => {
 //     const task = tasks.find((t) => t.id === taskId);
@@ -245,18 +355,6 @@ export default function TasksPage() {
 //     });
 //   };
 
-//   const handleAssignTask = (taskData: any) => {
-//     const newTask: ITask = {
-//       id: String(tasks.length + 1),
-//       ...taskData,
-//     };
-//     setTasks([newTask, ...tasks]);
-//     toast({
-//       title: "Task Assigned",
-//       description: `${newTask.taskName} has been assigned to ${newTask.assignedTo}.`,
-//     });
-//   };
-
 //   return (
 //     <motion.main
 //       className="flex-1 h-full min-h-screen overflow-y-auto p-6 bg-background"
@@ -279,7 +377,11 @@ export default function TasksPage() {
 //               departments.
 //             </p>
 //           </div>
-//           <Button onClick={() => setIsAssignDialogOpen(true)} size="sm" className="text-white">
+//           <Button
+//             onClick={() => router.push("/assessments/tasks/assign")}
+//             size="sm"
+//             className="text-white"
+//           >
 //             <Plus className="mr-2 h-5 w-5" />
 //             Assign Task
 //           </Button>
@@ -304,13 +406,6 @@ export default function TasksPage() {
 //           task={selectedTask}
 //           open={isDetailDrawerOpen}
 //           onOpenChange={setIsDetailDrawerOpen}
-//         />
-
-//         {/* Assign Task Dialog */}
-//         <AssignTaskDialog
-//           open={isAssignDialogOpen}
-//           onOpenChange={setIsAssignDialogOpen}
-//           onSubmit={handleAssignTask}
 //         />
 //       </div>
 //     </motion.main>

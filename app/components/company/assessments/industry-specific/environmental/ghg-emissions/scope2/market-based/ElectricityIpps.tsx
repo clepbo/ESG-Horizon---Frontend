@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -18,11 +18,12 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 
 interface ElectricityIppsFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -52,7 +53,13 @@ export function ElectricityIppsForm({
     setRawValue: setElectricityConsumedRaw,
   } = useFormattedNumber("");
 
-  const [emissionFactor, setEmissionFactor] = useState("");
+  const {
+    rawValue: emissionFactorRaw,
+    displayValue: emissionFactorDisplay,
+    handleChange: handleEmissionFactorChange,
+    setRawValue: setEmissionFactorRaw,
+  } = useFormattedNumber("");
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -66,7 +73,8 @@ export function ElectricityIppsForm({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -81,21 +89,23 @@ export function ElectricityIppsForm({
       if (existingData.electricityConsumed) {
         setElectricityConsumedRaw(existingData.electricityConsumed);
       }
-      setEmissionFactor(existingData.emissionFactor || "");
+      if (existingData.emissionFactor) {
+        setEmissionFactorRaw(existingData.emissionFactor);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.ipps, setElectricityConsumedRaw]);
+  }, [state.assessmentData?.ipps, setElectricityConsumedRaw, setEmissionFactorRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
       electricityConsumedRaw,
-      emissionFactor,
+      emissionFactorRaw,
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
     ]);
-  }, [electricityConsumedRaw, emissionFactor, files, additionalFields]);
+  }, [electricityConsumedRaw, emissionFactorRaw, files, additionalFields]);
 
   const validateForm = () => {
     const newErrors: {
@@ -107,7 +117,7 @@ export function ElectricityIppsForm({
     if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
       newErrors.electricityConsumed = "Please enter a valid positive number.";
     }
-    if (!emissionFactor || Number(emissionFactor) <= 0) {
+    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0) {
       newErrors.emissionFactor = "Please enter a valid positive emission factor.";
     }
 
@@ -158,26 +168,31 @@ export function ElectricityIppsForm({
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = () => {
-    const assessmentId = state.assessmentData.assessmentId;
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
 
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      electricityConsumed: electricityConsumedRaw,
+      emissionFactor,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
 
     dispatch({
       type: "UPDATE_IPPS",
-      payload: {
-        electricityConsumed: electricityConsumedRaw,
-        emissionFactor,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
+      payload,
     });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -185,22 +200,24 @@ export function ElectricityIppsForm({
             electricityConsumed: electricityConsumedRaw,
             emissionFactor,
             files,
-            additionalFields: additionalFields as FileMetadata[],
+            additionalFields: normalizeFiles(additionalFields),
           },
           lastSavedForm: "ghg-market-based-electricityIPP",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          setElectricityConsumedRaw("");
-          setEmissionFactor("");
-          setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
-          setAdditionalFields([]);
-          onBackToHub();
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
       }
-    );
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {
@@ -210,7 +227,7 @@ export function ElectricityIppsForm({
       type: "UPDATE_IPPS",
       payload: {
         electricityConsumed: electricityConsumedRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -223,7 +240,7 @@ export function ElectricityIppsForm({
       type: "UPDATE_IPPS",
       payload: {
         electricityConsumed: electricityConsumedRaw,
-        emissionFactor,
+        emissionFactor: emissionFactorRaw,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -343,12 +360,11 @@ export function ElectricityIppsForm({
                 Supplier-specific Emission Factor <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
-                step="0.0001"
+                type="text" // Change from "number" to "text"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactor}
+                value={emissionFactorDisplay}
                 onChange={(e) => {
-                  setEmissionFactor(e.target.value);
+                  handleEmissionFactorChange(e.target.value);
                   if (errors.emissionFactor)
                     setErrors((prev) => ({
                       ...prev,

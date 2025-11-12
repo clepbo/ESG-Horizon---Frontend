@@ -6,7 +6,6 @@ import { IndustrialProcessesForm } from "./IndustrialProcesses";
 import { OilGasOperations } from "./OilGasOperations";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useAutoCreateAssessment } from "@/hooks/useAutoCreateAssessment";
 
 interface StationarySourcesFormProps {
   onBack: () => void;
@@ -24,7 +23,6 @@ export function StationarySourcesForm({
   onBackToHub,
   initialStep,
 }: StationarySourcesFormProps) {
-  useAutoCreateAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

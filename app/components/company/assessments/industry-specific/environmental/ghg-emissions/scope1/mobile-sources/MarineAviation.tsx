@@ -9,7 +9,7 @@ import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
 import {
@@ -21,11 +21,12 @@ import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useRouter } from "next/navigation";
 
 interface MarineAviationProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -66,8 +67,9 @@ export function MarineAviation({
   const airOptions = useMemo(() => getFuelOptions("air"), []);
   const marineOptions = useMemo(() => getFuelOptions("marine"), []);
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -198,24 +200,87 @@ export function MarineAviation({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
 
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       air,
       marine,
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_MOBILE_MARINE_AVIATION", payload });
+    dispatch({
+      type: "UPDATE_MOBILE_MARINE_AVIATION",
+      payload,
+    });
 
-    saveAssessment(
+    try {
+      const response = await saveAssessmentMutate({
+        assessmentId,
+        data: {
+          ...state.assessmentData,
+          mobileSources: {
+            ...state.assessmentData.mobileSources,
+            marineAviation: payload,
+          },
+          lastSavedForm: "ghg-mobile-sources-marine-aviation",
+        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      }
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
+  };
+
+  const handleSubmit = () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      air,
+      marine,
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
+
+    dispatch({
+      type: "UPDATE_MOBILE_MARINE_AVIATION",
+      payload,
+    });
+
+    submitAssessmentCallback(
       {
         assessmentId,
         data: {
@@ -228,59 +293,16 @@ export function MarineAviation({
         },
       },
       {
-        onSuccess: () => {
-          setAir([]);
-          setMarine([]);
-          setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
-          setAdditionalFields([]);
-
-          onBackToHub();
-        },
-      }
-    );
-  };
-
-  const handleSubmit = () => {
-    const { assessmentId } = state.assessmentData;
-
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID is missing.");
-      return;
-    }
-
-    if (!validateForm()) {
-      toast.error("Please fix validation errors before submitting.");
-      return;
-    }
-
-    const payload = {
-      air,
-      marine,
-      files,
-      additionalFields: additionalFields as FileMetadata[],
-    };
-
-    dispatch({ type: "UPDATE_MOBILE_MARINE_AVIATION", payload });
-
-    submitAssessment(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          mobileSources: {
-            ...state.assessmentData.mobileSources,
-            marineAviation: payload,
-          },
-          lastSavedForm: "ghg-mobile-sources-road-transport",
-        },
-      },
-      {
         onSuccess: (res) => {
+          if (!assessmentId && res.assessment.id) {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+          }
           onSubmit(res.totals ?? null);
         },
       }
     );
   };
+
   const handlePrevious = () => {
     const payload = {
       air,

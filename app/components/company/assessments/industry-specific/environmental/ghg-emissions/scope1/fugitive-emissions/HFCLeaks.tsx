@@ -9,7 +9,7 @@ import { Label } from "@/app/components/ui/label";
 import { CloudUpload, ArrowLeft, Save, CheckCircle2, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import {
   AdditionalFileUpload,
@@ -21,11 +21,12 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useRouter } from "next/navigation";
 
 interface HFCLeaksProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -73,8 +74,9 @@ export function HFCLeaks({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -198,18 +200,15 @@ export function HFCLeaks({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
 
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
-
-    if (!validateForm()) {
-      toast.error("Please fix validation errors before submitting.");
-      return;
-    }
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       R134a: formState.R134a,
@@ -219,13 +218,73 @@ export function HFCLeaks({
       R507A: formState.R507A,
       others: Number(others.rawValue) || 0,
       refrigerantAdded: Number(refrigerantAdded.rawValue),
-      files: files,
-      additionalFields: additionalFields as FileMetadata[],
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_FUGITIVE_HFC_LEAKS", payload });
+    dispatch({
+      type: "UPDATE_FUGITIVE_HFC_LEAKS",
+      payload,
+    });
 
-    saveAssessment(
+    try {
+      const response = await saveAssessmentMutate({
+        assessmentId,
+        data: {
+          ...state.assessmentData,
+          fugitiveEmissions: {
+            ...state.assessmentData.fugitiveEmissions,
+            hfcLeaks: payload,
+          },
+          lastSavedForm: "ghg-fugitive-emissions-hfc-leaks",
+        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      }
+
+      setShowSaveSuccess(true);
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
+  };
+
+  const handleSubmit = () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      R134a: formState.R134a,
+      R410A: formState.R410A,
+      R404A: formState.R404A,
+      R407C: formState.R407C,
+      R507A: formState.R507A,
+      others: Number(others.rawValue) || 0,
+      refrigerantAdded: Number(refrigerantAdded.rawValue),
+      files,
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
+    };
+
+    dispatch({
+      type: "UPDATE_FUGITIVE_HFC_LEAKS",
+      payload,
+    });
+
+    submitAssessmentCallback(
       {
         assessmentId,
         data: {
@@ -238,80 +297,16 @@ export function HFCLeaks({
         },
       },
       {
-        onSuccess: () => {
-          setFormState({
-            R134a: false,
-            R410A: false,
-            R404A: false,
-            R407C: false,
-            R507A: false,
-          });
-
-          // Reset the formatted number hooks
-          others.setRawValue("");
-          refrigerantAdded.setRawValue("");
-
-          setFiles(Object.fromEntries(uploadFields.map((f) => [f, null])));
-          setAdditionalFields([]);
-
-          toast.success("Data saved successfully!");
-          setShowSaveSuccess(true);
-          setTimeout(() => {
-            setShowSaveSuccess(false);
-            onBackToHub();
-          }, 1000);
-        },
-      }
-    );
-  };
-
-  const handleSubmit = () => {
-    const { assessmentId } = state.assessmentData;
-
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID is missing.");
-      return;
-    }
-
-    if (!validateForm()) {
-      toast.error("Please fix validation errors before submitting.");
-      return;
-    }
-
-    const payload = {
-      R134a: formState.R134a,
-      R410A: formState.R410A,
-      R404A: formState.R404A,
-      R407C: formState.R407C,
-      R507A: formState.R507A,
-      others: Number(others.rawValue) || 0,
-      refrigerantAdded: Number(refrigerantAdded.rawValue),
-      files: files,
-      additionalFields: additionalFields as FileMetadata[],
-    };
-
-    dispatch({ type: "UPDATE_FUGITIVE_HFC_LEAKS", payload });
-
-    submitAssessment(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...state.assessmentData.fugitiveEmissions,
-            hfcLeaks: payload,
-          },
-          lastSavedForm: "ghg-fugitive-emissions-venting-natural-gas",
-        },
-      },
-      {
         onSuccess: (res) => {
+          if (!assessmentId && res.assessment.id) {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+          }
           onSubmit(res.totals ?? null);
         },
-        onError: () => toast.error("Failed to submit assessment."),
       }
     );
   };
+
   const handlePrevious = () => {
     const payload = {
       R134a: formState.R134a,

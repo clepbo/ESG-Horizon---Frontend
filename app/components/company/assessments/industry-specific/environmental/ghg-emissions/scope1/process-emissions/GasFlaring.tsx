@@ -10,7 +10,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import type { AssessmentData, FileMetadata } from "@/hooks/useAssessment";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import {
   AdditionalFileUpload,
   FileData,
@@ -21,11 +21,12 @@ import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessm
 import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useRouter } from "next/navigation";
 
 interface GasFlaringProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -77,8 +78,10 @@ export function GasFlaring({
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessment, isPending: isSubmitting } = useSubmitAssessment();
+
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -175,24 +178,31 @@ export function GasFlaring({
 
   const handleAdditionalFieldsChange = (fields: FileData[]) => setAdditionalFields(fields);
 
-  const handleSaveAndContinue = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Assessment ID missing");
-      return;
-    }
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_PROCESS_GAS_FLARING", payload });
+    dispatch({
+      type: "UPDATE_PROCESS_GAS_FLARING",
+      payload,
+    });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -202,31 +212,38 @@ export function GasFlaring({
           },
           lastSavedForm: "ghg-process-emissions-gas-flaring",
         },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Gas flaring data saved.");
-          setShowSaveSuccess(true);
-          onBackToHub();
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleSubmit = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Assessment ID missing");
-      return;
-    }
+    const assessmentId = state.assessmentId;
 
-    if (!validateForm()) return;
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
     };
 
     dispatch({
@@ -234,7 +251,7 @@ export function GasFlaring({
       payload,
     });
 
-    submitAssessment(
+    submitAssessmentCallback(
       {
         assessmentId,
         data: {
@@ -248,15 +265,15 @@ export function GasFlaring({
       },
       {
         onSuccess: (res) => {
-          toast.success("Assessment submitted!");
+          if (!assessmentId && res.assessment.id) {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+          }
           onSubmit(res.totals ?? null);
-        },
-        onError: () => {
-          toast.error("Failed to submit assessment. Please try again.");
         },
       }
     );
   };
+
   const handlePrevious = () => {
     const payload = {
       gasVolume: Number(gasVolume),

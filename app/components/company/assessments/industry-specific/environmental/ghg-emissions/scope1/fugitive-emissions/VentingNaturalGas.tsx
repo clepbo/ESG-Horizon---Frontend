@@ -9,7 +9,7 @@ import { CloudUpload, ArrowLeft, ArrowRight, Save, CheckCircle2, X } from "lucid
 import { useAssessment, FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
+import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import {
   AdditionalFileUpload,
   FileData,
@@ -18,11 +18,12 @@ import { uploadService } from "@/services/upload.service";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 
 interface VentingNaturalGasProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub: () => void;
+  onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -60,7 +61,8 @@ export function VentingNaturalGas({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const { mutate: saveAssessment, isPending: isSaving } = useSaveAssessment();
+  const router = useRouter();
+  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -169,25 +171,30 @@ export function VentingNaturalGas({
     }
   };
 
-  const handleSaveAndContinue = () => {
-    const { assessmentId } = state.assessmentData;
-    if (!assessmentId) {
-      toast.error("Cannot save: Assessment ID is missing.");
-      return;
-    }
-    if (!validateForm()) return;
+  const handleSaveAndContinue = async () => {
+    const assessmentId = state.assessmentId;
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
 
     const payload = {
-      // Use rawValue for saving
       volumeOfGasVented: Number(volumeOfGasVented.rawValue),
       files,
-      additionalFields: additionalFields as FileMetadata[],
+      additionalFields: normalizeFiles(additionalFields),
+      progressPercent,
     };
 
-    dispatch({ type: "UPDATE_FUGITIVE_VENTING", payload });
+    dispatch({
+      type: "UPDATE_FUGITIVE_VENTING",
+      payload,
+    });
 
-    saveAssessment(
-      {
+    try {
+      const response = await saveAssessmentMutate({
         assessmentId,
         data: {
           ...state.assessmentData,
@@ -197,20 +204,20 @@ export function VentingNaturalGas({
           },
           lastSavedForm: "ghg-fugitive-emissions-venting-natural-gas",
         },
-      },
-      {
-        onSuccess: () => {
-          setShowSaveSuccess(true);
-          setTimeout(() => {
-            setShowSaveSuccess(false);
-            onBackToHub();
-          }, 1200);
-        },
-        onError: () => {
-          toast.error("Failed to save data");
-        },
+      });
+
+      if (!assessmentId && response.assessmentId) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+        toast.success(`New assessment draft #${response.assessmentId} created.`);
       }
-    );
+
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 2000);
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save");
+    }
   };
 
   const handleNext = () => {
