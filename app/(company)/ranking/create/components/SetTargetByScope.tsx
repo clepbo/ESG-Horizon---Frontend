@@ -310,7 +310,7 @@ export default function SetTargetByScope() {
 
       targetReduction: Number(scope3TargetEmission),
       annualRate: Number(scope3TargetEmission / scope3Timeline),
-      
+
       reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
       baselineYear: scopeTargetData.scope3.baselineYear || 0,
       targetYear: scopeTargetData.scope3.targetYear || 0,

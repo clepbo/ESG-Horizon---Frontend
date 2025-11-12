@@ -291,7 +291,7 @@ export default function CompanySetupModal({
       .map((item) => ({
         email: item.email,
         roleName: item?.role?.name,
-        subsidiaryName: allSubsidiaries.find((sub) => sub.id === item.subsidiaryId)?.name, // Optional: Include subsidiaryName for clarity/robustness
+        subsidiaryName: allSubsidiaries.find((sub) => sub.id === item.subsidiaryId)?.name,
         departmentName: item?.department?.name,
       }));
 
@@ -302,8 +302,6 @@ export default function CompanySetupModal({
           ...item,
           industryId: typeof item.industry === "object" ? item.industry?.id : item.industryId || 0,
         })),
-      // departments: newDepartments.filter((item) => item.id > 9999999999),
-      // users: newUsers.filter((item) => item.id > 9999999999),
       departments: newDepartments
         .filter((item) => item.id > 9999999999)
         .map((item) => ({

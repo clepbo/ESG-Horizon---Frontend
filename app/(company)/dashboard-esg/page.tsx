@@ -6,12 +6,12 @@ import { ESGCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
 import RecentActivities from "../components/RecentActivities";
 import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
-import ReportTable from "../components/ReportTab";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import { useCompanyDashboard } from "@/services/hooks/dashboard.hooks";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
+import { RecentReportsWidget } from "@/app/components/common/reports/table/RecentReports";
 
 export default function DashboardPage() {
   const storedTourStatus = localStorage.getItem("esg-tour-completed");
@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">Recent Reports</h2>
-          <ReportTable />
+          <RecentReportsWidget />
         </div>
       </motion.main>
     </div>
