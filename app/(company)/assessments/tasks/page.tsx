@@ -12,7 +12,7 @@ import {
   useCompanyTasks,
   useApproveTask,
   useRejectTask,
-  useReassignTask,
+  // useReassignTask,
   useDeleteTask,
   useSendTaskReminder,
 } from "@/services/hooks/assignTask.hooks";
@@ -56,7 +56,7 @@ export default function TasksPage() {
   // Mutations
   const approveTaskMutation = useApproveTask();
   const rejectTaskMutation = useRejectTask();
-  const reassignTaskMutation = useReassignTask();
+  // const reassignTaskMutation = useReassignTask();
   const deleteTaskMutation = useDeleteTask();
   const sendReminderMutation = useSendTaskReminder();
 
