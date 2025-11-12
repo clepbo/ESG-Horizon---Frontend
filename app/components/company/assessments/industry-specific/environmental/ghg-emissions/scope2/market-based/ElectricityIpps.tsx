@@ -220,7 +220,6 @@ export function ElectricityIppsForm({
     }
   };
 
-
   const handleNext = () => {
     if (!validateForm()) return;
 
