@@ -105,7 +105,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   };
 
   const handleSetTarget = async () => {
-    const uniqueName = `Carbon Target ${base?.data?.startYear}-${data.targetYear}`;
+    const uniqueName = `Carbon Target ${base?.data?.startYear}-${data.targetYear} - ${Date.now()}`;
     try {
       // Prepare the target payload
       const targetPayload: TargetPayload = {
@@ -114,6 +114,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         description: data.description || "General emissions reduction target",
         baselineYear: Number(base?.data?.startYear),
         targetYear: data.targetYear!,
+        targetEmission: calculatedTargetEmission,
+        baselineYearEmission: base?.data?.totalSum,
+        currentEmission: null,
         reductionPercentage: data.reductionPercentage || 0,
       };
 

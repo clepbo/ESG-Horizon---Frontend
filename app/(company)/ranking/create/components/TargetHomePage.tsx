@@ -13,7 +13,7 @@ export default function TargetHomePage() {
           <h6 className=""> Set reduction target</h6>
           <small className=""> Define your ESG goals and monitor progress.</small>
         </div>
-        <CustomButton icon={<Edit />}> Edit Target </CustomButton>
+        {/* <CustomButton icon={<Edit />}> Edit Target </CustomButton> */}
       </div>
       <TargetSetting />
     </section>
