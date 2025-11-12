@@ -135,13 +135,13 @@ export default function TasksPage() {
               departments.
             </p>
           </div>
-          <Button
+          {/* <Button
             onClick={() => router.push("/assessments/tasks/assign")}
             size="sm"
             className="text-white"
           >
             <Plus className="mr-2 h-5 w-5" /> Assign Task
-          </Button>
+          </Button> */}
         </div>
 
         {/* Task Table */}
