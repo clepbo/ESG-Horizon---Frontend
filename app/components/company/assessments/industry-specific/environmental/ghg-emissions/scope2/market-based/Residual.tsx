@@ -366,7 +366,7 @@ export function ResidualForm({
                 Residual Mix emission factor applied <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="number"
+                type="text"
                 step="0.0001"
                 placeholder="Enter factor (kg CO₂e/kWh) based on Nigerian grid residual mix"
                 value={residualMixFactorDisplay}
