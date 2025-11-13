@@ -34,13 +34,7 @@ const uploadFields = [
   "Supplier contracts",
 ];
 
-export function ResidualForm({
-  onBack,
-  onNext,
-  onBackToHub,
-  stepIndex,
-  totalSteps,
-}: ResidualFormProps) {
+export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: ResidualFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 

@@ -37,7 +37,6 @@ const uploadFields = [
 export function ElectricityEACForm({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityEACFormProps) {
@@ -102,7 +101,7 @@ export function ElectricityEACForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.eac, setGridElectricityRaw]);
+  }, [state.assessmentData.eac, setGridElectricityRaw, setEmissionFactorRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -183,7 +182,7 @@ export function ElectricityEACForm({
 
     const payload = {
       gridElectricity: gridElectricityRaw,
-      emissionFactor,
+      emissionFactor: emissionFactorRaw,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -201,7 +200,7 @@ export function ElectricityEACForm({
           ...state.assessmentData,
           eac: {
             gridElectricity: gridElectricityRaw,
-            emissionFactor,
+            emissionFactor: emissionFactorRaw,
             files,
             additionalFields: normalizeFiles(additionalFields),
           },

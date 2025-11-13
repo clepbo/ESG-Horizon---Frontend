@@ -13,6 +13,19 @@ import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import Header from "@/app/(company)/components/Header";
 import TableManagementControls from "@/app/components/company/TableManagementControls";
 
+const ROLE_OPTIONS = [
+  { label: "Company Admin", value: "company_esg_admin" },
+  { label: "Company SubAdmin", value: "company_esg_subadmin" },
+  { label: "Company Data Manager", value: "company_esg_data_manager" },
+  { label: "Company Viewer", value: "company_esg_viewer" },
+];
+
+const STATUS_OPTIONS = [
+  { label: "Active", value: "active" },
+  { label: "Pending", value: "pending" },
+  { label: "Suspended", value: "suspended" },
+];
+
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -49,19 +62,6 @@ export default function TeamsPage() {
     fetchUsers();
   }, []);
 
-  const ROLE_OPTIONS = [
-    { label: "Company Admin", value: "company_esg_admin" },
-    { label: "Company SubAdmin", value: "company_esg_subadmin" },
-    { label: "Company Data Manager", value: "company_esg_data_manager" },
-    { label: "Company Viewer", value: "company_esg_viewer" },
-  ];
-
-  const STATUS_OPTIONS = [
-    { label: "Active", value: "active" },
-    { label: "Pending", value: "pending" },
-    { label: "Suspended", value: "suspended" },
-  ];
-
   const filteredData = useMemo(() => {
     const roleValue = ROLE_OPTIONS.find((r) => r.label === roleFilter)?.value;
     const statusValue = STATUS_OPTIONS.find((s) => s.label === statusFilter)?.value;
@@ -77,7 +77,7 @@ export default function TeamsPage() {
 
       return matchesSearch && matchesRole && matchesStatus;
     });
-  }, [users, search, roleFilter, statusFilter, ROLE_OPTIONS, STATUS_OPTIONS]);
+  }, [users, search, roleFilter, statusFilter]);
 
   const handleStatusUpdate = async (id: number, newStatus: TeamUserStatus) => {
     try {

@@ -22,11 +22,32 @@ export interface ITask {
   taskName: string;
   dueDate: string;
   status: TaskStatus;
-  createdAt: string;
-  createdById: number;
-  assignments: TaskAssignment[];
+  createdAt?: string;
+  createdById?: number;
+  assignments?: TaskAssignment[];
   description?: string;
   priority?: "low" | "medium" | "high";
+  progress?: number;
+  departments?: string[];
+  teamMembers?: string[];
+  topics?: string[];
+  comments?: TaskComment[];
+}
+
+export interface FrontendTask {
+  id: number;
+  taskName: string;
+  assignedTo: string;
+  dateAssigned: string;
+  dueDate: string;
+  status: TaskStatus;
+  description?: string;
+  priority?: "low" | "medium" | "high";
+  departments?: string[];
+  teamMembers?: string[];
+  topics?: string[];
+  progress?: number;
+  sendEmail?: boolean;
 }
 
 export interface AssignTaskPayload {
@@ -34,6 +55,30 @@ export interface AssignTaskPayload {
   dueDate: string;
   userIds: number[];
   topics: string[];
+  sendEmail?: boolean;
+  comment?: string;
+}
+
+export interface EditTaskPayload {
+  taskName?: string;
+  dueDate?: string;
+  userIds?: number[];
+  topics?: string[];
+  sendEmail?: boolean;
+  comment?: string;
+}
+
+export interface AddTaskCommentPayload {
+  commenter: string;
+  comment: string;
+}
+
+export interface TaskComment {
+  id: number;
+  taskId: number;
+  commenter: string;
+  comment: string;
+  createdAt: string;
 }
 
 export const taskAssignmentService = {
@@ -42,15 +87,12 @@ export const taskAssignmentService = {
     return data;
   },
   getAll: async (): Promise<ITask[]> => {
+    const response = await api.get("/tasks/all");
+    return response ?? [];
+  },
+  getCompany: async (): Promise<ITask[]> => {
     const response = await api.get("/tasks/company");
-    const tasks = response.data;
-
-    if (!tasks || !Array.isArray(tasks)) {
-      console.warn("Expected array but got:", tasks);
-      return [];
-    }
-
-    return tasks;
+    return response ?? [];
   },
   approve: async (id: number) => {
     const { data } = await api.patch(`/tasks/${id}/approve`);
@@ -64,6 +106,10 @@ export const taskAssignmentService = {
     const { data } = await api.patch(`/tasks/${id}/reassign`, payload);
     return data;
   },
+  edit: async (id: number, payload: EditTaskPayload) => {
+    const { data } = await api.patch(`/tasks/${id}`, payload);
+    return data;
+  },
   delete: async (id: number) => {
     const { data } = await api.delete(`/tasks/${id}`);
     return data;
@@ -71,5 +117,14 @@ export const taskAssignmentService = {
   sendReminder: async (id: number) => {
     const { data } = await api.post(`/tasks/${id}/reminder`);
     return data;
+  },
+  addComment: async (id: number, payload: AddTaskCommentPayload) => {
+    const { data } = await api.post(`/tasks/${id}/comments`, payload);
+    return data;
+  },
+  getComments: async (id: number): Promise<TaskComment[]> => {
+    if (!id) return [];
+    const data = await api.get(`/tasks/${id}/comments`);
+    return data ?? [];
   },
 };

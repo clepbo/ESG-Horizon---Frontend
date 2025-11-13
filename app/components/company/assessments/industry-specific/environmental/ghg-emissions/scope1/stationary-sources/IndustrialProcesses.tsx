@@ -39,7 +39,6 @@ const uploadFields = [
 export function IndustrialProcessesForm({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: IndustrialProcessesFormProps) {

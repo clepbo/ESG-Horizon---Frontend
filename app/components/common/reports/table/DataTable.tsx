@@ -78,6 +78,7 @@ export function DataTable() {
   });
 
   const report = useReport();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const data: any[] = report.data || [];
 
   const filteredData = useMemo(() => {

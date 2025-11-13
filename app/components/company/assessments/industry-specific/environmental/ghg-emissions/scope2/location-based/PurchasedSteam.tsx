@@ -44,7 +44,6 @@ const steamSources = [
 export function PurchasedSteamForm({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedSteamFormProps) {

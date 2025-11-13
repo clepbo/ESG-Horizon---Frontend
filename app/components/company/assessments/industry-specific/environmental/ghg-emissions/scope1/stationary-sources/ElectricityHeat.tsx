@@ -46,7 +46,6 @@ const uploadFields = [
 export function ElectricityHeatForm({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityHeatFormProps) {

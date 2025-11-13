@@ -34,13 +34,7 @@ const uploadFields = [
   "Kiln operation logs",
 ];
 
-export function CementManufacturing({
-  onBack,
-  onNext,
-  onBackToHub,
-  stepIndex,
-  totalSteps,
-}: CO2ReleaseProps) {
+export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: CO2ReleaseProps) {
   const { state, dispatch } = useAssessment();
 
   // ✅ Integrate the hook
@@ -55,6 +49,7 @@ export function CementManufacturing({
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
     cementQuantity?: string;

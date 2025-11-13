@@ -36,7 +36,6 @@ const uploadFields = [
 export function VentingNaturalGas({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: VentingNaturalGasProps) {
@@ -55,6 +54,7 @@ export function VentingNaturalGas({
   );
 
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});

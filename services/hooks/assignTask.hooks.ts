@@ -1,5 +1,40 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AssignTaskPayload, ITask, taskAssignmentService } from "../assignTask.service";
+import {
+  AddTaskCommentPayload,
+  AssignTaskPayload,
+  FrontendTask,
+  ITask,
+  TaskAssignment,
+  taskAssignmentService,
+  TaskComment,
+} from "../assignTask.service";
+
+function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
+  return tasksFromApi.map((task) => ({
+    id: task.id,
+    taskName: task.taskName,
+    dueDate: task.dueDate ?? "Unknown",
+    status: task.status,
+    assignedTo: task.assignments?.length
+      ? task.assignments
+          .map((a: TaskAssignment) =>
+            `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+          )
+          .join(", ")
+      : "—",
+    dateAssigned: task.createdAt ?? "Unknown",
+    description: task.description ?? "",
+    priority: task.priority ?? "medium",
+    progress: task.progress ?? 0,
+    departments: task.departments ?? [],
+    teamMembers:
+      task.assignments?.map((a) =>
+        `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+      ) ?? [],
+    topics: task.assignments?.flatMap((a) => a.topics) ?? [],
+    comments: task.comments ?? [],
+  }));
+}
 
 const invalidateTasks = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ["allTasks"] });
@@ -7,21 +42,20 @@ const invalidateTasks = (queryClient: ReturnType<typeof useQueryClient>) => {
 };
 
 export const useAllTasks = () =>
-  useQuery<ITask[], Error>({
+  useQuery<FrontendTask[], Error>({
     queryKey: ["allTasks"],
     queryFn: async () => {
       const data = await taskAssignmentService.getAll();
-      return data ?? [];
+      return mapTaskResponseToFrontend(data);
     },
   });
 
 export const useCompanyTasks = () =>
-  useQuery<ITask[], Error>({
+  useQuery<FrontendTask[], Error>({
     queryKey: ["companyTasks"],
     queryFn: async () => {
-      const data = await taskAssignmentService.getAll();
-      console.log("Company tasks fetch result:", data);
-      return data;
+      const data = await taskAssignmentService.getCompany();
+      return mapTaskResponseToFrontend(data);
     },
     staleTime: 1000 * 60,
   });
@@ -74,3 +108,30 @@ export const useSendTaskReminder = () => {
     onSuccess: () => invalidateTasks(queryClient),
   });
 };
+
+export const useEditTask = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: Partial<AssignTaskPayload> }) =>
+      taskAssignmentService.edit(id, payload),
+    onSuccess: () => invalidateTasks(queryClient),
+  });
+};
+
+export const useAddTaskComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: AddTaskCommentPayload }) =>
+      taskAssignmentService.addComment(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["taskComments", variables.id] });
+    },
+  });
+};
+
+export const useTaskComments = (taskId: number) =>
+  useQuery<TaskComment[], Error>({
+    queryKey: ["taskComments", taskId],
+    queryFn: () => taskAssignmentService.getComments(taskId),
+    enabled: !!taskId,
+  });

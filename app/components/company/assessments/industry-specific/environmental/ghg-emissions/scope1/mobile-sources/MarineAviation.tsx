@@ -20,7 +20,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
-import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 
 interface MarineAviationProps {
@@ -42,7 +42,6 @@ const uploadFields = [
 export function MarineAviation({
   onBack,
   onSubmit,
-  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -52,7 +51,6 @@ export function MarineAviation({
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
@@ -62,7 +60,6 @@ export function MarineAviation({
     marine?: string;
     files?: string;
   }>({});
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const airOptions = useMemo(() => getFuelOptions("air"), []);
   const marineOptions = useMemo(() => getFuelOptions("marine"), []);
@@ -131,6 +128,7 @@ export function MarineAviation({
     return calculateProgress(progressChecks);
   }, [air, marine, files, additionalFields]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const validateForm = () => {
     const newErrors: {
       air?: string;
@@ -541,7 +539,7 @@ export function MarineAviation({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setShowConfirmDialog(true)}
+                onClick={() => handleSubmit()}
                 disabled={isSaving || isSubmitting}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit assessment"
@@ -551,7 +549,7 @@ export function MarineAviation({
             </div>
           </CardContent>
         </Card>
-        <SubmitConfirmationDialog
+        {/* <SubmitConfirmationDialog
           isOpen={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onSave={() => {
@@ -562,7 +560,7 @@ export function MarineAviation({
             setShowConfirmDialog(false);
             handleSubmit();
           }}
-        />
+        /> */}
       </div>
     </div>
   );

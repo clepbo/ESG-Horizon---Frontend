@@ -49,7 +49,6 @@ const coolingSystemTypes = [
 export function PurchasedCoolingForm({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedCoolingFormProps) {
@@ -94,7 +93,7 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.cooling]);
+  }, [coolingConsumed, state.assessmentData.cooling]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -190,7 +189,7 @@ export function PurchasedCoolingForm({
     });
 
     const payload = {
-      coolingConsumed: coolingConsumed || "",
+      coolingConsumed: String(coolingConsumed) || "",
       selectedSystems,
       otherComments,
       files,
@@ -209,7 +208,7 @@ export function PurchasedCoolingForm({
         data: {
           ...state.assessmentData,
           cooling: {
-            coolingConsumed: coolingConsumed || "",
+            coolingConsumed: String(coolingConsumed) || "",
             selectedSystems,
             otherComments,
             files,
