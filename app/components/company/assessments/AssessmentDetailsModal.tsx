@@ -309,10 +309,10 @@ export default function AssessmentDetailsModal({
               <div className="p-6 space-y-6">
                 {/* HERO SUMMARY */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
-                    <CardContent className="p-5">
+                  <Card className="bg-linear-to-r from-emerald-500 to-teal-600 text-white h-40">
+                    <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-emerald-100 text-sm">Total Emissions</p>
-                      <p className="text-3xl font-bold">
+                      <p className="text-3xl font-bold wrap-break-words text-wrap">
                         {totalsData?.sum?.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
@@ -337,7 +337,7 @@ export default function AssessmentDetailsModal({
                   </Card>
 
                   <Card>
-                    <CardContent className="p-5">
+                    <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-gray-500 text-sm">Data Completeness</p>
                       <div className="flex items-center gap-3 mt-1">
                         <Progress value={completeness.percent} className="flex-1 h-3" />
@@ -349,7 +349,7 @@ export default function AssessmentDetailsModal({
                   </Card>
 
                   <Card>
-                    <CardContent className="p-5">
+                    <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-gray-500 text-sm">Supporting Files</p>
                       <p className="text-3xl font-bold flex items-center gap-2">
                         {allFiles.length} <FileText className="w-6 h-6 text-blue-600" />
@@ -429,6 +429,10 @@ export default function AssessmentDetailsModal({
                             processEmissions: <Factory className="w-5 h-5" />,
                             fugitiveEmissions: <Wind className="w-5 h-5" />,
                           };
+
+                          // Get details excluding 'sum'
+                          const details = Object.entries(data).filter(([k]) => k !== "sum");
+
                           return (
                             <Card key={key} className="cursor-pointer" onClick={() => toggle(key)}>
                               <CardHeader>
@@ -445,20 +449,43 @@ export default function AssessmentDetailsModal({
                               {expanded[key] && (
                                 <CardContent>
                                   <p className="text-2xl font-bold">{data.sum.toFixed(4)} tCO₂e</p>
-                                  <div className="mt-3 space-y-1 text-sm">
-                                    {Object.entries(data)
-                                      .filter(([k]) => k !== "sum")
-                                      .map(([k, v]: [string, any]) => (
-                                        <div key={k} className="flex justify-between">
-                                          <span className="text-gray-600">
-                                            {k.replace(/_/g, " ")}
-                                          </span>
-                                          <span className="font-medium">
-                                            {v.value} {v.unit}
-                                          </span>
-                                        </div>
-                                      ))}
-                                  </div>
+                                  {details.length > 0 && (
+                                    <div className="mt-3 space-y-1 text-sm">
+                                      {details.map(([k, v]: [string, any]) => {
+                                        // Handle object with value/unit structure
+                                        if (
+                                          typeof v === "object" &&
+                                          v !== null &&
+                                          v.value !== undefined
+                                        ) {
+                                          return (
+                                            <div key={k} className="flex justify-between">
+                                              <span className="text-gray-600">
+                                                {k.replace(/_/g, " ")}
+                                              </span>
+                                              <span className="font-medium">
+                                                {v.value} {v.unit || ""}
+                                              </span>
+                                            </div>
+                                          );
+                                        }
+
+                                        // Handle primitive values (strings, numbers)
+                                        if (v !== null && v !== undefined && v !== "") {
+                                          return (
+                                            <div key={k} className="flex justify-between">
+                                              <span className="text-gray-600">
+                                                {k.replace(/_/g, " ")}
+                                              </span>
+                                              <span className="font-medium">{String(v)}</span>
+                                            </div>
+                                          );
+                                        }
+
+                                        return null;
+                                      })}
+                                    </div>
+                                  )}
                                 </CardContent>
                               )}
                             </Card>
@@ -508,21 +535,46 @@ export default function AssessmentDetailsModal({
                                   maximumFractionDigits: 2,
                                 })}
                               </p>
-                              {data.emissionFactor && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Emission Factor: {data.emissionFactor}
-                                </p>
-                              )}
-                              {data.supplier && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Supplier: {data.supplier}
-                                </p>
-                              )}
-                              {data.supplierName && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Supplier: {data.supplierName}
-                                </p>
-                              )}
+                              <div className="mt-2 space-y-1">
+                                {data.emissionFactor && (
+                                  <p className="text-xs text-gray-500">
+                                    Emission Factor: {data.emissionFactor}
+                                  </p>
+                                )}
+                                {data.supplier && (
+                                  <p className="text-xs text-gray-500">Supplier: {data.supplier}</p>
+                                )}
+                                {data.supplierName && (
+                                  <p className="text-xs text-gray-500">
+                                    Supplier: {data.supplierName}
+                                  </p>
+                                )}
+                                {data.residualMixFactor && (
+                                  <p className="text-xs text-gray-500">
+                                    Residual Mix Factor: {data.residualMixFactor}
+                                  </p>
+                                )}
+                                {data.selectedSystems &&
+                                  Array.isArray(data.selectedSystems) &&
+                                  data.selectedSystems.length > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                      Systems:{" "}
+                                      {data.selectedSystems
+                                        .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
+                                        .join(", ")}
+                                    </p>
+                                  )}
+                                {data.selectedSources &&
+                                  Array.isArray(data.selectedSources) &&
+                                  data.selectedSources.length > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                      Sources:{" "}
+                                      {data.selectedSources
+                                        .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
+                                        .join(", ")}
+                                    </p>
+                                  )}
+                              </div>
                             </CardContent>
                           </Card>
                         );
@@ -542,7 +594,7 @@ export default function AssessmentDetailsModal({
                         {allFiles.map((file, i) => (
                           <Dialog key={i}>
                             <DialogTrigger asChild>
-                              <div className="group cursor-pointer rounded-lg border p-3 hover:shadow-md transition bg-white">
+                              <div className="group cursor-pointer rounded-lg shadow-md p-3 hover:shadow-md transition bg-white">
                                 {file.type?.startsWith("image/") ? (
                                   <div className="relative w-full h-20 rounded mb-2 overflow-hidden">
                                     <Image
@@ -554,7 +606,7 @@ export default function AssessmentDetailsModal({
                                     />
                                   </div>
                                 ) : (
-                                  <div className="bg-gray-100 border-2 border-dashed rounded-xl w-full h-20 flex items-center justify-center mb-2">
+                                  <div className="bg-gray-100 shadow-xs rounded-xl w-full h-20 flex items-center justify-center mb-2">
                                     <FileText className="w-8 h-8 text-gray-400" />
                                   </div>
                                 )}
@@ -562,7 +614,7 @@ export default function AssessmentDetailsModal({
                                 <p className="text-xs text-gray-500">{file.section}</p>
                               </div>
                             </DialogTrigger>
-                            <DialogContent className="max-w-4xl">
+                            <DialogContent className="max-w-4xl z-60">
                               <DialogHeader>
                                 <DialogTitle>{file.name}</DialogTitle>
                               </DialogHeader>
