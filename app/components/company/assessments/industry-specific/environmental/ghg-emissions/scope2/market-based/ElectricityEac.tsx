@@ -183,7 +183,7 @@ export function ElectricityEACForm({
 
     const payload = {
       gridElectricity: gridElectricityRaw,
-      emissionFactor,
+      emissionFactor: emissionFactorRaw,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -201,7 +201,7 @@ export function ElectricityEACForm({
           ...state.assessmentData,
           eac: {
             gridElectricity: gridElectricityRaw,
-            emissionFactor,
+            emissionFactor: emissionFactorRaw,
             files,
             additionalFields: normalizeFiles(additionalFields),
           },
@@ -382,20 +382,6 @@ export function ElectricityEACForm({
                   accept=".pdf,.jpg,.jpeg,.png"
                 />
 
-                {/* {files["EAC / REC Certificate"] && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <p className="text-sm text-green-600 break-words max-w-full text-center">
-                      Uploaded: {files["EAC / REC Certificate"]!.name}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveFile("EAC / REC Certificate")}
-                      className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                    >
-                      <X />
-                    </button>
-                  </div>
-                )} */}
                 {uploading["EAC / REC Certificate"] ? (
                   <div className="flex items-center gap-2 mt-2 text-gray-500">
                     <LoadingSpinner size="sm" /> Uploading...

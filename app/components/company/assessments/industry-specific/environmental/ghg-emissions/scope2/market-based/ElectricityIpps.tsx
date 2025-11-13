@@ -180,7 +180,7 @@ export function ElectricityIppsForm({
 
     const payload = {
       electricityConsumed: electricityConsumedRaw,
-      emissionFactor,
+      emissionFactor: emissionFactorRaw,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -198,7 +198,7 @@ export function ElectricityIppsForm({
           ...state.assessmentData,
           ipps: {
             electricityConsumed: electricityConsumedRaw,
-            emissionFactor,
+            emissionFactor: emissionFactorRaw,
             files,
             additionalFields: normalizeFiles(additionalFields),
           },
