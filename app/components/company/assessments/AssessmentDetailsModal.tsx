@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, JSX } from "react";
+import { useState, useMemo, JSX, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/app/components/ui/button";
 import { Textarea } from "@/app/components/ui/textarea";
@@ -69,16 +69,48 @@ export default function AssessmentDetailsModal({
 
   const { data: fullAssessment, isLoading } = useAssessment(assessment?.id);
 
-  const computed = fullAssessment?.assessmentData?.__computed || {};
+  useEffect(() => {
+    console.log("Assessment changed:", assessment?.id);
+    setExpanded({});
+    setShowReject(false);
+    setReason("");
+  }, [assessment?.id]);
 
+  // Add debug logs
+  useEffect(() => {
+    console.log("Full assessment data:", fullAssessment);
+    console.log("Assessment ID:", assessment?.id);
+  }, [fullAssessment, assessment?.id]);
+  // const assessmentData = useMemo(() => {
+  //   return fullAssessment?.data?.assessmentData || {};
+  // }, [fullAssessment?.data?.assessmentData]);
+
+  // const totalsData = assessmentData?.totals?.totals || {};
+  // const breakdown = totalsData?.breakdown || {};
+  // const computedAt = assessmentData?.totals?.computedAt;
+
+  // // Calculate scope totals from breakdown
+  // const scopeTotals = useMemo(() => {
+  //   const scope1 =
+  //     (breakdown?.stationarySources?.sum || 0) +
+  //     (breakdown?.mobileSources?.sum || 0) +
+  //     (breakdown?.processEmissions?.sum || 0) +
+  //     (breakdown?.fugitiveEmissions?.sum || 0);
+
+  //   // Add scope 2 calculation when you have that data
+  //   const scope2 = 0; // You'll need to calculate this from electricity, cooling, steam, heating
+
+  //   return { scope1, scope2 };
+  // }, [breakdown]);
   const assessmentData = useMemo(() => {
-    return fullAssessment?.assessmentData || {};
-  }, [fullAssessment?.assessmentData]);
+    return fullAssessment?.data?.assessmentData || {};
+  }, [fullAssessment?.data?.assessmentData]);
 
-  const totals = computed.totals;
-  const scopeTotals = computed.scopeTotals;
-  const breakdown = totals?.breakdown;
-
+  const computed = assessmentData.__computed || {};
+  const totalsData = computed.totals || {};
+  const breakdown = totalsData?.breakdown || {};
+  const computedAt = computed.computedAt;
+  const scopeTotals = computed.scopeTotals || { scope1: 0, scope2: 0, scope3: 0, total: 0 };
   const toggle = (key: string) => {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -135,6 +167,10 @@ export default function AssessmentDetailsModal({
     extract(assessmentData.cooling, "Scope 2 - Cooling");
     extract(assessmentData.steam, "Scope 2 - Steam");
     extract(assessmentData.heating, "Scope 2 - Heating");
+    extract(assessmentData.eac, "Scope 2 - EAC");
+    extract(assessmentData.coolingSteam, "Scope 2 - CoolingSteam");
+    extract(assessmentData.residual, "Scope 2 - Residual");
+    extract(assessmentData.ipps, "Scope 2 - IPPs");
 
     return files;
   }, [assessmentData]);
@@ -149,6 +185,10 @@ export default function AssessmentDetailsModal({
       "cooling",
       "steam",
       "heating",
+      "eac",
+      "coolingSteam",
+      "residual",
+      "ipps",
     ];
 
     const filled = sections.filter((s) => {
@@ -244,6 +284,8 @@ export default function AssessmentDetailsModal({
     );
   }
 
+  console.log("full assessment", fullAssessment);
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60 p-4">
       <div className="bg-white rounded-lg p-8 w-full max-w-6xl shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -270,10 +312,25 @@ export default function AssessmentDetailsModal({
                   <Card className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
                     <CardContent className="p-5">
                       <p className="text-emerald-100 text-sm">Total Emissions</p>
-                      <p className="text-3xl font-bold">{totals?.sum.toFixed(4) || "0"} tCO₂e</p>
+                      <p className="text-3xl font-bold">
+                        {totalsData?.sum?.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }) || "0"}{" "}
+                        tCO₂e
+                      </p>
                       {scopeTotals && (
                         <p className="text-xs mt-1 opacity-90">
-                          S1: {scopeTotals.scope1.toFixed(4)} | S2: {scopeTotals.scope2.toFixed(4)}
+                          S1:{" "}
+                          {scopeTotals.scope1.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}{" "}
+                          | S2:{" "}
+                          {scopeTotals.scope2.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </p>
                       )}
                     </CardContent>
@@ -284,7 +341,9 @@ export default function AssessmentDetailsModal({
                       <p className="text-gray-500 text-sm">Data Completeness</p>
                       <div className="flex items-center gap-3 mt-1">
                         <Progress value={completeness.percent} className="flex-1 h-3" />
-                        <span className="font-bold text-lg">{completeness.percent}%</span>
+                        <span className="font-bold text-lg">
+                          {completeness.percent || assessment.progress}%
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -319,7 +378,9 @@ export default function AssessmentDetailsModal({
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <p className="text-gray-500">ID</p>
-                            <p className="font-mono font-semibold">#{fullAssessment?.id}</p>
+                            <p className="font-mono font-semibold">
+                              #{fullAssessment?.id || assessment.id}
+                            </p>
                           </div>
                           <div>
                             <p className="text-gray-500">Subsidiary</p>
@@ -330,16 +391,16 @@ export default function AssessmentDetailsModal({
                           <div>
                             <p className="text-gray-500">Period</p>
                             <p className="text-xs">
-                              {fullAssessment?.startMonth} {fullAssessment?.startYear} –{" "}
-                              {fullAssessment?.endMonth} {fullAssessment?.endYear}
+                              {fullAssessment?.startMonth}{" "}
+                              {fullAssessment?.startYear || assessment.startPeriod} –{" "}
+                              {fullAssessment?.endMonth}{" "}
+                              {fullAssessment?.endYear || assessment.endPeriod}
                             </p>
                           </div>
                           <div>
                             <p className="text-gray-500">Computed</p>
                             <p className="text-xs">
-                              {computed.computedAt
-                                ? format(new Date(computed.computedAt), "PPp")
-                                : "N/A"}
+                              {computedAt ? format(new Date(computedAt), "PPp") : "N/A"}
                             </p>
                           </div>
                         </div>
@@ -410,19 +471,58 @@ export default function AssessmentDetailsModal({
                   {/* SCOPE 2 */}
                   <TabsContent value="scope2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {["electricity", "cooling", "steam", "heating"].map((key) => {
+                      {[
+                        {
+                          key: "electricity",
+                          consumedKey: "electricityConsumed",
+                          label: "Electricity",
+                        },
+                        { key: "cooling", consumedKey: "coolingConsumed", label: "Cooling" },
+                        { key: "steam", consumedKey: "volume", label: "Steam" },
+                        { key: "heating", consumedKey: "heatingConsumed", label: "Heating" },
+                        { key: "eac", consumedKey: "gridElectricity", label: "EAC" },
+                        {
+                          key: "coolingSteam",
+                          consumedKey: "energyConsumed",
+                          label: "Cooling Steam",
+                        },
+                        { key: "residual", consumedKey: "electricityConsumed", label: "Residual" },
+                        { key: "ipps", consumedKey: "electricityConsumed", label: "IPPs" },
+                      ].map(({ key, consumedKey, label }) => {
                         const data = assessmentData[key];
-                        if (!data || !Object.values(data).some((v) => v)) return null;
+                        if (!data) return null;
+
+                        const value = data[consumedKey];
+                        if (!value || value === "" || value === "0") return null;
+
                         return (
                           <Card key={key}>
                             <CardContent className="p-4">
-                              <h4 className="font-semibold capitalize flex items-center gap-2">
+                              <h4 className="font-semibold flex items-center gap-2">
                                 {key === "electricity" && <Zap className="w-4 h-4" />}
-                                {key}Consumed
+                                {label}
                               </h4>
                               <p className="text-2xl font-bold">
-                                {data[`${key}Consumed`] || data.volume || "0"}
+                                {parseFloat(value).toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
                               </p>
+                              {data.emissionFactor && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Emission Factor: {data.emissionFactor}
+                                </p>
+                              )}
+                              {data.supplier && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Supplier: {data.supplier}
+                                </p>
+                              )}
+                              {data.supplierName && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  Supplier: {data.supplierName}
+                                </p>
+                              )}
                             </CardContent>
                           </Card>
                         );
