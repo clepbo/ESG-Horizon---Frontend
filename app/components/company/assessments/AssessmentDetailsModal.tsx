@@ -312,7 +312,7 @@ export default function AssessmentDetailsModal({
                   <Card className="bg-linear-to-r from-emerald-500 to-teal-600 text-white h-40">
                     <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-emerald-100 text-sm">Total Emissions</p>
-                      <p className="text-3xl font-bold wrap-break-words text-wrap">
+                      <p className="text-3xl font-bold break-words text-wrap">
                         {totalsData?.sum?.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
