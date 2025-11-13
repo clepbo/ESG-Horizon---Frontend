@@ -1,7 +1,7 @@
 "use client";
 
-import { JSX, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { JSX, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -22,11 +22,11 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "@/app/components/ui/calendar";
 import React from "react";
-import { useAssignTask } from "@/services/hooks/assignTask.hooks";
+import { useAllTasks, useAssignTask, useEditTask } from "@/services/hooks/assignTask.hooks";
 import { toast } from "react-toastify";
 import { AssignSuccessModal } from "@/app/components/company/tasks/AssignSuccessModal";
 import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
-import { AssignTaskPayload } from "@/services/assignTask.service";
+import { AssignTaskPayload, FrontendTask } from "@/services/assignTask.service";
 
 interface Topic {
   name: string;
@@ -158,6 +158,9 @@ const getSelectionState = (topic: Topic, selectedTopics: string[]): SelectionSta
 
 export default function AssignTaskPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("edit");
+  const { data: tasks } = useAllTasks();
   const assignTaskMutation = useAssignTask();
   const { data: companyDetails } = useCompanyDetails();
   const companyId = companyDetails?.id;
@@ -172,6 +175,31 @@ export default function AssignTaskPage() {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [initialData, setInitialData] = useState<FrontendTask | null>(null);
+  const editTaskMutation = useEditTask();
+
+  useEffect(() => {
+    if (editId && tasks) {
+      const task = tasks.find((t) => t.id === Number(editId));
+      if (task) {
+        setInitialData(task);
+        setTaskName(task.taskName);
+        setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
+        setSelectedTopics(task.topics || []);
+
+        if (task.teamMembers && task.teamMembers.length > 0 && teamMembers) {
+          const memberName = task.teamMembers[0];
+          const member = teamMembers.find(
+            (m) => `${m.first_name} ${m.last_name}`.trim() === memberName
+          );
+          if (member) {
+            setSelectedMember(String(member.id));
+          }
+        }
+        setSendEmail(task.sendEmail ?? false);
+      }
+    }
+  }, [editId, tasks, teamMembers]);
 
   const toggleExpand = (name: string) => {
     setExpandedTopics((prev) =>
@@ -295,17 +323,36 @@ export default function AssignTaskPage() {
     try {
       setIsAssigning(true);
 
-      const payload: AssignTaskPayload = {
-        taskName,
-        dueDate: dueDate.toISOString(),
-        userIds: [Number(selectedMember)],
-        topics: selectedTopics,
-      };
-
-      await assignTaskMutation.mutateAsync(payload);
+      if (initialData) {
+        await editTaskMutation.mutateAsync({
+          id: initialData.id,
+          payload: {
+            taskName,
+            dueDate: dueDate?.toISOString(),
+            userIds: [Number(selectedMember)],
+            topics: selectedTopics,
+            sendEmail,
+          },
+        });
+        await toast.success("Task updated successfully");
+        setTaskName("");
+        setSelectedMember("");
+        setDueDate(undefined);
+        setSendEmail(false);
+        setSelectedTopics([]);
+        setSearchTerm("");
+      } else {
+        await assignTaskMutation.mutateAsync({
+          taskName,
+          dueDate: dueDate?.toISOString(),
+          userIds: [Number(selectedMember)],
+          topics: selectedTopics,
+          sendEmail,
+        });
+        setIsSuccessModalOpen(true);
+      }
 
       setIsAssigning(false);
-      setIsSuccessModalOpen(true);
     } catch (error) {
       setIsAssigning(false);
       toast.error("Error Assigning Task");
@@ -455,8 +502,10 @@ export default function AssignTaskPage() {
             {isAssigning ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Assigning...
+                {initialData ? "Saving..." : "Assigning..."}
               </>
+            ) : initialData ? (
+              "Save"
             ) : (
               "Assign Task"
             )}
@@ -474,6 +523,7 @@ export default function AssignTaskPage() {
           setDueDate(undefined);
           setSendEmail(false);
           setSelectedTopics([]);
+          setSearchTerm("");
         }}
         taskName={taskName}
         dueDate={dueDate ? format(dueDate, "PPP") : ""}
