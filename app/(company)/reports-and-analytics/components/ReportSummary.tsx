@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { formatLabel } from "./utils/dataTransfomer";
+import AssessmentEnvironmental from "./AssessmentEnvironmental";
 
 interface ReportSummaryProps {
   reportData?: {
@@ -157,6 +158,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
   const { report, percentage_emission_summary } = reportData;
   // const assessmentData = generateAssessmentData(reportData);
+  console.log("REPORT:", reportData);
 
   return (
     <div className="min-h-screen p-4 lg:p-8">
@@ -209,8 +211,10 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-2 lg:justify-end no-export" id="hide1">
-                <Button className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-2 rounded-lg">
-                  <Link href={`/reports-and-analytics/${report?.id}/report`}>View Full Report</Link>
+                <Button className="bg-primary transform hover:scale-[1.02] text-white px-2 rounded-lg">
+                  <Link href={`/reports-and-analytics/${reportData?.report?.assessmentId}/report`}>
+                    View Full Report
+                  </Link>
                 </Button>
 
                 <Select value={selected} onValueChange={exportfile}>
@@ -247,7 +251,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
             <AssessmentAll heading={"All"} reportData={reportData} data={[]} />
           </TabsContent>
           <TabsContent value="environment">
-            <PillarAssessmentCard heading="Environmental" data={generateEnvironmentalData()} />
+            <AssessmentEnvironmental heading={"Environmental"} reportData={reportData} data={[]} />
           </TabsContent>
           <TabsContent value="social">
             <PillarAssessmentCard heading="Social" data={generateEnvironmentalData()} />

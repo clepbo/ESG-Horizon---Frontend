@@ -72,13 +72,13 @@ export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) 
           >
             Set New Target
           </CustomButton>
-          <CustomButton
+          {/* <CustomButton
             variant="filled"
             icon={<Edit />}
             onClick={() => router.push("/ranking/edit")}
           >
             Edit Target
-          </CustomButton>
+          </CustomButton> */}
         </div>
       </div>
       {children}

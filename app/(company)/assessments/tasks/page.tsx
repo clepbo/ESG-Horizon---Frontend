@@ -12,7 +12,7 @@ import {
   useCompanyTasks,
   useApproveTask,
   useRejectTask,
-  useReassignTask,
+  // useReassignTask,
   useDeleteTask,
   useSendTaskReminder,
 } from "@/services/hooks/assignTask.hooks";
@@ -56,7 +56,7 @@ export default function TasksPage() {
   // Mutations
   const approveTaskMutation = useApproveTask();
   const rejectTaskMutation = useRejectTask();
-  const reassignTaskMutation = useReassignTask();
+  // const reassignTaskMutation = useReassignTask();
   const deleteTaskMutation = useDeleteTask();
   const sendReminderMutation = useSendTaskReminder();
 
@@ -135,13 +135,13 @@ export default function TasksPage() {
               departments.
             </p>
           </div>
-          <Button
+          {/* <Button
             onClick={() => router.push("/assessments/tasks/assign")}
             size="sm"
             className="text-white"
           >
             <Plus className="mr-2 h-5 w-5" /> Assign Task
-          </Button>
+          </Button> */}
         </div>
 
         {/* Task Table */}
