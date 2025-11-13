@@ -23,6 +23,7 @@ export function StatusButton({ status, progress = 0 }: StatusButtonProps) {
     .toLowerCase()
     .replace(/[_\s]+/g, "-");
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getStyles = (status: StatusButtonProps["status"]) => {
     switch (normalizedStatus) {
       case "approved":

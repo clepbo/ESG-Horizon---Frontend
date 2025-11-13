@@ -26,7 +26,7 @@ import { useAllTasks, useAssignTask, useEditTask } from "@/services/hooks/assign
 import { toast } from "react-toastify";
 import { AssignSuccessModal } from "@/app/components/company/tasks/AssignSuccessModal";
 import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
-import { AssignTaskPayload, FrontendTask } from "@/services/assignTask.service";
+import { FrontendTask } from "@/services/assignTask.service";
 
 interface Topic {
   name: string;

@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 
 interface GasFlaringProps {
@@ -42,7 +42,6 @@ const uploadFields = [
 export function GasFlaring({
   onBack,
   onSubmit,
-  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -67,8 +66,8 @@ export function GasFlaring({
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
 
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
     gasVolume?: string;
@@ -102,7 +101,7 @@ export function GasFlaring({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.processEmissions?.gasFlaring]);
+  }, [setCarbonContentRaw, setGasVolumeRaw, state.assessmentData.processEmissions?.gasFlaring]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles =
@@ -110,6 +109,7 @@ export function GasFlaring({
     return calculateProgress([Number(gasVolume) > 0, Number(carbonContent) > 0, hasFiles]);
   }, [gasVolume, carbonContent, files, additionalFields]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const validateForm = () => {
     const newErrors: { gasVolume?: string; carbonContent?: string; files?: string } = {};
     if (Number(gasVolume) <= 0)
@@ -461,7 +461,7 @@ export function GasFlaring({
 
               <Button
                 variant="outline"
-                onClick={() => setShowConfirmDialog(true)}
+                onClick={() => handleSubmit()}
                 disabled={isSaving || isSubmitting}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
@@ -470,7 +470,7 @@ export function GasFlaring({
             </div>
           </CardContent>
         </Card>
-        <SubmitConfirmationDialog
+        {/* <SubmitConfirmationDialog
           isOpen={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onSave={() => {
@@ -481,7 +481,7 @@ export function GasFlaring({
             setShowConfirmDialog(false);
             handleSubmit();
           }}
-        />
+        /> */}
       </div>
     </div>
   );

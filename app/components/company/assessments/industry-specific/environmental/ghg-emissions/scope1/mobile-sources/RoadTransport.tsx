@@ -37,19 +37,12 @@ const uploadFields = [
   "Vehicle inventory list (make, model, fuel type)",
 ];
 
-export function RoadTransport({
-  onBack,
-  onNext,
-  onBackToHub,
-  stepIndex,
-  totalSteps,
-}: RoadTransportProps) {
+export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTransportProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
