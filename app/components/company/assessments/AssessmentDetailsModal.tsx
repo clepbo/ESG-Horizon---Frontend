@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, JSX } from "react";
+import { useState, useMemo, JSX, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/app/components/ui/button";
 import { Textarea } from "@/app/components/ui/textarea";
@@ -69,16 +69,48 @@ export default function AssessmentDetailsModal({
 
   const { data: fullAssessment, isLoading } = useAssessment(assessment?.id);
 
-  const computed = fullAssessment?.assessmentData?.__computed || {};
+  useEffect(() => {
+    console.log("Assessment changed:", assessment?.id);
+    setExpanded({});
+    setShowReject(false);
+    setReason("");
+  }, [assessment?.id]);
 
+  // Add debug logs
+  useEffect(() => {
+    console.log("Full assessment data:", fullAssessment);
+    console.log("Assessment ID:", assessment?.id);
+  }, [fullAssessment, assessment?.id]);
+  // const assessmentData = useMemo(() => {
+  //   return fullAssessment?.data?.assessmentData || {};
+  // }, [fullAssessment?.data?.assessmentData]);
+
+  // const totalsData = assessmentData?.totals?.totals || {};
+  // const breakdown = totalsData?.breakdown || {};
+  // const computedAt = assessmentData?.totals?.computedAt;
+
+  // // Calculate scope totals from breakdown
+  // const scopeTotals = useMemo(() => {
+  //   const scope1 =
+  //     (breakdown?.stationarySources?.sum || 0) +
+  //     (breakdown?.mobileSources?.sum || 0) +
+  //     (breakdown?.processEmissions?.sum || 0) +
+  //     (breakdown?.fugitiveEmissions?.sum || 0);
+
+  //   // Add scope 2 calculation when you have that data
+  //   const scope2 = 0; // You'll need to calculate this from electricity, cooling, steam, heating
+
+  //   return { scope1, scope2 };
+  // }, [breakdown]);
   const assessmentData = useMemo(() => {
-    return fullAssessment?.assessmentData || {};
-  }, [fullAssessment?.assessmentData]);
+    return fullAssessment?.data?.assessmentData || {};
+  }, [fullAssessment?.data?.assessmentData]);
 
-  const totals = computed.totals;
-  const scopeTotals = computed.scopeTotals;
-  const breakdown = totals?.breakdown;
-
+  const computed = assessmentData.__computed || {};
+  const totalsData = computed.totals || {};
+  const breakdown = totalsData?.breakdown || {};
+  const computedAt = computed.computedAt;
+  const scopeTotals = computed.scopeTotals || { scope1: 0, scope2: 0, scope3: 0, total: 0 };
   const toggle = (key: string) => {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -135,6 +167,10 @@ export default function AssessmentDetailsModal({
     extract(assessmentData.cooling, "Scope 2 - Cooling");
     extract(assessmentData.steam, "Scope 2 - Steam");
     extract(assessmentData.heating, "Scope 2 - Heating");
+    extract(assessmentData.eac, "Scope 2 - EAC");
+    extract(assessmentData.coolingSteam, "Scope 2 - CoolingSteam");
+    extract(assessmentData.residual, "Scope 2 - Residual");
+    extract(assessmentData.ipps, "Scope 2 - IPPs");
 
     return files;
   }, [assessmentData]);
@@ -149,6 +185,10 @@ export default function AssessmentDetailsModal({
       "cooling",
       "steam",
       "heating",
+      "eac",
+      "coolingSteam",
+      "residual",
+      "ipps",
     ];
 
     const filled = sections.filter((s) => {
@@ -244,6 +284,8 @@ export default function AssessmentDetailsModal({
     );
   }
 
+  console.log("full assessment", fullAssessment);
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60 p-4">
       <div className="bg-white rounded-lg p-8 w-full max-w-6xl shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -267,30 +309,47 @@ export default function AssessmentDetailsModal({
               <div className="p-6 space-y-6">
                 {/* HERO SUMMARY */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
-                    <CardContent className="p-5">
+                  <Card className="bg-linear-to-r from-emerald-500 to-teal-600 text-white h-40">
+                    <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-emerald-100 text-sm">Total Emissions</p>
-                      <p className="text-3xl font-bold">{totals?.sum.toFixed(4) || "0"} tCO₂e</p>
+                      <p className="text-3xl font-bold break-words text-wrap">
+                        {totalsData?.sum?.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }) || "0"}{" "}
+                        tCO₂e
+                      </p>
                       {scopeTotals && (
                         <p className="text-xs mt-1 opacity-90">
-                          S1: {scopeTotals.scope1.toFixed(4)} | S2: {scopeTotals.scope2.toFixed(4)}
+                          S1:{" "}
+                          {scopeTotals.scope1.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}{" "}
+                          | S2:{" "}
+                          {scopeTotals.scope2.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </p>
                       )}
                     </CardContent>
                   </Card>
 
                   <Card>
-                    <CardContent className="p-5">
+                    <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-gray-500 text-sm">Data Completeness</p>
                       <div className="flex items-center gap-3 mt-1">
                         <Progress value={completeness.percent} className="flex-1 h-3" />
-                        <span className="font-bold text-lg">{completeness.percent}%</span>
+                        <span className="font-bold text-lg">
+                          {completeness.percent || assessment.progress}%
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
 
                   <Card>
-                    <CardContent className="p-5">
+                    <CardContent className="p-5 h-full flex flex-col justify-center">
                       <p className="text-gray-500 text-sm">Supporting Files</p>
                       <p className="text-3xl font-bold flex items-center gap-2">
                         {allFiles.length} <FileText className="w-6 h-6 text-blue-600" />
@@ -319,7 +378,9 @@ export default function AssessmentDetailsModal({
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <p className="text-gray-500">ID</p>
-                            <p className="font-mono font-semibold">#{fullAssessment?.id}</p>
+                            <p className="font-mono font-semibold">
+                              #{fullAssessment?.id || assessment.id}
+                            </p>
                           </div>
                           <div>
                             <p className="text-gray-500">Subsidiary</p>
@@ -330,16 +391,16 @@ export default function AssessmentDetailsModal({
                           <div>
                             <p className="text-gray-500">Period</p>
                             <p className="text-xs">
-                              {fullAssessment?.startMonth} {fullAssessment?.startYear} –{" "}
-                              {fullAssessment?.endMonth} {fullAssessment?.endYear}
+                              {fullAssessment?.startMonth}{" "}
+                              {fullAssessment?.startYear || assessment.startPeriod} –{" "}
+                              {fullAssessment?.endMonth}{" "}
+                              {fullAssessment?.endYear || assessment.endPeriod}
                             </p>
                           </div>
                           <div>
                             <p className="text-gray-500">Computed</p>
                             <p className="text-xs">
-                              {computed.computedAt
-                                ? format(new Date(computed.computedAt), "PPp")
-                                : "N/A"}
+                              {computedAt ? format(new Date(computedAt), "PPp") : "N/A"}
                             </p>
                           </div>
                         </div>
@@ -368,6 +429,10 @@ export default function AssessmentDetailsModal({
                             processEmissions: <Factory className="w-5 h-5" />,
                             fugitiveEmissions: <Wind className="w-5 h-5" />,
                           };
+
+                          // Get details excluding 'sum'
+                          const details = Object.entries(data).filter(([k]) => k !== "sum");
+
                           return (
                             <Card key={key} className="cursor-pointer" onClick={() => toggle(key)}>
                               <CardHeader>
@@ -384,20 +449,43 @@ export default function AssessmentDetailsModal({
                               {expanded[key] && (
                                 <CardContent>
                                   <p className="text-2xl font-bold">{data.sum.toFixed(4)} tCO₂e</p>
-                                  <div className="mt-3 space-y-1 text-sm">
-                                    {Object.entries(data)
-                                      .filter(([k]) => k !== "sum")
-                                      .map(([k, v]: [string, any]) => (
-                                        <div key={k} className="flex justify-between">
-                                          <span className="text-gray-600">
-                                            {k.replace(/_/g, " ")}
-                                          </span>
-                                          <span className="font-medium">
-                                            {v.value} {v.unit}
-                                          </span>
-                                        </div>
-                                      ))}
-                                  </div>
+                                  {details.length > 0 && (
+                                    <div className="mt-3 space-y-1 text-sm">
+                                      {details.map(([k, v]: [string, any]) => {
+                                        // Handle object with value/unit structure
+                                        if (
+                                          typeof v === "object" &&
+                                          v !== null &&
+                                          v.value !== undefined
+                                        ) {
+                                          return (
+                                            <div key={k} className="flex justify-between">
+                                              <span className="text-gray-600">
+                                                {k.replace(/_/g, " ")}
+                                              </span>
+                                              <span className="font-medium">
+                                                {v.value} {v.unit || ""}
+                                              </span>
+                                            </div>
+                                          );
+                                        }
+
+                                        // Handle primitive values (strings, numbers)
+                                        if (v !== null && v !== undefined && v !== "") {
+                                          return (
+                                            <div key={k} className="flex justify-between">
+                                              <span className="text-gray-600">
+                                                {k.replace(/_/g, " ")}
+                                              </span>
+                                              <span className="font-medium">{String(v)}</span>
+                                            </div>
+                                          );
+                                        }
+
+                                        return null;
+                                      })}
+                                    </div>
+                                  )}
                                 </CardContent>
                               )}
                             </Card>
@@ -410,19 +498,83 @@ export default function AssessmentDetailsModal({
                   {/* SCOPE 2 */}
                   <TabsContent value="scope2">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {["electricity", "cooling", "steam", "heating"].map((key) => {
+                      {[
+                        {
+                          key: "electricity",
+                          consumedKey: "electricityConsumed",
+                          label: "Electricity",
+                        },
+                        { key: "cooling", consumedKey: "coolingConsumed", label: "Cooling" },
+                        { key: "steam", consumedKey: "volume", label: "Steam" },
+                        { key: "heating", consumedKey: "heatingConsumed", label: "Heating" },
+                        { key: "eac", consumedKey: "gridElectricity", label: "EAC" },
+                        {
+                          key: "coolingSteam",
+                          consumedKey: "energyConsumed",
+                          label: "Cooling Steam",
+                        },
+                        { key: "residual", consumedKey: "electricityConsumed", label: "Residual" },
+                        { key: "ipps", consumedKey: "electricityConsumed", label: "IPPs" },
+                      ].map(({ key, consumedKey, label }) => {
                         const data = assessmentData[key];
-                        if (!data || !Object.values(data).some((v) => v)) return null;
+                        if (!data) return null;
+
+                        const value = data[consumedKey];
+                        if (!value || value === "" || value === "0") return null;
+
                         return (
                           <Card key={key}>
                             <CardContent className="p-4">
-                              <h4 className="font-semibold capitalize flex items-center gap-2">
+                              <h4 className="font-semibold flex items-center gap-2">
                                 {key === "electricity" && <Zap className="w-4 h-4" />}
-                                {key}Consumed
+                                {label}
                               </h4>
                               <p className="text-2xl font-bold">
-                                {data[`${key}Consumed`] || data.volume || "0"}
+                                {parseFloat(value).toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
                               </p>
+                              <div className="mt-2 space-y-1">
+                                {data.emissionFactor && (
+                                  <p className="text-xs text-gray-500">
+                                    Emission Factor: {data.emissionFactor}
+                                  </p>
+                                )}
+                                {data.supplier && (
+                                  <p className="text-xs text-gray-500">Supplier: {data.supplier}</p>
+                                )}
+                                {data.supplierName && (
+                                  <p className="text-xs text-gray-500">
+                                    Supplier: {data.supplierName}
+                                  </p>
+                                )}
+                                {data.residualMixFactor && (
+                                  <p className="text-xs text-gray-500">
+                                    Residual Mix Factor: {data.residualMixFactor}
+                                  </p>
+                                )}
+                                {data.selectedSystems &&
+                                  Array.isArray(data.selectedSystems) &&
+                                  data.selectedSystems.length > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                      Systems:{" "}
+                                      {data.selectedSystems
+                                        .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
+                                        .join(", ")}
+                                    </p>
+                                  )}
+                                {data.selectedSources &&
+                                  Array.isArray(data.selectedSources) &&
+                                  data.selectedSources.length > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                      Sources:{" "}
+                                      {data.selectedSources
+                                        .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
+                                        .join(", ")}
+                                    </p>
+                                  )}
+                              </div>
                             </CardContent>
                           </Card>
                         );
@@ -442,7 +594,7 @@ export default function AssessmentDetailsModal({
                         {allFiles.map((file, i) => (
                           <Dialog key={i}>
                             <DialogTrigger asChild>
-                              <div className="group cursor-pointer rounded-lg border p-3 hover:shadow-md transition bg-white">
+                              <div className="group cursor-pointer rounded-lg shadow-md p-3 hover:shadow-md transition bg-white">
                                 {file.type?.startsWith("image/") ? (
                                   <div className="relative w-full h-20 rounded mb-2 overflow-hidden">
                                     <Image
@@ -454,7 +606,7 @@ export default function AssessmentDetailsModal({
                                     />
                                   </div>
                                 ) : (
-                                  <div className="bg-gray-100 border-2 border-dashed rounded-xl w-full h-20 flex items-center justify-center mb-2">
+                                  <div className="bg-gray-100 shadow-xs rounded-xl w-full h-20 flex items-center justify-center mb-2">
                                     <FileText className="w-8 h-8 text-gray-400" />
                                   </div>
                                 )}
@@ -462,7 +614,7 @@ export default function AssessmentDetailsModal({
                                 <p className="text-xs text-gray-500">{file.section}</p>
                               </div>
                             </DialogTrigger>
-                            <DialogContent className="max-w-4xl">
+                            <DialogContent className="max-w-4xl z-60">
                               <DialogHeader>
                                 <DialogTitle>{file.name}</DialogTitle>
                               </DialogHeader>
