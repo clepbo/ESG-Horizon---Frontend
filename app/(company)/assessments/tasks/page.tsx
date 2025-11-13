@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { ListX, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/app/components/ui/button";
 import { TaskTable } from "@/app/components/company/tasks/TaskTable";
@@ -114,29 +114,53 @@ export default function TasksPage() {
               departments.
             </p>
           </div>
-          <Button
-            onClick={() => router.push("/assessments/tasks/assign")}
-            size="sm"
-            className="text-white"
-          >
-            <Plus className="mr-2 h-5 w-5" /> Assign Task
-          </Button>
+
+          {tasks && tasks.length > 0 && !isLoading && (
+            <Button
+              onClick={() => router.push("/assessments/tasks/assign")}
+              size="sm"
+              className="text-white"
+            >
+              <Plus className="mr-2 h-5 w-5" /> Assign Task
+            </Button>
+          )}
         </div>
 
-        {/* Task Table */}
-        <section className="shadow-md">
-          <TaskTable
-            tasks={tasks}
-            onViewTask={handleViewTask}
-            onEditTask={handleEditTask}
-            onDeleteTask={handleDeleteTask}
-            onReassignTask={handleReassignTask}
-            onApproveTask={handleApproveTask}
-            onRejectTask={handleRejectTask}
-            onSendReminder={handleSendReminder}
-            isLoading={isLoading}
-          />
-        </section>
+        {tasks && tasks.length === 0 && !isLoading ? (
+          <motion.div
+            className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-gray-200 rounded-lg shadow-sm mt-10 bg-white"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <ListX className="h-10 w-10 text-gray-400 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Tasks Assigned Yet</h3>
+            <p className="text-base text-gray-500 mb-6 text-center">
+              No assigned tasks. Get started by assigning your first assessment task.
+            </p>
+            <Button
+              onClick={() => router.push("/assessments/tasks/assign")}
+              size="sm"
+              className="text-white"
+            >
+              <Plus className="mr-2 h-5 w-5" /> Assign Task
+            </Button>
+          </motion.div>
+        ) : (
+          <section className="shadow-md">
+            <TaskTable
+              tasks={tasks}
+              onViewTask={handleViewTask}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+              onReassignTask={handleReassignTask}
+              onApproveTask={handleApproveTask}
+              onRejectTask={handleRejectTask}
+              onSendReminder={handleSendReminder}
+              isLoading={isLoading}
+            />
+          </section>
+        )}
 
         {/* Task Detail Drawer */}
         <TaskDetailDrawer
