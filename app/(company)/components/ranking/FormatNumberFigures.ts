@@ -17,8 +17,17 @@ function formatNumberFigures(num: number): string {
 }
 
 
-function formatWithCommas(num: number): string {
-  if (isNaN(num)) return "0";
-  return num.toLocaleString("en-US");
-}
+// export function formatWithCommas(num: number): string {
+//   if (isNaN(num)) return "0";
+//   return num.toLocaleString("en-US");
+// }
 
+
+export function formatWithCommas(num: number | null | undefined): string {
+  if (num === null || num === undefined || isNaN(num)) return "0";
+  
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+}

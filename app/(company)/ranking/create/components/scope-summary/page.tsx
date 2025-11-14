@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EmissionDataResponse, ScopeSummaryData } from "../../type";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
+import { SuccessModal } from "../../components/SuccessModal";
 import { useBaseline } from "@/app/(company)/components/ranking/services";
-import { ScopeSummaryData } from "../type";
-import { ScopeSummary } from "../components/scope-summary/ScopeTargetSummary";
-import { SuccessModal } from "../components/SuccessModal";
-
+import { ScopeSummary } from "./ScopeTargetSummary";
 
 interface ScopeData {
   scope: string;
@@ -69,7 +68,7 @@ export default function ScopeSummaryPage() {
 
   const handlePrevious = () => {
     // Navigate back to form page - data will be preserved in localStorage
-    router.push("/ranking/create");
+    router.push("/target/create");
   };
 
   const handleSetTarget = async () => {

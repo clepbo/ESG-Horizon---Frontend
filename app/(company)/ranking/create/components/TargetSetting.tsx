@@ -8,7 +8,8 @@ import SetTargetByScope from "./SetTargetByScope";
 import { useBaseline } from "@/app/(company)/components/ranking/services";
 import { useAuth } from "@/context/AuthContext";
 import StartAssessment from "./StartAssessment";
-// import SetTargetByScope from "./SetTargetByScope";
+import { usePathname } from "next/navigation";
+import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
 export function TargetSetting() {
   const [selectedType, setSelectedType] = useState<TargetType>("general");
@@ -21,7 +22,11 @@ export function TargetSetting() {
     totalReduction: null,
   });
 
-   useEffect(() => {
+  const pathname = usePathname();
+  const isScopeSummaryPage = pathname.includes('/ranking/create/scope-summary');
+  const isGeneralSummaryPage = pathname.includes('/ranking/create/summary');
+
+  useEffect(() => {
     const storedData = localStorage.getItem("generalTargetSummary");
     if (storedData) {
       const parsedData = JSON.parse(storedData);
@@ -31,6 +36,18 @@ export function TargetSetting() {
 
   const { user } = useAuth();
   const baseline = useBaseline(user?.company?.id);
+  
+  // If we're on summary pages, don't render the main target setting UI
+  if (isScopeSummaryPage || isGeneralSummaryPage) {
+    return null; // The summary pages will handle their own rendering
+  }
+
+  if(baseline.isLoading){
+    return (
+      <PageSkeleton />
+    )
+  }
+
   if (baseline?.data?.startYear?.length < 2 || !baseline?.data) {
     return <StartAssessment />;
   }
