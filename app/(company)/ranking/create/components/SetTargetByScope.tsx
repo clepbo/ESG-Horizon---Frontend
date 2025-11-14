@@ -8,36 +8,19 @@ import { GeneralTargetData } from "@/types/target";
 import { useEffect, useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { years } from "./GeneralSetTarget";
-import { ScopeSummary } from "./scope/ScopeTargetSummary";
 import { SuccessModal } from "./SuccessModal";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
-import { EmissionData } from "../type";
+import { EmissionDataResponse, ScopeTargetData } from "../type";
 import CustomTooltip from "./CustomTooltip";
 import { TooltipMessage } from "./TooltipMessage";
 import { CalculateEmissionPercentage, calculateTimelineYear, calculateTotal } from "../utils";
+import { useBaseline } from "@/app/(company)/components/ranking/services";
+import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
-interface ScopeData {
-  scope: string;
-  timeline: number;
-  targetReduction: number;
-  annualRate: number;
-  reductionPercentage: number;
-  baselineYear: number;
-  targetYear: number;
-  description: string;
-  targetEmission: number;
-  totalReduction: number;
-}
-
-interface ScopeTargetData {
-  scope1: GeneralTargetData;
-  scope2: GeneralTargetData;
-  scope3: GeneralTargetData;
-}
 
 export default function SetTargetByScope() {
   const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
@@ -66,44 +49,42 @@ export default function SetTargetByScope() {
       totalReduction: null,
     },
   });
-  const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const router = useRouter();
+  const [emissionData, setEmissionData] = useState<EmissionDataResponse>({
+    startYear: 0,
+    endYear: 0,
+    totals: {
+      total: 0,
+      scope1: 0,
+      scope2: 0,
+      scope3: 0
+    }
+  });
 
+  const router = useRouter();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const companyId = user?.company?.id;
 
-  const baseline = useQuery({
-    queryKey: ["baseline", companyId],
-    queryFn: async () => {
-      if (!companyId) throw new Error("Company ID not available");
-      const res = await api.get(`/target/baseline-scope/${companyId}`);
-      return res;
-    },
-    enabled: !!companyId,
-  });
+  const baseline = useBaseline(companyId);
+  const base: EmissionDataResponse = baseline?.data;
 
-  const base: EmissionData = baseline?.data;
+  useEffect(() => {
+    if (baseline.isSuccess) {
+      setEmissionData(base);
+    }
+  }, [baseline.isSuccess, base]);
 
-  const createTarget = useMutation({
-    mutationFn: async (targetData: TargetPayload) => {
-      if (!companyId) throw new Error("Company ID not available");
-      return await api.post(`/target`, targetData);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
-    },
-  });
-
-  // console.log("BASELINE", baseline.data)
-  // Get baseline data from the query
-  const baselineData = baseline.data?.data || baseline.data;
-  const baselineEmission =
-    baselineData?.totalSum || baselineData?.totalEmissions || baselineData?.emissions || 26830;
-  const baselineYear =
-    baselineData?.startYear || baselineData?.baselineYear || baselineData?.year || 2024;
+  // Set default baseline year from API if available for all scopes
+  useEffect(() => {
+    if (emissionData?.startYear) {
+      setScopeTargetData((prev) => ({
+        scope1: { ...prev.scope1, baselineYear: prev.scope1.baselineYear || emissionData.startYear },
+        scope2: { ...prev.scope2, baselineYear: prev.scope2.baselineYear || emissionData.startYear },
+        scope3: { ...prev.scope3, baselineYear: prev.scope3.baselineYear || emissionData.startYear },
+      }));
+    }
+  }, [emissionData?.startYear]);
 
   const handleScopeInputChange = (
     scope: keyof ScopeTargetData,
@@ -114,14 +95,11 @@ export default function SetTargetByScope() {
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
-      // Auto-calculate target emission when percentage changes using actual baseline
-      if (
-        processedValue !== null &&
-        scopeTargetData[scope].baselineYear &&
-        scopeTargetData[scope].targetYear
-      ) {
-        const targetEmission = baselineEmission * (1 - processedValue / 100);
-        const totalReduction = baselineEmission - targetEmission;
+      // Auto-calculate target emission when percentage changes using scope-specific baseline
+      if (processedValue !== null) {
+        const scopeBaselineEmission = getScopeBaselineEmission(scope);
+        const targetEmission = scopeBaselineEmission * (1 - processedValue / 100);
+        const totalReduction = scopeBaselineEmission - targetEmission;
 
         setScopeTargetData((prev) => ({
           ...prev,
@@ -137,10 +115,9 @@ export default function SetTargetByScope() {
     }
 
     if (field === "baselineYear" || field === "targetYear") {
-      processedValue = value === 0 ? null : Number(value);
+      processedValue = value === "" ? null : Number(value);
     }
 
-    // Handle targetEmission changes from formatted input
     if (field === "targetEmission") {
       processedValue = value === "" ? null : Number(value);
     }
@@ -154,776 +131,252 @@ export default function SetTargetByScope() {
     }));
   };
 
-  // Set default baseline year from API if available for all scopes
-  useEffect(() => {
-    if (baselineYear) {
-      setScopeTargetData((prev) => ({
-        scope1: { ...prev.scope1, baselineYear: prev.scope1.baselineYear || baselineYear },
-        scope2: { ...prev.scope2, baselineYear: prev.scope2.baselineYear || baselineYear },
-        scope3: { ...prev.scope3, baselineYear: prev.scope3.baselineYear || baselineYear },
-      }));
+  // Get baseline data for each scope
+  const getScopeBaselineEmission = (scope: 'scope1' | 'scope2' | 'scope3'): number => {
+    switch (scope) {
+      case 'scope1':
+        return emissionData?.totals?.scope1 || 0;
+      case 'scope2':
+        return emissionData?.totals?.scope2 || 0;
+      case 'scope3':
+        return emissionData?.totals?.scope3 || 0;
+      default:
+        return 0;
     }
-  }, [baselineYear]);
+  };
 
   const handleContinue = () => {
-    if (step === 0) {
-      // Validate required fields for all scopes before proceeding
-      const isScope1Valid =
-        scopeTargetData.scope1.reductionPercentage &&
-        scopeTargetData.scope1.baselineYear &&
-        scopeTargetData.scope1.targetYear;
-      const isScope2Valid =
-        scopeTargetData.scope2.reductionPercentage &&
-        scopeTargetData.scope2.baselineYear &&
-        scopeTargetData.scope2.targetYear;
-      const isScope3Valid =
-        scopeTargetData.scope3.reductionPercentage &&
-        scopeTargetData.scope3.baselineYear &&
-        scopeTargetData.scope3.targetYear;
+    // Validate required fields for scopes 1 and 2 before proceeding
+    const isScope1Valid =
+      scopeTargetData.scope1.reductionPercentage &&
+      scopeTargetData.scope1.baselineYear &&
+      scopeTargetData.scope1.targetYear;
+    const isScope2Valid =
+      scopeTargetData.scope2.reductionPercentage &&
+      scopeTargetData.scope2.baselineYear &&
+      scopeTargetData.scope2.targetYear;
 
-      if (isScope1Valid && isScope2Valid) {
-        setStep(1);
-      }
-    }
-  };
-
-  const handlePrevious = () => {
-    setStep(0);
-  };
-
-  const handleSetTarget = async () => {
-    try {
-      // Prepare the target payload with unique name and individual scope percentages
-      const uniqueName = `Scope Target ${scopeTargetData.scope1.baselineYear}-${scopeTargetData.scope1.targetYear}-${Date.now()}`;
-      const targetPayload: any = {
-        name: uniqueName,
-        type: "SCOPE",
-        description: "Scope-based emissions reduction target",
-        baselineYear: Number(scopeTargetData.scope1.baselineYear!),
-        targetYear: scopeTargetData.scope1.targetYear!,
-        scopes: {
+    if (isScope1Valid && isScope2Valid) {
+      // Calculate all scope data for storage
+      const scopeSummaryData = {
+        scopeTargetData,
+        emissionData,
+        calculations: {
           scope1: {
-            reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0,
-            targetEmission: scope1TargetEmission,
-            baselineYearEmission: base?.ghg_scope_one,
-            currentEmission: null,
+            targetEmission: calculateScopeTargetEmission('scope1'),
+            totalReduction: calculateScopeTotalReduction('scope1'),
+            timeline: calculateTimelineYear(
+              emissionData?.startYear,
+              scopeTargetData.scope1.targetYear ?? emissionData?.startYear
+            ),
+            annualRate: calculateScopeAnnualRate('scope1'),
           },
           scope2: {
-            reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
-            targetEmission: scope2TargetEmission,
-            baselineYearEmission: base?.ghg_scope_two,
-            currentEmission: null,
+            targetEmission: calculateScopeTargetEmission('scope2'),
+            totalReduction: calculateScopeTotalReduction('scope2'),
+            timeline: calculateTimelineYear(
+              emissionData?.startYear,
+              scopeTargetData.scope2.targetYear ?? emissionData?.startYear
+            ),
+            annualRate: calculateScopeAnnualRate('scope2'),
           },
           scope3: {
-            reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
-            targetEmission: scope3TargetEmission,
-            baselineYearEmission: base?.ghg_scope_three,
-            currentEmission: null,
+            targetEmission: calculateScopeTargetEmission('scope3'),
+            totalReduction: calculateScopeTotalReduction('scope3'),
+            timeline: calculateTimelineYear(
+              emissionData?.startYear,
+              scopeTargetData.scope3.targetYear ?? emissionData?.startYear
+            ),
+            annualRate: calculateScopeAnnualRate('scope3'),
           },
-        },
+        }
       };
 
-      // Call the mutation
-      await createTarget.mutateAsync(targetPayload);
-
-      // Open the success modal
-      setIsSuccessModalOpen(true);
-    } catch (error) {
-      console.error("Failed to create target:", error);
+      // Save to localStorage
+      localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
+      
+      // Navigate to scope summary page
+      router.push("/ranking/create/scope-summary");
     }
   };
 
-  const handleModalContinue = () => {
-    // Close the modal
-    setIsSuccessModalOpen(false);
-
-    // Redirect to ranking page
-    router.push("/ranking");
+  // Helper functions for calculations
+  const calculateScopeTargetEmission = (scope: 'scope1' | 'scope2' | 'scope3'): number => {
+    const reductionPercentage = scopeTargetData[scope]?.reductionPercentage;
+    const baselineEmission = getScopeBaselineEmission(scope);
+    return reductionPercentage ? baselineEmission * (1 - reductionPercentage / 100) : 0;
   };
 
-  const handleModalClose = () => {
-    setIsSuccessModalOpen(false);
+  const calculateScopeTotalReduction = (scope: 'scope1' | 'scope2' | 'scope3'): number => {
+    const baselineEmission = getScopeBaselineEmission(scope);
+    const targetEmission = calculateScopeTargetEmission(scope);
+    return baselineEmission - targetEmission;
   };
 
-  // Prepare scope data for summary
+  const calculateScopeAnnualRate = (scope: 'scope1' | 'scope2' | 'scope3'): number => {
+    const totalReduction = calculateScopeTotalReduction(scope);
+    const timeline = calculateTimelineYear(
+      emissionData?.startYear,
+      scopeTargetData[scope]?.targetYear ?? emissionData?.startYear
+    );
+    return Number(timeline) > 0 ? totalReduction / Number(timeline) : 0;
+  };
 
-  const reductionScope1 = calculateTotal(
-    base?.ghg_scope_one,
-    CalculateEmissionPercentage(
-      scopeTargetData?.scope1?.reductionPercentage ?? 0,
-      base?.ghg_scope_one
-    )
-  );
+  // Render individual scope card
+  const renderScopeCard = (scope: 'scope1' | 'scope2' | 'scope3', title: string, description: string) => {
+    const scopeData = scopeTargetData[scope];
+    const baselineEmission = getScopeBaselineEmission(scope);
+    const targetEmission = calculateScopeTargetEmission(scope);
+    const totalReduction = calculateScopeTotalReduction(scope);
 
-  const scope1TargetEmission = scopeTargetData?.scope1?.reductionPercentage
-    ? base?.ghg_scope_one * (1 - scopeTargetData?.scope1?.reductionPercentage / 100)
-    : 0;
-
-  const scope2TargetEmission = scopeTargetData?.scope2?.reductionPercentage
-    ? base?.ghg_scope_two * (1 - scopeTargetData?.scope2?.reductionPercentage / 100)
-    : 0;
-  const scope3TargetEmission = scopeTargetData?.scope3?.reductionPercentage
-    ? base?.ghg_scope_three * (1 - scopeTargetData?.scope3?.reductionPercentage / 100)
-    : 0;
-
-  const scope1Timeline = Number(
-    calculateTimelineYear(
-      baseline?.data?.startYear,
-      scopeTargetData?.scope1?.targetYear ?? baseline?.data?.startYear
-    )
-  );
-
-  const scope2Timeline = Number(
-    calculateTimelineYear(
-      baseline?.data?.startYear,
-      scopeTargetData?.scope2?.targetYear ?? baseline?.data?.startYear
-    )
-  );
-  const scope3Timeline = Number(
-    calculateTimelineYear(
-      baseline?.data?.startYear,
-      scopeTargetData?.scope3?.targetYear ?? baseline?.data?.startYear
-    )
-  );
-
-  const scopesData: ScopeData[] = [
-    {
-      scope: "Scope 1",
-      timeline: scope1Timeline,
-      targetReduction: CalculateEmissionPercentage(
-        scopeTargetData?.scope1?.reductionPercentage ?? 0,
-        baseline?.data?.ghg_scope_one
-      ),
-      annualRate: Number(scope1TargetEmission) / scope1Timeline,
-
-      reductionPercentage: scope1TargetEmission,
-      baselineYear: scopeTargetData.scope1.baselineYear || 0,
-      // targetYear: scopeTargetData.scope1.targetYear || 0,
-      targetYear: scopeTargetData.scope1.targetYear || 0,
-      description: scopeTargetData.scope1.description || "",
-      targetEmission: scopeTargetData.scope1.targetEmission || 0,
-      totalReduction: scopeTargetData.scope1.totalReduction || 0,
-    },
-    {
-      scope: "Scope 2",
-      timeline: scope2Timeline,
-
-      targetReduction: Number(scope2TargetEmission),
-      annualRate: Number(scope2TargetEmission / scope2Timeline),
-
-      reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
-      baselineYear: scopeTargetData.scope2.baselineYear || 0,
-      targetYear: scopeTargetData.scope2.targetYear || 0,
-      description: scopeTargetData.scope2.description || "",
-      targetEmission: scopeTargetData.scope2.targetEmission || 0,
-      totalReduction: base?.ghg_scope_two ?? 0 - (scopeTargetData?.scope2?.targetEmission ?? 0),
-    },
-    {
-      scope: "Scope 3",
-      timeline: scope3Timeline,
-
-      targetReduction: Number(scope3TargetEmission),
-      annualRate: Number(scope3TargetEmission / scope3Timeline),
-
-      reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
-      baselineYear: scopeTargetData.scope3.baselineYear || 0,
-      targetYear: scopeTargetData.scope3.targetYear || 0,
-      description: scopeTargetData.scope3.description || "",
-      targetEmission: scopeTargetData.scope3.targetEmission || 0,
-      totalReduction: scopeTargetData.scope3.totalReduction || 0,
-    },
-  ];
-
-  if (step === 0) {
     return (
-      <div className="space-y-6 text-left">
-        {/* Show loading state for baseline */}
-        {baseline.isLoading && <div className="text-center py-4">Loading baseline data...</div>}
+      <Card key={scope}>
+        <CardHeader>
+          <div className="text-lg">{title}</div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-sm text-gray-600">{description}</p>
 
-        {baseline.isError && (
-          <div className="text-center py-4 text-red-500">Error loading baseline data</div>
-        )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor={`${scope}-reductionPercentage`}>
+                Reduction Percentage (%){" "}
+                <CustomTooltip detail={<TooltipMessage title={"Reduction Percentage"} message={"The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."} />} />{" "}
+              </Label>
+              <Input
+                id={`${scope}-reductionPercentage`}
+                type="number"
+                placeholder="e.g. 30"
+                value={scopeData?.reductionPercentage ?? ""}
+                onChange={(e) => handleScopeInputChange(scope, "reductionPercentage", e.target.value)}
+                className="w-full"
+              />
+            </div>
 
-        {/* Scope 1 Card */}
-        <Card>
-          <CardHeader>
-            <div className="text-lg">Scope 1 Target</div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <p className="text-sm text-gray-600">
-              Direct emissions from owned or controlled sources
-            </p>
+            <div className="space-y-2">
+              <Label htmlFor={`${scope}-baselineYear`}>
+                Baseline Year{" "}
+                <CustomTooltip detail={<TooltipMessage title={"Baseline Year"} message={"The reference year used to measure progress — typically the year you first started tracking emissions."} />} />{" "}
+              </Label>
+              <select
+                id={`${scope}-baselineYear`}
+                value={emissionData?.startYear || ""}
+                disabled
+                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select year</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="reductionPercentage" className="">
-                  Reduction Percentage (%){" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Reduction Percentage"}
-                        message={
-                          "The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."
-                        }
-                      />
-                    }
-                  />{" "}
-                </Label>
-                <Input
-                  id="reductionPercentage"
-                  type="number"
-                  placeholder="e.g. 30"
-                  value={scopeTargetData?.scope1?.reductionPercentage ?? ""}
-                  onChange={(e) =>
-                    handleScopeInputChange("scope1", "reductionPercentage", e.target.value)
-                  }
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="baselineYear">
-                  Baseline Year{" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Baseline Year"}
-                        message={
-                          "The reference year used to measure progress — typically the year you first started tracking emissions."
-                        }
-                      />
-                    }
-                  />{" "}
-                </Label>
-                <select
-                  id="scope1-baselineYear"
-                  value={base?.startYear}
-                  disabled
-                  onChange={(e) => handleScopeInputChange("scope1", "baselineYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years.map((year) => (
+            <div className="space-y-2">
+              <Label htmlFor={`${scope}-targetYear`}>
+                Target Year{" "}
+                <CustomTooltip detail={<TooltipMessage title={"Target Year"} message={"The year by which your company plans to achieve the set reduction goal."} />} />{" "}
+              </Label>
+              <select
+                id={`${scope}-targetYear`}
+                value={scopeData.targetYear ?? ""}
+                onChange={(e) => handleScopeInputChange(scope, "targetYear", e.target.value)}
+                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Select year</option>
+                {years
+                  .filter((year) => year >= Number(emissionData?.startYear))
+                  .map((year) => (
                     <option key={year} value={year}>
                       {year}
                     </option>
                   ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="scope1-targetYear">
-                  Target Year{" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Target Year"}
-                        message={
-                          "The year by which your company plans to achieve the set reduction goal."
-                        }
-                      />
-                    }
-                  />{" "}
-                </Label>
-                <select
-                  id="scope1-targetYear"
-                  value={scopeTargetData.scope1.targetYear ?? ""}
-                  onChange={(e) => handleScopeInputChange("scope1", "targetYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years
-                    .filter((year) => year >= Number(base?.startYear)) // 👈 filter from baseline year
-                    .map((year) => (
-                      <option key={year + 1} value={year + 1}>
-                        {year + 1}
-                      </option>
-                    ))}
-                </select>
-              </div>
+              </select>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="scope1-description">Description (Optional)</Label>
-              <Textarea
-                id="scope1-description"
-                placeholder="Describe your scope-based reduction strategy..."
-                value={scopeTargetData.scope1.description}
-                onChange={(e) => handleScopeInputChange("scope1", "description", e.target.value)}
-                rows={3}
-              />
-            </div>
-          </CardContent>
-
-          <div>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Target Calculation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 w-full">
-              <div className="flex flex-col w-full gap-2">
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label className="flex items-center gap-1">
-                    Baseline ({baseline?.data?.startYear})
-                  </Label>
-                  <div className="text-sm text-gray-900 font-semibold">
-                    {" "}
-                    {baseline?.data?.ghg_scope_one} tCO₂e
-                  </div>
-                </div>
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label className="flex items-center">
-                    Target: ({scopeTargetData.scope1.targetYear || 0})
-                    <CustomTooltip
-                      detail={
-                        <TooltipMessage
-                          title={"Target"}
-                          message={`This shows the company's emission goal 
-                           for the target year (${scopeTargetData.scope1.targetYear}) after applying the emissions's reduction percentage. A 20% reduction from the
-                           baseline of 26,830 means: 26,830 * (1 - reduction %/100) = 21,464 tCO₂e. Your own results to: ${CalculateEmissionPercentage(scopeTargetData.scope1.reductionPercentage ?? 0, baseline?.data?.ghg_scope_one)} tCO₂e`}
-                        />
-                      }
-                    />{" "}
-                  </Label>
-                  <div className="text-sm text-primary font-semibold">
-                    {CalculateEmissionPercentage(
-                      scopeTargetData?.scope1?.reductionPercentage ?? 0,
-                      baseline?.data?.ghg_scope_one
-                    )}
-                    tCO₂e
-                  </div>
-                </div>
-                <hr className="text-gray-300" />
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>
-                    Total Reduction:
-                    <CustomTooltip
-                      detail={
-                        <TooltipMessage
-                          title={"Total"}
-                          message={`The total (displayed as –5,366 tCO₂e) represents the amount of emissions the company needs to cut to reach its target.
-     
-     It is calculated as:Target – Baseline = 21,464 – 26,830 = –5,366 tCO₂e.
-     
-     The negative sign (in red) indicates a reduction in emissions.`}
-                        />
-                      }
-                    />
-                  </Label>
-                  <div className="text-sm text-red-500 font-semibold">
-                    {Number(
-                      calculateTotal(
-                        baseline?.data?.ghg_scope_one,
-                        CalculateEmissionPercentage(
-                          scopeTargetData?.scope1?.reductionPercentage ?? 0,
-                          baseline?.data?.ghg_scope_one
-                        )
-                      )
-                    )}
-                    tCO₂e
-                  </div>
-                </div>
-              </div>
-            </CardContent>
           </div>
-        </Card>
 
-        {/* Scope 2 Card */}
+          <div className="space-y-2">
+            <Label htmlFor={`${scope}-description`}>Description (Optional)</Label>
+            <Textarea
+              id={`${scope}-description`}
+              placeholder="Describe your scope-based reduction strategy..."
+              value={scopeData.description}
+              onChange={(e) => handleScopeInputChange(scope, "description", e.target.value)}
+              rows={3}
+            />
+          </div>
+        </CardContent>
 
-        <Card>
+        <div>
           <CardHeader>
-            <div className="text-lg">Scope 2 Target</div>
+            <CardTitle className="text-lg font-semibold">Target Calculation</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <p className="text-sm text-gray-600">Indirect emission from purchased energy.</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="reductionPercentage" className="">
-                  Reduction Percentage (%){" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Reduction Percentage"}
-                        message={
-                          "The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."
-                        }
-                      />
-                    }
-                  />{" "}
+          <CardContent className="space-y-4 w-full">
+            <div className="flex flex-col w-full gap-2">
+              <div className="space-y-2 flex items-center justify-between w-full">
+                <Label className="flex items-center gap-1">
+                  Baseline ({emissionData?.startYear || 'N/A'})
                 </Label>
-                <Input
-                  id="reductionPercentage"
-                  type="number"
-                  placeholder="e.g. 30"
-                  value={scopeTargetData?.scope2?.reductionPercentage ?? ""}
-                  onChange={(e) =>
-                    handleScopeInputChange("scope2", "reductionPercentage", e.target.value)
-                  }
-                  className="w-full"
-                />
+                <div className="text-sm text-gray-900 font-semibold">
+                  {formatWithCommas(baselineEmission)} tCO₂e
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="baselineYear">
-                  Baseline Year{" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Baseline Year"}
-                        message={
-                          "The reference year used to measure progress — typically the year you first started tracking emissions."
-                        }
-                      />
-                    }
-                  />{" "}
+              <div className="space-y-2 flex items-center justify-between w-full">
+                <Label className="flex items-center">
+                  Target: ({scopeData.targetYear || 0})
+                  <CustomTooltip detail={<TooltipMessage title={"Target"} message={`This shows the company's emission goal for the target year (${scopeData.targetYear}) after applying the emissions's reduction percentage.`} />} />{" "}
                 </Label>
-                <select
-                  id="scope1-baselineYear"
-                  value={base?.startYear}
-                  disabled
-                  onChange={(e) => handleScopeInputChange("scope2", "baselineYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                <div className="text-sm text-primary font-semibold">
+                  {formatWithCommas(targetEmission)} tCO₂e
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="scope1-targetYear">
-                  Target Year{" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Target Year"}
-                        message={
-                          "The year by which your company plans to achieve the set reduction goal."
-                        }
-                      />
-                    }
-                  />{" "}
+              <hr className="text-gray-300" />
+              <div className="space-y-2 flex items-center justify-between w-full">
+                <Label>
+                  Total Reduction:
+                  <CustomTooltip detail={<TooltipMessage title={"Total"} message={`The total represents the amount of emissions the company needs to cut to reach its target.`} />} />
                 </Label>
-                <select
-                  id="scope1-targetYear"
-                  value={scopeTargetData.scope2.targetYear ?? ""}
-                  onChange={(e) => handleScopeInputChange("scope2", "targetYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years
-                    .filter((year) => year >= Number(base?.startYear))
-                    .map((year) => (
-                      <option key={year + 1} value={year + 1}>
-                        {year + 1}
-                      </option>
-                    ))}
-                </select>
+                <div className="text-sm text-red-500 font-semibold">
+                  -{formatWithCommas(totalReduction)} tCO₂e
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="scope1-description">Description (Optional)</Label>
-              <Textarea
-                id="scope1-description"
-                placeholder="Describe your scope-based reduction strategy..."
-                value={scopeTargetData.scope2.description}
-                onChange={(e) => handleScopeInputChange("scope1", "description", e.target.value)}
-                rows={3}
-              />
             </div>
           </CardContent>
-
-          <div>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Target Calculation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 w-full">
-              <div className="flex flex-col w-full gap-2">
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label className="flex items-center gap-1">Baseline ({base?.startYear})</Label>
-                  <div className="text-sm text-gray-900 font-semibold">
-                    {" "}
-                    {base?.ghg_scope_two} tCO₂e
-                  </div>
-                </div>
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label className="flex items-center">
-                    Target: ({scopeTargetData.scope2.targetYear || 0})
-                    <CustomTooltip
-                      detail={
-                        <TooltipMessage
-                          title={"Target"}
-                          message={`This shows the company's emission goal 
-                           for the target year (${scopeTargetData.scope2.targetYear}) after applying the emissions's reduction percentage. A 20% reduction from the
-                           baseline of 26,830 means: 26,830 * (1 - reduction %/100) = 21,464 tCO₂e. Your own results to: ${CalculateEmissionPercentage(scopeTargetData.scope2.reductionPercentage ?? 0, base?.ghg_scope_two)} tCO₂e`}
-                        />
-                      }
-                    />{" "}
-                  </Label>
-                  <div className="text-sm text-primary font-semibold">
-                    {CalculateEmissionPercentage(
-                      scopeTargetData?.scope2?.reductionPercentage ?? 0,
-                      base?.ghg_scope_two
-                    )}
-                    tCO₂e
-                  </div>
-                </div>
-                <hr className="text-gray-300" />
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>
-                    Total Reduction:
-                    <CustomTooltip
-                      detail={
-                        <TooltipMessage
-                          title={"Total"}
-                          message={`The total (displayed as –5,366 tCO₂e) represents the amount of emissions the company needs to cut to reach its target.
-     
-     It is calculated as:Target – Baseline = 21,464 – 26,830 = –5,366 tCO₂e.
-     
-     The negative sign (in red) indicates a reduction in emissions.`}
-                        />
-                      }
-                    />
-                  </Label>
-                  <div className="text-sm text-red-500 font-semibold">
-                    {calculateTotal(
-                      base?.ghg_scope_two,
-                      CalculateEmissionPercentage(
-                        scopeTargetData?.scope2?.reductionPercentage ?? 0,
-                        base?.ghg_scope_two
-                      )
-                    )}
-                    tCO₂e
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-
-        {/* Scope 3 Card */}
-        <Card>
-          <CardHeader>
-            <div className="text-lg">Scope 3 Target</div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <p className="text-sm text-gray-600">All other indirect emissions in value chain.</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="reductionPercentage" className="">
-                  Reduction Percentage (%){" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Reduction Percentage"}
-                        message={
-                          "The amount you aim to reduce your emissions by, compared to your baseline year (e.g., 20% reduction)."
-                        }
-                      />
-                    }
-                  />{" "}
-                </Label>
-                <Input
-                  id="reductionPercentage"
-                  type="number"
-                  placeholder="e.g. 30"
-                  value={scopeTargetData?.scope3?.reductionPercentage ?? ""}
-                  onChange={(e) =>
-                    handleScopeInputChange("scope3", "reductionPercentage", e.target.value)
-                  }
-                  className="w-full"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="baselineYear">
-                  Baseline Year{" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Baseline Year"}
-                        message={
-                          "The reference year used to measure progress — typically the year you first started tracking emissions."
-                        }
-                      />
-                    }
-                  />{" "}
-                </Label>
-                <select
-                  id="scope1-baselineYear"
-                  value={base?.startYear}
-                  disabled
-                  onChange={(e) => handleScopeInputChange("scope3", "baselineYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="scope3-targetYear">
-                  Target Year{" "}
-                  <CustomTooltip
-                    detail={
-                      <TooltipMessage
-                        title={"Target Year"}
-                        message={
-                          "The year by which your company plans to achieve the set reduction goal."
-                        }
-                      />
-                    }
-                  />{" "}
-                </Label>
-                <select
-                  id="scope1-targetYear"
-                  value={scopeTargetData.scope3.targetYear ?? ""}
-                  onChange={(e) => handleScopeInputChange("scope3", "targetYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years
-                    .filter((year) => year >= Number(base?.startYear))
-                    .map((year) => (
-                      <option key={year + 1} value={year + 1}>
-                        {year + 1}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="scope3-description">Description (Optional)</Label>
-              <Textarea
-                id="scope1-description"
-                placeholder="Describe your scope-based reduction strategy..."
-                value={scopeTargetData.scope3.description}
-                onChange={(e) => handleScopeInputChange("scope3", "description", e.target.value)}
-                rows={3}
-              />
-            </div>
-          </CardContent>
-
-          <div>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">Target Calculation</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 w-full">
-              <div className="flex flex-col w-full gap-2">
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label className="flex items-center gap-1">Baseline ({base?.startYear})</Label>
-                  <div className="text-sm text-gray-900 font-semibold">
-                    {" "}
-                    {base?.ghg_scope_three} tCO₂e
-                  </div>
-                </div>
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label className="flex items-center">
-                    Target: ({scopeTargetData.scope3.targetYear || 0})
-                    <CustomTooltip
-                      detail={
-                        <TooltipMessage
-                          title={"Target"}
-                          message={`This shows the company's emission goal 
-                           for the target year (${scopeTargetData.scope3.targetYear}) after applying the emissions's reduction percentage. A 20% reduction from the
-                           baseline of 26,830 means: 26,830 * (1 - reduction %/100) = 21,464 tCO₂e. Your own results to: ${CalculateEmissionPercentage(scopeTargetData.scope3.reductionPercentage ?? 0, base?.ghg_scope_three)} tCO₂e`}
-                        />
-                      }
-                    />{" "}
-                  </Label>
-                  <div className="text-sm text-primary font-semibold">
-                    {CalculateEmissionPercentage(
-                      scopeTargetData?.scope3?.reductionPercentage ?? 0,
-                      base?.ghg_scope_three
-                    )}
-                    tCO₂e
-                  </div>
-                </div>
-                <hr className="text-gray-300" />
-                <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>
-                    Total Reduction:
-                    <CustomTooltip
-                      detail={
-                        <TooltipMessage
-                          title={"Total"}
-                          message={`The total (displayed as –5,366 tCO₂e) represents the amount of emissions the company needs to cut to reach its target.
-     
-     It is calculated as:Target – Baseline = 21,464 – 26,830 = –5,366 tCO₂e.
-     
-     The negative sign (in red) indicates a reduction in emissions.`}
-                        />
-                      }
-                    />
-                  </Label>
-                  <div className="text-sm text-red-500 font-semibold">
-                    {calculateTotal(
-                      base?.ghg_scope_three,
-                      CalculateEmissionPercentage(
-                        scopeTargetData?.scope3?.reductionPercentage ?? 0,
-                        base?.ghg_scope_three
-                      )
-                    )}
-                    tCO₂e
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </div>
-        </Card>
-
-        <div className="flex justify-center">
-          <CustomButton
-            icon={<FaCaretRight />}
-            onClick={handleContinue}
-            className="text-white px-6 py-2"
-            disabled={
-              !scopeTargetData.scope1.reductionPercentage ||
-              !scopeTargetData.scope1.baselineYear ||
-              !scopeTargetData.scope1.targetYear ||
-              !scopeTargetData.scope2.reductionPercentage ||
-              !scopeTargetData.scope2.baselineYear ||
-              !scopeTargetData.scope2.targetYear ||
-              // !scopeTargetData.scope3.reductionPercentage ||
-              // !scopeTargetData.scope3.baselineYear ||
-              // !scopeTargetData.scope3.targetYear ||
-              baseline.isLoading
-            }
-          >
-            {baseline.isLoading ? "Loading Baseline..." : "Continue"}
-          </CustomButton>
         </div>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-6 text-left">
+      {baseline.isLoading && <div className="text-center py-4">Loading baseline data...</div>}
+      {baseline.isError && (
+        <div className="text-center py-4 text-red-500">Error loading baseline data</div>
+      )}
+
+      {renderScopeCard('scope1', 'Scope 1 Target', 'Direct emissions from owned or controlled sources')}
+      {renderScopeCard('scope2', 'Scope 2 Target', 'Indirect emission from purchased energy')}
+      {renderScopeCard('scope3', 'Scope 3 Target', 'All other indirect emissions in value chain')}
+
+      <div className="flex justify-center">
+        <CustomButton
+          icon={<FaCaretRight />}
+          onClick={handleContinue}
+          className="text-white px-6 py-2"
+          disabled={
+            !scopeTargetData.scope1.reductionPercentage ||
+            !scopeTargetData.scope1.baselineYear ||
+            !scopeTargetData.scope1.targetYear ||
+            !scopeTargetData.scope2.reductionPercentage ||
+            !scopeTargetData.scope2.baselineYear ||
+            !scopeTargetData.scope2.targetYear ||
+            baseline.isLoading
+          }
+        >
+          {baseline.isLoading ? "Loading Baseline..." : "Continue"}
+        </CustomButton>
       </div>
-    );
-  }
-
-  if (step === 1) {
-    return (
-      <>
-        <ScopeSummary
-          scopes={scopesData}
-          onPrevious={handlePrevious}
-          onSetTarget={handleSetTarget}
-          isLoading={createTarget.isPending}
-        />
-        <SuccessModal
-          isOpen={isSuccessModalOpen}
-          onClose={handleModalClose}
-          onContinue={handleModalContinue}
-        />
-      </>
-    );
-  }
-
-  return null;
+    </div>
+  );
 }
