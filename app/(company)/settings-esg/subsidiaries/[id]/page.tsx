@@ -12,7 +12,6 @@ import {
 import { Button } from "@/app/components/ui/button";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
-import { User } from "@/services/user.service";
 import MainContentCard from "@/app/components/company/subsidiaries/MainContentCard";
 import { TeamMembersTable } from "@/app/components/company/subsidiaries/TeamMembersTable";
 import { DepartmentsTable } from "@/app/components/company/subsidiaries/DepartmentTable";

@@ -21,7 +21,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
-import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 
 interface OilGasOperationsProps {
@@ -42,7 +42,6 @@ const uploadFields = [
 export function OilGasOperations({
   onBack,
   onSubmit,
-  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -56,8 +55,6 @@ export function OilGasOperations({
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
-
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const router = useRouter();
   const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
@@ -508,7 +505,7 @@ export function OilGasOperations({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setShowConfirmDialog(true)}
+                onClick={() => handleSubmit()}
                 disabled={isPending}
                 className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit form"
@@ -518,7 +515,7 @@ export function OilGasOperations({
             </div>
           </CardContent>
         </Card>
-        <SubmitConfirmationDialog
+        {/* <SubmitConfirmationDialog
           isOpen={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onSave={() => {
@@ -529,7 +526,7 @@ export function OilGasOperations({
             setShowConfirmDialog(false);
             handleSubmit();
           }}
-        />
+        /> */}
       </div>
     </div>
   );

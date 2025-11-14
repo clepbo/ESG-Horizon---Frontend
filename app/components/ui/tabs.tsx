@@ -75,7 +75,7 @@ interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   active?: boolean;
 }
 
-export function TabsTrigger({ value, active, onClick, children, ...props }: TabsTriggerProps) {
+export function TabsTrigger({ active, onClick, children, ...props }: TabsTriggerProps) {
   return (
     <button
       type="button"

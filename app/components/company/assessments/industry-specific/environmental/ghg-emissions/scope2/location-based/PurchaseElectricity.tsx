@@ -37,7 +37,6 @@ const uploadFields = [
 export function PurchasedElectricityForm({
   onBack,
   onNext,
-  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedElectricityFormProps) {
@@ -51,6 +50,7 @@ export function PurchasedElectricityForm({
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
     electricityConsumed?: string;
@@ -84,7 +84,7 @@ export function PurchasedElectricityForm({
       setAdditionalFields(existingData.additionalFields || []);
     }
     // }, [state.assessmentData?.electricity, electricityConsumed]);
-  }, [state.assessmentData?.electricity]);
+  }, [electricityConsumed, state.assessmentData?.electricity]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([

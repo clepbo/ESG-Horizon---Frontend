@@ -19,7 +19,7 @@ import {
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 
 interface CoolingSteamFormProps {
@@ -62,7 +62,6 @@ export function CoolingSteamForm({
     setRawValue: setEmissionFactorRaw,
   } = useFormattedNumber("");
 
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -107,7 +106,7 @@ export function CoolingSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.coolingSteam, setEnergyConsumedRaw]);
+  }, [state.assessmentData.coolingSteam, setEnergyConsumedRaw, setEmissionFactorRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -515,7 +514,7 @@ export function CoolingSteamForm({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setShowConfirmDialog(true)}
+                onClick={() => handleSubmit()}
                 disabled={isSaving}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
@@ -524,7 +523,7 @@ export function CoolingSteamForm({
             </div>
           </CardContent>
         </Card>
-        <SubmitConfirmationDialog
+        {/* <SubmitConfirmationDialog
           isOpen={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onSave={() => {
@@ -535,7 +534,7 @@ export function CoolingSteamForm({
             setShowConfirmDialog(false);
             handleSubmit();
           }}
-        />
+        /> */}
       </div>
     </div>
   );

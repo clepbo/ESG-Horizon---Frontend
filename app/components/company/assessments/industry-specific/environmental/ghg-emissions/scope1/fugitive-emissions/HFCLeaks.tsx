@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 
 interface HFCLeaksProps {
@@ -592,7 +592,7 @@ export function HFCLeaks({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowConfirmDialog(true)}
+                  onClick={() => handleSubmit()}
                   disabled={isSaving || isSubmitting}
                   className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                   aria-label="Submit form"
@@ -603,7 +603,7 @@ export function HFCLeaks({
             </form>
           </CardContent>
         </Card>
-        <SubmitConfirmationDialog
+        {/* <SubmitConfirmationDialog
           isOpen={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onSave={() => {
@@ -614,7 +614,7 @@ export function HFCLeaks({
             setShowConfirmDialog(false);
             handleSubmit();
           }}
-        />
+        /> */}
       </div>
     </div>
   );

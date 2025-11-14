@@ -23,7 +23,6 @@ export function SuccessScreen({
   nextAssessment,
   totals,
   onContinue,
-  onBackToHub,
 }: SuccessScreenProps) {
   const router = useRouter();
   const handleBackToHub = () => {

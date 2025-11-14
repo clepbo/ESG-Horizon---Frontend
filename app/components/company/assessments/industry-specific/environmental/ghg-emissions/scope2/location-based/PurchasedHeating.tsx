@@ -20,7 +20,7 @@ import {
 import { TotalsResponse } from "@/services/assessment.service";
 import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 interface PurchasedHeatingFormProps {
   onBack: () => void;
@@ -41,7 +41,6 @@ const uploadFields = [
 export function PurchasedHeatingForm({
   onBack,
   onSubmit,
-  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -58,7 +57,6 @@ export function PurchasedHeatingForm({
     setRawValue: setHeatingConsumedRaw,
   } = useFormattedNumber("");
 
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [supplierName, setSupplierName] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -544,7 +542,7 @@ export function PurchasedHeatingForm({
 
               <Button
                 variant="outline"
-                onClick={() => setShowConfirmDialog(true)}
+                onClick={() => handleSubmit()}
                 disabled={isPending}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
@@ -553,7 +551,7 @@ export function PurchasedHeatingForm({
             </div>
           </CardContent>
         </Card>
-        <SubmitConfirmationDialog
+        {/* <SubmitConfirmationDialog
           isOpen={showConfirmDialog}
           onClose={() => setShowConfirmDialog(false)}
           onSave={() => {
@@ -564,7 +562,7 @@ export function PurchasedHeatingForm({
             setShowConfirmDialog(false);
             handleSubmit();
           }}
-        />
+        /> */}
       </div>
     </div>
   );

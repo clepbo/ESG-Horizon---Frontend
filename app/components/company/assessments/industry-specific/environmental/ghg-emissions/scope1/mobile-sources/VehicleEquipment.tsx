@@ -37,13 +37,7 @@ const uploadFields = [
   "Land area serviced (for tractors)",
 ];
 
-export function VehicleEquipment({
-  onBack,
-  onNext,
-  onBackToHub,
-  stepIndex,
-  totalSteps,
-}: VehicleEquipmentProps) {
+export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: VehicleEquipmentProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(

@@ -24,7 +24,6 @@ export function BadgeStatus({ status }: StatusBadgeProps) {
 
   return (
     <Button
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       variant={getVariant(status) as any}
       size="sm"
       className="rounded-full px-3 py-1 text-xs font-medium"

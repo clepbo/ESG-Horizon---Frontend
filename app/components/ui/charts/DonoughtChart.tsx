@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell } from "recharts";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "../reusables/CustomButton";
-import { Edit, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface MiniDonutChartProps {

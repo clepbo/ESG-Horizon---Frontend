@@ -1,143 +1,244 @@
+"use client";
+
+import { useState } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Badge } from "@/app/components/ui/badge";
 import { Progress } from "@/app/components/ui/progress";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/app/components/ui/sheet";
-import { Calendar, User, Clock, Flag } from "lucide-react";
-import { ITask } from "@/app/(company)/assessments/tasks/page";
+import { Button } from "@/app/components/ui/button";
+import { Trash2, ExternalLink, X, Edit, Bell } from "lucide-react";
+import { FrontendTask } from "@/services/assignTask.service";
+import { cn } from "@/lib/utils";
+import {
+  useAddTaskComment,
+  useDeleteTask,
+  useTaskComments,
+} from "@/services/hooks/assignTask.hooks";
+import { toast } from "react-toastify";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface TaskDetailDrawerProps {
-  task: ITask | null;
+  task: FrontendTask | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const getStatusBadge = (status: ITask["status"]) => {
-  const variants: Record<
-    ITask["status"],
-    { variant: "default" | "secondary" | "destructive" | "outline"; className: string }
-  > = {
-    pending: { variant: "secondary", className: "bg-muted text-muted-foreground" },
-    "in-progress": { variant: "default", className: "bg-info text-white" },
-    completed: { variant: "default", className: "bg-success text-white" },
-    "on-hold": { variant: "outline", className: "bg-warning-100 text-warning-600 border-warning" },
-    approved: { variant: "default", className: "bg-success text-white" },
-    rejected: { variant: "destructive", className: "bg-danger text-white" },
-  };
-
-  const config = variants[status];
-
-  return (
-    <Badge variant={config.variant} className={config.className}>
-      {status.replace("-", " ")}
-    </Badge>
-  );
-};
-
-const getPriorityBadge = (priority?: "low" | "medium" | "high") => {
-  if (!priority) return null;
-
-  const config = {
-    low: { className: "bg-muted text-muted-foreground" },
-    medium: { className: "bg-warning-100 text-warning-600 border-warning" },
-    high: { className: "bg-danger-100 text-danger-600 border-danger" },
-  };
-
-  return (
-    <Badge variant="outline" className={config[priority].className}>
-      {priority}
-    </Badge>
-  );
-};
-
 export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerProps) {
+  const [comment, setComment] = useState("");
+
+  const deleteTaskMutation = useDeleteTask();
+  const { data: comments, isLoading } = useTaskComments(task?.id ?? 0);
+
+  const addCommentMutation = useAddTaskComment();
+
+  const { user: authUser } = useAuth();
+  const router = useRouter();
   if (!task) return null;
+  const dueDate = new Date(task.dueDate);
+  const now = new Date();
+  const diffDays = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const dueInWeeks = diffDays > 0 ? `Due in ${Math.ceil(diffDays / 7)} weeks` : "Past due";
+
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await deleteTaskMutation.mutateAsync(taskId);
+      toast.error("Task deleted successfully");
+      onOpenChange(false);
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleSaveTask = async (taskId: number) => {
+    if (!comment) {
+      toast.info("Nothing to save. Details closed");
+      onOpenChange(false);
+      return;
+    }
+
+    try {
+      const author = authUser?.first_name
+        ? `${authUser.first_name} ${authUser.last_name ?? ""}`.trim()
+        : "Anonymous";
+
+      await addCommentMutation.mutateAsync({
+        id: taskId,
+        payload: { commenter: author, comment },
+      });
+      setComment("");
+      toast.success("Comment added successfully");
+      onOpenChange(false);
+    } catch (error) {
+      toast.error("Error updating task");
+      console.error(error);
+    }
+  };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[500px] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-2xl font-semibold">{task.taskName}</SheetTitle>
-        </SheetHeader>
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" />
 
-        <div className="mt-6 space-y-6">
-          {/* Status and Priority */}
-          <div className="flex gap-2">
-            {getStatusBadge(task.status)}
-            {getPriorityBadge(task.priority)}
-          </div>
+      <DialogPrimitive.Title className="sr-only">Task Details</DialogPrimitive.Title>
 
-          {/* Progress */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Progress</span>
-              <span className="text-sm text-muted-foreground">{task.progress}%</span>
-            </div>
-            <Progress value={task.progress} className="h-2" />
-          </div>
+      <DialogPrimitive.Content
+        className={cn(
+          "fixed top-0 right-0 z-50 h-full w-[500px] bg-white shadow-lg rounded-l-lg",
+          "overflow-y-auto p-6 space-y-6 pr-8 mr-4",
+          "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        )}
+      >
+        <div className="flex items-center justify-between pb-2">
+          <h2 className="text-lg font-semibold text-neutral-900">Task Details</h2>
+          <button
+            onClick={() => onOpenChange(false)}
+            className="text-muted-foreground hover:text-foreground shadow-lg px-1 py-2 cursor-hover"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
 
-          {/* Details */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-sm">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-muted-foreground">Assigned To</div>
-                <div className="font-medium">{task.assignedTo}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-muted-foreground">Date Assigned</div>
-                <div className="font-medium">
-                  {new Date(task.dateAssigned).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-sm">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="text-muted-foreground">Due Date</div>
-                <div className="font-medium">
-                  {new Date(task.dueDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {task.priority && (
-              <div className="flex items-center gap-3 text-sm">
-                <Flag className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <div className="text-muted-foreground">Priority</div>
-                  <div className="font-medium capitalize">{task.priority}</div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          {task.description && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold">Description</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">{task.description}</p>
-            </div>
-          )}
-
-          {/* Additional Details Section */}
-          <div className="pt-4 border-t space-y-2">
-            <h4 className="text-sm font-semibold">Task ID</h4>
-            <p className="text-sm text-muted-foreground font-mono">{task.id}</p>
+        <div className="space-y-1">
+          <div className="text-xs font-semibold text-muted-foreground">Task Name</div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{task.taskName}</h1>
+            <ExternalLink className="w-4 h-4 text-muted-foreground" />
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+
+        <div className="flex items-center justify-between">
+          <div className="max-w-40">
+            <div className="text-xs font-semibold text-muted-foreground">Assignee</div>
+            <div className="font-medium">{task.assignedTo}</div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground">Status</div>
+            <Badge variant="secondary" className="capitalize">
+              {task.status.replace("_", " ")}
+            </Badge>
+          </div>
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border border-teal-500"
+              onClick={() => router.push(`/assessments/tasks/assign?edit=${task.id}`)}
+            >
+              <Edit className="w-4 h-5 mr-1 text-teal-500" />{" "}
+              <span className="text-teal-500">Edit Task</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground">Date Assigned</div>
+            <div className="font-medium mt-1">
+              {new Date(task.dateAssigned).toISOString().split("T")[0]}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-muted-foreground mt-4">Due Date</div>
+            <div className="font-medium mt-1">{dueDate.toISOString().split("T")[0]}</div>
+            <div className="text-xs text-orange-600">{dueInWeeks}</div>
+          </div>
+          <Button variant="outline" size="sm" className="border border-teal-500">
+            <Bell className="w-4 h-4 mr-1 text-teal-500" />{" "}
+            <span className="text-teal-500">Send Reminder</span>
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Section 0 of 3</span>
+            <span>{task.progress ?? 0}% Complete</span>
+          </div>
+          <Progress value={task.progress ?? 0} />
+        </div>
+
+        {task.departments?.length ? (
+          <div>
+            <h4 className="text-sm font-medium">Departments</h4>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {task.departments.map((dept) => (
+                <Badge key={dept} className="bg-gray-200 text-gray-700">
+                  {dept}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {task.teamMembers?.length ? (
+          <div>
+            <h4 className="text-sm font-medium">Team Members</h4>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {task.teamMembers.map((member) => (
+                <Badge key={member} className="bg-gray-200 text-gray-700">
+                  {member}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {task.topics?.length ? (
+          <div>
+            <h4 className="text-sm font-medium">Topics Assigned</h4>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {task.topics.map((topic) => (
+                <Badge key={topic} className="bg-gray-200 text-gray-700">
+                  {topic}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div>
+          <h3 className="font-semibold">Comments</h3>
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading comments...</p>
+          ) : (
+            <ul className="space-y-2 mt-2">
+              {comments?.map(
+                (c: { id: number; commenter: string; comment: string; createdAt: string }) => (
+                  <li key={c.id} className="bg-gray-200 shadow-sm rounded-md p-2 text-sm my-3">
+                    <span className="font-medium">{c.commenter}:</span> {c.comment}
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(c.createdAt).toLocaleString()}
+                    </div>
+                  </li>
+                )
+              )}
+            </ul>
+          )}
+          <h4 className="text-sm font-medium">Add Comment</h4>
+          <textarea
+            placeholder="Leave a comment..."
+            className="mt-2 w-full border border-gray-400 rounded-md p-2 text-sm text-muted-foreground"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </div>
+
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            variant="destructive"
+            className="text-white"
+            disabled={deleteTaskMutation.isPending || addCommentMutation.isPending}
+            onClick={() => handleDeleteTask(task.id)}
+          >
+            <Trash2 className="w-4 h-4 mr-1" /> Delete Task
+          </Button>
+          <Button
+            disabled={addCommentMutation.isPending || deleteTaskMutation.isPending}
+            onClick={() => handleSaveTask(task.id)}
+            className="bg-teal-600 text-white"
+          >
+            Save & Close
+          </Button>
+        </div>
+      </DialogPrimitive.Content>
+    </DialogPrimitive.Root>
   );
 }

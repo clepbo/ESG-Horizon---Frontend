@@ -1,22 +1,14 @@
 import { useState, ReactNode, useMemo } from "react";
-import { Ban, CircleCheckBig, RotateCcw, SquarePen, ChevronDown, ChevronUp } from "lucide-react";
+import { Ban, CircleCheckBig, RotateCcw, SquarePen } from "lucide-react";
 import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
 import Image from "next/image";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import EditUserModal from "../../common/users/EditUserModal";
 import { TeamUserStatus, User } from "@/services/user.service";
-import RoleGuard from "@/lib/RoleGuard";
 import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
 import RoleDefinitionsModal from "../../settings/RoleDefinitionsModal";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu";
-import { Button } from "../../ui/button";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
 
 type Props = {
