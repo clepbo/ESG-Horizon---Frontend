@@ -1,7 +1,7 @@
 "use client";
 
 import { GeneralTargetData, TargetType } from "@/types/target";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TargetTypeSelector } from "./TargetTypeSelector";
 import GeneralTargetForm from "./GeneralSetTarget";
 import SetTargetByScope from "./SetTargetByScope";
@@ -21,11 +21,23 @@ export function TargetSetting() {
     totalReduction: null,
   });
 
+   useEffect(() => {
+    const storedData = localStorage.getItem("generalTargetSummary");
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setGeneralTargetData(parsedData);
+    }
+  }, []);
+
   const { user } = useAuth();
   const baseline = useBaseline(user?.company?.id);
   if (baseline?.data?.startYear?.length < 2 || !baseline?.data) {
     return <StartAssessment />;
   }
+
+  const handleDataChange = (newData: GeneralTargetData) => {
+    setGeneralTargetData(newData);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

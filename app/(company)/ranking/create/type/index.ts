@@ -6,3 +6,15 @@ export interface EmissionData {
   startYear: number;
   endYear: number;
 }
+
+
+export interface EmissionDataResponse {
+  startYear: number;
+  endYear: number;
+  totals: {
+    total: number;
+    scope1: number;
+    scope2: number;
+    scope3: number;
+  };
+}

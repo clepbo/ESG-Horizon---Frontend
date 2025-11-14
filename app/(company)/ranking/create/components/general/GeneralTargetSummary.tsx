@@ -19,11 +19,11 @@ interface TargetSummaryProps {
 }
 
 export function GeneralTargetSummary({
-  reductionPercentage = 20,
-  baselineEmission = 26830,
-  targetEmission = 21464,
-  targetYear = 2030,
-  baselineYear = 2024,
+  reductionPercentage = 0,
+  baselineEmission = 0,
+  targetEmission = 0,
+  targetYear = 0,
+  baselineYear = 0,
   onPrevious,
   annualRate,
   onSetTarget,
