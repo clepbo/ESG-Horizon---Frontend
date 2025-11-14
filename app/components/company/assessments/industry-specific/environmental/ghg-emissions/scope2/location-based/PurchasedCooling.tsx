@@ -93,7 +93,7 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [coolingConsumed, state.assessmentData.cooling]);
+  }, [state.assessmentData.cooling]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
