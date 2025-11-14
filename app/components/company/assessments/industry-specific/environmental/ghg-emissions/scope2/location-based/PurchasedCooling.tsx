@@ -93,6 +93,7 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData.cooling]);
 
   const { filled, total } = useMemo(() => {
