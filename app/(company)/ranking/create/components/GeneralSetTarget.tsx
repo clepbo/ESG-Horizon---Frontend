@@ -29,7 +29,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const router = useRouter();
   const { user } = useAuth();
   const companyId = user?.company?.id;
-  
+
   const [emissionData, setEmissionData] = useState<EmissionDataResponse>({
     startYear: 0,
     endYear: 0,
@@ -37,8 +37,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       total: 0,
       scope1: 0,
       scope2: 0,
-      scope3: 0
-    }
+      scope3: 0,
+    },
   });
 
   const base = useBaseline(companyId);
@@ -55,7 +55,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
       if (processedValue !== null && data.baselineYear && data.targetYear) {
-        const baselineEmission = emissionData?.totals?.total || 0; 
+        const baselineEmission = emissionData?.totals?.total || 0;
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission * (processedValue / 100);
 
@@ -83,33 +83,34 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     });
   };
 
- // In your form component's handleContinue function:
-const handleContinue = () => {
-  if (data.reductionPercentage && base?.data?.startYear && data.targetYear) {
-    // Calculate target emission (same calculation)
-    const calculatedTargetEmission = data?.reductionPercentage
-      ? emissionData?.totals?.total * (1 - data?.reductionPercentage / 100)
-      : 0;
+  // In your form component's handleContinue function:
+  const handleContinue = () => {
+    if (data.reductionPercentage && base?.data?.startYear && data.targetYear) {
+      // Calculate target emission (same calculation)
+      const calculatedTargetEmission = data?.reductionPercentage
+        ? emissionData?.totals?.total * (1 - data?.reductionPercentage / 100)
+        : 0;
 
-    console.log("Saving to localStorage:", { // Debug log
-      reductionPercentage: data.reductionPercentage,
-      baselineEmission: emissionData?.totals?.total,
-      calculatedTargetEmission: calculatedTargetEmission
-    });
+      console.log("Saving to localStorage:", {
+        // Debug log
+        reductionPercentage: data.reductionPercentage,
+        baselineEmission: emissionData?.totals?.total,
+        calculatedTargetEmission: calculatedTargetEmission,
+      });
 
-    // Save to localStorage
-    const storageData = {
-      ...data,
-      targetEmission: calculatedTargetEmission, // Make sure this is included
-      baselineEmission: emissionData?.totals?.total ?? 0,
-      baselineYear: base.data.startYear || 0,
-    };
+      // Save to localStorage
+      const storageData = {
+        ...data,
+        targetEmission: calculatedTargetEmission, // Make sure this is included
+        baselineEmission: emissionData?.totals?.total ?? 0,
+        baselineYear: base.data.startYear || 0,
+      };
 
-    localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
-    
-    router.push("/ranking/create/summary");
-  }
-};
+      localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
+
+      router.push("/ranking/create/summary");
+    }
+  };
 
   // Calculate values for display (same as original)
   const calculatedTargetEmission = data?.reductionPercentage
@@ -121,14 +122,16 @@ const handleContinue = () => {
     CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals?.total)
   );
 
-  const yearDifference = data && base?.data?.startYear ? 
-    Math.abs((base.data.startYear ?? 0) - (data.targetYear ?? 0)) : 0;
+  const yearDifference =
+    data && base?.data?.startYear
+      ? Math.abs((base.data.startYear ?? 0) - (data.targetYear ?? 0))
+      : 0;
 
   const reduction = calculateTotal(
     emissionData?.totals?.total,
     CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals?.total)
   );
-  
+
   const annualRate = yearDifference > 0 ? (+reduction / yearDifference).toFixed(3) : "0";
 
   return (
@@ -268,10 +271,12 @@ const handleContinue = () => {
                 />{" "}
               </Label>
               <div className="text-sm text-primary font-semibold">
-                {formatNumberWithCommas(CalculateEmissionPercentage(
-                  data.reductionPercentage ?? 0,
-                  emissionData?.totals?.total
-                ))}
+                {formatNumberWithCommas(
+                  CalculateEmissionPercentage(
+                    data.reductionPercentage ?? 0,
+                    emissionData?.totals?.total
+                  )
+                )}
                 tCO₂e
               </div>
             </div>

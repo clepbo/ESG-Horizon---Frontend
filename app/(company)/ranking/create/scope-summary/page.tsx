@@ -8,9 +8,8 @@ import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
 import { useBaseline } from "@/app/(company)/components/ranking/services";
 import { ScopeSummaryData } from "../type";
-import { ScopeSummary } from "../components/scope-summary/ScopeTargetSummary";
 import { SuccessModal } from "../components/SuccessModal";
-
+import { ScopeSummary } from "@/app/(company)/assessments/target/components/scope/ScopeTargetSummary";
 
 interface ScopeData {
   scope: string;
@@ -79,7 +78,7 @@ export default function ScopeSummaryPage() {
     }
 
     const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}-${summaryData.scopeTargetData.scope1.targetYear}-${Date.now()}`;
-    
+
     try {
       const targetPayload: any = {
         name: uniqueName,
@@ -111,7 +110,7 @@ export default function ScopeSummaryPage() {
 
       console.log("Submitting scope target:", targetPayload);
       await createTarget.mutateAsync(targetPayload);
-      
+
       // Open success modal
       setIsSuccessModalOpen(true);
     } catch (error) {
@@ -130,47 +129,49 @@ export default function ScopeSummaryPage() {
   };
 
   // Prepare scope data for summary component
-  const scopesData: ScopeData[] = summaryData ? [
-    {
-      scope: "Scope 1",
-      timeline: summaryData.calculations.scope1.timeline,
-      targetReduction: summaryData.calculations.scope1.totalReduction,
-      annualRate: summaryData.calculations.scope1.annualRate,
-      reductionPercentage: summaryData.scopeTargetData.scope1.reductionPercentage || 0,
-      baselineYear: summaryData.scopeTargetData.scope1.baselineYear || 0,
-      targetYear: summaryData.scopeTargetData.scope1.targetYear || 0,
-      description: summaryData.scopeTargetData.scope1.description || "",
-      targetEmission: summaryData.calculations.scope1.targetEmission,
-      totalReduction: summaryData.calculations.scope1.totalReduction,
-      baselineEmission: summaryData.emissionData?.totals?.scope1 || 0,
-    },
-    {
-      scope: "Scope 2",
-      timeline: summaryData.calculations.scope2.timeline,
-      targetReduction: summaryData.calculations.scope2.totalReduction,
-      annualRate: summaryData.calculations.scope2.annualRate,
-      reductionPercentage: summaryData.scopeTargetData.scope2.reductionPercentage || 0,
-      baselineYear: summaryData.scopeTargetData.scope2.baselineYear || 0,
-      targetYear: summaryData.scopeTargetData.scope2.targetYear || 0,
-      description: summaryData.scopeTargetData.scope2.description || "",
-      targetEmission: summaryData.calculations.scope2.targetEmission,
-      totalReduction: summaryData.calculations.scope2.totalReduction,
-      baselineEmission: summaryData.emissionData?.totals?.scope2 || 0,
-    },
-    {
-      scope: "Scope 3",
-      timeline: summaryData.calculations.scope3.timeline,
-      targetReduction: summaryData.calculations.scope3.totalReduction,
-      annualRate: summaryData.calculations.scope3.annualRate,
-      reductionPercentage: summaryData.scopeTargetData.scope3.reductionPercentage || 0,
-      baselineYear: summaryData.scopeTargetData.scope3.baselineYear || 0,
-      targetYear: summaryData.scopeTargetData.scope3.targetYear || 0,
-      description: summaryData.scopeTargetData.scope3.description || "",
-      targetEmission: summaryData.calculations.scope3.targetEmission,
-      totalReduction: summaryData.calculations.scope3.totalReduction,
-      baselineEmission: summaryData.emissionData?.totals?.scope3 || 0,
-    },
-  ] : [];
+  const scopesData: ScopeData[] = summaryData
+    ? [
+        {
+          scope: "Scope 1",
+          timeline: summaryData.calculations.scope1.timeline,
+          targetReduction: summaryData.calculations.scope1.totalReduction,
+          annualRate: summaryData.calculations.scope1.annualRate,
+          reductionPercentage: summaryData.scopeTargetData.scope1.reductionPercentage || 0,
+          baselineYear: summaryData.scopeTargetData.scope1.baselineYear || 0,
+          targetYear: summaryData.scopeTargetData.scope1.targetYear || 0,
+          description: summaryData.scopeTargetData.scope1.description || "",
+          targetEmission: summaryData.calculations.scope1.targetEmission,
+          totalReduction: summaryData.calculations.scope1.totalReduction,
+          baselineEmission: summaryData.emissionData?.totals?.scope1 || 0,
+        },
+        {
+          scope: "Scope 2",
+          timeline: summaryData.calculations.scope2.timeline,
+          targetReduction: summaryData.calculations.scope2.totalReduction,
+          annualRate: summaryData.calculations.scope2.annualRate,
+          reductionPercentage: summaryData.scopeTargetData.scope2.reductionPercentage || 0,
+          baselineYear: summaryData.scopeTargetData.scope2.baselineYear || 0,
+          targetYear: summaryData.scopeTargetData.scope2.targetYear || 0,
+          description: summaryData.scopeTargetData.scope2.description || "",
+          targetEmission: summaryData.calculations.scope2.targetEmission,
+          totalReduction: summaryData.calculations.scope2.totalReduction,
+          baselineEmission: summaryData.emissionData?.totals?.scope2 || 0,
+        },
+        {
+          scope: "Scope 3",
+          timeline: summaryData.calculations.scope3.timeline,
+          targetReduction: summaryData.calculations.scope3.totalReduction,
+          annualRate: summaryData.calculations.scope3.annualRate,
+          reductionPercentage: summaryData.scopeTargetData.scope3.reductionPercentage || 0,
+          baselineYear: summaryData.scopeTargetData.scope3.baselineYear || 0,
+          targetYear: summaryData.scopeTargetData.scope3.targetYear || 0,
+          description: summaryData.scopeTargetData.scope3.description || "",
+          targetEmission: summaryData.calculations.scope3.targetEmission,
+          totalReduction: summaryData.calculations.scope3.totalReduction,
+          baselineEmission: summaryData.emissionData?.totals?.scope3 || 0,
+        },
+      ]
+    : [];
 
   if (!summaryData) {
     return (
