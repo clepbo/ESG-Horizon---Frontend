@@ -29,8 +29,8 @@ export default function SummaryPage() {
       total: 0,
       scope1: 0,
       scope2: 0,
-      scope3: 0
-    }
+      scope3: 0,
+    },
   });
 
   const base = useBaseline(companyId);
@@ -59,45 +59,48 @@ export default function SummaryPage() {
     }
   }, [router]);
 
-  console.log("TDATA", targetData)
+  console.log("TDATA", targetData);
   // Use useMemo for calculations to ensure they update when dependencies change
   const { calculatedTargetEmission, annualRate, yearDifference } = useMemo(() => {
     if (!targetData || !emissionData) {
       return {
         calculatedTargetEmission: 0,
         annualRate: "0",
-        yearDifference: 0
+        yearDifference: 0,
       };
     }
 
     // Calculate target emission
     const targetEmission = targetData?.reductionPercentage
-      ? emissionData?.totals?.total * (1 - (targetData?.reductionPercentage / 100))
+      ? emissionData?.totals?.total * (1 - targetData?.reductionPercentage / 100)
       : 0;
 
     // Calculate year difference
-    const yearDiff = targetData && base.data?.startYear ? 
-      Math.abs((targetData.targetYear ?? 0) - (base.data.startYear ?? 0)) : 0;
+    const yearDiff =
+      targetData && base.data?.startYear
+        ? Math.abs((targetData.targetYear ?? 0) - (base.data.startYear ?? 0))
+        : 0;
 
     // Calculate reduction and annual rate
     const reduction = calculateTotal(
       emissionData?.totals?.total,
       CalculateEmissionPercentage(targetData?.reductionPercentage ?? 0, emissionData?.totals?.total)
     );
-    
+
     const annualRateValue = yearDiff > 0 ? (+reduction / yearDiff).toFixed(3) : "0";
 
-    console.log("Calculations:", { // Debug log
+    console.log("Calculations:", {
+      // Debug log
       baseline: emissionData?.totals?.total,
       reductionPercentage: targetData?.reductionPercentage,
       calculatedTargetEmission: targetEmission,
-      yearDifference: yearDiff
+      yearDifference: yearDiff,
     });
 
     return {
       calculatedTargetEmission: targetEmission,
       annualRate: annualRateValue,
-      yearDifference: yearDiff
+      yearDifference: yearDiff,
     };
   }, [targetData, emissionData, base.data]);
 
@@ -126,7 +129,7 @@ export default function SummaryPage() {
     }
 
     const uniqueName = `Carbon Target ${base.data.startYear}-${targetData.targetYear} - ${Date.now()}`;
-    
+
     try {
       console.log("Submitting with target emission:", calculatedTargetEmission);
 
@@ -143,7 +146,7 @@ export default function SummaryPage() {
       };
 
       await createTarget.mutateAsync(targetPayload);
-      
+
       // Open success modal instead of immediate redirect
       setIsSuccessModalOpen(true);
     } catch (error) {

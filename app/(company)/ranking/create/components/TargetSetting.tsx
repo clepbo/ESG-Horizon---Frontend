@@ -23,8 +23,8 @@ export function TargetSetting() {
   });
 
   const pathname = usePathname();
-  const isScopeSummaryPage = pathname.includes('/ranking/create/scope-summary');
-  const isGeneralSummaryPage = pathname.includes('/ranking/create/summary');
+  const isScopeSummaryPage = pathname.includes("/ranking/create/scope-summary");
+  const isGeneralSummaryPage = pathname.includes("/ranking/create/summary");
 
   useEffect(() => {
     const storedData = localStorage.getItem("generalTargetSummary");
@@ -36,16 +36,14 @@ export function TargetSetting() {
 
   const { user } = useAuth();
   const baseline = useBaseline(user?.company?.id);
-  
+
   // If we're on summary pages, don't render the main target setting UI
   if (isScopeSummaryPage || isGeneralSummaryPage) {
     return null; // The summary pages will handle their own rendering
   }
 
-  if(baseline.isLoading){
-    return (
-      <PageSkeleton />
-    )
+  if (baseline.isLoading) {
+    return <PageSkeleton />;
   }
 
   if (baseline?.data?.startYear?.length < 2 || !baseline?.data) {

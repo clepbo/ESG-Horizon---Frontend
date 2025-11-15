@@ -10,7 +10,7 @@ export const useBaseline = (companyId?: number) => {
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
       const response = await api.get(`/target/baseline/${companyId}`);
-      
+
       return response;
     },
     enabled: !!companyId,
@@ -31,5 +31,22 @@ export const useCreateTarget = (companyId?: string) => {
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
       queryClient.invalidateQueries({ queryKey: ["targets"] });
     },
+  });
+};
+
+
+
+
+export const useGetLatestTarget = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["latest-target", companyId],
+    queryFn: async () => {
+      if (!companyId) throw new Error("Company ID not available");
+      const response = await api.get(`/target/latest`);
+
+      return response;
+    },
+    enabled: !!companyId,
+    refetchOnWindowFocus: false,
   });
 };

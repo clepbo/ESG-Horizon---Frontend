@@ -9,7 +9,6 @@ export interface EmissionData {
   endYear: number;
 }
 
-
 export interface EmissionDataResponse {
   startYear: number;
   endYear: number;
@@ -20,9 +19,6 @@ export interface EmissionDataResponse {
     scope3: number;
   };
 }
-
-
-
 
 export interface ScopeTargetData {
   scope1: GeneralTargetData;
