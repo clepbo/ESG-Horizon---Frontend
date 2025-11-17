@@ -1,4 +1,3 @@
-
 import React from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
@@ -6,12 +5,17 @@ import "highcharts/highcharts-more";
 
 interface GuageProps {
   score: number;
-  initialEmission: number;
-  currentEmission: number;
-  targetEmission: number;
+  initialEmission: number | string;
+  currentEmission: number | string;
+  targetEmission: number | string;
 }
 
-const SpeedometerGauge: React.FC<GuageProps> = ({ score, initialEmission, currentEmission, targetEmission }) => {
+const SpeedometerGauge: React.FC<GuageProps> = ({
+  score,
+  initialEmission,
+  currentEmission,
+  targetEmission,
+}) => {
   const options: Highcharts.Options = {
     chart: {
       type: "gauge",

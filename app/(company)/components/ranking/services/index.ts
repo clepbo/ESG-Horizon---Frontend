@@ -34,9 +34,6 @@ export const useCreateTarget = (companyId?: string) => {
   });
 };
 
-
-
-
 export const useGetLatestTarget = (companyId?: number) => {
   return useQuery({
     queryKey: ["latest-target", companyId],
