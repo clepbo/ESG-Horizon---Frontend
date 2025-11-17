@@ -84,7 +84,8 @@ export function PurchasedElectricityForm({
       setAdditionalFields(existingData.additionalFields || []);
     }
     // }, [state.assessmentData?.electricity, electricityConsumed]);
-  }, [electricityConsumed, state.assessmentData?.electricity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData?.electricity]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
