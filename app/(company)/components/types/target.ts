@@ -1,13 +1,13 @@
 // Enums to match your schema
 export enum TargetType {
   GENERAL = "GENERAL",
-  SCOPE = "SCOPE"
+  SCOPE = "SCOPE",
 }
 
 export enum EmissionScope {
   SCOPE1 = "SCOPE1",
-  SCOPE2 = "SCOPE2", 
-  SCOPE3 = "SCOPE3"
+  SCOPE2 = "SCOPE2",
+  SCOPE3 = "SCOPE3",
 }
 
 // Interface for GeneralTarget
