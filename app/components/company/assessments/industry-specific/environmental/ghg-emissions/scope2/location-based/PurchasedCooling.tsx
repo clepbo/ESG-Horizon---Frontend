@@ -93,7 +93,8 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [coolingConsumed, state.assessmentData.cooling]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData.cooling]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
