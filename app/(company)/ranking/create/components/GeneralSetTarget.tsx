@@ -268,17 +268,19 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                       message={`This shows the company's emission goal for the target year (${data?.targetYear}) after applying the emissions's reduction percentage.`}
                     />
                   }
-                />{" "}
+                />
               </Label>
-              <div className="text-sm text-primary font-semibold">
-                {formatNumberWithCommas(
-                  CalculateEmissionPercentage(
-                    data.reductionPercentage ?? 0,
-                    emissionData?.totals?.total
-                  )
-                )}
-                tCO₂e
-              </div>
+              {data.reductionPercentage && data.reductionPercentage > 0 && (
+                <div className="text-sm text-primary font-semibold">
+                  {formatNumberWithCommas(
+                    CalculateEmissionPercentage(
+                      data.reductionPercentage ?? 0,
+                      emissionData?.totals?.total
+                    )
+                  )}
+                  tCO₂e
+                </div>
+              )}
             </div>
             <hr className="text-gray-300" />
             <div className="space-y-2 flex items-center justify-between w-full">
