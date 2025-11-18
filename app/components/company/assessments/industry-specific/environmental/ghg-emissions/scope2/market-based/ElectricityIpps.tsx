@@ -19,6 +19,7 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
 interface ElectricityIppsFormProps {
   onBack: () => void;
@@ -324,7 +325,7 @@ export function ElectricityIppsForm({
             />
 
             {/* Electricity Consumed */}
-            <div>
+            {/* <div>
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 1.1 Purchased Electricity (from Independent Power Producers – IPPs)
               </Label>
@@ -351,6 +352,32 @@ export function ElectricityIppsForm({
               {errors.electricityConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.electricityConsumed}</p>
               )}
+            </div> */}
+            <div>
+              <Label className="text-base font-medium text-gray-900 mb-2 block">
+                1.1 Purchased Electricity (from Independent Power Producers – IPPs)
+              </Label>
+              <div className="ml-6">
+                <Scope2EmissionInput
+                  category="electricity"
+                  formattedValue={{
+                    rawValue: electricityConsumedRaw,
+                    displayValue: electricityConsumedDisplay,
+                    handleChange: handleElectricityConsumedChange,
+                    setRawValue: setElectricityConsumedRaw,
+                  }}
+                  label="Amount of Electricity Consumed (kWh)"
+                  placeholder="Enter total electricity consumed in kWh"
+                  required
+                  error={errors.electricityConsumed}
+                  showEmissionFactor={true}
+                  isMarketBased={true}
+                  customEmissionFactor={Number(emissionFactorRaw) || null}
+                  onErrorClear={() =>
+                    setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
+                  }
+                />
+              </div>
             </div>
 
             {/* Emission Factor - This remains as regular number input */}

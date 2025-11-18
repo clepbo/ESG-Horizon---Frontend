@@ -21,6 +21,7 @@ import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessm
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 // import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
@@ -357,7 +358,7 @@ export function CoolingSteamForm({
               isSubmitted={isSubmitted}
             />
             {/* Energy Consumed */}
-            <div>
+            {/* <div>
               <Label className="text-md font-medium mb-2 block">
                 4.1 Purchased Cooling / Steam
               </Label>
@@ -382,6 +383,30 @@ export function CoolingSteamForm({
               {errors.energyConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.energyConsumed}</p>
               )}
+            </div> */}
+            <div>
+              <Label className="text-md font-medium mb-2 block">
+                4.1 Purchased Cooling / Steam
+              </Label>
+              <div className="ml-6">
+                <Scope2EmissionInput
+                  category="cooling"
+                  formattedValue={{
+                    rawValue: energyConsumedRaw,
+                    displayValue: energyConsumedDisplay,
+                    handleChange: handleEnergyConsumedChange,
+                    setRawValue: setEnergyConsumedRaw,
+                  }}
+                  label="Quantity consumed (kWh)"
+                  placeholder="Enter cooling/steam energy consumed (kWh)"
+                  required
+                  error={errors.energyConsumed}
+                  showEmissionFactor={true}
+                  isMarketBased={true}
+                  customEmissionFactor={Number(emissionFactorRaw) || null}
+                  onErrorClear={() => setErrors((prev) => ({ ...prev, energyConsumed: undefined }))}
+                />
+              </div>
             </div>
 
             {/* Emission Factor */}
