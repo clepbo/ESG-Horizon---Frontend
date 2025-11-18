@@ -27,7 +27,7 @@ export function SuccessScreen({
   const router = useRouter();
 
   const handleBackToHub = () => {
-    router.push("/assessments/hub");
+    router.push("/assessments/new-assessment");
   };
 
   return (

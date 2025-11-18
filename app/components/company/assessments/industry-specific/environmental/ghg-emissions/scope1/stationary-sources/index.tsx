@@ -24,7 +24,7 @@ export function StationarySourcesForm({
   initialStep,
 }: StationarySourcesFormProps) {
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
-  const [showSuccess, setShowSuccess] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
