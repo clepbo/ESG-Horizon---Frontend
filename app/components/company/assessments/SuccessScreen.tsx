@@ -30,6 +30,15 @@ export function SuccessScreen({
     router.push("/assessments/new-assessment");
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function placeholder() {
+    if (nextAssessment) {
+      onContinue();
+    } else {
+      handleBackToHub();
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-[var(--color-primary)]  rounded-xl shadow-2xl px-8 py-10 max-w-md w-full flex flex-col items-center animate-fade-in-slow">
