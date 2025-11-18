@@ -21,6 +21,7 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
 interface PurchasedSteamFormProps {
   onBack: () => void;
@@ -363,7 +364,7 @@ export function PurchasedSteamForm({
               isSubmitted={false}
             />
             {/* Steam Consumed */}
-            <div>
+            {/* <div>
               <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
               <div className="space-y-4 ml-6">
                 <Label htmlFor="steam-consumed">
@@ -388,8 +389,27 @@ export function PurchasedSteamForm({
               {errors.steamConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.steamConsumed}</p>
               )}
+            </div> */}
+            <div>
+              <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
+              <div className="ml-6">
+                <Scope2EmissionInput
+                  category="steam"
+                  formattedValue={{
+                    rawValue: steamConsumedRaw,
+                    displayValue: steamConsumedDisplay,
+                    handleChange: handleSteamConsumedChange,
+                    setRawValue: setSteamConsumedRaw,
+                  }}
+                  label="Steam Consumed (tonnes)"
+                  placeholder="Enter amount in tonnes"
+                  required
+                  error={errors.steamConsumed}
+                  showEmissionFactor={true}
+                  onErrorClear={() => setErrors((prev) => ({ ...prev, steamConsumed: undefined }))}
+                />
+              </div>
             </div>
-
             {/* Steam Sources */}
             <div>
               <Label className="text-md font-medium mb-2 block">
