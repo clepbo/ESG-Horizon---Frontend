@@ -219,7 +219,7 @@ export function calculateTCO2eForSource(data: SourceDataForCalculation): number 
 
   const tCO2e = kgCO2e / 1000;
 
-  return parseFloat(tCO2e.toFixed(3));
+  return parseFloat(tCO2e.toFixed(4));
 }
 
 export function formatTCO2eOutput(tCO2eValue: number): string {

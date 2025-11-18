@@ -25,8 +25,9 @@ export function SuccessScreen({
   onContinue,
 }: SuccessScreenProps) {
   const router = useRouter();
+
   const handleBackToHub = () => {
-    router.push("/assessments/new-assessment");
+    router.push("/assessments/hub");
   };
 
   return (
@@ -56,20 +57,20 @@ export function SuccessScreen({
             ? "Your assessment report has been successfully generated. You can now review the summary, explore detailed insights, or download the full report for your records."
             : `Your data for the ${assessmentName} metric has been saved successfully. Thank you for completing this step toward accurate ESG reporting.`}
         </p>
-        {nextAssessment && (
+        {/* {nextAssessment && (
           <p className="text-white font-semibold mb-6 text-center">
             Next Assessment: {nextAssessment}
           </p>
-        )}
+        )} */}
         <div className="w-full flex flex-col gap-3">
           <Button
-            className="w-full bg-white text-black font-semibold py-3 rounded-lg transition-all duration-300 hover:bg-gray-200 hover:cursor-pointer"
-            onClick={onContinue}
+            className="w-full bg-white text-black font-semibold py-3 rounded-sm transition-all duration-300 hover:bg-gray-200 hover:cursor-pointer"
+            onClick={() => router.push("/reports-and-analytics")}
           >
-            {nextAssessment ? "Continue to the next assessment" : "View Report"}
+            View &amp; Download Report
           </Button>
           <Button
-            className="w-full bg-[var(--color-primary)]  hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-lg transition-all duration-300  hover:border-green-200 hover:cursor-pointer"
+            className="w-full bg-[var(--color-primary)]  hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-sm transition-all duration-300  hover:border-green-200 hover:cursor-pointer"
             variant="outline"
             onClick={handleBackToHub}
           >
