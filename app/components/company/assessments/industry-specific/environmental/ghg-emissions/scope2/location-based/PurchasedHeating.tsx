@@ -22,6 +22,7 @@ import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessm
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 // import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 interface PurchasedHeatingFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -383,7 +384,7 @@ export function PurchasedHeatingForm({
               )}
             </div>
 
-            <div className="ml-6">
+            {/* <div className="ml-6">
               <div className="space-y-2">
                 <Label htmlFor="heating-consumed">
                   If yes, what was the total heating energy consumed in Gigajoules (GJ)
@@ -411,6 +412,24 @@ export function PurchasedHeatingForm({
                 )}
               </div>
 
+             
+            </div> */}
+            <div className="ml-6">
+              <Scope2EmissionInput
+                category="heating"
+                formattedValue={{
+                  rawValue: heatingConsumedRaw,
+                  displayValue: heatingConsumedDisplay,
+                  handleChange: handleHeatingConsumedChange,
+                  setRawValue: setHeatingConsumedRaw,
+                }}
+                label="If yes, what was the total heating energy consumed in Gigajoules (GJ)"
+                placeholder="Enter heating energy in GJ"
+                required={heatingPurchased === "yes"}
+                error={errors.heatingConsumed}
+                showEmissionFactor={heatingPurchased === "yes"}
+                onErrorClear={() => setErrors((prev) => ({ ...prev, heatingConsumed: undefined }))}
+              />
               <div className="space-y-2">
                 <Label htmlFor="supplier">Supplier</Label>
                 <Input
@@ -435,7 +454,6 @@ export function PurchasedHeatingForm({
                 )}
               </div>
             </div>
-
             {/* 4.2 File Uploads */}
             <div>
               <Label className="text-md font-medium mb-2 block">4.2 Document/Evidence Upload</Label>

@@ -19,6 +19,7 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
 interface ElectricityEACFormProps {
   onBack: () => void;
@@ -326,7 +327,7 @@ export function ElectricityEACForm({
             />
 
             {/* Grid Electricity */}
-            <div>
+            {/* <div>
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 2.1 Purchased Electricity (with Energy Attribute Certificates – EACs / RECs)
               </Label>
@@ -354,6 +355,32 @@ export function ElectricityEACForm({
               {errors.gridElectricity && (
                 <p className="text-sm text-red-500 mt-1">{errors.gridElectricity}</p>
               )}
+            </div> */}
+            <div>
+              <Label className="text-base font-medium text-gray-900 mb-2 block">
+                2.1 Purchased Electricity (with Energy Attribute Certificates – EACs / RECs)
+              </Label>
+              <div className="ml-6">
+                <Scope2EmissionInput
+                  category="electricity"
+                  formattedValue={{
+                    rawValue: gridElectricityRaw,
+                    displayValue: gridElectricityDisplay,
+                    handleChange: handleGridElectricityChange,
+                    setRawValue: setGridElectricityRaw,
+                  }}
+                  label="Total grid electricity consumed (kWh)"
+                  placeholder="Enter total grid electricity consumed"
+                  required
+                  error={errors.gridElectricity}
+                  showEmissionFactor={true}
+                  isMarketBased={true}
+                  customEmissionFactor={Number(emissionFactorRaw) || null}
+                  onErrorClear={() =>
+                    setErrors((prev) => ({ ...prev, gridElectricity: undefined }))
+                  }
+                />
+              </div>
             </div>
 
             {/* EAC / REC Certificate Upload */}
