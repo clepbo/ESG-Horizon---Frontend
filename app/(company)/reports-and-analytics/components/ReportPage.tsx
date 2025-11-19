@@ -57,19 +57,17 @@ export default function ReportPage() {
             onChange={(date) => setStartDate(date)}
             placeholderText=" Start Date"
             calendarIconClassName="text-gray-400"
-            isClearable
             className={`${startDate ? "text-black" : "text-gray-400"} max-w-28`}
             showIcon
             onFocus={(e) => e.target.style.outline = 'none'}
             onBlur={(e) => e.target.style.outline = ''}
           />
           <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
             placeholderText=" End Date"
             calendarIconClassName="text-gray-400"
-            isClearable
-            className={` ${startDate ? "text-black" : "text-gray-400"} max-w-28`}
+            className={` ${endDate ? "text-black" : "text-gray-400"} max-w-28`}
             showIcon
 
             onFocus={(e) => e.target.style.outline = 'none'}
