@@ -1,5 +1,11 @@
+import { useState } from "react";
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
+
 import Reportcard from "@/app/components/common/reports/Reportcard";
 import SearchInput from "@/app/components/ui/reusables/SearchInput";
+
 import {
   Select,
   SelectContent,
@@ -11,18 +17,23 @@ import {
 } from "@/components/ui/select";
 import React from "react";
 import DateRangeInput from "./DateRangeInput";
+import { CustomDateInput } from "./DateInput";
 
 export default function ReportPage() {
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   return (
     <section className="grid ">
-      <div className="grid w-full grid-cols-2 gap-4 md:grid-cols-4 my-4">
-        <SearchInput
+      <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5 my-4">
+        <div className="col-span-2">
+          <SearchInput
           placeholder="Search Reports..."
           value={""}
           onChange={function (e: React.ChangeEvent<HTMLInputElement>): void {
             throw new Error(`Function not implemented. ${e}`);
           }}
         />
+        </div>
 
         <Select>
           <SelectTrigger className="">
@@ -40,8 +51,27 @@ export default function ReportPage() {
           </SelectContent>
         </Select>
 
-        <div className="col-span-2">
-          <DateRangeInput />
+        <div className=" rounded border border-gray-300 flex items-center col-span-2">
+          {/* <DateRangeInput /> */}
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            placeholderText=" Start Date"
+            calendarIconClassName="text-gray-400"
+            isClearable
+            className={` ${startDate ? "text-black" : "text-gray-400"} max-w-44`}
+            
+            showIcon
+          />
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            placeholderText=" End Date"
+            calendarIconClassName="text-gray-400"
+            isClearable
+            className={` ${startDate ? "text-black" : "text-gray-400"} max-w-44`}
+            showIcon
+          />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
