@@ -86,6 +86,9 @@ function SourceRow({
   });
   const formattedTCO2e = formatTCO2eOutput(tCO2e);
 
+  const shouldShowEmission =
+    source.volume && !isNaN(Number(source.volume)) && Number(source.volume) > 0;
+
   return (
     <Card key={source.id} className="p-4 relative">
       <CardContent className="p-0">
@@ -219,7 +222,7 @@ function SourceRow({
                 className={errors[`${source.id}-volume`] ? "border-destructive" : ""}
               />
 
-              {tCO2e > 0 && (
+              {shouldShowEmission && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>

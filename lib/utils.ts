@@ -219,14 +219,14 @@ export function calculateTCO2eForSource(data: SourceDataForCalculation): number 
 
   const tCO2e = kgCO2e / 1000;
 
-  return parseFloat(tCO2e.toFixed(3));
+  return parseFloat(tCO2e.toFixed(2));
 }
 
 export function formatTCO2eOutput(tCO2eValue: number): string {
   if (tCO2eValue === 0) {
     return "0.000 tCO2e";
   }
-  return `${tCO2eValue.toFixed(3)} tCO2e`;
+  return `${tCO2eValue} tCO2e`;
 }
 
 export function formatStatus(status: any | any[]): string {

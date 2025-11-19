@@ -159,11 +159,12 @@ const getSelectionState = (topic: Topic, selectedTopics: string[]): SelectionSta
 export default function AssignTaskPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const editId = searchParams.get("edit");
   const { data: tasks } = useAllTasks();
   const assignTaskMutation = useAssignTask();
   const { data: companyDetails } = useCompanyDetails();
-  const companyId = companyDetails?.id;
+  const companyId = Number(companyDetails?.id);
   const { data: teamMembers } = useCompanyUsers(String(companyId));
 
   const [taskName, setTaskName] = useState("");

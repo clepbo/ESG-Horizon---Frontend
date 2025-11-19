@@ -20,8 +20,6 @@ const toNumber = (val: unknown): number =>
       ? val
       : 0;
 
-// Helper function to calculate total emissions for an array of SourceData.
-// Moved outside the component as it's a pure function and doesn't rely on component state.
 const calculateSourceEmissions = (sources: SourceData[] | undefined): number => {
   if (!sources) return 0;
   return sources.reduce((sum, s) => {

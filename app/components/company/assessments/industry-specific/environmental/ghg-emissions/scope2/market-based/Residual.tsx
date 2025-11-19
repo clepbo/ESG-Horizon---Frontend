@@ -19,6 +19,7 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
 interface ResidualFormProps {
   onBack: () => void;
@@ -93,6 +94,7 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData.residual, setElectricityConsumedRaw]);
 
   const { filled, total } = useMemo(() => {
@@ -332,7 +334,7 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
                 <Label className="text-base font-medium text-gray-900 mb-2 block">
                   Total electricity consumed (kWh) <span className="text-red-500">*</span>
                 </Label>
-                <Input
+                {/* <Input
                   type="text" // Changed from "number" to "text" to display formatted value
                   placeholder="Enter total electricity consumed"
                   value={electricityConsumedDisplay} // Use the formatted display value
@@ -347,6 +349,25 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
                   className={`w-full border-gray-400 ${
                     errors.electricityConsumed ? "border-red-500" : ""
                   }`}
+                /> */}
+                <Scope2EmissionInput
+                  category="residual"
+                  formattedValue={{
+                    rawValue: electricityConsumedRaw,
+                    displayValue: electricityConsumedDisplay,
+                    handleChange: handleElectricityConsumedChange,
+                    setRawValue: setElectricityConsumedRaw,
+                  }}
+                  label="Total electricity consumed (kWh)"
+                  placeholder="Enter total electricity consumed"
+                  required
+                  error={errors.electricityConsumed}
+                  showEmissionFactor={true}
+                  isMarketBased={true}
+                  customEmissionFactor={Number(residualMixFactorRaw) || null}
+                  onErrorClear={() =>
+                    setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
+                  }
                 />
               </div>
               {errors.electricityConsumed && (

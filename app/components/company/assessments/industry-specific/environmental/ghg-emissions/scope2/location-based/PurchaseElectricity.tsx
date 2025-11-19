@@ -19,6 +19,7 @@ import {
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
 interface PurchasedElectricityFormProps {
   onBack: () => void;
@@ -84,7 +85,8 @@ export function PurchasedElectricityForm({
       setAdditionalFields(existingData.additionalFields || []);
     }
     // }, [state.assessmentData?.electricity, electricityConsumed]);
-  }, [electricityConsumed, state.assessmentData?.electricity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData?.electricity]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -141,6 +143,7 @@ export function PurchasedElectricityForm({
     setAdditionalFields(fields);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleElectricityConsumedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     electricityConsumed.handleChange(value);
@@ -326,7 +329,7 @@ export function PurchasedElectricityForm({
             />
 
             {/* Electricity Consumed */}
-            <div>
+            {/* <div>
               <Label className="text-md font-semibold mb-2 block">1.1 Purchased Electricity</Label>
               <div className="space-y-4 ml-6">
                 <Label>
@@ -345,6 +348,23 @@ export function PurchasedElectricityForm({
               {errors.electricityConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.electricityConsumed}</p>
               )}
+            </div> */}
+            <div>
+              <Label className="text-md font-semibold mb-2 block">1.1 Purchased Electricity</Label>
+              <div className="ml-6">
+                <Scope2EmissionInput
+                  category="electricity"
+                  formattedValue={electricityConsumed}
+                  label="Total Electricity Consumed (kWh)"
+                  placeholder="Enter total electricity consumed in kWh"
+                  required
+                  error={errors.electricityConsumed}
+                  showEmissionFactor={true}
+                  onErrorClear={() =>
+                    setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
+                  }
+                />
+              </div>
             </div>
 
             {/* Electricity Supplier */}

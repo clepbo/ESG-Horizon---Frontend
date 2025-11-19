@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 interface PurchasedCoolingFormProps {
   onBack: () => void;
   onNext: () => void;
@@ -93,7 +94,8 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [coolingConsumed, state.assessmentData.cooling]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData.cooling]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -335,10 +337,10 @@ export function PurchasedCoolingForm({
             <div>
               <Label className="text-md font-semibold mb-2 block">2.1 Purchased Cooling</Label>
               <div className="space-y-4 ml-6">
-                <Label>
+                {/* <Label>
                   Amount of Energy Cooling Energy Consumed (kWh){" "}
                   <span className="text-red-500">*</span>
-                </Label>
+                </Label> */}
                 {/* <Input
                   id="cooling-consumed"
                   type="number"
@@ -349,7 +351,7 @@ export function PurchasedCoolingForm({
                     errors.coolingConsumed ? "border-red-500" : ""
                   }`}
                 /> */}
-                <Input
+                {/* <Input
                   id="cooling-consumed"
                   type="text" // Changed from "number" to "text"
                   placeholder="Enter amount in kWh"
@@ -363,11 +365,21 @@ export function PurchasedCoolingForm({
                   className={`w-full border-gray-400 ${
                     errors.coolingConsumed ? "border-red-500" : ""
                   }`}
-                />
+                /> */}
               </div>
-              {errors.coolingConsumed && (
+              {/* {errors.coolingConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.coolingConsumed}</p>
-              )}
+              )} */}
+              <Scope2EmissionInput
+                category="cooling"
+                formattedValue={coolingConsumed}
+                label="Amount of Cooling Energy Consumed (kWh)"
+                placeholder="Enter amount in kWh"
+                required
+                error={errors.coolingConsumed}
+                showEmissionFactor={true}
+                onErrorClear={() => setErrors((prev) => ({ ...prev, coolingConsumed: undefined }))}
+              />
             </div>
 
             {/* Cooling System Types */}
