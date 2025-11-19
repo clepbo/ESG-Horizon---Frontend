@@ -61,6 +61,7 @@ export default function SummaryPage() {
 
   console.log("TDATA", targetData);
   // Use useMemo for calculations to ensure they update when dependencies change
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { calculatedTargetEmission, annualRate, yearDifference } = useMemo(() => {
     if (!targetData || !emissionData) {
       return {

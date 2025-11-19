@@ -48,6 +48,7 @@ export function Scope2EmissionInput({
   const defaultEmissionFactor = getScope2EmissionFactor(category);
 
   // ✅ Market-Based MUST NOT use default factor
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const emissionFactor = isMarketBased
     ? customEmissionFactor !== null && customEmissionFactor !== undefined
       ? { ...defaultEmissionFactor!, factor: customEmissionFactor } // Use custom factor
