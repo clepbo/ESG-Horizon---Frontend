@@ -24,34 +24,33 @@ export default function ReportPage() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   return (
     <section className="grid ">
-      <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5 my-4">
+      <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-4 my-4">
         <div className="col-span-2">
           <SearchInput
-          placeholder="Search Reports..."
-          value={""}
-          onChange={function (e: React.ChangeEvent<HTMLInputElement>): void {
-            throw new Error(`Function not implemented. ${e}`);
-          }}
-        />
+            placeholder="Search Reports..."
+            value={""}
+            onChange={function (e: React.ChangeEvent<HTMLInputElement>): void {
+              throw new Error(`Function not implemented. ${e}`);
+            }}
+          />
         </div>
 
         <Select>
-          <SelectTrigger className="">
-            <SelectValue placeholder="Select a fruit" />
+          <SelectTrigger className="w-auto rounded p-3 border">
+            <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Fruits</SelectLabel>
-              <SelectItem value="apple">Apple</SelectItem>
-              <SelectItem value="banana">Banana</SelectItem>
-              <SelectItem value="blueberry">Blueberry</SelectItem>
-              <SelectItem value="grapes">Grapes</SelectItem>
-              <SelectItem value="pineapple">Pineapple</SelectItem>
+              <SelectLabel>Sort by</SelectLabel>
+              <SelectItem value="apple">Date(Newest/Oldest)</SelectItem>
+              <SelectItem value="banana">Date(Oldest/Newest) </SelectItem>
+              <SelectItem value="blueberry">Progress(Highest/Lowest) </SelectItem>
+              <SelectItem value="blueberry">Progress(Lowest/Highest) </SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
 
-        <div className=" rounded border border-gray-300 flex items-center col-span-2">
+        <div className=" rounded border border-gray-300 flex items-center col-span-1 w-auto">
           {/* <DateRangeInput /> */}
           <DatePicker
             selected={startDate}
@@ -59,9 +58,10 @@ export default function ReportPage() {
             placeholderText=" Start Date"
             calendarIconClassName="text-gray-400"
             isClearable
-            className={` ${startDate ? "text-black" : "text-gray-400"} max-w-44`}
-            
+            className={`${startDate ? "text-black" : "text-gray-400"} max-w-28`}
             showIcon
+            onFocus={(e) => e.target.style.outline = 'none'}
+            onBlur={(e) => e.target.style.outline = ''}
           />
           <DatePicker
             selected={startDate}
@@ -69,8 +69,11 @@ export default function ReportPage() {
             placeholderText=" End Date"
             calendarIconClassName="text-gray-400"
             isClearable
-            className={` ${startDate ? "text-black" : "text-gray-400"} max-w-44`}
+            className={` ${startDate ? "text-black" : "text-gray-400"} max-w-28`}
             showIcon
+
+            onFocus={(e) => e.target.style.outline = 'none'}
+            onBlur={(e) => e.target.style.outline = ''}
           />
         </div>
       </div>
