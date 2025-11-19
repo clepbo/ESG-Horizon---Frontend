@@ -143,6 +143,7 @@ export function PurchasedElectricityForm({
     setAdditionalFields(fields);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleElectricityConsumedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     electricityConsumed.handleChange(value);

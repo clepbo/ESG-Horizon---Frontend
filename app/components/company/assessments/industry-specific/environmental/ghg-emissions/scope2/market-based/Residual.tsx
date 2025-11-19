@@ -94,6 +94,7 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData.residual, setElectricityConsumedRaw]);
 
   const { filled, total } = useMemo(() => {

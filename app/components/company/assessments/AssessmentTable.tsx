@@ -25,7 +25,7 @@ import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
-import AssessmentDetailsModal from "./AssessmentDetailsModal";
+import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
