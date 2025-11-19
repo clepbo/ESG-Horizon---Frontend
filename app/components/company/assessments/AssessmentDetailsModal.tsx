@@ -8,13 +8,6 @@ import { Badge } from "@/app/components/ui/badge";
 import { Progress } from "@/app/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Alert, AlertDescription } from "@/app/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   CheckCircle2,
@@ -40,6 +33,7 @@ import {
 import type { Assessment } from "./AssessmentTable";
 import { ScrollArea } from "../../ui/scroll-area";
 import Image from "next/image";
+import CustomDialog from "../../ui/reusables/CustomDialog";
 
 interface FileWithMeta {
   name: string;
@@ -51,7 +45,7 @@ interface FileWithMeta {
   field: string;
 }
 
-export default function AssessmentDetailsModal({
+export function AssessmentDetailsModal({
   open,
   onClose,
   assessment,
@@ -63,6 +57,7 @@ export default function AssessmentDetailsModal({
   const [showReject, setShowReject] = useState(false);
   const [reason, setReason] = useState("");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [selectedFile, setSelectedFile] = useState<FileWithMeta | null>(null);
 
   const approveMutation = useApproveAssessment();
   const rejectMutation = useRejectAssessment();
@@ -76,32 +71,6 @@ export default function AssessmentDetailsModal({
     setReason("");
   }, [assessment?.id]);
 
-  // Add debug logs
-  useEffect(() => {
-    console.log("Full assessment data:", fullAssessment);
-    console.log("Assessment ID:", assessment?.id);
-  }, [fullAssessment, assessment?.id]);
-  // const assessmentData = useMemo(() => {
-  //   return fullAssessment?.data?.assessmentData || {};
-  // }, [fullAssessment?.data?.assessmentData]);
-
-  // const totalsData = assessmentData?.totals?.totals || {};
-  // const breakdown = totalsData?.breakdown || {};
-  // const computedAt = assessmentData?.totals?.computedAt;
-
-  // // Calculate scope totals from breakdown
-  // const scopeTotals = useMemo(() => {
-  //   const scope1 =
-  //     (breakdown?.stationarySources?.sum || 0) +
-  //     (breakdown?.mobileSources?.sum || 0) +
-  //     (breakdown?.processEmissions?.sum || 0) +
-  //     (breakdown?.fugitiveEmissions?.sum || 0);
-
-  //   // Add scope 2 calculation when you have that data
-  //   const scope2 = 0; // You'll need to calculate this from electricity, cooling, steam, heating
-
-  //   return { scope1, scope2 };
-  // }, [breakdown]);
   const assessmentData = useMemo(() => {
     return fullAssessment?.data?.assessmentData || {};
   }, [fullAssessment?.data?.assessmentData]);
@@ -592,62 +561,72 @@ export default function AssessmentDetailsModal({
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         {allFiles.map((file, i) => (
-                          <Dialog key={i}>
-                            <DialogTrigger asChild>
-                              <div className="group cursor-pointer rounded-lg shadow-md p-3 hover:shadow-md transition bg-white">
-                                {file.type?.startsWith("image/") ? (
-                                  <div className="relative w-full h-20 rounded mb-2 overflow-hidden">
-                                    <Image
-                                      src={file.preview || file.url || ""}
-                                      alt={file.name}
-                                      fill
-                                      className="object-cover"
-                                      unoptimized
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="bg-gray-100 shadow-xs rounded-xl w-full h-20 flex items-center justify-center mb-2">
-                                    <FileText className="w-8 h-8 text-gray-400" />
-                                  </div>
-                                )}
-                                <p className="text-xs font-medium truncate">{file.name}</p>
-                                <p className="text-xs text-gray-500">{file.section}</p>
+                          <div
+                            key={i}
+                            onClick={() => setSelectedFile(file)}
+                            className="group cursor-pointer rounded-lg shadow-md p-3 hover:shadow-md transition bg-white"
+                          >
+                            {file.type?.startsWith("image/") ? (
+                              <div className="relative w-full h-20 rounded mb-2 overflow-hidden">
+                                <Image
+                                  src={file.preview || file.url || ""}
+                                  alt={file.name}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
                               </div>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-4xl z-60">
-                              <DialogHeader>
-                                <DialogTitle>{file.name}</DialogTitle>
-                              </DialogHeader>
-                              {file.type?.startsWith("image/") ? (
-                                <div className="relative w-full h-20 rounded mb-2 overflow-hidden">
-                                  <Image
-                                    src={file.preview || file.url || ""}
-                                    alt={file.name}
-                                    fill
-                                    className="object-cover"
-                                    unoptimized
-                                  />
-                                </div>
-                              ) : (
-                                <iframe src={file.url} className="w-full h-96" title={file.name} />
-                              )}
-                              <div className="mt-4 text-sm text-gray-600">
-                                <p>
-                                  <strong>Section:</strong> {file.section}
-                                </p>
-                                <p>
-                                  <strong>Field:</strong> {file.field}
-                                </p>
-                                {file.size && (
-                                  <p>
-                                    <strong>Size:</strong> {(file.size / 1024).toFixed(1)} KB
-                                  </p>
-                                )}
+                            ) : (
+                              <div className="bg-gray-100 shadow-xs rounded-xl w-full h-20 flex items-center justify-center mb-2">
+                                <FileText className="w-8 h-8 text-gray-400" />
                               </div>
-                            </DialogContent>
-                          </Dialog>
+                            )}
+                            <p className="text-xs font-medium truncate">{file.name}</p>
+                            <p className="text-xs text-gray-500">{file.section}</p>
+                          </div>
                         ))}
                       </div>
+                    )}
+                    {/* CustomDialog for selected file */}
+                    {selectedFile && (
+                      <CustomDialog
+                        open={!!selectedFile}
+                        onOpenChange={() => setSelectedFile(null)}
+                        title={selectedFile.name}
+                        className="max-w-4xl"
+                      >
+                        {selectedFile.type?.startsWith("image/") ? (
+                          <div className="relative w-full h-96 rounded mb-2 overflow-hidden">
+                            <Image
+                              src={selectedFile.preview || selectedFile.url || ""}
+                              alt={selectedFile.name}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <iframe
+                            src={selectedFile.url}
+                            className="w-full h-96"
+                            title={selectedFile.name}
+                          />
+                        )}
+
+                        <div className="mt-4 text-sm text-gray-600">
+                          <p>
+                            <strong>Section:</strong> {selectedFile.section}
+                          </p>
+                          <p>
+                            <strong>Field:</strong> {selectedFile.field}
+                          </p>
+                          {selectedFile.size && (
+                            <p>
+                              <strong>Size:</strong> {(selectedFile.size / 1024).toFixed(1)} KB
+                            </p>
+                          )}
+                        </div>
+                      </CustomDialog>
                     )}
                   </TabsContent>
                 </Tabs>
