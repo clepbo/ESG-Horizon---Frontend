@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Card, CardTitle } from "../../ui/card";
 import {
@@ -5,21 +6,36 @@ import {
 } from "@/app/(company)/reports-and-analytics/components/charts/ProgressBar";
 import { CustomButton } from "../../ui/reusables/CustomButton";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+interface ReportcardProps {
+  subsidiary: string;
+  dateRange: string;
+  status: "Completed" | "In Progress" | "Not Started" | "submitted_approved" | string;
+  progress: number;
+  id: number
+}
 
-export default function Reportcard() {
+export default function Reportcard({ subsidiary, dateRange, id, status = "Completed", progress = 80 }: ReportcardProps) {
+  const router = useRouter();
+
+  function handleRoute() {
+    router.push(`/reports-and-analytics/${id}`);
+  }
   return (
     <Card className="w-full h-64 flex flex-col p-4 gap-2 md:gap-4 justify-center">
-      <CardTitle className="text-lg"> Upstream (Exploration & Production)</CardTitle>
-      <div className="flex items-center justify-between w-full">
-        <p className="text-sm"> January 2021 - June 2021</p>
-        <p className=" rounded-2xl text-sm px-1 font-semibold bg-green-500 text-white">
-          {" "}
-          Completed
-        </p>
+      <CardTitle className=""> {subsidiary} </CardTitle>
+      <div className="flex flex-col w-full">
+        <span className="text-10"> {dateRange} </span>
+        { status === "submitted_approved" && <span className="flex justify-end text-xs  ">
+          <span className="font-semibold bg-green-600 text-white p-1 rounded-2xl">
+
+            {status}
+          </span>
+        </span>}
       </div>
       <div className="flex flex-col gap-1">
-        <CustomProgressWithoutUnit value={78} title="Progress" total={78} percent={78} unit="%" />
+        <CustomProgressWithoutUnit value={progress} title="Progress" total={78} percent={progress} unit="%" />
         {/* <p className='text-sm'> 8 of 8 sections completed</p> */}
       </div>
       <CustomButton
@@ -27,6 +43,7 @@ export default function Reportcard() {
         size={"lg"}
         className="w-full rounded p-2"
         icon={<ArrowRight />}
+        onClick={handleRoute}
       >
         View Report
       </CustomButton>
