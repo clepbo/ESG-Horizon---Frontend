@@ -5,7 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Badge } from "@/app/components/ui/badge";
 import { Progress } from "@/app/components/ui/progress";
 import { Button } from "@/app/components/ui/button";
-import { Trash2, ExternalLink, X, Edit, Bell } from "lucide-react";
+import { ExternalLink, X, Edit, Bell } from "lucide-react";
 import { FrontendTask } from "@/services/assignTask.service";
 import { cn } from "@/lib/utils";
 import {
@@ -39,15 +39,15 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
   const diffDays = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   const dueInWeeks = diffDays > 0 ? `Due in ${Math.ceil(diffDays / 7)} weeks` : "Past due";
 
-  const handleDeleteTask = async (taskId: number) => {
-    try {
-      await deleteTaskMutation.mutateAsync(taskId);
-      toast.error("Task deleted successfully");
-      onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error.message);
-    }
-  };
+  // const handleDeleteTask = async (taskId: number) => {
+  //   try {
+  //     await deleteTaskMutation.mutateAsync(taskId);
+  //     toast.error("Task deleted successfully");
+  //     onOpenChange(false);
+  //   } catch (error: any) {
+  //     toast.error(error.message);
+  //   }
+  // };
 
   const handleSaveTask = async (taskId: number) => {
     if (!comment) {
@@ -203,8 +203,9 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
               {comments?.map(
                 (c: { id: number; commenter: string; comment: string; createdAt: string }) => (
                   <li key={c.id} className="bg-gray-200 shadow-sm rounded-md p-2 text-sm my-3">
-                    <span className="font-medium">{c.commenter}:</span> {c.comment}
-                    <div className="text-xs text-muted-foreground">
+                    <span className="font-small text-neutral-600">{c.commenter}:</span>{" "}
+                    <span className="font-medium text-neutral-900">{c.comment}</span>
+                    <div className="text-xs text-neutral-600 mt-1">
                       {new Date(c.createdAt).toLocaleString()}
                     </div>
                   </li>
@@ -222,20 +223,28 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button
+          {/* <Button
             variant="destructive"
             className="text-white"
             disabled={deleteTaskMutation.isPending || addCommentMutation.isPending}
             onClick={() => handleDeleteTask(task.id)}
           >
             <Trash2 className="w-4 h-4 mr-1" /> Delete Task
-          </Button>
+          </Button> */}
           <Button
             disabled={addCommentMutation.isPending || deleteTaskMutation.isPending}
             onClick={() => handleSaveTask(task.id)}
+            className="border border-teal-600 bg-white text-teal"
+          >
+            Submit Comment
+          </Button>
+
+          <Button
+            disabled={addCommentMutation.isPending || deleteTaskMutation.isPending}
+            onClick={() => console.log(task)}
             className="bg-teal-600 text-white"
           >
-            Save & Close
+            Start Task
           </Button>
         </div>
       </DialogPrimitive.Content>

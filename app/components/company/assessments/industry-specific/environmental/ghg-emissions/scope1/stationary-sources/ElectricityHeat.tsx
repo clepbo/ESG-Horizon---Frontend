@@ -17,8 +17,8 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useRouter } from "next/navigation";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface ElectricityHeatFormProps {
   onBack: () => void;
@@ -50,6 +50,7 @@ export function ElectricityHeatForm({
   totalSteps,
 }: ElectricityHeatFormProps) {
   const { state, dispatch } = useAssessment();
+  const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -61,8 +62,9 @@ export function ElectricityHeatForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
   const [errors, setErrors] = useState<ElectricityHeatErrors>({});
 
-  const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { autoSave, saveNow, isLoading } = useAssessmentFlow(
+    "ghg-scope1-stationary-electricityheat"
+  );
 
   const dieselFuelOptions = useMemo(() => getFuelOptions("dieselGenerators"), []);
   const gasFuelOptions = useMemo(() => getFuelOptions("gasTurbines"), []);
@@ -146,16 +148,16 @@ export function ElectricityHeatForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
+  useEffect(() => {
+    autoSave("environment.ghg.scope1.stationarySources.electricityHeat", {
+      dieselGenerators,
+      gasTurbines,
+      files,
+      additionalFields,
     });
+  }, [dieselGenerators, gasTurbines, files, additionalFields, autoSave]);
 
+  const handleSaveAndContinue = async () => {
     const payload = {
       dieselGenerators,
       gasTurbines,
@@ -167,37 +169,18 @@ export function ElectricityHeatForm({
         url: f.url ?? "",
         publicId: f.publicId ?? "",
       })),
-      progressPercent,
     };
 
     dispatch({
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
       payload,
     });
-
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          stationarySources: {
-            ...state.assessmentData.stationarySources,
-            electricityHeat: payload,
-          },
-          lastSavedForm: "ghg-stationary-sources-electricity-heat",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-      }
-
+      await saveNow("environment.ghg.scope1.stationarySources.electricityHeat", payload);
       setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+    } catch (err) {
+      console.error("Save failed:", err);
       toast.error("Failed to save");
     }
   };
@@ -452,11 +435,11 @@ export function ElectricityHeatForm({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="justify-self-center bg-teal-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -476,7 +459,7 @@ export function ElectricityHeatForm({
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
