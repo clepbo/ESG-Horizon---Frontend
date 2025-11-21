@@ -371,9 +371,11 @@ export default function SetTargetByScope() {
                     }
                   />{" "}
                 </Label>
-                <div className="text-sm text-primary font-semibold">
-                  {formatWithCommas(targetEmission)} tCO₂e
-                </div>
+                {targetEmission > 0 && (
+                  <div className="text-sm text-primary font-semibold">
+                    {formatWithCommas(targetEmission)} tCO₂e
+                  </div>
+                )}
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">

@@ -86,6 +86,9 @@ function SourceRow({
   });
   const formattedTCO2e = formatTCO2eOutput(tCO2e);
 
+  const shouldShowEmission =
+    source.volume && !isNaN(Number(source.volume)) && Number(source.volume) > 0;
+
   return (
     <Card key={source.id} className="p-4 relative">
       <CardContent className="p-0">
@@ -154,7 +157,9 @@ function SourceRow({
                     </>
                   ) : (
                     <>
-                      <span className="text-xs">{source.emissionFactor || 2.68} kgCO₂/unit</span>
+                      <span className="text-xs">
+                        {source.emissionFactor === 0 ? 0 : (source.emissionFactor ?? 2.68)}
+                      </span>
                       <Button
                         type="button"
                         variant="ghost"
@@ -219,7 +224,7 @@ function SourceRow({
                 className={errors[`${source.id}-volume`] ? "border-destructive" : ""}
               />
 
-              {tCO2e > 0 && (
+              {shouldShowEmission && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -403,8 +408,11 @@ export function AddSource({
   };
 
   const handleResetClick = (source: SourceData) => {
+    const selectedFuel = fuelTypeOptions.find((option) => option.value === source.fuelType);
+
     const defaultFactor =
-      fuelTypeOptions.find((option) => option.value === source.fuelType)?.emissionFactor || 2.68;
+      selectedFuel?.emissionFactor === 0 ? 0 : (selectedFuel?.emissionFactor ?? 2.68);
+
     setTempEmissionFactor(defaultFactor);
   };
 

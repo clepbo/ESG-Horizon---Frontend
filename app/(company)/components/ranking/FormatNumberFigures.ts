@@ -1,4 +1,4 @@
-function formatNumberFigures(num: number): string {
+export function formatNumberFigures(num: number): string {
   if (isNaN(num)) return "0";
 
   const absNum = Math.abs(num);

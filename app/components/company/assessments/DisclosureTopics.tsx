@@ -21,7 +21,7 @@ import CommunityRelationsHome from "./industry-specific/social-capital/community
 
 interface DisclosureTopicsProps {
   onBack: () => void;
-  initialView?: "topics" | "ghg" | "crs";
+  initialView?: "topics" | "ghg" | "crs" | "security-human-rights";
   initialForm?: "stationary-sources" | any;
   initialStep?: string;
 }
@@ -259,6 +259,8 @@ export function DisclosureTopics({
       setCurrentView("ghg");
     } else if(cardTitle === "Community Relations") {
       setCurrentView("crs")
+    } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
+      setCurrentView("security-human-rights");
     }
   };
 
@@ -386,7 +388,7 @@ export function DisclosureTopics({
                                         {card.subtitle}
                                       </p>
                                     </div>
-                                    <ChevronRight className="h-7 w-7 text-muted-foreground flex-shrink-0 ml-2" />
+                                    <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
                                   </div>
                                 </CardContent>
                               </Card>
@@ -461,7 +463,7 @@ export function DisclosureTopics({
                                         {card.subtitle}
                                       </p>
                                     </div>
-                                    <ChevronRight className="h-7 w-7 text-muted-foreground flex-shrink-0 ml-2" />
+                                    <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
                                   </div>
                                 </CardContent>
                               </Card>

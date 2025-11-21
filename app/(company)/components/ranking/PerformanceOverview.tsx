@@ -47,8 +47,8 @@ export default function PerformanceOverview() {
           <SpeedometerGauge
             score={120}
             initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
-            currentEmission={formatNumberWithCommas(general.currentEmission ?? 0) ?? 0}
-            targetEmission={formatNumberWithCommas(general.targetEmission) ?? 0}
+            currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
+            targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
           />
         </div>
       )}

@@ -14,7 +14,7 @@ export type TaskStatus =
   | "in_progress"
   | "completed"
   | "approved"
-  | "rejected"
+  | "declined"
   | "on_hold";
 
 export interface ITask {

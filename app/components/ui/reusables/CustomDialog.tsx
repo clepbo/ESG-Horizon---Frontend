@@ -9,6 +9,7 @@ interface DialogProps {
   title?: string;
   children: React.ReactNode;
   className?: string;
+  offsetX?: number;
 }
 
 export default function CustomDialog({
@@ -17,11 +18,13 @@ export default function CustomDialog({
   title,
   children,
   className = "",
+  offsetX = 0,
 }: DialogProps) {
   return (
     <AnimatePresence>
       {open && (
         <motion.div
+          style={{ marginLeft: offsetX }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
