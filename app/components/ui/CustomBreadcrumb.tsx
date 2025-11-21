@@ -86,3 +86,48 @@ export function CustomBreadcrumb({ items }: DynamicBreadcrumbProps) {
     </Breadcrumb>
   );
 }
+
+
+
+
+export interface BreadcrumbItemType {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+}
+
+export interface CustomBreadcrumbDynamicProps {
+  features: BreadcrumbItemType[];
+}
+
+export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = ({
+  features,
+}) => {
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        {features.map((item, index) => (
+          <React.Fragment key={index}>
+            <BreadcrumbItem>
+              {item.onClick ? (
+                <span
+                  onClick={item.onClick}
+                  className="cursor-pointer text-blue-600 hover:underline"
+                >
+                  {item.label}
+                </span>
+              ) : item.href ? (
+                <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+              ) : (
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              )}
+            </BreadcrumbItem>
+
+            {index < features.length - 1 && <BreadcrumbSeparator />}
+          </React.Fragment>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+};
+

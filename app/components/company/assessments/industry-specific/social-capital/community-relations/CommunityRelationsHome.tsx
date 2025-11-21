@@ -1,25 +1,47 @@
-import Header from '@/app/components/layout/Header'
-import { Card } from '@/app/components/ui/card'
-import { CustomBreadcrumb } from '@/app/components/ui/CustomBreadcrumb'
+"use client"
+
+import CustomTooltip from '@/app/(company)/ranking/create/components/CustomTooltip'
+import { TooltipMessage } from '@/app/(company)/ranking/create/components/TooltipMessage'
+import { Card, CardContent } from '@/app/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/context/AuthContext'
-import { useAssessment } from '@/hooks/useAssessment'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react';
+import { communityItems } from './data/index'
+import { slugify } from './utils'
+import CommunityRisk from './components/CommunityRisk'
+import OperationalDelay from './components/OperationalDelay'
 
 
 interface Props {
     onBack?: () => void;
 }
 export default function CommunityRelationsHome({ onBack }: Props) {
-    const items = [
-        { label: 'Disclosure topics', href: '/assessments/hub' },
-        { label: 'Community Relations', href: '/company/assessments/industry-specific/social-capital/community-relations' },]
-
+    const [currentView, setCurrentView] = useState<string>("");
     const router = useRouter();
-    const { state, dispatch } = useAssessment();
-    const { user } = useAuth();
+
+
+
+    function handleCardClick(cardTitle: string) {
+        setCurrentView(slugify(cardTitle));
+    }
+
+    if (currentView === slugify(communityItems[0].title)) {
+        return (
+
+            <div>
+                <CommunityRisk />
+            </div>
+        )
+    }
+    if (currentView === slugify(communityItems[1].title)) {
+        return (
+
+            <div>
+                <OperationalDelay />
+            </div>
+        )
+    }
 
     return (
         <section className='min-h-screen bg-green-50 p-6'>
@@ -32,10 +54,52 @@ export default function CommunityRelationsHome({ onBack }: Props) {
                 >
                     <ArrowLeft size={18} /> <span className="text-sm">Back</span>
                 </Button>
-                <Card className="w-full p-6 flex flex-col bg-white rounded-md shadow-md">
-                    
+                <Card className="w-full p-6 flex flex-col gap-3 bg-white rounded-md shadow-md">
+                    <div className="flex flex-col md:flex-row items-center w-full md:justify-between">
+                        <div className="flex flex-col gap-2">
+
+                            <h5 className=''>Community Relations </h5>
+                            <p className='text-sm'>
+                                This disclosure topic assesses the company's framework for managing its relationship with host communities, from proactive risk and opportunity management to the operational impact of non-technical disruptions. IFRS codes: EM-EP-210b.1, EM-EP-210b.2
+                            </p>
+                        </div>
+                        <Button className='text-white cursor-pointer'
+                        >
+                            Assign task
+                        </Button>
+                    </div>
+
+                    {
+                        communityItems.map((card, i) => (
+                            <>
+                                <h5 className='-mb-2'> {card.title}
+                                    <CustomTooltip detail={<TooltipMessage title={card.tooltipTitle} message={card.tooltipMessage} />} />
+                                </h5>
+                                <Card
+                                    key={card.title}
+                                    className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${card.clickable
+                                        ? "cursor-pointer hover:bg-accent/50"
+                                        : "cursor-default"
+                                        }`}
+                                    onClick={() => card.clickable && handleCardClick(card.title)}
+                                >
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="space-y-1 flex-1">
+                                                <h5 className="font-medium text-foreground">{card.subtitle}</h5>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {card.body}
+                                                </p>
+                                            </div>
+                                            <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </>
+                        ))
+                    }
                 </Card>
-                    
+
 
 
             </div>
