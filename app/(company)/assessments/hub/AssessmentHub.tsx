@@ -51,6 +51,7 @@ export default function AssessmentHub() {
     return result;
   }, []);
 
+
   useEffect(() => {
     if (!isLoading && subsidiaries.length === 0 && !state.assessmentData.subsidiary) {
       dispatch({
@@ -344,7 +345,7 @@ export default function AssessmentHub() {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                  className="bg-primary transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
                   disabled={!isFormValid}
                   onClick={handleProceed}
                 >

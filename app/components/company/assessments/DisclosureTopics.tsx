@@ -17,10 +17,11 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
+import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
-  initialView?: "topics" | "ghg";
+  initialView?: "topics" | "ghg" | "crs";
   initialForm?: "stationary-sources" | any;
   initialStep?: string;
 }
@@ -80,10 +81,12 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Security, Human Rights & Rights of Indigenous Peoples",
         subtitle:
           "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
+          clickable: true,
       },
       {
         title: "Community Relations",
         subtitle: "Report engagement strategies and impact on local  communities",
+        clickable: true,
       },
     ],
   },
@@ -254,9 +257,12 @@ export function DisclosureTopics({
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Greenhouse Gas Emissions") {
       setCurrentView("ghg");
+    } else if(cardTitle === "Community Relations") {
+      setCurrentView("crs")
     }
   };
 
+  
   const handleBackToHub = () => {
     onBack();
   };
@@ -271,6 +277,13 @@ export function DisclosureTopics({
       />
     );
   }
+  if (currentView === "crs") {
+    return (
+      <CommunityRelationsHome onBack={() => setCurrentView("topics")} />
+    );
+  }
+
+
 
   return (
     <TooltipProvider>
@@ -297,7 +310,7 @@ export function DisclosureTopics({
                     opportunities
                   </p>
                 </div>
-                <Button className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white">
+                <Button className="bg-primary  hover:bg-teal-600 text-white">
                   Assign Task
                 </Button>
               </div>
