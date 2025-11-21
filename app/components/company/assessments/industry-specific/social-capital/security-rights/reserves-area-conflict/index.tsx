@@ -15,7 +15,6 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress, computeProgressPercent } from "@/lib/utils";
@@ -41,7 +40,7 @@ export default function ReservesAreaConflict({
   const probableReservesInConflictVolume = useFormattedNumber("");
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
-  const { isPending: isSaving } = useSaveAssessment();
+  const [isSaving, setIsSaving] = useState(false);
   const [additionalLinks, setAdditionalLinks] = useState<LinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -139,6 +138,7 @@ export default function ReservesAreaConflict({
       return;
     }
     setShowSaveSuccess(true);
+    setIsSaving(true);
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -164,6 +164,7 @@ export default function ReservesAreaConflict({
     console.log("DATA TO SAVE:", payload);
 
     toast.success("Data logged to console.");
+    setIsSaving(false);
   };
 
   const handleNext = () => {

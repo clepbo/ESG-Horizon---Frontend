@@ -8,7 +8,6 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
@@ -30,7 +29,7 @@ export default function HumanRightEngagement({
 }: HumanRightEngagementProps) {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
-  const { isPending: isSaving } = useSaveAssessment();
+  const [isSaving, setIsSaving] = useState(false);
   const [additionalLinks, setAdditionalLinks] = useState<LinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -71,8 +70,9 @@ export default function HumanRightEngagement({
       return;
     }
     setShowSaveSuccess(true);
-
+    setIsSaving(true);
     toast.success("Progress saved! You can continue later.");
+    setIsSaving(false);
   };
 
   const handleSubmit = () => {
