@@ -17,10 +17,11 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
+import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
-  initialView?: "topics" | "ghg";
+  initialView?: "topics" | "ghg" | any;
   initialForm?: "stationary-sources" | any;
   initialStep?: string;
 }
@@ -80,10 +81,12 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Security, Human Rights & Rights of Indigenous Peoples",
         subtitle:
           "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
+        clickable: true,
       },
       {
         title: "Community Relations",
         subtitle: "Report engagement strategies and impact on local  communities",
+        clickable: true,
       },
     ],
   },
@@ -254,6 +257,8 @@ export function DisclosureTopics({
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Greenhouse Gas Emissions") {
       setCurrentView("ghg");
+    } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
+      setCurrentView("security-human-rights");
     }
   };
 
@@ -264,6 +269,16 @@ export function DisclosureTopics({
   if (currentView === "ghg") {
     return (
       <GhgEmissionsAssessment
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+      />
+    );
+  }
+  if (currentView === "security-human-rights") {
+    return (
+      <SecurityHumanRightsAssessment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
         initialForm={initialForm as any}
