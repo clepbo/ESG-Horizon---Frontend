@@ -34,8 +34,6 @@ const steps = [
   "human-rights-engagement",
 ] as const;
 
-type StepKey = (typeof steps)[number];
-
 const scopeData = [
   {
     id: "operations-in-zone-conflict",
