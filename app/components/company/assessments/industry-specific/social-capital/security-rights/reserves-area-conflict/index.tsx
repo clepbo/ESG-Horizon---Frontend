@@ -21,6 +21,7 @@ import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
 import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { UnitSelect } from "../../../../UnitSelect";
 
 interface ReservesAreaConflictProps {
   onBack: () => void;
@@ -269,25 +270,15 @@ export default function ReservesAreaConflict({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
-                  <Select
+
+                  <UnitSelect
                     value={formData.totalProvedReservesUnit}
                     onValueChange={(value) => {
                       handleInputChange("totalProvedReservesUnit", value);
                       setErrors((prev) => ({ ...prev, totalProvedReservesUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.totalProvedReservesUnit && (
-                    <p className="text-red-600 text-xs">{errors.totalProvedReservesUnit}</p>
-                  )}
+                    error={errors.totalProvedReservesUnit}
+                  />
                 </div>
               </div>
             </div>
@@ -343,25 +334,14 @@ export default function ReservesAreaConflict({
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
 
-                  <Select
+                  <UnitSelect
                     value={formData.provedReservesInConflictUnit}
                     onValueChange={(value) => {
                       handleInputChange("provedReservesInConflictUnit", value);
                       setErrors((prev) => ({ ...prev, provedReservesInConflictUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.provedReservesInConflictUnit && (
-                    <p className="text-red-600 text-xs">{errors.provedReservesInConflictUnit}</p>
-                  )}
+                    error={errors.provedReservesInConflictUnit}
+                  />
                 </div>
               </div>
             </div>
@@ -420,25 +400,14 @@ export default function ReservesAreaConflict({
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
 
-                  <Select
+                  <UnitSelect
                     value={formData.probableReservesInConflictUnit}
                     onValueChange={(value) => {
                       handleInputChange("probableReservesInConflictUnit", value);
                       setErrors((prev) => ({ ...prev, probableReservesInConflictUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.probableReservesInConflictUnit && (
-                    <p className="text-red-600 text-xs">{errors.probableReservesInConflictUnit}</p>
-                  )}
+                    error={errors.probableReservesInConflictUnit}
+                  />
                 </div>
               </div>
             </div>
