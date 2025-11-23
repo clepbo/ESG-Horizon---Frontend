@@ -80,7 +80,8 @@ export function getAssessmentProgressForTable(assessment: any): number {
   const { assessmentData, status } = assessment || {};
   if (!assessmentData) return 0;
 
-  if (status?.startsWith("submitted") || status === "approved") return 100;
+  // if (status?.startsWith("submitted") || status === "approved") return 100;
+  console.info(status);
 
   const lastSavedForm: string = assessmentData.lastSavedForm || "";
   if (!lastSavedForm) return 0;

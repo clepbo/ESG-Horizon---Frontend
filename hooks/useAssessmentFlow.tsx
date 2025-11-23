@@ -38,36 +38,35 @@ export const useAssessmentFlow = (currentFormKey: string) => {
         endMonth: meta.endMonth,
         endYear: meta.endYear,
       });
-      assessmentId = result.id; // ← direct from result, no race
+      assessmentId = result.id;
       dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
     }
 
-    await saveMut.mutateAsync({ path, data, assessmentId }); // ← assessmentId is number
+    await saveMut.mutateAsync({ path, data, assessmentId });
   };
 
   const saveNow = async (path: string, data: any) => {
     try {
       await ensureIdAndSave(path, data);
-      toast.success("Saved!");
     } catch (err) {
       toast.error("Save failed");
       console.error(err);
     }
   };
-
   const submitMut = useMutation({
-    mutationFn: () => {
-      const id = state.assessmentId;
-      if (!id) throw new Error("No assessment ID");
-      return assessmentService.submitGroup(id, currentFormKey);
-    },
-    onSuccess: () => toast.success("Group submitted!"),
+    mutationFn: () => assessmentService.submitGroup(state.assessmentId!, currentFormKey),
+    onSuccess: () => toast.success("Assessment Submitted!"),
   });
+
+  const submitGroup = async () => {
+    const response = await submitMut.mutateAsync();
+    return response;
+  };
 
   return {
     autoSave,
     saveNow,
-    submitGroup: submitMut.mutate,
+    submitGroup,
     isLoading: createMut.isPending || saveMut.isPending || submitMut.isPending,
   };
 };

@@ -41,6 +41,14 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
+  const [targetStep, setTargetStep] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (state.targetStep) {
+      setTargetStep(state.targetStep);
+    }
+  }, [state.targetStep]);
+
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const startYear = 2020;
@@ -129,12 +137,17 @@ export default function AssessmentHub() {
 
   if (state.currentView === "ghg-stationary-sources") {
     return (
-      <DisclosureTopics onBack={handleBack} initialView="ghg" initialForm="stationary-sources" />
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView="ghg"
+        initialForm="stationary-sources"
+        initialStep={targetStep as any}
+      />
     );
   }
 
   if (state.currentView.startsWith("ghg-")) {
-    const withoutPrefix = state.currentView.substring(4); // Remove "ghg-"
+    const withoutPrefix = state.currentView.substring(4);
 
     const formPatterns = [
       "stationary-sources",
