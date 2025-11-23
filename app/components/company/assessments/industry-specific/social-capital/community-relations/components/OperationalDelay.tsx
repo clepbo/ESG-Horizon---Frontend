@@ -1,15 +1,23 @@
 import { CustomBreadcrumbDynamic } from '@/app/components/ui/CustomBreadcrumb'
 import React from 'react'
 
-export default function OperationalDelay() {
+
+interface Props {
+ onBack: () => void; 
+ onDisclosureTopics: () => void;
+}
+export default function OperationalDelay({ onBack, onDisclosureTopics }: Props) {
     const features = [
-        { label: 'Disclosure topics', href: '/assessments/hub' },
-        { label: 'Community Relations', href: '/company/assessments/industry-specific/social-capital/community-relations' },
-        { label: 'Operational Delays', onclick: () => console.log('Operational Delays clicked') },
+
+      { label: 'Dashboard', href: '/dashboard-esg' },
+      { label: 'Assessments', href: '/assessments/hub' },
+        { label: 'Disclosure topics', onClick: onDisclosureTopics},
+        { label: 'Community Relations', onClick: onBack},
+        { label: 'Operations Delays' },
     ];
   return (
-    <div>
+    <section className='min-h-screen bg-green-50 p-6'>
       <CustomBreadcrumbDynamic features={features} />
-    </div>
+    </section>
   )
 }
