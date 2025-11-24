@@ -286,6 +286,12 @@ export function DisclosureTopics({
         onBackToHub={handleBackToHub}
         initialForm={initialForm as any}
         initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        onSubmit={(data) => {
+          setCurrentView("topics");
+        }}
       />
     );
   }
