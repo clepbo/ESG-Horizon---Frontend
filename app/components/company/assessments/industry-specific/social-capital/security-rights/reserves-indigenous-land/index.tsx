@@ -5,13 +5,6 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
 import { toast } from "react-toastify";
@@ -22,6 +15,7 @@ import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
 import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { UnitSelect } from "../../../../UnitSelect";
 
 interface ReservesIndigenousLandProps {
   onBack: () => void;
@@ -274,25 +268,14 @@ export default function ReservesIndigenousLand({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
-                  <Select
+                  <UnitSelect
                     value={formData.totalProvedReservesUnit}
                     onValueChange={(value) => {
                       handleInputChange("totalProvedReservesUnit", value);
                       setErrors((prev) => ({ ...prev, totalProvedReservesUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.totalProvedReservesUnit && (
-                    <p className="text-red-600 text-xs">{errors.totalProvedReservesUnit}</p>
-                  )}
+                    error={errors.totalProvedReservesUnit}
+                  />
                 </div>
               </div>
             </div>
@@ -346,25 +329,14 @@ export default function ReservesIndigenousLand({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
-                  <Select
+                  <UnitSelect
                     value={formData.provedIndigenousUnit}
                     onValueChange={(value) => {
                       handleInputChange("provedIndigenousUnit", value);
                       setErrors((prev) => ({ ...prev, provedIndigenousUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.provedIndigenousUnit && (
-                    <p className="text-red-600 text-xs">{errors.provedIndigenousUnit}</p>
-                  )}
+                    error={errors.provedIndigenousUnit}
+                  />
                 </div>
               </div>
             </div>
@@ -418,26 +390,14 @@ export default function ReservesIndigenousLand({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
-
-                  <Select
+                  <UnitSelect
                     value={formData.totalProbableReservesUnit}
                     onValueChange={(value) => {
                       handleInputChange("totalProbableReservesUnit", value);
                       setErrors((prev) => ({ ...prev, totalProbableReservesUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.totalProbableReservesUnit && (
-                    <p className="text-red-600 text-xs">{errors.totalProbableReservesUnit}</p>
-                  )}
+                    error={errors.totalProbableReservesUnit}
+                  />
                 </div>
               </div>
             </div>
@@ -491,25 +451,15 @@ export default function ReservesIndigenousLand({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">Unit</Label>
-                  <Select
+
+                  <UnitSelect
                     value={formData.probableIndigenousUnit}
                     onValueChange={(value) => {
                       handleInputChange("probableIndigenousUnit", value);
                       setErrors((prev) => ({ ...prev, probableIndigenousUnit: "" }));
                     }}
-                  >
-                    <SelectTrigger className="border-gray-300">
-                      <SelectValue placeholder="Select the unit of measurement" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="barrels">Barrels</SelectItem>
-                      <SelectItem value="mcf">Thousand Cubic Feet (Mcf)</SelectItem>
-                      <SelectItem value="boe">Barrels of Oil Equivalent (BOE)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.probableIndigenousUnit && (
-                    <p className="text-red-600 text-xs">{errors.probableIndigenousUnit}</p>
-                  )}
+                    error={errors.probableIndigenousUnit}
+                  />
                 </div>
               </div>
             </div>
