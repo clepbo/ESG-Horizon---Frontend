@@ -13,6 +13,7 @@ import { EvidenceList } from "./ItemCards";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle2, Save } from "lucide-react";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import OperationalDelay from "./OperationalDelay";
 
 interface Props {
   onBack: () => void;
@@ -69,7 +70,7 @@ export default function CommunityRisk({
   // --------------------------------------
   // CONDITIONAL VIEW
   // --------------------------------------
-  if (view === "operational-delay") {
+  if (view === "opportunity-management") {
     return (
       <section className="min-h-screen bg-green-50 p-6">
         <CustomBreadcrumbDynamic features={features} />
@@ -166,7 +167,7 @@ export default function CommunityRisk({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end border-primary cursor-pointer text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
@@ -176,6 +177,12 @@ export default function CommunityRisk({
       </section>
     );
   } else {
-    return <div> </div>;
+    return <div>
+      <OperationalDelay onBack={function (): void {
+        throw new Error("Function not implemented.");
+      } } onDisclosureTopics={function (): void {
+        throw new Error("Function not implemented.");
+      } } />
+       </div>;
   }
 }

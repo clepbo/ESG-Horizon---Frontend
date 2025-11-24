@@ -80,31 +80,6 @@ export default function CommunityRelationsHome({ onBack }: Props) {
           </div>
 
           {communityItems.map((card, i) => (
-            // <>
-            //     <h5 className='-mb-2'> {card.title}
-            //         <CustomTooltip detail={<TooltipMessage title={card.tooltipTitle} message={card.tooltipMessage} />} />
-            //     </h5>
-            //     <Card
-            //         key={card.title}
-            //         className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${card.clickable
-            //             ? "cursor-pointer hover:bg-accent/50"
-            //             : "cursor-default"
-            //             }`}
-            //         onClick={() => card.clickable && handleCardClick(card.title)}
-            //     >
-            //         <CardContent className="p-4">
-            //             <div className="flex items-center justify-between">
-            //                 <div className="space-y-1 flex-1">
-            //                     <h5 className="font-medium text-foreground">{card.subtitle}</h5>
-            //                     <p className="text-sm text-muted-foreground">
-            //                         {card.body}
-            //                     </p>
-            //                 </div>
-            //                 <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
-            //             </div>
-            //         </CardContent>
-            //     </Card>
-            // </>
             <FeatureCard
               key={card.title}
               title={card.title}
