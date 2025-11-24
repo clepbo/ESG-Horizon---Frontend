@@ -16,7 +16,7 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
@@ -74,7 +74,9 @@ export function ElectricityIppsForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
+    "ghg-scope2-market-electricityipp"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +99,7 @@ export function ElectricityIppsForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.ipps, setElectricityConsumedRaw, setEmissionFactorRaw]);
+  }, [state.assessmentData, electricityConsumedRaw, emissionFactorRaw, files, additionalFields]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -168,22 +170,20 @@ export function ElectricityIppsForm({
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
       electricityConsumed: electricityConsumedRaw,
       emissionFactor: emissionFactorRaw,
       files,
-      additionalFields: normalizeFiles(additionalFields),
-      progressPercent,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -192,60 +192,32 @@ export function ElectricityIppsForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          ipps: {
-            electricityConsumed: electricityConsumedRaw,
-            emissionFactor: emissionFactorRaw,
-            files,
-            additionalFields: normalizeFiles(additionalFields),
-          },
-          lastSavedForm: "ghg-market-based-electricityIPP",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+      await saveNow("environment.ghg.scope2.marketBased.electricityIpps", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleNext = () => {
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+  };
+
+  const handleNext = async () => {
     if (!validateForm()) return;
-
-    dispatch({
-      type: "UPDATE_IPPS",
-      payload: {
-        electricityConsumed: electricityConsumedRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
+    await saveForm({ showToast: false, redirect: false });
     onNext();
   };
-  const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_IPPS",
-      payload: {
-        electricityConsumed: electricityConsumedRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
 
+  const handlePrevious = () => {
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

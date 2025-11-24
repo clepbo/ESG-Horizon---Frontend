@@ -44,6 +44,9 @@ export interface AssessmentData {
   progress?: any;
   scopeTotals?: ScopeTotals;
   totals?: TotalsResponse;
+  assessmentData?: {
+    overallProgress?: number;
+  };
 
   // Scope 1
   stationarySources?: {
@@ -183,11 +186,13 @@ export interface AssessmentState {
   progress: AssessmentProgress[];
   scopeTotals: ScopeTotals;
   lastSubmittedAt?: string;
+  targetStep?: string;
 }
 
 type AssessmentAction =
   | { type: "SET_VIEW"; payload: string }
   | { type: "SET_ASSESSMENT_ID"; payload: number }
+  | { type: "SET_TARGET_STEP"; payload: string }
   | { type: "SET_CONTINUE_MODE"; payload: boolean }
   | {
       type: "UPDATE_ASSESSMENT_METADATA";
@@ -416,6 +421,9 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
   switch (action.type) {
     case "SET_VIEW":
       return { ...state, currentView: action.payload, error: null };
+
+    case "SET_TARGET_STEP":
+      return { ...state, targetStep: action.payload };
 
     case "SET_CONTINUE_MODE":
       return { ...state, isContinueMode: action.payload };

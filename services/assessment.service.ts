@@ -43,7 +43,6 @@ export interface SubmitAssessmentResponse {
 }
 
 export const assessmentService = {
-  // 1. Create assessment (only metadata)
   createAssessment: async (payload: {
     subsidiary: string;
     startMonth: string;
@@ -52,50 +51,24 @@ export const assessmentService = {
     endYear: string;
   }) => {
     const res = await api.post("/assessments", payload);
-    return res.data; // { id: number }
+    return res.data;
   },
 
-  // 2. Partial progress save
   saveProgress: async (assessmentId: number, path: string, data: any, lastSavedForm?: string) => {
     return api.post(`/assessments/${assessmentId}/save`, {
       path,
       data,
-      lastSavedForm, // ← NEW: tells backend where user was
+      lastSavedForm,
     });
   },
 
-  // 3. Final submit of a group
   submitGroup: async (assessmentId: number, lastSavedForm?: string) => {
     return api.post(`/assessments/${assessmentId}/submit`, { lastSavedForm });
   },
 
-  // Keep old ones for list/loading
   getAssessments: async () => (await api.get("/assessments")).data,
-  getAssessment: async (id: number) => (await api.get(`/assessments/${id}`)).data,
 
-  // saveAssessment: async (payload: {
-  //   assessmentId?: number | null;
-  //   data: Partial<AssessmentData>;
-  // }): Promise<SaveAssessmentResponse> => {
-  //   const { assessmentId, data: assessmentData } = payload;
-  //   const dataWithSubsidiary = ensureSubsidiary(assessmentData);
-
-  //   const url = assessmentId ? `/assessments/save/${assessmentId}` : "/assessments/save";
-
-  //   return await api.post(url, dataWithSubsidiary);
-  // },
-
-  // submitAssessment: async (
-  //   assessmentId: number | null | undefined,
-  //   data: Partial<AssessmentData>
-  // ): Promise<SubmitAssessmentResponse> => {
-  //   const dataWithSubsidiary = ensureSubsidiary(data);
-
-  //   const url = assessmentId ? `/assessments/submit/${assessmentId}` : "/assessments/submit";
-
-  //   const response = await api.post(url, dataWithSubsidiary);
-  //   return response;
-  // },
+  getAssessment: async (id: number) => await api.get(`/assessments/${id}`),
 
   approveAssessment: async (assessmentId: number): Promise<{ message: string; data: any }> => {
     const response = await api.post(`/assessments/${assessmentId}/approve`);

@@ -18,9 +18,8 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 interface PurchasedHeatingFormProps {
@@ -75,8 +74,9 @@ export function PurchasedHeatingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const { saveNow, submitGroup, isLoading } = useAssessmentFlow(
+    "ghg-scope2-location-purchasedheating"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +84,7 @@ export function PurchasedHeatingForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  const isPending = isSaving || isSubmitting;
+  const isPending = isLoading;
 
   useEffect(() => {
     const existingData = state.assessmentData.heating;
@@ -105,7 +105,7 @@ export function PurchasedHeatingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.heating, setHeatingConsumedRaw]);
+  }, [state.assessmentData, heatingPurchased, heatingConsumedRaw, supplierName, files, additionalFields]);
 
   const { total, filled } = calculateProgress([
     heatingPurchased,
@@ -161,23 +161,21 @@ export function PurchasedHeatingForm({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
       heatingPurchased,
       heatingConsumed: heatingConsumedRaw,
       supplierName,
       files,
-      additionalFields: normalizeFiles(additionalFields),
-      progressPercent,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -186,93 +184,40 @@ export function PurchasedHeatingForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          heating: {
-            heatingPurchased,
-            heatingConsumed: heatingConsumedRaw,
-            supplierName,
-            files,
-            additionalFields: normalizeFiles(additionalFields),
-          },
-          lastSavedForm: "ghg-location-based-heating",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+      await saveNow("environment.ghg.scope2.locationBased.purchasedHeating", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleSubmit = () => {
-    const assessmentId = state.assessmentId;
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+  };
 
-    const payload = {
-      heatingPurchased,
-      heatingConsumed: heatingConsumedRaw,
-      supplierName,
-      files,
-      additionalFields: normalizeFiles(additionalFields),
-    };
+  const handleSubmit = async () => {
+    await saveForm({ showToast: false, redirect: false });
 
-    dispatch({
-      type: "UPDATE_HEATING",
-      payload,
-    });
-
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          heating: {
-            heatingPurchased,
-            heatingConsumed: heatingConsumedRaw,
-            supplierName,
-            files,
-            additionalFields: normalizeFiles(additionalFields),
-          },
-          lastSavedForm: "ghg-location-based-heating",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment?.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          toast.success("Assessment submitted successfully!");
-          onSubmit(res.totals ?? null); // CALLBACK
-        },
-        onError: () => {
-          toast.error("Failed to submit");
-        },
-      }
-    );
+    try {
+      const response = await submitGroup();
+      const groupTotal = response.scopeTotals.scope2.locationBased.totalEmission || 0;
+      toast.success("Assessment submitted successfully!");
+      onSubmit(groupTotal);
+    } catch (err) {
+      toast.error("Failed to submit");
+      console.error("Submission failed:", err);
+    }
   };
 
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_HEATING",
-      payload: {
-        heatingPurchased,
-        heatingConsumed: heatingConsumedRaw,
-        supplierName,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
