@@ -83,7 +83,6 @@ function ActionDropdown({
   getActionIcon,
   actionLabel,
   onActionClick,
-  onViewDetails,
   onGenerateReport,
   onDelete,
   deletePending,
@@ -111,11 +110,6 @@ function ActionDropdown({
         <DropdownMenuItem onClick={onActionClick}>
           {getActionIcon(actionLabel)}
           {actionLabel}
-        </DropdownMenuItem>
-
-        <DropdownMenuItem onClick={onViewDetails}>
-          {getActionIcon("View")}
-          View Details
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={onGenerateReport}>
@@ -279,6 +273,50 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
+    // columnHelper.accessor("status", {
+    //   header: "Status",
+    //   cell: (info) => {
+    //     const assessment = info.row.original;
+    //     const status = info.getValue();
+
+    //     const getStatusDisplay = (status: AssessmentStatus) => {
+    //       switch (status) {
+    //         case "in_progress":
+    //           return { label: "In Progress", variant: "yellow" as const };
+    //         case "awaiting_review":
+    //           return { label: "Awaiting Review", variant: "primaryBlue" as const };
+    //         case "submitted_approved":
+    //           return { label: "Submitted-Approved", variant: "successGreen" as const };
+    //         case "approved":
+    //           return { label: "Approved", variant: "successGreen" as const };
+    //         case "unapproved_rejected":
+    //           return { label: "Unapproved/Rejected", variant: "destructive" as const };
+    //         default:
+    //           return { label: status, variant: "outline" as const };
+    //       }
+    //     };
+
+    //     const { label, variant } = getStatusDisplay(status);
+
+    //     return (
+    //       <div className="flex items-center gap-2">
+    //         <Badge variant={variant} className="capitalize">
+    //           {label}
+    //         </Badge>
+
+    //         {status === "unapproved_rejected" && assessment.rejection_reason && (
+    //           <button
+    //             onClick={() => handleOpenReason(assessment.rejection_reason)}
+    //             className="text-gray-500 hover:text-gray-700 cursor-pointer"
+    //           >
+    //             <CircleHelp className="h-5 w-5" />
+    //           </button>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // }),
+
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
@@ -322,11 +360,29 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         const assessment = row.original;
         const status = assessment.status;
 
-        const handleViewDetails = () => handleOpenDetails(assessment);
+        const handleActionClick = () => {
+          if (status === "in_progress" || status === "unapproved_rejected") {
+            router.push(`/assessments/${assessment.id}`);
+          } else {
+            handleOpenDetails(assessment);
+          }
+        };
 
-        const handleActionClick = () => router.push(`/assessments/${assessment.id}`);
-
-        const getActionLabel = () => "Continue";
+        const getActionLabel = () => {
+          switch (status) {
+            case "in_progress":
+              return "Continue";
+            case "awaiting_review":
+              return "Review";
+            case "unapproved_rejected":
+              return "Update";
+            case "submitted_approved":
+            case "approved":
+              return "View";
+            default:
+              return "View";
+          }
+        };
 
         const actionLabel = getActionLabel();
 
@@ -337,7 +393,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
             getActionIcon={getActionIcon}
             actionLabel={actionLabel}
             onActionClick={handleActionClick}
-            onViewDetails={handleViewDetails}
             onGenerateReport={() => handleGenerateReport(assessment.id)}
             onDelete={() => handleOpenModal(assessment.id)}
             deletePending={deleteMutation.isPending}
@@ -346,6 +401,20 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
   ];
+
+  // const filterOptions: FilterOption[] = [
+  //   {
+  //     label: "Status",
+  //     columnId: "status",
+  //     options: [
+  //       "in_progress",
+  //       "awaiting_review",
+  //       "submitted_approved",
+  //       "approved",
+  //       "unapproved_rejected",
+  //     ],
+  //   },
+  // ];
 
   const filterOptions: FilterOption[] = [
     {
