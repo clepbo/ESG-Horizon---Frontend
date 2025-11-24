@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -18,8 +18,8 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useRouter } from "next/navigation";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface IndustrialProcessesFormProps {
   onBack: () => void;
@@ -63,7 +63,9 @@ export function IndustrialProcessesForm({
   }, [stepIndex]);
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
+    "ghg-scope1-stationary-industrialprocess"
+  );
 
   const boilerFurnacesOptions = useMemo(() => getFuelOptions("boilerFurnaces"), []);
 
@@ -98,7 +100,7 @@ export function IndustrialProcessesForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.stationarySources?.industrialProcesses, boilerFurnacesOptions]);
+  }, [boilerFurnacesOptions, state.assessmentData]);
 
   const { filled, total } = useMemo(() => {
     const hasBoilerFurnacesData = boilerFurnaces.some(
@@ -173,16 +175,8 @@ export function IndustrialProcessesForm({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
-
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = false, redirect = false } = options;
     const payload = {
       boilerFurnaces,
       files,
@@ -193,56 +187,37 @@ export function IndustrialProcessesForm({
         url: f.url ?? "",
         publicId: f.publicId ?? "",
       })),
-      progressPercent,
     };
 
     dispatch({
       type: "UPDATE_STATIONARY_INDUSTRIAL",
       payload,
     });
-
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          stationarySources: {
-            ...state.assessmentData.stationarySources,
-            industrialProcesses: payload,
-          },
-          lastSavedForm: "ghg-stationary-sources-industrial-processes",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      await saveNow("environment.ghg.scope1.stationarySources.industrialprocess", payload);
+      if (showToast) {
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 2000);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
+      console.error("Save failed:", err);
       toast.error("Failed to save");
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) return;
-
-    dispatch({
-      type: "UPDATE_STATIONARY_INDUSTRIAL",
-      payload: {
-        boilerFurnaces,
-        additionalFields: additionalFields as FileMetadata[],
-        files,
-      },
-    });
-
+    await saveForm();
     onNext();
   };
+
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+  };
+
   const handlePrevious = () => {
     dispatch({
       type: "UPDATE_STATIONARY_INDUSTRIAL",

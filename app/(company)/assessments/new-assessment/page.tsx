@@ -10,7 +10,6 @@ import Header from "../../components/Header";
 import { motion } from "framer-motion";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProvider } from "@/hooks/useAssessment";
-import { getAssessmentProgressForTable } from "@/lib/utils";
 
 function NewAssessmentPage() {
   const router = useRouter();
@@ -38,7 +37,7 @@ function NewAssessmentPage() {
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
-        progress: getAssessmentProgressForTable(a),
+        progress: a.assessmentData?.overallProgress ?? 0,
         rejection_reason: (a as any).rejection_reason,
       };
     }) ?? [];

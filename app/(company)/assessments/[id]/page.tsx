@@ -1,10 +1,10 @@
 import { AssessmentProvider } from "@/hooks/useAssessment";
-import AssessmentPage from "./AssessmentPage";
+import ContinueAssessment from "./ContinueAssessment";
 
 export default function AssessmentsPage() {
   return (
     <AssessmentProvider>
-      <AssessmentPage />
+      <ContinueAssessment />
     </AssessmentProvider>
   );
 }
