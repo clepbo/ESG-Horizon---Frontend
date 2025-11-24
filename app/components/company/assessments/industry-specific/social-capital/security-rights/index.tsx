@@ -163,10 +163,10 @@ export function SecurityHumanRightsAssessment({
                   Security, Human Rights & Rights of Indigenous Peoples
                 </h3>
                 <p className="text-muted-foreground text-md">
-                  This disclosure topic assesses the company's exposure to and management of risks
-                  associated with operating in areas of conflict and near indigenous communities,
-                  focusing on human rights due diligence and community engagement. IFRS codes:
-                  EM-EP-210a.1, EM-EP-210a.2, EM-EP-210a.3
+                  This disclosure topic assesses the company&apos;s exposure to and management of
+                  risks associated with operating in areas of conflict and near indigenous
+                  communities, focusing on human rights due diligence and community engagement. IFRS
+                  codes: EM-EP-210a.1, EM-EP-210a.2, EM-EP-210a.3
                 </p>
               </div>
               <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>

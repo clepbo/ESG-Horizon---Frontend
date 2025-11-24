@@ -109,7 +109,7 @@ export default function HumanRightEngagement({
           <div>
             <h3 className="text-2xl font-semibold"> Human Rights Engagement Processes</h3>
             <p className="text-muted-foreground text-base">
-              Describe your organization's engagement processes and due diligence practices
+              Describe your organization&apos;s engagement processes and due diligence practices
               concerning human rights, indigenous rights, and operating in areas of conflict.
             </p>
           </div>
