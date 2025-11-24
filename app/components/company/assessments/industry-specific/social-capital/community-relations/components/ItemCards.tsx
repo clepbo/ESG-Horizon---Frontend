@@ -9,7 +9,6 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { EvidenceItem } from "./AddMoreFIles";
 
-
 export interface FeatureCardProps {
   title: string;
   tooltipTitle?: string;
@@ -66,40 +65,24 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   );
 };
 
-
-
-
-
-
-
-
-
 export function EvidenceList() {
   const [items, setItems] = useState([0]);
 
   const addItem = () => {
-    setItems(prev => [...prev, prev.length]);
+    setItems((prev) => [...prev, prev.length]);
   };
 
   const removeItem = (index: number) => {
-    setItems(prev => prev.filter((_, i) => i !== index));
+    setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <div className="space-y-6">
       {items.map((_, index) => (
-        <EvidenceItem
-          key={index}
-          index={index}
-          onRemove={() => removeItem(index)}
-        />
+        <EvidenceItem key={index} index={index} onRemove={() => removeItem(index)} />
       ))}
 
-      <Button
-        variant="outline"
-        className="w-full flex items-center gap-2"
-        onClick={addItem}
-      >
+      <Button variant="outline" className="w-full flex items-center gap-2" onClick={addItem}>
         <Plus className="h-4 w-4" />
         Add More Files/Links
       </Button>

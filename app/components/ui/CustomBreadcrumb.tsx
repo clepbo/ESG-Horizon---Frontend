@@ -87,9 +87,6 @@ export function CustomBreadcrumb({ items }: DynamicBreadcrumbProps) {
   );
 }
 
-
-
-
 export interface BreadcrumbItemType {
   label: string;
   href?: string;
@@ -100,9 +97,7 @@ export interface CustomBreadcrumbDynamicProps {
   features: BreadcrumbItemType[];
 }
 
-export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = ({
-  features,
-}) => {
+export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = ({ features }) => {
   return (
     <Breadcrumb>
       <BreadcrumbList>
@@ -130,4 +125,3 @@ export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = (
     </Breadcrumb>
   );
 };
-

@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
 import { Card, CardTitle } from "../../ui/card";
-import {
-  CustomProgressWithoutUnit,
-} from "@/app/(company)/reports-and-analytics/components/charts/ProgressBar";
+import { CustomProgressWithoutUnit } from "@/app/(company)/reports-and-analytics/components/charts/ProgressBar";
 import { CustomButton } from "../../ui/reusables/CustomButton";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -13,10 +11,16 @@ interface ReportcardProps {
   dateRange: string;
   status: "Completed" | "In Progress" | "Not Started" | "submitted_approved" | string;
   progress: number;
-  id: number
+  id: number;
 }
 
-export default function Reportcard({ subsidiary, dateRange, id, status = "Completed", progress = 80 }: ReportcardProps) {
+export default function Reportcard({
+  subsidiary,
+  dateRange,
+  id,
+  status = "Completed",
+  progress = 80,
+}: ReportcardProps) {
   const router = useRouter();
 
   function handleRoute() {
@@ -27,15 +31,20 @@ export default function Reportcard({ subsidiary, dateRange, id, status = "Comple
       <CardTitle className=""> {subsidiary} </CardTitle>
       <div className="flex flex-col w-full">
         <span className="text-10"> {dateRange} </span>
-        { status === "submitted_approved" && <span className="flex justify-end text-xs  ">
-          <span className="font-semibold bg-green-600 text-white p-1 rounded-2xl">
-
-            {status}
+        {status === "submitted_approved" && (
+          <span className="flex justify-end text-xs  ">
+            <span className="font-semibold bg-green-600 text-white p-1 rounded-2xl">{status}</span>
           </span>
-        </span>}
+        )}
       </div>
       <div className="flex flex-col gap-1">
-        <CustomProgressWithoutUnit value={progress} title="Progress" total={78} percent={progress} unit="%" />
+        <CustomProgressWithoutUnit
+          value={progress}
+          title="Progress"
+          total={78}
+          percent={progress}
+          unit="%"
+        />
         {/* <p className='text-sm'> 8 of 8 sections completed</p> */}
       </div>
       <CustomButton

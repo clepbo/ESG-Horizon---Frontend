@@ -75,9 +75,7 @@ export function ElectricityEACForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
-    "ghg-scope2-market-electricityeac"
-  );
+  const { saveNow, isLoading: isSaving } = useAssessmentFlow("ghg-scope2-market-electricityeac");
 
   const formRef = useRef<HTMLDivElement>(null);
 

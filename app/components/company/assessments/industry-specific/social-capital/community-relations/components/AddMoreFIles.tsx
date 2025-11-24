@@ -16,7 +16,6 @@ export function EvidenceItem({ index, onRemove }: EvidenceItemProps) {
   return (
     <Card className="w-full bg-white shadow-sm border rounded-xl">
       <CardContent className="p-6 space-y-6">
-
         {/* Row 1: Name + Upload */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
@@ -40,7 +39,6 @@ export function EvidenceItem({ index, onRemove }: EvidenceItemProps) {
           <Label>Or Upload via Link</Label>
           <Input placeholder="Enter or paste the link to the file" />
         </div>
-
       </CardContent>
     </Card>
   );

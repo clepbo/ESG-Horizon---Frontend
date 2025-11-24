@@ -1,4 +1,10 @@
-export function PagetitleAndDescription({ title, description }: { title: string; description: string }) {
+export function PagetitleAndDescription({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="mt-6">
       <h1 className="text-lg">{title}</h1>

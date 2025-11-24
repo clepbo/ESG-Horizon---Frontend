@@ -81,7 +81,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Security, Human Rights & Rights of Indigenous Peoples",
         subtitle:
           "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
-          clickable: true,
+        clickable: true,
       },
       {
         title: "Community Relations",
@@ -257,14 +257,13 @@ export function DisclosureTopics({
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Greenhouse Gas Emissions") {
       setCurrentView("ghg");
-    } else if(cardTitle === "Community Relations") {
-      setCurrentView("crs")
+    } else if (cardTitle === "Community Relations") {
+      setCurrentView("crs");
     } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
       setCurrentView("security-human-rights");
     }
   };
 
-  
   const handleBackToHub = () => {
     onBack();
   };
@@ -280,12 +279,8 @@ export function DisclosureTopics({
     );
   }
   if (currentView === "crs") {
-    return (
-      <CommunityRelationsHome onBack={() => setCurrentView("topics")} />
-    );
+    return <CommunityRelationsHome onBack={() => setCurrentView("topics")} />;
   }
-
-
 
   return (
     <TooltipProvider>
@@ -312,9 +307,7 @@ export function DisclosureTopics({
                     opportunities
                   </p>
                 </div>
-                <Button className="bg-primary  hover:bg-teal-600 text-white">
-                  Assign Task
-                </Button>
+                <Button className="bg-primary  hover:bg-teal-600 text-white">Assign Task</Button>
               </div>
 
               <Accordion type="multiple" className="space-y-6" defaultValue={["industry-specific"]}>
