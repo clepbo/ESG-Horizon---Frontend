@@ -18,10 +18,11 @@ import {
 } from "@/app/components/ui/tooltip";
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
 import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
+import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
-  initialView?: "topics" | "ghg" | "crs" | "security-human-rights";
+  initialView?: "topics" | "ghg" | any;
   initialForm?: "stationary-sources" | any;
   initialStep?: string;
 }
@@ -271,6 +272,16 @@ export function DisclosureTopics({
   if (currentView === "ghg") {
     return (
       <GhgEmissionsAssessment
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+      />
+    );
+  }
+  if (currentView === "security-human-rights") {
+    return (
+      <SecurityHumanRightsAssessment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
         initialForm={initialForm as any}

@@ -10,10 +10,13 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ChevronRight, Info } from "lucide-react";
+import { ChevronRight, Info } from "lucide-react";
 import ReservesAreaConflict from "./reserves-area-conflict";
 import ReservesIndigenousLand from "./reserves-indigenous-land";
 import HumanRightEngagement from "./human-right-engagement";
+import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { SuccessScreen } from "../../../SuccessScreen";
+import { TotalsResponse } from "@/services/assessment.service";
 
 type SHRView =
   | "overview"
@@ -26,6 +29,8 @@ interface SecurityHumanRightsAssessmentProps {
   onBackToHub: () => void;
   initialForm?: SHRView;
   initialStep?: string;
+  onContinueToNextAssessment: () => void;
+  onSubmit: (totals: TotalsResponse | null) => void;
 }
 
 const steps = [
@@ -33,8 +38,6 @@ const steps = [
   "reserves-indigenous-land",
   "human-rights-engagement",
 ] as const;
-
-type StepKey = (typeof steps)[number];
 
 const scopeData = [
   {
@@ -66,8 +69,22 @@ const scopeData = [
 export function SecurityHumanRightsAssessment({
   onBack,
   initialForm,
+  onContinueToNextAssessment,
 }: SecurityHumanRightsAssessmentProps) {
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+
+  const handleBackToOverview = () => {
+    setCurrentView("overview");
+  };
+
+  const overviewBreadcrumb = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Disclosure topics", onClick: onBack },
+    { label: "Security & Human Rights", onClick: handleBackToOverview },
+  ];
 
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Reserves in or near Areas of Conflict") {
@@ -81,10 +98,17 @@ export function SecurityHumanRightsAssessment({
     }
   };
 
-  const handleBackToOverview = () => {
-    setCurrentView("overview");
-  };
-
+  if (showSuccess) {
+    return (
+      <SuccessScreen
+        assessmentName="Human Right Engagements"
+        totals={totals ?? undefined}
+        nextAssessment="Community Relations"
+        onContinue={onContinueToNextAssessment}
+        onBackToHub={onBack}
+      />
+    );
+  }
   if (currentView === "reserves-in-conflict") {
     return (
       <ReservesAreaConflict
@@ -92,6 +116,7 @@ export function SecurityHumanRightsAssessment({
         onContinueToNextAssessment={() => setCurrentView("reserves-indigenous-land")}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Reserves in or near Areas of Conflict" }]}
       />
     );
   }
@@ -103,6 +128,7 @@ export function SecurityHumanRightsAssessment({
         onContinueToNextAssessment={() => setCurrentView("human-rights-engagement")}
         stepIndex={2}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Reserves in or near Indigenous Land" }]}
       />
     );
   }
@@ -111,21 +137,24 @@ export function SecurityHumanRightsAssessment({
     return (
       <HumanRightEngagement
         onBack={() => setCurrentView("reserves-indigenous-land")}
-        onContinueToNextAssessment={() => setCurrentView("overview")}
+        onContinueToNextAssessment={() => {
+          setShowSuccess(true);
+        }}
+        onSubmit={(totals) => {
+          setTotals(totals);
+          setShowSuccess(true);
+        }}
         stepIndex={3}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Human Rights Engagement Processes" }]}
       />
     );
   }
 
   return (
     <div className="min-h-screen bg-green-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <Button variant="outline" onClick={onBack} className="flex items-center gap-2 bg-white">
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-
+      <CustomBreadcrumbDynamic features={overviewBreadcrumb} />
+      <div className="max-w-7xl mx-auto space-y-6 mt-4">
         <Card className="bg-gray-50">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mt-5 mb-8">

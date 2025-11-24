@@ -22,12 +22,14 @@ import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
 import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface ReservesIndigenousLandProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 export default function ReservesIndigenousLand({
@@ -35,6 +37,7 @@ export default function ReservesIndigenousLand({
   onContinueToNextAssessment,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: ReservesIndigenousLandProps) {
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedIndigenousVolume = useFormattedNumber("");
@@ -195,16 +198,9 @@ export default function ReservesIndigenousLand({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center gap-6 mb-4">
-          <Button
-            variant="outline"
-            onClick={onBack}
-            className="flex items-center gap-2 bg-white border-primary text-primay hover:bg-green-50"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-5xl mx-auto space-y-6 ">
+        <div className="flex items-center gap-6 mb-4  mt-4">
           <div>
             <h3 className="text-2xl font-semibold">Reserves in or near Indigenous Land</h3>
             <p className="text-muted-foreground text-base">
