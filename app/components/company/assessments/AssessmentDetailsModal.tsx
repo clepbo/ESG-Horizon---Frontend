@@ -94,7 +94,7 @@ export function AssessmentDetailsModal({
       icon: <AlertCircle className="w-4 h-4" />,
     },
     submitted_approved: {
-      label: "Submitted",
+      label: "Submitted-Approved",
       color: "bg-green-100 text-green-800",
       icon: <CheckCircle2 className="w-4 h-4" />,
     },
@@ -103,8 +103,8 @@ export function AssessmentDetailsModal({
       color: "bg-green-100 text-green-800",
       icon: <CheckCircle2 className="w-4 h-4" />,
     },
-    unapproved_rejected: {
-      label: "Rejected",
+    declined: {
+      label: "Declined",
       color: "bg-red-100 text-red-800",
       icon: <XCircle className="w-4 h-4" />,
     },
@@ -172,7 +172,7 @@ export function AssessmentDetailsModal({
             <CardContent className="p-6 space-y-8">
               {/* HERO SUMMARY */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card className="bg-gradient-to-br from-teal-500 to-emerald-600 text-white">
+                <Card className="bg-linear-to-br from-teal-500 to-emerald-600 text-white">
                   <CardContent className="p-6">
                     <p className="text-teal-100 text-sm">Total Emissions</p>
                     <p className="text-4xl font-bold">
@@ -298,7 +298,7 @@ export function AssessmentDetailsModal({
 
               {data.rejection_reason && (
                 <Alert className="border-red-300 bg-red-50">
-                  <XCircle className="h-5 h-5 text-red-600" />
+                  <XCircle className=" h-5 text-red-600" />
                   <AlertDescription className="text-red-700 font-medium">
                     Assessment Rejected: {data.rejection_reason}
                   </AlertDescription>

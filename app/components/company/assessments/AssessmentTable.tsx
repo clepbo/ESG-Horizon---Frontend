@@ -35,7 +35,7 @@ export type AssessmentStatus =
   | "awaiting_review"
   | "submitted_approved"
   | "approved"
-  | "unapproved_rejected";
+  | "declined";
 
 export interface Assessment {
   id: number;
@@ -207,7 +207,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     if (assessment) {
       setSelectedAssessment(assessment);
     }
-    console.log(`Generating report for assessment ID: ${id}`);
+    // console.log(`Generating report for assessment ID: ${id}`);
     setTimeout(() => {
       setShowReportSuccess(true);
     }, 500);
@@ -233,7 +233,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
             <svg
               width="40"
               height="40"
-              className="rotate-[-90deg]"
+              className="-rotate-90deg"
               style={{ position: "absolute", top: 0, left: 0 }}
             >
               <circle
@@ -289,7 +289,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     //           return { label: "Submitted-Approved", variant: "successGreen" as const };
     //         case "approved":
     //           return { label: "Approved", variant: "successGreen" as const };
-    //         case "unapproved_rejected":
+    //         case "declined":
     //           return { label: "Unapproved/Rejected", variant: "destructive" as const };
     //         default:
     //           return { label: status, variant: "outline" as const };
@@ -304,7 +304,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     //           {label}
     //         </Badge>
 
-    //         {status === "unapproved_rejected" && assessment.rejection_reason && (
+    //         {status === "declined" && assessment.rejection_reason && (
     //           <button
     //             onClick={() => handleOpenReason(assessment.rejection_reason)}
     //             className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -328,7 +328,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
           awaiting_review: "primaryBlue",
           submitted_approved: "successGreen",
           approved: "successGreen",
-          unapproved_rejected: "destructive",
+          declined: "destructive",
         };
 
         const label = formatStatus(status);
@@ -340,7 +340,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
               {label}
             </Badge>
 
-            {status === "unapproved_rejected" && assessment.rejection_reason && (
+            {status === "declined" && assessment.rejection_reason && (
               <button
                 onClick={() => handleOpenReason(assessment.rejection_reason)}
                 className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -361,7 +361,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         const status = assessment.status;
 
         const handleActionClick = () => {
-          if (status === "in_progress" || status === "unapproved_rejected") {
+          if (status === "in_progress" || status === "declined") {
             router.push(`/assessments/${assessment.id}`);
           } else {
             handleOpenDetails(assessment);
@@ -374,7 +374,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
               return "Continue";
             case "awaiting_review":
               return "Review";
-            case "unapproved_rejected":
+            case "declined":
               return "Update";
             case "submitted_approved":
             case "approved":
@@ -411,7 +411,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
   //       "awaiting_review",
   //       "submitted_approved",
   //       "approved",
-  //       "unapproved_rejected",
+  //       "declined",
   //     ],
   //   },
   // ];
@@ -420,16 +420,12 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     {
       label: "Status",
       columnId: "status",
-      options: [
-        "in_progress",
-        "awaiting_review",
-        "submitted_approved",
-        "approved",
-        "unapproved_rejected",
-      ].map((value) => ({
-        label: formatStatus(value as AssessmentStatus),
-        value,
-      })),
+      options: ["in_progress", "awaiting_review", "submitted_approved", "approved", "declined"].map(
+        (value) => ({
+          label: formatStatus(value as AssessmentStatus),
+          value,
+        })
+      ),
     },
   ];
 
