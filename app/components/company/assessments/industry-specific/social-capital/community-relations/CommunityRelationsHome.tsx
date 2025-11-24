@@ -41,7 +41,9 @@ export default function CommunityRelationsHome({ onBack }: Props) {
         return (
 
             <div>
-                <CommunityRisk onBack={handleBack} onDisclosureTopics={handleForwardBack} />
+                <CommunityRisk onBack={handleBack} onDisclosureTopics={handleForwardBack} onNext={function (): void {
+                    throw new Error('Function not implemented.')
+                } } stepIndex={1} totalSteps={2} />
             </div>
         )
     }

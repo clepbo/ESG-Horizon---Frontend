@@ -8,6 +8,10 @@ import CustomTooltip from '@/app/(company)/ranking/create/components/CustomToolt
 import { TooltipMessage } from '@/app/(company)/ranking/create/components/TooltipMessage';
 import { Textarea } from '@/app/components/ui/textarea';
 import { EvidenceItem } from './AddMoreFIles';
+import { EvidenceList } from './ItemCards';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight, CheckCircle2, Save } from 'lucide-react';
+import { LoadingSpinner } from '@/app/components/ui/loading-spinner';
 
 
 interface Props {
@@ -19,6 +23,11 @@ interface Props {
 }
 export default function CommunityRisk({ onBack, onDisclosureTopics, stepIndex, totalSteps, onNext }: Props) {
 
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { state, dispatch } = useAssessment();
+
   const features = [
 
     { label: 'Dashboard', href: '/dashboard-esg' },
@@ -27,6 +36,21 @@ export default function CommunityRisk({ onBack, onDisclosureTopics, stepIndex, t
     { label: 'Community Relations', onClick: onBack },
     { label: 'Community Risks...' },
   ];
+
+  function handlePrevious() {
+    onBack();
+  }
+  function handleSaveAndContinue() {
+    // Save logic here
+    console.log('Saving progress...');
+  }
+  function handleSubmit() {
+    onNext();
+  }
+
+  function handleNext() {
+    onNext();
+  }
   return (
     <section className='min-h-screen bg-green-50 p-6'>
       <CustomBreadcrumbDynamic features={features} />
@@ -70,12 +94,64 @@ export default function CommunityRisk({ onBack, onDisclosureTopics, stepIndex, t
             <PagetitleAndDescription title={'Document/Evidence Upload'}
               description={'Upload supporting documents like  Host Community Development Trust (HCDT) annual reports, community grievance logs and resolution records, and minutes from HCDT board meetings.'} />
 
-            <Card className='bg-gray-100 -mt-4'>
-              <EvidenceItem index={0} onRemove={() => {}} />
-            </Card>
+            <div className="bg-gray-100 p-4 rounded-lg">
+              <EvidenceList />
+            </div>
+
           </CardContent>
 
+          <div className="grid grid-cols-3 gap-4 pt-8">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" /> Previous
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={handleSaveAndContinue}
+              disabled={isSaving}
+              className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
+            >
+              {isSaving ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" /> Saving...
+                </>
+              ) : showSaveSuccess ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2" /> Saved!
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" /> Save & Continue Later
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={handleNext}
+              disabled={isSaving}
+              className="justify-self-end border-primary cursor-pointer text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+              aria-label="Next step"
+            >
+              Next <ArrowRight className="h-4 w-4" />
+            </Button>
+            {/* <Button
+                variant="outline"
+                onClick={() => handleSubmit()}
+                disabled={isSaving || isSubmitting}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button> */}
+          </div>
+
         </Card>
+
+
 
       </div>
     </section>
