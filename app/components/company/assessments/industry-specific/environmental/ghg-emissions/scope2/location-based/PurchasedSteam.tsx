@@ -76,9 +76,7 @@ export function PurchasedSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
-    "ghg-scope2-location-purchasedsteam"
-  );
+  const { saveNow, isLoading: isSaving } = useAssessmentFlow("ghg-scope2-location-purchasedsteam");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +102,14 @@ export function PurchasedSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, steamConsumedRaw, selectedSources, otherComments, files, additionalFields]);
+  }, [
+    state.assessmentData,
+    steamConsumedRaw,
+    selectedSources,
+    otherComments,
+    files,
+    additionalFields,
+  ]);
 
   // const { total, filled } = calculateProgress([
   //   steamConsumedRaw,

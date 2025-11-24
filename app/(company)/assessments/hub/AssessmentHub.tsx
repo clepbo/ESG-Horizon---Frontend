@@ -67,6 +67,7 @@ export default function AssessmentHub() {
           subsidiary: user?.company?.name || "Company",
         },
       });
+      dispatch({ type: "SET_VIEW", payload: "disclosure" }); // Automatically proceed to disclosure if no subsidiaries exist
     }
   }, [isLoading, subsidiaries, user, state.assessmentData.subsidiary, dispatch]);
 
@@ -357,7 +358,7 @@ export default function AssessmentHub() {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                  className="bg-primary transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
                   disabled={!isFormValid}
                   onClick={handleProceed}
                 >

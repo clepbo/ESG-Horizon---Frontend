@@ -76,9 +76,7 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading } = useAssessmentFlow(
-    "ghg-scope2-market-coolingsteam"
-  );
+  const { saveNow, submitGroup, isLoading } = useAssessmentFlow("ghg-scope2-market-coolingsteam");
 
   const formRef = useRef<HTMLDivElement>(null);
 

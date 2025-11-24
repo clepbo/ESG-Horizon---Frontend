@@ -67,9 +67,7 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
-    "ghg-scope2-market-residual"
-  );
+  const { saveNow, isLoading: isSaving } = useAssessmentFlow("ghg-scope2-market-residual");
 
   const formRef = useRef<HTMLDivElement>(null);
 

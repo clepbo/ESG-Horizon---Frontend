@@ -18,6 +18,7 @@ const CustomButtonVariants = cva(
       size: {
         default: "h-10 w-[220px]",
         sm: "h-9 w-[180px]",
+        lg: "h-11 w-[240px]",
       },
     },
     defaultVariants: {
@@ -46,7 +47,7 @@ export const CustomButton = React.forwardRef<HTMLButtonElement, CustomButtonProp
         {loading ? (
           <Loader2 className="animate-spin h-4 w-4" />
         ) : (
-          icon && <span className="flex-shrink-0">{icon}</span>
+          icon && <span className="shrink-0">{icon}</span>
         )}
         <span>{children}</span>
       </button>

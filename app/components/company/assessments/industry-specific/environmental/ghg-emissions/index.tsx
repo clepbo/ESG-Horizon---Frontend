@@ -219,9 +219,7 @@ export function GhgEmissionsAssessment({
                   Total emissions from Subsidiaries and supply chains, measured in CO2-equivalent
                 </p>
               </div>
-              <Button className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white">
-                Assign Task
-              </Button>
+              <Button className="bg-primary  hover:bg-teal-600 text-white">Assign Task</Button>
             </div>
 
             <Accordion type="multiple" defaultValue={["scope-1"]} className="space-y-4">
@@ -297,7 +295,7 @@ export function GhgEmissionsAssessment({
                                 <h5 className="font-medium text-foreground">{card.title}</h5>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" />
+                              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
                             </div>
                           </CardContent>
                         </Card>

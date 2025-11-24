@@ -17,11 +17,11 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
-import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
+import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
-  initialView?: "topics" | "ghg" | any;
+  initialView?: "topics" | "ghg" | "crs" | "security-human-rights";
   initialForm?: "stationary-sources" | any;
   initialStep?: string;
 }
@@ -257,6 +257,8 @@ export function DisclosureTopics({
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Greenhouse Gas Emissions") {
       setCurrentView("ghg");
+    } else if (cardTitle === "Community Relations") {
+      setCurrentView("crs");
     } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
       setCurrentView("security-human-rights");
     }
@@ -276,15 +278,8 @@ export function DisclosureTopics({
       />
     );
   }
-  if (currentView === "security-human-rights") {
-    return (
-      <SecurityHumanRightsAssessment
-        onBack={() => setCurrentView("topics")}
-        onBackToHub={handleBackToHub}
-        initialForm={initialForm as any}
-        initialStep={initialStep}
-      />
-    );
+  if (currentView === "crs") {
+    return <CommunityRelationsHome onBack={() => setCurrentView("topics")} />;
   }
 
   return (
@@ -312,9 +307,7 @@ export function DisclosureTopics({
                     opportunities
                   </p>
                 </div>
-                <Button className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white">
-                  Assign Task
-                </Button>
+                <Button className="bg-primary  hover:bg-teal-600 text-white">Assign Task</Button>
               </div>
 
               <Accordion type="multiple" className="space-y-6" defaultValue={["industry-specific"]}>
@@ -388,7 +381,7 @@ export function DisclosureTopics({
                                         {card.subtitle}
                                       </p>
                                     </div>
-                                    <ChevronRight className="h-7 w-7 text-muted-foreground flex-shrink-0 ml-2" />
+                                    <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
                                   </div>
                                 </CardContent>
                               </Card>
@@ -463,7 +456,7 @@ export function DisclosureTopics({
                                         {card.subtitle}
                                       </p>
                                     </div>
-                                    <ChevronRight className="h-7 w-7 text-muted-foreground flex-shrink-0 ml-2" />
+                                    <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
                                   </div>
                                 </CardContent>
                               </Card>

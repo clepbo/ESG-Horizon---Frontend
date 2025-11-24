@@ -9,6 +9,7 @@ interface CustomProgressProps {
   title: string;
   total: number;
   percent: number;
+  unit?: string;
 }
 
 export function CustomProgress({ value, className, title, total, percent }: CustomProgressProps) {
@@ -24,6 +25,29 @@ export function CustomProgress({ value, className, title, total, percent }: Cust
       <div className={cn("w-full rounded-full bg-green-200 h-2", className)}>
         <Progress value={value} className="h-2 rounded-full bg-green-200 [&>div]:bg-green-700" />
       </div>
+    </div>
+  );
+}
+export function CustomProgressWithoutUnit({
+  value,
+  className,
+  title,
+  total,
+  unit,
+}: CustomProgressProps) {
+  return (
+    <div className="grid gap-0">
+      <span className="flex justify-between w-full">
+        <small> {title} </small>
+        <small>
+          {" "}
+          {total} {unit}
+        </small>
+      </span>
+      <div className={cn("w-full rounded-full bg-green-200 h-2", className)}>
+        <Progress value={value} className="h-2 rounded-full bg-green-200 [&>div]:bg-green-700" />
+      </div>
+      <small> 8 of 8 sections completed</small>
     </div>
   );
 }

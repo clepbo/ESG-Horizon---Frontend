@@ -80,7 +80,7 @@ function NewAssessmentPage() {
 
             <Button
               onClick={() => router.push("/assessments/hub")}
-              className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm"
+              className="bg-primary transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm"
             >
               Start New Assessment
             </Button>
