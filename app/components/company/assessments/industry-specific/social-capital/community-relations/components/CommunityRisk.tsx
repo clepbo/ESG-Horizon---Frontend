@@ -28,12 +28,9 @@ export default function CommunityRisk({
   onDisclosureTopics,
   stepIndex,
   totalSteps,
-  onNext,
 }: Props) {
   const [isSaving, setIsSaving] = React.useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { state, dispatch } = useAssessment();
 
   const [text, setText] = React.useState<string>("");
   const [view, setView] = useState<string>("opportunity-management");
@@ -177,12 +174,17 @@ export default function CommunityRisk({
       </section>
     );
   } else {
-    return <div>
-      <OperationalDelay onBack={function (): void {
-        throw new Error("Function not implemented.");
-      } } onDisclosureTopics={function (): void {
-        throw new Error("Function not implemented.");
-      } } />
-       </div>;
+    return (
+      <div>
+        <OperationalDelay
+          onBack={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          onDisclosureTopics={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
+      </div>
+    );
   }
 }

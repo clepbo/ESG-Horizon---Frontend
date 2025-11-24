@@ -12,7 +12,7 @@ interface EvidenceItemProps {
   onRemove: () => void;
 }
 
-export function EvidenceItem({ index, onRemove }: EvidenceItemProps) {
+export function EvidenceItem({ onRemove }: EvidenceItemProps) {
   return (
     <Card className="w-full bg-white shadow-sm border rounded-xl">
       <CardContent className="p-6 space-y-6">
