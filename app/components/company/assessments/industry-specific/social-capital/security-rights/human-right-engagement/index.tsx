@@ -13,12 +13,17 @@ import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
 import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { TotalsResponse } from "@/services/assessment.service";
+
 interface HumanRightEngagementProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: string;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
+  onSubmit: (totals: TotalsResponse | null) => void;
 }
 
 export default function HumanRightEngagement({
@@ -26,6 +31,8 @@ export default function HumanRightEngagement({
   onContinueToNextAssessment,
   stepIndex,
   totalSteps,
+  breadcrumb,
+  onSubmit,
 }: HumanRightEngagementProps) {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
@@ -81,6 +88,7 @@ export default function HumanRightEngagement({
       return;
     }
     toast.success("Assessment completed successfully!");
+    onSubmit(null);
     setTimeout(() => onContinueToNextAssessment(), 1500);
   };
   const handlePrevious = () => {
@@ -95,16 +103,9 @@ export default function HumanRightEngagement({
   };
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
+      <CustomBreadcrumbDynamic features={breadcrumb} />
       <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center gap-6 mb-4">
-          <Button
-            variant="outline"
-            onClick={onBack}
-            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+        <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
             <h3 className="text-2xl font-semibold"> Human Rights Engagement Processes</h3>
             <p className="text-muted-foreground text-base">
@@ -234,7 +235,7 @@ export default function HumanRightEngagement({
                 disabled={isSaving}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
-                Next
+                Submit
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
