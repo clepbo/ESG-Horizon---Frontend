@@ -67,7 +67,7 @@ function DeclineReasonModal({
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Decline Reason</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">Reasons for Decline</h2>
         <p className="text-gray-600">{reason || "No reason provided."}</p>
         <div className="mt-4 flex justify-end">
           <Button onClick={onClose} variant="outline">
