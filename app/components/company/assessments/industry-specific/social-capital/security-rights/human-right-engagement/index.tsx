@@ -10,11 +10,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/too
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
-import { calculateProgress } from "@/lib/utils";
-import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
-import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
+import { calculateProgress, computeProgressPercent } from "@/lib/utils";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { TotalsResponse } from "@/services/assessment.service";
+import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
+import { uploadService } from "@/services/upload.service";
 
 interface HumanRightEngagementProps {
   onBack: () => void;
@@ -35,28 +35,26 @@ export default function HumanRightEngagement({
   onSubmit,
 }: HumanRightEngagementProps) {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [additionalLinks, setAdditionalLinks] = useState<LinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
   const [formData, setFormData] = useState({
     engagementDescription: "",
-    fileName: "",
-    fileLink: "",
-    uploadedFile: null as File | null,
   });
 
   const { filled, total } = useMemo(() => {
     const hasDescription = formData.engagementDescription.trim() !== "";
-    const hasEvidence = additionalFields.length > 0 || additionalLinks.length > 0;
+    const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([hasDescription, hasEvidence]);
-  }, [formData.engagementDescription, additionalFields, additionalLinks]);
+  }, [formData.engagementDescription, filesAndLinks]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -69,6 +67,9 @@ export default function HumanRightEngagement({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === "engagementDescription") {
+      setErrors((prev) => ({ ...prev, engagementDescription: "" }));
+    }
   };
 
   const handleSaveAndContinue = () => {
@@ -76,8 +77,25 @@ export default function HumanRightEngagement({
       toast.error("Please fix the errors before saving.");
       return;
     }
+
     setShowSaveSuccess(true);
     setIsSaving(true);
+
+    const progressPercent = computeProgressPercent({
+      stepIndex,
+      totalSteps,
+      fieldsCompleted: filled,
+      totalFields: total,
+    });
+
+    const payload = {
+      engagementDescription: formData.engagementDescription,
+      filesAndLinks: filesAndLinks,
+      progressPercent,
+    };
+
+    console.log("DATA TO SAVE:", payload);
+
     toast.success("Progress saved! You can continue later.");
     setIsSaving(false);
   };
@@ -87,20 +105,28 @@ export default function HumanRightEngagement({
       toast.error("Please fix the errors before saving.");
       return;
     }
+
+    const payload = {
+      engagementDescription: formData.engagementDescription,
+      filesAndLinks: filesAndLinks,
+    };
+
+    console.log("FINAL SUBMISSION:", payload);
+
     toast.success("Assessment completed successfully!");
     onSubmit(null);
     setTimeout(() => onContinueToNextAssessment(), 1500);
   };
+
   const handlePrevious = () => {
     toast.info("Returning to previous section");
     onBack();
   };
-  const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    setAdditionalFields(fields);
+
+  const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
+    setFilesAndLinks(fields);
   };
-  const handleAdditionalLinksChange = (links: LinkData[]) => {
-    setAdditionalLinks(links);
-  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={breadcrumb} />
@@ -164,7 +190,7 @@ export default function HumanRightEngagement({
                   className="min-h-[200px] resize-none border-gray-300"
                 />
                 {errors.engagementDescription && (
-                  <p className="text-red-600 text-sm">{errors.engagementDescription}</p>
+                  <p className="text-red-600 text-sm mt-2">{errors.engagementDescription}</p>
                 )}
               </div>
             </div>
@@ -179,16 +205,11 @@ export default function HumanRightEngagement({
               </p>
 
               <div className="mt-6">
-                <AdditionalFileUpload
-                  onFieldsChange={handleAdditionalFieldsChange}
-                  initialData={additionalFields}
-                />
-              </div>
-              <div className="mt-6">
-                <h4 className="text-sm font-semibold text-gray-800 mb-3">Or Upload Via Link</h4>
-                <AdditionalLinkUpload
-                  onFieldsChange={handleAdditionalLinksChange}
-                  initialData={additionalLinks}
+                <AddMoreFilesLinks
+                  onFieldsChange={handleFilesAndLinksChange}
+                  initialData={filesAndLinks}
+                  uploadService={uploadService}
+                  showToast={(msg, type) => toast[type](msg)}
                 />
               </div>
             </div>
