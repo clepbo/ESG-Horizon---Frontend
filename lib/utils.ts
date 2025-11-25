@@ -232,6 +232,12 @@ export function formatTCO2eOutput(tCO2eValue: number): string {
 
 export function formatStatus(status: any | any[]): string {
   if (!status) return "";
+  if (status === "submitted_approved") {
+    return "Submitted-Approved";
+  }
+  if (status === "unapproved_rejected") {
+    return "Declined";
+  }
   const words = status
     .split("_")
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));
