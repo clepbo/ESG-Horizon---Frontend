@@ -17,7 +17,11 @@ import {
 } from "@/app/components/ui/table";
 import { CheckCircle2, XCircle, FileText, AlertCircle, Clock, Zap } from "lucide-react";
 import Image from "next/image";
-import { useAssessment } from "@/services/hooks/assessment.hooks";
+import {
+  useAssessment,
+  useApproveAssessment,
+  useDeclineAssessment,
+} from "@/services/hooks/assessment.hooks";
 import type { Assessment } from "./AssessmentTable";
 import { Separator } from "@/app/components/ui/separator";
 
@@ -38,6 +42,12 @@ export function AssessmentDetailsModal({
 }) {
   const [selectedFile, setSelectedFile] = useState<FileWithMeta | null>(null);
   const { data: fullAssessment, isLoading } = useAssessment(assessment?.id);
+
+  const approveMutation = useApproveAssessment();
+  const declineMutation = useDeclineAssessment();
+  const [showDeclineReason, setShowDeclineReason] = useState(false);
+  const [declineReason, setDeclineReason] = useState("");
+  const [declineValidationError, setDeclineValidationError] = useState("");
 
   if (!open || !assessment) return null;
 
@@ -113,6 +123,8 @@ export function AssessmentDetailsModal({
   const statusInfo =
     statusConfig[data.status as keyof typeof statusConfig] || statusConfig.in_progress;
 
+  const isActionLoading = approveMutation.isPending || declineMutation.isPending;
+
   const renderSources = (sources: any[] = [], title: string) => {
     if (!sources.length) return null;
     return (
@@ -147,6 +159,47 @@ export function AssessmentDetailsModal({
           </Table>
         </CardContent>
       </Card>
+    );
+  };
+
+  const isAwaitingApproval =
+    (data.status && data.status === "awaiting_review") || assessment?.status === "awaiting_review";
+
+  const handleApprove = () => {
+    if (!assessment?.id || isActionLoading) return;
+    approveMutation.mutate(assessment.id, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
+  };
+
+  const handleOpenDecline = () => {
+    setShowDeclineReason(true);
+    setDeclineValidationError("");
+  };
+
+  const handleCancelDecline = () => {
+    setShowDeclineReason(false);
+    setDeclineReason("");
+    setDeclineValidationError("");
+  };
+
+  const handleConfirmDecline = () => {
+    if (!assessment?.id || isActionLoading) return;
+    if (!declineReason.trim()) {
+      setDeclineValidationError("Please enter a reason for rejection.");
+      return;
+    }
+    declineMutation.mutate(
+      { assessmentId: assessment.id, reason: declineReason },
+      {
+        onSuccess: () => {
+          setShowDeclineReason(false);
+          setDeclineReason("");
+          onClose();
+        },
+      }
     );
   };
 
@@ -303,6 +356,66 @@ export function AssessmentDetailsModal({
                     Assessment Declined: {data.rejection_reason}
                   </AlertDescription>
                 </Alert>
+              )}
+
+              {isAwaitingApproval && (
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                  <div className="flex gap-2 items-center">
+                    <Button
+                      onClick={handleApprove}
+                      disabled={isActionLoading}
+                      className="bg-green-600 text-white"
+                    >
+                      Approve
+                    </Button>
+
+                    {!showDeclineReason && (
+                      <Button
+                        onClick={handleOpenDecline}
+                        disabled={isActionLoading}
+                        variant="destructive"
+                      >
+                        Decline
+                      </Button>
+                    )}
+                  </div>
+
+                  {showDeclineReason && (
+                    <div className="w-full md:w-2/3 bg-gray-50 p-4 rounded-md">
+                      <textarea
+                        rows={3}
+                        className="w-full p-2 rounded border border-gray-300"
+                        placeholder="Enter reason for rejection"
+                        value={declineReason}
+                        onChange={(e) => {
+                          setDeclineReason(e.target.value);
+                          setDeclineValidationError("");
+                        }}
+                        disabled={isActionLoading}
+                      />
+                      {declineValidationError && (
+                        <div className="text-sm text-red-600 mt-2">{declineValidationError}</div>
+                      )}
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          onClick={handleCancelDecline}
+                          variant="outline"
+                          disabled={isActionLoading}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleConfirmDecline}
+                          variant="destructive"
+                          disabled={isActionLoading}
+                          className="text-white"
+                        >
+                          Submit
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </CardContent>
           </ScrollArea>

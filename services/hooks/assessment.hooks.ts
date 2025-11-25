@@ -71,7 +71,7 @@ export const useApproveAssessment = () => {
   });
 };
 
-export const useRejectAssessment = () => {
+export const useDeclineAssessment = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -80,7 +80,7 @@ export const useRejectAssessment = () => {
     { assessmentId: number; reason: string }
   >({
     mutationFn: ({ assessmentId, reason }) =>
-      assessmentService.rejectAssessment(assessmentId, reason),
+      assessmentService.declineAssessment(assessmentId, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       toast.success("Assessment rejected successfully.");

@@ -321,6 +321,8 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
         const handleActionClick = () => {
           if (status === "in_progress" || status === "unapproved_rejected") {
             router.push(`/assessments/${assessment.id}`);
+          } else if (status === "submitted_approved" || status === "approved") {
+            router.push(`/assessments/hub`);
           } else {
             handleOpenDetails(assessment);
           }
