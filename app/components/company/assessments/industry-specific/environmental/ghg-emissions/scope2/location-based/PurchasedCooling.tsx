@@ -18,7 +18,7 @@ import {
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
@@ -73,7 +73,9 @@ export function PurchasedCoolingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
+    "ghg-scope2-location-purchasedcooling"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -94,8 +96,14 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.assessmentData.cooling]);
+  }, [
+    state.assessmentData,
+    coolingConsumed,
+    selectedSystems,
+    otherComments,
+    files,
+    additionalFields,
+  ]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -180,23 +188,21 @@ export function PurchasedCoolingForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
-      coolingConsumed: String(coolingConsumed) || "",
+      coolingConsumed: String(coolingConsumed.rawValue) || "",
       selectedSystems,
       otherComments,
       files,
-      additionalFields: normalizeFiles(additionalFields),
-      progressPercent,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -205,63 +211,32 @@ export function PurchasedCoolingForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          cooling: {
-            coolingConsumed: String(coolingConsumed) || "",
-            selectedSystems,
-            otherComments,
-            files,
-            additionalFields: normalizeFiles(additionalFields),
-          },
-          lastSavedForm: "ghg-location-based-cooling",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      await saveNow("environment.ghg.scope2.locationBased.purchasedCooling", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleNext = () => {
-    if (!validateForm()) return;
-    dispatch({
-      type: "UPDATE_COOLING",
-      payload: {
-        coolingConsumed: coolingConsumed.rawValue,
-        selectedSystems,
-        otherComments,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+  };
 
+  const handleNext = async () => {
+    if (!validateForm()) return;
+    await saveForm({ showToast: false, redirect: false });
     onNext();
   };
-  const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_COOLING",
-      payload: {
-        coolingConsumed: coolingConsumed.rawValue,
-        selectedSystems,
-        otherComments,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
 
+  const handlePrevious = () => {
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

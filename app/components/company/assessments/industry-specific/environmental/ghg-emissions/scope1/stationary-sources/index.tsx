@@ -6,6 +6,7 @@ import { IndustrialProcessesForm } from "./IndustrialProcesses";
 import { OilGasOperations } from "./OilGasOperations";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface StationarySourcesFormProps {
   onBack: () => void;
@@ -23,6 +24,7 @@ export function StationarySourcesForm({
   onBackToHub,
   initialStep,
 }: StationarySourcesFormProps) {
+  const { state } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

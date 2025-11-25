@@ -6,7 +6,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -17,8 +17,8 @@ import {
 import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useRouter } from "next/navigation";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface ElectricityHeatFormProps {
   onBack: () => void;
@@ -50,6 +50,7 @@ export function ElectricityHeatForm({
   totalSteps,
 }: ElectricityHeatFormProps) {
   const { state, dispatch } = useAssessment();
+  const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -61,8 +62,7 @@ export function ElectricityHeatForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
   const [errors, setErrors] = useState<ElectricityHeatErrors>({});
 
-  const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-electricityheat");
 
   const dieselFuelOptions = useMemo(() => getFuelOptions("dieselGenerators"), []);
   const gasFuelOptions = useMemo(() => getFuelOptions("gasTurbines"), []);
@@ -108,7 +108,7 @@ export function ElectricityHeatForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.stationarySources?.electricityHeat, dieselFuelOptions, gasFuelOptions]);
+  }, [dieselFuelOptions, gasFuelOptions, state.assessmentData]);
 
   const { filled, total } = useMemo(() => {
     const hasDieselData = dieselGenerators.some(
@@ -146,15 +146,8 @@ export function ElectricityHeatForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
       dieselGenerators,
@@ -167,7 +160,6 @@ export function ElectricityHeatForm({
         url: f.url ?? "",
         publicId: f.publicId ?? "",
       })),
-      progressPercent,
     };
 
     dispatch({
@@ -176,30 +168,28 @@ export function ElectricityHeatForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          stationarySources: {
-            ...state.assessmentData.stationarySources,
-            electricityHeat: payload,
-          },
-          lastSavedForm: "ghg-stationary-sources-electricity-heat",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+      await saveNow("environment.ghg.scope1.stationarySources.electricityHeat", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
+  };
+
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+  };
+
+  const handleNext = async () => {
+    if (!validateForm()) return;
+    await saveForm({ showToast: false, redirect: false });
+    onNext();
   };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,22 +259,6 @@ export function ElectricityHeatForm({
         inputRefs.current[key]!.value = "";
       }
     }
-  };
-
-  const handleNext = () => {
-    if (!validateForm()) return;
-
-    dispatch({
-      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-      payload: {
-        dieselGenerators,
-        gasTurbines,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
-    onNext();
   };
 
   const handlePrevious = () => {
@@ -452,11 +426,11 @@ export function ElectricityHeatForm({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="justify-self-center bg-teal-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -476,7 +450,7 @@ export function ElectricityHeatForm({
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >

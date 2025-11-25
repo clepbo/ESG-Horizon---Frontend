@@ -16,10 +16,8 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
-import { TotalsResponse } from "@/services/assessment.service";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
 
@@ -78,14 +76,15 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const { saveNow, submitGroup, isLoading } = useAssessmentFlow("ghg-scope2-market-coolingsteam");
 
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  const isPending = isLoading;
 
   useEffect(() => {
     const existingData = state.assessmentData.coolingSteam;
@@ -107,7 +106,7 @@ export function CoolingSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.coolingSteam, setEnergyConsumedRaw, setEmissionFactorRaw]);
+  }, [state.assessmentData, energyConsumedRaw, emissionFactorRaw, files, additionalFields]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -191,21 +190,20 @@ export function CoolingSteamForm({
     additionalFields: additionalFields as FileMetadata[],
   });
 
-  const handleSaveAndContinue = async () => {
-    if (!validateForm()) return;
-
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
-      ...buildPayload(),
-      progressPercent,
+      energyConsumed: energyConsumedRaw,
+      emissionFactor: emissionFactorRaw,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -214,77 +212,44 @@ export function CoolingSteamForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          coolingSteam: buildPayload(),
-          lastSavedForm: "ghg-market-based-coolingSteam",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      toast.success("Cooling/Steam data saved. You can continue later from where you left off.");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSaveAndContinue = async () => {
+    if (!validateForm()) return;
+    await saveForm({ showToast: true, redirect: true });
+  };
+
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    const assessmentId = state.assessmentId;
+    await saveForm({ showToast: false, redirect: false });
 
-    const payload = buildPayload();
-
-    dispatch({
-      type: "UPDATE_COOLING_STEAM",
-      payload,
-    });
-
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          coolingSteam: payload,
-          lastSavedForm: "ghg-market-based-coolingSteam",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment?.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          toast.success("Assessment submitted successfully!");
-          onSubmit(res.totals ?? null);
-          resetForm();
-        },
-        onError: () => {
-          toast.error("Failed to submit");
-        },
-      }
-    );
+    try {
+      const response = await submitGroup();
+      const groupTotal = response.scopeTotals.scope2.marketBased.totalEmission || 0;
+      toast.success("Assessment submitted successfully!");
+      onSubmit(groupTotal);
+      resetForm();
+    } catch (err) {
+      toast.error("Failed to submit");
+      console.error("Submission failed:", err);
+    }
   };
 
   const handlePrevious = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID missing.");
-      return;
-    }
-
-    dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
-
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

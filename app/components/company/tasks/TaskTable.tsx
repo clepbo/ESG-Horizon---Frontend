@@ -25,6 +25,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { FrontendTask, TaskStatus } from "@/services/assignTask.service";
+import CustomDialog from "../../ui/reusables/CustomDialog";
 
 interface TaskTableProps {
   tasks: FrontendTask[];
@@ -34,7 +35,7 @@ interface TaskTableProps {
   onDeleteTask: (taskId: number) => void;
   onReassignTask: (taskId: number) => void;
   onApproveTask: (taskId: number) => void;
-  onRejectTask: (taskId: number) => void;
+  onDeclineTask: (taskId: number) => void;
   onSendReminder: (taskId: number) => void;
 }
 
@@ -52,7 +53,7 @@ const getStatusVariant = (status: TaskStatus) => {
       return "successGreen";
     case "on_hold":
       return "yellow";
-    case "rejected":
+    case "declined":
       return "destructive";
     default:
       return "outline";
@@ -68,7 +69,7 @@ function ActionDropdown({
   onSendReminder,
   onReassignTask,
   onApproveTask,
-  onRejectTask,
+  onDeclineTask,
   onDeleteTask,
 }: {
   task: FrontendTask;
@@ -77,57 +78,152 @@ function ActionDropdown({
   onSendReminder: (taskId: number) => void;
   onReassignTask: (taskId: number) => void;
   onApproveTask: (taskId: number) => void;
-  onRejectTask: (taskId: number) => void;
+  onDeclineTask: (taskId: number, comment?: string) => void;
   onDeleteTask: (taskId: number) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  return (
-    <DropdownMenu onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-[110px] justify-between rounded-sm border-teal-600"
-        >
-          Action
-          {isOpen ? (
-            <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
-          ) : (
-            <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [declineOpen, setDeclineOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [declineComment, setDeclineComment] = useState("");
 
-      <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        <DropdownMenuItem onClick={() => onViewTask(task)}>
-          <Eye className="mr-2 h-4 w-4" /> View
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onEditTask(task)}>
-          <Edit className="mr-2 h-4 w-4" /> Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onSendReminder(task.id)}>
-          <Bell className="mr-2 h-4 w-4" /> Send Reminder
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onReassignTask(task.id)}>
-          <UserPlus className="mr-2 h-4 w-4" /> Reassign
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => onApproveTask(task.id)}>
-          <CheckCircle className="mr-2 h-4 w-4 text-success" /> Approve
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRejectTask(task.id)}>
-          <XCircle className="mr-2 h-4 w-4 text-destructive" /> Reject
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => onDeleteTask(task.id)}
-          className="text-red-600 focus:text-red-600"
-        >
-          <Trash2 className="mr-2 h-4 w-4" /> Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+  return (
+    <section>
+      <DropdownMenu onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-[110px] justify-between rounded-sm border-teal-600"
+          >
+            Action
+            {isOpen ? (
+              <ChevronUp className="ml-1 h-4 w-4 transition-transform duration-200" />
+            ) : (
+              <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
+          <DropdownMenuItem onClick={() => onViewTask(task)}>
+            <Eye className="mr-2 h-4 w-4" /> View
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEditTask(task)}>
+            <Edit className="mr-2 h-4 w-4" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onSendReminder(task.id)}>
+            <Bell className="mr-2 h-4 w-4" /> Send Reminder
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onReassignTask(task.id)}>
+            <UserPlus className="mr-2 h-4 w-4" /> Reassign
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setApproveOpen(true)}>
+            <CheckCircle className="mr-2 h-4 w-4 text-success" /> Approve
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDeclineOpen(true)}>
+            <XCircle className="mr-2 h-4 w-4 text-destructive" /> Decline
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setDeleteOpen(true)}
+            className="text-red-600 focus:text-red-600"
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <CustomDialog
+        open={approveOpen}
+        onOpenChange={setApproveOpen}
+        title="Confirm Approval"
+        className="bg-white"
+      >
+        <p className="mt-4">Are you sure you want to approve this task?</p>
+        <div className="flex justify-end gap-3 mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setApproveOpen(false)}
+            className="border border-teal-600"
+          >
+            Cancel
+          </Button>
+          <Button
+            className="bg-teal-600 text-white"
+            onClick={() => {
+              onApproveTask(task.id);
+              setApproveOpen(false);
+            }}
+          >
+            Approve
+          </Button>
+        </div>
+      </CustomDialog>
+
+      <CustomDialog
+        open={declineOpen}
+        onOpenChange={setDeclineOpen}
+        title="Decline Task"
+        className="bg-white"
+      >
+        <p className="mt-4">Please provide a comment before declining:</p>
+        <textarea
+          placeholder="Enter comment..."
+          className="mt-2 w-full border border-red-500 rounded-md p-2 text-sm bg-white text-black"
+          value={declineComment}
+          onChange={(e) => setDeclineComment(e.target.value)}
+        />
+        <div className="flex justify-end gap-3 mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setDeclineOpen(false)}
+            className="border border-red-500"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onDeclineTask(task.id, declineComment);
+              setDeclineComment("");
+              setDeclineOpen(false);
+            }}
+          >
+            Decline
+          </Button>
+        </div>
+      </CustomDialog>
+
+      <CustomDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Confirm Delete"
+        className="bg-white"
+      >
+        <p className="mt-4">Are you sure you want to delete this task?</p>
+        <div className="flex justify-end gap-3 mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setDeleteOpen(false)}
+            className="border border-red-500"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onDeleteTask(task.id);
+              setDeleteOpen(false);
+            }}
+          >
+            Delete
+          </Button>
+        </div>
+      </CustomDialog>
+    </section>
   );
 }
 
@@ -139,7 +235,7 @@ export function TaskTable({
   onDeleteTask,
   onReassignTask,
   onApproveTask,
-  onRejectTask,
+  onDeclineTask,
   onSendReminder,
 }: TaskTableProps) {
   const [dateRange, setDateRange] = useState<
@@ -220,7 +316,7 @@ export function TaskTable({
             onSendReminder={onSendReminder}
             onReassignTask={onReassignTask}
             onApproveTask={onApproveTask}
-            onRejectTask={onRejectTask}
+            onDeclineTask={onDeclineTask}
             onDeleteTask={onDeleteTask}
           />
         ),
@@ -232,7 +328,7 @@ export function TaskTable({
       onSendReminder,
       onReassignTask,
       onApproveTask,
-      onRejectTask,
+      onDeclineTask,
       onDeleteTask,
     ]
   );
@@ -246,7 +342,7 @@ export function TaskTable({
         { label: "In Progress", value: "in_progress" },
         { label: "Completed", value: "completed" },
         { label: "Approved", value: "approved" },
-        { label: "Rejected", value: "rejected" },
+        { label: "Declined", value: "declined" },
         { label: "On Hold", value: "on_hold" },
       ],
     },

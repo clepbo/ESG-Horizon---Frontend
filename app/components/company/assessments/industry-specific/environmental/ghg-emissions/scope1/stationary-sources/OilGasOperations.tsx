@@ -8,8 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress, normalizeFiles } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -19,10 +18,9 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
 import { TotalsResponse } from "@/services/assessment.service";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface OilGasOperationsProps {
   onBack: () => void;
@@ -57,10 +55,9 @@ export function OilGasOperations({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
-
-  const isPending = isSaving || isSubmitting;
+  const { saveNow, submitGroup, isLoading } = useAssessmentFlow(
+    "ghg-scope1-stationary-oilgasoperations"
+  );
 
   const [errors, setErrors] = useState<{
     onShoreProduction?: string;
@@ -166,15 +163,6 @@ export function OilGasOperations({
     setAdditionalFields(fields);
   };
 
-  const normalizeFiles = (files: FileData[]): FileMetadata[] =>
-    files.map((f) => ({
-      name: f.name,
-      size: f.size ?? 0,
-      lastModified: f.lastModified ?? Date.now(),
-      url: f.url ?? "",
-      publicId: f.publicId ?? "",
-    }));
-
   const validateForm = () => {
     const newErrors: {
       onShoreProduction?: string;
@@ -192,21 +180,13 @@ export function OilGasOperations({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = false, redirect = false } = options;
 
     const payload = {
       onShoreProduction,
       additionalFields: normalizeFiles(additionalFields),
       files,
-      progressPercent,
     };
 
     dispatch({
@@ -214,79 +194,37 @@ export function OilGasOperations({
       payload,
     });
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          stationarySources: {
-            ...state.assessmentData.stationarySources,
-            oilGasOperations: payload,
-          },
-          lastSavedForm: "ghg-stationary-sources-oil-gas",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      await saveNow("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
+      if (showToast) {
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 2000);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        // onBackToHub();
+      if (redirect) {
         router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      }
+    } catch (err) {
+      console.error("Save failed:", err);
+      toast.error("Failed to save");
     }
   };
 
-  const handleSubmit = () => {
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+  };
+
+  const handleSubmit = async () => {
     if (!validateForm()) return;
-
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
-
-    const payload = {
-      onShoreProduction,
-      additionalFields: normalizeFiles(additionalFields),
-      files,
-      progressPercent,
-    };
-
-    dispatch({
-      type: "UPDATE_STATIONARY_OIL_GAS",
-      payload,
-    });
-
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          stationarySources: {
-            ...state.assessmentData.stationarySources,
-            oilGasOperations: payload,
-          },
-          lastSavedForm: "ghg-stationary-sources-electricity-heat",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-
-          onSubmit(res.totals ?? null);
-        },
-      }
-    );
+    await saveForm({ showToast: false, redirect: false });
+    try {
+      const response = await submitGroup();
+      const groupTotal =
+        response?.assessment?.assessmentData?.environment?.ghg?.scope1?.stationarySources
+          ?.totalEmission || 0;
+      onSubmit(groupTotal);
+    } catch (err) {
+      toast.error("Submission failed");
+      console.error("Submission failed:", err);
+    }
   };
 
   const handlePrevious = () => {
@@ -482,11 +420,11 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isPending}
+                disabled={isLoading}
                 className="justify-self-center bg-teal-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -506,27 +444,15 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isPending}
+                disabled={isLoading}
                 className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit form"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>
         </Card>
-        {/* <SubmitConfirmationDialog
-          isOpen={showConfirmDialog}
-          onClose={() => setShowConfirmDialog(false)}
-          onSave={() => {
-            setShowConfirmDialog(false);
-            handleSaveAndContinue();
-          }}
-          onSubmit={() => {
-            setShowConfirmDialog(false);
-            handleSubmit();
-          }}
-        /> */}
       </div>
     </div>
   );
