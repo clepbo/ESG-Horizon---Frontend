@@ -136,12 +136,7 @@ export default function ReservesIndigenousLand({
     }
     setShowSaveSuccess(true);
     setIsSaving(true);
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
@@ -156,7 +151,6 @@ export default function ReservesIndigenousLand({
       probableIndigenousUnit: formData.probableIndigenousUnit,
 
       filesAndLinks: filesAndLinks,
-      progressPercent,
     };
     console.log("DATA TO SAVE:", payload);
     toast.success("Logged to console");

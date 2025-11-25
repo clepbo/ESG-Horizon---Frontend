@@ -81,17 +81,9 @@ export default function HumanRightEngagement({
     setShowSaveSuccess(true);
     setIsSaving(true);
 
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
-
     const payload = {
       engagementDescription: formData.engagementDescription,
       filesAndLinks: filesAndLinks,
-      progressPercent,
     };
 
     console.log("DATA TO SAVE:", payload);

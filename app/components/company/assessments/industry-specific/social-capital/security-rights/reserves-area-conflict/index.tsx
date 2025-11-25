@@ -124,12 +124,7 @@ export default function ReservesAreaConflict({
     }
     setShowSaveSuccess(true);
     setIsSaving(true);
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
@@ -141,7 +136,6 @@ export default function ReservesAreaConflict({
       probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
 
       filesAndLinks: filesAndLinks,
-      progressPercent,
     };
     console.log("DATA TO SAVE:", payload);
 
