@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
 import React from "react";
+import { formatNumberFigures } from "../../components/ranking/FormatNumberFigures";
 
 export function generateAssessmentData(reportData: any) {
   const { report, percentage_emission_summary } = reportData;
@@ -166,7 +167,7 @@ export default function AssessmentEnvironmental({ reportData }: AssessmentAllPro
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-2xl font-semibold"> {item.value.toLocaleString()} </p>
+                    <p className="text-2xl font-semibold"> {formatNumberFigures(item.value)} </p>
                     <p className="text-xs text-muted-foreground">
                       {index === 0 ? item.unit : `${item.percentage}% of total emissions`}
                     </p>

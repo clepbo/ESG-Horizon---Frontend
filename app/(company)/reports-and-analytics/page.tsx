@@ -8,19 +8,17 @@ import ReportEmptyState from "./components/ReportEmptyState";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 export default function page() {
-   const report = useReport();
+  const report = useReport();
 
-   if (report.isLoading) {
+  if (report.isLoading) {
     return <LoadingSpinner />;
-   }
-   if (report.error) {
+  }
+  if (report.error) {
     return <div className="text-center my-20 text-gray-500">Error loading reports.</div>;
-   }
-   if (!report?.data || report.data.length === 0) {
-    return (
-      <ReportEmptyState />
-    )
-   }
+  }
+  if (!report?.data || report.data.length === 0) {
+    return <ReportEmptyState />;
+  }
 
   return (
     <motion.div

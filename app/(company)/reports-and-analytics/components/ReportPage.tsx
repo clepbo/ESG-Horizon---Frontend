@@ -158,8 +158,6 @@ export default function ReportPage() {
     });
   };
 
-
-
   return (
     <section className="grid">
       {/* Debug button - remove in production */}
