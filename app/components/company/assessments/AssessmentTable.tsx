@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
@@ -24,11 +23,12 @@ import {
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
-import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
+import { useState } from "react";
 import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
+import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -82,8 +82,9 @@ function DeclineReasonModal({
 function ActionDropdown({
   status,
   getActionIcon,
-  actionLabel,
-  onActionClick,
+  onView,
+  onContinue,
+  onReview,
   onGenerateReport,
   onDelete,
   deletePending,
@@ -108,10 +109,26 @@ function ActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        <DropdownMenuItem onClick={onActionClick}>
-          {getActionIcon(actionLabel)}
-          {actionLabel}
+        {/* Show View unless it's awaiting_review — Review doubles as the view in that case */}
+        {status !== "awaiting_review" && (
+          <DropdownMenuItem onClick={onView}>
+            {getActionIcon("View")}
+            View
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuItem onClick={onContinue}>
+          {getActionIcon("Continue")}
+          Continue
         </DropdownMenuItem>
+
+        {/* Show Review when awaiting_review */}
+        {status === "awaiting_review" && (
+          <DropdownMenuItem onClick={onReview}>
+            {getActionIcon("Review")}
+            Review
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuItem onClick={onGenerateReport}>
           <FileText className="mr-2 h-4 w-4" />
@@ -134,22 +151,22 @@ function ActionDropdown({
   );
 }
 
-export function AssessmentTable({ data }: AssessmentTableProps) {
+export default function AssessmentTable({ data }: AssessmentTableProps) {
   const router = useRouter();
-  const [showReportSuccess, setShowReportSuccess] = useState(false);
+  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [modalData, setModalData] = useState({
     open: false,
     assessmentId: null as number | null,
   });
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
-
-  const deleteMutation = useDeleteAssessment();
+  const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [dateRange, setDateRange] = useState<
     { startMonth: string; endMonth: string } | undefined
   >();
+
+  const deleteMutation = useDeleteAssessment();
 
   const filteredData = dateRange
     ? data.filter((a) => {
@@ -212,6 +229,16 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     setTimeout(() => {
       setShowReportSuccess(true);
     }, 500);
+  };
+
+  const handleContinue = (assessment: Assessment) => {
+    if (!assessment?.id) return;
+    // Always navigate to the assessment page; ContinueAssessment decides the flow
+    router.push(`/assessments/${assessment.id}`);
+  };
+
+  const handleView = (assessment: Assessment) => {
+    setSelectedAssessment(assessment);
   };
 
   const columns = [
@@ -316,47 +343,20 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       header: "Quick Actions",
       cell: ({ row }) => {
         const assessment = row.original;
-        const status = assessment.status;
-
-        const handleActionClick = () => {
-          if (status === "in_progress" || status === "unapproved_rejected") {
-            router.push(`/assessments/${assessment.id}`);
-          } else if (status === "submitted_approved" || status === "approved") {
-            router.push(`/assessments/hub`);
-          } else {
-            handleOpenDetails(assessment);
-          }
-        };
-
-        const getActionLabel = () => {
-          switch (status) {
-            case "in_progress":
-              return "Continue";
-            case "awaiting_review":
-              return "Review";
-            case "unapproved_rejected":
-              return "Update";
-            case "submitted_approved":
-            case "approved":
-              return "View";
-            default:
-              return "View";
-          }
-        };
-
-        const actionLabel = getActionLabel();
-
         return (
-          <ActionDropdown
-            assessment={assessment}
-            status={status}
-            getActionIcon={getActionIcon}
-            actionLabel={actionLabel}
-            onActionClick={handleActionClick}
-            onGenerateReport={() => handleGenerateReport(assessment.id)}
-            onDelete={() => handleOpenModal(assessment.id)}
-            deletePending={deleteMutation.isPending}
-          />
+          <div className="flex items-center gap-2">
+            {/* Put actions back into the dropdown (always show View & Continue) */}
+            <ActionDropdown
+              status={assessment.status}
+              getActionIcon={getActionIcon}
+              onView={() => handleOpenDetails(assessment)}
+              onContinue={() => handleContinue(assessment)}
+              onReview={() => handleOpenDetails(assessment)} // review opens details modal
+              onGenerateReport={() => handleGenerateReport(assessment.id)}
+              onDelete={() => handleOpenModal(assessment.id)}
+              deletePending={deleteMutation.isPending}
+            />
+          </div>
         );
       },
     }),
@@ -380,7 +380,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
   ];
 
   return (
-    <section className="shadow-md">
+    <div>
       <DataTable
         data={validData}
         columns={columns}
@@ -399,11 +399,8 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       />
 
       <AssessmentDetailsModal
-        open={detailsOpen}
-        onClose={() => {
-          setDetailsOpen(false);
-          setSelectedAssessment(null);
-        }}
+        open={!!selectedAssessment}
+        onClose={() => setSelectedAssessment(null)}
         assessment={selectedAssessment}
       />
 
@@ -431,6 +428,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
           nextAssessment={null}
         />
       )}
-    </section>
+    </div>
   );
 }

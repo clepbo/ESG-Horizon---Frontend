@@ -1,6 +1,6 @@
 "use client";
 
-import { AssessmentTable } from "@/app/components/company/assessments/AssessmentTable";
+import AssessmentTable from "@/app/components/company/assessments/AssessmentTable";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { useRouter } from "next/navigation";
