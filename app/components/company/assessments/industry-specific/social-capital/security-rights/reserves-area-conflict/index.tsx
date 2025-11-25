@@ -11,11 +11,11 @@ import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress, computeProgressPercent } from "@/lib/utils";
-import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
-import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
+import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { UnitSelect } from "../../../../UnitSelect";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 
 interface ReservesAreaConflictProps {
   onBack: () => void;
@@ -36,9 +36,8 @@ export default function ReservesAreaConflict({
   const provedReservesInConflictVolume = useFormattedNumber("");
   const probableReservesInConflictVolume = useFormattedNumber("");
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [additionalLinks, setAdditionalLinks] = useState<LinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -54,9 +53,6 @@ export default function ReservesAreaConflict({
     provedReservesInConflictUnit: "",
     probableReservesInConflictVolume: "",
     probableReservesInConflictUnit: "",
-    fileName: "",
-    fileLink: "",
-    uploadedFile: null as File | null,
   });
 
   const validateForm = () => {
@@ -99,7 +95,7 @@ export default function ReservesAreaConflict({
       probableReservesInConflictVolume.rawValue !== "" &&
       formData.probableReservesInConflictUnit !== "";
 
-    const hasEvidence = additionalFields.length > 0 || additionalLinks.length > 0;
+    const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([
       hasTotalProvedReserves,
@@ -114,21 +110,13 @@ export default function ReservesAreaConflict({
     formData.totalProvedReservesUnit,
     formData.provedReservesInConflictUnit,
     formData.probableReservesInConflictUnit,
-    additionalFields,
-    additionalLinks,
+    filesAndLinks,
   ]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // const handleSaveAndContinue = () => {
-  //   setShowSaveSuccess(true);
-  //   toast.success("Progress saved! You can continue later.");
-  //   if (onBackToHub) {
-  //     setTimeout(() => onBackToHub(), 1500);
-  //   }
-  // };
   const handleSaveAndContinue = () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
@@ -136,12 +124,7 @@ export default function ReservesAreaConflict({
     }
     setShowSaveSuccess(true);
     setIsSaving(true);
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
@@ -152,12 +135,8 @@ export default function ReservesAreaConflict({
       probableReservesInConflictVolume: Number(probableReservesInConflictVolume.rawValue),
       probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
 
-      additionalFiles: additionalFields,
-      additionalLinks,
-      progressPercent,
+      filesAndLinks: filesAndLinks,
     };
-    console.log("DATA TO SAVE:", payload);
-
     console.log("DATA TO SAVE:", payload);
 
     toast.success("Data logged to console.");
@@ -172,15 +151,14 @@ export default function ReservesAreaConflict({
     toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
+
   const handlePrevious = () => {
     toast.info("Returning to previous section");
     onBack();
   };
-  const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    setAdditionalFields(fields);
-  };
-  const handleAdditionalLinksChange = (links: LinkData[]) => {
-    setAdditionalLinks(links);
+
+  const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
+    setFilesAndLinks(fields);
   };
 
   return (
@@ -410,16 +388,10 @@ export default function ReservesAreaConflict({
               </p>
 
               <div className="mt-6">
-                <AdditionalFileUpload
-                  onFieldsChange={handleAdditionalFieldsChange}
-                  initialData={additionalFields}
-                />
-              </div>
-              <div className="mt-6">
-                <h4 className="text-sm font-semibold text-gray-800 mb-3">Or Upload Via Link</h4>
-                <AdditionalLinkUpload
-                  onFieldsChange={handleAdditionalLinksChange}
-                  initialData={additionalLinks}
+                <AddMoreFilesLinks
+                  onFieldsChange={handleFilesAndLinksChange}
+                  initialData={filesAndLinks}
+                  uploadService={uploadService}
                 />
               </div>
             </div>

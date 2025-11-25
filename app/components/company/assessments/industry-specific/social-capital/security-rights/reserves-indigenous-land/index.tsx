@@ -8,15 +8,14 @@ import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
 import { toast } from "react-toastify";
-// import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress, computeProgressPercent } from "@/lib/utils";
-import { AdditionalFileUpload, FileData } from "../../../../AdditionalFileUpload";
-import { AdditionalLinkUpload, LinkData } from "../../../../AdditionalLinkUpload";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { UnitSelect } from "../../../../UnitSelect";
+import { uploadService } from "@/services/upload.service";
+import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 
 interface ReservesIndigenousLandProps {
   onBack: () => void;
@@ -39,9 +38,8 @@ export default function ReservesIndigenousLand({
   const probableIndigenousVolume = useFormattedNumber("");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
+  const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [additionalLinks, setAdditionalLinks] = useState<LinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -58,9 +56,6 @@ export default function ReservesIndigenousLand({
     totalProbableReservesUnit: "",
     probableIndigenousVolume: "",
     probableIndigenousUnit: "",
-    fileName: "",
-    fileLink: "",
-    uploadedFile: null as File | null,
   });
 
   const { filled, total } = useMemo(() => {
@@ -76,7 +71,7 @@ export default function ReservesIndigenousLand({
     const hasProbableIndigenous =
       probableIndigenousVolume.rawValue !== "" && formData.probableIndigenousUnit !== "";
 
-    const hasEvidence = additionalFields.length > 0 || additionalLinks.length > 0;
+    const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([
       hasTotalProvedReserves,
@@ -94,8 +89,7 @@ export default function ReservesIndigenousLand({
     formData.provedIndigenousUnit,
     formData.totalProbableReservesUnit,
     formData.probableIndigenousUnit,
-    additionalFields,
-    additionalLinks,
+    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -142,12 +136,7 @@ export default function ReservesIndigenousLand({
     }
     setShowSaveSuccess(true);
     setIsSaving(true);
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
@@ -161,9 +150,7 @@ export default function ReservesIndigenousLand({
       probableIndigenousVolume: Number(probableIndigenousVolume.rawValue),
       probableIndigenousUnit: formData.probableIndigenousUnit,
 
-      additionalFiles: additionalFields,
-      additionalLinks,
-      progressPercent,
+      filesAndLinks: filesAndLinks,
     };
     console.log("DATA TO SAVE:", payload);
     toast.success("Logged to console");
@@ -183,11 +170,8 @@ export default function ReservesIndigenousLand({
     toast.info("Returning to previous section");
     onBack();
   };
-  const handleAdditionalFieldsChange = (fields: FileData[]) => {
-    setAdditionalFields(fields);
-  };
-  const handleAdditionalLinksChange = (links: LinkData[]) => {
-    setAdditionalLinks(links);
+  const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
+    setFilesAndLinks(fields);
   };
 
   return (
@@ -470,16 +454,10 @@ export default function ReservesIndigenousLand({
               </p>
 
               <div className="mt-6">
-                <AdditionalFileUpload
-                  onFieldsChange={handleAdditionalFieldsChange}
-                  initialData={additionalFields}
-                />
-              </div>
-              <div className="mt-6">
-                <h4 className="text-sm font-semibold text-gray-800 mb-3">Or Upload Via Link</h4>
-                <AdditionalLinkUpload
-                  onFieldsChange={handleAdditionalLinksChange}
-                  initialData={additionalLinks}
+                <AddMoreFilesLinks
+                  onFieldsChange={handleFilesAndLinksChange}
+                  initialData={filesAndLinks}
+                  uploadService={uploadService}
                 />
               </div>
             </div>
