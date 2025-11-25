@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useReport } from "./service/useReport";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import ReportEmptyState from "./ReportEmptyState";
 
 export default function ReportPage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -155,6 +157,8 @@ export default function ReportPage() {
       );
     });
   };
+
+
 
   return (
     <section className="grid">
