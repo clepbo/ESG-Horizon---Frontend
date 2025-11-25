@@ -300,7 +300,7 @@ export function AssessmentDetailsModal({
                 <Alert className="border-red-300 bg-red-50">
                   <XCircle className=" h-5 text-red-600" />
                   <AlertDescription className="text-red-700 font-medium">
-                    Assessment Rejected: {data.rejection_reason}
+                    Assessment Declined: {data.rejection_reason}
                   </AlertDescription>
                 </Alert>
               )}
