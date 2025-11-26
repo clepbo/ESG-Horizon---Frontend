@@ -24,7 +24,7 @@ export function StationarySourcesForm({
   onBackToHub,
   initialStep,
 }: StationarySourcesFormProps) {
-  const { state } = useAssessment();
+  useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

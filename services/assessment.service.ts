@@ -75,11 +75,11 @@ export const assessmentService = {
     return response;
   },
 
-  rejectAssessment: async (
+  declineAssessment: async (
     assessmentId: number,
     reason: string
   ): Promise<{ message: string; data: any }> => {
-    const response = await api.post(`/assessments/${assessmentId}/reject`, { reason });
+    const response = await api.post(`/assessments/${assessmentId}/decline`, { reason });
     return response;
   },
 

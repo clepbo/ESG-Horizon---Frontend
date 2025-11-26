@@ -3,8 +3,23 @@ import React from "react";
 import Report from "./components/Report";
 import HeadingAndSubheading from "@/app/components/common/reports/HeadingAndSubheading";
 import { motion } from "framer-motion";
+import { useReport } from "./components/service/useReport";
+import ReportEmptyState from "./components/ReportEmptyState";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 export default function page() {
+  const report = useReport();
+
+  if (report.isLoading) {
+    return <LoadingSpinner />;
+  }
+  if (report.error) {
+    return <div className="text-center my-20 text-gray-500">Error loading reports.</div>;
+  }
+  if (!report?.data || report.data.length === 0) {
+    return <ReportEmptyState />;
+  }
+
   return (
     <motion.div
       // className="grid gap-2 "

@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { AssessmentData, FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -43,15 +43,12 @@ export function PurchasedElectricityForm({
 }: PurchasedElectricityFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-
-  // Use formatted number hook for electricity consumed
   const electricityConsumed = useFormattedNumber("");
   const [supplier, setSupplier] = useState("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<{
     electricityConsumed?: string;
@@ -78,7 +75,6 @@ export function PurchasedElectricityForm({
     >;
 
     if (existingData) {
-      // Initialize the hook with saved value
       electricityConsumed.setRawValue(existingData.electricityConsumed?.toString() ?? "");
       setSupplier(existingData.supplier ?? "");
       setFiles(
@@ -148,7 +144,6 @@ export function PurchasedElectricityForm({
     const { value } = e.target;
     electricityConsumed.handleChange(value);
 
-    // Clear error if present
     if (errors.electricityConsumed) {
       setErrors((prev) => ({
         ...prev,
@@ -330,7 +325,7 @@ export function PurchasedElectricityForm({
                   placeholder="Enter total electricity consumed in kWh"
                   required
                   error={errors.electricityConsumed}
-                  showEmissionFactor={true}
+                  showEmissionFactor
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
                   }

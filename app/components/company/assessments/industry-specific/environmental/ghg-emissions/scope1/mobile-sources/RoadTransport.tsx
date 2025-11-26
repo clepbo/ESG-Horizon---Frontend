@@ -18,7 +18,7 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
 interface RoadTransportProps {
@@ -56,7 +56,9 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
   const vehicleFleetOptions = useMemo(() => getFuelOptions("vehicleFleet"), []);
   const carsBusesOptions = useMemo(() => getFuelOptions("carsBuses"), []);
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "ghg-mobile-sources-road-transport"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -202,8 +204,6 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
   };
 
   const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -231,21 +231,7 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          mobileSources: {
-            ...state.assessmentData.mobileSources,
-            roadTransport: payload,
-          },
-          lastSavedForm: "ghg-mobile-sources-road-transport",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-      }
+      await saveNow("environment.ghg.scope1.mobileSources.roadTransport", payload);
 
       setShowSaveSuccess(true);
       setTimeout(() => {
@@ -483,11 +469,11 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -507,7 +493,7 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >

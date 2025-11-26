@@ -19,8 +19,7 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
 interface MarineAviationProps {
@@ -65,8 +64,11 @@ export function MarineAviation({
   const marineOptions = useMemo(() => getFuelOptions("marine"), []);
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("ghg-mobile-sources-marine-aviation");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -128,29 +130,6 @@ export function MarineAviation({
     return calculateProgress(progressChecks);
   }, [air, marine, files, additionalFields]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const validateForm = () => {
-    const newErrors: {
-      air?: string;
-      marine?: string;
-      files?: string;
-    } = {};
-
-    const hasValidAir = air.some((s) => s.volume && Number(s.volume) > 0);
-    const hasValidMarine = marine.some((s) => s.volume && Number(s.volume) > 0);
-
-    if (!hasValidAir) {
-      newErrors.air = "Please add at least one fuel source with a positive volume for air.";
-    }
-
-    if (!hasValidMarine) {
-      newErrors.marine = "Please add at least one fuel source with a positive volume for marine.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -188,7 +167,7 @@ export function MarineAviation({
       console.error(err);
       toast.error("Error uploading file");
     } finally {
-      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
@@ -199,8 +178,6 @@ export function MarineAviation({
   };
 
   const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -228,22 +205,7 @@ export function MarineAviation({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          mobileSources: {
-            ...state.assessmentData.mobileSources,
-            marineAviation: payload,
-          },
-          lastSavedForm: "ghg-mobile-sources-marine-aviation",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
+      await saveNow("environment.ghg.scope1.mobileSources.marineAviation", payload);
 
       setShowSaveSuccess(true);
       setTimeout(() => {
@@ -255,7 +217,7 @@ export function MarineAviation({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -278,27 +240,16 @@ export function MarineAviation({
       payload,
     });
 
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          mobileSources: {
-            ...state.assessmentData.mobileSources,
-            marineAviation: payload,
-          },
-          lastSavedForm: "ghg-mobile-sources-marine-aviation",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          onSubmit(res.totals ?? null);
-        },
-      }
-    );
+    try {
+      await saveNow("environment.ghg.scope1.mobileSources.marineAviation", payload);
+      const res = await submitGroup();
+      if (!assessmentId && res?.assessment?.id)
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+      onSubmit(res?.totals ?? null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit");
+    }
   };
 
   const handlePrevious = () => {
@@ -516,11 +467,11 @@ export function MarineAviation({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -540,11 +491,11 @@ export function MarineAviation({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isSaving || isSubmitting}
+                disabled={isActionLoading}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Submit assessment"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isActionLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>

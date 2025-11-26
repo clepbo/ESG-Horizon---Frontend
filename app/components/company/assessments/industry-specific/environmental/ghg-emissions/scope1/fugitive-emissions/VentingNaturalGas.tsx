@@ -15,7 +15,7 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
@@ -62,7 +62,9 @@ export function VentingNaturalGas({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "ghg-fugitive-emissions-venting-natural-gas"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -194,23 +196,8 @@ export function VentingNaturalGas({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...state.assessmentData.fugitiveEmissions,
-            ventingNaturalGas: payload,
-          },
-          lastSavedForm: "ghg-fugitive-emissions-venting-natural-gas",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
-
+      await saveNow("environment.ghg.fugitiveEmissions.ventingNaturalGas", payload);
+      if (!assessmentId) toast.success(`Saved draft.`);
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 2000);
@@ -408,10 +395,10 @@ export function VentingNaturalGas({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-[var(--color-primary)] text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -432,7 +419,7 @@ export function VentingNaturalGas({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next
