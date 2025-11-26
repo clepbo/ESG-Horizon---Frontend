@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface PurchasedCoolingFormProps {
   onBack: () => void;
   onNext: () => void;
@@ -343,7 +343,7 @@ export function PurchasedCoolingForm({
               {/* {errors.coolingConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.coolingConsumed}</p>
               )} */}
-              <Scope2EmissionInput
+              <ScopeInput
                 category="cooling"
                 formattedValue={coolingConsumed}
                 label="Amount of Cooling Energy Consumed (kWh)"
@@ -433,7 +433,7 @@ export function PurchasedCoolingForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button

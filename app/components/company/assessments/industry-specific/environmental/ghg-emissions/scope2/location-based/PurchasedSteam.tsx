@@ -21,7 +21,7 @@ import {
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface PurchasedSteamFormProps {
   onBack: () => void;
@@ -369,7 +369,7 @@ export function PurchasedSteamForm({
             <div>
               <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="steam"
                   formattedValue={{
                     rawValue: steamConsumedRaw,
@@ -462,7 +462,7 @@ export function PurchasedSteamForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
