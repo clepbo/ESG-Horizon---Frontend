@@ -3,7 +3,6 @@
 import { Card } from "@/app/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { communityItems } from "./data/index";
 import { slugify } from "./utils";
@@ -17,8 +16,7 @@ interface Props {
 }
 export default function CommunityRelationsHome({ onBack }: Props) {
   const [currentView, setCurrentView] = useState<string>("");
-  const { state, dispatch } = useAssessment();
-  const router = useRouter();
+  const { dispatch } = useAssessment();
 
   function handleForwardBack() {
     setCurrentView("");
@@ -70,16 +68,16 @@ export default function CommunityRelationsHome({ onBack }: Props) {
             <div className="flex flex-col gap-2">
               <h5 className="">Community Relations </h5>
               <p className="text-sm">
-                This disclosure topic assesses the company's framework for managing its relationship
-                with host communities, from proactive risk and opportunity management to the
-                operational impact of non-technical disruptions. IFRS codes: EM-EP-210b.1,
+                This disclosure topic assesses the company&apos;s framework for managing its
+                relationship with host communities, from proactive risk and opportunity management
+                to the operational impact of non-technical disruptions. IFRS codes: EM-EP-210b.1,
                 EM-EP-210b.2
               </p>
             </div>
             <Button className="text-white cursor-pointer">Assign task</Button>
           </div>
 
-          {communityItems.map((card, i) => (
+          {communityItems.map((card) => (
             <FeatureCard
               key={card.title}
               title={card.title}
