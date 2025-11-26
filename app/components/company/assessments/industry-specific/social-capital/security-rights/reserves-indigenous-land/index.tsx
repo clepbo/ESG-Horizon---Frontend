@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { UnitSelect } from "../../../../UnitSelect";
