@@ -67,7 +67,7 @@ export default function AssessmentHub() {
           subsidiary: user?.company?.name || "Company",
         },
       });
-      // dispatch({ type: "SET_VIEW", payload: "disclosure" }); // Automatically proceed to disclosure if no subsidiaries exist
+      dispatch({ type: "SET_VIEW", payload: "disclosure" }); // Automatically proceed to disclosure if no subsidiaries exist
     }
   }, [isLoading, subsidiaries, user, state.assessmentData.subsidiary, dispatch]);
 
