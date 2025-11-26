@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useMemo } from "react";
 import { Leaf, Users, Building } from "lucide-react";
 import Header from "../components/Header";
 import { ESGCard } from "../components/ESGScoreCard";
@@ -9,7 +10,7 @@ import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { useCompanyDashboard } from "@/services/hooks/dashboard.hooks";
+import { useCompanyDashboard, CompanyDashboardData } from "@/services/hooks/dashboard.hooks";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import { RecentReportsWidget } from "@/app/components/common/reports/table/RecentReports";
 
@@ -21,6 +22,39 @@ export default function DashboardPage() {
 
   const { user } = useAuth();
   const { data, isLoading, isError } = useCompanyDashboard();
+
+  const dashboard: CompanyDashboardData | undefined = useMemo(() => {
+    if (!data) return undefined;
+
+    const raw: any = "data" in data && typeof data.data !== "undefined" ? data.data : data;
+
+    const normalized: CompanyDashboardData = {
+      overallScore: raw.overallScore ?? null,
+      breakdown: {
+        environment: Number(raw.breakdown?.environment ?? 0),
+        social: Number(raw.breakdown?.social ?? 0),
+        governance: Number(raw.breakdown?.governance ?? 0),
+      },
+      recentActivities: Array.isArray(raw.recentActivities) ? raw.recentActivities : [],
+      esgJourney: (raw.esgJourney || []).map((item: any) => ({
+        period: String(item?.period ?? ""),
+        score: Number(item?.score ?? 0),
+      })),
+      stats: {
+        totalAssessments: Number(raw.stats?.totalAssessments ?? 0),
+        reviewedAssessments: Number(raw.stats?.reviewedAssessments ?? 0),
+      },
+    };
+
+    return normalized;
+  }, [data]);
+
+  const esgJourney: { period: string; score: number }[] = (dashboard?.esgJourney || []).map(
+    (d) => ({
+      period: d.period || "",
+      score: Number(d.score ?? 0) || 0,
+    })
+  );
 
   const handleTourComplete = () => setShowTour(false);
 
@@ -120,7 +154,7 @@ export default function DashboardPage() {
 
         {/* Recent Activities + Industry Leaderboard */}
         <div className="w-full mt-6 mb-6">
-          <ESGJourneyChart esgJourney={data.esgJourney} />
+          <ESGJourneyChart esgJourney={esgJourney} />
         </div>
 
         {/* Assessment HUb CArd */}
