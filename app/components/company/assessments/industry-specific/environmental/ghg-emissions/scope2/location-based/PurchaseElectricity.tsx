@@ -144,7 +144,6 @@ export function PurchasedElectricityForm({
     const { value } = e.target;
     electricityConsumed.handleChange(value);
 
-    // Clear error if present
     if (errors.electricityConsumed) {
       setErrors((prev) => ({
         ...prev,
