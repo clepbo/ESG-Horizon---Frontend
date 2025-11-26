@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessment as useAssessmentQuery } from "@/services/hooks/assessment.hooks";
@@ -9,6 +9,13 @@ import { LAST_SAVED_FORM_MAP } from "@/lib/lastSavedFormToRoute";
 
 export default function ContinueAssessment() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const forceDisclosureParam = searchParams?.get("forceDisclosure");
+  const forceDisclosure =
+    forceDisclosureParam === "1" ||
+    forceDisclosureParam === "true" ||
+    searchParams?.get("view") === "disclosure";
+
   const assessmentId = Number(id);
   const { data, isLoading } = useAssessmentQuery(assessmentId);
   const { dispatch, state } = useAssessment();
@@ -40,7 +47,7 @@ export default function ContinueAssessment() {
         }
       : undefined;
 
-    const scope2Data = getNestedData(assessment.assessmentData, ["environment", "ghg", "scope2"]);
+    // const scope2Data = getNestedData(assessment.assessmentData, ["environment", "ghg", "scope2"]);
 
     dispatch({ type: "SET_CONTINUE_MODE", payload: true });
     dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
@@ -60,12 +67,15 @@ export default function ContinueAssessment() {
       fugitiveEmissions: fugitiveEmissions || assessment.assessmentData?.fugitiveEmissions,
     };
 
-    console.log("Dispatching LOAD_SAVED_DATA with payload:", payload);
-
     dispatch({
       type: "LOAD_SAVED_DATA",
       payload,
     });
+
+    if (forceDisclosure) {
+      dispatch({ type: "SET_VIEW", payload: "disclosure" });
+      return;
+    }
 
     if (lastSavedForm && LAST_SAVED_FORM_MAP[lastSavedForm]) {
       const { view, step } = LAST_SAVED_FORM_MAP[lastSavedForm];
@@ -76,7 +86,7 @@ export default function ContinueAssessment() {
     } else {
       dispatch({ type: "SET_VIEW", payload: "disclosure" });
     }
-  }, [data, dispatch, assessmentId, state.assessmentId]);
+  }, [data, dispatch, assessmentId, state.assessmentId, forceDisclosure]);
 
   if (isLoading) return <div className="p-10">Loading...</div>;
 

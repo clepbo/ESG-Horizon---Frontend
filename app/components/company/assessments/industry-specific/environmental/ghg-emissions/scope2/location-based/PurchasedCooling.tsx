@@ -10,7 +10,7 @@ import { Checkbox } from "@/app/components/ui/checkbox";
 import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import {
   AdditionalFileUpload,
   FileData,
@@ -55,7 +55,6 @@ export function PurchasedCoolingForm({
 }: PurchasedCoolingFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  // const [coolingConsumed, setCoolingConsumed] = useState("");
   const coolingConsumed = useFormattedNumber("");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
@@ -173,7 +172,6 @@ export function PurchasedCoolingForm({
       selectedSystems?: string;
       files?: string;
     } = {};
-    // const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
     const hasValidCooling =
       coolingConsumed.rawValue.trim() !== "" && Number(coolingConsumed.rawValue) > 0;
     if (!hasValidCooling) {

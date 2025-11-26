@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -97,7 +97,15 @@ export function ElectricityIppsForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, electricityConsumedRaw, emissionFactorRaw, files, additionalFields]);
+  }, [
+    state.assessmentData,
+    electricityConsumedRaw,
+    emissionFactorRaw,
+    files,
+    additionalFields,
+    setElectricityConsumedRaw,
+    setEmissionFactorRaw,
+  ]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([

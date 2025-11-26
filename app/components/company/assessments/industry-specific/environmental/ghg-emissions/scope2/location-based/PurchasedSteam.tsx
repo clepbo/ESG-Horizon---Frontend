@@ -10,7 +10,7 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -109,6 +109,7 @@ export function PurchasedSteamForm({
     otherComments,
     files,
     additionalFields,
+    setSteamConsumedRaw,
   ]);
 
   // const { total, filled } = calculateProgress([

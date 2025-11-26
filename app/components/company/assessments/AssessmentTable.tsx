@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { createColumnHelper } from "@tanstack/react-table";
@@ -24,6 +25,7 @@ import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
@@ -79,6 +81,17 @@ function DeclineReasonModal({
   );
 }
 
+interface ActionDropdownProps {
+  status: AssessmentStatus;
+  getActionIcon: (label: string) => ReactNode;
+  onView: () => void;
+  onContinue: () => void;
+  onReview?: () => void;
+  onGenerateReport?: () => void;
+  onDelete?: () => void;
+  deletePending?: boolean;
+}
+
 function ActionDropdown({
   status,
   getActionIcon,
@@ -88,7 +101,7 @@ function ActionDropdown({
   onGenerateReport,
   onDelete,
   deletePending,
-}: any) {
+}: ActionDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -225,7 +238,6 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
     if (assessment) {
       setSelectedAssessment(assessment);
     }
-    // console.log(`Generating report for assessment ID: ${id}`);
     setTimeout(() => {
       setShowReportSuccess(true);
     }, 500);
@@ -233,8 +245,13 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
 
   const handleContinue = (assessment: Assessment) => {
     if (!assessment?.id) return;
-    // Always navigate to the assessment page; ContinueAssessment decides the flow
-    router.push(`/assessments/${assessment.id}`);
+
+    if (assessment.status === "in_progress") {
+      router.push(`/assessments/${assessment.id}`);
+      return;
+    }
+
+    router.push(`/assessments/${assessment.id}?forceDisclosure=1`);
   };
 
   const handleView = (assessment: Assessment) => {
@@ -351,7 +368,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
               getActionIcon={getActionIcon}
               onView={() => handleOpenDetails(assessment)}
               onContinue={() => handleContinue(assessment)}
-              onReview={() => handleOpenDetails(assessment)} // review opens details modal
+              onReview={() => handleOpenDetails(assessment)}
               onGenerateReport={() => handleGenerateReport(assessment.id)}
               onDelete={() => handleOpenModal(assessment.id)}
               deletePending={deleteMutation.isPending}

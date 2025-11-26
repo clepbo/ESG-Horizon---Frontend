@@ -18,9 +18,8 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 
 interface HFCLeaksProps {
@@ -75,8 +74,11 @@ export function HFCLeaks({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("ghg-fugitive-emissions-hfc-leaks");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -229,23 +231,7 @@ export function HFCLeaks({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...state.assessmentData.fugitiveEmissions,
-            hfcLeaks: payload,
-          },
-          lastSavedForm: "ghg-fugitive-emissions-hfc-leaks",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
-
+      await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
       setShowSaveSuccess(true);
       setTimeout(() => {
         router.push("/assessments/new-assessment");
@@ -256,7 +242,7 @@ export function HFCLeaks({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -284,27 +270,15 @@ export function HFCLeaks({
       payload,
     });
 
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...state.assessmentData.fugitiveEmissions,
-            hfcLeaks: payload,
-          },
-          lastSavedForm: "ghg-fugitive-emissions-hfc-leaks",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          onSubmit(res.totals ?? null);
-        },
-      }
-    );
+    try {
+      await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
+      const res = await submitGroup();
+      if (!assessmentId && res?.assessment?.id)
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+      onSubmit(res?.totals ?? null);
+    } catch (err) {
+      toast.error("Failed to submit");
+    }
   };
 
   const handlePrevious = () => {
@@ -568,11 +542,11 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={handleSaveAndContinue}
-                  disabled={isSaving}
+                  disabled={isActionLoading}
                   className="justify-self-center bg-[var(--color-primary)]  hover:bg-[var(--color-primary)] hover:cursor-pointer text-white  transition-colors"
                   aria-label="Save and continue later"
                 >
-                  {isSaving ? (
+                  {isActionLoading ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
                       Saving...
@@ -593,11 +567,11 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={() => handleSubmit()}
-                  disabled={isSaving || isSubmitting}
+                  disabled={isActionLoading}
                   className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                   aria-label="Submit form"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit"}
+                  {isActionLoading ? "Submitting..." : "Submit"}
                 </Button>
               </div>
             </form>

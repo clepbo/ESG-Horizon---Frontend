@@ -16,9 +16,8 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { useRouter } from "next/navigation";
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -61,8 +60,9 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "ghg-process-emissions-cement-manufacturing"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -158,26 +158,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...state.assessmentData.processEmissions,
-            cementManufacturing: payload,
-          },
-          lastSavedForm: "ghg-process-emissions-cement-manufacturing",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
-
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
+      await saveNow("environment.ghg.processEmissions.cementManufacturing", payload);
+      if (!assessmentId) toast.success("Saved!");
     } catch (error) {
       console.error("Save failed:", error);
       toast.error("Failed to save");
@@ -388,11 +370,11 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -410,7 +392,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >

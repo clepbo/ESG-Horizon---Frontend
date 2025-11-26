@@ -290,6 +290,7 @@ export function DisclosureTopics({
           setCurrentView("topics");
         }}
         onSubmit={(data) => {
+          console.info(data);
           setCurrentView("topics");
         }}
       />

@@ -17,7 +17,7 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 // import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
@@ -79,8 +79,11 @@ export function GasFlaring({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("ghg-process-emissions-gas-flaring");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -202,33 +205,21 @@ export function GasFlaring({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...state.assessmentData.processEmissions,
-            gasFlaring: payload,
-          },
-          lastSavedForm: "ghg-process-emissions-gas-flaring",
-        },
+      await saveNow("environment.ghg.processEmissions.gasFlaring", {
+        ...payload,
       });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      if (!assessmentId) {
+        toast.success(`Saved draft.`);
       }
 
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
+      setTimeout(() => router.push("/assessments/new-assessment"), 2000);
     } catch (error) {
       console.error("Save failed:", error);
       toast.error("Failed to save");
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -251,27 +242,17 @@ export function GasFlaring({
       payload,
     });
 
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...state.assessmentData.processEmissions,
-            gasFlaring: payload,
-          },
-          lastSavedForm: "ghg-process-emissions-gas-flaring",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          onSubmit(res.totals ?? null);
-        },
+    try {
+      await saveNow("environment.ghg.processEmissions.gasFlaring", payload);
+      const res = await submitGroup();
+      onSubmit(res?.totals ?? null);
+      if (!assessmentId && res?.assessment?.id) {
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
       }
-    );
+    } catch (err) {
+      console.error("Submission failed:", err);
+      toast.error("Failed to submit");
+    }
   };
 
   const handlePrevious = () => {
@@ -441,10 +422,10 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -462,10 +443,10 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isSaving || isSubmitting}
+                disabled={isActionLoading}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isActionLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>
