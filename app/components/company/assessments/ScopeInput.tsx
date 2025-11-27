@@ -11,10 +11,10 @@ import {
 } from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
 import { calculateTCO2eForSource, formatTCO2eOutput } from "@/lib/utils";
-import { getScope2EmissionFactor, SCOPE2_EMISSION_FACTORS } from "@/lib/scope2EmissionFactor";
+import { getScopeEmissionFactor, SCOPE_EMISSION_FACTORS } from "@/lib/scopeEmissionFactor";
 
-interface Scope2EmissionInputProps {
-  category: keyof typeof SCOPE2_EMISSION_FACTORS;
+interface ScopeInputProps {
+  category: keyof typeof SCOPE_EMISSION_FACTORS;
   formattedValue: {
     rawValue: string;
     displayValue: string;
@@ -32,7 +32,7 @@ interface Scope2EmissionInputProps {
   isMarketBased?: boolean;
 }
 
-export function Scope2EmissionInput({
+export function ScopeInput({
   category,
   formattedValue,
   label,
@@ -44,8 +44,8 @@ export function Scope2EmissionInput({
   onErrorClear,
   customEmissionFactor,
   isMarketBased = false,
-}: Scope2EmissionInputProps) {
-  const defaultEmissionFactor = getScope2EmissionFactor(category);
+}: ScopeInputProps) {
+  const defaultEmissionFactor = getScopeEmissionFactor(category);
 
   // ✅ Market-Based MUST NOT use default factor
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,7 +74,7 @@ export function Scope2EmissionInput({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={`scope2-${category}`}>
+      <Label htmlFor={`scope-${category}`}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
 
@@ -82,7 +82,7 @@ export function Scope2EmissionInput({
       {showEmissionFactor && (
         <div className="bg-teal-50 border-l-4 border-teal-500 p-3 rounded-r-lg mb-3">
           <div className="flex items-start gap-2">
-            <Info className="h-4 w-4 text-teal-600 mt-0.5 flex-shrink-0" />
+            <Info className="h-4 w-4 text-teal-600 mt-0.5 shrink-0" />
             <div className="text-xs">
               {emissionFactor && (
                 <p className="font-semibold text-teal-900">
@@ -108,7 +108,7 @@ export function Scope2EmissionInput({
       {/* ▶ Input Field */}
       <div className="relative pb-5">
         <Input
-          id={`scope2-${category}`}
+          id={`scope-${category}`}
           type="text"
           placeholder={placeholder || `Enter ${emissionFactor?.unit || "amount"}`}
           value={formattedValue.displayValue}
