@@ -101,21 +101,21 @@ export function VentingNaturalGas({
     return calculateProgress([hasVolume, hasFiles]);
   }, [volumeOfGasVented.rawValue, files, additionalFields]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
 
-    // Use the hook's handleChange method
-    volumeOfGasVented.handleChange(value);
+  //   // Use the hook's handleChange method
+  //   volumeOfGasVented.handleChange(value);
 
-    // Clear error if present
-    if (errors.volumeOfGasVented) {
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy.volumeOfGasVented;
-        return copy;
-      });
-    }
-  };
+  //   // Clear error if present
+  //   if (errors.volumeOfGasVented) {
+  //     setErrors((prev) => {
+  //       const copy = { ...prev };
+  //       delete copy.volumeOfGasVented;
+  //       return copy;
+  //     });
+  //   }
+  // };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

@@ -133,19 +133,19 @@ export function HFCLeaks({
     }
   };
 
-  const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    refrigerantAdded.handleChange(value);
+  // const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
+  //   refrigerantAdded.handleChange(value);
 
-    // Clear error if present
-    if (errors.refrigerantAdded) {
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy.refrigerantAdded;
-        return copy;
-      });
-    }
-  };
+  //   // Clear error if present
+  //   if (errors.refrigerantAdded) {
+  //     setErrors((prev) => {
+  //       const copy = { ...prev };
+  //       delete copy.refrigerantAdded;
+  //       return copy;
+  //     });
+  //   }
+  // };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
