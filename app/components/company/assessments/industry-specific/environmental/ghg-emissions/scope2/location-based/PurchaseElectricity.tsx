@@ -80,9 +80,11 @@ export function PurchasedElectricityForm({
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
+
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, electricityConsumed, supplier, files, additionalFields]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
