@@ -22,6 +22,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 // import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface GasFlaringProps {
   onBack: () => void;
@@ -278,7 +279,7 @@ export function GasFlaring({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
@@ -306,7 +307,7 @@ export function GasFlaring({
               <Label className="text-md font-semibold mb-2 block">1.1 Gas Flaring </Label>
               <div className="space-y-4 ml-6">
                 <div className="space-y-2">
-                  <Label htmlFor="gas-volume">
+                  {/* <Label htmlFor="gas-volume">
                     Volume of Gas Flared (m³) <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -317,11 +318,26 @@ export function GasFlaring({
                     onChange={(e) => handleGasVolumeChange(e.target.value)}
                     className={`w-full border-gray-400 ${errors.gasVolume ? "border-red-500 focus:border-red-500" : ""}`}
                   />
-                  {errors.gasVolume && <p className="text-sm text-red-500">{errors.gasVolume}</p>}
+                  {errors.gasVolume && <p className="text-sm text-red-500">{errors.gasVolume}</p>} */}
+                  <ScopeInput
+                    category="gas-volume"
+                    formattedValue={{
+                      rawValue: gasVolume,
+                      displayValue: gasVolumeDisplay,
+                      handleChange: handleGasVolumeChange,
+                      setRawValue: setGasVolumeRaw,
+                    }}
+                    label="Volume of Gas Flared (m³)"
+                    placeholder="Enter quantity of Volume of Gas Flared "
+                    required
+                    error={errors.gasVolume}
+                    showEmissionFactor={true}
+                    onErrorClear={() => setErrors((prev) => ({ ...prev, gasVolume: undefined }))}
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="carbon-content">
+                  {/* <Label htmlFor="carbon-content">
                     Carbon Content/Composition (% by volume) <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -334,7 +350,24 @@ export function GasFlaring({
                   />
                   {errors.carbonContent && (
                     <p className="text-sm text-red-500">{errors.carbonContent}</p>
-                  )}
+                  )} */}
+                  <ScopeInput
+                    category="carbon-content"
+                    formattedValue={{
+                      rawValue: carbonContent,
+                      displayValue: carbonContentDisplay,
+                      handleChange: handleCarbonContentChange,
+                      setRawValue: setCarbonContentRaw,
+                    }}
+                    label="Carbon Content/Composition (% by volume)"
+                    placeholder="Enter quantity of Carbon Content/Composition"
+                    required
+                    error={errors.carbonContent}
+                    showEmissionFactor={true}
+                    onErrorClear={() =>
+                      setErrors((prev) => ({ ...prev, carbonContent: undefined }))
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -381,7 +414,7 @@ export function GasFlaring({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
+                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -414,7 +447,7 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
               </Button>
@@ -423,7 +456,7 @@ export function GasFlaring({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isActionLoading}
-                className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
               >
                 {isActionLoading ? (
                   <>
@@ -444,7 +477,7 @@ export function GasFlaring({
                 variant="outline"
                 onClick={() => handleSubmit()}
                 disabled={isActionLoading}
-                className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 {isActionLoading ? "Submitting..." : "Submit"}
               </Button>
