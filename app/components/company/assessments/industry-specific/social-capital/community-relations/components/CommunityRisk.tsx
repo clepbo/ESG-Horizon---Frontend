@@ -1,7 +1,6 @@
 "use client";
 
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
-import { useAssessment } from "@/hooks/useAssessment";
 import React, { useState } from "react";
 import { PagetitleAndDescription } from "./PagetitleAndDescription";
 import { Card, CardContent } from "@/app/components/ui/card";
