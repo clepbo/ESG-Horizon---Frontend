@@ -43,7 +43,7 @@ export function AddMoreFilesLinks({
     if (initialData && JSON.stringify(initialData) !== JSON.stringify(fields)) {
       setFields(initialData);
     }
-  }, [initialData]);
+  }, [initialData, fields]);
 
   const notifyChange = (newFields: FileOrLinkData[]) => {
     setFields(newFields);

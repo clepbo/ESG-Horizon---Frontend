@@ -3,9 +3,6 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 
-interface Props {
-  noState: boolean;
-}
 export default function ReportEmptyState() {
   const router = useRouter();
   return (
@@ -13,7 +10,7 @@ export default function ReportEmptyState() {
       <div className="text-center">
         {/* Your content here */}
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          You have'nt generated any report yet!
+          You have&apos;nt generated any report yet!
         </h2>
         <div className="flex flex-col items-center  justify-center mx-auto">
           <p className="text-gray-600 mb-6  mx-auto max-w-md">
@@ -24,7 +21,7 @@ export default function ReportEmptyState() {
         <div className="flex w-full gap-4 items-center justify-center">
           <button
             className="border-primary border cursor-pointer text-primary px-6 py-3 rounded-lg hover:bg-primary/40 transition-colors"
-            onClick={() => router.push("//assessments/new-assessment/")}
+            onClick={() => router.push("/assessments/new-assessment/")}
           >
             Generate Report
           </button>
