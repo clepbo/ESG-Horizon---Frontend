@@ -50,6 +50,10 @@ export default function WaterAndWastemanagamentCards({ backToAssessmentHub, back
     const [step, setStep] = React.useState<number>(0);
 
 
+
+    function backToWasteWaterManagement(){
+        setStep(0)
+    }
     const handleCardClick = (cardTitle: string) => {
     switch(cardTitle) {
       case "Freshwater Withdrawal & Consumption":
@@ -163,22 +167,32 @@ export default function WaterAndWastemanagamentCards({ backToAssessmentHub, back
    }
    if (step === 1) {
     return (
-        <FreshWaterWithdrawalAndConsumption />
+        <FreshWaterWithdrawalAndConsumption 
+        backToDisclosureTopic={backToDisclosureTopics} 
+        backToAssessment={ backToAssessmentHub}
+        backToWaterWasteManagement={backToWasteWaterManagement} />
     )
    }
    if (step === 2) {
     return (
-        <ProducedWaterManagement />
+        <ProducedWaterManagement backToAssessment={backToAssessmentHub} backToDisclosureTopic={backToDisclosureTopics} 
+        backToWaterWasteManagement={backToWasteWaterManagement}
+        />
     )
    }
    if (step === 3) {
     return (
-        <ChemicalDisclosure />
+        <ChemicalDisclosure 
+        backToDisclosureTopic={backToDisclosureTopics} backToAssessment={backToAssessmentHub}
+        backToWaterWasteManagement={backToWasteWaterManagement} />
     )
    }
    if (step === 4) {
     return (
-        <WaterQualityImpact />
+        <WaterQualityImpact 
+        backToDisclosureTopic={backToDisclosureTopics} 
+        backToAssessment={backToAssessmentHub}
+        backToWaterWasteManagement={backToWasteWaterManagement} />
     )
    }
     return null;

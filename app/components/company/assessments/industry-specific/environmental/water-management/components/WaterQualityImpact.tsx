@@ -1,11 +1,30 @@
 import React from 'react'
+import { WastewaterProps } from './FreshWaterWithdrawalAndConsumption'
+import { CustomBreadcrumbDynamic } from '@/app/components/ui/CustomBreadcrumb'
 
-function WaterQualityImpact() {
-  return (
-    <div className='min-h-screen bg-green-50 p-6'>
-      Water Quality Impact
-    </div>
-  )
-}
+function WaterQualityImpact({backToAssessment, backToDisclosureTopic, backToWaterWasteManagement}: WastewaterProps) {
+  const features = [
+      {
+        label: "Assessments",
+        onClick: backToAssessment
+      },
+      {
+        label: "Disclosure Topic",
+        onClick: backToDisclosureTopic
+      },
+       {
+      label: "Water and Waterwaste management",
+      onClick: backToWaterWasteManagement
+    },
+      {
+        label: "Water Quality Impact"
+      },
+    ]
+    return (
+      <div className='min-h-screen bg-green-50 p-6'>
+        <CustomBreadcrumbDynamic features={features} />
+      </div>
+    )
+  }
 
 export default WaterQualityImpact

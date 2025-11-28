@@ -1,9 +1,35 @@
+import { CustomBreadcrumbDynamic } from '@/app/components/ui/CustomBreadcrumb'
 import React from 'react'
 
-export default function FreshWaterWithdrawalAndConsumption() {
+export interface WastewaterProps {
+  backToDisclosureTopic: () => void;
+  backToAssessment: () => void;
+  backToWaterWasteManagement: () => void;
+}
+
+export default function FreshWaterWithdrawalAndConsumption({backToAssessment, backToDisclosureTopic, backToWaterWasteManagement}:WastewaterProps) {
+
+  const features = [
+    {
+      label: "Assessments",
+      onClick: backToAssessment
+    },
+    {
+      label: "Disclosure Topic",
+      onClick: backToDisclosureTopic
+    },
+    {
+      label: "Water and Waterwaste management",
+      onClick: backToWaterWasteManagement
+    },
+    {
+      label: "Freshwater Withdrawal & Consumption"
+    },
+  ]
+
   return (
     <div className='min-h-screen bg-green-50 p-6'>
-      Welcome
+      <CustomBreadcrumbDynamic features={features} />
     </div>
   )
 }
