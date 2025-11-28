@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 
-interface AirQualityProps {
+export interface AirQualityProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   handleCardClick: () => void;
