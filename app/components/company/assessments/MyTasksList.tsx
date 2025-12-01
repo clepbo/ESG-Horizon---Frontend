@@ -137,7 +137,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
                   No tasks assigned yet
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  You'll see your assessment tasks here once they're assigned to you
+                  You&apos;ll see your assessment tasks here once they&apos;re assigned to you
                 </p>
               </div>
             ) : (
