@@ -48,11 +48,9 @@ interface MetricSection {
 }
 
 // Helper function to check if a topic is assigned
-// Now supports hierarchical matching (e.g., "Scope 2" should show "Greenhouse Gas Emissions")
 const isTopicAssigned = (topicTitle: string, assignedTopics?: string[]): boolean => {
   if (!assignedTopics || assignedTopics.length === 0) return true;
 
-  // Direct match
   const directMatch = assignedTopics.some(
     (topic) => topic.toLowerCase().trim() === topicTitle.toLowerCase().trim()
   );
@@ -80,12 +78,6 @@ const isTopicAssigned = (topicTitle: string, assignedTopics?: string[]): boolean
     "Water Management": ["Water Management"],
     "Biodiversity Impact": ["Biodiversity Impact"],
     "Workforce Health & Safety": ["Workforce Health & Safety"],
-    "Reserves Valuation & Capital Expenditures": ["Reserves Valuation & Capital Expenditures"],
-    "Business Ethics & Transparency": ["Business Ethics & Transparency"],
-    "Management of the Legal & Regulatory Environment": [
-      "Management of the Legal & Regulatory Environment",
-    ],
-    "Critical Incident Risk Management": ["Critical Incident Risk Management"],
   };
 
   // Check if any assigned topic is in the hierarchy of this card
@@ -327,12 +319,9 @@ export function DisclosureTopics({
     onBack();
   };
 
-  // Filter function that searches across metric type, pillar, and topic
-  // AND filters by assigned topics if assignedTask is provided
   const filterMetrics = (metrics: MetricSection[], metricType: string) => {
     const searchLower = debouncedSearchTerm.toLowerCase();
 
-    // Use assignedTopics if provided, otherwise fall back to assignedTask?.topics
     const topicsToFilter = assignedTopics || assignedTask?.topics;
 
     return metrics
@@ -341,7 +330,6 @@ export function DisclosureTopics({
           !debouncedSearchTerm || section.title.toLowerCase().includes(searchLower);
 
         const filteredCards = section.cards.filter((card) => {
-          // First check if this topic is assigned (if we have a task filter)
           const isAssigned = isTopicAssigned(card.title, topicsToFilter);
           if (!isAssigned) return false;
 

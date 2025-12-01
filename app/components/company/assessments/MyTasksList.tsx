@@ -9,7 +9,7 @@ import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 
 interface MyTasksListProps {
   onBack: () => void;
-  onTaskSelect: (task: FrontendTask, topics: string[]) => void; // UPDATED to pass topics
+  onTaskSelect: (task: FrontendTask, topics: string[]) => void;
   onNoTasks?: () => void;
 }
 
