@@ -127,4 +127,8 @@ export const taskAssignmentService = {
     const data = await api.get(`/tasks/${id}/comments`);
     return data ?? [];
   },
+  getMyTasks: async (): Promise<ITask[]> => {
+    const response = await api.get("/tasks/my-tasks");
+    return response ?? [];
+  },
 };
