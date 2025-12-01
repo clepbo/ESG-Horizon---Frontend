@@ -245,7 +245,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
                           )}
 
                           {/* Call to action */}
-                          <Button className="w-full mt-2 bg-primary hover:bg-primary/90">
+                          <Button className="w-full mt-2 bg-primary hover:bg-primary/90 text-white">
                             Start Task
                           </Button>
                         </div>
