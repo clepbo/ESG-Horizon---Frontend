@@ -19,6 +19,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface VentingNaturalGasProps {
   onBack: () => void;
@@ -100,21 +101,21 @@ export function VentingNaturalGas({
     return calculateProgress([hasVolume, hasFiles]);
   }, [volumeOfGasVented.rawValue, files, additionalFields]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
 
-    // Use the hook's handleChange method
-    volumeOfGasVented.handleChange(value);
+  //   // Use the hook's handleChange method
+  //   volumeOfGasVented.handleChange(value);
 
-    // Clear error if present
-    if (errors.volumeOfGasVented) {
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy.volumeOfGasVented;
-        return copy;
-      });
-    }
-  };
+  //   // Clear error if present
+  //   if (errors.volumeOfGasVented) {
+  //     setErrors((prev) => {
+  //       const copy = { ...prev };
+  //       delete copy.volumeOfGasVented;
+  //       return copy;
+  //     });
+  //   }
+  // };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -265,7 +266,7 @@ export function VentingNaturalGas({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -295,7 +296,7 @@ export function VentingNaturalGas({
                 <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
-                <Label className="text-sm font-medium mb-1 ml-1 text-gray-700 pt-2">
+                {/* <Label className="text-sm font-medium mb-1 ml-1 text-gray-700 pt-2">
                   Volume of Gas vented.
                 </Label>
                 <Input
@@ -311,7 +312,22 @@ export function VentingNaturalGas({
                 />
                 {errors.volumeOfGasVented && (
                   <p className="text-red-600 text-xs mt-1">{errors.volumeOfGasVented}</p>
-                )}
+                )} */}
+                <ScopeInput
+                  category="venting-natural-gas"
+                  formattedValue={{
+                    rawValue: volumeOfGasVented.rawValue,
+                    displayValue: volumeOfGasVented.displayValue,
+                    handleChange: volumeOfGasVented.handleChange,
+                    setRawValue: volumeOfGasVented.setRawValue,
+                  }}
+                  label="Volume of Gas Vented (m³)"
+                  placeholder="Provide the measured or estimated volume (m³)"
+                  required
+                  error={errors.volumeOfGasVented}
+                  showEmissionFactor={true}
+                  onErrorClear={() => setErrors((prev) => ({ ...prev, volumeOfGasVented: "" }))}
+                />
               </div>
             </div>
 
@@ -354,7 +370,7 @@ export function VentingNaturalGas({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -386,7 +402,7 @@ export function VentingNaturalGas({
                 type="button"
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Previous
@@ -396,7 +412,7 @@ export function VentingNaturalGas({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isActionLoading}
-                className="justify-self-center bg-[var(--color-primary)] text-white hover:bg-teal-300 flex items-center gap-2"
+                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
                 {isActionLoading ? (
                   <>
@@ -420,7 +436,7 @@ export function VentingNaturalGas({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isActionLoading}
-                className="justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next
                 <ArrowRight className="h-4 w-4" />

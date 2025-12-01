@@ -19,7 +19,7 @@ import {
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { TotalsResponse } from "@/services/assessment.service";
 
 interface CoolingSteamFormProps {
@@ -354,7 +354,7 @@ export function CoolingSteamForm({
                 4.1 Purchased Cooling / Steam
               </Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="cooling"
                   formattedValue={{
                     rawValue: energyConsumedRaw,
@@ -439,7 +439,7 @@ export function CoolingSteamForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
