@@ -10,13 +10,16 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ChevronRight, Info } from "lucide-react";
+import { ArrowLeft, ChevronRight, Info, Search } from "lucide-react";
+import { Input } from "@/app/components/ui/input";
+import { useDebounce } from "use-debounce";
 import { StationarySourcesForm } from "./scope1/stationary-sources";
 import { MobileSourcesForm } from "./scope1/mobile-sources";
 import { ProcessEmissionsForm } from "./scope1/process-emissions";
 import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
 import { LocationBasedForm } from "./scope2/location-based";
 import { MarketBasedForm } from "./scope2/market-based";
+import { FrontendTask } from "@/services/assignTask.service";
 
 type GHGView =
   | "overview"
@@ -31,11 +34,61 @@ type GHGView =
 interface GhgEmissionsAssessmentProps {
   onBack: () => void;
   onBackToHub: () => void;
-  initialForm: GHGView;
-  initialStep?: string; // For navigating to specific step within a form
+  initialForm?: GHGView;
+  initialStep?: string;
+  assignedTask?: FrontendTask | null;
+  assignedTopics?: string[];
 }
 
-const scopeData = [
+interface ScopeCard {
+  title: string;
+  subtitle: string;
+  clickable?: boolean;
+}
+
+interface ScopeData {
+  id: string;
+  title: string;
+  cards: ScopeCard[];
+}
+
+// Helper function to check if a scope/emission source is assigned
+const isScopeItemAssigned = (
+  itemTitle: string,
+  scopeTitle: string,
+  assignedTopics?: string[]
+): boolean => {
+  if (!assignedTopics || assignedTopics.length === 0) return true;
+
+  // Mapping of scope items to their assignable topic names
+  const itemHierarchy: Record<string, string[]> = {
+    "Stationary Sources": ["Scope 1", "Stationary Sources"],
+    "Mobile Sources": ["Scope 1", "Mobile Sources"],
+    "Process Emissions": ["Scope 1", "Process Emissions"],
+    "Fugitive Emissions": ["Scope 1", "Fugitive Emissions"],
+    "Location-Based Scope 2 Emissions": ["Scope 2", "Location-based emissions"],
+    "Market-Based Scope 2 Emissions": ["Scope 2", "Market-based emissions"],
+    "Upstream Emissions (Categories 1-8)": ["Scope 3"],
+    "Downstream Emissions (Categories 9-15)": ["Scope 3"],
+  };
+
+  // Check direct match for item
+  const itemTopics = itemHierarchy[itemTitle] || [];
+  const hasItemMatch = assignedTopics.some((topic) =>
+    itemTopics.some((item) => item.toLowerCase().trim() === topic.toLowerCase().trim())
+  );
+
+  if (hasItemMatch) return true;
+
+  // Check if the parent scope is assigned
+  const scopeMatch = assignedTopics.some(
+    (topic) => topic.toLowerCase().trim() === scopeTitle.toLowerCase().trim()
+  );
+
+  return scopeMatch;
+};
+
+const scopeData: ScopeData[] = [
   {
     id: "scope-1",
     title: "Scope 1",
@@ -47,7 +100,7 @@ const scopeData = [
       },
       {
         title: "Mobile Sources",
-        subtitle: "Emissions from moving equiment or vehincles, such as trucks, ships, or planes",
+        subtitle: "Emissions from moving equipment or vehicles, such as trucks, ships, or planes",
         clickable: true,
       },
       {
@@ -85,7 +138,7 @@ const scopeData = [
       {
         title: "Upstream Emissions (Categories 1-8)",
         subtitle:
-          "These emissions are generated from activities in the value chain before products or services reach yur organization",
+          "These emissions are generated from activities in the value chain before products or services reach your organization",
         clickable: true,
       },
       {
@@ -102,8 +155,12 @@ export function GhgEmissionsAssessment({
   onBackToHub = onBack,
   initialForm,
   initialStep,
-}: GhgEmissionsAssessmentProps & { initialForm?: GHGView }) {
+  assignedTask,
+  assignedTopics,
+}: GhgEmissionsAssessmentProps) {
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Stationary Sources") {
@@ -130,13 +187,46 @@ export function GhgEmissionsAssessment({
   };
 
   const handleBackToOverview = () => {
-    // if (onBackToHub) {
-    //   onBackToHub();
-    // } else {
-    //   setCurrentView("overview");
-    // }
     setCurrentView("overview");
   };
+
+  // Filter function that searches across scope, category, and emission source
+  // AND filters by assigned topics if assignedTask is provided
+  const filterScopes = (scopes: ScopeData[]) => {
+    const searchLower = debouncedSearchTerm.toLowerCase();
+
+    // Use assignedTopics if provided, otherwise fall back to assignedTask?.topics
+    const topicsToFilter = assignedTopics || assignedTask?.topics;
+
+    return scopes
+      .map((scope) => {
+        const scopeMatches =
+          !debouncedSearchTerm || scope.title.toLowerCase().includes(searchLower);
+
+        const filteredCards = scope.cards.filter((card) => {
+          // First check if this scope item is assigned (if we have a task filter)
+          const isAssigned = isScopeItemAssigned(card.title, scope.title, topicsToFilter);
+          if (!isAssigned) return false;
+
+          // If no search term, show all assigned cards
+          if (!debouncedSearchTerm) return true;
+
+          // Otherwise apply search filter
+          const titleMatches = card.title.toLowerCase().includes(searchLower);
+          const subtitleMatches = card.subtitle.toLowerCase().includes(searchLower);
+
+          return titleMatches || subtitleMatches || scopeMatches;
+        });
+
+        return {
+          ...scope,
+          cards: filteredCards,
+        };
+      })
+      .filter((scope) => scope.cards.length > 0);
+  };
+
+  const filteredScopes = filterScopes(scopeData);
 
   if (currentView === "stationary-sources") {
     return (
@@ -214,97 +304,135 @@ export function GhgEmissionsAssessment({
             </div>
             <div className="flex items-center justify-between mt-5 mb-8">
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-foreground">Greenhouse Gas Emissions</h3>
+                <h3 className="text-2xl font-bold text-foreground">
+                  {assignedTask ? `Task: ${assignedTask.taskName}` : "Greenhouse Gas Emissions"}
+                </h3>
                 <p className="text-muted-foreground text-md">
-                  Total emissions from Subsidiaries and supply chains, measured in CO2-equivalent
+                  {assignedTask
+                    ? "Complete the assigned emission sources below"
+                    : "Total emissions from Subsidiaries and supply chains, measured in CO2-equivalent"}
                 </p>
+                {assignedTask && assignedTask.description && (
+                  <p className="text-sm text-muted-foreground italic">{assignedTask.description}</p>
+                )}
               </div>
-              <Button className="bg-primary  hover:bg-teal-600 text-white">Assign Task</Button>
+              {!assignedTask && (
+                <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              )}
             </div>
 
-            <Accordion type="multiple" defaultValue={["scope-1"]} className="space-y-4">
-              {scopeData.map((scope) => (
-                <AccordionItem key={scope.id} value={scope.id} className="border-0">
-                  <AccordionTrigger className="py-4 px-2 rounded-lg bg-transparent hover:no-underline hover:cursor-pointer">
-                    <div className="flex items-center w-full relative">
-                      <span className="text-lg font-semibold flex items-center gap-2">
-                        {scope.title}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            {/* Info icon acts as the trigger for the tooltip */}
-                            <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            align="start"
-                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+            <div className="relative w-full mb-6">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                id="search-input"
+                placeholder="Search for emission source or scope"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {filteredScopes.length > 0 ? (
+              <Accordion type="multiple" defaultValue={["scope-1"]} className="space-y-4">
+                {filteredScopes.map((scope) => (
+                  <AccordionItem key={scope.id} value={scope.id} className="border-0">
+                    <AccordionTrigger className="py-4 px-2 rounded-lg bg-transparent hover:no-underline hover:cursor-pointer">
+                      <div className="flex items-center w-full relative">
+                        <span className="text-lg font-semibold flex items-center gap-2">
+                          {scope.title}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              align="start"
+                              className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                            >
+                              {scope.id === "scope-1" && (
+                                <>
+                                  <h6 className="font-semibold mb-1">Scope 1 - Direct Emissions</h6>
+                                  <p>
+                                    Emissions from sources your company owns or directly controls
+                                    (e.g., fuel combustion, company vehicles, generators).
+                                  </p>
+                                </>
+                              )}
+
+                              {scope.id === "scope-2" && (
+                                <>
+                                  <h6 className="font-semibold mb-1">
+                                    Scope 2 - Indirect Energy Emissions
+                                  </h6>
+                                  <p>
+                                    Emissions from purchased electricity, steam, heating, or cooling
+                                    that your company consumes.
+                                  </p>
+                                </>
+                              )}
+
+                              {scope.id === "scope-3" && (
+                                <>
+                                  <h6 className="font-semibold mb-1">
+                                    Scope 3 - Value Chain Emissions
+                                  </h6>
+                                  <p>
+                                    All other indirect emissions outside your direct control - such
+                                    as suppliers, transportation, waste, business travel or product
+                                    use.
+                                  </p>
+                                </>
+                              )}
+                            </TooltipContent>
+                          </Tooltip>
+                        </span>
+                        <span className="flex-1 h-0.5 bg-gray-300 mx-3 self-center" />
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-6 px-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {scope.cards.map((card) => (
+                          <Card
+                            key={card.title}
+                            className={`transition-colors bg-white shadow-sm rounded-lg ${
+                              card.clickable
+                                ? "cursor-pointer hover:bg-accent/50"
+                                : "cursor-default"
+                            }`}
+                            onClick={() => card.clickable && handleCardClick(card.title)}
                           >
-                            {/* Dynamically set the content based on the scope ID */}
-                            {scope.id === "scope-1" && (
-                              <>
-                                <h6 className="font-semibold mb-1">Scope 1 - Direct Emissions</h6>
-                                <p>
-                                  Emissions from sources your company owns or directly controls
-                                  (e.g., fuel combustion, company vehicles, generators).
-                                </p>
-                              </>
-                            )}
-
-                            {scope.id === "scope-2" && (
-                              <>
-                                <h6 className="font-semibold mb-1">
-                                  Scope 2 - Indirect Energy Emissions
-                                </h6>
-                                <p>
-                                  Emissions from purchased elelctricity, steam, heating, or cooling
-                                  that your company consumes.
-                                </p>
-                              </>
-                            )}
-
-                            {scope.id === "scope-3" && (
-                              <>
-                                <h6 className="font-semibold mb-1">
-                                  Scope 3 - Value Chain Emissions
-                                </h6>
-                                <p>
-                                  All other indirect emissions outside your direct control - such as
-                                  suppliers, transportation, waste, business travel or product use.
-                                </p>
-                              </>
-                            )}
-                          </TooltipContent>
-                        </Tooltip>
-                      </span>
-                      <span className="flex-1 h-0.5 bg-gray-300 mx-3 self-center" />
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-6 px-2">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {scope.cards.map((card) => (
-                        <Card
-                          key={card.title}
-                          className={`transition-colors bg-white shadow-sm rounded-lg ${
-                            card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
-                          }`}
-                          onClick={() => card.clickable && handleCardClick(card.title)}
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="space-y-1 flex-1">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
-                                <p className="text-sm text-muted-foreground">{card.subtitle}</p>
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="space-y-1 flex-1">
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
+                                  <p className="text-sm text-muted-foreground">{card.subtitle}</p>
+                                </div>
+                                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
                               </div>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-lg">
+                  {assignedTask && !debouncedSearchTerm
+                    ? "No emission sources assigned to you for this task"
+                    : debouncedSearchTerm
+                      ? `No emission sources found matching "${debouncedSearchTerm}"`
+                      : "No emission sources available"}
+                </p>
+                {debouncedSearchTerm && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Try searching for different keywords or browse all scopes
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
