@@ -7,7 +7,7 @@ export function PagetitleAndDescription({
 }) {
   return (
     <div className="mt-6">
-      <h1 className="text-lg">{title}</h1>
+      <h3 className="text-lg">{title}</h3>
       <p className="text-sm text-gray-600">{description}</p>
     </div>
   );

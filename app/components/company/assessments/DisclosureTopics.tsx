@@ -19,6 +19,7 @@ import {
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
 import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
 import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
+import AirQiality from "./industry-specific/environmental/air-quality/components/AirQiality";
 import { useDebounce } from "use-debounce";
 import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
@@ -106,6 +107,7 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Air Quality",
         subtitle: "Assess pollutant emissions and their impact on local air quality",
+        clickable: true,
       },
       {
         title: "Water Management",
@@ -306,12 +308,28 @@ export function DisclosureTopics({
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   const handleCardClick = (cardTitle: string) => {
-    if (cardTitle === "Greenhouse Gas Emissions") {
-      setCurrentView("ghg");
-    } else if (cardTitle === "Community Relations") {
-      setCurrentView("crs");
-    } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
-      setCurrentView("security-human-rights");
+    // if (cardTitle === "Greenhouse Gas Emissions") {
+    //   setCurrentView("ghg");
+    // } else if (cardTitle === "Community Relations") {
+    //   setCurrentView("crs");
+    // } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
+    //   setCurrentView("security-human-rights");
+    // }
+    switch (cardTitle) {
+      case "Greenhouse Gas Emissions":
+        setCurrentView("ghg");
+        break;
+      case "Community Relations":
+        setCurrentView("crs");
+        break;
+      case "Security, Human Rights & Rights of Indigenous Peoples":
+        setCurrentView("security-human-rights");
+        break;
+      case "Air Quality":
+        setCurrentView("air-quality");
+        break;
+      default:
+        break;
     }
   };
 
@@ -386,6 +404,14 @@ export function DisclosureTopics({
   }
   if (currentView === "crs") {
     return <CommunityRelationsHome onBack={() => setCurrentView("topics")} />;
+  }
+  if (currentView === "air-quality") {
+    return (
+      <AirQiality
+        backToDisclosureTopics={() => setCurrentView("topics")}
+        backToAssessmentHub={handleBackToHub}
+      />
+    );
   }
 
   return (
