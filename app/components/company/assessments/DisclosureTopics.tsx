@@ -310,16 +310,35 @@ export function DisclosureTopics({
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   const handleCardClick = (cardTitle: string) => {
-    if (cardTitle === "Greenhouse Gas Emissions") {
-      setCurrentView("ghg");
-    } else if (cardTitle === "Biodiversity Impact") {
-      setCurrentView("biodiversity");
-    } else if (cardTitle === "Community Relations") {
-      setCurrentView("crs");
-    } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
-      setCurrentView("security-human-rights");
-    } else if (cardTitle === "Air Quality") {
-      setCurrentView("air-quality");
+    // if (cardTitle === "Greenhouse Gas Emissions") {
+    //   setCurrentView("ghg");
+    // } else if (cardTitle === "Biodiversity Impact") {
+    //   setCurrentView("biodiversity");
+    // } else if (cardTitle === "Community Relations") {
+    //   setCurrentView("crs");
+    // } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
+    //   setCurrentView("security-human-rights");
+    // } else if (cardTitle === "Air Quality") {
+    //   setCurrentView("air-quality");
+    // }
+    switch (cardTitle) {
+      case "Greenhouse Gas Emissions":
+        setCurrentView("ghg");
+        break;
+      case "Biodiversity Impact":
+        setCurrentView("biodiversity");
+        break;
+      case "Community Relations":
+        setCurrentView("crs");
+        break;
+      case "Security, Human Rights & Rights of Indigenous Peoples":
+        setCurrentView("security-human-rights");
+        break;
+      case "Air Quality":
+        setCurrentView("air-quality");
+        break;
+      default:
+        break;
     }
   };
 
