@@ -7,7 +7,7 @@ import { useReport } from "./components/service/useReport";
 import ReportEmptyState from "./components/ReportEmptyState";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
-export default function page() {
+export default function Page() {
   const report = useReport();
 
   if (report.isLoading) {

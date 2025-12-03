@@ -8,7 +8,7 @@ import { esgService } from "@/services/esg.service";
 import { useRouter } from "next/navigation";
 
 export default function InviteUserPage() {
-  const { validateInviteToken } = useAuth();
+  const { validateInviteToken, login } = useAuth();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
   const router = useRouter();
@@ -21,6 +21,7 @@ export default function InviteUserPage() {
   });
   const [loading, setLoading] = useState(false);
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
 
   // Check token validity on load
   useEffect(() => {
@@ -36,6 +37,10 @@ export default function InviteUserPage() {
         if (response && response.status === "pending") {
           if (response.responseToken) {
             setTokenValid(true);
+            // Store the email from the invitation for auto-login after signup
+            if ((response as any).email) {
+              setUserEmail((response as any).email);
+            }
           }
           return;
         }
@@ -82,9 +87,19 @@ export default function InviteUserPage() {
         password,
         token,
       };
+      // Complete signup - this activates the user account
       await esgService.completeSignup(data);
       toast.success("Profile created successfully!");
-      router.push("/login");
+      
+      // Auto-login the user with their email and password
+      if (userEmail) {
+        await login(userEmail, password);
+        // AuthContext will handle the redirect to the appropriate dashboard
+      } else {
+        // Fallback: redirect to login if email is not available
+        toast.info("Please log in with your credentials");
+        router.push("/login");
+      }
     } catch (error) {
       const message = (error as Error).message || "Failed to create profile";
       toast.error(message);
