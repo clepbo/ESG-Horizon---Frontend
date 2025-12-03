@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { TotalsResponse } from "@/services/assessment.service";
-
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { uploadService } from "@/services/upload.service";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
@@ -42,6 +42,11 @@ export default function ReservesInSensitiveAreas({
   breadcrumb,
   onSubmit,
 }: ReservesInSensitiveAreasProps) {
+  const totalProvedReservesVolume = useFormattedNumber("");
+  const provedReservesSensitiveVolume = useFormattedNumber("");
+  const totalProbableReservesVolume = useFormattedNumber("");
+  const probableReservesSensitiveVolume = useFormattedNumber("");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -54,29 +59,26 @@ export default function ReservesInSensitiveAreas({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    totalProvedReservesVolume: "",
     totalProvedReservesUnit: "",
-    provedReservesSensitiveVolume: "",
     provedReservesSensitiveUnit: "",
-    totalProbableReservesVolume: "",
     totalProbableReservesUnit: "",
-    probableReservesSensitiveVolume: "",
     probableReservesSensitiveUnit: "",
   });
 
   const { filled, total } = useMemo(() => {
     const hasTotalProvedReserves =
-      formData.totalProvedReservesVolume.trim() !== "" &&
-      formData.totalProvedReservesUnit.trim() !== "";
+      totalProvedReservesVolume.rawValue !== "" && formData.totalProvedReservesUnit !== "";
+
     const hasProvedSensitive =
-      formData.provedReservesSensitiveVolume.trim() !== "" &&
-      formData.provedReservesSensitiveUnit.trim() !== "";
+      provedReservesSensitiveVolume.rawValue !== "" && formData.provedReservesSensitiveUnit !== "";
+
     const hasTotalProbable =
-      formData.totalProbableReservesVolume.trim() !== "" &&
-      formData.totalProbableReservesUnit.trim() !== "";
+      totalProbableReservesVolume.rawValue !== "" && formData.totalProbableReservesUnit !== "";
+
     const hasProbableSensitive =
-      formData.probableReservesSensitiveVolume.trim() !== "" &&
-      formData.probableReservesSensitiveUnit.trim() !== "";
+      probableReservesSensitiveVolume.rawValue !== "" &&
+      formData.probableReservesSensitiveUnit !== "";
+
     const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([
@@ -86,36 +88,44 @@ export default function ReservesInSensitiveAreas({
       hasProbableSensitive,
       hasEvidence,
     ]);
-  }, [formData, filesAndLinks]);
+  }, [
+    totalProvedReservesVolume.rawValue,
+    provedReservesSensitiveVolume.rawValue,
+    totalProbableReservesVolume.rawValue,
+    probableReservesSensitiveVolume.rawValue,
+    formData.totalProvedReservesUnit,
+    formData.provedReservesSensitiveUnit,
+    formData.totalProbableReservesUnit,
+    formData.probableReservesSensitiveUnit,
+    filesAndLinks,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.totalProvedReservesVolume.trim()) {
-      newErrors.totalProvedReservesVolume = "Total proved reserves volume is required.";
+    if (!totalProvedReservesVolume.rawValue) {
+      newErrors.totalProvedReservesVolume = "Volume is required";
     }
-    if (!formData.totalProvedReservesUnit.trim()) {
-      newErrors.totalProvedReservesUnit = "Unit is required.";
+    if (!formData.totalProvedReservesUnit) {
+      newErrors.totalProvedReservesUnit = "Unit is required";
     }
-    if (!formData.provedReservesSensitiveVolume.trim()) {
-      newErrors.provedReservesSensitiveVolume =
-        "Proved reserves in sensitive areas volume is required.";
+    if (!provedReservesSensitiveVolume.rawValue) {
+      newErrors.provedReservesSensitiveVolume = "Volume is required";
     }
-    if (!formData.provedReservesSensitiveUnit.trim()) {
-      newErrors.provedReservesSensitiveUnit = "Unit is required.";
+    if (!formData.provedReservesSensitiveUnit) {
+      newErrors.provedReservesSensitiveUnit = "Unit is required";
     }
-    if (!formData.totalProbableReservesVolume.trim()) {
-      newErrors.totalProbableReservesVolume = "Total probable reserves volume is required.";
+    if (!totalProbableReservesVolume.rawValue) {
+      newErrors.totalProbableReservesVolume = "Volume is required";
     }
-    if (!formData.totalProbableReservesUnit.trim()) {
-      newErrors.totalProbableReservesUnit = "Unit is required.";
+    if (!formData.totalProbableReservesUnit) {
+      newErrors.totalProbableReservesUnit = "Unit is required";
     }
-    if (!formData.probableReservesSensitiveVolume.trim()) {
-      newErrors.probableReservesSensitiveVolume =
-        "Probable reserves in sensitive areas volume is required.";
+    if (!probableReservesSensitiveVolume.rawValue) {
+      newErrors.probableReservesSensitiveVolume = "Volume is required";
     }
-    if (!formData.probableReservesSensitiveUnit.trim()) {
-      newErrors.probableReservesSensitiveUnit = "Unit is required.";
+    if (!formData.probableReservesSensitiveUnit) {
+      newErrors.probableReservesSensitiveUnit = "Unit is required";
     }
 
     setErrors(newErrors);
@@ -137,7 +147,18 @@ export default function ReservesInSensitiveAreas({
     setIsSaving(true);
 
     const payload = {
-      ...formData,
+      totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
+      totalProvedReservesUnit: formData.totalProvedReservesUnit,
+
+      provedReservesSensitiveVolume: Number(provedReservesSensitiveVolume.rawValue),
+      provedReservesSensitiveUnit: formData.provedReservesSensitiveUnit,
+
+      totalProbableReservesVolume: Number(totalProbableReservesVolume.rawValue),
+      totalProbableReservesUnit: formData.totalProbableReservesUnit,
+
+      probableReservesSensitiveVolume: Number(probableReservesSensitiveVolume.rawValue),
+      probableReservesSensitiveUnit: formData.probableReservesSensitiveUnit,
+
       filesAndLinks: filesAndLinks,
     };
 
@@ -154,7 +175,18 @@ export default function ReservesInSensitiveAreas({
     }
 
     const payload = {
-      ...formData,
+      totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
+      totalProvedReservesUnit: formData.totalProvedReservesUnit,
+
+      provedReservesSensitiveVolume: Number(provedReservesSensitiveVolume.rawValue),
+      provedReservesSensitiveUnit: formData.provedReservesSensitiveUnit,
+
+      totalProbableReservesVolume: Number(totalProbableReservesVolume.rawValue),
+      totalProbableReservesUnit: formData.totalProbableReservesUnit,
+
+      probableReservesSensitiveVolume: Number(probableReservesSensitiveVolume.rawValue),
+      probableReservesSensitiveUnit: formData.probableReservesSensitiveUnit,
+
       filesAndLinks: filesAndLinks,
     };
 
@@ -228,16 +260,17 @@ export default function ReservesInSensitiveAreas({
                   <div className="space-y-2">
                     <Label className="text-sm text-gray-700">Volume</Label>
                     <Input
-                      type="number"
+                      type="text"
                       placeholder="Enter volume"
-                      value={formData.totalProvedReservesVolume}
-                      onChange={(e) =>
-                        handleInputChange("totalProvedReservesVolume", e.target.value)
-                      }
+                      value={totalProvedReservesVolume.displayValue}
+                      onChange={(e) => {
+                        totalProvedReservesVolume.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, totalProvedReservesVolume: "" }));
+                      }}
                       className="border-gray-300"
                     />
                     {errors.totalProvedReservesVolume && (
-                      <p className="text-red-600 text-sm">{errors.totalProvedReservesVolume}</p>
+                      <p className="text-red-600 text-xs">{errors.totalProvedReservesVolume}</p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -246,18 +279,16 @@ export default function ReservesInSensitiveAreas({
                       value={formData.totalProvedReservesUnit}
                       onValueChange={(value) => handleInputChange("totalProvedReservesUnit", value)}
                     >
-                      <SelectTrigger className="border-gray-300">
+                      <SelectTrigger className="w-full border-gray-300 bg-white">
                         <SelectValue placeholder="Select the unit of measurement" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="barrels">Barrels</SelectItem>
-                        <SelectItem value="cubic-meters">Cubic Meters</SelectItem>
-                        <SelectItem value="million-barrels">Million Barrels</SelectItem>
-                        <SelectItem value="bcf">Billion Cubic Feet (BCF)</SelectItem>
+                      <SelectContent className="border-none">
+                        <SelectItem value="barrels">Barrels (Bbl)</SelectItem>
+                        <SelectItem value="cubic-meters">Barrel of Oil Equivalent (BOE)</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.totalProvedReservesUnit && (
-                      <p className="text-red-600 text-sm">{errors.totalProvedReservesUnit}</p>
+                      <p className="text-red-600 text-xs">{errors.totalProvedReservesUnit}</p>
                     )}
                   </div>
                 </div>
@@ -292,16 +323,17 @@ export default function ReservesInSensitiveAreas({
                   <div className="space-y-2">
                     <Label className="text-sm text-gray-700">Volume</Label>
                     <Input
-                      type="number"
+                      type="text"
                       placeholder="Enter volume"
-                      value={formData.provedReservesSensitiveVolume}
-                      onChange={(e) =>
-                        handleInputChange("provedReservesSensitiveVolume", e.target.value)
-                      }
+                      value={provedReservesSensitiveVolume.displayValue}
+                      onChange={(e) => {
+                        provedReservesSensitiveVolume.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, provedReservesSensitiveVolume: "" }));
+                      }}
                       className="border-gray-300"
                     />
                     {errors.provedReservesSensitiveVolume && (
-                      <p className="text-red-600 text-sm">{errors.provedReservesSensitiveVolume}</p>
+                      <p className="text-red-600 text-xs">{errors.provedReservesSensitiveVolume}</p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -312,18 +344,16 @@ export default function ReservesInSensitiveAreas({
                         handleInputChange("provedReservesSensitiveUnit", value)
                       }
                     >
-                      <SelectTrigger className="border-gray-300">
+                      <SelectTrigger className="w-full border-gray-300 bg-white">
                         <SelectValue placeholder="Select the unit of measurement" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="barrels">Barrels</SelectItem>
-                        <SelectItem value="cubic-meters">Cubic Meters</SelectItem>
-                        <SelectItem value="million-barrels">Million Barrels</SelectItem>
-                        <SelectItem value="bcf">Billion Cubic Feet (BCF)</SelectItem>
+                      <SelectContent className="border-none">
+                        <SelectItem value="barrels">Barrels (Bbl)</SelectItem>
+                        <SelectItem value="cubic-meters">Barrel of Oil Equivalent (BOE)</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.provedReservesSensitiveUnit && (
-                      <p className="text-red-600 text-sm">{errors.provedReservesSensitiveUnit}</p>
+                      <p className="text-red-600 text-xs">{errors.provedReservesSensitiveUnit}</p>
                     )}
                   </div>
                 </div>
@@ -358,16 +388,17 @@ export default function ReservesInSensitiveAreas({
                   <div className="space-y-2">
                     <Label className="text-sm text-gray-700">Volume</Label>
                     <Input
-                      type="number"
+                      type="text"
                       placeholder="Enter volume"
-                      value={formData.totalProbableReservesVolume}
-                      onChange={(e) =>
-                        handleInputChange("totalProbableReservesVolume", e.target.value)
-                      }
+                      value={totalProbableReservesVolume.displayValue}
+                      onChange={(e) => {
+                        totalProbableReservesVolume.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, totalProbableReservesVolume: "" }));
+                      }}
                       className="border-gray-300"
                     />
                     {errors.totalProbableReservesVolume && (
-                      <p className="text-red-600 text-sm">{errors.totalProbableReservesVolume}</p>
+                      <p className="text-red-600 text-xs">{errors.totalProbableReservesVolume}</p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -378,18 +409,16 @@ export default function ReservesInSensitiveAreas({
                         handleInputChange("totalProbableReservesUnit", value)
                       }
                     >
-                      <SelectTrigger className="border-gray-300">
+                      <SelectTrigger className="w-full border-gray-300 bg-white">
                         <SelectValue placeholder="Select the unit of measurement" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="barrels">Barrels</SelectItem>
-                        <SelectItem value="cubic-meters">Cubic Meters</SelectItem>
-                        <SelectItem value="million-barrels">Million Barrels</SelectItem>
-                        <SelectItem value="bcf">Billion Cubic Feet (BCF)</SelectItem>
+                      <SelectContent className="border-none">
+                        <SelectItem value="barrels">Barrels (Bbl)</SelectItem>
+                        <SelectItem value="cubic-meters">Barrel of Oil Equivalent (BOE)</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.totalProbableReservesUnit && (
-                      <p className="text-red-600 text-sm">{errors.totalProbableReservesUnit}</p>
+                      <p className="text-red-600 text-xs">{errors.totalProbableReservesUnit}</p>
                     )}
                   </div>
                 </div>
@@ -424,16 +453,17 @@ export default function ReservesInSensitiveAreas({
                   <div className="space-y-2">
                     <Label className="text-sm text-gray-700">Volume</Label>
                     <Input
-                      type="number"
+                      type="text"
                       placeholder="Enter volume"
-                      value={formData.probableReservesSensitiveVolume}
-                      onChange={(e) =>
-                        handleInputChange("probableReservesSensitiveVolume", e.target.value)
-                      }
+                      value={probableReservesSensitiveVolume.displayValue}
+                      onChange={(e) => {
+                        probableReservesSensitiveVolume.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, probableReservesSensitiveVolume: "" }));
+                      }}
                       className="border-gray-300"
                     />
                     {errors.probableReservesSensitiveVolume && (
-                      <p className="text-red-600 text-sm">
+                      <p className="text-red-600 text-xs">
                         {errors.probableReservesSensitiveVolume}
                       </p>
                     )}
@@ -446,18 +476,16 @@ export default function ReservesInSensitiveAreas({
                         handleInputChange("probableReservesSensitiveUnit", value)
                       }
                     >
-                      <SelectTrigger className="border-gray-300">
+                      <SelectTrigger className="w-full border-gray-300 bg-white">
                         <SelectValue placeholder="Select the unit of measurement" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="barrels">Barrels</SelectItem>
-                        <SelectItem value="cubic-meters">Cubic Meters</SelectItem>
-                        <SelectItem value="million-barrels">Million Barrels</SelectItem>
-                        <SelectItem value="bcf">Billion Cubic Feet (BCF)</SelectItem>
+                      <SelectContent className="border-none">
+                        <SelectItem value="barrels">Barrels (Bbl)</SelectItem>
+                        <SelectItem value="cubic-meters">Barrel of Oil Equivalent (BOE)</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.probableReservesSensitiveUnit && (
-                      <p className="text-red-600 text-sm">{errors.probableReservesSensitiveUnit}</p>
+                      <p className="text-red-600 text-xs">{errors.probableReservesSensitiveUnit}</p>
                     )}
                   </div>
                 </div>

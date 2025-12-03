@@ -436,6 +436,7 @@ export default function HydrocarbonSpills({
                   onFieldsChange={handleFilesAndLinksChange}
                   initialData={filesAndLinks}
                   uploadService={uploadService}
+                  showToast={(msg, type) => toast[type](msg)}
                 />
               </div>
             </div>
