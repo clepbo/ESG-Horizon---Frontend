@@ -101,9 +101,9 @@ export function BioDiversityImpact({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Human Right Engagements"
+        assessmentName="Reserves in Sensitive Areas"
         totals={totals ?? undefined}
-        nextAssessment="Community Relations"
+        nextAssessment="Security, Human Rights &amp; Community Engagement"
         onContinue={onContinueToNextAssessment}
         onBackToHub={onBack}
       />
