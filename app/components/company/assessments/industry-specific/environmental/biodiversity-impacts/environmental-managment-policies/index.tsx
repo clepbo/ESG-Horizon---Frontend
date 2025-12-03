@@ -9,14 +9,9 @@ import { ArrowLeft, ArrowRight, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { toast } from "react-toastify";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { Input } from "@/app/components/ui/input";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
-
-interface FileOrLinkData {
-  name: string;
-  file?: File;
-  link?: string;
-}
+import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
+import { uploadService } from "@/services/upload.service";
 
 interface ReservesInConflictAreasProps {
   onBack: () => void;
@@ -24,6 +19,13 @@ interface ReservesInConflictAreasProps {
   stepIndex: number;
   totalSteps: number;
   breadcrumb: BreadcrumbItemType[];
+}
+
+// Helper function to calculate progress
+function calculateProgress(conditions: boolean[]): { filled: number; total: number } {
+  const filled = conditions.filter(Boolean).length;
+  const total = conditions.length;
+  return { filled, total };
 }
 
 export default function ReservesInConflictAreas({
@@ -36,27 +38,28 @@ export default function ReservesInConflictAreas({
   const formRef = useRef<HTMLDivElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
 
   const [formData, setFormData] = useState({
     hasConflictReserves: "",
     description: "",
-    filesAndLinks: [] as FileOrLinkData[],
   });
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // Calculate progress based on form completion
   const progress = useMemo(() => {
-    let filled = 0;
-    const total = 3;
+    const hasSelection = formData.hasConflictReserves !== "";
+    const hasDescription = formData.description.trim() !== "";
+    const hasEvidence = filesAndLinks.length > 0;
 
-    if (formData.hasConflictReserves) filled++;
-    if (formData.description.trim()) filled++;
-    if (formData.filesAndLinks.length > 0) filled++;
+    const { filled, total } = calculateProgress([hasSelection, hasDescription, hasEvidence]);
+    const percentage = Math.round((filled / total) * 100);
 
-    return { filled, total, percentage: Math.round((filled / total) * 100) };
-  }, [formData]);
+    return { filled, total, percentage };
+  }, [formData.hasConflictReserves, formData.description, filesAndLinks]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -73,26 +76,46 @@ export default function ReservesInConflictAreas({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear the error for this field
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
   const handleSaveAndContinue = () => {
     if (!validateForm()) {
-      toast.error("Please complete all required fields.");
+      toast.error("Please fix the errors before saving.");
       return;
     }
 
     setIsSaving(true);
 
-    setTimeout(() => {
-      console.log("DATA TO SAVE:", formData);
-      toast.success("Data saved successfully!");
-      setIsSaving(false);
-    }, 1000);
+    const payload = {
+      hasConflictReserves: formData.hasConflictReserves,
+      description: formData.description,
+      filesAndLinks: filesAndLinks,
+    };
+
+    console.log("DATA TO SAVE:", payload);
+
+    toast.success("Progress saved! You can continue later.");
+    setIsSaving(false);
   };
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please complete all required fields.");
+      toast.error("Please fix the errors before continuing.");
       return;
     }
+
+    const payload = {
+      hasConflictReserves: formData.hasConflictReserves,
+      description: formData.description,
+      filesAndLinks: filesAndLinks,
+    };
+
+    console.log("FINAL SUBMISSION:", payload);
+
     toast.success("Moving to next section");
     onContinueToNextAssessment();
   };
@@ -102,27 +125,8 @@ export default function ReservesInConflictAreas({
     onBack();
   };
 
-  const addFileOrLink = () => {
-    setFormData((prev) => ({
-      ...prev,
-      filesAndLinks: [...prev.filesAndLinks, { name: "", file: undefined, link: "" }],
-    }));
-  };
-
-  const updateFileOrLink = (index: number, field: keyof FileOrLinkData, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      filesAndLinks: prev.filesAndLinks.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      ),
-    }));
-  };
-
-  const removeFileOrLink = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      filesAndLinks: prev.filesAndLinks.filter((_, i) => i !== index),
-    }));
+  const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
+    setFilesAndLinks(fields);
   };
 
   return (
@@ -167,10 +171,7 @@ export default function ReservesInConflictAreas({
               </Label>
               <RadioGroup
                 value={formData.hasConflictReserves}
-                onValueChange={(value) => {
-                  setFormData((prev) => ({ ...prev, hasConflictReserves: value }));
-                  setErrors((prev) => ({ ...prev, hasConflictReserves: "" }));
-                }}
+                onValueChange={(value) => handleInputChange("hasConflictReserves", value)}
                 className="flex gap-6"
               >
                 <div className="flex items-center space-x-2">
@@ -206,16 +207,11 @@ export default function ReservesInConflictAreas({
                     align="center"
                     className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
                   >
-                    <h6> Description of Reserves in Conflict Areas</h6>
+                    <h6>Description of Reserves in Conflict Areas</h6>
                     <p className="text-sm">
                       Provide details about the location, volume, and status of reserves in or near
                       conflict areas. Include information about security measures, risk assessments,
-                      and any operational impacts.Description of Environmental Management Policies
-                      and Practices Provide details of your company’s policies and operational
-                      practices designed to protect biodiversity and reduce environmental impacts.
-                      This may include habitat conservation plans, protected species management,
-                      environmental monitoring programs, spill prevention measures, and site
-                      restoration commitments.
+                      and any operational impacts.
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -223,10 +219,7 @@ export default function ReservesInConflictAreas({
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <Textarea
                   value={formData.description}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, description: e.target.value }));
-                    setErrors((prev) => ({ ...prev, description: "" }));
-                  }}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
                   placeholder="Describe the reserves, their locations relative to conflict zones, associated risks, and any mitigation measures in place..."
                   className="min-h-[200px] border-0 focus-visible:ring-0 resize-none"
                 />
@@ -236,78 +229,19 @@ export default function ReservesInConflictAreas({
 
             {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-2">
-                  Document/Evidence Upload
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Upload supporting documents like your reserves statement, internal security risk
-                  assessments for relevant regions, and citations for the UCDP data used.
-                </p>
-              </div>
+              <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
+              <p className="text-sm text-gray-600">
+                Upload supporting documents like maps of operational areas cross-referenced with
+                community land boundaries and Social Impact Assessment (SIA) reports that identify
+                local ethnic groups.
+              </p>
 
-              <div className="space-y-4">
-                {formData.filesAndLinks.map((item, index) => (
-                  <div key={index} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Name of file/evidence
-                        </Label>
-                        <Input
-                          value={item.name}
-                          onChange={(e) => updateFileOrLink(index, "name", e.target.value)}
-                          placeholder="Enter the name of the file/evidence you are about to upload"
-                          className="border-gray-300"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Upload File</Label>
-                        <div className="flex gap-2">
-                          <div className="flex-1 relative">
-                            <Input
-                              type="file"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) updateFileOrLink(index, "file", file);
-                              }}
-                              className="border-gray-300"
-                            />
-                          </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => removeFileOrLink(index)}
-                            className="border-red-300 text-red-600 hover:bg-red-50"
-                          >
-                            <span className="text-lg">×</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">
-                        Or Upload via Link
-                      </Label>
-                      <Input
-                        value={item.link}
-                        onChange={(e) => updateFileOrLink(index, "link", e.target.value)}
-                        placeholder="Enter or paste the link to the evidence/file"
-                        className="border-gray-300"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addFileOrLink}
-                  className="w-full border-dashed border-2 border-gray-300 text-gray-600 hover:border-teal-500 hover:text-teal-600"
-                >
-                  + Add More Files/Links
-                </Button>
+              <div className="mt-6">
+                <AddMoreFilesLinks
+                  onFieldsChange={handleFilesAndLinksChange}
+                  initialData={filesAndLinks}
+                  uploadService={uploadService}
+                />
               </div>
             </div>
 
