@@ -116,7 +116,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
           className="flex items-center gap-2 bg-white mb-6"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Assessment Hub
+          Back
         </Button>
 
         <Card className="bg-white p-8 rounded-xl shadow-sm">
