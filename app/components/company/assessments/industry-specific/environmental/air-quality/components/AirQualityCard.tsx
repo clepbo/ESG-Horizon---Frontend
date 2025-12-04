@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 
-interface AirQualityProps {
+export interface AirQualityProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   handleCardClick: () => void;
@@ -44,9 +44,9 @@ export default function AirQualityCard({
               <div className="flex flex-col gap-2">
                 <h5 className=""> Air Quality</h5>
                 <p className="text-sm">
-                  This disclosure topic quantifies the company's direct atmospheric release of key
-                  non-GHG pollutants, assessing its impact on local air quality and the management
-                  of associated environmental and health risks. IFRS code: EM-EP-120a.1
+                  This disclosure topic quantifies the company&lsquo;s direct atmospheric release of
+                  key non-GHG pollutants, assessing its impact on local air quality and the
+                  management of associated environmental and health risks. IFRS code: EM-EP-120a.1
                 </p>
               </div>
               <Button className="text-white cursor-pointer rounded">Assign task</Button>

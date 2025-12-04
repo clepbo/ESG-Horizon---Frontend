@@ -90,7 +90,7 @@ export default function InviteUserPage() {
       // Complete signup - this activates the user account
       await esgService.completeSignup(data);
       toast.success("Profile created successfully!");
-      
+
       // Auto-login the user with their email and password
       if (userEmail) {
         await login(userEmail, password);

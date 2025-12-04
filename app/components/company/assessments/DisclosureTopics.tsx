@@ -23,6 +23,7 @@ import AirQiality from "./industry-specific/environmental/air-quality/components
 import { useDebounce } from "use-debounce";
 import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
+import WaterAndWastewaterManagement from "./industry-specific/environmental/water-management";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -110,8 +111,9 @@ const industrySpecificMetrics: MetricSection[] = [
         clickable: true,
       },
       {
-        title: "Water Management",
+        title: "Water and Wastewater Management",
         subtitle: "Evaluate water use, conservation, and treatment practices",
+        clickable: true,
       },
       {
         title: "Biodiversity Impact",
@@ -213,8 +215,9 @@ const supplementaryMetrics: MetricSection[] = [
         subtitle: "Assess pollutant emissions and their impact on local air quality",
       },
       {
-        title: "Water Management",
+        title: "Water and Wastewater Management",
         subtitle: "Evaluate water use, conservation, and treatment practices",
+        clickable: true,
       },
       {
         title: "Biodiversity Impact",
@@ -328,6 +331,9 @@ export function DisclosureTopics({
       case "Air Quality":
         setCurrentView("air-quality");
         break;
+      case "Water and Wastewater Management":
+        setCurrentView("water-and-wastewater-management");
+        break;
       default:
         break;
     }
@@ -408,6 +414,14 @@ export function DisclosureTopics({
   if (currentView === "air-quality") {
     return (
       <AirQiality
+        backToDisclosureTopics={() => setCurrentView("topics")}
+        backToAssessmentHub={handleBackToHub}
+      />
+    );
+  }
+  if (currentView === "water-and-wastewater-management") {
+    return (
+      <WaterAndWastewaterManagement
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
       />
