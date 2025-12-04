@@ -18,7 +18,6 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "./ReusableInput";
 
-
 interface FreshWaterWithdrawalAndConsumptionProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
@@ -36,7 +35,7 @@ export default function FreshWaterWithdrawalAndConsumption({
   totalSteps,
   backToAssessment,
   backToDisclosureTopic,
-  backToWaterWasteManagement
+  backToWaterWasteManagement,
 }: FreshWaterWithdrawalAndConsumptionProps) {
   const withdrawalfromGroundwater = useFormattedNumber("");
   const withdrawalfromMunicipalotherOtherSources = useFormattedNumber("");
@@ -49,25 +48,23 @@ export default function FreshWaterWithdrawalAndConsumption({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-
-
   const features = [
     {
       label: "Assessments",
-      onClick: backToAssessment
+      onClick: backToAssessment,
     },
     {
       label: "Disclosure Topic",
-      onClick: backToDisclosureTopic
+      onClick: backToDisclosureTopic,
     },
     {
       label: "Water and Waterwaste management",
-      onClick: backToWaterWasteManagement
+      onClick: backToWaterWasteManagement,
     },
     {
-      label: "Freshwater Withdrawal & Consumption"
+      label: "Freshwater Withdrawal & Consumption",
     },
-  ]
+  ];
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -87,8 +84,6 @@ export default function FreshWaterWithdrawalAndConsumption({
     withdrawalfromMunicipalotherOtherSourcesUnit: "",
     totalWaterConsumedUnit: "",
     volumeWithdrawnfromWaterStressedRegionsUnit: "",
-
-
   });
 
   const validateForm = () => {
@@ -137,18 +132,18 @@ export default function FreshWaterWithdrawalAndConsumption({
       withdrawalfromGroundwater.rawValue !== "" && formData.withdrawalfromGroundwaterUnit !== "";
 
     const haswithdrawalfromSurfaceWater =
-      withdrawalfromSurfaceWater.rawValue !== "" &&
-      formData.withdrawalfromSurfaceWaterUnit !== "";
+      withdrawalfromSurfaceWater.rawValue !== "" && formData.withdrawalfromSurfaceWaterUnit !== "";
 
     const haswithdrawalfromMunicipalotherOtherSources =
       withdrawalfromMunicipalotherOtherSources.rawValue !== "" &&
       formData.withdrawalfromMunicipalotherOtherSourcesUnit !== "";
 
-    const hastotalWaterConsumed = totalWaterConsumed.rawValue !== "" &&
-      formData.totalWaterConsumedUnit !== ""
+    const hastotalWaterConsumed =
+      totalWaterConsumed.rawValue !== "" && formData.totalWaterConsumedUnit !== "";
 
-    const hasvolumeWithdrawnfromWaterStressedRegions = volumeWithdrawnfromWaterStressedRegions.rawValue !== "" &&
-      formData.volumeWithdrawnfromWaterStressedRegionsUnit !== ""
+    const hasvolumeWithdrawnfromWaterStressedRegions =
+      volumeWithdrawnfromWaterStressedRegions.rawValue !== "" &&
+      formData.volumeWithdrawnfromWaterStressedRegionsUnit !== "";
 
     const hasEvidence = filesAndLinks.length > 0;
 
@@ -193,8 +188,11 @@ export default function FreshWaterWithdrawalAndConsumption({
       withdrawalfromSurfaceWater: Number(withdrawalfromSurfaceWater.rawValue),
       withdrawalfromSurfaceWaterUnit: formData.withdrawalfromSurfaceWaterUnit,
 
-      withdrawalfromMunicipalotherOtherSources: Number(withdrawalfromMunicipalotherOtherSources.rawValue),
-      withdrawalfromMunicipalotherOtherSourcesUnit: formData.withdrawalfromMunicipalotherOtherSourcesUnit,
+      withdrawalfromMunicipalotherOtherSources: Number(
+        withdrawalfromMunicipalotherOtherSources.rawValue
+      ),
+      withdrawalfromMunicipalotherOtherSourcesUnit:
+        formData.withdrawalfromMunicipalotherOtherSourcesUnit,
 
       filesAndLinks: filesAndLinks,
     };
@@ -248,24 +246,22 @@ export default function FreshWaterWithdrawalAndConsumption({
               isSubmitted={false}
             />
 
-
             <ReusableInput
               label={"Withdrawal from Surface Water"}
               tooltipTitle={"Withdrawal from Surface Water"}
-              tooltipBody={"Water taken directly from rivers, lakes, wetlands, reservoirs, or oceans for operational use. Report total volume withdrawn during the reporting period."}
+              tooltipBody={
+                "Water taken directly from rivers, lakes, wetlands, reservoirs, or oceans for operational use. Report total volume withdrawn during the reporting period."
+              }
               inputValue={withdrawalfromSurfaceWater.displayValue}
               unitValue={formData.withdrawalfromSurfaceWaterUnit}
-
               onInputChange={(num) => {
                 withdrawalfromSurfaceWater.handleChange(String(num));
-                setErrors(prev => ({ ...prev, withdrawalfromSurfaceWater: "" }));
+                setErrors((prev) => ({ ...prev, withdrawalfromSurfaceWater: "" }));
               }}
-
               onUnitChange={(unit) => {
                 handleInputChange("withdrawalfromSurfaceWaterUnit", unit);
-                setErrors(prev => ({ ...prev, withdrawalfromSurfaceWaterUnit: "" }));
+                setErrors((prev) => ({ ...prev, withdrawalfromSurfaceWaterUnit: "" }));
               }}
-
               error={errors.withdrawalfromSurfaceWaterUnit}
               unitError={errors.withdrawalfromSurfaceWaterUnit}
               formatNumbers={false}
@@ -274,20 +270,19 @@ export default function FreshWaterWithdrawalAndConsumption({
             <ReusableInput
               label={"Withdrawal from Groundwater"}
               tooltipTitle={"Groundwater Withdrawal"}
-              tooltipBody={"Water extracted from underground aquifers or wells. Includes both shallow and deep groundwater sources used for drilling, processing, or facility operations."}
+              tooltipBody={
+                "Water extracted from underground aquifers or wells. Includes both shallow and deep groundwater sources used for drilling, processing, or facility operations."
+              }
               inputValue={withdrawalfromGroundwater.displayValue}
               unitValue={formData.withdrawalfromGroundwaterUnit}
-
               onInputChange={(num) => {
                 withdrawalfromGroundwater.handleChange(String(num));
-                setErrors(prev => ({ ...prev, withdrawalfromGroundwater: "" }));
+                setErrors((prev) => ({ ...prev, withdrawalfromGroundwater: "" }));
               }}
-
               onUnitChange={(unit) => {
                 handleInputChange("withdrawalfromGroundwaterUnit", unit);
-                setErrors(prev => ({ ...prev, withdrawalfromGroundwaterUnit: "" }));
+                setErrors((prev) => ({ ...prev, withdrawalfromGroundwaterUnit: "" }));
               }}
-
               error={errors.withdrawalfromGroundwater}
               unitError={errors.withdrawalfromGroundwaterUnit}
               formatNumbers={false}
@@ -295,43 +290,43 @@ export default function FreshWaterWithdrawalAndConsumption({
             <ReusableInput
               label={"Withdrawal from Municipal & Other Sources"}
               tooltipTitle={"Withdrawal from Municipal & Other Sources"}
-              tooltipBody={"Water supplied by municipal utilities, third-party providers, or purchased from external sources. This includes treated potable water used in facilities."}
+              tooltipBody={
+                "Water supplied by municipal utilities, third-party providers, or purchased from external sources. This includes treated potable water used in facilities."
+              }
               inputValue={withdrawalfromMunicipalotherOtherSources.displayValue}
               unitValue={formData.withdrawalfromMunicipalotherOtherSourcesUnit}
-
               onInputChange={(num) => {
                 withdrawalfromMunicipalotherOtherSources.handleChange(String(num));
-                setErrors(prev => ({ ...prev, withdrawalfromMunicipalotherOtherSources: "" }));
+                setErrors((prev) => ({ ...prev, withdrawalfromMunicipalotherOtherSources: "" }));
               }}
-
               onUnitChange={(unit) => {
                 handleInputChange("withdrawalfromMunicipalotherOtherSourcesUnit", unit);
-                setErrors(prev => ({ ...prev, withdrawalfromMunicipalotherOtherSourcesUnit: "" }));
+                setErrors((prev) => ({
+                  ...prev,
+                  withdrawalfromMunicipalotherOtherSourcesUnit: "",
+                }));
               }}
-
               error={errors.withdrawalfromMunicipalotherOtherSources}
               unitError={errors.withdrawalfromMunicipalotherOtherSourcesUnit}
               formatNumbers={false}
             />
 
-
             <ReusableInput
               label={"Total Water Consumed"}
               tooltipTitle={"Total Water Consumed"}
-              tooltipBody={"The portion of water withdrawn that is not returned to the original source because it was evaporated, incorporated into products, or contaminated beyond reuse."}
+              tooltipBody={
+                "The portion of water withdrawn that is not returned to the original source because it was evaporated, incorporated into products, or contaminated beyond reuse."
+              }
               inputValue={totalWaterConsumed.displayValue}
               unitValue={formData.totalWaterConsumedUnit}
-
               onInputChange={(num) => {
                 totalWaterConsumed.handleChange(String(num));
-                setErrors(prev => ({ ...prev, totalWaterConsumed: "" }));
+                setErrors((prev) => ({ ...prev, totalWaterConsumed: "" }));
               }}
-
               onUnitChange={(unit) => {
                 handleInputChange("totalWaterConsumedUnit", unit);
-                setErrors(prev => ({ ...prev, totalWaterConsumedUnit: "" }));
+                setErrors((prev) => ({ ...prev, totalWaterConsumedUnit: "" }));
               }}
-
               error={errors.totalWaterConsumedUnit}
               unitError={errors.totalWaterConsumedUnit}
               formatNumbers={false}
@@ -339,26 +334,23 @@ export default function FreshWaterWithdrawalAndConsumption({
             <ReusableInput
               label={"Volume Withdrawn from Water-Stressed Regions"}
               tooltipTitle={"Volume Withdrawn from Water-Stressed Regions"}
-              tooltipBody={"Total water withdrawal from locations identified as water-stressed or high-baseline water-risk areas. Typically determined using recognized tools such as WRI Aqueduct or WWF Water Risk Filter."}
+              tooltipBody={
+                "Total water withdrawal from locations identified as water-stressed or high-baseline water-risk areas. Typically determined using recognized tools such as WRI Aqueduct or WWF Water Risk Filter."
+              }
               inputValue={volumeWithdrawnfromWaterStressedRegions.displayValue}
               unitValue={formData.volumeWithdrawnfromWaterStressedRegionsUnit}
-
               onInputChange={(num) => {
                 volumeWithdrawnfromWaterStressedRegions.handleChange(String(num));
-                setErrors(prev => ({ ...prev, volumeWithdrawnfromWaterStressedRegions: "" }));
+                setErrors((prev) => ({ ...prev, volumeWithdrawnfromWaterStressedRegions: "" }));
               }}
-
               onUnitChange={(unit) => {
                 handleInputChange("volumeWithdrawnfromWaterStressedRegionsUnit", unit);
-                setErrors(prev => ({ ...prev, volumeWithdrawnfromWaterStressedRegionsUnit: "" }));
+                setErrors((prev) => ({ ...prev, volumeWithdrawnfromWaterStressedRegionsUnit: "" }));
               }}
-
               error={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
               unitError={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
               formatNumbers={false}
             />
-
-
 
             {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
@@ -429,4 +421,3 @@ export default function FreshWaterWithdrawalAndConsumption({
     </div>
   );
 }
-

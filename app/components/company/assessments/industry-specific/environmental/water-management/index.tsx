@@ -1,5 +1,5 @@
-import React from 'react'
-import WaterAndWastemanagamentCards from './components/WaterAndWastemanagamentCards';
+import React from "react";
+import WaterAndWastemanagamentCards from "./components/WaterAndWastemanagamentCards";
 
 interface AirQualityProps {
   backToDisclosureTopics: () => void;
@@ -20,17 +20,17 @@ export default function WaterAndWastewaterManagement({
       />
     );
   }
-//   if (step === 1) {
-//     return (
-//       <div>
-//         <AirQualityForm
-//           backToDisclosureTopics={backToDisclosureTopics}
-//           backToAssessmentHub={backToAssessmentHub}
-//           backToAirQualityCard={() => setStep(0)}
-//         />
-//       </div>
-//     );
-//   }
+  //   if (step === 1) {
+  //     return (
+  //       <div>
+  //         <AirQualityForm
+  //           backToDisclosureTopics={backToDisclosureTopics}
+  //           backToAssessmentHub={backToAssessmentHub}
+  //           backToAirQualityCard={() => setStep(0)}
+  //         />
+  //       </div>
+  //     );
+  //   }
 
   return <h3> Water and waste </h3>;
 }

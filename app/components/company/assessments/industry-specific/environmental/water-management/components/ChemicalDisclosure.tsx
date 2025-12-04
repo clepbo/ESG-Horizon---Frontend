@@ -36,7 +36,7 @@ export default function ChemicalDisclosure({
   totalSteps,
   backToAssessment,
   backToDisclosureTopic,
-  backToWaterWasteManagement
+  backToWaterWasteManagement,
 }: ChemicalDisclosureProps) {
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
   const volumeRecycledReused = useFormattedNumber("");
@@ -50,20 +50,20 @@ export default function ChemicalDisclosure({
   const features = [
     {
       label: "Assessments",
-      onClick: backToAssessment
+      onClick: backToAssessment,
     },
     {
       label: "Disclosure Topic",
-      onClick: backToDisclosureTopic
+      onClick: backToDisclosureTopic,
     },
     {
       label: "Water and Waterwaste management",
-      onClick: backToWaterWasteManagement
+      onClick: backToWaterWasteManagement,
     },
     {
-      label: "Chemical Disclosure"
+      label: "Chemical Disclosure",
     },
-  ]
+  ];
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -112,13 +112,14 @@ export default function ChemicalDisclosure({
 
   const { filled, total } = useMemo(() => {
     const hasRadioSelection = operatesFrackedWells !== "";
-    
+
     let hasAdditionalFields = false;
     if (operatesFrackedWells === "yes") {
-      const hasNumberOfWells = numberOfWellsWithPublicDisclosure.rawValue !== "" && 
+      const hasNumberOfWells =
+        numberOfWellsWithPublicDisclosure.rawValue !== "" &&
         formData.numberOfWellsWithPublicDisclosureUnit !== "";
-      const hasVolumeRecycled = volumeRecycledReused.rawValue !== "" && 
-        formData.volumeRecycledReusedUnit !== "";
+      const hasVolumeRecycled =
+        volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
       hasAdditionalFields = hasNumberOfWells && hasVolumeRecycled;
     } else if (operatesFrackedWells === "no") {
       hasAdditionalFields = true; // No additional fields needed for "No"
@@ -126,11 +127,7 @@ export default function ChemicalDisclosure({
 
     const hasEvidence = filesAndLinks.length > 0;
 
-    return calculateProgress([
-      hasRadioSelection,
-      hasAdditionalFields,
-      hasEvidence,
-    ]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
   }, [
     operatesFrackedWells,
     numberOfWellsWithPublicDisclosure.rawValue,
@@ -162,7 +159,7 @@ export default function ChemicalDisclosure({
       }),
       filesAndLinks: filesAndLinks,
     };
-    
+
     console.log("DATA TO SAVE:", payload);
     toast.success("Data logged to console.");
     setIsSaving(false);
@@ -185,7 +182,7 @@ export default function ChemicalDisclosure({
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
     setFilesAndLinks(fields);
     if (errors.filesAndLinks && fields.length > 0) {
-      setErrors(prev => ({ ...prev, filesAndLinks: "" }));
+      setErrors((prev) => ({ ...prev, filesAndLinks: "" }));
     }
   };
 
@@ -197,7 +194,8 @@ export default function ChemicalDisclosure({
           <div>
             <h3 className="text-2xl font-semibold">Chemical Disclosure</h3>
             <p className="text-muted-foreground text-base">
-              Report on hydraulic fracturing operations and chemical disclosure practices during the reporting period.
+              Report on hydraulic fracturing operations and chemical disclosure practices during the
+              reporting period.
             </p>
           </div>
         </div>
@@ -218,7 +216,8 @@ export default function ChemicalDisclosure({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-medium">
-                  Does your company operate hydraulically fractured wells during the reporting period?
+                  Does your company operate hydraulically fractured wells during the reporting
+                  period?
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -226,32 +225,36 @@ export default function ChemicalDisclosure({
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
                     <p>
-                      Indicate whether your company operated any hydraulically fractured (fracking) wells 
-                      during the reporting period. This helps determine if reporting on chemical use and 
-                      water quality impacts is required.
+                      Indicate whether your company operated any hydraulically fractured (fracking)
+                      wells during the reporting period. This helps determine if reporting on
+                      chemical use and water quality impacts is required.
                     </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              
+
               <RadioGroup
                 value={operatesFrackedWells}
                 onValueChange={(value) => {
                   setOperatesFrackedWells(value);
-                  setErrors(prev => ({ ...prev, operatesFrackedWells: "" }));
+                  setErrors((prev) => ({ ...prev, operatesFrackedWells: "" }));
                 }}
                 className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="yes" id="yes" />
-                  <Label htmlFor="yes" className="cursor-pointer">Yes</Label>
+                  <Label htmlFor="yes" className="cursor-pointer">
+                    Yes
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="no" id="no" />
-                  <Label htmlFor="no" className="cursor-pointer">No</Label>
+                  <Label htmlFor="no" className="cursor-pointer">
+                    No
+                  </Label>
                 </div>
               </RadioGroup>
-              
+
               {errors.operatesFrackedWells && (
                 <p className="text-sm text-red-600">{errors.operatesFrackedWells}</p>
               )}
@@ -263,16 +266,18 @@ export default function ChemicalDisclosure({
                 <ReusableInput
                   label={"Number of Wells with Public Disclosure of All Chemicals"}
                   tooltipTitle={"Number of Wells with Public Disclosure of All Chemicals"}
-                  tooltipBody={"How many of the hydraulically fractured wells have full chemical disclosure publicly reported through government databases or platforms such as FracFocus or regulator portals."}
+                  tooltipBody={
+                    "How many of the hydraulically fractured wells have full chemical disclosure publicly reported through government databases or platforms such as FracFocus or regulator portals."
+                  }
                   inputValue={numberOfWellsWithPublicDisclosure.displayValue}
                   unitValue={formData.numberOfWellsWithPublicDisclosureUnit}
                   onInputChange={(num) => {
                     numberOfWellsWithPublicDisclosure.handleChange(String(num));
-                    setErrors(prev => ({ ...prev, numberOfWellsWithPublicDisclosure: "" }));
+                    setErrors((prev) => ({ ...prev, numberOfWellsWithPublicDisclosure: "" }));
                   }}
                   onUnitChange={(unit) => {
                     handleInputChange("numberOfWellsWithPublicDisclosureUnit", unit);
-                    setErrors(prev => ({ ...prev, numberOfWellsWithPublicDisclosureUnit: "" }));
+                    setErrors((prev) => ({ ...prev, numberOfWellsWithPublicDisclosureUnit: "" }));
                   }}
                   error={errors.numberOfWellsWithPublicDisclosure}
                   unitError={errors.numberOfWellsWithPublicDisclosureUnit}
@@ -282,16 +287,18 @@ export default function ChemicalDisclosure({
                 <ReusableInput
                   label={"Volume Recycled/Reused"}
                   tooltipTitle={"Volume Recycled/Reused"}
-                  tooltipBody={"Total volume of hydraulic fracturing fluids or flowback water that was treated and reused instead of disposed. Indicates level of chemical and water stewardship in operations."}
+                  tooltipBody={
+                    "Total volume of hydraulic fracturing fluids or flowback water that was treated and reused instead of disposed. Indicates level of chemical and water stewardship in operations."
+                  }
                   inputValue={volumeRecycledReused.displayValue}
                   unitValue={formData.volumeRecycledReusedUnit}
                   onInputChange={(num) => {
                     volumeRecycledReused.handleChange(String(num));
-                    setErrors(prev => ({ ...prev, volumeRecycledReused: "" }));
+                    setErrors((prev) => ({ ...prev, volumeRecycledReused: "" }));
                   }}
                   onUnitChange={(unit) => {
                     handleInputChange("volumeRecycledReusedUnit", unit);
-                    setErrors(prev => ({ ...prev, volumeRecycledReusedUnit: "" }));
+                    setErrors((prev) => ({ ...prev, volumeRecycledReusedUnit: "" }));
                   }}
                   error={errors.volumeRecycledReused}
                   unitError={errors.volumeRecycledReusedUnit}
@@ -310,9 +317,9 @@ export default function ChemicalDisclosure({
                   </span>
                 )}
               </div>
-              
+
               <p className="text-sm text-gray-600">
-                {operatesFrackedWells === "yes" 
+                {operatesFrackedWells === "yes"
                   ? "Upload supporting documents such as FracFocus disclosure reports, chemical inventory lists, recycling program documentation, and regulatory compliance records for hydraulic fracturing operations."
                   : "Upload supporting documents or statements confirming that no hydraulic fracturing operations were conducted during the reporting period, along with any relevant policy documentation."}
               </p>
@@ -324,7 +331,7 @@ export default function ChemicalDisclosure({
                   uploadService={uploadService}
                 />
               </div>
-              
+
               {errors.filesAndLinks && (
                 <p className="text-sm text-red-600 mt-2">{errors.filesAndLinks}</p>
               )}

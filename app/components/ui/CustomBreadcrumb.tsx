@@ -100,7 +100,7 @@ export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = (
   // Helper function to truncate text
   const truncateText = (text: string, maxLength: number = 12) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+    return text.substring(0, maxLength) + "...";
   };
 
   return (
@@ -108,30 +108,28 @@ export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = (
       <BreadcrumbList>
         {features.map((item, index) => {
           const isLastItem = index === features.length - 1;
-          
+
           return (
             <React.Fragment key={index}>
               <BreadcrumbItem>
                 {item.onClick ? (
                   <span
                     onClick={item.onClick}
-                    className={`cursor-pointer text-gray-500 hover:text-gray-700 ${!isLastItem ? 'max-w-[100px] truncate' : ''}`}
+                    className={`cursor-pointer text-gray-500 hover:text-gray-700 ${!isLastItem ? "max-w-[100px] truncate" : ""}`}
                     title={!isLastItem ? item.label : undefined}
                   >
                     {!isLastItem ? truncateText(item.label) : item.label}
                   </span>
                 ) : item.href ? (
-                  <BreadcrumbLink 
+                  <BreadcrumbLink
                     href={item.href}
-                    className={!isLastItem ? 'max-w-[100px] truncate' : ''}
+                    className={!isLastItem ? "max-w-[100px] truncate" : ""}
                     title={!isLastItem ? item.label : undefined}
                   >
                     {!isLastItem ? truncateText(item.label) : item.label}
                   </BreadcrumbLink>
                 ) : (
-                  <BreadcrumbPage 
-                    title={!isLastItem ? item.label : undefined}
-                  >
+                  <BreadcrumbPage title={!isLastItem ? item.label : undefined}>
                     {item.label}
                   </BreadcrumbPage>
                 )}

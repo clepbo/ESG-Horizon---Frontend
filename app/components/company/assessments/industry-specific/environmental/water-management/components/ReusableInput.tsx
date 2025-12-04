@@ -1,9 +1,9 @@
-import { Input } from '@/app/components/ui/input';
-import { Label } from '@/app/components/ui/label';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/app/components/ui/tooltip';
-import { Info } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
-import { UnitSelect } from '../../../../UnitSelect';
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { UnitSelect } from "../../../../UnitSelect";
 
 interface ReusableInputProps {
   label: string;
@@ -35,31 +35,31 @@ export default function ReusableInput({
   unitValue,
   onInputChange,
   onUnitChange,
-  placeholder = 'Enter volume',
+  placeholder = "Enter volume",
   error,
   unitError,
   required = false,
   disabled = false,
-  className = '',
+  className = "",
   formatNumbers = false,
 }: ReusableInputProps) {
-  const [displayValue, setDisplayValue] = useState<string>(inputValue ?? '');
+  const [displayValue, setDisplayValue] = useState<string>(inputValue ?? "");
 
   // Format number with commas for display (only on blur)
   const formatNumber = (raw: string) => {
-    if (!raw) return '';
+    if (!raw) return "";
     // remove all non numeric except dot
-    const clean = raw.replace(/[^\d.]/g, '');
-    if (clean === '') return '';
+    const clean = raw.replace(/[^\d.]/g, "");
+    if (clean === "") return "";
     // parseFloat -> if NaN, return raw
     const n = parseFloat(clean);
     if (Number.isNaN(n)) return raw;
-    return n.toLocaleString('en-US');
+    return n.toLocaleString("en-US");
   };
 
   useEffect(() => {
     // keep local state in sync with parent controlled value
-    setDisplayValue(inputValue ?? '');
+    setDisplayValue(inputValue ?? "");
   }, [inputValue]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,19 +77,19 @@ export default function ReusableInput({
   };
 
   const handleBlur = () => {
-    if (formatNumbers && displayValue.trim() !== '') {
+    if (formatNumbers && displayValue.trim() !== "") {
       const formatted = formatNumber(displayValue);
       setDisplayValue(formatted);
     }
     // Optionally, normalize value sent to parent on blur as plain digits (no commas)
-    const normalized = displayValue.replace(/,/g, '');
+    const normalized = displayValue.replace(/,/g, "");
     onInputChange(normalized);
   };
 
   const handleFocus = () => {
     // when focused, show raw digits without commas so user can edit
-    if (formatNumbers && displayValue.includes(',')) {
-      setDisplayValue(displayValue.replace(/,/g, ''));
+    if (formatNumbers && displayValue.includes(",")) {
+      setDisplayValue(displayValue.replace(/,/g, ""));
     }
   };
 
@@ -127,7 +127,7 @@ export default function ReusableInput({
 
       <div
         className={`grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border ${
-          error || unitError ? 'border-red-300' : 'border-gray-200'
+          error || unitError ? "border-red-300" : "border-gray-200"
         } transition-colors`}
       >
         {/* Volume Input */}
@@ -145,7 +145,7 @@ export default function ReusableInput({
             onBlur={handleBlur}
             onFocus={handleFocus}
             placeholder={placeholder}
-            className={`${error ? 'border-red-300 focus:border-red-500' : 'border-gray-300'}`}
+            className={`${error ? "border-red-300 focus:border-red-500" : "border-gray-300"}`}
             disabled={disabled}
             // no maxLength here so users can type as many digits as they want
           />
