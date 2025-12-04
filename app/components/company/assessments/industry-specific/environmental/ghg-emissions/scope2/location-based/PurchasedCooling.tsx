@@ -10,7 +10,7 @@ import { Checkbox } from "@/app/components/ui/checkbox";
 import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import {
   AdditionalFileUpload,
   FileData,
@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface PurchasedCoolingFormProps {
   onBack: () => void;
   onNext: () => void;
@@ -55,7 +55,6 @@ export function PurchasedCoolingForm({
 }: PurchasedCoolingFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  // const [coolingConsumed, setCoolingConsumed] = useState("");
   const coolingConsumed = useFormattedNumber("");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
@@ -96,14 +95,8 @@ export function PurchasedCoolingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [
-    state.assessmentData,
-    coolingConsumed,
-    selectedSystems,
-    otherComments,
-    files,
-    additionalFields,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -173,7 +166,6 @@ export function PurchasedCoolingForm({
       selectedSystems?: string;
       files?: string;
     } = {};
-    // const hasValidCooling = coolingConsumed.trim() !== "" && Number(coolingConsumed) > 0;
     const hasValidCooling =
       coolingConsumed.rawValue.trim() !== "" && Number(coolingConsumed.rawValue) > 0;
     if (!hasValidCooling) {
@@ -345,7 +337,7 @@ export function PurchasedCoolingForm({
               {/* {errors.coolingConsumed && (
                 <p className="text-sm text-red-500 mt-1">{errors.coolingConsumed}</p>
               )} */}
-              <Scope2EmissionInput
+              <ScopeInput
                 category="cooling"
                 formattedValue={coolingConsumed}
                 label="Amount of Cooling Energy Consumed (kWh)"
@@ -435,7 +427,7 @@ export function PurchasedCoolingForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button

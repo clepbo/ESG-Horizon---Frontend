@@ -207,6 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         "/verify-email",
         "/reset-password",
         "/callback",
+        "/invite-user",
       ].some((p) => pathname.startsWith(p));
 
       if (!user) {

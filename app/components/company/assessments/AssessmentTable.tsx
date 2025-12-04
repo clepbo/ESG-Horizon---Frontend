@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
@@ -24,18 +24,21 @@ import {
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
-import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
+import { useState } from "react";
+import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
+import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 
 export type AssessmentStatus =
   | "in_progress"
   | "awaiting_review"
   | "submitted_approved"
   | "approved"
-  | "unapproved_rejected";
+  | "unapproved_rejected"
+  | "declined";
 
 export interface Assessment {
   id: number;
@@ -53,7 +56,7 @@ interface AssessmentTableProps {
 
 const columnHelper = createColumnHelper<Assessment>();
 
-function RejectionReasonModal({
+function DeclineReasonModal({
   open,
   onClose,
   reason,
@@ -66,7 +69,7 @@ function RejectionReasonModal({
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Rejection Reason</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">Reason for Decline</h2>
         <p className="text-gray-600">{reason || "No reason provided."}</p>
         <div className="mt-4 flex justify-end">
           <Button onClick={onClose} variant="outline">
@@ -78,15 +81,27 @@ function RejectionReasonModal({
   );
 }
 
+interface ActionDropdownProps {
+  status: AssessmentStatus;
+  getActionIcon: (label: string) => ReactNode;
+  onView: () => void;
+  onContinue: () => void;
+  onReview?: () => void;
+  onGenerateReport?: () => void;
+  onDelete?: () => void;
+  deletePending?: boolean;
+}
+
 function ActionDropdown({
   status,
   getActionIcon,
-  actionLabel,
-  onActionClick,
+  onView,
+  onContinue,
+  onReview,
   onGenerateReport,
   onDelete,
   deletePending,
-}: any) {
+}: ActionDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -107,10 +122,26 @@ function ActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        <DropdownMenuItem onClick={onActionClick}>
-          {getActionIcon(actionLabel)}
-          {actionLabel}
+        {/* Show View unless it's awaiting_review — Review doubles as the view in that case */}
+        {status !== "awaiting_review" && (
+          <DropdownMenuItem onClick={onView}>
+            {getActionIcon("View")}
+            View
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuItem onClick={onContinue}>
+          {getActionIcon("Continue")}
+          Continue
         </DropdownMenuItem>
+
+        {/* Show Review when awaiting_review */}
+        {status === "awaiting_review" && (
+          <DropdownMenuItem onClick={onReview}>
+            {getActionIcon("Review")}
+            Review
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuItem onClick={onGenerateReport}>
           <FileText className="mr-2 h-4 w-4" />
@@ -133,22 +164,22 @@ function ActionDropdown({
   );
 }
 
-export function AssessmentTable({ data }: AssessmentTableProps) {
+export default function AssessmentTable({ data }: AssessmentTableProps) {
   const router = useRouter();
-  const [showReportSuccess, setShowReportSuccess] = useState(false);
+  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [modalData, setModalData] = useState({
     open: false,
     assessmentId: null as number | null,
   });
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
-
-  const deleteMutation = useDeleteAssessment();
+  const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [dateRange, setDateRange] = useState<
     { startMonth: string; endMonth: string } | undefined
   >();
+
+  const deleteMutation = useDeleteAssessment();
 
   const filteredData = dateRange
     ? data.filter((a) => {
@@ -207,10 +238,24 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
     if (assessment) {
       setSelectedAssessment(assessment);
     }
-    console.log(`Generating report for assessment ID: ${id}`);
     setTimeout(() => {
       setShowReportSuccess(true);
     }, 500);
+  };
+
+  const handleContinue = (assessment: Assessment) => {
+    if (!assessment?.id) return;
+
+    if (assessment.status === "in_progress") {
+      router.push(`/assessments/${assessment.id}`);
+      return;
+    }
+
+    router.push(`/assessments/${assessment.id}?forceDisclosure=1`);
+  };
+
+  const handleView = (assessment: Assessment) => {
+    setSelectedAssessment(assessment);
   };
 
   const columns = [
@@ -233,7 +278,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
             <svg
               width="40"
               height="40"
-              className="rotate-[-90deg]"
+              className="-rotate-90deg"
               style={{ position: "absolute", top: 0, left: 0 }}
             >
               <circle
@@ -273,50 +318,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       },
     }),
 
-    // columnHelper.accessor("status", {
-    //   header: "Status",
-    //   cell: (info) => {
-    //     const assessment = info.row.original;
-    //     const status = info.getValue();
-
-    //     const getStatusDisplay = (status: AssessmentStatus) => {
-    //       switch (status) {
-    //         case "in_progress":
-    //           return { label: "In Progress", variant: "yellow" as const };
-    //         case "awaiting_review":
-    //           return { label: "Awaiting Review", variant: "primaryBlue" as const };
-    //         case "submitted_approved":
-    //           return { label: "Submitted-Approved", variant: "successGreen" as const };
-    //         case "approved":
-    //           return { label: "Approved", variant: "successGreen" as const };
-    //         case "unapproved_rejected":
-    //           return { label: "Unapproved/Rejected", variant: "destructive" as const };
-    //         default:
-    //           return { label: status, variant: "outline" as const };
-    //       }
-    //     };
-
-    //     const { label, variant } = getStatusDisplay(status);
-
-    //     return (
-    //       <div className="flex items-center gap-2">
-    //         <Badge variant={variant} className="capitalize">
-    //           {label}
-    //         </Badge>
-
-    //         {status === "unapproved_rejected" && assessment.rejection_reason && (
-    //           <button
-    //             onClick={() => handleOpenReason(assessment.rejection_reason)}
-    //             className="text-gray-500 hover:text-gray-700 cursor-pointer"
-    //           >
-    //             <CircleHelp className="h-5 w-5" />
-    //           </button>
-    //         )}
-    //       </div>
-    //     );
-    //   },
-    // }),
-
     columnHelper.accessor("status", {
       header: "Status",
       cell: (info) => {
@@ -329,6 +330,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
           submitted_approved: "successGreen",
           approved: "successGreen",
           unapproved_rejected: "destructive",
+          declined: "destructive",
         };
 
         const label = formatStatus(status);
@@ -358,63 +360,24 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       header: "Quick Actions",
       cell: ({ row }) => {
         const assessment = row.original;
-        const status = assessment.status;
-
-        const handleActionClick = () => {
-          if (status === "in_progress" || status === "unapproved_rejected") {
-            router.push(`/assessments/${assessment.id}`);
-          } else {
-            handleOpenDetails(assessment);
-          }
-        };
-
-        const getActionLabel = () => {
-          switch (status) {
-            case "in_progress":
-              return "Continue";
-            case "awaiting_review":
-              return "Review";
-            case "unapproved_rejected":
-              return "Update";
-            case "submitted_approved":
-            case "approved":
-              return "View";
-            default:
-              return "View";
-          }
-        };
-
-        const actionLabel = getActionLabel();
-
         return (
-          <ActionDropdown
-            assessment={assessment}
-            status={status}
-            getActionIcon={getActionIcon}
-            actionLabel={actionLabel}
-            onActionClick={handleActionClick}
-            onGenerateReport={() => handleGenerateReport(assessment.id)}
-            onDelete={() => handleOpenModal(assessment.id)}
-            deletePending={deleteMutation.isPending}
-          />
+          <div className="flex items-center gap-2">
+            {/* Put actions back into the dropdown (always show View & Continue) */}
+            <ActionDropdown
+              status={assessment.status}
+              getActionIcon={getActionIcon}
+              onView={() => handleOpenDetails(assessment)}
+              onContinue={() => handleContinue(assessment)}
+              onReview={() => handleOpenDetails(assessment)}
+              onGenerateReport={() => handleGenerateReport(assessment.id)}
+              onDelete={() => handleOpenModal(assessment.id)}
+              deletePending={deleteMutation.isPending}
+            />
+          </div>
         );
       },
     }),
   ];
-
-  // const filterOptions: FilterOption[] = [
-  //   {
-  //     label: "Status",
-  //     columnId: "status",
-  //     options: [
-  //       "in_progress",
-  //       "awaiting_review",
-  //       "submitted_approved",
-  //       "approved",
-  //       "unapproved_rejected",
-  //     ],
-  //   },
-  // ];
 
   const filterOptions: FilterOption[] = [
     {
@@ -434,7 +397,7 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
   ];
 
   return (
-    <section className="shadow-md">
+    <div>
       <DataTable
         data={validData}
         columns={columns}
@@ -453,15 +416,12 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
       />
 
       <AssessmentDetailsModal
-        open={detailsOpen}
-        onClose={() => {
-          setDetailsOpen(false);
-          setSelectedAssessment(null);
-        }}
+        open={!!selectedAssessment}
+        onClose={() => setSelectedAssessment(null)}
         assessment={selectedAssessment}
       />
 
-      <RejectionReasonModal
+      <DeclineReasonModal
         open={reasonOpen}
         onClose={() => setReasonOpen(false)}
         reason={selectedReason}
@@ -485,6 +445,6 @@ export function AssessmentTable({ data }: AssessmentTableProps) {
           nextAssessment={null}
         />
       )}
-    </section>
+    </div>
   );
 }

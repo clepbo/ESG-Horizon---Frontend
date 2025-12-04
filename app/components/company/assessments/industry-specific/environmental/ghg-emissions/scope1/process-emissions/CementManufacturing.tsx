@@ -16,9 +16,9 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { useRouter } from "next/navigation";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -61,8 +61,9 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
-  const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "ghg-process-emissions-cement-manufacturing"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -158,26 +159,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          processEmissions: {
-            ...state.assessmentData.processEmissions,
-            cementManufacturing: payload,
-          },
-          lastSavedForm: "ghg-process-emissions-cement-manufacturing",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
-
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
+      await saveNow("environment.ghg.processEmissions.cementManufacturing", payload);
+      if (!assessmentId) toast.success("Saved!");
     } catch (error) {
       console.error("Save failed:", error);
       toast.error("Failed to save");
@@ -249,7 +232,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -281,10 +264,10 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
               </Label>
               <div className="space-y-6 ml-6">
                 <div className="space-y-4">
-                  <Label htmlFor="cement-quantity" className="text-sm font-medium text-gray-700">
+                  {/* <Label htmlFor="cement-quantity" className="text-sm font-medium text-gray-700">
                     Quantity of Cement Produced (Tonnes)
-                  </Label>
-                  <Input
+                  </Label> */}
+                  {/* <Input
                     id="cement-quantity"
                     type="text"
                     placeholder="Enter quantity of cement produced"
@@ -294,6 +277,23 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
                       errors.cementQuantity ? "border-red-500 focus:border-red-500" : ""
                     }`}
                     aria-describedby={errors.cementQuantity ? "cement-quantity-error" : undefined}
+                  /> */}
+                  <ScopeInput
+                    category="cement"
+                    formattedValue={{
+                      rawValue: cementQuantity,
+                      displayValue: cementQuantityDisplay,
+                      handleChange: handleCementChange,
+                      setRawValue: setCementRaw,
+                    }}
+                    label="Quantity of Cement Produced (Tonnes)"
+                    placeholder="Enter quantity of cement produced"
+                    required
+                    error={errors.cementQuantity}
+                    showEmissionFactor={true}
+                    onErrorClear={() =>
+                      setErrors((prev) => ({ ...prev, cementQuantity: undefined }))
+                    }
                   />
                   {errors.cementQuantity && (
                     <p id="cement-quantity-error" className="text-sm text-red-500">
@@ -346,7 +346,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -379,7 +379,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
@@ -388,11 +388,11 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
-                className="justify-self-center bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)] transition-colors"
+                disabled={isActionLoading}
+                className="justify-self-center bg-primary text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -410,8 +410,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
-                className="justify-self-end border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isActionLoading}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next <ArrowRight className="h-4 w-4" />

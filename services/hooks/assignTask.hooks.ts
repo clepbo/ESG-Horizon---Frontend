@@ -36,9 +36,44 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
   }));
 }
 
+function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
+  return tasksFromApi.map((item) => {
+    const task = item.task || item;
+    
+    const allTopics = item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
+
+    const creatorName = task.createdBy
+      ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
+      : "Unknown";
+
+    const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
+
+    return {
+      id: task.id,
+      taskName: task.taskName,
+      dueDate: task.dueDate ?? "Unknown",
+      status: task.status,
+      assignedTo: creatorName,
+      dateAssigned: task.createdAt ?? "Unknown",
+      description: task.description ?? "",
+      priority: task.priority ?? "medium",
+      progress: task.progress ?? 0,
+      departments: task.departments ?? [],
+      teamMembers:
+        task.assignments?.map((a: any) =>
+          `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+        ) ?? [],
+      topics: allTopics,
+      comments: task.comments ?? [],
+      assignedUserIds,
+    };
+  });
+}
+
 const invalidateTasks = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ["allTasks"] });
   queryClient.invalidateQueries({ queryKey: ["companyTasks"] });
+  queryClient.invalidateQueries({ queryKey: ["myTasks"] });
 };
 
 export const useAllTasks = () =>
@@ -134,4 +169,20 @@ export const useTaskComments = (taskId: number) =>
     queryKey: ["taskComments", taskId],
     queryFn: () => taskAssignmentService.getComments(taskId),
     enabled: !!taskId,
+  });
+// export const useMyTasks = () =>
+//   useQuery<FrontendTask[], Error>({
+//     queryKey: ["myTasks"],
+//     queryFn: async () => {
+//       const data = await taskAssignmentService.getMyTasks();
+//       return mapTaskResponseToFrontend(data);
+//     },
+//   });
+export const useMyTasks = () =>
+  useQuery<FrontendTask[], Error>({
+    queryKey: ["myTasks"],
+    queryFn: async () => {
+      const data = await taskAssignmentService.getMyTasks();
+      return mapMyTasksResponseToFrontend(data);
+    },
   });

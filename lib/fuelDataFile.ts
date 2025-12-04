@@ -183,74 +183,74 @@ export const allFuels: FuelOption[] = [
   },
 
   // Scope 1: Process Emission
-  {
-    value: "ammonia",
-    label: "Ammonia",
-    emissionFactor: 1.6,
-    source: "GHG Protocol, Varies by production method",
-  },
-  {
-    value: "urea",
-    label: "Urea",
-    emissionFactor: 0.8,
-    source: "GHG Protocol, Varies by production method",
-  },
-  {
-    value: "nitric-acid",
-    label: "Nitric Acid",
-    emissionFactor: 2.3,
-    source: "GHG Protocol, Varies by production method",
-  },
-  {
-    value: "methane-process",
-    label: "Methane (from livestock)",
-    emissionFactor: 28,
-    source: "IPCC AR5, Varies by animal type",
-  },
-  {
-    value: "nitrous-oxide",
-    label: "Nitrous Oxide (from manure)",
-    emissionFactor: 265,
-    source: "IPCC AR5",
-  },
+  // {
+  //   value: "ammonia",
+  //   label: "Ammonia",
+  //   emissionFactor: 1.6,
+  //   source: "GHG Protocol, Varies by production method",
+  // },
+  // {
+  //   value: "urea",
+  //   label: "Urea",
+  //   emissionFactor: 0.8,
+  //   source: "GHG Protocol, Varies by production method",
+  // },
+  // {
+  //   value: "nitric-acid",
+  //   label: "Nitric Acid",
+  //   emissionFactor: 2.3,
+  //   source: "GHG Protocol, Varies by production method",
+  // },
+  // {
+  //   value: "methane-process",
+  //   label: "Methane (from livestock)",
+  //   emissionFactor: 28,
+  //   source: "IPCC AR5, Varies by animal type",
+  // },
+  // {
+  //   value: "nitrous-oxide",
+  //   label: "Nitrous Oxide (from manure)",
+  //   emissionFactor: 265,
+  //   source: "IPCC AR5",
+  // },
 
   // Scope 1: Fugitive Emission
-  {
-    value: "fugitive-methane",
-    label: "Methane (CH₄) Fugitive",
-    emissionFactor: 28,
-    source: "IPCC AR5, Varies by source",
-  },
-  {
-    value: "fugitive-co2",
-    label: "Carbon Dioxide (CO₂) Fugitive",
-    emissionFactor: 1,
-    source: "IPCC AR5",
-  },
-  {
-    value: "ethane",
-    label: "Ethane (C₂H₆)",
-    emissionFactor: 28,
-    source: "IPCC AR5",
-  },
-  {
-    value: "propane",
-    label: "Propane (C₃H₈)",
-    emissionFactor: 28,
-    source: "IPCC AR5",
-  },
-  {
-    value: "butanes",
-    label: "Butanes (C₄H₁₀)",
-    emissionFactor: 28,
-    source: "IPCC AR5",
-  },
-  {
-    value: "h2s",
-    label: "Hydrogen Sulfide (H₂S)",
-    emissionFactor: 1,
-    source: "GHG Protocol",
-  },
+  // {
+  //   value: "fugitive-methane",
+  //   label: "Methane (CH₄) Fugitive",
+  //   emissionFactor: 28,
+  //   source: "IPCC AR5, Varies by source",
+  // },
+  // {
+  //   value: "fugitive-co2",
+  //   label: "Carbon Dioxide (CO₂) Fugitive",
+  //   emissionFactor: 1,
+  //   source: "IPCC AR5",
+  // },
+  // {
+  //   value: "ethane",
+  //   label: "Ethane (C₂H₆)",
+  //   emissionFactor: 28,
+  //   source: "IPCC AR5",
+  // },
+  // {
+  //   value: "propane",
+  //   label: "Propane (C₃H₈)",
+  //   emissionFactor: 28,
+  //   source: "IPCC AR5",
+  // },
+  // {
+  //   value: "butanes",
+  //   label: "Butanes (C₄H₁₀)",
+  //   emissionFactor: 28,
+  //   source: "IPCC AR5",
+  // },
+  // {
+  //   value: "h2s",
+  //   label: "Hydrogen Sulfide (H₂S)",
+  //   emissionFactor: 1,
+  //   source: "GHG Protocol",
+  // },
 
   // Scope 3: Downstream Emissions
   {

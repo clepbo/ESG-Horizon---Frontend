@@ -211,14 +211,14 @@ const ReportSummary = (props: ReportSummaryProps) => {
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-2 lg:justify-end no-export" id="hide1">
-                <Button className="bg-primary transform hover:scale-[1.02] text-white px-2 rounded-lg">
+                <Button className="bg-primary transform hover:scale-[1.02] text-white px-2 rounded">
                   <Link href={`/reports-and-analytics/${reportData?.report?.assessmentId}/report`}>
                     View Full Report
                   </Link>
                 </Button>
 
                 <Select value={selected} onValueChange={exportfile}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] rounded p-4">
                     <SelectValue placeholder="Export file" />
                   </SelectTrigger>
                   <SelectContent>

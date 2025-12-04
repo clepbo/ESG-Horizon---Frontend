@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -19,7 +19,8 @@ import {
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
@@ -84,8 +85,6 @@ export function CoolingSteamForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  const isPending = isLoading;
-
   useEffect(() => {
     const existingData = state.assessmentData.coolingSteam;
     if (existingData) {
@@ -106,7 +105,15 @@ export function CoolingSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, energyConsumedRaw, emissionFactorRaw, files, additionalFields]);
+  }, [
+    state.assessmentData,
+    energyConsumedRaw,
+    emissionFactorRaw,
+    files,
+    additionalFields,
+    setEnergyConsumedRaw,
+    setEmissionFactorRaw,
+  ]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -182,13 +189,6 @@ export function CoolingSteamForm({
       if (input) input.value = "";
     });
   };
-
-  const buildPayload = () => ({
-    energyConsumed: energyConsumedRaw,
-    emissionFactor: emissionFactorRaw,
-    files,
-    additionalFields: additionalFields as FileMetadata[],
-  });
 
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
@@ -354,7 +354,7 @@ export function CoolingSteamForm({
                 4.1 Purchased Cooling / Steam
               </Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="cooling"
                   formattedValue={{
                     rawValue: energyConsumedRaw,
@@ -439,7 +439,7 @@ export function CoolingSteamForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -481,11 +481,11 @@ export function CoolingSteamForm({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -505,10 +505,10 @@ export function CoolingSteamForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>

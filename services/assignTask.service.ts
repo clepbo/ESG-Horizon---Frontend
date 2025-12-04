@@ -48,6 +48,7 @@ export interface FrontendTask {
   topics?: string[];
   progress?: number;
   sendEmail?: boolean;
+  assignedUserIds?: number[]; // IDs of users assigned to this task
 }
 
 export interface AssignTaskPayload {
@@ -126,5 +127,9 @@ export const taskAssignmentService = {
     if (!id) return [];
     const data = await api.get(`/tasks/${id}/comments`);
     return data ?? [];
+  },
+  getMyTasks: async (): Promise<ITask[]> => {
+    const response = await api.get("/tasks/my-tasks");
+    return response ?? [];
   },
 };

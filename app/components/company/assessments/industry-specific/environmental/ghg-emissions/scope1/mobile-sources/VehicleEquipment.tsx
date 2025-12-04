@@ -19,7 +19,7 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
 interface VehicleEquipmentProps {
@@ -56,7 +56,9 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
   }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "ghg-mobile-sources-vehicle-equipment"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -243,8 +245,6 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
   };
 
   const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -273,22 +273,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          mobileSources: {
-            ...state.assessmentData.mobileSources,
-            vehicleEquipment: payload,
-          },
-          lastSavedForm: "ghg-mobile-sources-vehicle-equipment",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
+      await saveNow("environment.ghg.scope1.mobileSources.vehicleEquipment", payload);
 
       setTimeout(() => {
         router.push("/assessments/new-assessment");
@@ -549,11 +534,11 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -573,7 +558,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >

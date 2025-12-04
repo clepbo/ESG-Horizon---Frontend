@@ -1,12 +1,12 @@
 import CustomTooltip from "@/app/(company)/ranking/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/ranking/create/components/TooltipMessage";
 import { Input } from "@/app/components/ui/input";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface Props {
   title: string;
-  tipTitle: string;
-  tipMessage: string;
+  tipTitle?: string;
+  tipMessage?: string;
   count: number;
   countPlaceholder: string;
   setCount: (value: number) => void;
@@ -16,6 +16,8 @@ interface Props {
   disabled?: boolean;
   required?: boolean;
   error?: string;
+  showError?: boolean;
+  onValidationError?: (hasError: boolean) => void;
 }
 
 export default function OperationsDelayReusableInput({
@@ -31,18 +33,71 @@ export default function OperationsDelayReusableInput({
   disabled = false,
   required = false,
   error,
+  showError = false,
 }: Props) {
-  const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow empty or numeric values only
-    if (value === "" || /^\d*\.?\d*$/.test(value)) {
-      const numValue = value === "" ? 0 : parseFloat(value);
-      setCount(numValue);
+  const [isTouched, setIsTouched] = useState(false);
+  const [displayValue, setDisplayValue] = useState<string>("");
+  const [shouldDisplayError, setShouldDisplayError] = useState(false);
+
+  // ✅ CRITICAL FIX: useEffect to monitor showError and error changes
+  useEffect(() => {
+    if (showError) {
+      // When parent forces show, display error if it exists
+      setShouldDisplayError(!!error);
+    } else {
+      // Otherwise, only show if field was touched
+      setShouldDisplayError(isTouched && !!error);
     }
+  }, [showError, error, isTouched]);
+
+  // Format number with thousands separators
+  const formatNumber = (num: number): string => {
+    if (num === 0) return "";
+    return num.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+    });
+  };
+
+  // Parse formatted string back to number
+  const parseFormattedNumber = (formatted: string): number => {
+    const clean = formatted.replace(/[^\d.]/g, "");
+    return clean === "" ? 0 : parseFloat(clean);
+  };
+
+  // Initialize display value
+  useEffect(() => {
+    setDisplayValue(formatNumber(count));
+  }, [count]);
+
+  const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsTouched(true);
+    const value = e.target.value;
+
+    // Allow only numbers, commas, and decimal point
+    const isValidInput = /^[\d,.]*$/.test(value);
+    if (!isValidInput) return;
+
+    // Parse the raw number (remove commas)
+    const rawNumber = parseFormattedNumber(value);
+
+    // Update parent with raw number
+    setCount(rawNumber);
   };
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUnit?.(e.target.value);
+  };
+
+  const handleBlur = () => {
+    setIsTouched(true);
+    setDisplayValue(formatNumber(count));
+  };
+
+  const handleFocus = () => {
+    setIsTouched(true);
+    if (count !== 0) {
+      setDisplayValue(count.toString());
+    }
   };
 
   return (
@@ -57,35 +112,32 @@ export default function OperationsDelayReusableInput({
         )}
       </div>
 
-      <div className="grid grid-cols-3 bg-gray-100 rounded-md p-3 gap-3 border border-gray-200 focus-within:border-blue-500 focus-within:bg-blue-50 transition-colors">
-        {/* <label> Count </label> */}
-        <div className="flex flex-col w-full col-span-2">
-          <label className="text-gray-500"> Count </label>
-          <Input
-            className="col-span-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            type="number"
-            value={count === 0 ? "" : count}
-            onChange={handleCountChange}
-            placeholder={countPlaceholder}
-            disabled={disabled}
-            min="0"
-            step="0.1"
-          />
-        </div>
-        {/* <label> Unit </label> */}
-        <div className="flex flex-col w-full col-span-1">
-          <label className="text-gray-500"> Unit </label>
-          <Input
-            className="col-span-1"
-            value={unit || ""}
-            placeholder={unitPlaceholder}
-            onChange={handleUnitChange}
-            disabled={disabled}
-          />
-        </div>
+      <div
+        className={`grid grid-cols-3 bg-gray-100 rounded-md p-3 gap-3 border ${shouldDisplayError ? "border-red-300" : "border-gray-200"} focus-within:border-blue-500 focus-within:bg-blue-50 transition-colors`}
+      >
+        <Input
+          className="col-span-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          type="text"
+          value={displayValue}
+          onChange={handleCountChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={countPlaceholder}
+          disabled={disabled}
+          inputMode="decimal"
+        />
+        <Input
+          className="col-span-1"
+          value={unit || ""}
+          placeholder={unitPlaceholder}
+          onChange={handleUnitChange}
+          onFocus={() => setIsTouched(true)}
+          disabled={disabled || !setUnit}
+        />
       </div>
 
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      {/* ✅ Show error based on state */}
+      {shouldDisplayError && error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 }

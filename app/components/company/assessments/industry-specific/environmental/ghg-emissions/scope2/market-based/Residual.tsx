@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -19,7 +19,7 @@ import {
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface ResidualFormProps {
   onBack: () => void;
@@ -94,7 +94,15 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, electricityConsumedRaw, residualMixFactorRaw, files, additionalFields]);
+  }, [
+    state.assessmentData,
+    electricityConsumedRaw,
+    residualMixFactorRaw,
+    files,
+    additionalFields,
+    setElectricityConsumedRaw,
+    setResidualMixFactorRaw,
+  ]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -317,7 +325,7 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
                     errors.electricityConsumed ? "border-red-500" : ""
                   }`}
                 /> */}
-                <Scope2EmissionInput
+                <ScopeInput
                   category="residual"
                   formattedValue={{
                     rawValue: electricityConsumedRaw,
@@ -411,7 +419,7 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button

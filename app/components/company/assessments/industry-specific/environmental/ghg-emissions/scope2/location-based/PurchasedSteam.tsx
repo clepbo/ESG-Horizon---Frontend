@@ -10,7 +10,7 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -21,7 +21,7 @@ import {
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface PurchasedSteamFormProps {
   onBack: () => void;
@@ -109,6 +109,7 @@ export function PurchasedSteamForm({
     otherComments,
     files,
     additionalFields,
+    setSteamConsumedRaw,
   ]);
 
   // const { total, filled } = calculateProgress([
@@ -368,7 +369,7 @@ export function PurchasedSteamForm({
             <div>
               <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="steam"
                   formattedValue={{
                     rawValue: steamConsumedRaw,
@@ -461,7 +462,7 @@ export function PurchasedSteamForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
