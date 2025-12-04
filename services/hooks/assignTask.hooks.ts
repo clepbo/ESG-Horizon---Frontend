@@ -37,24 +37,36 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
 }
 
 function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
-  return tasksFromApi.map((item) => {
-    const task = item.task;
-    const topics = item.topics || [];
-
+  return tasksFromApi.map((task) => {
+    // Extract topics from all assignments for this task
+    const allTopics = task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
+    
+    // Get creator name from createdBy field
+    const creatorName = task.createdBy
+      ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
+      : "Unknown";
+    
+    // Extract user IDs from assignments
+    const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
+    
     return {
       id: task.id,
       taskName: task.taskName,
       dueDate: task.dueDate ?? "Unknown",
       status: task.status,
-      assignedTo: task.assignedTo || "—",
+      assignedTo: creatorName, // Using this field to store creator name for display
       dateAssigned: task.createdAt ?? "Unknown",
       description: task.description ?? "",
       priority: task.priority ?? "medium",
       progress: task.progress ?? 0,
       departments: task.departments ?? [],
-      teamMembers: task.teamMembers ?? [],
-      topics: topics, // Direct topics array from API response
+      teamMembers:
+        task.assignments?.map((a: any) =>
+          `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+        ) ?? [],
+      topics: allTopics,
       comments: task.comments ?? [],
+      assignedUserIds, // Store user IDs for filtering
     };
   });
 }
