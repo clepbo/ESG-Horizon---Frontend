@@ -113,7 +113,7 @@ export default function NotificationDropdown({ tasks }: NotificationDropdownProp
               currentTasks.map((task) => {
                 // Get topic count from the raw task data
                 const topicCount = task.topics?.length || 0;
-                
+
                 return (
                   <div
                     key={task.id}
@@ -129,9 +129,7 @@ export default function NotificationDropdown({ tasks }: NotificationDropdownProp
                           <p className="text-xs text-gray-600">
                             Due: {new Date(task.dueDate).toLocaleDateString()}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            Created by: {task.assignedTo}
-                          </p>
+                          <p className="text-xs text-gray-500">Created by: {task.assignedTo}</p>
                           {topicCount > 0 && (
                             <p className="text-xs text-gray-500">
                               {topicCount} topic{topicCount !== 1 ? "s" : ""}

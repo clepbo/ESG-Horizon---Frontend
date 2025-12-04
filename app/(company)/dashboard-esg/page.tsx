@@ -23,7 +23,7 @@ export default function DashboardPage() {
 
   const { user } = useAuth();
   const { data, isLoading, isError } = useCompanyDashboard();
-  
+
   const dashboard: CompanyDashboardData | undefined = useMemo(() => {
     if (!data) return undefined;
 

@@ -44,7 +44,7 @@ export default function TaskAssignmentDialog({
           <div className="space-y-2">
             {tasks.map((task) => {
               const topicCount = task.topics?.length || 0;
-              
+
               return (
                 <div
                   key={task.id}
@@ -61,9 +61,7 @@ export default function TaskAssignmentDialog({
                           <Clock className="w-4 h-4" />
                           <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          Created by: {task.assignedTo}
-                        </div>
+                        <div className="text-sm text-gray-600">Created by: {task.assignedTo}</div>
                         {topicCount > 0 && (
                           <div className="text-sm text-gray-500">
                             {topicCount} topic{topicCount !== 1 ? "s" : ""}
