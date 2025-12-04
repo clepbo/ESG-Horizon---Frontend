@@ -92,35 +92,53 @@ export interface BreadcrumbItemType {
   href?: string;
   onClick?: () => void;
 }
-
 export interface CustomBreadcrumbDynamicProps {
   features: BreadcrumbItemType[];
 }
 
 export const CustomBreadcrumbDynamic: React.FC<CustomBreadcrumbDynamicProps> = ({ features }) => {
+  // Helper function to truncate text
+  const truncateText = (text: string, maxLength: number = 12) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
+
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {features.map((item, index) => (
-          <React.Fragment key={index}>
-            <BreadcrumbItem>
-              {item.onClick ? (
-                <span
-                  onClick={item.onClick}
-                  className="cursor-pointer text-gray-500 hover:text-gray-700"
-                >
-                  {item.label}
-                </span>
-              ) : item.href ? (
-                <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
-              ) : (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
-              )}
-            </BreadcrumbItem>
+        {features.map((item, index) => {
+          const isLastItem = index === features.length - 1;
 
-            {index < features.length - 1 && <BreadcrumbSeparator />}
-          </React.Fragment>
-        ))}
+          return (
+            <React.Fragment key={index}>
+              <BreadcrumbItem>
+                {item.onClick ? (
+                  <span
+                    onClick={item.onClick}
+                    className={`cursor-pointer text-gray-500 hover:text-gray-700 ${!isLastItem ? "max-w-[100px] truncate" : ""}`}
+                    title={!isLastItem ? item.label : undefined}
+                  >
+                    {!isLastItem ? truncateText(item.label) : item.label}
+                  </span>
+                ) : item.href ? (
+                  <BreadcrumbLink
+                    href={item.href}
+                    className={!isLastItem ? "max-w-[100px] truncate" : ""}
+                    title={!isLastItem ? item.label : undefined}
+                  >
+                    {!isLastItem ? truncateText(item.label) : item.label}
+                  </BreadcrumbLink>
+                ) : (
+                  <BreadcrumbPage title={!isLastItem ? item.label : undefined}>
+                    {item.label}
+                  </BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+
+              {index < features.length - 1 && <BreadcrumbSeparator />}
+            </React.Fragment>
+          );
+        })}
       </BreadcrumbList>
     </Breadcrumb>
   );
