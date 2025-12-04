@@ -23,6 +23,7 @@ import AirQiality from "./industry-specific/environmental/air-quality/components
 import { useDebounce } from "use-debounce";
 import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
+import { BioDiversityImpact } from "./industry-specific/environmental/biodiversity-impacts";
 import WaterAndWastewaterManagement from "./industry-specific/environmental/water-management";
 
 interface DisclosureTopicsProps {
@@ -118,6 +119,7 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Biodiversity Impact",
         subtitle: "Identify and measure impacts on ecosystems, species, and natural habitats",
+        clickable: true,
       },
     ],
   },
@@ -313,14 +315,21 @@ export function DisclosureTopics({
   const handleCardClick = (cardTitle: string) => {
     // if (cardTitle === "Greenhouse Gas Emissions") {
     //   setCurrentView("ghg");
+    // } else if (cardTitle === "Biodiversity Impact") {
+    //   setCurrentView("biodiversity");
     // } else if (cardTitle === "Community Relations") {
     //   setCurrentView("crs");
     // } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
     //   setCurrentView("security-human-rights");
+    // } else if (cardTitle === "Air Quality") {
+    //   setCurrentView("air-quality");
     // }
     switch (cardTitle) {
       case "Greenhouse Gas Emissions":
         setCurrentView("ghg");
+        break;
+      case "Biodiversity Impact":
+        setCurrentView("biodiversity");
         break;
       case "Community Relations":
         setCurrentView("crs");
@@ -394,6 +403,23 @@ export function DisclosureTopics({
   if (currentView === "security-human-rights") {
     return (
       <SecurityHumanRightsAssessment
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        onSubmit={(data) => {
+          console.info(data);
+          setCurrentView("topics");
+        }}
+      />
+    );
+  }
+  if (currentView === "biodiversity") {
+    return (
+      <BioDiversityImpact
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
         initialForm={initialForm as any}
