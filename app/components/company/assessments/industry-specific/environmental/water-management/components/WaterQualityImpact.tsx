@@ -108,7 +108,7 @@ export default function WaterQualityImpact({
     return Object.keys(newErrors).length === 0;
   };
 
-  const { filled, total } = useMemo(() => {
+  useMemo(() => {
     const hasRadioSelection = operatesFrackedWells !== "";
 
     let hasAdditionalFields = false;

@@ -3,18 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Label } from "@/app/components/ui/label";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { UnitSelect } from "../../../../UnitSelect";
-import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "./ReusableInput";
 
@@ -127,7 +123,7 @@ export default function FreshWaterWithdrawalAndConsumption({
     return Object.keys(newErrors).length === 0;
   };
 
-  const { filled, total } = useMemo(() => {
+  useMemo(() => {
     const haswithdrawalFromGroundWater =
       withdrawalfromGroundwater.rawValue !== "" && formData.withdrawalfromGroundwaterUnit !== "";
 
@@ -239,8 +235,8 @@ export default function FreshWaterWithdrawalAndConsumption({
           <CardContent className="p-8 space-y-8">
             {/* Progress Bar */}
             <AssessmentProgressBar
-              stepIndex={1}
-              totalSteps={3}
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
               fieldsCompleted={1}
               totalFields={3}
               isSubmitted={false}

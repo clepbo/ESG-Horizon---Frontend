@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
@@ -13,8 +12,7 @@ import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { UnitSelect } from "../../../../UnitSelect";
-import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "./ReusableInput";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
@@ -110,7 +108,7 @@ export default function ChemicalDisclosure({
     return Object.keys(newErrors).length === 0;
   };
 
-  const { filled, total } = useMemo(() => {
+  useMemo(() => {
     const hasRadioSelection = operatesFrackedWells !== "";
 
     let hasAdditionalFields = false;
@@ -205,8 +203,8 @@ export default function ChemicalDisclosure({
           <CardContent className="p-8 space-y-8">
             {/* Progress Bar */}
             <AssessmentProgressBar
-              stepIndex={3}
-              totalSteps={4}
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
               fieldsCompleted={3}
               totalFields={4}
               isSubmitted={false}

@@ -126,7 +126,7 @@ export default function ProducedWaterManagement({
     return Object.keys(newErrors).length === 0;
   };
 
-  const { filled, total } = useMemo(() => {
+  useMemo(() => {
     const hasTotalProducedWaterGenerated =
       totalProducedWaterGenerated.rawValue !== "" &&
       formData.totalProducedWaterGeneratedUnit !== "";
@@ -158,7 +158,6 @@ export default function ProducedWaterManagement({
     formData.volumeDischargedToSurfaceUnit,
     formData.volumeInjectedForDisposalUnit,
     formData.volumeRecycledReusedUnit,
-    filesAndLinks,
   ]);
 
   const handleInputChange = (field: string, value: string) => {
@@ -238,8 +237,8 @@ export default function ProducedWaterManagement({
           <CardContent className="p-8 space-y-8">
             {/* Progress Bar */}
             <AssessmentProgressBar
-              stepIndex={2}
-              totalSteps={4}
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
               fieldsCompleted={1}
               totalFields={4}
               isSubmitted={false}

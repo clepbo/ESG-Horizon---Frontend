@@ -41,11 +41,6 @@ const cards2 = [
   },
 ];
 
-interface WaterAndWastemanagamentCardsProps {
-  backToAssessmentHub: () => void;
-  backToDisclosureTopics: () => void;
-}
-
 export default function WaterAndWastemanagamentCards({
   backToAssessmentHub,
   backToDisclosureTopics,
@@ -98,9 +93,9 @@ export default function WaterAndWastemanagamentCards({
               <div className="flex flex-col gap-2">
                 <h5 className="">Water and Wastewater Management</h5>
                 <p className="text-sm">
-                  This disclosure topic quantifies the company's water footprint, from freshwater
-                  withdrawal to the management and disposal of operational wastewater, to assess
-                  overall resource efficiency and environmental impact. It metric IFRS codes:
+                  This disclosure topic quantifies the company&apos;s water footprint, from
+                  freshwater withdrawal to the management and disposal of operational wastewater, to
+                  assess overall resource efficiency and environmental impact. It metric IFRS codes:
                   EM-EP-140a.1, EM-EP-140a.2, EM-EP-140a.3 and EM-EP-140a.4
                 </p>
               </div>
