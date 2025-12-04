@@ -38,18 +38,14 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
 
 function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
   return tasksFromApi.map((item) => {
-    // Handle case where task is wrapped in a "task" property
     const task = item.task || item;
     
-    // Extract topics from top-level property or assignments
     const allTopics = item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
 
-    // Get creator name from createdBy field
     const creatorName = task.createdBy
       ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
       : "Unknown";
 
-    // Extract user IDs from assignments
     const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
 
     return {
@@ -57,7 +53,7 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       taskName: task.taskName,
       dueDate: task.dueDate ?? "Unknown",
       status: task.status,
-      assignedTo: creatorName, // Using this field to store creator name for display
+      assignedTo: creatorName,
       dateAssigned: task.createdAt ?? "Unknown",
       description: task.description ?? "",
       priority: task.priority ?? "medium",
@@ -69,7 +65,7 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
         ) ?? [],
       topics: allTopics,
       comments: task.comments ?? [],
-      assignedUserIds, // Store user IDs for filtering
+      assignedUserIds,
     };
   });
 }
@@ -187,8 +183,6 @@ export const useMyTasks = () =>
     queryKey: ["myTasks"],
     queryFn: async () => {
       const data = await taskAssignmentService.getMyTasks();
-      console.log("Raw API response for my-tasks:", data);
-      // Use the specialized mapping function for my-tasks endpoint
       return mapMyTasksResponseToFrontend(data);
     },
   });
