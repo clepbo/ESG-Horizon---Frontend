@@ -168,31 +168,48 @@ export default function WaterAndWastemanagamentCards({ backToAssessmentHub, back
    if (step === 1) {
     return (
         <FreshWaterWithdrawalAndConsumption 
-        backToDisclosureTopic={backToDisclosureTopics} 
-        backToAssessment={ backToAssessmentHub}
-        backToWaterWasteManagement={backToWasteWaterManagement} />
+            backToDisclosureTopic={backToDisclosureTopics}
+            backToAssessment={backToAssessmentHub}
+            backToWaterWasteManagement={() => setStep(0)} 
+            onBack={backToWasteWaterManagement} 
+            onContinueToNextAssessment={ () => setStep(2)} 
+            stepIndex={0} 
+            totalSteps={3}      
+            />
     )
    }
    if (step === 2) {
     return (
-        <ProducedWaterManagement backToAssessment={backToAssessmentHub} backToDisclosureTopic={backToDisclosureTopics} 
-        backToWaterWasteManagement={backToWasteWaterManagement}
-        />
+        <ProducedWaterManagement 
+            backToAssessment={backToAssessmentHub}
+            backToDisclosureTopic={backToDisclosureTopics}
+            backToWaterWasteManagement={backToWasteWaterManagement} 
+            onBack={backToWasteWaterManagement} 
+            onContinueToNextAssessment={()=> setStep(3) } 
+            stepIndex={1} 
+            totalSteps={3}                  />
     )
    }
    if (step === 3) {
     return (
         <ChemicalDisclosure 
-        backToDisclosureTopic={backToDisclosureTopics} backToAssessment={backToAssessmentHub}
-        backToWaterWasteManagement={backToWasteWaterManagement} />
+            backToDisclosureTopic={backToDisclosureTopics}
+            backToAssessment={backToAssessmentHub}
+            backToWaterWasteManagement={backToWasteWaterManagement} 
+            onBack={backToWasteWaterManagement} 
+            onContinueToNextAssessment={()=> setStep(4)} stepIndex={0} totalSteps={0}         />
     )
    }
    if (step === 4) {
     return (
         <WaterQualityImpact 
-        backToDisclosureTopic={backToDisclosureTopics} 
-        backToAssessment={backToAssessmentHub}
-        backToWaterWasteManagement={backToWasteWaterManagement} />
+            backToDisclosureTopic={backToDisclosureTopics}
+            backToAssessment={backToAssessmentHub}
+            backToWaterWasteManagement={backToWasteWaterManagement} 
+            onBack={backToWasteWaterManagement} 
+            onContinueToNextAssessment={() => alert("Submitted")} 
+            stepIndex={4} 
+            totalSteps={4}         />
     )
    }
     return null;
