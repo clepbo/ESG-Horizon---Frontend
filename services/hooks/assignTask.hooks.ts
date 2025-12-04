@@ -37,9 +37,12 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
 }
 
 function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
-  return tasksFromApi.map((task) => {
-    // Extract topics from all assignments for this task
-    const allTopics = task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
+  return tasksFromApi.map((item) => {
+    // Handle case where task is wrapped in a "task" property
+    const task = item.task || item;
+    
+    // Extract topics from top-level property or assignments
+    const allTopics = item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
 
     // Get creator name from createdBy field
     const creatorName = task.createdBy
