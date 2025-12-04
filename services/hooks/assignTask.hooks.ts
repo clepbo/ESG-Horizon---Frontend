@@ -38,23 +38,34 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
 
 function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
   return tasksFromApi.map((item) => {
-    const task = item.task;
-    const topics = item.topics || [];
+    const task = item.task || item;
+    
+    const allTopics = item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
+
+    const creatorName = task.createdBy
+      ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
+      : "Unknown";
+
+    const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
 
     return {
       id: task.id,
       taskName: task.taskName,
       dueDate: task.dueDate ?? "Unknown",
       status: task.status,
-      assignedTo: task.assignedTo || "—",
+      assignedTo: creatorName,
       dateAssigned: task.createdAt ?? "Unknown",
       description: task.description ?? "",
       priority: task.priority ?? "medium",
       progress: task.progress ?? 0,
       departments: task.departments ?? [],
-      teamMembers: task.teamMembers ?? [],
-      topics: topics, // Direct topics array from API response
+      teamMembers:
+        task.assignments?.map((a: any) =>
+          `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+        ) ?? [],
+      topics: allTopics,
       comments: task.comments ?? [],
+      assignedUserIds,
     };
   });
 }
@@ -172,8 +183,6 @@ export const useMyTasks = () =>
     queryKey: ["myTasks"],
     queryFn: async () => {
       const data = await taskAssignmentService.getMyTasks();
-      console.log("Raw API response for my-tasks:", data);
-      // Use the specialized mapping function for my-tasks endpoint
       return mapMyTasksResponseToFrontend(data);
     },
   });

@@ -48,6 +48,7 @@ export interface FrontendTask {
   topics?: string[];
   progress?: number;
   sendEmail?: boolean;
+  assignedUserIds?: number[]; // IDs of users assigned to this task
 }
 
 export interface AssignTaskPayload {
