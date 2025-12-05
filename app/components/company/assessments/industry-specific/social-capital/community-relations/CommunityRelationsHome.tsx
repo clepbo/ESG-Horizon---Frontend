@@ -20,7 +20,9 @@ export default function CommunityRelationsHome({ onBack }: Props) {
 
   function handleForwardBack() {
     setCurrentView("");
-    onBack && onBack();
+    if (onBack) {
+      onBack();
+    }
   }
 
   function handleCardClick(cardTitle: string) {

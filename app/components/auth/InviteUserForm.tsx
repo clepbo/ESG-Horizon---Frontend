@@ -90,7 +90,7 @@ export default function InviteUserPage() {
       // Complete signup - this activates the user account
       await esgService.completeSignup(data);
       toast.success("Profile created successfully!");
-      
+
       // Auto-login the user with their email and password
       if (userEmail) {
         await login(userEmail, password);
@@ -187,7 +187,7 @@ export default function InviteUserPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full hover:cursor-pointer bg-[var(--color-primary)]  hover:bg-teal-700 text-white font-medium py-3 rounded-md transition"
+            className="w-full hover:cursor-pointer bg-primary  hover:bg-teal-700 text-white font-medium py-3 rounded-md transition"
           >
             {loading ? "Processing..." : "Submit"}
           </button>
