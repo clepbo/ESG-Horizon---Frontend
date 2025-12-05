@@ -7,7 +7,6 @@ import { ESGCard } from "../components/ESGScoreCard";
 import { ESGJourneyChart } from "../components/ESGJourneyChart";
 import RecentActivities from "../components/RecentActivities";
 import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
-import { useTaskNotification } from "../components/TaskNotificationProvider";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
