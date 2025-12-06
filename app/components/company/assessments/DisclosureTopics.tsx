@@ -25,6 +25,8 @@ import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
 import { BioDiversityImpact } from "./industry-specific/environmental/biodiversity-impacts";
 import WaterAndWastewaterManagement from "./industry-specific/environmental/water-management";
+import ReservesValuationAndCapitalExpenditures from "./industry-specific/business-model-innovation/reserves-valuation-capital-expenditures";
+import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -170,6 +172,12 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Reserves Valuation & Capital Expenditures",
         subtitle: "Report on investment strategies and valuation of natural rsource reserves",
+        clickable: true,
+      },
+      {
+        title: "Business Ethics & Transparency",
+        subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
+        clickable: true,
       },
     ],
   },
@@ -181,10 +189,6 @@ const industrySpecificMetrics: MetricSection[] = [
         "Measures accountability - including ethics, transparency, anticorruption practices, and oversight from management.",
     },
     cards: [
-      {
-        title: "Business Ethics & Transparency",
-        subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
-      },
       {
         title: "Management of the Legal & Regulatory Environment",
         subtitle: "Evaluate compliance with applicable laws and regulations",
@@ -343,6 +347,12 @@ export function DisclosureTopics({
       case "Water and Wastewater Management":
         setCurrentView("water-and-wastewater-management");
         break;
+      case "Reserves Valuation & Capital Expenditures":
+        setCurrentView("reserves-valuation-capital-expenditures");
+        break;
+      case "Business Ethics & Transparency":
+        setCurrentView("business-ethics-transparency");
+        break;
       default:
         break;
     }
@@ -450,6 +460,40 @@ export function DisclosureTopics({
       <WaterAndWastewaterManagement
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
+      />
+    );
+  }
+  if (currentView === "reserves-valuation-capital-expenditures") {
+    return (
+      <ReservesValuationAndCapitalExpenditures
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        onSubmit={(data) => {
+          console.info(data);
+          setCurrentView("topics");
+        }}
+      />
+    );
+  }
+  if (currentView === "business-ethics-transparency") {
+    return (
+      <BusinessEthicsAndTransparency
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        onSubmit={(data) => {
+          console.info(data);
+          setCurrentView("topics");
+        }}
       />
     );
   }
