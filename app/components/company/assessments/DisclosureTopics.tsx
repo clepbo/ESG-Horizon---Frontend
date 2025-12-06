@@ -27,6 +27,7 @@ import { BioDiversityImpact } from "./industry-specific/environmental/biodiversi
 import WaterAndWastewaterManagement from "./industry-specific/environmental/water-management";
 import ReservesValuationAndCapitalExpenditures from "./industry-specific/business-model-innovation/reserves-valuation-capital-expenditures";
 import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
+import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -158,6 +159,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Workforce Health & Safety",
         subtitle:
           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
+        clickable: true,
       },
     ],
   },
@@ -347,12 +349,15 @@ export function DisclosureTopics({
       case "Water and Wastewater Management":
         setCurrentView("water-and-wastewater-management");
         break;
+      case "Workforce Health & Safety":
+        setCurrentView("workforce-health-and-safety");
+        break;
       case "Reserves Valuation & Capital Expenditures":
         setCurrentView("reserves-valuation-capital-expenditures");
         break;
       case "Business Ethics & Transparency":
         setCurrentView("business-ethics-transparency");
-        break;
+
       default:
         break;
     }
@@ -480,6 +485,25 @@ export function DisclosureTopics({
       />
     );
   }
+
+  if (currentView === "workforce-health-and-safety") {
+    return (
+      <WorkForceHealthAndSafety
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        // onSubmit={(data) => {
+        //   console.info(data);
+        //   setCurrentView("topics");
+        // }}
+      />
+    );
+  }
+
   if (currentView === "business-ethics-transparency") {
     return (
       <BusinessEthicsAndTransparency

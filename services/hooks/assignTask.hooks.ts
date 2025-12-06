@@ -39,8 +39,9 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
 function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
   return tasksFromApi.map((item) => {
     const task = item.task || item;
-    
-    const allTopics = item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
+
+    const allTopics =
+      item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
 
     const creatorName = task.createdBy
       ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
