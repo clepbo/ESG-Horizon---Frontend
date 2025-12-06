@@ -25,6 +25,7 @@ import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
 import { BioDiversityImpact } from "./industry-specific/environmental/biodiversity-impacts";
 import WaterAndWastewaterManagement from "./industry-specific/environmental/water-management";
+import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -156,6 +157,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Workforce Health & Safety",
         subtitle:
           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
+        clickable: true,
       },
     ],
   },
@@ -343,6 +345,9 @@ export function DisclosureTopics({
       case "Water and Wastewater Management":
         setCurrentView("water-and-wastewater-management");
         break;
+      case "Workforce Health & Safety":
+        setCurrentView("workforce-health-and-safety");
+        break;
       default:
         break;
     }
@@ -450,6 +455,23 @@ export function DisclosureTopics({
       <WaterAndWastewaterManagement
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
+      />
+    );
+  }
+  if (currentView === "workforce-health-and-safety") {
+    return (
+      <WorkForceHealthAndSafety
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        // onSubmit={(data) => {
+        //   console.info(data);
+        //   setCurrentView("topics");
+        // }}
       />
     );
   }
