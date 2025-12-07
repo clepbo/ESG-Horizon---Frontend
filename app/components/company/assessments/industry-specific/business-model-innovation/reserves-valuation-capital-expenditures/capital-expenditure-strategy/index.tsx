@@ -157,17 +157,16 @@ export default function CapitalExpenditureStrategy({
               tooltipTitle="Percentage of Current CAPEX Allocated to Gas or Renewable Projects"
               tooltipBody="Enter the portion of your current capital expenditure dedicated to gas, renewable, or other low-carbon projects. Use your financial planning or budgeting records to calculate this percentage."
               inputValue={capexPercentage.displayValue}
-              unitValue={formData.capexPercentageUnit}
+              unitValue=""
               onInputChange={(num) => {
                 capexPercentage.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, capexPercentage: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("capexPercentageUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="%"
               error={errors.capexPercentage}
               formatNumbers={false}
-              placeholder="e.g., 25"
+              placeholder="e.g., 2,000,000,000"
             />
 
             {/* Discussion of CAPEX Strategy */}
@@ -238,7 +237,7 @@ export default function CapitalExpenditureStrategy({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"

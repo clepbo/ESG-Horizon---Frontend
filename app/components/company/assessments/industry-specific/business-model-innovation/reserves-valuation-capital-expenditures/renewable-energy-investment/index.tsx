@@ -122,9 +122,12 @@ export default function RenewableEnergyInvestment({
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before continuing.");
+      toast.error("Please fix the errors before saving.");
       return;
     }
+
+    toast.success("Moved to next section");
+
     onContinueToNextAssessment();
   };
 
@@ -168,14 +171,13 @@ export default function RenewableEnergyInvestment({
               tooltipTitle="Investment in Renewable Energy"
               tooltipBody="Enter the total financial investment your company has made in renewable energy projects within the reporting period. Include direct project funding, equity stakes, or long-term renewable procurement commitments."
               inputValue={investmentAmount.displayValue}
-              unitValue={formData.investmentAmountUnit}
+              unitValue=""
               onInputChange={(num) => {
                 investmentAmount.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, investmentAmount: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("investmentAmountUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="NGN"
               error={errors.investmentAmount}
               formatNumbers={false}
               placeholder="e.g., 2,000,000,000"
@@ -187,14 +189,13 @@ export default function RenewableEnergyInvestment({
               tooltipTitle="Revenue from Renewable Energy Sales"
               tooltipBody="Enter the revenue generated from the sale of renewable electricity, certificates, or renewable-powered services. Use financial statements or project-level reports to provide accurate figures."
               inputValue={revenueAmount.displayValue}
-              unitValue={formData.revenueAmountUnit}
+              unitValue=""
               onInputChange={(num) => {
                 revenueAmount.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, revenueAmount: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("revenueAmountUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="NGN"
               error={errors.revenueAmount}
               formatNumbers={false}
               placeholder="e.g., 0"
@@ -267,7 +268,7 @@ export default function RenewableEnergyInvestment({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"

@@ -44,8 +44,8 @@ export default function EmbeddedCarbonInReserves({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    totalProvedReservesUnit: "Billion BOE",
-    estimatedEmbeddedEmissionsUnit: "Million t CO₂-e",
+    totalProvedReservesUnit: "",
+    estimatedEmbeddedEmissionsUnit: "",
   });
 
   const validateForm = () => {
@@ -54,6 +54,7 @@ export default function EmbeddedCarbonInReserves({
     if (!totalProvedReserves.rawValue) {
       newErrors.totalProvedReserves = "Volume is required";
     }
+
     if (!estimatedEmbeddedEmissions.rawValue) {
       newErrors.estimatedEmbeddedEmissions = "Volume is required";
     }
@@ -63,12 +64,20 @@ export default function EmbeddedCarbonInReserves({
   };
 
   const { filled, total } = useMemo(() => {
-    const hasTotalProvedReserves = totalProvedReserves.rawValue !== "";
-    const hasEstimatedEmbeddedEmissions = estimatedEmbeddedEmissions.rawValue !== "";
+    const hasTotalProvedReserves =
+      totalProvedReserves.rawValue !== "" && formData.totalProvedReservesUnit !== "";
+    const hasEstimatedEmbeddedEmissions =
+      estimatedEmbeddedEmissions.rawValue !== "" && formData.estimatedEmbeddedEmissionsUnit !== "";
     const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([hasTotalProvedReserves, hasEstimatedEmbeddedEmissions, hasEvidence]);
-  }, [totalProvedReserves.rawValue, estimatedEmbeddedEmissions.rawValue, filesAndLinks]);
+  }, [
+    totalProvedReserves.rawValue,
+    estimatedEmbeddedEmissions.rawValue,
+    formData.totalProvedReservesUnit,
+    formData.estimatedEmbeddedEmissionsUnit,
+    filesAndLinks,
+  ]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -111,14 +120,19 @@ export default function EmbeddedCarbonInReserves({
       toast.error("Please fix the errors before continuing.");
       return;
     }
+    toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
     setFilesAndLinks(fields);
+    if (errors.filesAndLinks && fields.length > 0) {
+      setErrors((prev) => ({ ...prev, filesAndLinks: "" }));
+    }
   };
 
   const handlePrevious = () => {
+    toast.info("Returning to previous section");
     onBack();
   };
 
@@ -154,15 +168,15 @@ export default function EmbeddedCarbonInReserves({
               tooltipTitle="Total Proved Reserves"
               tooltipBody="Enter the total quantity of proved reserves reported by your company. Use official reserve statements or audited reserves data to ensure accuracy."
               inputValue={totalProvedReserves.displayValue}
-              unitValue={formData.totalProvedReservesUnit}
+              unitValue=""
               onInputChange={(num) => {
                 totalProvedReserves.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, totalProvedReserves: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("totalProvedReservesUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="Billion BOE"
               error={errors.totalProvedReserves}
+              unitError={errors.totalProvedReservesUnit}
               formatNumbers={false}
               placeholder="e.g., 1.5"
             />
@@ -173,22 +187,24 @@ export default function EmbeddedCarbonInReserves({
               tooltipTitle="Estimated Embedded CO₂ Emissions"
               tooltipBody="Enter the estimated total greenhouse gas emissions that would be released if all proved reserves were extracted and combusted. Use internal modelling or recognized emission-conversion factors to calculate this value."
               inputValue={estimatedEmbeddedEmissions.displayValue}
-              unitValue={formData.estimatedEmbeddedEmissionsUnit}
+              unitValue=""
               onInputChange={(num) => {
                 estimatedEmbeddedEmissions.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, estimatedEmbeddedEmissions: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("estimatedEmbeddedEmissionsUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="Million t CO₂-e"
               error={errors.estimatedEmbeddedEmissions}
+              unitError={errors.estimatedEmbeddedEmissionsUnit}
               formatNumbers={false}
               placeholder="e.g., 850"
             />
 
             {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
+              </div>
               <p className="text-sm text-gray-600">
                 Upload the calculation methodology document and the data from reserves reports used
                 in the calculation.
@@ -201,6 +217,10 @@ export default function EmbeddedCarbonInReserves({
                   uploadService={uploadService}
                 />
               </div>
+
+              {errors.filesAndLinks && (
+                <p className="text-sm text-red-600 mt-2">{errors.filesAndLinks}</p>
+              )}
             </div>
 
             {/* Navigation buttons */}
@@ -212,7 +232,7 @@ export default function EmbeddedCarbonInReserves({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"

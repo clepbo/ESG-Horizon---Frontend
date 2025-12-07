@@ -25,6 +25,7 @@ interface ReusableInputProps {
   disabled?: boolean;
   className?: string;
   formatNumbers?: boolean; // when true, format on blur with commas
+  customUnit?: string; // NEW: if provided, display as read-only text instead of UnitSelect
 }
 
 export default function ReusableInput({
@@ -42,6 +43,7 @@ export default function ReusableInput({
   disabled = false,
   className = "",
   formatNumbers = false,
+  customUnit, // NEW: optional custom unit
 }: ReusableInputProps) {
   const [displayValue, setDisplayValue] = useState<string>(inputValue ?? "");
 
@@ -153,14 +155,24 @@ export default function ReusableInput({
           {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
         </div>
 
-        {/* Unit Select */}
+        {/* Unit Select - Conditional rendering */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
             Unit
             {required && <span className="text-red-500 ml-1">*</span>}
           </Label>
-          <UnitSelect value={unitValue} onValueChange={handleUnitChange} error={unitError} />
-          {unitError && <p className="text-red-600 text-xs mt-1">{unitError}</p>}
+
+          {customUnit ? (
+            // Custom unit - read-only display
+            <div className="h-10 px-3 py-2 bg-gray-100 border border-gray-300 rounded-md flex items-center text-gray-700">
+              {customUnit}
+            </div>
+          ) : (
+            // Default UnitSelect component
+            <>
+              <UnitSelect value={unitValue} onValueChange={handleUnitChange} error={unitError} />
+            </>
+          )}
         </div>
       </div>
     </div>

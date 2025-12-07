@@ -8,8 +8,10 @@ import { ChevronRight, Info } from "lucide-react";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import ReservesCountriesCorruptionRisk from "./reserves-countries-corruption-risk";
+import AntiCorruptionManagement from "./anti-corruption-management";
 
-type BEView = "overview" | "reserves-corruption-risk" | "anti-corruption-management";
+type BEView = "overview" | "reserves-countries-corruption-risk" | "anti-corruption-management";
 
 interface BusinessEthicsAssessmentProps {
   onBack: () => void;
@@ -20,7 +22,7 @@ interface BusinessEthicsAssessmentProps {
   onSubmit: (totals: TotalsResponse | null) => void;
 }
 
-const steps = ["reserves-corruption-risk", "anti-corruption-management"] as const;
+const steps = ["reserves-countries-corruption-risk", "anti-corruption-management"] as const;
 
 export default function BusinessEthicsAssessment({
   onBack,
@@ -44,7 +46,7 @@ export default function BusinessEthicsAssessment({
 
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Reserves in Countries with High Corruption Risk") {
-      setCurrentView("reserves-corruption-risk");
+      setCurrentView("reserves-countries-corruption-risk");
     }
     if (cardTitle === "Anti-Corruption Management System") {
       setCurrentView("anti-corruption-management");
@@ -63,62 +65,33 @@ export default function BusinessEthicsAssessment({
     );
   }
 
-  // Placeholder form components - replace these with actual form imports
-  if (currentView === "reserves-corruption-risk") {
+  if (currentView === "reserves-countries-corruption-risk") {
     return (
-      <div className="min-h-screen bg-green-50 p-6">
-        <CustomBreadcrumbDynamic
-          features={[
-            ...overviewBreadcrumb,
-            { label: "Reserves in Countries with High Corruption Risk" },
-          ]}
-        />
-        <div className="max-w-7xl mx-auto mt-4">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-2xl font-bold mb-4">
-                Reserves in Countries with High Corruption Risk
-              </h2>
-              <p className="text-muted-foreground">Form content goes here...</p>
-              <div className="flex gap-4 mt-6">
-                <Button onClick={handleBackToOverview} variant="outline">
-                  Back
-                </Button>
-                <Button onClick={() => setCurrentView("anti-corruption-management")}>
-                  Continue to Next Assessment
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <ReservesCountriesCorruptionRisk
+        onBack={handleBackToOverview}
+        onContinueToNextAssessment={() => setCurrentView("anti-corruption-management")}
+        stepIndex={1}
+        totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Reserves Sensitivity to Carbon Pricing" }]}
+      />
     );
   }
 
   if (currentView === "anti-corruption-management") {
     return (
-      <div className="min-h-screen bg-green-50 p-6">
-        <CustomBreadcrumbDynamic
-          features={[...overviewBreadcrumb, { label: "Anti-Corruption Management System" }]}
-        />
-        <div className="max-w-7xl mx-auto mt-4">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-2xl font-bold mb-4">Anti-Corruption Management System</h2>
-              <p className="text-muted-foreground">Form content goes here...</p>
-              <div className="flex gap-4 mt-6">
-                <Button
-                  onClick={() => setCurrentView("reserves-corruption-risk")}
-                  variant="outline"
-                >
-                  Back
-                </Button>
-                <Button onClick={() => setShowSuccess(true)}>Submit Assessment</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <AntiCorruptionManagement
+        onBack={() => setCurrentView("reserves-countries-corruption-risk")}
+        onContinueToNextAssessment={() => {
+          setShowSuccess(true);
+        }}
+        onSubmit={(totals) => {
+          setTotals(totals);
+          setShowSuccess(true);
+        }}
+        stepIndex={2}
+        totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Capital Expenditure Strategy" }]}
+      />
     );
   }
 
@@ -159,8 +132,10 @@ export default function BusinessEthicsAssessment({
                     >
                       <h6 className="font-semibold mb-1">Geopolitical & Corruption Risk</h6>
                       <p>
-                        Report the percentage of reserves located in countries with low rankings on
-                        the Corruption Perception Index, indicating higher corruption risk exposure.
+                        Provide information on how your company evaluates and manages exposure to
+                        geopolitical instability or corruption risks in the regions where it
+                        operates. Include insights from internal assessments, compliance reviews, or
+                        third-party risk analyses.
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -207,9 +182,9 @@ export default function BusinessEthicsAssessment({
                     >
                       <h6 className="font-semibold mb-1">Anti-Corruption Management</h6>
                       <p>
-                        Describe the management system implemented to prevent corruption and bribery
-                        throughout the value chain, including policies, training, and monitoring
-                        processes.
+                        Describe your company’s policies, controls, and training programs aimed at
+                        preventing bribery, fraud, and other corrupt practices. Use details from
+                        compliance frameworks, audit findings, or ethics program documentation.
                       </p>
                     </TooltipContent>
                   </Tooltip>

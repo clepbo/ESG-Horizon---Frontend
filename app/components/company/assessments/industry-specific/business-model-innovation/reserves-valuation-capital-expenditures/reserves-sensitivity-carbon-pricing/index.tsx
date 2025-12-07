@@ -48,7 +48,7 @@ export default function ReservesSensitivityForm({
   const [formData, setFormData] = useState({
     carbonPriceScenarioUnit: "$/tonne CO₂-e",
     percentageDecreaseUnit: "%",
-    estimatedDecreaseUnit: "Select the unit of measurement",
+    estimatedDecreaseUnit: "",
   });
 
   const validateForm = () => {
@@ -63,6 +63,9 @@ export default function ReservesSensitivityForm({
     if (!estimatedDecrease.rawValue) {
       newErrors.estimatedDecrease = "Volume is required";
     }
+    if (!formData.estimatedDecreaseUnit) {
+      newErrors.estimatedDecreaseUnit = "Unit is required";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -71,7 +74,8 @@ export default function ReservesSensitivityForm({
   const { filled, total } = useMemo(() => {
     const hasCarbonPriceScenario = carbonPriceScenario.rawValue !== "";
     const hasPercentageDecrease = percentageDecrease.rawValue !== "";
-    const hasEstimatedDecrease = estimatedDecrease.rawValue !== "";
+    const hasEstimatedDecrease =
+      estimatedDecrease.rawValue !== "" && formData.estimatedDecreaseUnit !== "";
     const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([
@@ -84,6 +88,7 @@ export default function ReservesSensitivityForm({
     carbonPriceScenario.rawValue,
     percentageDecrease.rawValue,
     estimatedDecrease.rawValue,
+    formData.estimatedDecreaseUnit,
     filesAndLinks,
   ]);
 
@@ -128,17 +133,24 @@ export default function ReservesSensitivityForm({
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before continuing.");
+      toast.error("Please fix the errors before saving.");
       return;
     }
+
+    toast.success("Moved to next section");
+
     onContinueToNextAssessment();
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
     setFilesAndLinks(fields);
+    if (errors.filesAndLinks && fields.length > 0) {
+      setErrors((prev) => ({ ...prev, filesAndLinks: "" }));
+    }
   };
 
   const handlePrevious = () => {
+    toast.info("Returning to previous section");
     onBack();
   };
 
@@ -170,18 +182,17 @@ export default function ReservesSensitivityForm({
 
             {/* Carbon Price Scenario Used */}
             <ReusableInput
-              label="Carbon Price Scenario Used ($/tonne CO₂-e)"
-              tooltipTitle="Carbon Price Scenario Used ($/tonne CO₂-e)"
+              label="Carbon Price Scenario Used"
+              tooltipTitle="Carbon Price Scenario Used"
               tooltipBody="Enter the carbon price value used in your sensitivity analysis. This should match the internal price on carbon or external scenario (e.g., IEA, NGFS) applied to assess how carbon costs affect the economic viability of your proved reserves."
               inputValue={carbonPriceScenario.displayValue}
-              unitValue={formData.carbonPriceScenarioUnit}
+              unitValue=""
               onInputChange={(num) => {
                 carbonPriceScenario.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, carbonPriceScenario: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("carbonPriceScenarioUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="$/tonne CO₂-e"
               error={errors.carbonPriceScenario}
               formatNumbers={false}
               placeholder="e.g., 50"
@@ -193,14 +204,13 @@ export default function ReservesSensitivityForm({
               tooltipTitle="Estimated % Decrease in Proved Oil Reserves"
               tooltipBody="Enter the percentage reduction in proved reserves based on your analysis of how the selected carbon price impacts project profitability. This reflects the potential write-down of assets if carbon costs increase."
               inputValue={percentageDecrease.displayValue}
-              unitValue={formData.percentageDecreaseUnit}
+              unitValue=""
               onInputChange={(num) => {
                 percentageDecrease.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, percentageDecrease: "" }));
               }}
-              onUnitChange={(unit) => {
-                handleInputChange("percentageDecreaseUnit", unit);
-              }}
+              onUnitChange={() => {}}
+              customUnit="%"
               error={errors.percentageDecrease}
               formatNumbers={false}
               placeholder="e.g., 8"
@@ -219,8 +229,10 @@ export default function ReservesSensitivityForm({
               }}
               onUnitChange={(unit) => {
                 handleInputChange("estimatedDecreaseUnit", unit);
+                setErrors((prev) => ({ ...prev, estimatedDecreaseUnit: "" }));
               }}
               error={errors.estimatedDecrease}
+              unitError={errors.estimatedDecreaseUnit}
               formatNumbers={false}
               placeholder="e.g., 120"
             />
@@ -240,6 +252,10 @@ export default function ReservesSensitivityForm({
                   uploadService={uploadService}
                 />
               </div>
+
+              {errors.filesAndLinks && (
+                <p className="text-sm text-red-600 mt-2">{errors.filesAndLinks}</p>
+              )}
             </div>
 
             {/* Navigation buttons */}
@@ -251,7 +267,7 @@ export default function ReservesSensitivityForm({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Go Back
               </Button>
               <Button
                 type="button"

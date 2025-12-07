@@ -132,7 +132,7 @@ export default function ReservesValuationAssessment({
     return (
       <ReservesSensitivityForm
         onBack={handleBackToOverview}
-        onContinueToNextAssessment={() => setCurrentView("reserves-sensitivity-carbon-pricing")}
+        onContinueToNextAssessment={() => setCurrentView("embedded-carbon")}
         stepIndex={1}
         totalSteps={steps.length}
         breadcrumb={[...overviewBreadcrumb, { label: "Reserves Sensitivity to Carbon Pricing" }]}
@@ -143,8 +143,8 @@ export default function ReservesValuationAssessment({
   if (currentView === "embedded-carbon") {
     return (
       <EmbeddedCarbonInReserves
-        onBack={handleBackToOverview}
-        onContinueToNextAssessment={() => setCurrentView("embedded-carbon")}
+        onBack={() => setCurrentView("reserves-sensitivity-carbon-pricing")}
+        onContinueToNextAssessment={() => setCurrentView("renewable-energy-investment")}
         stepIndex={2}
         totalSteps={steps.length}
         breadcrumb={[...overviewBreadcrumb, { label: "Embedded Carbon in Reserves" }]}
@@ -155,8 +155,8 @@ export default function ReservesValuationAssessment({
   if (currentView === "renewable-energy-investment") {
     return (
       <RenewableEnergyInvestment
-        onBack={handleBackToOverview}
-        onContinueToNextAssessment={() => setCurrentView("renewable-energy-investment")}
+        onBack={() => setCurrentView("embedded-carbon")}
+        onContinueToNextAssessment={() => setCurrentView("capital-expenditure-strategy")}
         stepIndex={3}
         totalSteps={steps.length}
         breadcrumb={[...overviewBreadcrumb, { label: "Renewable Energy Investment" }]}
