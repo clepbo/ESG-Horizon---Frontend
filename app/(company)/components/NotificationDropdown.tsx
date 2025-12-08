@@ -5,7 +5,6 @@ import { Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FrontendTask } from "@/services/assignTask.service";
-import { formatDistanceToNow } from "date-fns";
 
 interface NotificationDropdownProps {
   tasks: FrontendTask[];
