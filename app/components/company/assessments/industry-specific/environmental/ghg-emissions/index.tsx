@@ -20,6 +20,8 @@ import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
 import { LocationBasedForm } from "./scope2/location-based";
 import { MarketBasedForm } from "./scope2/market-based";
 import { FrontendTask } from "@/services/assignTask.service";
+import { DownstreamEmission } from "./scope3/DownstreamEmission";
+import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
 
 type GHGView =
   | "overview"
@@ -29,6 +31,8 @@ type GHGView =
   | "fugitive-emissions"
   | "location-based"
   | "market-based"
+  | "upstream-emissions"
+  | "downstream-emissions"
   | "scope3";
 
 interface GhgEmissionsAssessmentProps {
@@ -181,8 +185,11 @@ export function GhgEmissionsAssessment({
     if (cardTitle.includes("Market-Based")) {
       setCurrentView("market-based");
     }
-    if (cardTitle.includes("scope3")) {
-      setCurrentView("scope3");
+    if (cardTitle.includes("Upstream Emissions (Categories 1-8)")) {
+      setCurrentView("upstream-emissions");
+    }
+    if (cardTitle.includes("Downstream Emissions (Categories 9-15)")) {
+      setCurrentView("downstream-emissions");
     }
   };
 
@@ -281,6 +288,33 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("scope3")}
         initialStep={initialStep as any}
+      />
+    );
+  }
+
+  if (currentView === "upstream-emissions") {
+    return (
+      <UpstreamEmissionHome
+        handleBacktoAssessment={onBackToHub}
+        handleBacktoGHG={() => setCurrentView("overview")}
+        handleBack={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        backToDisclossureTopic={handleBackToOverview}
+      />
+    );
+  }
+  if (currentView === "downstream-emissions") {
+    return (
+      <DownstreamEmission
+        onBack={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        onNext={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        stepIndex={0}
+        totalSteps={0}
       />
     );
   }
