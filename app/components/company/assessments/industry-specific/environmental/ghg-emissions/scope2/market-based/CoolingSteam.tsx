@@ -230,9 +230,12 @@ export function CoolingSteamForm({
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: true, redirect: true });
     if (isAssignedTask || handleAssignedTaskRedirect()) {
+      await saveForm({ showToast: true, redirect: false });
       onBackToHub();
+    } else {
+      // For normal flow, let saveForm handle the redirect
+      await saveForm({ showToast: true, redirect: true });
     }
   };
 
