@@ -24,7 +24,7 @@ import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface ElectricityIppsFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -39,6 +39,7 @@ const uploadFields = [
 export function ElectricityIppsForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityIppsFormProps) {
@@ -74,7 +75,12 @@ export function ElectricityIppsForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow("ghg-scope2-market-electricityipp");
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-market-electricityipp");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -214,6 +220,9 @@ export function ElectricityIppsForm({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
 
   const handleNext = async () => {

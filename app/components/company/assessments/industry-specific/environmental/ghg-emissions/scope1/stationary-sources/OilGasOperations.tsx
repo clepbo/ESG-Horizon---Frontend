@@ -40,6 +40,7 @@ const uploadFields = [
 export function OilGasOperations({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -55,9 +56,8 @@ export function OilGasOperations({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading } = useAssessmentFlow(
-    "ghg-scope1-stationary-oilgasoperations"
-  );
+  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope1-stationary-oilgasoperations");
 
   const [errors, setErrors] = useState<{
     onShoreProduction?: string;
@@ -210,6 +210,9 @@ export function OilGasOperations({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
 
   const handleSubmit = async () => {
@@ -380,7 +383,7 @@ export function OilGasOperations({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button

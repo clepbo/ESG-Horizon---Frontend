@@ -62,6 +62,8 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  const isAssignedTask = state.isAssignedTask || false;
+
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
@@ -274,7 +276,10 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
 
     try {
       await saveNow("environment.ghg.scope1.mobileSources.vehicleEquipment", payload);
-
+      if (isAssignedTask) {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      }
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 2000);
@@ -360,7 +365,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -494,7 +499,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -525,7 +530,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -535,7 +540,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isActionLoading}
-                className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
                 {isActionLoading ? (
@@ -559,7 +564,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
                 variant="outline"
                 onClick={handleNext}
                 disabled={isActionLoading}
-                className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next

@@ -67,6 +67,9 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  // Check if this is an assigned task
+  const isAssignedTask = state.isAssignedTask || false;
+
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
@@ -161,6 +164,11 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     try {
       await saveNow("environment.ghg.processEmissions.cementManufacturing", payload);
       if (!assessmentId) toast.success("Saved!");
+
+      if (isAssignedTask) {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      }
     } catch (error) {
       console.error("Save failed:", error);
       toast.error("Failed to save");

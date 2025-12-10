@@ -24,7 +24,7 @@ import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface PurchasedElectricityFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -38,6 +38,7 @@ const uploadFields = [
 export function PurchasedElectricityForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedElectricityFormProps) {
@@ -59,9 +60,12 @@ export function PurchasedElectricityForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
-    "ghg-scope2-location-purchasedelectricity"
-  );
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-location-purchasedelectricity");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -212,6 +216,9 @@ export function PurchasedElectricityForm({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
 
   const handleNext = async () => {

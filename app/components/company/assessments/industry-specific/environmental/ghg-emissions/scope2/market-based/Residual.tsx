@@ -24,7 +24,7 @@ import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface ResidualFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -35,7 +35,13 @@ const uploadFields = [
   "Supplier contracts",
 ];
 
-export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: ResidualFormProps) {
+export function ResidualForm({
+  onBack,
+  onNext,
+  onBackToHub,
+  stepIndex,
+  totalSteps,
+}: ResidualFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
@@ -67,7 +73,12 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow("ghg-scope2-market-residual");
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-market-residual");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -208,6 +219,9 @@ export function ResidualForm({ onBack, onNext, stepIndex, totalSteps }: Residual
   const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
 
   const handleNext = async () => {

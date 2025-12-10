@@ -23,7 +23,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 interface ElectricityHeatFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -46,6 +46,7 @@ const uploadFields = [
 export function ElectricityHeatForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityHeatFormProps) {
@@ -62,7 +63,9 @@ export function ElectricityHeatForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
   const [errors, setErrors] = useState<ElectricityHeatErrors>({});
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-electricityheat");
+  const { saveNow, isLoading, isAssignedTask, handleAssignedTaskRedirect } = useAssessmentFlow(
+    "ghg-scope1-stationary-electricityheat"
+  );
 
   const dieselFuelOptions = useMemo(() => getFuelOptions("dieselGenerators"), []);
   const gasFuelOptions = useMemo(() => getFuelOptions("gasTurbines"), []);
@@ -173,6 +176,7 @@ export function ElectricityHeatForm({
         toast.success("Saved!");
         setShowSaveSuccess(true);
       }
+
       if (redirect) {
         setTimeout(() => router.push("/assessments/new-assessment"), 1500);
       }
@@ -184,6 +188,9 @@ export function ElectricityHeatForm({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
 
   const handleNext = async () => {
@@ -282,7 +289,7 @@ export function ElectricityHeatForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -384,7 +391,7 @@ export function ElectricityHeatForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
+                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -417,7 +424,7 @@ export function ElectricityHeatForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -451,7 +458,7 @@ export function ElectricityHeatForm({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isLoading}
-                className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next

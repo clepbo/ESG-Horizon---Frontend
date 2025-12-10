@@ -69,6 +69,8 @@ export function VentingNaturalGas({
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  const isAssignedTask = state.isAssignedTask || false;
+
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
@@ -199,6 +201,10 @@ export function VentingNaturalGas({
     try {
       await saveNow("environment.ghg.fugitiveEmissions.ventingNaturalGas", payload);
       if (!assessmentId) toast.success(`Saved draft.`);
+      if (isAssignedTask) {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      }
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 2000);

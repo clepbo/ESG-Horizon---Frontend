@@ -25,7 +25,7 @@ import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface PurchasedCoolingFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -50,6 +50,7 @@ const coolingSystemTypes = [
 export function PurchasedCoolingForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedCoolingFormProps) {
@@ -72,9 +73,12 @@ export function PurchasedCoolingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
-    "ghg-scope2-location-purchasedcooling"
-  );
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-location-purchasedcooling");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -219,6 +223,9 @@ export function PurchasedCoolingForm({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
 
   const handleNext = async () => {

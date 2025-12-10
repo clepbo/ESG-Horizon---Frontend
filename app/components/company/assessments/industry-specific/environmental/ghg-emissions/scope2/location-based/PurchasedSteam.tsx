@@ -26,7 +26,7 @@ import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 interface PurchasedSteamFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -45,6 +45,7 @@ const steamSources = [
 export function PurchasedSteamForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: PurchasedSteamFormProps) {
@@ -76,7 +77,12 @@ export function PurchasedSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow("ghg-scope2-location-purchasedsteam");
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-location-purchasedsteam");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -259,6 +265,9 @@ export function PurchasedSteamForm({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      onBackToHub();
+    }
   };
   const handleNext = async () => {
     if (!validateForm()) return;
