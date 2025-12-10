@@ -46,7 +46,7 @@ export default function RenewableEnergyInvestment({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  const [formData, setFormData] = useState({
+  const [formData, _setFormData] = useState({
     investmentAmountUnit: "NGN",
     revenueAmountUnit: "NGN",
   });
@@ -82,9 +82,9 @@ export default function RenewableEnergyInvestment({
     ]);
   }, [investmentAmount.rawValue, revenueAmount.rawValue, projectDescription, filesAndLinks]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  // const handleInputChange = (field: string, value: string) => {
+  //   setFormData((prev) => ({ ...prev, [field]: value }));
+  // };
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
@@ -114,7 +114,7 @@ export default function RenewableEnergyInvestment({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
-      toast.error("Failed to save data.");
+      toast.error(`Failed to save data. ${error}`);
     } finally {
       setIsSaving(false);
     }

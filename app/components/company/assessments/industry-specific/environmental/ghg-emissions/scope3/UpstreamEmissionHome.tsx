@@ -16,7 +16,6 @@ interface UpstreamProps {
 }
 export default function UpstreamEmissionHome({
   handleBacktoAssessment,
-  handleBacktoGHG,
   handleBack,
   backToDisclossureTopic,
 }: UpstreamProps) {

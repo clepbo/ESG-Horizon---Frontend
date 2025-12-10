@@ -54,7 +54,7 @@ export function EnergyRelatedActivities({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: EnergyRelatedActivitiesProps) {
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});

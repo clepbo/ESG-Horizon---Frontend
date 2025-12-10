@@ -31,7 +31,7 @@ export default function SmartInput({
   const { rawValue, displayValue, handleChange, setRawValue } = useFormattedNumber(value);
 
   const [internalError, setInternalError] = useState(false);
-  const [hasValue, setHasValue] = useState(!!value);
+  const [_hasValue, setHasValue] = useState(!!value);
   const [touched, setTouched] = useState(false); // Track if user has interacted
 
   // Check if field has valid value
@@ -57,7 +57,7 @@ export default function SmartInput({
     } else {
       setInternalError(false);
     }
-  }, [errorTrigger, value, rawValue]);
+  }, [errorTrigger, value, rawValue, onErrorStateChange, validateField]);
 
   // Auto-clear error when user starts typing
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function SmartInput({
         onErrorStateChange(false);
       }
     }
-  }, [value, rawValue, touched]);
+  }, [value, rawValue, touched, onErrorStateChange, internalError, validateField]);
 
   const onInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -113,7 +113,7 @@ export default function SmartInput({
       setRawValue(String(value || ""));
     }
     setHasValue(!!value);
-  }, [value]);
+  }, [value,setRawValue]);
 
   return (
     <div className="w-full space-y-1">
