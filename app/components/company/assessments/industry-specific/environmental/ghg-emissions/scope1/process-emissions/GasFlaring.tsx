@@ -88,6 +88,9 @@ export function GasFlaring({
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  // Check if this is an assigned task
+  const isAssignedTask = state.isAssignedTask || false;
+
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
@@ -213,7 +216,15 @@ export function GasFlaring({
         toast.success(`Saved draft.`);
       }
 
-      setTimeout(() => router.push("/assessments/new-assessment"), 2000);
+      // Check if this is an assigned task
+      if (isAssignedTask) {
+        // For assigned tasks, redirect to disclosure topics
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      } else {
+        // For regular assessments, existing behavior - redirect to assessments page
+        setTimeout(() => router.push("/assessments/new-assessment"), 2000);
+      }
     } catch (error) {
       console.error("Save failed:", error);
       toast.error("Failed to save");

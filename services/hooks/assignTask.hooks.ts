@@ -7,6 +7,7 @@ import {
   TaskAssignment,
   taskAssignmentService,
   TaskComment,
+  TaskStartResponse,
 } from "../assignTask.service";
 
 function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
@@ -36,6 +37,40 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
   }));
 }
 
+// function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
+//   return tasksFromApi.map((item) => {
+//     const task = item.task || item;
+
+//     const allTopics =
+//       item.topics || task.assignments?.flatMap((assignment: any) => assignment.topics || []) || [];
+
+//     const creatorName = task.createdBy
+//       ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
+//       : "Unknown";
+
+//     const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
+
+//     return {
+//       id: task.id,
+//       taskName: task.taskName,
+//       dueDate: task.dueDate ?? "Unknown",
+//       status: task.status,
+//       assignedTo: creatorName,
+//       dateAssigned: task.createdAt ?? "Unknown",
+//       description: task.description ?? "",
+//       priority: task.priority ?? "medium",
+//       progress: task.progress ?? 0,
+//       departments: task.departments ?? [],
+//       teamMembers:
+//         task.assignments?.map((a: any) =>
+//           `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+//         ) ?? [],
+//       topics: allTopics,
+//       comments: task.comments ?? [],
+//       assignedUserIds,
+//     };
+//   });
+// }
 function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
   return tasksFromApi.map((item) => {
     const task = item.task || item;
@@ -48,6 +83,10 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       : "Unknown";
 
     const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
+
+    // ← ADD THESE LINES
+    // Extract assessment ID from the assignment or task
+    const assessmentId = item.assessmentId || task.assessmentId || 0;
 
     return {
       id: task.id,
@@ -67,6 +106,7 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       topics: allTopics,
       comments: task.comments ?? [],
       assignedUserIds,
+      assessmentId, // ← ADD THIS LINE
     };
   });
 }
@@ -187,3 +227,10 @@ export const useMyTasks = () =>
       return mapMyTasksResponseToFrontend(data);
     },
   });
+export const useStartTask = () => {
+  const queryClient = useQueryClient();
+  return useMutation<TaskStartResponse, Error, number>({
+    mutationFn: (taskId: number) => taskAssignmentService.startTask(taskId),
+    onSuccess: () => invalidateTasks(queryClient),
+  });
+};

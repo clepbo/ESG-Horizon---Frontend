@@ -7,6 +7,7 @@ import { PurchasedSteamForm } from "./PurchasedSteam";
 import { PurchasedHeatingForm } from "./PurchasedHeating";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface LocationBasedFormProps {
   onBack: () => void;
@@ -27,10 +28,13 @@ export function LocationBasedForm({
   onContinueToNextAssessment,
   initialStep,
 }: LocationBasedFormProps) {
+  const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+
+  const isAssignedTask = state.isAssignedTask || false;
 
   if (showSuccess) {
     return (
@@ -87,8 +91,14 @@ export function LocationBasedForm({
         onBack={() => setCurrentStep("steam")}
         onSubmit={(totals) => {
           setTotals(totals);
-          setShowSuccess(true);
-          setIsSubmitted(true);
+
+          if (isAssignedTask) {
+            dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+            onBack();
+          } else {
+            setShowSuccess(true);
+            setIsSubmitted(true);
+          }
         }}
         onBackToHub={onBack}
         stepIndex={4}

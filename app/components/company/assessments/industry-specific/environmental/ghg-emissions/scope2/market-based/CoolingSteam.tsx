@@ -25,7 +25,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 interface CoolingSteamFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -40,6 +40,7 @@ const uploadFields = [
 export function CoolingSteamForm({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -77,7 +78,8 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading } = useAssessmentFlow("ghg-scope2-market-coolingsteam");
+  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope2-market-coolingsteam");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -228,7 +230,13 @@ export function CoolingSteamForm({
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      await saveForm({ showToast: true, redirect: false });
+      onBackToHub();
+    } else {
+      // For normal flow, let saveForm handle the redirect
+      await saveForm({ showToast: true, redirect: true });
+    }
   };
 
   const handleSubmit = async () => {

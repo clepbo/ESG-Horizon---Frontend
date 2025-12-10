@@ -6,6 +6,7 @@ import { VehicleEquipment } from "./VehicleEquipment";
 import { MarineAviation } from "./MarineAviation";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface MobileSourcesFormProps {
   onBack: () => void;
@@ -21,11 +22,13 @@ export function MobileSourcesForm({
   onContinueToNextAssessment,
   initialStep,
 }: MobileSourcesFormProps) {
+  const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "road-transport");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
+  const isAssignedTask = state.isAssignedTask || false;
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -69,8 +72,13 @@ export function MobileSourcesForm({
         onBack={() => setCurrentStep("vehicle-equipment")}
         onSubmit={(totals) => {
           setTotals(totals);
-          setShowSuccess(true);
-          setIsSubmitted(true);
+          if (isAssignedTask) {
+            dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+            onBack();
+          } else {
+            setShowSuccess(true);
+            setIsSubmitted(true);
+          }
         }}
         onBackToHub={onBack}
         stepIndex={3}

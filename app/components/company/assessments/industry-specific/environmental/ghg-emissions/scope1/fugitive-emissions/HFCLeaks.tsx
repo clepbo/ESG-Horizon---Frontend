@@ -83,6 +83,8 @@ export function HFCLeaks({
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  const isAssignedTask = state.isAssignedTask || false;
+
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
@@ -234,6 +236,10 @@ export function HFCLeaks({
     try {
       await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
       setShowSaveSuccess(true);
+      if (isAssignedTask) {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      }
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 2000);

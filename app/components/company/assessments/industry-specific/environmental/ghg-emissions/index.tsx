@@ -333,7 +333,11 @@ export function GhgEmissionsAssessment({
             </div>
 
             {filteredScopes.length > 0 ? (
-              <Accordion type="multiple" defaultValue={["scope-1"]} className="space-y-4">
+              <Accordion
+                type="multiple"
+                defaultValue={["scope-1", "scope-2"]}
+                className="space-y-4"
+              >
                 {filteredScopes.map((scope) => (
                   <AccordionItem key={scope.id} value={scope.id} className="border-0">
                     <AccordionTrigger className="py-4 px-2 rounded-lg bg-transparent hover:no-underline hover:cursor-pointer">
