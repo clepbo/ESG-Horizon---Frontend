@@ -8,35 +8,32 @@ import { BusinessTravel } from "./upstream/BusinessTravel";
 import { EmployeeCommuting } from "./upstream/EmployeeCommuting";
 import { LeasedAssets } from "./upstream/LeasedAssets";
 
-interface UpstreamProps {
+export interface UpstreamProps {
   handleBacktoAssessment: () => void;
   handleBacktoGHG: () => void;
-  handleBack: () => void;
   backToDisclossureTopic: () => void;
 }
 export default function UpstreamEmissionHome({
   handleBacktoAssessment,
-  handleBack,
+  handleBacktoGHG,
   backToDisclossureTopic,
 }: UpstreamProps) {
-  const [step, setStep] = useState(7);
+  const [step, setStep] = useState(0);
 
   function handleNext(val: number) {
     setStep(val);
   }
 
-  function handleBackToGHGEmission() {}
-
   if (step === 0) {
     return (
       <PurchasedGoodsAndServices
-        onBack={handleBack}
+        onBack={() => handleNext(0)}
         onNext={() => handleNext(1)}
         stepIndex={1}
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -49,7 +46,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -62,7 +59,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -75,7 +72,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -88,7 +85,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -101,7 +98,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -114,7 +111,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }
@@ -127,7 +124,7 @@ export default function UpstreamEmissionHome({
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
-        backToGHGEmissions={handleBackToGHGEmission}
+        backToGHGEmissions={handleBacktoGHG}
       />
     );
   }

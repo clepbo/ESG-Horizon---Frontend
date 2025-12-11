@@ -20,8 +20,8 @@ import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
 import { LocationBasedForm } from "./scope2/location-based";
 import { MarketBasedForm } from "./scope2/market-based";
 import { FrontendTask } from "@/services/assignTask.service";
-import { DownstreamEmission } from "./scope3/DownstreamEmission";
 import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
+import DownstreamEmission from "./scope3/DownstreamEmission";
 
 type GHGView =
   | "overview"
@@ -296,25 +296,17 @@ export function GhgEmissionsAssessment({
     return (
       <UpstreamEmissionHome
         handleBacktoAssessment={onBackToHub}
-        handleBacktoGHG={() => setCurrentView("overview")}
-        handleBack={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        backToDisclossureTopic={handleBackToOverview}
+        handleBacktoGHG={handleBackToOverview}
+        backToDisclossureTopic={onBack}
       />
     );
   }
   if (currentView === "downstream-emissions") {
     return (
       <DownstreamEmission
-        onBack={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        onNext={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        stepIndex={0}
-        totalSteps={0}
+        handleBacktoAssessment={onBackToHub}
+        handleBacktoGHG={handleBackToOverview}
+        backToDisclossureTopic={onBack}
       />
     );
   }
