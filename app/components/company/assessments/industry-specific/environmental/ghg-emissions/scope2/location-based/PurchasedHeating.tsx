@@ -105,15 +105,7 @@ export function PurchasedHeatingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [
-    state.assessmentData,
-    heatingPurchased,
-    heatingConsumedRaw,
-    supplierName,
-    files,
-    additionalFields,
-    setHeatingConsumedRaw,
-  ]);
+  }, [state.assessmentData]);
 
   const { total, filled } = calculateProgress([
     heatingPurchased,
