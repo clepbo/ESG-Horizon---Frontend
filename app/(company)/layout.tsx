@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Sidebar from "./components/Sidebar";
+import Sidebar, { MobileNavProvider } from "./components/Sidebar";
 import LayoutContent from "./components/LayoutContent";
 import TaskNotificationProvider from "./components/TaskNotificationProvider";
 import { USER_TYPES } from "../constants/userTypes";
@@ -47,11 +47,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const roleName = user.role.name;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-grey-50">
-      <Sidebar />
-      <TaskNotificationProvider>
-        <LayoutContent role={roleName}>{children}</LayoutContent>
-      </TaskNotificationProvider>
-    </div>
+    <MobileNavProvider>
+      <div className="flex h-screen overflow-hidden bg-grey-50">
+        <Sidebar />
+        <TaskNotificationProvider>
+          <LayoutContent role={roleName}>{children}</LayoutContent>
+        </TaskNotificationProvider>
+      </div>
+    </MobileNavProvider>
   );
 }
