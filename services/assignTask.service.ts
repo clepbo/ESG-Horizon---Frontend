@@ -82,18 +82,19 @@ export interface TaskComment {
   comment: string;
   createdAt: string;
 }
+
 export interface TaskStartResponse {
-  taskId: number;
+  id: number;
+  taskId?: number;
   assessmentId: number;
-  message: string;
+  startedAt: string;
+  message?: string;
   data?: {
     assessmentId?: number;
   };
-
   taskAssignment?: {
     assessmentId?: number;
   };
-
   assessment?: {
     id?: number;
   };
@@ -150,7 +151,12 @@ export const taskAssignmentService = {
     return response ?? [];
   },
   startTask: async (taskId: number): Promise<TaskStartResponse> => {
-    const { data } = await api.post(`/tasks/${taskId}/start`);
+    const response = await api.post(`/tasks/${taskId}/start`);
+    console.log("Raw API response from /tasks/start:", response);
+
+    // Handle if response is an array - take first element
+    const data = Array.isArray(response) ? response[0] : response?.data || response;
+
     return data;
   },
 };
