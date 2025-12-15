@@ -125,7 +125,7 @@ export default function ReservesSensitivityForm({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
-      toast.error("Failed to save data.");
+      toast.error(`Failed to save data. ${error}`);
     } finally {
       setIsSaving(false);
     }

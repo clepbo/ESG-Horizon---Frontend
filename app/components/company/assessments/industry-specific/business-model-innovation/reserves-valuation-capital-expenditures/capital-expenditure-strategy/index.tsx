@@ -32,7 +32,6 @@ export default function CapitalExpenditureStrategy({
   stepIndex,
   totalSteps,
   breadcrumb,
-  onSubmit,
 }: CapitalExpenditureStrategyProps) {
   const capexPercentage = useFormattedNumber("");
 
@@ -49,7 +48,7 @@ export default function CapitalExpenditureStrategy({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  const [formData, setFormData] = useState({
+  const [formData, _setFormData] = useState({
     capexPercentageUnit: "%",
   });
 
@@ -75,9 +74,9 @@ export default function CapitalExpenditureStrategy({
     return calculateProgress([hasCapexPercentage, hasCapexDiscussion, hasEvidence]);
   }, [capexPercentage.rawValue, capexDiscussion, filesAndLinks]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  // const handleInputChange = (field: string, value: string) => {
+  //   setFormData((prev) => ({ ...prev, [field]: value }));
+  // };
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
@@ -102,7 +101,7 @@ export default function CapitalExpenditureStrategy({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
-      toast.error("Failed to save data.");
+      toast.error(`Failed to save data. ${error}`);
     } finally {
       setIsSaving(false);
     }
