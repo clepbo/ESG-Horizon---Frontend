@@ -5,6 +5,7 @@ import { CementManufacturing } from "./CementManufacturing";
 import { GasFlaring } from "./GasFlaring";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface ProcessEmissionsFormProps {
   onBack: () => void;
@@ -21,10 +22,13 @@ export function ProcessEmissionsForm({
   onContinueToNextAssessment,
   initialStep,
 }: ProcessEmissionsFormProps) {
+  const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "cement-manufacturing");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+
+  const isAssignedTask = state.isAssignedTask || false;
 
   if (showSuccess) {
     return (
@@ -57,8 +61,14 @@ export function ProcessEmissionsForm({
         onBack={() => setCurrentStep("cement-manufacturing")}
         onSubmit={(totals) => {
           setTotals(totals);
-          setShowSuccess(true);
-          setIsSubmitted(true);
+
+          if (isAssignedTask) {
+            dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+            onBack();
+          } else {
+            setShowSuccess(true);
+            setIsSubmitted(true);
+          }
         }}
         onBackToHub={onBack}
         stepIndex={2}
@@ -67,5 +77,6 @@ export function ProcessEmissionsForm({
       />
     );
   }
+
   return null;
 }

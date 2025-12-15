@@ -24,7 +24,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 interface IndustrialProcessesFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -39,6 +39,7 @@ const uploadFields = [
 export function IndustrialProcessesForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: IndustrialProcessesFormProps) {
@@ -63,9 +64,12 @@ export function IndustrialProcessesForm({
   }, [stepIndex]);
 
   const router = useRouter();
-  const { saveNow, isLoading: isSaving } = useAssessmentFlow(
-    "ghg-scope1-stationary-industrialprocess"
-  );
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope1-stationary-industrialprocess");
 
   const boilerFurnacesOptions = useMemo(() => getFuelOptions("boilerFurnaces"), []);
 
@@ -216,6 +220,10 @@ export function IndustrialProcessesForm({
 
   const handleSaveAndContinue = async () => {
     await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      // onBack();
+      onBackToHub();
+    }
   };
 
   const handlePrevious = () => {
@@ -272,7 +280,7 @@ export function IndustrialProcessesForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -363,7 +371,7 @@ export function IndustrialProcessesForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
+                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -394,7 +402,7 @@ export function IndustrialProcessesForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -428,7 +436,7 @@ export function IndustrialProcessesForm({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isSaving}
-                className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next

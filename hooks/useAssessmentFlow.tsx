@@ -63,10 +63,22 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     return response;
   };
 
+  const isAssignedTask = state.isAssignedTask || false;
+
+  const handleAssignedTaskRedirect = () => {
+    if (isAssignedTask) {
+      dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+      return true;
+    }
+    return false;
+  };
+
   return {
     autoSave,
     saveNow,
     submitGroup,
     isLoading: createMut.isPending || saveMut.isPending || submitMut.isPending,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
   };
 };

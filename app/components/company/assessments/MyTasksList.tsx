@@ -1,27 +1,95 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
-import { ArrowLeft, Calendar, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calendar, AlertCircle, Loader2 } from "lucide-react";
 import { FrontendTask } from "@/services/assignTask.service";
-import { useMyTasks } from "@/services/hooks/assignTask.hooks";
+import { useMyTasks, useStartTask } from "@/services/hooks/assignTask.hooks";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 
 interface MyTasksListProps {
   onBack: () => void;
-  onTaskSelect: (task: FrontendTask, topics: string[]) => void;
+  onTaskSelect: (task: FrontendTask, topics: string[], assessmentId: number) => void;
   onNoTasks?: () => void;
 }
 
 export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProps) {
   const { data: tasks, isLoading, error } = useMyTasks();
+  const { user } = useAuth();
+  const { mutate: startTask, isPending: isStarting } = useStartTask();
+  const [startingTaskId, setStartingTaskId] = useState<number | null>(null);
 
-  // Automatically redirect to full disclosure topics if no tasks are assigned
+  const myAssignedTasks = tasks?.filter((task) => {
+    // Check if the current user's ID is in the assignedUserIds array
+    const isAssigned = task.assignedUserIds?.includes(user?.id ?? 0);
+    console.log(`Task "${task.taskName}" (ID: ${task.id}):`, {
+      assignedUserIds: task.assignedUserIds,
+      currentUserId: user?.id,
+      isAssigned,
+    });
+    return isAssigned;
+  });
+
   useEffect(() => {
-    if (!isLoading && !error && tasks && tasks.length === 0 && onNoTasks) {
+    if (!isLoading && !error && myAssignedTasks && myAssignedTasks.length === 0 && onNoTasks) {
       onNoTasks();
     }
-  }, [isLoading, error, tasks, onNoTasks]);
+  }, [isLoading, error, myAssignedTasks, onNoTasks]);
+
+  const handleTaskClick = (task: FrontendTask) => {
+    // Additional security check: verify user is assigned
+    if (!task.assignedUserIds?.includes(user?.id ?? 0)) {
+      toast.error("You are not authorized to access this task");
+      return;
+    }
+
+    const topics = task.topics || [];
+    setStartingTaskId(task.id);
+
+    // If task is already in progress or completed, don't call start task API
+    if (task.status === "in_progress" || task.status === "completed") {
+      const assessmentId = task.assessmentId || 0;
+
+      if (!assessmentId) {
+        console.error("No assessment ID found for in-progress task:", task);
+        toast.error("Assessment data not found. Please contact support.");
+        setStartingTaskId(null);
+        return;
+      }
+
+      onTaskSelect(task, topics, assessmentId);
+      setStartingTaskId(null);
+      return;
+    }
+
+    startTask(task.id, {
+      onSuccess: (response) => {
+        console.log("Task started successfully:", response);
+
+        const assessmentId =
+          response?.assessmentId ||
+          response?.data?.assessmentId ||
+          (response as any)?.assessment_id ||
+          response?.taskAssignment?.assessmentId ||
+          response?.assessment?.id ||
+          0;
+
+        if (!assessmentId) {
+          console.error("No assessment ID in response:", response);
+        }
+
+        onTaskSelect(task, topics, assessmentId);
+        setStartingTaskId(null);
+      },
+      onError: (error) => {
+        console.error("Failed to start task:", error);
+        toast.error("Failed to start task. Please try again.");
+        setStartingTaskId(null);
+      },
+    });
+  };
 
   const getStatusColor = (status?: string) => {
     if (!status) return "bg-gray-100 text-gray-800 border-gray-200";
@@ -114,6 +182,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
           variant="outline"
           onClick={onBack}
           className="flex items-center gap-2 bg-white mb-6"
+          disabled={isStarting}
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -128,7 +197,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
               </p>
             </div>
 
-            {!tasks || tasks.length === 0 ? (
+            {!myAssignedTasks || myAssignedTasks.length === 0 ? (
               <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                 <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <AlertCircle className="h-8 w-8 text-gray-400" />
@@ -142,15 +211,19 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tasks.map((task) => {
-                  // Extract task and topics from the data structure
+                {myAssignedTasks.map((task) => {
                   const topics = task.topics || [];
+                  const isCurrentlyStarting = startingTaskId === task.id;
+                  const isTaskInProgress =
+                    task.status === "in_progress" || task.status === "completed";
 
                   return (
                     <Card
                       key={task.id}
-                      className="cursor-pointer hover:shadow-xl transition-all hover:border-primary hover:-translate-y-1 border-2"
-                      onClick={() => onTaskSelect(task, topics)}
+                      className={`cursor-pointer hover:shadow-xl transition-all hover:border-primary hover:-translate-y-1 border-2 ${
+                        isCurrentlyStarting ? "opacity-75 pointer-events-none" : ""
+                      }`}
+                      onClick={() => !isCurrentlyStarting && handleTaskClick(task)}
                     >
                       <CardContent className="p-6">
                         <div className="space-y-4">
@@ -245,8 +318,20 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
                           )}
 
                           {/* Call to action */}
-                          <Button className="w-full mt-2 bg-primary hover:bg-primary/90 text-white">
-                            Start Task
+                          <Button
+                            className="w-full mt-2 bg-primary hover:bg-primary/90 text-white"
+                            disabled={isCurrentlyStarting}
+                          >
+                            {isCurrentlyStarting ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                {isTaskInProgress ? "Continuing..." : "Starting..."}
+                              </>
+                            ) : isTaskInProgress ? (
+                              "Continue Task"
+                            ) : (
+                              "Start Task"
+                            )}
                           </Button>
                         </div>
                       </CardContent>

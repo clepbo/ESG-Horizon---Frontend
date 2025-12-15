@@ -20,6 +20,8 @@ import { FugitiveEmissionsForm } from "./scope1/fugitive-emissions";
 import { LocationBasedForm } from "./scope2/location-based";
 import { MarketBasedForm } from "./scope2/market-based";
 import { FrontendTask } from "@/services/assignTask.service";
+import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
+import DownstreamEmission from "./scope3/DownstreamEmission";
 
 type GHGView =
   | "overview"
@@ -29,6 +31,8 @@ type GHGView =
   | "fugitive-emissions"
   | "location-based"
   | "market-based"
+  | "upstream-emissions"
+  | "downstream-emissions"
   | "scope3";
 
 interface GhgEmissionsAssessmentProps {
@@ -181,8 +185,11 @@ export function GhgEmissionsAssessment({
     if (cardTitle.includes("Market-Based")) {
       setCurrentView("market-based");
     }
-    if (cardTitle.includes("scope3")) {
-      setCurrentView("scope3");
+    if (cardTitle.includes("Upstream Emissions (Categories 1-8)")) {
+      setCurrentView("upstream-emissions");
+    }
+    if (cardTitle.includes("Downstream Emissions (Categories 9-15)")) {
+      setCurrentView("downstream-emissions");
     }
   };
 
@@ -285,6 +292,25 @@ export function GhgEmissionsAssessment({
     );
   }
 
+  if (currentView === "upstream-emissions") {
+    return (
+      <UpstreamEmissionHome
+        handleBacktoAssessment={onBackToHub}
+        handleBacktoGHG={handleBackToOverview}
+        backToDisclossureTopic={onBack}
+      />
+    );
+  }
+  if (currentView === "downstream-emissions") {
+    return (
+      <DownstreamEmission
+        handleBacktoAssessment={onBackToHub}
+        handleBacktoGHG={handleBackToOverview}
+        backToDisclossureTopic={onBack}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -333,7 +359,11 @@ export function GhgEmissionsAssessment({
             </div>
 
             {filteredScopes.length > 0 ? (
-              <Accordion type="multiple" defaultValue={["scope-1"]} className="space-y-4">
+              <Accordion
+                type="multiple"
+                defaultValue={["scope-1", "scope-2"]}
+                className="space-y-4"
+              >
                 {filteredScopes.map((scope) => (
                   <AccordionItem key={scope.id} value={scope.id} className="border-0">
                     <AccordionTrigger className="py-4 px-2 rounded-lg bg-transparent hover:no-underline hover:cursor-pointer">

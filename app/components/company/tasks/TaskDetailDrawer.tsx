@@ -12,6 +12,7 @@ import {
   useAddTaskComment,
   useDeleteTask,
   useTaskComments,
+  useStartTask,
 } from "@/services/hooks/assignTask.hooks";
 import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
@@ -28,26 +29,20 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
 
   const deleteTaskMutation = useDeleteTask();
   const { data: comments, isLoading } = useTaskComments(task?.id ?? 0);
-
   const addCommentMutation = useAddTaskComment();
+  const startTaskMutation = useStartTask();
 
   const { user: authUser } = useAuth();
   const router = useRouter();
+
   if (!task) return null;
+
   const dueDate = new Date(task.dueDate);
   const now = new Date();
   const diffDays = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   const dueInWeeks = diffDays > 0 ? `Due in ${Math.ceil(diffDays / 7)} weeks` : "Past due";
 
-  // const handleDeleteTask = async (taskId: number) => {
-  //   try {
-  //     await deleteTaskMutation.mutateAsync(taskId);
-  //     toast.error("Task deleted successfully");
-  //     onOpenChange(false);
-  //   } catch (error: any) {
-  //     toast.error(error.message);
-  //   }
-  // };
+  const isAssignedToCurrentUser = task.assignedUserIds?.includes(authUser?.id ?? 0) ?? false;
 
   const handleSaveTask = async (taskId: number) => {
     if (!comment) {
@@ -70,6 +65,35 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
       onOpenChange(false);
     } catch (error) {
       toast.error("Error updating task");
+      console.error(error);
+    }
+  };
+
+  const handleStartTask = async (taskId: number) => {
+    try {
+      const response = await startTaskMutation.mutateAsync(taskId);
+      toast.success("Task started successfully");
+
+      // Extract assessment ID from response
+      const assessmentId =
+        response.assessmentId ||
+        response.data?.assessmentId ||
+        response.taskAssignment?.assessmentId ||
+        response.assessment?.id ||
+        task.assessmentId;
+
+      // Close drawer
+      onOpenChange(false);
+
+      // Navigate to assessment if ID is available
+      if (assessmentId) {
+        router.push(`/assessments/${assessmentId}`);
+      } else {
+        toast.info("Redirecting to tasks...");
+        router.push("/assessments/tasks");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to start task");
       console.error(error);
     }
   };
@@ -223,14 +247,6 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          {/* <Button
-            variant="destructive"
-            className="text-white"
-            disabled={deleteTaskMutation.isPending || addCommentMutation.isPending}
-            onClick={() => handleDeleteTask(task.id)}
-          >
-            <Trash2 className="w-4 h-4 mr-1" /> Delete Task
-          </Button> */}
           <Button
             disabled={addCommentMutation.isPending || deleteTaskMutation.isPending}
             onClick={() => handleSaveTask(task.id)}
@@ -239,13 +255,19 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
             Submit Comment
           </Button>
 
-          <Button
-            disabled={addCommentMutation.isPending || deleteTaskMutation.isPending}
-            onClick={() => console.log(task)}
-            className="bg-teal-600 text-white"
-          >
-            Start Task
-          </Button>
+          {isAssignedToCurrentUser && (
+            <Button
+              disabled={
+                addCommentMutation.isPending ||
+                deleteTaskMutation.isPending ||
+                startTaskMutation.isPending
+              }
+              onClick={() => handleStartTask(task.id)}
+              className="bg-teal-600 text-white"
+            >
+              {startTaskMutation.isPending ? "Starting..." : "Start Task"}
+            </Button>
+          )}
         </div>
       </DialogPrimitive.Content>
     </DialogPrimitive.Root>
