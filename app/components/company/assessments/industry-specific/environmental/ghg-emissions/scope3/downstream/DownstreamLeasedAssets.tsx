@@ -48,7 +48,7 @@ export function DownstreamLeasedAsset({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: DownstreamLeasedAssetProps) {
-//   const { state } = useAssessment();
+  //   const { state } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
