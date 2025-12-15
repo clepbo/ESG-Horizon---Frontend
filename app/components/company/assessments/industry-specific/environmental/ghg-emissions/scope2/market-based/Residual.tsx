@@ -105,15 +105,7 @@ export function ResidualForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [
-    state.assessmentData,
-    electricityConsumedRaw,
-    residualMixFactorRaw,
-    files,
-    additionalFields,
-    setElectricityConsumedRaw,
-    setResidualMixFactorRaw,
-  ]);
+  }, [state.assessmentData]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([

@@ -108,15 +108,7 @@ export function PurchasedSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [
-    state.assessmentData,
-    steamConsumedRaw,
-    selectedSources,
-    otherComments,
-    files,
-    additionalFields,
-    setSteamConsumedRaw,
-  ]);
+  }, [state.assessmentData]);
 
   // const { total, filled } = calculateProgress([
   //   steamConsumedRaw,
