@@ -6,6 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { ArrowLeft, Calendar, AlertCircle, Loader2 } from "lucide-react";
 import { FrontendTask } from "@/services/assignTask.service";
 import { useMyTasks, useStartTask } from "@/services/hooks/assignTask.hooks";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 
 interface MyTasksListProps {
@@ -16,22 +17,39 @@ interface MyTasksListProps {
 
 export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProps) {
   const { data: tasks, isLoading, error } = useMyTasks();
+  const { user } = useAuth();
   const { mutate: startTask, isPending: isStarting } = useStartTask();
   const [startingTaskId, setStartingTaskId] = useState<number | null>(null);
 
+  const myAssignedTasks = tasks?.filter((task) => {
+    // Check if the current user's ID is in the assignedUserIds array
+    const isAssigned = task.assignedUserIds?.includes(user?.id ?? 0);
+    console.log(`Task "${task.taskName}" (ID: ${task.id}):`, {
+      assignedUserIds: task.assignedUserIds,
+      currentUserId: user?.id,
+      isAssigned,
+    });
+    return isAssigned;
+  });
+
   useEffect(() => {
-    if (!isLoading && !error && tasks && tasks.length === 0 && onNoTasks) {
+    if (!isLoading && !error && myAssignedTasks && myAssignedTasks.length === 0 && onNoTasks) {
       onNoTasks();
     }
-  }, [isLoading, error, tasks, onNoTasks]);
+  }, [isLoading, error, myAssignedTasks, onNoTasks]);
 
   const handleTaskClick = (task: FrontendTask) => {
+    // Additional security check: verify user is assigned
+    if (!task.assignedUserIds?.includes(user?.id ?? 0)) {
+      toast.error("You are not authorized to access this task");
+      return;
+    }
+
     const topics = task.topics || [];
     setStartingTaskId(task.id);
 
     // If task is already in progress or completed, don't call start task API
     if (task.status === "in_progress" || task.status === "completed") {
-      // Get assessment ID from task
       const assessmentId = task.assessmentId || 0;
 
       if (!assessmentId) {
@@ -46,12 +64,10 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
       return;
     }
 
-    // Only call start task API for pending tasks
     startTask(task.id, {
       onSuccess: (response) => {
         console.log("Task started successfully:", response);
 
-        // Handle different possible response structures
         const assessmentId =
           response?.assessmentId ||
           response?.data?.assessmentId ||
@@ -69,7 +85,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
       },
       onError: (error) => {
         console.error("Failed to start task:", error);
-        alert("Failed to start task. Please try again.");
+        toast.error("Failed to start task. Please try again.");
         setStartingTaskId(null);
       },
     });
@@ -181,7 +197,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
               </p>
             </div>
 
-            {!tasks || tasks.length === 0 ? (
+            {!myAssignedTasks || myAssignedTasks.length === 0 ? (
               <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                 <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <AlertCircle className="h-8 w-8 text-gray-400" />
@@ -195,7 +211,7 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tasks.map((task) => {
+                {myAssignedTasks.map((task) => {
                   const topics = task.topics || [];
                   const isCurrentlyStarting = startingTaskId === task.id;
                   const isTaskInProgress =
