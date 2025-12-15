@@ -16,8 +16,26 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+
+// Create context for mobile nav visibility
+const MobileNavContext = createContext({
+  showMobileNav: true,
+  setShowMobileNav: (show: boolean) => {},
+});
+
+export const useMobileNav = () => useContext(MobileNavContext);
+
+export function MobileNavProvider({ children }: { children: React.ReactNode }) {
+  const [showMobileNav, setShowMobileNav] = useState(true);
+
+  return (
+    <MobileNavContext.Provider value={{ showMobileNav, setShowMobileNav }}>
+      {children}
+    </MobileNavContext.Provider>
+  );
+}
 
 const navItems = [
   { name: "Reports", href: "/reports-and-analytics", icon: BarChart3 },
@@ -27,7 +45,6 @@ const navItems = [
 const assessmentSubLinks = [
   { name: "New Assessment", href: "/assessments/new-assessment" },
   { name: "Tasks", href: "/assessments/tasks" },
-  // { name: "Target", href: "/assessments/target" },
 ];
 
 const settingsSubLinks = [
@@ -45,6 +62,9 @@ export default function Sidebar() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [assessmentsOpen, setAssessmentsOpen] = useState(false);
 
+  // Use the context for mobile nav visibility
+  const { showMobileNav, setShowMobileNav } = useMobileNav();
+
   useEffect(() => {
     const isSettingsPage = pathname.startsWith("/settings-esg");
     const isAssessmentsPage = pathname.startsWith("/assessments");
@@ -52,10 +72,12 @@ export default function Sidebar() {
     setAssessmentsOpen(isAssessmentsPage);
   }, [pathname]);
 
-  // useEffect(() => {
-  //   setSettingsOpen(false);
-  //   setAssessmentsOpen(false);
-  // }, [pathname]);
+  // Reset mobile nav visibility when dropdowns open
+  useEffect(() => {
+    if (assessmentsOpen || settingsOpen) {
+      setShowMobileNav(true);
+    }
+  }, [assessmentsOpen, settingsOpen, setShowMobileNav]);
 
   const handleAssessmentsClick = () => {
     setAssessmentsOpen((prev) => !prev);
@@ -66,6 +88,7 @@ export default function Sidebar() {
     setSettingsOpen((prev) => !prev);
     setAssessmentsOpen(false);
   };
+
   const handleNavigation = (href: string) => {
     router.push(href);
     setSettingsOpen(false);
@@ -112,7 +135,6 @@ export default function Sidebar() {
     <>
       <aside className="hidden lg:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 w-[64px] md:w-[270px] flex-shrink-0 z-51">
         <div className="p-2 md:p-4 border-b border-gray-100">
-          {/* Logo */}
           <Link href="/dashboard-esg">
             <div className="mb-4 flex justify-center md:justify-start">
               <Image
@@ -150,30 +172,10 @@ export default function Sidebar() {
               {user?.company?.name || "Company Name"}
             </span>
           </div>
-
-          {/* <div className="mb-1 hidden md:flex items-center space-x-2 bg-teal-600 rounded-md px-3 py-2">
-          {user?.company?.company_logo_url && (
-            <Image
-              src={user?.company?.company_logo_url || "/image.png"}
-              alt="Company Logo"
-              width={40}
-              height={20}
-              className="object-contain rounded-2xl"
-            />
-          )}
-          <span className="text-sm font-medium text-white">
-            {user?.company?.name || "Company Name"}
-          </span>
-          {!user?.company?.company_logo_url && (
-            <span className="text-xs text-muted">No company logo uploaded.</span>
-          )}
-        </div> */}
         </div>
 
-        {/* Nav section */}
         <div className="flex-grow p-2 md:p-4 overflow-y-auto mt-0">
           <nav className="space-y-1">
-            {/* Dashboard */}
             <motion.div
               whileHover={{ opacity: 1, scale: 1.03 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
@@ -204,7 +206,6 @@ export default function Sidebar() {
               </Link>
             </motion.div>
 
-            {/* Assessments with dropdown */}
             <motion.div
               whileHover={{ opacity: 1, scale: 1.03 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
@@ -265,7 +266,6 @@ export default function Sidebar() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Other menu items */}
             {navItems.map(({ name, href, icon: Icon }) => {
               const isActive = pathname.startsWith(href);
               return (
@@ -302,7 +302,6 @@ export default function Sidebar() {
               );
             })}
 
-            {/* Settings with dropdown */}
             <motion.div
               whileHover={{ opacity: 1, scale: 1.03 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
@@ -365,7 +364,6 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        {/* Logout */}
         <div className="px-2 md:px-4 pb-4 border-t border-gray-100">
           <button
             onClick={handleLogout}
@@ -376,7 +374,13 @@ export default function Sidebar() {
           </button>
         </div>
       </aside>
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+
+      <motion.nav
+        initial={{ y: 0 }}
+        animate={{ y: showMobileNav ? 0 : 100 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+      >
         <div className="flex items-center justify-around py-2 px-2">
           {mobileNavLinks.map(({ name, action, icon: Icon, href }) => {
             const isActive = pathname.startsWith(href);
@@ -395,7 +399,7 @@ export default function Sidebar() {
             );
           })}
         </div>
-      </nav>
+      </motion.nav>
 
       <AnimatePresence>
         {assessmentsOpen && (
@@ -403,7 +407,7 @@ export default function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-[100]" // Increased z-index
+            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-[100]"
             onClick={() => setAssessmentsOpen(false)}
           >
             <motion.div
@@ -445,7 +449,6 @@ export default function Sidebar() {
                   })}
                 </div>
               </div>
-              {/* Add padding to account for bottom navigation bar */}
               <div className="h-20 w-full"></div>
             </motion.div>
           </motion.div>
@@ -458,7 +461,7 @@ export default function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-[100]" // Increased z-index
+            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-[100]"
             onClick={() => setSettingsOpen(false)}
           >
             <motion.div
@@ -500,7 +503,6 @@ export default function Sidebar() {
                   })}
                 </div>
 
-                {/* Mobile Logout Button (Added for completeness) */}
                 <div className="mt-6 pt-4 border-t border-gray-100">
                   <button
                     onClick={handleLogout}
@@ -511,7 +513,6 @@ export default function Sidebar() {
                   </button>
                 </div>
               </div>
-              {/* Add padding to account for bottom navigation bar */}
               <div className="h-20 w-full"></div>
             </motion.div>
           </motion.div>
