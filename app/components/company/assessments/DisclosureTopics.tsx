@@ -138,12 +138,12 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Security, Human Rights & Rights of Indigenous Peoples",
         subtitle:
           "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
-        clickable: true,
+        // clickable: true,
       },
       {
         title: "Community Relations",
         subtitle: "Report engagement strategies and impact on local  communities",
-        clickable: true,
+        // clickable: true,
       },
     ],
   },
@@ -159,7 +159,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Workforce Health & Safety",
         subtitle:
           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
-        clickable: true,
+        // clickable: true,
       },
     ],
   },
@@ -174,12 +174,12 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Reserves Valuation & Capital Expenditures",
         subtitle: "Report on investment strategies and valuation of natural rsource reserves",
-        clickable: true,
+        // clickable: true,
       },
       {
         title: "Business Ethics & Transparency",
         subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
-        clickable: true,
+        // clickable: true,
       },
     ],
   },
