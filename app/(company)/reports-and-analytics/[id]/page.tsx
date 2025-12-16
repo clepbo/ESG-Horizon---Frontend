@@ -1,14 +1,11 @@
 "use client";
 import React from "react";
-import ReportSummary from "../components/ReportSummary";
-import ReportSummarySkeleton from "../components/skeleton/ReportSummarySkeleton";
 import { motion } from "framer-motion";
-import { useSingleReport } from "../components/service/useReport";
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
 import NewReportSummary from "../components/newReport/NewReportSummary";
 
 export default function Pages() {
-  const params = useParams();
+  // const params = useParams();
   // const { data, isLoading, error } = useSingleReport(Number(params?.id));
 
   // Proper logging

@@ -1,21 +1,21 @@
-import { Card } from '@/app/components/ui/card';
-import { CustomButton } from '@/app/components/ui/reusables/CustomButton';
+import { Card } from "@/app/components/ui/card";
+import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { GoDotFill, GoDownload } from "react-icons/go";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import ReportOverview from './ReportOverview';
-import ReportEnvironmental from './ReportEnvironmental';
-import SocialCapital from './SocialCapital';
-import ReportHumanCapital from './ReportHumanCapital';
-import BusinessModelPillar from './BusinessModelPillar';
-import ReportLeadershipPillar from './ReportLeadershipPillar';
+import ReportOverview from "./ReportOverview";
+import ReportEnvironmental from "./ReportEnvironmental";
+import SocialCapital from "./SocialCapital";
+import ReportHumanCapital from "./ReportHumanCapital";
+import BusinessModelPillar from "./BusinessModelPillar";
+import ReportLeadershipPillar from "./ReportLeadershipPillar";
 
 export default function NewReportSummary() {
-  const [view, setView] = useState('overview');
+  const [view, setView] = useState("overview");
 
   const bg = {
     progress: "bg-orange-300",
-    completed: "bg-green-500"
+    completed: "bg-green-500",
   };
 
   const tabs = [
@@ -41,7 +41,9 @@ export default function NewReportSummary() {
 
           <div className="flex gap-2 lg:gap-4 items-center">
             <span>Dangote Sugar</span>
-            <span><GoDotFill className="text-gray-500" /></span>
+            <span>
+              <GoDotFill className="text-gray-500" />
+            </span>
             <span>Jan 2025 - Dec 2025</span>
           </div>
         </div>
@@ -68,9 +70,10 @@ export default function NewReportSummary() {
                 onClick={() => setView(tab.value)}
                 className={`
                   px-4 cursor-pointer border border-t-2 p-2 rounded text-sm font-medium transition
-                  ${active
-                    ? "bg-primary text-white border-primary"
-                    : "bg-white text-primary border-primary/40 hover:bg-primary/10"
+                  ${
+                    active
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white text-primary border-primary/40 hover:bg-primary/10"
                   }
                 `}
               >
@@ -81,11 +84,7 @@ export default function NewReportSummary() {
         </Card>
 
         {/* Content below */}
-        <div className=" rounded">
-          {
-            tabs.find((tab) => tab.value === view)?.content
-          }
-        </div>
+        <div className=" rounded">{tabs.find((tab) => tab.value === view)?.content}</div>
       </div>
     </div>
   );
