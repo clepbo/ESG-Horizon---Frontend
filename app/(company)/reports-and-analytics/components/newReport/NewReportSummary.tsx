@@ -11,7 +11,7 @@ import BusinessModelPillar from "./BusinessModelPillar";
 import ReportLeadershipPillar from "./ReportLeadershipPillar";
 
 export default function NewReportSummary() {
-  const [view, setView] = useState("overview");
+  const [view, setView] = useState("environmental");
 
   const bg = {
     progress: "bg-orange-300",
