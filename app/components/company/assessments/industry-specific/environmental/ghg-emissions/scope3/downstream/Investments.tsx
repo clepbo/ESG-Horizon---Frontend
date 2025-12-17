@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
-import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -52,7 +52,7 @@ export function Investments({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: InvestmentsProps) {
-  const { state } = useAssessment();
+  // const { state } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -186,15 +186,15 @@ export function Investments({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-    await saveForm({ showToast: false, redirect: false });
-    onNext();
-  };
+  // const handleNext = async () => {
+  //   if (!validateForm()) {
+  //     // Auto-clear errors after 5 seconds
+  //     setTimeout(clearAllErrors, 5000);
+  //     return;
+  //   }
+  //   await saveForm({ showToast: false, redirect: false });
+  //   onNext();
+  // };
 
   const handleSubmit = async () => {
     if (!validateForm()) {

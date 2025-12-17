@@ -19,7 +19,6 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
-import { Checkbox } from "@/app/components/ui/checkbox";
 
 interface DownstreamTransportationAndDistributionProps {
   onBack: () => void;

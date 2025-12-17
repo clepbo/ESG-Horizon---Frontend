@@ -103,7 +103,7 @@ export function ElectricityIppsForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData, setElectricityConsumedRaw, setEmissionFactorRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
