@@ -183,6 +183,7 @@ export interface AssessmentState {
   isLoading: boolean;
   error: string | null;
   isContinueMode: boolean;
+  isAssignedTask: boolean;
   progress: AssessmentProgress[];
   scopeTotals: ScopeTotals;
   lastSubmittedAt?: string;
@@ -194,6 +195,7 @@ type AssessmentAction =
   | { type: "SET_ASSESSMENT_ID"; payload: number }
   | { type: "SET_TARGET_STEP"; payload: string }
   | { type: "SET_CONTINUE_MODE"; payload: boolean }
+  | { type: "SET_ASSIGNED_TASK"; payload: boolean }
   | {
       type: "UPDATE_ASSESSMENT_METADATA";
       payload: {
@@ -272,6 +274,7 @@ const initialState: AssessmentState = {
   currentView: "hub",
   assessmentId: null,
   isContinueMode: false,
+  isAssignedTask: false,
   assessmentData: {
     subsidiary: "",
     startMonth: "",
@@ -427,6 +430,9 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
 
     case "SET_CONTINUE_MODE":
       return { ...state, isContinueMode: action.payload };
+
+    case "SET_ASSIGNED_TASK":
+      return { ...state, isAssignedTask: action.payload };
 
     case "SET_ASSESSMENT_ID":
       return {

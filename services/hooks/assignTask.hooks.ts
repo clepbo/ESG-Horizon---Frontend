@@ -7,6 +7,7 @@ import {
   TaskAssignment,
   taskAssignmentService,
   TaskComment,
+  TaskStartResponse,
 } from "../assignTask.service";
 
 function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
@@ -47,7 +48,12 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
       : "Unknown";
 
-    const assignedUserIds = task.assignments?.map((a: any) => a.userId) || [];
+    // Extract user IDs from assignments - handle both nested and direct structures
+    const assignedUserIds =
+      task.assignments?.map((a: any) => a.userId || a.user?.id).filter(Boolean) || [];
+
+    // Extract assessment ID from the assignment or task
+    const assessmentId = item.assessmentId || task.assessmentId || null;
 
     return {
       id: task.id,
@@ -67,10 +73,10 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       topics: allTopics,
       comments: task.comments ?? [],
       assignedUserIds,
+      assessmentId,
     };
   });
 }
-
 const invalidateTasks = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ["allTasks"] });
   queryClient.invalidateQueries({ queryKey: ["companyTasks"] });
@@ -171,14 +177,7 @@ export const useTaskComments = (taskId: number) =>
     queryFn: () => taskAssignmentService.getComments(taskId),
     enabled: !!taskId,
   });
-// export const useMyTasks = () =>
-//   useQuery<FrontendTask[], Error>({
-//     queryKey: ["myTasks"],
-//     queryFn: async () => {
-//       const data = await taskAssignmentService.getMyTasks();
-//       return mapTaskResponseToFrontend(data);
-//     },
-//   });
+
 export const useMyTasks = () =>
   useQuery<FrontendTask[], Error>({
     queryKey: ["myTasks"],
@@ -187,3 +186,10 @@ export const useMyTasks = () =>
       return mapMyTasksResponseToFrontend(data);
     },
   });
+export const useStartTask = () => {
+  const queryClient = useQueryClient();
+  return useMutation<TaskStartResponse, Error, number>({
+    mutationFn: (taskId: number) => taskAssignmentService.startTask(taskId),
+    onSuccess: () => invalidateTasks(queryClient),
+  });
+};
