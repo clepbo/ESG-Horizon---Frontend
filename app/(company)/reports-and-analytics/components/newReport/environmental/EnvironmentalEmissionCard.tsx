@@ -7,7 +7,7 @@ interface Props {
 
 export default function EnvironmentalEmissionCard() {
   return (
-    <div className='rounded-md p-2 md:p-4 border-l border-4 border-green-600 grid'>
+    <div className='rounded-md p-2 md:p-4 border-l-4 border-l-green-600 grid shadow'>
       <div className="flex items-center justify-between w-full">
         <text className=''> Total Emissions </text>
          <span
