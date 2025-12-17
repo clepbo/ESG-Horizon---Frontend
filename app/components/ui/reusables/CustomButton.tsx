@@ -28,8 +28,7 @@ const CustomButtonVariants = cva(
 );
 
 export interface CustomButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof CustomButtonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof CustomButtonVariants> {
   loading?: boolean;
   icon?: React.ReactNode;
 }
