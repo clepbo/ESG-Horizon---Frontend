@@ -18,7 +18,7 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
 interface RoadTransportProps {
@@ -56,9 +56,13 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
   const vehicleFleetOptions = useMemo(() => getFuelOptions("vehicleFleet"), []);
   const carsBusesOptions = useMemo(() => getFuelOptions("carsBuses"), []);
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "ghg-mobile-sources-road-transport"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
+
+  const isAssignedTask = state.isAssignedTask || false;
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -202,8 +206,6 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
   };
 
   const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -231,23 +233,13 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          mobileSources: {
-            ...state.assessmentData.mobileSources,
-            roadTransport: payload,
-          },
-          lastSavedForm: "ghg-mobile-sources-road-transport",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-      }
+      await saveNow("environment.ghg.scope1.mobileSources.roadTransport", payload);
 
       setShowSaveSuccess(true);
+      if (isAssignedTask) {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      }
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 2000);
@@ -330,7 +322,7 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -443,7 +435,7 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -474,7 +466,7 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -483,11 +475,11 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
-                className="justify-self-center bg-[var(--color-primary)] hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
+                disabled={isActionLoading}
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -507,8 +499,8 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
               <Button
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
-                className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isActionLoading}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next

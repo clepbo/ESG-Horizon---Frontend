@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -16,15 +16,15 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface ElectricityEACFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -38,6 +38,7 @@ const uploadFields = [
 export function ElectricityEACForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityEACFormProps) {
@@ -75,7 +76,12 @@ export function ElectricityEACForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-market-electricityeac");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +108,7 @@ export function ElectricityEACForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.eac, setGridElectricityRaw, setEmissionFactorRaw]);
+  }, [state.assessmentData, setEmissionFactorRaw, setGridElectricityRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -169,24 +175,20 @@ export function ElectricityEACForm({
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = async () => {
-    if (!validateForm()) return;
-
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
       gridElectricity: gridElectricityRaw,
       emissionFactor: emissionFactorRaw,
       files,
-      additionalFields: normalizeFiles(additionalFields),
-      progressPercent,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -195,60 +197,39 @@ export function ElectricityEACForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          eac: {
-            gridElectricity: gridElectricityRaw,
-            emissionFactor: emissionFactorRaw,
-            files,
-            additionalFields: normalizeFiles(additionalFields),
-          },
-          lastSavedForm: "ghg-market-based-electricityEAC",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+      await saveNow("environment.ghg.scope2.marketBased.electricityEac", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleNext = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) return;
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      await saveForm({ showToast: true, redirect: false });
+      onBackToHub();
+    } else {
+      // For normal flow, let saveForm handle the redirect
+      await saveForm({ showToast: true, redirect: true });
+    }
+  };
 
-    dispatch({
-      type: "UPDATE_EAC",
-      payload: {
-        gridElectricity: gridElectricityRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
+  const handleNext = async () => {
+    if (!validateForm()) return;
+    await saveForm({ showToast: false, redirect: false });
     onNext();
   };
-  const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_EAC",
-      payload: {
-        gridElectricity: gridElectricityRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
 
+  const handlePrevious = () => {
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -361,7 +342,7 @@ export function ElectricityEACForm({
                 2.1 Purchased Electricity (with Energy Attribute Certificates – EACs / RECs)
               </Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="electricity"
                   formattedValue={{
                     rawValue: gridElectricityRaw,
@@ -418,7 +399,7 @@ export function ElectricityEACForm({
                   </div>
                 ) : files["EAC / REC Certificate"] ? (
                   <div className="flex items-center gap-2 mt-2">
-                    <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
+                    <p className="text-sm text-primary wrap-break-word max-w-full text-center">
                       Uploaded: {files["EAC / REC Certificate"]!.name}
                     </p>
                     <button
@@ -503,7 +484,7 @@ export function ElectricityEACForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -545,7 +526,7 @@ export function ElectricityEACForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-[var(--color-primary)]  hover:bg-teal-600 hover:cursor-pointer text-white  transition-colors"
+                className="justify-self-center bg-primary  hover:bg-teal-600 hover:cursor-pointer text-white  transition-colors"
                 aria-label="Save and continue later"
               >
                 {isSaving ? (

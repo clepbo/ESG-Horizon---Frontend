@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { formatNumberWithCommas } from "../../reports-and-analytics/components/utils/helpers";
 import { useEffect, useState } from "react";
 import { Target, TargetType } from "../types/target";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function PerformanceOverview() {
   const [target, setTarget] = useState<Target | null>(null);
@@ -35,6 +36,9 @@ export default function PerformanceOverview() {
   const scope2Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE2");
   const scope3Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE3");
 
+  if (latestTarget.isLoading) {
+    return <CardSkeleton />;
+  }
   return (
     <KpiCard title="Targets and Performance" className="space-y-6 w-full">
       {/* General Target Display */}
@@ -42,9 +46,9 @@ export default function PerformanceOverview() {
         <div className="flex items-center justify-center">
           <SpeedometerGauge
             score={120}
-            initialEmission={formatNumberWithCommas(general.baselineYearEmission ?? 0) ?? 0}
-            currentEmission={formatNumberWithCommas(general.currentEmission ?? 0) ?? 0}
-            targetEmission={formatNumberWithCommas(general.targetEmission) ?? 0}
+            initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
+            currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
+            targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
           />
         </div>
       )}
@@ -73,7 +77,6 @@ export default function PerformanceOverview() {
         </div>
       )}
 
-      {/* Fallback when no target data */}
       {!target && (
         <div className="text-center py-8">
           <p className="text-gray-500">No target data available</p>

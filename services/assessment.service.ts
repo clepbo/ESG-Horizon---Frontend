@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "@/lib/api/axios";
 import { AssessmentData } from "@/hooks/useAssessment";
 
@@ -37,65 +36,50 @@ export interface ScopeTotals {
 
 export interface SubmitAssessmentResponse {
   message: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   assessment: any;
   progress: AssessmentProgress[];
   scopeTotals: ScopeTotals;
   totals?: TotalsResponse;
 }
 
-const ensureSubsidiary = (data: Partial<AssessmentData>): Partial<AssessmentData> => {
-  if (!data.subsidiary || data.subsidiary.trim() === "") {
-    return { ...data, subsidiary: data.subsidiary || "Self" };
-  }
-  return data;
-};
-
 export const assessmentService = {
-  getAssessments: async () => {
-    const { data } = await api.get("/assessments");
-    return data;
+  createAssessment: async (payload: {
+    subsidiary: string;
+    startMonth: string;
+    startYear: string;
+    endMonth: string;
+    endYear: string;
+  }) => {
+    const res = await api.post("/assessments", payload);
+    return res.data;
   },
 
-  getAssessment: async (assessmentId: number) => {
-    const response = await api.get(`/assessments/${assessmentId}`);
-    return response;
+  saveProgress: async (assessmentId: number, path: string, data: any, lastSavedForm?: string) => {
+    return api.post(`/assessments/${assessmentId}/save`, {
+      path,
+      data,
+      lastSavedForm,
+    });
   },
 
-  saveAssessment: async (payload: {
-    assessmentId?: number | null;
-    data: Partial<AssessmentData>;
-  }): Promise<SaveAssessmentResponse> => {
-    const { assessmentId, data: assessmentData } = payload;
-    const dataWithSubsidiary = ensureSubsidiary(assessmentData);
-
-    const url = assessmentId ? `/assessments/save/${assessmentId}` : "/assessments/save";
-
-    return await api.post(url, dataWithSubsidiary);
+  submitGroup: async (assessmentId: number, lastSavedForm?: string) => {
+    return api.post(`/assessments/${assessmentId}/submit`, { lastSavedForm });
   },
 
-  submitAssessment: async (
-    assessmentId: number | null | undefined,
-    data: Partial<AssessmentData>
-  ): Promise<SubmitAssessmentResponse> => {
-    const dataWithSubsidiary = ensureSubsidiary(data);
+  getAssessments: async () => (await api.get("/assessments")).data,
 
-    const url = assessmentId ? `/assessments/submit/${assessmentId}` : "/assessments/submit";
-
-    const response = await api.post(url, dataWithSubsidiary);
-    return response;
-  },
+  getAssessment: async (id: number) => await api.get(`/assessments/${id}`),
 
   approveAssessment: async (assessmentId: number): Promise<{ message: string; data: any }> => {
     const response = await api.post(`/assessments/${assessmentId}/approve`);
     return response;
   },
 
-  rejectAssessment: async (
+  declineAssessment: async (
     assessmentId: number,
     reason: string
   ): Promise<{ message: string; data: any }> => {
-    const response = await api.post(`/assessments/${assessmentId}/reject`, { reason });
+    const response = await api.post(`/assessments/${assessmentId}/decline`, { reason });
     return response;
   },
 

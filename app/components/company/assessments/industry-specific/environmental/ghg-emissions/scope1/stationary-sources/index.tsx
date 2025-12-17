@@ -6,6 +6,7 @@ import { IndustrialProcessesForm } from "./IndustrialProcesses";
 import { OilGasOperations } from "./OilGasOperations";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface StationarySourcesFormProps {
   onBack: () => void;
@@ -23,11 +24,12 @@ export function StationarySourcesForm({
   onBackToHub,
   initialStep,
 }: StationarySourcesFormProps) {
+  const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-
+  const isAssignedTask = state.isAssignedTask || false;
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -71,8 +73,13 @@ export function StationarySourcesForm({
         onBack={() => setCurrentStep("industrial-processes")}
         onSubmit={(totals) => {
           setTotals(totals);
-          setShowSuccess(true);
-          setIsSubmitted(true);
+          if (isAssignedTask) {
+            dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+            onBack();
+          } else {
+            setShowSuccess(true);
+            setIsSubmitted(true);
+          }
         }}
         onBackToHub={onBack}
         stepIndex={3}

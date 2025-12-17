@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ListX, Plus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import { Button } from "@/app/components/ui/button";
 import { TaskTable } from "@/app/components/company/tasks/TaskTable";
 import { TaskDetailDrawer } from "@/app/components/company/tasks/TaskDetailDrawer";
@@ -12,11 +11,13 @@ import {
   useCompanyTasks,
   useApproveTask,
   useRejectTask,
-  useReassignTask,
   useDeleteTask,
   useSendTaskReminder,
+  useAddTaskComment,
 } from "@/services/hooks/assignTask.hooks";
 import { FrontendTask } from "@/services/assignTask.service";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 
 export default function TasksPage() {
   const router = useRouter();
@@ -26,14 +27,16 @@ export default function TasksPage() {
   const { data: tasks = [], isLoading, isError, error } = useCompanyTasks();
 
   if (isError) {
-    toast({ title: "Error", description: error.message, variant: "destructive" });
+    toast.error(error?.message || "Failed to load tasks.");
   }
+
+  const { user: authUser } = useAuth();
 
   const approveTaskMutation = useApproveTask();
   const rejectTaskMutation = useRejectTask();
-  const reassignTaskMutation = useReassignTask();
   const deleteTaskMutation = useDeleteTask();
   const sendReminderMutation = useSendTaskReminder();
+  const addCommentMutation = useAddTaskComment();
 
   const handleViewTask = (task: FrontendTask) => {
     setSelectedTask(task);
@@ -47,53 +50,53 @@ export default function TasksPage() {
   const handleDeleteTask = async (taskId: number) => {
     try {
       await deleteTaskMutation.mutateAsync(taskId);
-      toast({
-        title: "Task Deleted",
-        description: "Task deleted successfully.",
-        variant: "destructive",
-      });
+      toast.info("Task deleted successfully.");
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error(error.message || "Failed to delete task.");
     }
   };
 
   const handleReassignTask = async (taskId: number) => {
-    try {
-      await reassignTaskMutation.mutateAsync({ id: taskId, payload: {} });
-      toast({ title: "Task Reassigned", description: `Task ID ${taskId} reassigned.` });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+    router.push(`/assessments/tasks/assign?edit=${taskId}`);
   };
 
   const handleApproveTask = async (taskId: number) => {
     try {
       await approveTaskMutation.mutateAsync(taskId);
-      toast({ title: "Task Approved", description: "Task has been approved." });
+      toast.success("Task approved successfully.");
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error(error.message || "Failed to approve task.");
     }
   };
 
-  const handleRejectTask = async (taskId: number) => {
+  const handleDeclineTask = async (taskId: number, comment?: string) => {
     try {
-      await rejectTaskMutation.mutateAsync(taskId);
-      toast({
-        title: "Task Rejected",
-        description: "Task has been rejected.",
-        variant: "destructive",
+      if (!comment || comment.trim() === "") {
+        toast.info("Please provide a comment before declining.");
+        return;
+      }
+      const author = authUser?.first_name
+        ? `${authUser.first_name} ${authUser.last_name ?? ""}`.trim()
+        : "Anonymous";
+
+      await addCommentMutation.mutateAsync({
+        id: taskId,
+        payload: { commenter: author, comment },
       });
+      await rejectTaskMutation.mutateAsync(taskId);
+
+      toast.error("Task declined successfully.");
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error(error.message || "Failed to decline task");
     }
   };
 
   const handleSendReminder = async (taskId: number) => {
     try {
       await sendReminderMutation.mutateAsync(taskId);
-      toast({ title: "Reminder Sent", description: `Reminder sent for task ID: ${taskId}` });
+      toast.info(`Reminder sent for task ID: ${taskId}`);
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast.error(error.message || "Failed to send reminder");
     }
   };
 
@@ -155,7 +158,7 @@ export default function TasksPage() {
               onDeleteTask={handleDeleteTask}
               onReassignTask={handleReassignTask}
               onApproveTask={handleApproveTask}
-              onRejectTask={handleRejectTask}
+              onDeclineTask={handleDeclineTask}
               onSendReminder={handleSendReminder}
               isLoading={isLoading}
             />

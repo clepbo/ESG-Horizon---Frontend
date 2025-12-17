@@ -80,7 +80,8 @@ export function getAssessmentProgressForTable(assessment: any): number {
   const { assessmentData, status } = assessment || {};
   if (!assessmentData) return 0;
 
-  if (status?.startsWith("submitted") || status === "approved") return 100;
+  // if (status?.startsWith("submitted") || status === "approved") return 100;
+  console.info(status);
 
   const lastSavedForm: string = assessmentData.lastSavedForm || "";
   if (!lastSavedForm) return 0;
@@ -202,24 +203,56 @@ export const formattedDate = (date: string): string => {
   });
 };
 
-interface SourceDataForCalculation {
-  volume: number | string;
+// interface SourceDataForCalculation {
+//   volume: number | string;
+//   emissionFactor: number;
+// }
+
+// export function calculateTCO2eForSource(data: SourceDataForCalculation): number {
+//   const { volume, emissionFactor } = data;
+
+//   const numericalVolume = Number(volume);
+//   if (isNaN(numericalVolume) || numericalVolume <= 0 || emissionFactor < 0) {
+//     return 0;
+//   }
+
+//   const kgCO2e = numericalVolume * emissionFactor;
+
+//   const tCO2e = kgCO2e / 1000;
+
+//   return parseFloat(tCO2e.toFixed(2));
+// }
+
+// export function formatTCO2eOutput(tCO2eValue: number): string {
+//   if (tCO2eValue === 0) {
+//     return "0.000 tCO2e";
+//   }
+//   return `${tCO2eValue} tCO2e`;
+// }
+export interface SourceDataForCalculation {
+  volume: string | number;
   emissionFactor: number;
+  isInTonnes?: boolean;
 }
 
 export function calculateTCO2eForSource(data: SourceDataForCalculation): number {
-  const { volume, emissionFactor } = data;
+  const { volume, emissionFactor, isInTonnes = false } = data;
 
   const numericalVolume = Number(volume);
   if (isNaN(numericalVolume) || numericalVolume <= 0 || emissionFactor < 0) {
     return 0;
   }
 
-  const kgCO2e = numericalVolume * emissionFactor;
+  let tCO2e: number;
 
-  const tCO2e = kgCO2e / 1000;
+  if (isInTonnes) {
+    tCO2e = numericalVolume * emissionFactor;
+  } else {
+    const kgCO2e = numericalVolume * emissionFactor;
+    tCO2e = kgCO2e / 1000;
+  }
 
-  return parseFloat(tCO2e.toFixed(2));
+  return parseFloat(tCO2e.toFixed(4)); // Use 4 decimals for precision
 }
 
 export function formatTCO2eOutput(tCO2eValue: number): string {
@@ -231,6 +264,12 @@ export function formatTCO2eOutput(tCO2eValue: number): string {
 
 export function formatStatus(status: any | any[]): string {
   if (!status) return "";
+  if (status === "submitted_approved") {
+    return "Submitted-Approved";
+  }
+  if (status === "unapproved_rejected") {
+    return "Declined";
+  }
   const words = status
     .split("_")
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));

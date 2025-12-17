@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useMobileNav } from "./Sidebar";
 
 interface LayoutContentProps {
   children: React.ReactNode;
@@ -12,6 +13,9 @@ interface LayoutContentProps {
 export default function LayoutContent({ children, role }: LayoutContentProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { setShowMobileNav } = useMobileNav();
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -25,6 +29,52 @@ export default function LayoutContent({ children, role }: LayoutContentProps) {
       }
     }
   }, [loading, user, role, router]);
+
+  // Handle scroll for mobile nav auto-hide
+  useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      if (!mainRef.current) return;
+
+      // Clear any pending timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+
+      // Use a small delay to debounce rapid scroll events
+      scrollTimeout = setTimeout(() => {
+        if (!mainRef.current) return;
+
+        const currentScrollY = mainRef.current.scrollTop;
+
+        // Show nav when scrolling up or at the top
+        if (currentScrollY < lastScrollY || currentScrollY < 10) {
+          setShowMobileNav(true);
+        }
+        // Hide nav when scrolling down (and not near the top)
+        else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+          setShowMobileNav(false);
+        }
+
+        setLastScrollY(currentScrollY);
+      }, 10);
+    };
+
+    const mainElement = mainRef.current;
+    if (mainElement) {
+      mainElement.addEventListener("scroll", handleScroll, { passive: true });
+
+      return () => {
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        if (mainElement) {
+          mainElement.removeEventListener("scroll", handleScroll);
+        }
+      };
+    }
+  }, [lastScrollY, setShowMobileNav]);
 
   if (loading || !user)
     return (
@@ -52,5 +102,9 @@ export default function LayoutContent({ children, role }: LayoutContentProps) {
       </div>
     );
 
-  return <main className="flex-1 overflow-y-auto bg-gray-50">{children}</main>;
+  return (
+    <main ref={mainRef} className="flex-1 overflow-y-auto bg-gray-50">
+      {children}
+    </main>
+  );
 }

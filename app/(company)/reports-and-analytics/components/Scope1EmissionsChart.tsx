@@ -182,7 +182,10 @@ export function Scope1EmissionsChart() {
                   domain={[0, "dataMax + 10"]}
                 />
                 <Tooltip
-                  formatter={(value: number) => [`${value.toFixed(1)} tonnes CO2e`, "Emissions"]}
+                  formatter={(value: number | undefined) => [
+                    value !== undefined ? `${value.toFixed(1)} tonnes CO2e` : "0.0 tonnes CO2e",
+                    "Emissions",
+                  ]}
                   labelStyle={{ color: "#374151" }}
                 />
                 <Bar dataKey="emissions" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6" />

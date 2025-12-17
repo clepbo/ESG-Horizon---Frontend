@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -16,17 +16,16 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
-import { TotalsResponse } from "@/services/assessment.service";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
@@ -41,6 +40,7 @@ const uploadFields = [
 export function CoolingSteamForm({
   onBack,
   onSubmit,
+  onBackToHub,
   stepIndex,
   totalSteps,
   isSubmitted,
@@ -78,8 +78,8 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope2-market-coolingsteam");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -107,7 +107,7 @@ export function CoolingSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.coolingSteam, setEnergyConsumedRaw, setEmissionFactorRaw]);
+  }, [state.assessmentData, setEmissionFactorRaw, setEnergyConsumedRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -184,28 +184,20 @@ export function CoolingSteamForm({
     });
   };
 
-  const buildPayload = () => ({
-    energyConsumed: energyConsumedRaw,
-    emissionFactor: emissionFactorRaw,
-    files,
-    additionalFields: additionalFields as FileMetadata[],
-  });
-
-  const handleSaveAndContinue = async () => {
-    if (!validateForm()) return;
-
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
-      ...buildPayload(),
-      progressPercent,
+      energyConsumed: energyConsumedRaw,
+      emissionFactor: emissionFactorRaw,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -214,77 +206,50 @@ export function CoolingSteamForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          coolingSteam: buildPayload(),
-          lastSavedForm: "ghg-market-based-coolingSteam",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      toast.success("Cooling/Steam data saved. You can continue later from where you left off.");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSaveAndContinue = async () => {
+    if (!validateForm()) return;
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      await saveForm({ showToast: true, redirect: false });
+      onBackToHub();
+    } else {
+      // For normal flow, let saveForm handle the redirect
+      await saveForm({ showToast: true, redirect: true });
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    const assessmentId = state.assessmentId;
+    await saveForm({ showToast: false, redirect: false });
 
-    const payload = buildPayload();
-
-    dispatch({
-      type: "UPDATE_COOLING_STEAM",
-      payload,
-    });
-
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          coolingSteam: payload,
-          lastSavedForm: "ghg-market-based-coolingSteam",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment?.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          toast.success("Assessment submitted successfully!");
-          onSubmit(res.totals ?? null);
-          resetForm();
-        },
-        onError: () => {
-          toast.error("Failed to submit");
-        },
-      }
-    );
+    try {
+      const response = await submitGroup();
+      const groupTotal = response.scopeTotals.scope2.marketBased.totalEmission || 0;
+      toast.success("Assessment submitted successfully!");
+      onSubmit(groupTotal);
+      resetForm();
+    } catch (err) {
+      toast.error("Failed to submit");
+      console.error("Submission failed:", err);
+    }
   };
 
   const handlePrevious = () => {
-    const assessmentId = state.assessmentData.assessmentId;
-    if (!assessmentId) {
-      toast.error("Cannot submit: Assessment ID missing.");
-      return;
-    }
-
-    dispatch({ type: "UPDATE_COOLING_STEAM", payload: buildPayload() });
-
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -389,7 +354,7 @@ export function CoolingSteamForm({
                 4.1 Purchased Cooling / Steam
               </Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="cooling"
                   formattedValue={{
                     rawValue: energyConsumedRaw,
@@ -474,7 +439,7 @@ export function CoolingSteamForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -516,11 +481,11 @@ export function CoolingSteamForm({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isSaving ? (
+                {isLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -540,10 +505,10 @@ export function CoolingSteamForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isSaving}
+                disabled={isLoading}
                 className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
-                {isSubmitting ? "Submitting..." : "Submit"}
+                {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>

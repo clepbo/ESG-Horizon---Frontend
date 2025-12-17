@@ -157,7 +157,9 @@ function SourceRow({
                     </>
                   ) : (
                     <>
-                      <span className="text-xs">{source.emissionFactor || 2.68} kgCO₂/unit</span>
+                      <span className="text-xs">
+                        {source.emissionFactor === 0 ? 0 : (source.emissionFactor ?? 2.68)}
+                      </span>
                       <Button
                         type="button"
                         variant="ghost"
@@ -406,8 +408,11 @@ export function AddSource({
   };
 
   const handleResetClick = (source: SourceData) => {
+    const selectedFuel = fuelTypeOptions.find((option) => option.value === source.fuelType);
+
     const defaultFactor =
-      fuelTypeOptions.find((option) => option.value === source.fuelType)?.emissionFactor || 2.68;
+      selectedFuel?.emissionFactor === 0 ? 0 : (selectedFuel?.emissionFactor ?? 2.68);
+
     setTempEmissionFactor(defaultFactor);
   };
 

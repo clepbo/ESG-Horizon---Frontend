@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import {
@@ -13,13 +13,42 @@ import {
 import { LineChart as ChartIcon } from "lucide-react";
 
 interface ESGJoruneyProps {
-  esgJourney: { month: string; score: number }[];
+  esgJourney: { period: string; score: number }[];
 }
 
 export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
   const [timeRange, setTimeRange] = useState("monthly");
 
-  const hasData = esgJourney && esgJourney.length > 0;
+  const processed = useMemo(() => {
+    const parsePeriodStart = (period: string | undefined) => {
+      if (!period) return null;
+      const match = period.match(/(\d{1,2})\/(\d{2,4})/);
+      if (!match) return null;
+      const month = Number(match[1]) - 1;
+      const yearPart = match[2].length === 2 ? 2000 + Number(match[2]) : Number(match[2]);
+      return new Date(yearPart, month, 1);
+    };
+
+    const data = (esgJourney || []).map((d) => ({
+      ...d,
+      _parsedStart: parsePeriodStart(d.period),
+      _score: typeof d.score === "number" ? d.score : Number(d.score) || 0,
+      _label: d.period,
+    }));
+
+    data.sort((a, b) => {
+      const aDate = a._parsedStart ? a._parsedStart.getTime() : 0;
+      const bDate = b._parsedStart ? b._parsedStart.getTime() : 0;
+      return aDate - bDate;
+    });
+
+    const maxScore = Math.max(0, ...data.map((d) => d._score), 100);
+    const yMax = Math.ceil((maxScore * 1.1) / 10) * 10;
+
+    return { data, yMax };
+  }, [esgJourney]);
+
+  const hasData = processed.data && processed.data.length > 0;
 
   return (
     <Card className="bg-white border-none rounded-xl h-auto">
@@ -43,23 +72,34 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
       <CardContent className="flex-grow pt-8">
         {hasData ? (
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={esgJourney} barCategoryGap={10}>
+            <BarChart data={processed.data} barCategoryGap={10}>
               <CartesianGrid vertical={false} stroke="#E5E7EB" opacity={0.7} />
 
               <XAxis
-                dataKey="month"
+                dataKey="_label"
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 10, fill: "#4B5563" }}
+                tickFormatter={(label: string) => {
+                  if (!label) return "";
+                  if (label.length > 15) {
+                    return `${label.slice(0, 15)}…`;
+                  }
+                  return label;
+                }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 10, fill: "#4B5563" }}
-                domain={[0, 100]}
+                domain={[0, processed.yMax || 100]}
               />
               {/* <Tooltip
                 cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                formatter={(v: number | undefined) => {
+                  const value = Number(v);
+                  return [`${value % 1 === 0 ? value.toFixed(0) : value.toFixed(2)}`, "Score"];
+                }}
                 formatter={(v: number) => [`${v}%`, "Score"]}
               /> */}
               <Tooltip
@@ -67,14 +107,14 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
                 formatter={(v) => [`${typeof v === "number" ? v : 0}%`, "Score"]}
               />
               <Bar
-                dataKey="score"
+                dataKey="_score"
                 fill="url(#colorGradient)"
-                radius={[15, 15, 0, 0]} // <--- 3. Increase the first two values for a more pronounced rounded top
+                radius={[15, 15, 0, 0]}
                 maxBarSize={60}
               />
               <defs>
                 <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0F172A" stopOpacity={4} />
+                  <stop offset="0%" stopColor="#0F172A" stopOpacity={0.9} />
                   <stop offset="100%" stopColor="#0F172A" stopOpacity={0.6} />
                 </linearGradient>
               </defs>

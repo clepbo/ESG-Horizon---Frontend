@@ -1,0 +1,419 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Card, CardContent } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { ArrowLeft, ArrowRight, CheckCircle2, Save } from "lucide-react";
+import { toast } from "react-toastify";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
+import { calculateProgress } from "@/lib/utils";
+import { uploadService } from "@/services/upload.service";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
+import ReusableInput from "./ReusableInput";
+
+interface FreshWaterWithdrawalAndConsumptionProps {
+  onBack: () => void;
+  onContinueToNextAssessment: () => void;
+  stepIndex: number;
+  totalSteps: number;
+  backToAssessment: () => void;
+  backToDisclosureTopic: () => void;
+  backToWaterWasteManagement: () => void;
+}
+
+export default function FreshWaterWithdrawalAndConsumption({
+  onBack,
+  onContinueToNextAssessment,
+  stepIndex,
+  totalSteps,
+  backToAssessment,
+  backToDisclosureTopic,
+  backToWaterWasteManagement,
+}: FreshWaterWithdrawalAndConsumptionProps) {
+  const withdrawalfromGroundwater = useFormattedNumber("");
+  const withdrawalfromMunicipalotherOtherSources = useFormattedNumber("");
+  const totalWaterConsumed = useFormattedNumber("");
+  const volumeWithdrawnfromWaterStressedRegions = useFormattedNumber("");
+  const withdrawalfromSurfaceWater = useFormattedNumber("");
+
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const features = [
+    {
+      label: "Assessments",
+      onClick: backToAssessment,
+    },
+    {
+      label: "Disclosure Topic",
+      onClick: backToDisclosureTopic,
+    },
+    {
+      label: "Water and Waterwaste management",
+      onClick: backToWaterWasteManagement,
+    },
+    {
+      label: "Freshwater Withdrawal & Consumption",
+    },
+  ];
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [stepIndex]);
+
+  const [formData, setFormData] = useState({
+    withdrawalfromSurfaceWater: "",
+    withdrawalfromGroundwater: "",
+    withdrawalfromMunicipalotherOtherSources: "",
+    totalWaterConsumed: "",
+    volumeWithdrawnfromWaterStressedRegions: "",
+
+    withdrawalfromSurfaceWaterUnit: "",
+    withdrawalfromGroundwaterUnit: "",
+    withdrawalfromMunicipalotherOtherSourcesUnit: "",
+    totalWaterConsumedUnit: "",
+    volumeWithdrawnfromWaterStressedRegionsUnit: "",
+  });
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!withdrawalfromGroundwater.rawValue) {
+      newErrors.withdrawalfromGroundwater = "Volume is required";
+    }
+    if (!formData.withdrawalfromGroundwaterUnit) {
+      newErrors.withdrawalfromGroundwaterUnit = "Unit is required";
+    }
+
+    if (!withdrawalfromMunicipalotherOtherSources.rawValue) {
+      newErrors.withdrawalfromMunicipalotherOtherSources = "Volume is required";
+    }
+    if (!formData.withdrawalfromMunicipalotherOtherSourcesUnit) {
+      newErrors.withdrawalfromMunicipalotherOtherSources = "Unit is required";
+    }
+
+    if (!totalWaterConsumed.rawValue) {
+      newErrors.totalWaterConsumed = "Volume is required";
+    }
+    if (!formData.totalWaterConsumedUnit) {
+      newErrors.totalWaterConsumedUnit = "Volume is required";
+    }
+
+    if (!volumeWithdrawnfromWaterStressedRegions.rawValue) {
+      newErrors.volumeWithdrawnfromWaterStressedRegions = "Volume is required";
+    }
+    if (!formData.volumeWithdrawnfromWaterStressedRegionsUnit) {
+      newErrors.volumeWithdrawnfromWaterStressedRegionsUnit = "Unit is required";
+    }
+    if (!withdrawalfromSurfaceWater.rawValue) {
+      newErrors.withdrawalfromSurfaceWater = "Volume is required";
+    }
+    if (!formData.withdrawalfromSurfaceWaterUnit) {
+      newErrors.withdrawalfromSurfaceWaterUnit = "Unit is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  useMemo(() => {
+    const haswithdrawalFromGroundWater =
+      withdrawalfromGroundwater.rawValue !== "" && formData.withdrawalfromGroundwaterUnit !== "";
+
+    const haswithdrawalfromSurfaceWater =
+      withdrawalfromSurfaceWater.rawValue !== "" && formData.withdrawalfromSurfaceWaterUnit !== "";
+
+    const haswithdrawalfromMunicipalotherOtherSources =
+      withdrawalfromMunicipalotherOtherSources.rawValue !== "" &&
+      formData.withdrawalfromMunicipalotherOtherSourcesUnit !== "";
+
+    const hastotalWaterConsumed =
+      totalWaterConsumed.rawValue !== "" && formData.totalWaterConsumedUnit !== "";
+
+    const hasvolumeWithdrawnfromWaterStressedRegions =
+      volumeWithdrawnfromWaterStressedRegions.rawValue !== "" &&
+      formData.volumeWithdrawnfromWaterStressedRegionsUnit !== "";
+
+    const hasEvidence = filesAndLinks.length > 0;
+
+    return calculateProgress([
+      haswithdrawalFromGroundWater,
+      haswithdrawalfromSurfaceWater,
+      haswithdrawalfromMunicipalotherOtherSources,
+      hastotalWaterConsumed,
+      hasvolumeWithdrawnfromWaterStressedRegions,
+      hasEvidence,
+    ]);
+  }, [
+    withdrawalfromGroundwater.rawValue,
+    withdrawalfromSurfaceWater.rawValue,
+    withdrawalfromMunicipalotherOtherSources.rawValue,
+    totalWaterConsumed.rawValue,
+    volumeWithdrawnfromWaterStressedRegions.rawValue,
+    formData.withdrawalfromGroundwaterUnit,
+    formData.withdrawalfromSurfaceWaterUnit,
+    formData.withdrawalfromMunicipalotherOtherSourcesUnit,
+    formData.totalWaterConsumedUnit,
+    formData.volumeWithdrawnfromWaterStressedRegionsUnit,
+    filesAndLinks,
+  ]);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveAndContinue = () => {
+    if (!validateForm()) {
+      toast.error("Please fix the errors before saving.");
+      return;
+    }
+    setShowSaveSuccess(true);
+    setIsSaving(true);
+
+    const payload = {
+      withdrawalfromGroundwater: Number(withdrawalfromGroundwater.rawValue),
+      withdrawalfromGroundwaterUnit: formData.withdrawalfromGroundwaterUnit,
+
+      withdrawalfromSurfaceWater: Number(withdrawalfromSurfaceWater.rawValue),
+      withdrawalfromSurfaceWaterUnit: formData.withdrawalfromSurfaceWaterUnit,
+
+      withdrawalfromMunicipalotherOtherSources: Number(
+        withdrawalfromMunicipalotherOtherSources.rawValue
+      ),
+      withdrawalfromMunicipalotherOtherSourcesUnit:
+        formData.withdrawalfromMunicipalotherOtherSourcesUnit,
+
+      filesAndLinks: filesAndLinks,
+    };
+    console.log("DATA TO SAVE:", payload);
+
+    toast.success("Data logged to console.");
+    setIsSaving(false);
+  };
+
+  const handleNext = () => {
+    if (!validateForm()) {
+      toast.error("Please fix the errors before saving.");
+      return;
+    }
+    toast.success("Moved to next section");
+    onContinueToNextAssessment();
+  };
+
+  const handlePrevious = () => {
+    toast.info("Returning to previous section");
+    onBack();
+  };
+
+  const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
+    setFilesAndLinks(fields);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
+      <CustomBreadcrumbDynamic features={features} />
+      <div className="max-w-5xl mx-auto space-y-6 ">
+        <div className="flex items-center gap-6 mb-4  mt-4">
+          <div>
+            <h3 className="text-2xl font-semibold"> Reserves in or near Areas of Conflict</h3>
+            <p className="text-muted-foreground text-base">
+              Report the percentage of your proved and probable reserves that are located in or near
+              areas of active conflict, as defined by the Uppsala Conflict Data Program (UCDP).
+            </p>
+          </div>
+        </div>
+
+        {/* Main Card */}
+        <Card className="shadow-sm border border-gray-200">
+          <CardContent className="p-8 space-y-8">
+            {/* Progress Bar */}
+            <AssessmentProgressBar
+              stepIndex={stepIndex}
+              totalSteps={totalSteps}
+              fieldsCompleted={1}
+              totalFields={3}
+              isSubmitted={false}
+            />
+
+            <ReusableInput
+              label={"Withdrawal from Surface Water"}
+              tooltipTitle={"Withdrawal from Surface Water"}
+              tooltipBody={
+                "Water taken directly from rivers, lakes, wetlands, reservoirs, or oceans for operational use. Report total volume withdrawn during the reporting period."
+              }
+              inputValue={withdrawalfromSurfaceWater.displayValue}
+              unitValue={formData.withdrawalfromSurfaceWaterUnit}
+              onInputChange={(num) => {
+                withdrawalfromSurfaceWater.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, withdrawalfromSurfaceWater: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("withdrawalfromSurfaceWaterUnit", unit);
+                setErrors((prev) => ({ ...prev, withdrawalfromSurfaceWaterUnit: "" }));
+              }}
+              error={errors.withdrawalfromSurfaceWaterUnit}
+              unitError={errors.withdrawalfromSurfaceWaterUnit}
+              formatNumbers={false}
+            />
+
+            <ReusableInput
+              label={"Withdrawal from Groundwater"}
+              tooltipTitle={"Groundwater Withdrawal"}
+              tooltipBody={
+                "Water extracted from underground aquifers or wells. Includes both shallow and deep groundwater sources used for drilling, processing, or facility operations."
+              }
+              inputValue={withdrawalfromGroundwater.displayValue}
+              unitValue={formData.withdrawalfromGroundwaterUnit}
+              onInputChange={(num) => {
+                withdrawalfromGroundwater.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, withdrawalfromGroundwater: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("withdrawalfromGroundwaterUnit", unit);
+                setErrors((prev) => ({ ...prev, withdrawalfromGroundwaterUnit: "" }));
+              }}
+              error={errors.withdrawalfromGroundwater}
+              unitError={errors.withdrawalfromGroundwaterUnit}
+              formatNumbers={false}
+            />
+            <ReusableInput
+              label={"Withdrawal from Municipal & Other Sources"}
+              tooltipTitle={"Withdrawal from Municipal & Other Sources"}
+              tooltipBody={
+                "Water supplied by municipal utilities, third-party providers, or purchased from external sources. This includes treated potable water used in facilities."
+              }
+              inputValue={withdrawalfromMunicipalotherOtherSources.displayValue}
+              unitValue={formData.withdrawalfromMunicipalotherOtherSourcesUnit}
+              onInputChange={(num) => {
+                withdrawalfromMunicipalotherOtherSources.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, withdrawalfromMunicipalotherOtherSources: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("withdrawalfromMunicipalotherOtherSourcesUnit", unit);
+                setErrors((prev) => ({
+                  ...prev,
+                  withdrawalfromMunicipalotherOtherSourcesUnit: "",
+                }));
+              }}
+              error={errors.withdrawalfromMunicipalotherOtherSources}
+              unitError={errors.withdrawalfromMunicipalotherOtherSourcesUnit}
+              formatNumbers={false}
+            />
+
+            <ReusableInput
+              label={"Total Water Consumed"}
+              tooltipTitle={"Total Water Consumed"}
+              tooltipBody={
+                "The portion of water withdrawn that is not returned to the original source because it was evaporated, incorporated into products, or contaminated beyond reuse."
+              }
+              inputValue={totalWaterConsumed.displayValue}
+              unitValue={formData.totalWaterConsumedUnit}
+              onInputChange={(num) => {
+                totalWaterConsumed.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, totalWaterConsumed: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("totalWaterConsumedUnit", unit);
+                setErrors((prev) => ({ ...prev, totalWaterConsumedUnit: "" }));
+              }}
+              error={errors.totalWaterConsumedUnit}
+              unitError={errors.totalWaterConsumedUnit}
+              formatNumbers={false}
+            />
+            <ReusableInput
+              label={"Volume Withdrawn from Water-Stressed Regions"}
+              tooltipTitle={"Volume Withdrawn from Water-Stressed Regions"}
+              tooltipBody={
+                "Total water withdrawal from locations identified as water-stressed or high-baseline water-risk areas. Typically determined using recognized tools such as WRI Aqueduct or WWF Water Risk Filter."
+              }
+              inputValue={volumeWithdrawnfromWaterStressedRegions.displayValue}
+              unitValue={formData.volumeWithdrawnfromWaterStressedRegionsUnit}
+              onInputChange={(num) => {
+                volumeWithdrawnfromWaterStressedRegions.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, volumeWithdrawnfromWaterStressedRegions: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("volumeWithdrawnfromWaterStressedRegionsUnit", unit);
+                setErrors((prev) => ({ ...prev, volumeWithdrawnfromWaterStressedRegionsUnit: "" }));
+              }}
+              error={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
+              unitError={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
+              formatNumbers={false}
+            />
+
+            {/* Document/Evidence Upload */}
+            <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
+              <p className="text-sm text-gray-600">
+                Upload supporting documents like your reserves statement, internal security risk
+                assessments for relevant regions, and citations for the UCDP data used.
+              </p>
+
+              <div className="mt-6">
+                <AddMoreFilesLinks
+                  onFieldsChange={handleFilesAndLinksChange}
+                  initialData={filesAndLinks}
+                  uploadService={uploadService}
+                />
+              </div>
+            </div>
+
+            {/* Navigation buttons */}
+            <div className="grid grid-cols-3 gap-4 pt-8">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrevious}
+                className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Go Back
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSaveAndContinue}
+                disabled={isSaving}
+                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
+              >
+                {isSaving ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Saving...
+                  </>
+                ) : showSaveSuccess ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Saved!
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save & Continue Later
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleNext}
+                disabled={isSaving}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+              >
+                Next
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

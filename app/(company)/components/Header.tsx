@@ -1,13 +1,29 @@
 "use client";
 
-import { Bell } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { formatRoleName } from "@/lib/utils";
 import { AutoBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
+import NotificationDropdown from "./NotificationDropdown";
+import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 
 export default function Header({ showSearchBar = true }: { showSearchBar?: boolean }) {
   const { user } = useAuth();
+  const { data: allTasks = [], isLoading } = useMyTasks();
+
+  // Filter tasks to only show those assigned to the logged-in user
+  const myTasks = allTasks.filter((task) => {
+    // Check if the logged-in user's ID is in the assignedUserIds array
+    return task.assignedUserIds && task.assignedUserIds.includes(user?.id || 0);
+  });
+
+  console.log("Header: task filtering", {
+    userId: user?.id,
+    allTasksCount: allTasks.length,
+    myTasksCount: myTasks.length,
+    allTasks,
+    myTasks,
+  });
 
   const avatarSrc =
     user?.profile_photo_url && user.profile_photo_url.trim() !== ""
@@ -29,7 +45,7 @@ export default function Header({ showSearchBar = true }: { showSearchBar?: boole
 
       {/* Notifications & User Info */}
       <div className="flex items-center gap-4">
-        <Bell className="text-gray-600 hover:text-black cursor-pointer" size={20} />
+        {!isLoading && <NotificationDropdown tasks={myTasks} />}
 
         <div className="flex items-center gap-2">
           <Image

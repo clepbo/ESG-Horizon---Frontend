@@ -5,6 +5,7 @@ import { VentingNaturalGas } from "./VentingNaturalGas";
 import { HFCLeaks } from "./HFCLeaks";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface FugitiveEmissionsFormProps {
   onBack: () => void;
@@ -20,10 +21,13 @@ export function FugitiveEmissionsForm({
   onContinueToNextAssessment,
   initialStep,
 }: FugitiveEmissionsFormProps) {
+  const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "venting-natural-gas");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+
+  const isAssignedTask = state.isAssignedTask || false;
 
   if (showSuccess) {
     return (
@@ -56,8 +60,14 @@ export function FugitiveEmissionsForm({
         onBack={() => setCurrentStep("venting-natural-gas")}
         onSubmit={(totals) => {
           setTotals(totals);
-          setShowSuccess(true);
-          setIsSubmitted(true);
+
+          if (isAssignedTask) {
+            dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+            onBack();
+          } else {
+            setShowSuccess(true);
+            setIsSubmitted(true);
+          }
         }}
         onBackToHub={onBack}
         stepIndex={2}

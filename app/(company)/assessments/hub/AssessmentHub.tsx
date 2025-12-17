@@ -11,6 +11,7 @@ import {
 } from "@/app/components/ui/select";
 import { useAssessment } from "@/hooks/useAssessment";
 import { DisclosureTopics } from "@/app/components/company/assessments/DisclosureTopics";
+import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
 import Header from "../../components/Header";
 import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import { useAuth } from "@/context/AuthContext";
@@ -41,6 +42,14 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
+  const [targetStep, setTargetStep] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (state.targetStep) {
+      setTargetStep(state.targetStep);
+    }
+  }, [state.targetStep]);
+
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const startYear = 2020;
@@ -59,6 +68,7 @@ export default function AssessmentHub() {
           subsidiary: user?.company?.name || "Company",
         },
       });
+      dispatch({ type: "SET_VIEW", payload: "disclosure" }); // Automatically proceed to disclosure if no subsidiaries exist
     }
   }, [isLoading, subsidiaries, user, state.assessmentData.subsidiary, dispatch]);
 
@@ -89,7 +99,6 @@ export default function AssessmentHub() {
   ]);
 
   const handleProceed = async () => {
-    // Use company name if no subsidiary is selected (assessment for the company itself)
     const subsidiaryValue = state.assessmentData.subsidiary || user?.company?.name || "Self";
 
     dispatch({
@@ -102,7 +111,9 @@ export default function AssessmentHub() {
         endYear: state.assessmentData.endYear,
       },
     });
-    dispatch({ type: "SET_VIEW", payload: "disclosure" });
+
+    // Check if user has assigned tasks - if yes, show tasks first, otherwise show all disclosure topics
+    dispatch({ type: "SET_VIEW", payload: "my-tasks" });
   };
 
   const handleBack = () => {
@@ -123,18 +134,28 @@ export default function AssessmentHub() {
 
   const backToNewAssessment = () => router.back();
 
+  // NEW: Handle view for user's assigned tasks
+  if (state.currentView === "my-tasks") {
+    return <UserTasksCoordinator onBack={handleBack} />;
+  }
+
   if (state.currentView === "disclosure") {
     return <DisclosureTopics onBack={handleBack} />;
   }
 
   if (state.currentView === "ghg-stationary-sources") {
     return (
-      <DisclosureTopics onBack={handleBack} initialView="ghg" initialForm="stationary-sources" />
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView="ghg"
+        initialForm="stationary-sources"
+        initialStep={targetStep as any}
+      />
     );
   }
 
   if (state.currentView.startsWith("ghg-")) {
-    const withoutPrefix = state.currentView.substring(4); // Remove "ghg-"
+    const withoutPrefix = state.currentView.substring(4);
 
     const formPatterns = [
       "stationary-sources",
@@ -145,14 +166,13 @@ export default function AssessmentHub() {
       "market-based",
     ];
 
-    // Find which form pattern matches
     let form = "";
     let step = "";
 
     for (const pattern of formPatterns) {
       if (withoutPrefix.startsWith(pattern + "-")) {
         form = pattern;
-        step = withoutPrefix.substring(pattern.length + 1); // +1 for the hyphen
+        step = withoutPrefix.substring(pattern.length + 1);
         break;
       }
     }
@@ -344,7 +364,7 @@ export default function AssessmentHub() {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
+                  className="bg-primary transform hover:scale-[1.02] text-white max-w-[120px] w-full h-8 px-3 text-sm rounded-sm mt-2"
                   disabled={!isFormValid}
                   onClick={handleProceed}
                 >

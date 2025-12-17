@@ -7,6 +7,7 @@ import { ResidualForm } from "./Residual";
 import { CoolingSteamForm } from "./CoolingSteam";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface MarketBasedFormProps {
   onBack: () => void;
@@ -28,10 +29,13 @@ export function MarketBasedForm({
   onContinueToNextAssessment,
   initialStep,
 }: MarketBasedFormProps) {
+  const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+
+  const isAssignedTask = state.isAssignedTask || false;
 
   if (showSuccess) {
     return (
@@ -88,8 +92,14 @@ export function MarketBasedForm({
         onBack={() => setCurrentStep("residual")}
         onSubmit={(totals) => {
           setTotals(totals);
-          setShowSuccess(true);
-          setIsSubmitted(true);
+
+          if (isAssignedTask) {
+            dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+            onBack();
+          } else {
+            setShowSuccess(true);
+            setIsSubmitted(true);
+          }
         }}
         onBackToHub={onBack}
         stepIndex={4}

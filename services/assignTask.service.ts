@@ -14,7 +14,7 @@ export type TaskStatus =
   | "in_progress"
   | "completed"
   | "approved"
-  | "rejected"
+  | "declined"
   | "on_hold";
 
 export interface ITask {
@@ -48,6 +48,8 @@ export interface FrontendTask {
   topics?: string[];
   progress?: number;
   sendEmail?: boolean;
+  assignedUserIds?: number[]; // IDs of users assigned to this task
+  assessmentId?: number;
 }
 
 export interface AssignTaskPayload {
@@ -79,6 +81,23 @@ export interface TaskComment {
   commenter: string;
   comment: string;
   createdAt: string;
+}
+
+export interface TaskStartResponse {
+  id: number;
+  taskId?: number;
+  assessmentId: number;
+  startedAt: string;
+  message?: string;
+  data?: {
+    assessmentId?: number;
+  };
+  taskAssignment?: {
+    assessmentId?: number;
+  };
+  assessment?: {
+    id?: number;
+  };
 }
 
 export const taskAssignmentService = {
@@ -126,5 +145,18 @@ export const taskAssignmentService = {
     if (!id) return [];
     const data = await api.get(`/tasks/${id}/comments`);
     return data ?? [];
+  },
+  getMyTasks: async (): Promise<ITask[]> => {
+    const response = await api.get("/tasks/my-tasks");
+    return response ?? [];
+  },
+  startTask: async (taskId: number): Promise<TaskStartResponse> => {
+    const response = await api.post(`/tasks/${taskId}/start`);
+    console.log("Raw API response from /tasks/start:", response);
+
+    // Handle if response is an array - take first element
+    const data = Array.isArray(response) ? response[0] : response?.data || response;
+
+    return data;
   },
 };

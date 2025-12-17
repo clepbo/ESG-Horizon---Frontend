@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -16,15 +16,15 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
-import { Scope2EmissionInput } from "@/app/components/company/assessments/Scope2EmissionInput";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface ElectricityIppsFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -39,6 +39,7 @@ const uploadFields = [
 export function ElectricityIppsForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: ElectricityIppsFormProps) {
@@ -74,7 +75,12 @@ export function ElectricityIppsForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-market-electricityipp");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +103,7 @@ export function ElectricityIppsForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData?.ipps, setElectricityConsumedRaw, setEmissionFactorRaw]);
+  }, [state.assessmentData, setElectricityConsumedRaw, setEmissionFactorRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([
@@ -168,22 +174,20 @@ export function ElectricityIppsForm({
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = true, redirect = true } = options;
 
     const payload = {
       electricityConsumed: electricityConsumedRaw,
       emissionFactor: emissionFactorRaw,
       files,
-      additionalFields: normalizeFiles(additionalFields),
-      progressPercent,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
     };
 
     dispatch({
@@ -192,60 +196,38 @@ export function ElectricityIppsForm({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          ipps: {
-            electricityConsumed: electricityConsumedRaw,
-            emissionFactor: emissionFactorRaw,
-            files,
-            additionalFields: normalizeFiles(additionalFields),
-          },
-          lastSavedForm: "ghg-market-based-electricityIPP",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
+      await saveNow("environment.ghg.scope2.marketBased.electricityIpps", payload);
+      if (showToast) {
+        toast.success("Saved!");
+        setShowSaveSuccess(true);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
       toast.error("Failed to save");
+      console.error("Save failed:", err);
     }
   };
 
-  const handleNext = () => {
+  const handleSaveAndContinue = async () => {
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      await saveForm({ showToast: true, redirect: false });
+      onBackToHub();
+    } else {
+      // For normal flow, let saveForm handle the redirect
+      await saveForm({ showToast: true, redirect: true });
+    }
+  };
+
+  const handleNext = async () => {
     if (!validateForm()) return;
-
-    dispatch({
-      type: "UPDATE_IPPS",
-      payload: {
-        electricityConsumed: electricityConsumedRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
+    await saveForm({ showToast: false, redirect: false });
     onNext();
   };
-  const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_IPPS",
-      payload: {
-        electricityConsumed: electricityConsumedRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
 
+  const handlePrevious = () => {
+    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -358,7 +340,7 @@ export function ElectricityIppsForm({
                 1.1 Purchased Electricity (from Independent Power Producers – IPPs)
               </Label>
               <div className="ml-6">
-                <Scope2EmissionInput
+                <ScopeInput
                   category="electricity"
                   formattedValue={{
                     rawValue: electricityConsumedRaw,
@@ -448,7 +430,7 @@ export function ElectricityIppsForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 break-words max-w-full text-center">
+                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button

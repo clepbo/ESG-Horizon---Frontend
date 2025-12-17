@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { calculateProgress, computeProgressPercent } from "@/lib/utils";
+import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
 import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
@@ -18,13 +18,13 @@ import {
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
-import { useSaveAssessment } from "@/services/hooks/assessment.hooks";
 import { useRouter } from "next/navigation";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface IndustrialProcessesFormProps {
   onBack: () => void;
   onNext: () => void;
-  onBackToHub?: () => void;
+  onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
 }
@@ -39,6 +39,7 @@ const uploadFields = [
 export function IndustrialProcessesForm({
   onBack,
   onNext,
+  onBackToHub,
   stepIndex,
   totalSteps,
 }: IndustrialProcessesFormProps) {
@@ -63,7 +64,12 @@ export function IndustrialProcessesForm({
   }, [stepIndex]);
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
+  const {
+    saveNow,
+    isLoading: isSaving,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope1-stationary-industrialprocess");
 
   const boilerFurnacesOptions = useMemo(() => getFuelOptions("boilerFurnaces"), []);
 
@@ -98,7 +104,7 @@ export function IndustrialProcessesForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.stationarySources?.industrialProcesses, boilerFurnacesOptions]);
+  }, [boilerFurnacesOptions, state.assessmentData]);
 
   const { filled, total } = useMemo(() => {
     const hasBoilerFurnacesData = boilerFurnaces.some(
@@ -173,16 +179,8 @@ export function IndustrialProcessesForm({
     setAdditionalFields(fields);
   };
 
-  const handleSaveAndContinue = async () => {
-    const assessmentId = state.assessmentId;
-
-    const progressPercent = computeProgressPercent({
-      stepIndex,
-      totalSteps,
-      fieldsCompleted: filled,
-      totalFields: total,
-    });
-
+  const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
+    const { showToast = false, redirect = false } = options;
     const payload = {
       boilerFurnaces,
       files,
@@ -193,56 +191,41 @@ export function IndustrialProcessesForm({
         url: f.url ?? "",
         publicId: f.publicId ?? "",
       })),
-      progressPercent,
     };
 
     dispatch({
       type: "UPDATE_STATIONARY_INDUSTRIAL",
       payload,
     });
-
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          stationarySources: {
-            ...state.assessmentData.stationarySources,
-            industrialProcesses: payload,
-          },
-          lastSavedForm: "ghg-stationary-sources-industrial-processes",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
+      await saveNow("environment.ghg.scope1.stationarySources.industrialprocess", payload);
+      if (showToast) {
+        setShowSaveSuccess(true);
+        setTimeout(() => setShowSaveSuccess(false), 2000);
       }
-
-      setShowSaveSuccess(true);
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 2000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      if (redirect) {
+        setTimeout(() => router.push("/assessments/new-assessment"), 1500);
+      }
+    } catch (err) {
+      console.error("Save failed:", err);
       toast.error("Failed to save");
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) return;
-
-    dispatch({
-      type: "UPDATE_STATIONARY_INDUSTRIAL",
-      payload: {
-        boilerFurnaces,
-        additionalFields: additionalFields as FileMetadata[],
-        files,
-      },
-    });
-
+    await saveForm();
     onNext();
   };
+
+  const handleSaveAndContinue = async () => {
+    await saveForm({ showToast: true, redirect: true });
+    if (isAssignedTask || handleAssignedTaskRedirect()) {
+      // onBack();
+      onBackToHub();
+    }
+  };
+
   const handlePrevious = () => {
     dispatch({
       type: "UPDATE_STATIONARY_INDUSTRIAL",
@@ -297,7 +280,7 @@ export function IndustrialProcessesForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -388,7 +371,7 @@ export function IndustrialProcessesForm({
                           </div>
                         ) : files[field] ? (
                           <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-[var(--color-primary)] break-words max-w-full text-center">
+                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
                               Uploaded: {files[field]!.name}
                             </p>
                             <button
@@ -419,7 +402,7 @@ export function IndustrialProcessesForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -453,7 +436,7 @@ export function IndustrialProcessesForm({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isSaving}
-                className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next

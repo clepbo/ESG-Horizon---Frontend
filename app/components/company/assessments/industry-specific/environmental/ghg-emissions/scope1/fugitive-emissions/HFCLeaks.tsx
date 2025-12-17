@@ -18,10 +18,10 @@ import {
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useSaveAssessment, useSubmitAssessment } from "@/services/hooks/assessment.hooks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
+import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 
 interface HFCLeaksProps {
   onBack: () => void;
@@ -75,10 +75,15 @@ export function HFCLeaks({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { mutateAsync: saveAssessmentMutate, isPending: isSaving } = useSaveAssessment();
-  const { mutate: submitAssessmentCallback, isPending: isSubmitting } = useSubmitAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("ghg-fugitive-emissions-hfc-leaks");
 
   const formRef = useRef<HTMLDivElement>(null);
+
+  const isAssignedTask = state.isAssignedTask || false;
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -130,19 +135,19 @@ export function HFCLeaks({
     }
   };
 
-  const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    refrigerantAdded.handleChange(value);
+  // const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
+  //   refrigerantAdded.handleChange(value);
 
-    // Clear error if present
-    if (errors.refrigerantAdded) {
-      setErrors((prev) => {
-        const copy = { ...prev };
-        delete copy.refrigerantAdded;
-        return copy;
-      });
-    }
-  };
+  //   // Clear error if present
+  //   if (errors.refrigerantAdded) {
+  //     setErrors((prev) => {
+  //       const copy = { ...prev };
+  //       delete copy.refrigerantAdded;
+  //       return copy;
+  //     });
+  //   }
+  // };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -229,24 +234,12 @@ export function HFCLeaks({
     });
 
     try {
-      const response = await saveAssessmentMutate({
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...state.assessmentData.fugitiveEmissions,
-            hfcLeaks: payload,
-          },
-          lastSavedForm: "ghg-fugitive-emissions-hfc-leaks",
-        },
-      });
-
-      if (!assessmentId && response.assessmentId) {
-        dispatch({ type: "SET_ASSESSMENT_ID", payload: response.assessmentId });
-        toast.success(`New assessment draft #${response.assessmentId} created.`);
-      }
-
+      await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
       setShowSaveSuccess(true);
+      if (isAssignedTask) {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        onBack();
+      }
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 2000);
@@ -256,7 +249,7 @@ export function HFCLeaks({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -284,27 +277,15 @@ export function HFCLeaks({
       payload,
     });
 
-    submitAssessmentCallback(
-      {
-        assessmentId,
-        data: {
-          ...state.assessmentData,
-          fugitiveEmissions: {
-            ...state.assessmentData.fugitiveEmissions,
-            hfcLeaks: payload,
-          },
-          lastSavedForm: "ghg-fugitive-emissions-hfc-leaks",
-        },
-      },
-      {
-        onSuccess: (res) => {
-          if (!assessmentId && res.assessment.id) {
-            dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
-          }
-          onSubmit(res.totals ?? null);
-        },
-      }
-    );
+    try {
+      await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
+      const res = await submitGroup();
+      if (!assessmentId && res?.assessment?.id)
+        dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
+      onSubmit(res?.totals ?? null);
+    } catch (err) {
+      toast.error("Failed to submit");
+    }
   };
 
   const handlePrevious = () => {
@@ -405,7 +386,7 @@ export function HFCLeaks({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -465,7 +446,7 @@ export function HFCLeaks({
                 </div>
 
                 <div className="flex flex-col w-full">
-                  <Label htmlFor="refrigerantAdded" className={labelClass}>
+                  {/* <Label htmlFor="refrigerantAdded" className={labelClass}>
                     Quantity/Total mass of refrigerant leak in kg{" "}
                     <span className="text-red-500">*</span>
                   </Label>
@@ -480,7 +461,22 @@ export function HFCLeaks({
                   />
                   {errors.refrigerantAdded && (
                     <p className="text-red-600 text-xs mt-1">{errors.refrigerantAdded}</p>
-                  )}
+                  )} */}
+                  <ScopeInput
+                    category="refrigerant-added"
+                    formattedValue={{
+                      rawValue: refrigerantAdded.rawValue,
+                      displayValue: refrigerantAdded.displayValue,
+                      handleChange: refrigerantAdded.handleChange,
+                      setRawValue: refrigerantAdded.setRawValue,
+                    }}
+                    label=" Quantity/Total mass of refrigerant leak in kg"
+                    placeholder="Enter quantity in kg"
+                    required
+                    error={errors.refrigerantAdded}
+                    showEmissionFactor={true}
+                    onErrorClear={() => setErrors((prev) => ({ ...prev, refrigerantAdded: "" }))}
+                  />
                 </div>
               </div>
 
@@ -558,7 +554,7 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={handlePrevious}
-                  className="justify-self-start hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                  className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                   aria-label="Previous step"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -568,11 +564,11 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={handleSaveAndContinue}
-                  disabled={isSaving}
-                  className="justify-self-center bg-[var(--color-primary)]  hover:bg-[var(--color-primary)] hover:cursor-pointer text-white  transition-colors"
+                  disabled={isActionLoading}
+                  className="justify-self-center bg-primary  hover:bg-primary hover:cursor-pointer text-white  transition-colors"
                   aria-label="Save and continue later"
                 >
-                  {isSaving ? (
+                  {isActionLoading ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
                       Saving...
@@ -593,11 +589,11 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={() => handleSubmit()}
-                  disabled={isSaving || isSubmitting}
-                  className="justify-self-end hover:cursor-pointer border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent hover:bg-green-50 flex items-center gap-2"
+                  disabled={isActionLoading}
+                  className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                   aria-label="Submit form"
                 >
-                  {isSubmitting ? "Submitting..." : "Submit"}
+                  {isActionLoading ? "Submitting..." : "Submit"}
                 </Button>
               </div>
             </form>
