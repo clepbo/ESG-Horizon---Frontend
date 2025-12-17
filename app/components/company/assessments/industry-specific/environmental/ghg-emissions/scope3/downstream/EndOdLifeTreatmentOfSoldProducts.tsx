@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
-import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -20,7 +20,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { AddSource, SourceData } from "@/app/components/company/assessments/AddSource";
+import { AddSource } from "@/app/components/company/assessments/AddSource";
 
 interface EndOfLifeTreatmentProps {
   onBack: () => void;
@@ -62,7 +62,7 @@ export function EndOfLifeTreatment({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: EndOfLifeTreatmentProps) {
-  const { state } = useAssessment();
+  // const { state } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -381,7 +381,7 @@ export function EndOfLifeTreatment({
               fuelTypeOptions={[]}
               unitOptions={[]}
               sources={[]}
-              onSourcesChange={function (sources: SourceData[]): void {
+              onSourcesChange={function (): void {
                 throw new Error("Function not implemented.");
               }}
             />

@@ -108,7 +108,7 @@ export function ElectricityEACForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData, setEmissionFactorRaw, setGridElectricityRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([

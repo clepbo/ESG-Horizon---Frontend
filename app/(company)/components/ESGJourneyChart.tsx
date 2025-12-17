@@ -96,7 +96,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
               />
               <Tooltip
                 cursor={{ fill: "rgba(0,0,0,0.05)" }}
-                formatter={(v: number) => {
+                formatter={(v: number | undefined) => {
                   const value = Number(v);
                   return [`${value % 1 === 0 ? value.toFixed(0) : value.toFixed(2)}`, "Score"];
                 }}
