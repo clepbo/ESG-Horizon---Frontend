@@ -46,10 +46,10 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           timeout: 60s
-          # This pulls the contents of standalone and the static folders
+          # We transfer the folders exactly as they are built
           source: ".next/standalone,.next/static,public"
           target: ${{ env.TARGET_DIR }}
-          strip_components: 2 
+          strip_components: 2
 
       - name: Start/Restart via PM2
         uses: appleboy/ssh-action@v1.0.3
@@ -58,26 +58,26 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 1. Load Node/PM2 environment
+            # 1. Load Node/PM2 Environment
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             cd ${{ env.TARGET_DIR }}
             
-            # 2. Cleanup old internal folders if they exist to prevent nesting errors
-            rm -rf .next/static
-            
-            # 3. Create the structure Next.js expects:
-            # Standalone server needs 'static' files inside '.next/static'
+            # 2. Fix the structure for the Standalone server
+            # Move static files into the hidden .next folder where server.js looks
             mkdir -p .next/static
-            
-            # Move the transferred chunks/css into the new static folder
-            # We use '|| true' so the script doesn't crash if a folder is missing
+            # If scp dropped 'chunks' and 'css' in the root, move them
             mv -f chunks .next/static/ || true
             mv -f css .next/static/ || true
+            # If scp dropped a 'static' folder, move its contents
+            mv -f static/* .next/static/ || true
             
+            # 3. Clean up the root (Optional but keeps it tidy like your ls)
+            # Remove the empty standalone folder if it exists
+            rm -rf standalone || true
+
             # 4. Final Start
-            # server.js is in the root of TARGET_DIR because of strip_components: 2
             pm2 delete ${{ env.APP_NAME }} || true
             PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
             pm2 save
