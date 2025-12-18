@@ -3,8 +3,10 @@ module.exports = {
     {
       name: "esg-frontend-prod",
       script: "./server.js",
-      instances: "max",
-      exec_mode: "cluster",
+      // Change 'max' to 1 for a 1vCPU server to save resources
+      instances: 1, 
+      // 'fork' mode is usually more stable than 'cluster' for single-instance setups
+      exec_mode: "fork", 
       env: {
         NODE_ENV: "production",
         PORT: 3001,

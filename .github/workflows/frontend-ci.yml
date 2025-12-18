@@ -2,7 +2,7 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, staging]
 
 jobs:
   build-and-deploy:
@@ -74,43 +74,37 @@ jobs:
             
             cd ${{ env.TARGET_DIR }}
 
-            # Stop PM2 first to prevent serving broken state
+            # 1. Stop the old process
             pm2 delete ${{ env.APP_NAME }} || true
 
-            # Clean old deployment
-            rm -rf .next public server.js node_modules package.json
-
-            # Move standalone contents to root
+            # 2. Extract standalone files to a temporary location or move them carefully
+            # Since strip_components: 0 was used, files are in .next/standalone
             if [ -d ".next/standalone" ]; then
+              # Move the essential server files to root
               cp -r .next/standalone/* .
-              rm -rf .next/standalone
+              # Move the static files into a temp location so they aren't wiped
+              mkdir -p temp_static
+              cp -r .next/static/* temp_static/ 2>/dev/null || true
             fi
 
-            # Organize .next/static properly
-            if [ -d ".next/static" ]; then
-              mkdir -p .next
-              mv -f .next/static .next/
+            # 3. NOW wipe the old folders safely
+            # We keep 'public' because it was transferred to the root already
+            rm -rf .next
+
+            # 4. Reconstruct the .next directory for the new build
+            mkdir -p .next/static
+            if [ -d "temp_static" ]; then
+              mv temp_static/* .next/static/
+              rm -rf temp_static
             fi
 
-            # Move public folder to root
-            if [ -d "public" ]; then
-              # Public folder is already at root, just ensure it's there
-              :
-            fi
-
-            # Verify critical files exist
+            # 5. Verify and Start
             if [ ! -f "server.js" ]; then
-              echo "ERROR: server.js not found!"
+              echo "ERROR: server.js not found at $(pwd)"
+              ls -la # Help debug if it fails again
               exit 1
             fi
 
-            # Create logs directory
             mkdir -p logs
-
-            # Start PM2 with ecosystem file (or fallback to direct command)
-            if [ -f "ecosystem.config.js" ]; then
-              pm2 start ecosystem.config.js --env production
-            else
-              PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
-            fi
+            PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}" --env production
             pm2 save
