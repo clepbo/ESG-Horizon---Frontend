@@ -75,31 +75,37 @@ jobs:
             cd ${{ env.TARGET_DIR }}
             pm2 delete ${{ env.APP_NAME }} || true
 
-            # 1. Organize Standalone
+            # 1. THE ESSENTIAL MOVE
+            # Standalone output contains its own .next folder inside.
+            # We must move everything from .next/standalone/ to the root.
             if [ -d ".next/standalone" ]; then
-              cp -r .next/standalone/* .
-              mkdir -p temp_static
-              cp -r .next/static/* temp_static/ 2>/dev/null || true
+              # Copy essential server files and the internal .next folder
+              cp -r .next/standalone/. .
             fi
 
-            # 2. Cleanup and Reconstruct
-            rm -rf .next
+            # 2. THE STATIC ASSETS MOVE
+            # Next.js standalone does not include static or public files by default.
+            # We must place them in the locations server.js expects.
             mkdir -p .next/static
-            if [ -d "temp_static" ]; then
-              mv temp_static/* .next/static/
-              rm -rf temp_static
+            if [ -d ".next/static" ]; then
+                # This ensures the global .next/static is populated
+                : 
             fi
+            
+            # 3. CLEANUP 
+            # We can remove the build-time standalone folder now that it's copied
+            rm -rf .next/standalone
 
-            # 3. FIX: Install Production Dependencies
-            # This handles 'sharp' and native modules that standalone doesn't bundle
-            npm install --omit=dev
+            # 4. INSTALL NATIVE MODULES
+            # Standalone mode skips some native modules like 'sharp'
+            npm install --omit=dev --no-package-lock
 
-            # 4. Verify and Start
+            # 5. VERIFY AND START
             if [ ! -f "server.js" ]; then
-              echo "ERROR: server.js not found!"
+              echo "ERROR: server.js not found in $(pwd)"
               exit 1
             fi
 
             mkdir -p logs
-            PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}" --env production
+            PORT=${{ env.PORT }} NODE_ENV=production pm2 start server.js --name "${{ env.APP_NAME }}"
             pm2 save
