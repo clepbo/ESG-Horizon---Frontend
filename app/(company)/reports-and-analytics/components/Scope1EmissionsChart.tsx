@@ -147,9 +147,8 @@ export function Scope1EmissionsChart() {
               <TrendingUp className="w-4 h-4 text-red-600" />
             )}
             <span
-              className={`text-sm font-medium ${
-                trend === "down" ? "text-green-600" : "text-red-600"
-              }`}
+              className={`text-sm font-medium ${trend === "down" ? "text-green-600" : "text-red-600"
+                }`}
             >
               {trendValue}%
             </span>
@@ -182,10 +181,7 @@ export function Scope1EmissionsChart() {
                   domain={[0, "dataMax + 10"]}
                 />
                 <Tooltip
-                  formatter={(value: number | undefined) => [
-                    value !== undefined ? `${value.toFixed(1)} tonnes CO2e` : "0.0 tonnes CO2e",
-                    "Emissions",
-                  ]}
+                  formatter={(value?: number) => [`${(value ?? 0).toFixed(1)} tonnes CO2e`, "Emissions"]}
                   labelStyle={{ color: "#374151" }}
                 />
                 <Bar dataKey="emissions" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6" />

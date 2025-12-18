@@ -86,14 +86,14 @@ export function Scope2EmissionsChart() {
   const locationTrendValue =
     previousLocationBased > 0
       ? Math.abs(
-          ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
-        ).toFixed(1)
+        ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
+      ).toFixed(1)
       : "0.0";
   const marketTrendValue =
     previousMarketBased > 0
       ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(
-          1
-        )
+        1
+      )
       : "0.0";
 
   const hasData = currentLocationBased > 0 || currentMarketBased > 0;
@@ -179,8 +179,8 @@ export function Scope2EmissionsChart() {
                 />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
                 <Tooltip
-                  formatter={(value: number | undefined) => [
-                    `${Number(value || 0).toLocaleString()} kg CO2e`,
+                  formatter={(value?: number) => [
+                    `${(value ?? 0).toLocaleString()} kg CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}
