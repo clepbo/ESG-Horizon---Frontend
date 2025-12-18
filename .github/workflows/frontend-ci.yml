@@ -61,27 +61,25 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
-            cd ${{ env.TARGET_DIR }}
+            cd /var/www/esghorizon/main
 
-            # 1. ORGANIZE PUBLIC ASSETS (The fix you just did)
-            # This ensures images, icons, etc. are always in the 'public' folder
+            # Ensure public directory exists and assets are moved there
             mkdir -p public
             mv -f images icons avatar.jpg favicon.ico logo.PNG public/ 2>/dev/null || true
-            
-            # 2. ORGANIZE STANDALONE
+
+            # Organize Next.js structure
             if [ -d "standalone" ]; then
               cp -r standalone/. .
               rm -rf standalone
             fi
 
-            # 3. ORGANIZE STATIC FILES (CSS/JS)
             mkdir -p .next/static
+            mv -f chunks css .next/static/ 2>/dev/null || true
             if [ -d "static" ]; then
               cp -r static/. .next/static/
               rm -rf static
             fi
 
-            # 4. START APP
-            pm2 delete ${{ env.APP_NAME }} || true
-            PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
+            pm2 delete esg-frontend-prod || true
+            PORT=3001 pm2 start server.js --name "esg-frontend-prod"
             pm2 save
