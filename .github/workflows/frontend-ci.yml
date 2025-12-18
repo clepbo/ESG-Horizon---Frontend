@@ -46,10 +46,10 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           timeout: 60s
-          # We transfer the folders exactly as they are built
+          # We transfer the folders but we will handle the "move" manually for total control
           source: ".next/standalone,.next/static,public"
           target: ${{ env.TARGET_DIR }}
-          strip_components: 2
+          strip_components: 1 # Change this to 1 to keep 'standalone' and 'public' as folders
 
       - name: Start/Restart via PM2
         uses: appleboy/ssh-action@v1.0.3
@@ -58,28 +58,28 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # 1. Load Node/PM2 Environment
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             cd ${{ env.TARGET_DIR }}
+
+            # 1. THE MAID: Remove the scattered files from previous bad runs
+            rm -f *.svg *.png *.json
             
-            # 2. Fresh start for static files (Prevents 'Directory not empty' errors)
-            rm -rf .next/static
+            # 2. THE ORGANIZER: Handle 'standalone' folder if it exists
+            if [ -d "standalone" ]; then
+              cp -r standalone/. .
+              rm -rf standalone
+            fi
+
+            # 3. THE NEXT.JS SPECIALIST: Reconstruct the .next/static path
             mkdir -p .next/static
-            
-            # 3. Organize Next.js Standalone structure
-            # Move chunks and css into the internal folder
-            mv -f chunks .next/static/ || true
-            mv -f css .next/static/ || true
-            
-            # If scp created a 'static' folder, move its contents and delete it
             if [ -d "static" ]; then
-              mv -f static/* .next/static/ || true
+              cp -r static/. .next/static/
               rm -rf static
             fi
 
-            # 4. Final Start
+            # 4. THE ENGINE: Final Start
             pm2 delete ${{ env.APP_NAME }} || true
             PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
             pm2 save
