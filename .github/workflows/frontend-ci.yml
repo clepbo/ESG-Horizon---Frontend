@@ -58,21 +58,21 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            source $HOME/.bashrc || source /etc/profile
+            # 1. Force the shell to find Node and PM2
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
             cd ${{ env.TARGET_DIR }}
-
-            # 1. Prepare the standalone directory structure
-            # Move the static files inside the internal .next folder
+            
+            # 2. Move files to where Next.js Standalone expects them
+            # The strip_components: 2 lands 'server.js' inside 'standalone' 
+            # while 'static' and 'public' land in the TARGET_DIR root.
             mkdir -p standalone/.next
             mv -f static standalone/.next/ || true
-
-            # Move the public folder inside standalone
             mv -f public standalone/ || true
-
-            # 2. Enter the executable directory
+            
+            # 3. Launch from the standalone directory
             cd standalone
-
-            # 3. Start via PM2
             pm2 delete ${{ env.APP_NAME }} || true
             PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
             pm2 save
