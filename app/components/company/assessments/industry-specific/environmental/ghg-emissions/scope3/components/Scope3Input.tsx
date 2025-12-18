@@ -113,7 +113,7 @@ export default function SmartInput({
       setRawValue(String(value || ""));
     }
     setHasValue(!!value);
-  }, [value, setRawValue]);
+  }, [value, setRawValue, type]);
 
   return (
     <div className="w-full space-y-1">

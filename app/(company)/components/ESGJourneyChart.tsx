@@ -94,12 +94,17 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
                 tick={{ fontSize: 10, fill: "#4B5563" }}
                 domain={[0, processed.yMax || 100]}
               />
-              <Tooltip
+              {/* <Tooltip
                 cursor={{ fill: "rgba(0,0,0,0.05)" }}
-                formatter={(v: number) => {
+                formatter={(v: number | undefined) => {
                   const value = Number(v);
                   return [`${value % 1 === 0 ? value.toFixed(0) : value.toFixed(2)}`, "Score"];
                 }}
+                formatter={(v: number) => [`${v}%`, "Score"]}
+              /> */}
+              <Tooltip
+                cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                formatter={(v) => [`${typeof v === "number" ? v : 0}%`, "Score"]}
               />
               <Bar
                 dataKey="_score"

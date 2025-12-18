@@ -36,4 +36,8 @@ tsconfig.tsbuildinfo
 .netlify
 .vercel
 
+<<<<<<< HEAD
 sas-notes.txt
+=======
+sas-notes.txt
+>>>>>>> fcd85f1625eb3259c0402fd0e9d9bd4ca56d04bf

@@ -107,7 +107,7 @@ export function CoolingSteamForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData, setEmissionFactorRaw, setEnergyConsumedRaw]);
 
   const { filled, total } = useMemo(() => {
     return calculateProgress([

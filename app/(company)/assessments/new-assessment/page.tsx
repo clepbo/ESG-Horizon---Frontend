@@ -12,7 +12,6 @@ import { motion } from "framer-motion";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
 import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
-import { PlusCircle } from "lucide-react";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 
 function NewAssessmentPage() {
