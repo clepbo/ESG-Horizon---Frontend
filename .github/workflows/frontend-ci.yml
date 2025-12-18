@@ -26,6 +26,18 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+          # Build optimizations
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Cache Next.js build
+        uses: actions/cache@v3
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
       - name: Set Environment Variables
         run: |
@@ -46,10 +58,9 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           timeout: 60s
-          # We transfer the folders but we will handle the "move" manually for total control
-          source: ".next/standalone,.next/static,public"
+          source: ".next/standalone,.next/static,public,ecosystem.config.js"
           target: ${{ env.TARGET_DIR }}
-          strip_components: 1 # Change this to 1 to keep 'standalone' and 'public' as folders
+          strip_components: 0 # Keep full structure
 
       - name: Start/Restart via PM2
         uses: appleboy/ssh-action@v1.0.3
@@ -61,25 +72,45 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
-            cd /var/www/esghorizon/main
+            cd ${{ env.TARGET_DIR }}
 
-            # Ensure public directory exists and assets are moved there
-            mkdir -p public
-            mv -f images icons avatar.jpg favicon.ico logo.PNG public/ 2>/dev/null || true
+            # Stop PM2 first to prevent serving broken state
+            pm2 delete ${{ env.APP_NAME }} || true
 
-            # Organize Next.js structure
-            if [ -d "standalone" ]; then
-              cp -r standalone/. .
-              rm -rf standalone
+            # Clean old deployment
+            rm -rf .next public server.js node_modules package.json
+
+            # Move standalone contents to root
+            if [ -d ".next/standalone" ]; then
+              cp -r .next/standalone/* .
+              rm -rf .next/standalone
             fi
 
-            mkdir -p .next/static
-            mv -f chunks css .next/static/ 2>/dev/null || true
-            if [ -d "static" ]; then
-              cp -r static/. .next/static/
-              rm -rf static
+            # Organize .next/static properly
+            if [ -d ".next/static" ]; then
+              mkdir -p .next
+              mv -f .next/static .next/
             fi
 
-            pm2 delete esg-frontend-prod || true
-            PORT=3001 pm2 start server.js --name "esg-frontend-prod"
+            # Move public folder to root
+            if [ -d "public" ]; then
+              # Public folder is already at root, just ensure it's there
+              :
+            fi
+
+            # Verify critical files exist
+            if [ ! -f "server.js" ]; then
+              echo "ERROR: server.js not found!"
+              exit 1
+            fi
+
+            # Create logs directory
+            mkdir -p logs
+
+            # Start PM2 with ecosystem file (or fallback to direct command)
+            if [ -f "ecosystem.config.js" ]; then
+              pm2 start ecosystem.config.js --env production
+            else
+              PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
+            fi
             pm2 save
