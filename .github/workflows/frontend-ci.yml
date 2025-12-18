@@ -64,18 +64,20 @@ jobs:
             
             cd ${{ env.TARGET_DIR }}
             
-            # 2. Fix the structure for the Standalone server
-            # Move static files into the hidden .next folder where server.js looks
+            # 2. Fresh start for static files (Prevents 'Directory not empty' errors)
+            rm -rf .next/static
             mkdir -p .next/static
-            # If scp dropped 'chunks' and 'css' in the root, move them
+            
+            # 3. Organize Next.js Standalone structure
+            # Move chunks and css into the internal folder
             mv -f chunks .next/static/ || true
             mv -f css .next/static/ || true
-            # If scp dropped a 'static' folder, move its contents
-            mv -f static/* .next/static/ || true
             
-            # 3. Clean up the root (Optional but keeps it tidy like your ls)
-            # Remove the empty standalone folder if it exists
-            rm -rf standalone || true
+            # If scp created a 'static' folder, move its contents and delete it
+            if [ -d "static" ]; then
+              mv -f static/* .next/static/ || true
+              rm -rf static
+            fi
 
             # 4. Final Start
             pm2 delete ${{ env.APP_NAME }} || true
