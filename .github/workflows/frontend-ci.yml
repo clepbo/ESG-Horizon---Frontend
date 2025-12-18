@@ -63,23 +63,25 @@ jobs:
             
             cd ${{ env.TARGET_DIR }}
 
-            # 1. THE MAID: Remove the scattered files from previous bad runs
-            rm -f *.svg *.png *.json
+            # 1. ORGANIZE PUBLIC ASSETS (The fix you just did)
+            # This ensures images, icons, etc. are always in the 'public' folder
+            mkdir -p public
+            mv -f images icons avatar.jpg favicon.ico logo.PNG public/ 2>/dev/null || true
             
-            # 2. THE ORGANIZER: Handle 'standalone' folder if it exists
+            # 2. ORGANIZE STANDALONE
             if [ -d "standalone" ]; then
               cp -r standalone/. .
               rm -rf standalone
             fi
 
-            # 3. THE NEXT.JS SPECIALIST: Reconstruct the .next/static path
+            # 3. ORGANIZE STATIC FILES (CSS/JS)
             mkdir -p .next/static
             if [ -d "static" ]; then
               cp -r static/. .next/static/
               rm -rf static
             fi
 
-            # 4. THE ENGINE: Final Start
+            # 4. START APP
             pm2 delete ${{ env.APP_NAME }} || true
             PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
             pm2 save
