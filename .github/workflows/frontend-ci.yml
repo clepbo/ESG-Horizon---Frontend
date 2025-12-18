@@ -58,7 +58,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           timeout: 60s
-          source: ".next/standalone,.next/static,public,ecosystem.config.js"
+          source: ".next/standalone,.next/static,public,ecosystem.config.js,package.json"
           target: ${{ env.TARGET_DIR }}
           strip_components: 0 # Keep full structure
 
@@ -73,35 +73,30 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             cd ${{ env.TARGET_DIR }}
-
-            # 1. Stop the old process
             pm2 delete ${{ env.APP_NAME }} || true
 
-            # 2. Extract standalone files to a temporary location or move them carefully
-            # Since strip_components: 0 was used, files are in .next/standalone
+            # 1. Organize Standalone
             if [ -d ".next/standalone" ]; then
-              # Move the essential server files to root
               cp -r .next/standalone/* .
-              # Move the static files into a temp location so they aren't wiped
               mkdir -p temp_static
               cp -r .next/static/* temp_static/ 2>/dev/null || true
             fi
 
-            # 3. NOW wipe the old folders safely
-            # We keep 'public' because it was transferred to the root already
+            # 2. Cleanup and Reconstruct
             rm -rf .next
-
-            # 4. Reconstruct the .next directory for the new build
             mkdir -p .next/static
             if [ -d "temp_static" ]; then
               mv temp_static/* .next/static/
               rm -rf temp_static
             fi
 
-            # 5. Verify and Start
+            # 3. FIX: Install Production Dependencies
+            # This handles 'sharp' and native modules that standalone doesn't bundle
+            npm install --omit=dev
+
+            # 4. Verify and Start
             if [ ! -f "server.js" ]; then
-              echo "ERROR: server.js not found at $(pwd)"
-              ls -la # Help debug if it fails again
+              echo "ERROR: server.js not found!"
               exit 1
             fi
 
