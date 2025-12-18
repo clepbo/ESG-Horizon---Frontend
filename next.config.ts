@@ -9,15 +9,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   
   // Production optimizations
-  swcMinify: true, // Fast minification
   compress: true, // gzip compression
   poweredByHeader: false, // Remove X-Powered-By header
-  
-  // Parallel build optimization
-  experimental: {
-    workerThreads: true,
-    cpus: 4,
-  },
   
   images: {
     loader: "custom",
