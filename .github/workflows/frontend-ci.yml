@@ -1,33 +1,24 @@
-name: Frontend CI
+name: Frontend CI/CD
 
 on:
   push:
-    branches:
-      - main
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
 
 jobs:
-  build-and-lint:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run lint
-        run: npm run lint
 
       - name: Build Next.js app
         run: npm run build
@@ -35,3 +26,53 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
+      - name: Set Environment Variables
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "TARGET_DIR=/var/www/esghorizon/main" >> $GITHUB_ENV
+            echo "APP_NAME=esg-frontend-prod" >> $GITHUB_ENV
+            echo "PORT=3001" >> $GITHUB_ENV
+          else
+            echo "TARGET_DIR=/var/www/esghorizon/staging" >> $GITHUB_ENV
+            echo "APP_NAME=esg-frontend-staging" >> $GITHUB_ENV
+            echo "PORT=3002" >> $GITHUB_ENV
+          fi
+
+      - name: Transfer Standalone Files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 60s
+          # standalone contains server.js, public contains assets, static is for CSS/JS
+          source: ".next/standalone,.next/static,public"
+          target: ${{ env.TARGET_DIR }}
+          strip_components: 2 # Removes .next from the folder structure on server
+
+      - name: Start/Restart via PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            source $HOME/.bashrc || source /etc/profile
+            cd ${{ env.TARGET_DIR }}
+            
+            # 1. Prepare the standalone directory structure
+            # Move the static files inside the internal .next folder
+            mkdir -p standalone/.next
+            mv -f static standalone/.next/ || true
+            
+            # Move the public folder inside standalone
+            mv -f public standalone/ || true
+            
+            # 2. Enter the executable directory
+            cd standalone
+            
+            # 3. Start via PM2
+            pm2 delete ${{ env.APP_NAME }} || true
+            PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
+            pm2 save

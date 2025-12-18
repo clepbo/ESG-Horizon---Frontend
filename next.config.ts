@@ -4,6 +4,7 @@ import withBundleAnalyzer from "@next/bundle-analyzer";
 const isBundleAnalyze = process.env.ANALYZE === "true";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactStrictMode: false,
   trailingSlash: true,
   images: {
