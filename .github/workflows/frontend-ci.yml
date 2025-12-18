@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -60,18 +60,18 @@ jobs:
           script: |
             source $HOME/.bashrc || source /etc/profile
             cd ${{ env.TARGET_DIR }}
-            
+
             # 1. Prepare the standalone directory structure
             # Move the static files inside the internal .next folder
             mkdir -p standalone/.next
             mv -f static standalone/.next/ || true
-            
+
             # Move the public folder inside standalone
             mv -f public standalone/ || true
-            
+
             # 2. Enter the executable directory
             cd standalone
-            
+
             # 3. Start via PM2
             pm2 delete ${{ env.APP_NAME }} || true
             PORT=${{ env.PORT }} pm2 start server.js --name "${{ env.APP_NAME }}"
