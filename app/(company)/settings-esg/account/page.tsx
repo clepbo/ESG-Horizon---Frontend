@@ -91,8 +91,6 @@ export default function AccountPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="fr">French</SelectItem>
-                      <SelectItem value="es">Spanish</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
