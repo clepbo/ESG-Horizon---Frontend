@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -26,6 +27,7 @@ interface CO2ReleaseProps {
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -34,7 +36,13 @@ const uploadFields = [
   "Kiln operation logs",
 ];
 
-export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: CO2ReleaseProps) {
+export function CementManufacturing({
+  onBack,
+  onNext,
+  stepIndex,
+  totalSteps,
+  breadcrumb,
+}: CO2ReleaseProps) {
   const { state, dispatch } = useAssessment();
 
   // ✅ Integrate the hook
@@ -231,7 +239,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

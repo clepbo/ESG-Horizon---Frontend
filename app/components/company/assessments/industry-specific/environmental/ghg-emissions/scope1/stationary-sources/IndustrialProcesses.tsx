@@ -20,6 +20,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface IndustrialProcessesFormProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface IndustrialProcessesFormProps {
   onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -42,6 +44,7 @@ export function IndustrialProcessesForm({
   onBackToHub,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: IndustrialProcessesFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -283,7 +286,8 @@ export function IndustrialProcessesForm({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

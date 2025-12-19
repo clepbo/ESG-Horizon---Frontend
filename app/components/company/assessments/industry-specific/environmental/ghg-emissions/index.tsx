@@ -10,9 +10,10 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ChevronRight, Info, Search } from "lucide-react";
+import { ChevronRight, Info, Search } from "lucide-react";
 import { Input } from "@/app/components/ui/input";
 import { useDebounce } from "use-debounce";
+import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { StationarySourcesForm } from "./scope1/stationary-sources";
 import { MobileSourcesForm } from "./scope1/mobile-sources";
 import { ProcessEmissionsForm } from "./scope1/process-emissions";
@@ -166,6 +167,17 @@ export function GhgEmissionsAssessment({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
+  const handleBackToOverview = () => {
+    setCurrentView("overview");
+  };
+
+  const overviewBreadcrumb = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Disclosure topics", onClick: onBack },
+    { label: "Greenhouse Gas Emissions", onClick: handleBackToOverview },
+  ];
+
   const handleCardClick = (cardTitle: string) => {
     if (cardTitle === "Stationary Sources") {
       setCurrentView("stationary-sources");
@@ -191,10 +203,6 @@ export function GhgEmissionsAssessment({
     if (cardTitle.includes("Downstream Emissions (Categories 9-15)")) {
       setCurrentView("downstream-emissions");
     }
-  };
-
-  const handleBackToOverview = () => {
-    setCurrentView("overview");
   };
 
   // Filter function that searches across scope, category, and emission source
@@ -313,12 +321,8 @@ export function GhgEmissionsAssessment({
 
   return (
     <div className="min-h-screen bg-green-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <Button variant="outline" onClick={onBack} className="flex items-center gap-2 bg-white">
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-
+      <CustomBreadcrumbDynamic features={overviewBreadcrumb} />
+      <div className="max-w-7xl mx-auto space-y-6 mt-4">
         <Card className="bg-gray-50">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 border border-blue-300 bg-blue-50 rounded-md px-3 py-2 mb-4">
