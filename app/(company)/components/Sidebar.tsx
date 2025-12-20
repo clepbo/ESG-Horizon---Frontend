@@ -22,7 +22,7 @@ import { AnimatePresence, motion } from "framer-motion";
 // Create context for mobile nav visibility
 const MobileNavContext = createContext({
   showMobileNav: true,
-  setShowMobileNav: (_show: boolean) => { },
+  setShowMobileNav: (_show: boolean) => {},
 });
 
 export const useMobileNav = () => useContext(MobileNavContext);

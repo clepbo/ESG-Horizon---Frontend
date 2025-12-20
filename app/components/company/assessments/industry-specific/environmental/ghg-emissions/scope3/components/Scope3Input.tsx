@@ -131,9 +131,10 @@ export default function SmartInput({
           onChange={onInput}
           onBlur={onBlur}
           className={`w-full border rounded-md px-3 py-2 pr-12 outline-none transition-colors
-            ${internalError
-              ? "border-red-500 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-              : "border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            ${
+              internalError
+                ? "border-red-500 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200"
+                : "border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
             }`}
           placeholder={placeholder}
         />
