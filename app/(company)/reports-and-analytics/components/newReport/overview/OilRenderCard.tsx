@@ -1,23 +1,57 @@
 import React from "react";
 
+import { buildStyles, CircularProgressbarWithChildren } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+
 interface Props {
   borderColor: string;
   title: string;
   sub: string;
   amount: number;
 }
+
 export default function OilRenderCard({ borderColor, title, sub, amount }: Props) {
   return (
     <div
-      className={`shadow rounded-md border-l-2 p-4 flex flex-col `}
+      className={`shadow rounded-md max-w-md border-l-2 p-4 flex flex-col hover:shadow-lg transition-shadow duration-300 bg-white`}
       style={{
         borderColor: borderColor,
       }}
     >
-      <p className="text-gray-800">{title} </p>
+      <p className="text-gray-800">{title}</p>
       <p className="font-bold text-3xl">
-        {amount} <sub className="text-gray-400 text-xs"> {sub} </sub>{" "}
+        {amount.toLocaleString()} <sub className="text-gray-400 text-xs">{sub}</sub>
       </p>
+    </div>
+  );
+}
+
+interface WaterQualityCardProps {
+  title: string;
+  sub?: string;
+  amount: number;
+  progress: number;
+}
+export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQualityCardProps) {
+  return (
+    <div className="flex items-center justify-between w-full shadow rounded-md max-w-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white">
+      <div className={``}>
+        <p className="text-gray-800">{title}</p>
+        <p className="font-bold text-3xl">
+          {amount.toLocaleString()} <sub className="text-xs">{sub}</sub>
+        </p>
+      </div>
+
+      <div className="w-12.5 h-12.5">
+        <CircularProgressbarWithChildren
+          value={progress}
+          styles={buildStyles({ pathColor: progress > 50 ? "green" : "red" })}
+        >
+          <div style={{ fontSize: 12, marginTop: -5 }}>
+            <strong>{progress}%</strong>
+          </div>
+        </CircularProgressbarWithChildren>
+      </div>
     </div>
   );
 }

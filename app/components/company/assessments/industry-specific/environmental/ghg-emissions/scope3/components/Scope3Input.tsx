@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"; // Added useCallback import
 
 interface SmartInputProps {
   label?: string;
@@ -34,15 +34,15 @@ export default function SmartInput({
   const [_hasValue, setHasValue] = useState(!!value);
   const [touched, setTouched] = useState(false); // Track if user has interacted
 
-  // Check if field has valid value
-  const validateField = () => {
+  // Check if field has valid value - wrapped in useCallback
+  const validateField = useCallback(() => {
     if (!required) return true;
 
     const val = type === "number" ? rawValue : String(value);
     const isValid = val.trim().length > 0;
 
     return isValid;
-  };
+  }, [required, type, rawValue, value]); // Added dependencies
 
   // Update error state based on validation
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function SmartInput({
     } else {
       setInternalError(false);
     }
-  }, [errorTrigger, value, rawValue, onErrorStateChange, validateField]);
+  }, [errorTrigger, validateField, onErrorStateChange]); // Removed value and rawValue as they're in validateField deps
 
   // Auto-clear error when user starts typing
   useEffect(() => {
