@@ -62,7 +62,15 @@ export const useAssessmentFlow = (currentFormKey: string) => {
 
   const submitGroup = async () => {
     const response = await submitMut.mutateAsync();
-    toast.success(`${currentFormKey.split("-").pop()?.replace(/([A-Z])/g, " $1").trim() || "Assessment"} submitted successfully`);
+    toast.success(
+      `${
+        currentFormKey
+          .split("-")
+          .pop()
+          ?.replace(/([A-Z])/g, " $1")
+          .trim() || "Assessment"
+      } submitted successfully`
+    );
     return response;
   };
 

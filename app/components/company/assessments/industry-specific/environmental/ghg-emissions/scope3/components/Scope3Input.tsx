@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface SmartInputProps {
   label?: string;
@@ -35,14 +35,14 @@ export default function SmartInput({
   const [touched, setTouched] = useState(false); // Track if user has interacted
 
   // Check if field has valid value
-  const validateField = () => {
+  const validateField = useCallback(() => {
     if (!required) return true;
 
     const val = type === "number" ? rawValue : String(value);
     const isValid = val.trim().length > 0;
 
     return isValid;
-  };
+  }, [required, type, rawValue, value]);
 
   // Update error state based on validation
   useEffect(() => {
@@ -131,10 +131,9 @@ export default function SmartInput({
           onChange={onInput}
           onBlur={onBlur}
           className={`w-full border rounded-md px-3 py-2 pr-12 outline-none transition-colors
-            ${
-              internalError
-                ? "border-red-500 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200"
-                : "border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            ${internalError
+              ? "border-red-500 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200"
+              : "border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
             }`}
           placeholder={placeholder}
         />

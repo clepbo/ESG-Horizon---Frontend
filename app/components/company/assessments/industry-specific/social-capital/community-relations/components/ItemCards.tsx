@@ -43,8 +43,9 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
 
       {/* ---------------- Card ---------------- */}
       <Card
-        className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
-          }`}
+        className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${
+          clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+        }`}
         onClick={() => clickable && onClick?.()}
       >
         <CardContent className="p-4">

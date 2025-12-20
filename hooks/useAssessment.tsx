@@ -301,54 +301,54 @@ type AssessmentAction =
   | { type: "SET_CONTINUE_MODE"; payload: boolean }
   | { type: "SET_ASSIGNED_TASK"; payload: boolean }
   | {
-    type: "UPDATE_ASSESSMENT_METADATA";
-    payload: {
-      progress?: AssessmentProgress[];
-      scopeTotals?: ScopeTotals;
-      lastSubmittedAt?: string;
-    };
-  }
+      type: "UPDATE_ASSESSMENT_METADATA";
+      payload: {
+        progress?: AssessmentProgress[];
+        scopeTotals?: ScopeTotals;
+        lastSubmittedAt?: string;
+      };
+    }
   | { type: "UPDATE_BASIC_DATA"; payload: Partial<AssessmentData> }
   | {
-    type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
-    payload: NonNullable<AssessmentData["stationarySources"]>["electricityHeat"];
-  }
+      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
+      payload: NonNullable<AssessmentData["stationarySources"]>["electricityHeat"];
+    }
   | {
-    type: "UPDATE_STATIONARY_INDUSTRIAL";
-    payload: NonNullable<AssessmentData["stationarySources"]>["industrialProcesses"];
-  }
+      type: "UPDATE_STATIONARY_INDUSTRIAL";
+      payload: NonNullable<AssessmentData["stationarySources"]>["industrialProcesses"];
+    }
   | {
-    type: "UPDATE_STATIONARY_OIL_GAS";
-    payload: NonNullable<AssessmentData["stationarySources"]>["oilGasOperations"];
-  }
+      type: "UPDATE_STATIONARY_OIL_GAS";
+      payload: NonNullable<AssessmentData["stationarySources"]>["oilGasOperations"];
+    }
   | {
-    type: "UPDATE_MOBILE_ROAD_TRANSPORT";
-    payload: NonNullable<AssessmentData["mobileSources"]>["roadTransport"];
-  }
+      type: "UPDATE_MOBILE_ROAD_TRANSPORT";
+      payload: NonNullable<AssessmentData["mobileSources"]>["roadTransport"];
+    }
   | {
-    type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT";
-    payload: NonNullable<AssessmentData["mobileSources"]>["vehicleEquipment"];
-  }
+      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT";
+      payload: NonNullable<AssessmentData["mobileSources"]>["vehicleEquipment"];
+    }
   | {
-    type: "UPDATE_MOBILE_MARINE_AVIATION";
-    payload: NonNullable<AssessmentData["mobileSources"]>["marineAviation"];
-  }
+      type: "UPDATE_MOBILE_MARINE_AVIATION";
+      payload: NonNullable<AssessmentData["mobileSources"]>["marineAviation"];
+    }
   | {
-    type: "UPDATE_PROCESS_CEMENT_MANUFACTURING";
-    payload: NonNullable<AssessmentData["processEmissions"]>["cementManufacturing"];
-  }
+      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING";
+      payload: NonNullable<AssessmentData["processEmissions"]>["cementManufacturing"];
+    }
   | {
-    type: "UPDATE_PROCESS_GAS_FLARING";
-    payload: NonNullable<AssessmentData["processEmissions"]>["gasFlaring"];
-  }
+      type: "UPDATE_PROCESS_GAS_FLARING";
+      payload: NonNullable<AssessmentData["processEmissions"]>["gasFlaring"];
+    }
   | {
-    type: "UPDATE_FUGITIVE_VENTING";
-    payload: NonNullable<AssessmentData["fugitiveEmissions"]>["ventingNaturalGas"];
-  }
+      type: "UPDATE_FUGITIVE_VENTING";
+      payload: NonNullable<AssessmentData["fugitiveEmissions"]>["ventingNaturalGas"];
+    }
   | {
-    type: "UPDATE_FUGITIVE_HFC_LEAKS";
-    payload: NonNullable<AssessmentData["fugitiveEmissions"]>["hfcLeaks"];
-  }
+      type: "UPDATE_FUGITIVE_HFC_LEAKS";
+      payload: NonNullable<AssessmentData["fugitiveEmissions"]>["hfcLeaks"];
+    }
   // Scope 2 flattened
   | { type: "UPDATE_ELECTRICITY"; payload: AssessmentData["electricity"] }
   | { type: "UPDATE_COOLING"; payload: AssessmentData["cooling"] }
@@ -359,37 +359,84 @@ type AssessmentAction =
   | { type: "UPDATE_RESIDUAL"; payload: AssessmentData["residual"] }
   | { type: "UPDATE_COOLING_STEAM"; payload: AssessmentData["coolingSteam"] }
   // Scope 3 Upstream
-  | { type: "UPDATE_UPSTREAM_PURCHASED_GOODS"; payload: NonNullable<AssessmentData["scope3Upstream"]>["purchasedGoodsAndServices"] }
-  | { type: "UPDATE_UPSTREAM_CAPITAL_GOODS"; payload: NonNullable<AssessmentData["scope3Upstream"]>["capitalGoods"] }
-  | { type: "UPDATE_UPSTREAM_FUEL_ENERGY"; payload: NonNullable<AssessmentData["scope3Upstream"]>["fuelEnergyRelatedActivities"] }
-  | { type: "UPDATE_UPSTREAM_TRANSPORTATION"; payload: NonNullable<AssessmentData["scope3Upstream"]>["upstreamTransportationDistribution"] }
-  | { type: "UPDATE_UPSTREAM_WASTE"; payload: NonNullable<AssessmentData["scope3Upstream"]>["wasteGeneratedInOperations"] }
-  | { type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL"; payload: NonNullable<AssessmentData["scope3Upstream"]>["businessTravel"] }
-  | { type: "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING"; payload: NonNullable<AssessmentData["scope3Upstream"]>["employeeCommuting"] }
-  | { type: "UPDATE_UPSTREAM_LEASED_ASSETS"; payload: NonNullable<AssessmentData["scope3Upstream"]>["upstreamLeasedAssets"] }
+  | {
+      type: "UPDATE_UPSTREAM_PURCHASED_GOODS";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["purchasedGoodsAndServices"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_CAPITAL_GOODS";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["capitalGoods"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_FUEL_ENERGY";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["fuelEnergyRelatedActivities"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_TRANSPORTATION";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["upstreamTransportationDistribution"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_WASTE";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["wasteGeneratedInOperations"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["businessTravel"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["employeeCommuting"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["upstreamLeasedAssets"];
+    }
   // Scope 3 Downstream
-  | { type: "UPDATE_DOWNSTREAM_TRANSPORTATION"; payload: NonNullable<AssessmentData["scope3Downstream"]>["downstreamTransportationDistribution"] }
-  | { type: "UPDATE_DOWNSTREAM_PROCESSING"; payload: NonNullable<AssessmentData["scope3Downstream"]>["processingSoldProducts"] }
-  | { type: "UPDATE_DOWNSTREAM_USE_SOLD_PRODUCTS"; payload: NonNullable<AssessmentData["scope3Downstream"]>["useOfSoldProducts"] }
-  | { type: "UPDATE_DOWNSTREAM_END_OF_LIFE"; payload: NonNullable<AssessmentData["scope3Downstream"]>["endOfLifeTreatment"] }
-  | { type: "UPDATE_DOWNSTREAM_LEASED_ASSETS"; payload: NonNullable<AssessmentData["scope3Downstream"]>["downstreamLeasedAssets"] }
-  | { type: "UPDATE_DOWNSTREAM_FRANCHISES"; payload: NonNullable<AssessmentData["scope3Downstream"]>["franchises"] }
-  | { type: "UPDATE_DOWNSTREAM_INVESTMENTS"; payload: NonNullable<AssessmentData["scope3Downstream"]>["investments"] }
+  | {
+      type: "UPDATE_DOWNSTREAM_TRANSPORTATION";
+      payload: NonNullable<
+        AssessmentData["scope3Downstream"]
+      >["downstreamTransportationDistribution"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_PROCESSING";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["processingSoldProducts"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_USE_SOLD_PRODUCTS";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["useOfSoldProducts"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_END_OF_LIFE";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["endOfLifeTreatment"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_LEASED_ASSETS";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["downstreamLeasedAssets"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_FRANCHISES";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["franchises"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_INVESTMENTS";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["investments"];
+    }
   | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
   | { type: "RESET_ASSESSMENT" }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "UPDATE_PROGRESS"; payload: AssessmentProgress[] }
   | {
-    type: "SET_COMPUTED_DATA";
-    payload: {
-      assessmentId: number;
-      progress: AssessmentProgress[];
-      scopeTotals: ScopeTotals;
-      totals: TotalsResponse | undefined;
-      status: string;
+      type: "SET_COMPUTED_DATA";
+      payload: {
+        assessmentId: number;
+        progress: AssessmentProgress[];
+        scopeTotals: ScopeTotals;
+        totals: TotalsResponse | undefined;
+        status: string;
+      };
     };
-  };
 
 const initialState: AssessmentState = {
   currentView: "hub",

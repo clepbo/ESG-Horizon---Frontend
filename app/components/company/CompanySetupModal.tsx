@@ -200,7 +200,9 @@ export default function CompanySetupModal({
         );
 
         if (isDuplicateInExisting || isDuplicateInNew) {
-          toast.error(`User with email ${formData.email} already exists or is already being invited`);
+          toast.error(
+            `User with email ${formData.email} already exists or is already being invited`
+          );
           return;
         }
 
@@ -401,7 +403,7 @@ export default function CompanySetupModal({
         {/* Backdrop */}
         <div
           className="absolute inset-0 bg-green-200/20 backdrop-blur-md"
-        // onClick={onClose}
+          // onClick={onClose}
         ></div>
 
         <div className="absolute inset-4 bg-green-200/20 rounded-md shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
