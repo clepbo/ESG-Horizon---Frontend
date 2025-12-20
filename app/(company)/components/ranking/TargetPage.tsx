@@ -87,7 +87,7 @@ const ESGPerformance = () => {
           <Button
             variant="outline"
             className="gap-2"
-            onClick={() => router.push("/ranking/create")}
+            onClick={() => router.push("/kpis/create")}
           >
             <Plus className="h-4 w-4" />
             Set New Target

@@ -68,7 +68,6 @@ export default function AssessmentHub() {
           subsidiary: user?.company?.name || "Company",
         },
       });
-      dispatch({ type: "SET_VIEW", payload: "disclosure" }); // Automatically proceed to disclosure if no subsidiaries exist
     }
   }, [isLoading, subsidiaries, user, state.assessmentData.subsidiary, dispatch]);
 
@@ -117,12 +116,7 @@ export default function AssessmentHub() {
   };
 
   const handleBack = () => {
-    if (state.isContinueMode) {
-      router.push("/assessments");
-    } else {
-      dispatch({ type: "RESET_ASSESSMENT" });
-      dispatch({ type: "SET_VIEW", payload: "hub" });
-    }
+    dispatch({ type: "SET_VIEW", payload: "hub" });
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -311,11 +305,9 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endMonth", value)}
                       >
                         <SelectTrigger
-                          className={`w-32 border ${
-                            dateError ? "border-red-500" : "border-slate-300"
-                          } hover:cursor-pointer focus:ring-2 ${
-                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                          }`}
+                          className={`w-32 border ${dateError ? "border-red-500" : "border-slate-300"
+                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                            }`}
                         >
                           <SelectValue placeholder="Month" />
                         </SelectTrigger>
@@ -333,11 +325,9 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endYear", value)}
                       >
                         <SelectTrigger
-                          className={`w-24 border ${
-                            dateError ? "border-red-500" : "border-slate-300"
-                          } hover:cursor-pointer focus:ring-2 ${
-                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                          }`}
+                          className={`w-24 border ${dateError ? "border-red-500" : "border-slate-300"
+                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                            }`}
                         >
                           <SelectValue placeholder="Year" />
                         </SelectTrigger>

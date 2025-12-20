@@ -45,11 +45,11 @@ export default function ScopeSummaryPage() {
         setSummaryData(parsedData);
       } catch (error) {
         console.error("Error parsing stored data:", error);
-        router.push("/target/create");
+        router.push("/kpis/create");
       }
     } else {
       // If no data in localStorage, redirect back to form
-      router.push("/target/create");
+      router.push("/kpis/create");
     }
   }, [router]);
 
@@ -68,7 +68,7 @@ export default function ScopeSummaryPage() {
 
   const handlePrevious = () => {
     // Navigate back to form page - data will be preserved in localStorage
-    router.push("/ranking/create");
+    router.push("/kpis/create");
   };
 
   const handleSetTarget = async () => {
@@ -121,7 +121,7 @@ export default function ScopeSummaryPage() {
 
   const handleModalContinue = () => {
     setIsSuccessModalOpen(false);
-    router.push("/ranking");
+    router.push("/kpis");
   };
 
   const handleModalClose = () => {
@@ -131,46 +131,46 @@ export default function ScopeSummaryPage() {
   // Prepare scope data for summary component
   const scopesData: ScopeData[] = summaryData
     ? [
-        {
-          scope: "Scope 1",
-          timeline: summaryData.calculations.scope1.timeline,
-          targetReduction: summaryData.calculations.scope1.totalReduction,
-          annualRate: summaryData.calculations.scope1.annualRate,
-          reductionPercentage: summaryData.scopeTargetData.scope1.reductionPercentage || 0,
-          baselineYear: summaryData.scopeTargetData.scope1.baselineYear || 0,
-          targetYear: summaryData.scopeTargetData.scope1.targetYear || 0,
-          description: summaryData.scopeTargetData.scope1.description || "",
-          targetEmission: summaryData.calculations.scope1.targetEmission,
-          totalReduction: summaryData.calculations.scope1.totalReduction,
-          baselineEmission: summaryData.emissionData?.totals?.scope1 || 0,
-        },
-        {
-          scope: "Scope 2",
-          timeline: summaryData.calculations.scope2.timeline,
-          targetReduction: summaryData.calculations.scope2.totalReduction,
-          annualRate: summaryData.calculations.scope2.annualRate,
-          reductionPercentage: summaryData.scopeTargetData.scope2.reductionPercentage || 0,
-          baselineYear: summaryData.scopeTargetData.scope2.baselineYear || 0,
-          targetYear: summaryData.scopeTargetData.scope2.targetYear || 0,
-          description: summaryData.scopeTargetData.scope2.description || "",
-          targetEmission: summaryData.calculations.scope2.targetEmission,
-          totalReduction: summaryData.calculations.scope2.totalReduction,
-          baselineEmission: summaryData.emissionData?.totals?.scope2 || 0,
-        },
-        {
-          scope: "Scope 3",
-          timeline: summaryData.calculations.scope3.timeline,
-          targetReduction: summaryData.calculations.scope3.totalReduction,
-          annualRate: summaryData.calculations.scope3.annualRate,
-          reductionPercentage: summaryData.scopeTargetData.scope3.reductionPercentage || 0,
-          baselineYear: summaryData.scopeTargetData.scope3.baselineYear || 0,
-          targetYear: summaryData.scopeTargetData.scope3.targetYear || 0,
-          description: summaryData.scopeTargetData.scope3.description || "",
-          targetEmission: summaryData.calculations.scope3.targetEmission,
-          totalReduction: summaryData.calculations.scope3.totalReduction,
-          baselineEmission: summaryData.emissionData?.totals?.scope3 || 0,
-        },
-      ]
+      {
+        scope: "Scope 1",
+        timeline: summaryData.calculations.scope1.timeline,
+        targetReduction: summaryData.calculations.scope1.totalReduction,
+        annualRate: summaryData.calculations.scope1.annualRate,
+        reductionPercentage: summaryData.scopeTargetData.scope1.reductionPercentage || 0,
+        baselineYear: summaryData.scopeTargetData.scope1.baselineYear || 0,
+        targetYear: summaryData.scopeTargetData.scope1.targetYear || 0,
+        description: summaryData.scopeTargetData.scope1.description || "",
+        targetEmission: summaryData.calculations.scope1.targetEmission,
+        totalReduction: summaryData.calculations.scope1.totalReduction,
+        baselineEmission: summaryData.emissionData?.totals?.scope1 || 0,
+      },
+      {
+        scope: "Scope 2",
+        timeline: summaryData.calculations.scope2.timeline,
+        targetReduction: summaryData.calculations.scope2.totalReduction,
+        annualRate: summaryData.calculations.scope2.annualRate,
+        reductionPercentage: summaryData.scopeTargetData.scope2.reductionPercentage || 0,
+        baselineYear: summaryData.scopeTargetData.scope2.baselineYear || 0,
+        targetYear: summaryData.scopeTargetData.scope2.targetYear || 0,
+        description: summaryData.scopeTargetData.scope2.description || "",
+        targetEmission: summaryData.calculations.scope2.targetEmission,
+        totalReduction: summaryData.calculations.scope2.totalReduction,
+        baselineEmission: summaryData.emissionData?.totals?.scope2 || 0,
+      },
+      {
+        scope: "Scope 3",
+        timeline: summaryData.calculations.scope3.timeline,
+        targetReduction: summaryData.calculations.scope3.totalReduction,
+        annualRate: summaryData.calculations.scope3.annualRate,
+        reductionPercentage: summaryData.scopeTargetData.scope3.reductionPercentage || 0,
+        baselineYear: summaryData.scopeTargetData.scope3.baselineYear || 0,
+        targetYear: summaryData.scopeTargetData.scope3.targetYear || 0,
+        description: summaryData.scopeTargetData.scope3.description || "",
+        targetEmission: summaryData.calculations.scope3.targetEmission,
+        totalReduction: summaryData.calculations.scope3.totalReduction,
+        baselineEmission: summaryData.emissionData?.totals?.scope3 || 0,
+      },
+    ]
     : [];
 
   if (!summaryData) {

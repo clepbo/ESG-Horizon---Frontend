@@ -212,9 +212,22 @@ export function IndustrialProcessesForm({
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) return;
-    await saveForm();
+    dispatch({
+      type: "UPDATE_STATIONARY_INDUSTRIAL",
+      payload: {
+        boilerFurnaces,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 

@@ -1,7 +1,7 @@
 "use client";
 
-import CustomTooltip from "@/app/(company)/ranking/create/components/CustomTooltip";
-import { TooltipMessage } from "@/app/(company)/ranking/create/components/TooltipMessage";
+import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
+import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,9 +43,8 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
 
       {/* ---------------- Card ---------------- */}
       <Card
-        className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${
-          clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
-        }`}
+        className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+          }`}
         onClick={() => clickable && onClick?.()}
       >
         <CardContent className="p-4">

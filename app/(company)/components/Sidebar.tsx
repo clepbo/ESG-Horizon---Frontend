@@ -22,7 +22,7 @@ import { AnimatePresence, motion } from "framer-motion";
 // Create context for mobile nav visibility
 const MobileNavContext = createContext({
   showMobileNav: true,
-  setShowMobileNav: (show: boolean) => {},
+  setShowMobileNav: (show: boolean) => { },
 });
 
 export const useMobileNav = () => useContext(MobileNavContext);
@@ -39,7 +39,7 @@ export function MobileNavProvider({ children }: { children: React.ReactNode }) {
 
 const navItems = [
   { name: "Reports", href: "/reports-and-analytics", icon: BarChart3 },
-  { name: "KPIs", href: "/ranking", icon: TrendingUp },
+  { name: "KPIs", href: "/kpis", icon: TrendingUp },
 ];
 
 const assessmentSubLinks = [
@@ -124,9 +124,9 @@ export default function Sidebar() {
     },
     {
       name: "KPIs",
-      href: "/ranking",
+      href: "/kpis",
       icon: TrendingUp,
-      action: () => handleNavigation("/ranking"),
+      action: () => handleNavigation("/kpis"),
     },
     { name: "Settings", href: "/settings-esg", icon: Settings, action: handleSettingsClick },
   ];
