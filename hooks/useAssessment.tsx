@@ -174,6 +174,110 @@ export interface AssessmentData {
     files?: { [key: string]: FileMetadata | null };
     additionalFields?: FileMetadata[];
   };
+
+  // Scope 3 - Upstream
+  scope3Upstream?: {
+    purchasedGoodsAndServices?: {
+      totalAmountSpent?: string;
+      massOfGoods?: string;
+      selectedCategories?: string[];
+      otherCategoryValue?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    capitalGoods?: {
+      totalCost?: string;
+      goodsDescription?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    fuelEnergyRelatedActivities?: {
+      fuelVolume?: string;
+      energyType?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    upstreamTransportationDistribution?: {
+      massOfGoods?: string;
+      distance?: string;
+      transportMode?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    wasteGeneratedInOperations?: {
+      wasteWeight?: string;
+      wasteType?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    businessTravel?: {
+      distance?: string;
+      numberOfFlights?: string;
+      numberOfEmployees?: string;
+      passengerKilometers?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    employeeCommuting?: {
+      numberOfEmployees?: string;
+      averageDistance?: string;
+      commutingMode?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    upstreamLeasedAssets?: {
+      electricityConsumed?: string;
+      fuelConsumed?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+  };
+
+  // Scope 3 - Downstream
+  scope3Downstream?: {
+    downstreamTransportationDistribution?: {
+      massOfProducts?: string;
+      distance?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    processingSoldProducts?: {
+      processedQuantity?: string;
+      processingType?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    useOfSoldProducts?: {
+      unitsSold?: string;
+      productLifetime?: string;
+      averageAnnualConsumption?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    endOfLifeTreatment?: {
+      treatments?: Array<{ type: string; mass: number }>;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    downstreamLeasedAssets?: {
+      fuelConsumed?: string;
+      electricityConsumed?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    franchises?: {
+      fuelConsumed?: string;
+      electricityConsumed?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+    investments?: {
+      equityShare?: string;
+      portfolioEmissions?: string;
+      files?: { [key: string]: FileMetadata | null };
+      additionalFields?: FileMetadata[];
+    };
+  };
 }
 
 export interface AssessmentState {
@@ -254,6 +358,70 @@ type AssessmentAction =
   | { type: "UPDATE_EAC"; payload: AssessmentData["eac"] }
   | { type: "UPDATE_RESIDUAL"; payload: AssessmentData["residual"] }
   | { type: "UPDATE_COOLING_STEAM"; payload: AssessmentData["coolingSteam"] }
+  // Scope 3 Upstream
+  | {
+      type: "UPDATE_UPSTREAM_PURCHASED_GOODS";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["purchasedGoodsAndServices"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_CAPITAL_GOODS";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["capitalGoods"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_FUEL_ENERGY";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["fuelEnergyRelatedActivities"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_TRANSPORTATION";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["upstreamTransportationDistribution"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_WASTE";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["wasteGeneratedInOperations"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["businessTravel"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["employeeCommuting"];
+    }
+  | {
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS";
+      payload: NonNullable<AssessmentData["scope3Upstream"]>["upstreamLeasedAssets"];
+    }
+  // Scope 3 Downstream
+  | {
+      type: "UPDATE_DOWNSTREAM_TRANSPORTATION";
+      payload: NonNullable<
+        AssessmentData["scope3Downstream"]
+      >["downstreamTransportationDistribution"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_PROCESSING";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["processingSoldProducts"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_USE_SOLD_PRODUCTS";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["useOfSoldProducts"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_END_OF_LIFE";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["endOfLifeTreatment"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_LEASED_ASSETS";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["downstreamLeasedAssets"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_FRANCHISES";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["franchises"];
+    }
+  | {
+      type: "UPDATE_DOWNSTREAM_INVESTMENTS";
+      payload: NonNullable<AssessmentData["scope3Downstream"]>["investments"];
+    }
   | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
   | { type: "RESET_ASSESSMENT" }
   | { type: "SET_LOADING"; payload: boolean }
@@ -407,6 +575,108 @@ const initialState: AssessmentState = {
       emissionFactor: "",
       files: {},
       additionalFields: [],
+    },
+
+    // ---- Scope 3 ----
+    scope3Upstream: {
+      purchasedGoodsAndServices: {
+        totalAmountSpent: "",
+        massOfGoods: "",
+        selectedCategories: [],
+        otherCategoryValue: "",
+        files: {},
+        additionalFields: [],
+      },
+      capitalGoods: {
+        totalCost: "",
+        goodsDescription: "",
+        files: {},
+        additionalFields: [],
+      },
+      fuelEnergyRelatedActivities: {
+        fuelVolume: "",
+        energyType: "",
+        files: {},
+        additionalFields: [],
+      },
+      upstreamTransportationDistribution: {
+        massOfGoods: "",
+        distance: "",
+        transportMode: "",
+        files: {},
+        additionalFields: [],
+      },
+      wasteGeneratedInOperations: {
+        wasteWeight: "",
+        wasteType: "",
+        files: {},
+        additionalFields: [],
+      },
+      businessTravel: {
+        distance: "",
+        numberOfFlights: "",
+        numberOfEmployees: "",
+        passengerKilometers: "",
+        files: {},
+        additionalFields: [],
+      },
+      employeeCommuting: {
+        numberOfEmployees: "",
+        averageDistance: "",
+        commutingMode: "",
+        files: {},
+        additionalFields: [],
+      },
+      upstreamLeasedAssets: {
+        electricityConsumed: "",
+        fuelConsumed: "",
+        files: {},
+        additionalFields: [],
+      },
+    },
+    scope3Downstream: {
+      downstreamTransportationDistribution: {
+        massOfProducts: "",
+        distance: "",
+        files: {},
+        additionalFields: [],
+      },
+      processingSoldProducts: {
+        processedQuantity: "",
+        processingType: "",
+        files: {},
+        additionalFields: [],
+      },
+      useOfSoldProducts: {
+        unitsSold: "",
+        productLifetime: "",
+        averageAnnualConsumption: "",
+        files: {},
+        additionalFields: [],
+      },
+      endOfLifeTreatment: {
+        treatments: [],
+        files: {},
+        additionalFields: [],
+      },
+      downstreamLeasedAssets: {
+        fuelConsumed: "",
+        electricityConsumed: "",
+        files: {},
+        additionalFields: [],
+      },
+      franchises: {
+        fuelConsumed: "",
+        electricityConsumed: "",
+        files: {},
+        additionalFields: [],
+      },
+      investments: {
+        equityShare: "",
+        portfolioEmissions: "",
+        files: {},
+        additionalFields: [],
+      },
     },
   },
   isLoading: false,
@@ -644,6 +914,188 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         assessmentData: {
           ...state.assessmentData,
           coolingSteam: action.payload,
+        },
+      };
+
+    // Scope 3 Upstream
+    case "UPDATE_UPSTREAM_PURCHASED_GOODS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            purchasedGoodsAndServices: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_CAPITAL_GOODS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            capitalGoods: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_FUEL_ENERGY":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            fuelEnergyRelatedActivities: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_TRANSPORTATION":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            upstreamTransportationDistribution: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_WASTE":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            wasteGeneratedInOperations: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_BUSINESS_TRAVEL":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            businessTravel: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            employeeCommuting: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_UPSTREAM_LEASED_ASSETS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Upstream: {
+            ...state.assessmentData.scope3Upstream,
+            upstreamLeasedAssets: action.payload,
+          },
+        },
+      };
+
+    // Scope 3 Downstream
+    case "UPDATE_DOWNSTREAM_TRANSPORTATION":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            downstreamTransportationDistribution: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_DOWNSTREAM_PROCESSING":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            processingSoldProducts: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_DOWNSTREAM_USE_SOLD_PRODUCTS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            useOfSoldProducts: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_DOWNSTREAM_END_OF_LIFE":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            endOfLifeTreatment: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_DOWNSTREAM_LEASED_ASSETS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            downstreamLeasedAssets: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_DOWNSTREAM_FRANCHISES":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            franchises: action.payload,
+          },
+        },
+      };
+
+    case "UPDATE_DOWNSTREAM_INVESTMENTS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          scope3Downstream: {
+            ...state.assessmentData.scope3Downstream,
+            investments: action.payload,
+          },
         },
       };
 
