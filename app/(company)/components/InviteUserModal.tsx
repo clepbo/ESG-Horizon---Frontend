@@ -76,8 +76,8 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
         subsidiaryId: selectedSubsidiary ?? yourCompany.id, //  fallback
       };
 
-      await companyService.invite(payload);
-      toast.success("User Invitation sent successfully");
+      const response = await companyService.invite(payload);
+      toast.success(response.message || "User Invitation sent successfully");
       onInvite();
       onClose();
     } catch (err: unknown) {

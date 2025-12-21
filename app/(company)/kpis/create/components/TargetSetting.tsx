@@ -23,8 +23,8 @@ export function TargetSetting() {
   });
 
   const pathname = usePathname();
-  const isScopeSummaryPage = pathname.includes("/ranking/create/scope-summary");
-  const isGeneralSummaryPage = pathname.includes("/ranking/create/summary");
+  const isScopeSummaryPage = pathname.includes("/kpis/create/scope-summary");
+  const isGeneralSummaryPage = pathname.includes("/kpis/create/summary");
 
   useEffect(() => {
     const storedData = localStorage.getItem("generalTargetSummary");
