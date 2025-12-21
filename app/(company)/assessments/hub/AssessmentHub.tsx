@@ -68,7 +68,6 @@ export default function AssessmentHub() {
           subsidiary: user?.company?.name || "Company",
         },
       });
-      dispatch({ type: "SET_VIEW", payload: "disclosure" }); // Automatically proceed to disclosure if no subsidiaries exist
     }
   }, [isLoading, subsidiaries, user, state.assessmentData.subsidiary, dispatch]);
 
@@ -117,12 +116,7 @@ export default function AssessmentHub() {
   };
 
   const handleBack = () => {
-    if (state.isContinueMode) {
-      router.push("/assessments");
-    } else {
-      dispatch({ type: "RESET_ASSESSMENT" });
-      dispatch({ type: "SET_VIEW", payload: "hub" });
-    }
+    dispatch({ type: "SET_VIEW", payload: "hub" });
   };
 
   const handleInputChange = (field: string, value: string) => {

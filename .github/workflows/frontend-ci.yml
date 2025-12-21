@@ -71,7 +71,7 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            
+
             cd ${{ env.TARGET_DIR }}
             pm2 delete ${{ env.APP_NAME }} || true
 
@@ -91,7 +91,7 @@ jobs:
                 # This ensures the global .next/static is populated
                 : 
             fi
-            
+
             # 3. CLEANUP 
             # We can remove the build-time standalone folder now that it's copied
             rm -rf .next/standalone

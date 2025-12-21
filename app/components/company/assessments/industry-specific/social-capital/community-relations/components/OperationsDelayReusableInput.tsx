@@ -1,5 +1,5 @@
-import CustomTooltip from "@/app/(company)/ranking/create/components/CustomTooltip";
-import { TooltipMessage } from "@/app/(company)/ranking/create/components/TooltipMessage";
+import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
+import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 import { Input } from "@/app/components/ui/input";
 import React, { useState, useEffect } from "react";
 
