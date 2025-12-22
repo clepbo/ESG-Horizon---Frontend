@@ -7,8 +7,14 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
+import { useSingleReport } from "../service/useReport";
+import { useParams } from "next/navigation";
 
 export default function ReportOverview() {
+
+   const params = useParams();
+     const { data, isError } = useSingleReport(Number(params?.id));
+   console.log("Report Overview Data:", data);
   const environmentalAmount = (
     <h5 className="font-bold">
       154,000 <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
