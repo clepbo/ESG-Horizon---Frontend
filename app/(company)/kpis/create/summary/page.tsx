@@ -51,11 +51,11 @@ export default function SummaryPage() {
         setTargetData(parsedData);
       } catch (error) {
         console.error("Error parsing stored data:", error);
-        router.push("/ranking/create");
+        router.push("/kpis/create");
       }
     } else {
       // If no data in localStorage, redirect back to form
-      router.push("/ranking/create");
+      router.push("/kpis/create");
     }
   }, [router]);
 
@@ -120,7 +120,7 @@ export default function SummaryPage() {
 
   const handlePrevious = () => {
     // Navigate back to form page - data will be preserved in localStorage
-    router.push("/ranking/create");
+    router.push("/kpis/create");
   };
 
   const handleSetTarget = async () => {
@@ -158,7 +158,7 @@ export default function SummaryPage() {
 
   const handleModalContinue = () => {
     setIsSuccessModalOpen(false);
-    router.push("/ranking");
+    router.push("/kpis");
   };
 
   const handleModalClose = () => {

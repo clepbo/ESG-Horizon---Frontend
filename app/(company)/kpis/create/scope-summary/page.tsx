@@ -45,11 +45,11 @@ export default function ScopeSummaryPage() {
         setSummaryData(parsedData);
       } catch (error) {
         console.error("Error parsing stored data:", error);
-        router.push("/target/create");
+        router.push("/kpis/create");
       }
     } else {
       // If no data in localStorage, redirect back to form
-      router.push("/target/create");
+      router.push("/kpis/create");
     }
   }, [router]);
 
@@ -68,7 +68,7 @@ export default function ScopeSummaryPage() {
 
   const handlePrevious = () => {
     // Navigate back to form page - data will be preserved in localStorage
-    router.push("/ranking/create");
+    router.push("/kpis/create");
   };
 
   const handleSetTarget = async () => {
@@ -121,7 +121,7 @@ export default function ScopeSummaryPage() {
 
   const handleModalContinue = () => {
     setIsSuccessModalOpen(false);
-    router.push("/ranking");
+    router.push("/kpis");
   };
 
   const handleModalClose = () => {

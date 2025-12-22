@@ -200,7 +200,7 @@ export default function SetTargetByScope() {
       localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
 
       // Navigate to scope summary page
-      router.push("/ranking/create/scope-summary");
+      router.push("/kpis/create/scope-summary");
     }
   };
 

@@ -104,7 +104,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
               /> */}
               <Tooltip
                 cursor={{ fill: "rgba(0,0,0,0.05)" }}
-                formatter={(v) => [`${typeof v === "number" ? v : 0}%`, "Score"]}
+                formatter={(v?: number) => [`${v ?? 0}%`, "Score"]}
               />
               <Bar
                 dataKey="_score"

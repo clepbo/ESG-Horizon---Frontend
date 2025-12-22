@@ -115,7 +115,7 @@ export function TaskDetailDrawer({ task, open, onOpenChange }: TaskDetailDrawerP
           <h2 className="text-lg font-semibold text-neutral-900">Task Details</h2>
           <button
             onClick={() => onOpenChange(false)}
-            className="text-muted-foreground hover:text-foreground shadow-lg px-1 py-2 cursor-hover"
+            className="bg-neutral text-muted-foreground hover:text-foreground shadow-lg px-1 py-2 hover:bg-muted cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

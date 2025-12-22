@@ -179,8 +179,8 @@ export function Scope2EmissionsChart() {
                 />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
                 <Tooltip
-                  formatter={(value: number | undefined) => [
-                    `${Number(value || 0).toLocaleString()} kg CO2e`,
+                  formatter={(value?: number) => [
+                    `${(value ?? 0).toLocaleString()} kg CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}

@@ -44,6 +44,7 @@ export default function DashboardPage() {
         totalAssessments: Number(raw.stats?.totalAssessments ?? 0),
         reviewedAssessments: Number(raw.stats?.reviewedAssessments ?? 0),
       },
+      hubStats: raw.hubStats ?? null,
     };
 
     return normalized;
@@ -164,22 +165,22 @@ export default function DashboardPage() {
             <AssessmentHubCard
               type="Environmental"
               description="Measure your environmental impact, resource usage and conservation efforts."
-              progress={75}
-              completed="6 of 8 sections completed"
+              progress={dashboard?.hubStats?.environment?.progress ?? 0}
+              completed={dashboard?.hubStats?.environment?.completed ?? "0 sections completed"}
               iconSrc={"/icons/leaftwo.svg"}
             />
             <AssessmentHubCard
               type="Social"
               description="Evaluate labor practices, human rights, community impact and product responsibility."
-              progress={0}
-              completed="0 sections completed"
+              progress={dashboard?.hubStats?.social?.progress ?? 0}
+              completed={dashboard?.hubStats?.social?.completed ?? "0 sections completed"}
               iconSrc={"/icons/userstwo.svg"}
             />
             <AssessmentHubCard
               type="Governance"
               description="Evaluate financial governance, market presence, procurement practices and more."
-              progress={0}
-              completed="0 sections completed"
+              progress={dashboard?.hubStats?.governance?.progress ?? 0}
+              completed={dashboard?.hubStats?.governance?.completed ?? "0 sections completed"}
               iconSrc={"/icons/injusticetwo.svg"}
             />
           </div>

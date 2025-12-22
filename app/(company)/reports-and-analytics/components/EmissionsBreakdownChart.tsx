@@ -192,7 +192,7 @@ export function EmissionsBreakdownChart() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number | undefined) => [
+                  formatter={(value?: number) => [
                     `${(value ?? 0).toFixed(1)} tonnes CO2e`,
                     "Emissions",
                   ]}

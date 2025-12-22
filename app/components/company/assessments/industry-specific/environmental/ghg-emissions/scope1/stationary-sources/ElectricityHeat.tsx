@@ -196,9 +196,23 @@ export function ElectricityHeatForm({
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+      payload: {
+        dieselGenerators,
+        gasTurbines,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 

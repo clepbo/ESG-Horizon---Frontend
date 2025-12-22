@@ -49,17 +49,28 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     try {
       await ensureIdAndSave(path, data);
     } catch (err) {
-      toast.error("Save failed");
       console.error(err);
+      throw err;
     }
   };
   const submitMut = useMutation({
     mutationFn: () => assessmentService.submitGroup(state.assessmentId!, currentFormKey),
-    onSuccess: () => toast.success("Assessment Submitted!"),
+    onSuccess: () => {
+      // toast.success("Assessment Submitted!")
+    },
   });
 
   const submitGroup = async () => {
     const response = await submitMut.mutateAsync();
+    toast.success(
+      `${
+        currentFormKey
+          .split("-")
+          .pop()
+          ?.replace(/([A-Z])/g, " $1")
+          .trim() || "Assessment"
+      } submitted successfully`
+    );
     return response;
   };
 
