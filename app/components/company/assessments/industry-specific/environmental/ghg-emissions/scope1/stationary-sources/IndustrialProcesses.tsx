@@ -94,7 +94,8 @@ export function IndustrialProcessesForm({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources?.industrialProcesses;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses;
     if (existingData) {
       setBoilerFurnaces(
         existingData.boilerFurnaces || getInitialSources([], boilerFurnacesOptions)
@@ -104,7 +105,10 @@ export function IndustrialProcessesForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [boilerFurnacesOptions, state.assessmentData]);
+  }, [
+    boilerFurnacesOptions,
+    state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasBoilerFurnacesData = boilerFurnaces.some(
@@ -198,7 +202,7 @@ export function IndustrialProcessesForm({
       payload,
     });
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.industrialprocess", payload);
+      await saveNow("environment.ghg.scope1.stationarySources.industrialProcesses", payload);
       if (showToast) {
         setShowSaveSuccess(true);
         setTimeout(() => setShowSaveSuccess(false), 2000);
@@ -240,15 +244,6 @@ export function IndustrialProcessesForm({
   };
 
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_STATIONARY_INDUSTRIAL",
-      payload: {
-        boilerFurnaces,
-        additionalFields: additionalFields as FileMetadata[],
-        files,
-      },
-    });
-
     onBack();
   };
 

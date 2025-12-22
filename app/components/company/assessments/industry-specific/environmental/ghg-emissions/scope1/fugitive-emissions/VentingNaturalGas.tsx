@@ -43,7 +43,8 @@ export function VentingNaturalGas({
   const { state, dispatch } = useAssessment();
   const { assessmentData } = state;
 
-  const ventingNaturalGas = assessmentData.fugitiveEmissions?.ventingNaturalGas;
+  const ventingNaturalGas =
+    assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.ventingNaturalGas;
 
   // Use the formatted number hook for volumeOfGasVented
   const volumeOfGasVented = useFormattedNumber(
@@ -199,7 +200,7 @@ export function VentingNaturalGas({
     });
 
     try {
-      await saveNow("environment.ghg.fugitiveEmissions.ventingNaturalGas", payload);
+      await saveNow("environment.ghg.scope1.fugitiveEmissions.ventingNaturalGas", payload);
       if (!assessmentId) toast.success(`Saved draft.`);
       if (isAssignedTask) {
         dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
@@ -229,14 +230,6 @@ export function VentingNaturalGas({
     onNext();
   };
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_FUGITIVE_VENTING",
-      payload: {
-        volumeOfGasVented: Number(volumeOfGasVented.rawValue),
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
     onBack();
   };
 
@@ -302,23 +295,6 @@ export function VentingNaturalGas({
                 <span className="text-red-500">*</span>
               </Label>
               <div className="space-y-4 ml-6">
-                {/* <Label className="text-sm font-medium mb-1 ml-1 text-gray-700 pt-2">
-                  Volume of Gas vented.
-                </Label>
-                <Input
-                  id="volumeOfGasVented"
-                  name="volumeOfGasVented"
-                  placeholder="Provide the measured or estimated volume (m³)"
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  value={volumeOfGasVented.displayValue} // Use displayValue for the input
-                  onChange={handleChange}
-                  className={`w-full border-gray-400 rounded-lg ${
-                    errors.volumeOfGasVented ? "border-red-500" : ""
-                  }`}
-                />
-                {errors.volumeOfGasVented && (
-                  <p className="text-red-600 text-xs mt-1">{errors.volumeOfGasVented}</p>
-                )} */}
                 <ScopeInput
                   category="venting-natural-gas"
                   formattedValue={{

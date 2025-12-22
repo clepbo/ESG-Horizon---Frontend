@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import type { AssessmentData, FileMetadata } from "@/hooks/useAssessment";
+import type { FileMetadata } from "@/hooks/useAssessment";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import {
@@ -95,11 +95,9 @@ export function GasFlaring({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.processEmissions?.gasFlaring as NonNullable<
-      AssessmentData["processEmissions"]
-    >["gasFlaring"];
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
     if (existingData) {
       setGasVolumeRaw(existingData.gasVolume?.toString() || "0");
       setCarbonContentRaw(existingData.carbonContent?.toString() || "0");
@@ -108,7 +106,11 @@ export function GasFlaring({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [setCarbonContentRaw, setGasVolumeRaw, state.assessmentData.processEmissions?.gasFlaring]);
+  }, [
+    setCarbonContentRaw,
+    setGasVolumeRaw,
+    state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles =
@@ -209,7 +211,7 @@ export function GasFlaring({
     });
 
     try {
-      await saveNow("environment.ghg.processEmissions.gasFlaring", {
+      await saveNow("environment.ghg.scope1.processEmissions.gasFlaring", {
         ...payload,
       });
       if (!assessmentId) {
@@ -255,7 +257,7 @@ export function GasFlaring({
     });
 
     try {
-      await saveNow("environment.ghg.processEmissions.gasFlaring", payload);
+      await saveNow("environment.ghg.scope1.processEmissions.gasFlaring", payload);
       const res = await submitGroup();
       onSubmit(res?.totals ?? null);
       if (!assessmentId && res?.assessment?.id) {
@@ -268,18 +270,6 @@ export function GasFlaring({
   };
 
   const handlePrevious = () => {
-    const payload = {
-      gasVolume: Number(gasVolume),
-      carbonContent: Number(carbonContent),
-      files,
-      additionalFields: additionalFields as FileMetadata[],
-    };
-
-    dispatch({
-      type: "UPDATE_PROCESS_GAS_FLARING",
-      payload,
-    });
-
     onBack();
   };
 

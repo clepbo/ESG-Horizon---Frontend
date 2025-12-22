@@ -137,21 +137,8 @@ export default function AssessmentHub() {
     return <DisclosureTopics onBack={handleBack} />;
   }
 
-  if (state.currentView === "ghg-stationary-sources") {
-    return (
-      <DisclosureTopics
-        onBack={handleBack}
-        initialView="ghg"
-        initialForm="stationary-sources"
-        initialStep={targetStep as any}
-      />
-    );
-  }
-
   if (state.currentView.startsWith("ghg-")) {
-    const withoutPrefix = state.currentView.substring(4);
-
-    const formPatterns = [
+    const ghgForms = [
       "stationary-sources",
       "mobile-sources",
       "process-emissions",
@@ -160,10 +147,25 @@ export default function AssessmentHub() {
       "market-based",
     ];
 
+    const currentForm = ghgForms.find((form) => state.currentView === `ghg-${form}`);
+
+    if (currentForm) {
+      return (
+        <DisclosureTopics
+          onBack={handleBack}
+          initialView="ghg"
+          initialForm={currentForm as any}
+          initialStep={targetStep as any}
+        />
+      );
+    }
+
+    // Handle legacy or combined strings if any (e.g. ghg-stationary-sources-electricity)
+    const withoutPrefix = state.currentView.substring(4);
     let form = "";
     let step = "";
 
-    for (const pattern of formPatterns) {
+    for (const pattern of ghgForms) {
       if (withoutPrefix.startsWith(pattern + "-")) {
         form = pattern;
         step = withoutPrefix.substring(pattern.length + 1);
@@ -171,14 +173,16 @@ export default function AssessmentHub() {
       }
     }
 
-    return (
-      <DisclosureTopics
-        onBack={handleBack}
-        initialView="ghg"
-        initialForm={form}
-        initialStep={step}
-      />
-    );
+    if (form) {
+      return (
+        <DisclosureTopics
+          onBack={handleBack}
+          initialView="ghg"
+          initialForm={form as any}
+          initialStep={step}
+        />
+      );
+    }
   }
 
   const isFormValid =
