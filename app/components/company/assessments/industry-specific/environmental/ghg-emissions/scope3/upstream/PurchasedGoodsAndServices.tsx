@@ -8,8 +8,6 @@ import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
-import { getFuelOptions, unitOptions, type FuelOption } from "@/lib/fuelDataFile";
-import { SourceData } from "@/app/components/company/assessments/AddSource";
 import {
   AdditionalFileUpload,
   FileData,
@@ -100,7 +98,8 @@ export function PurchasedGoodsAndServices({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.purchasedGoodsAndServices;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.purchasedGoodsAndServices;
     if (existingData) {
       setElectricity(existingData.totalAmountSpent || "");
       setPurchasedGoods(existingData.massOfGoods || "");

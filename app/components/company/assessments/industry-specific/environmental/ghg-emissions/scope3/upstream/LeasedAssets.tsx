@@ -87,7 +87,8 @@ export function LeasedAssets({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
     if (existingData) {
       setElectricityConsumed(existingData.electricityConsumed || "");
       setFuelConsumed(existingData.fuelConsumed || "");

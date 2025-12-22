@@ -117,7 +117,8 @@ export function MarineAviation({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
     if (existingData) {
       setAir(existingData.air || getInitialSources([], airOptions));
       setMarine(existingData.marine || getInitialSources([], marineOptions));
@@ -126,7 +127,11 @@ export function MarineAviation({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation, airOptions, marineOptions]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation,
+    airOptions,
+    marineOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasAirData = air.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);

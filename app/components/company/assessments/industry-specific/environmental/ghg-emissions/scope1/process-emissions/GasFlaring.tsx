@@ -8,7 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import type { AssessmentData, FileMetadata } from "@/hooks/useAssessment";
+import type { FileMetadata } from "@/hooks/useAssessment";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
 import {
@@ -96,7 +96,8 @@ export function GasFlaring({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
     if (existingData) {
       setGasVolumeRaw(existingData.gasVolume?.toString() || "0");
       setCarbonContentRaw(existingData.carbonContent?.toString() || "0");
@@ -105,7 +106,11 @@ export function GasFlaring({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [setCarbonContentRaw, setGasVolumeRaw, state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring]);
+  }, [
+    setCarbonContentRaw,
+    setGasVolumeRaw,
+    state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles =

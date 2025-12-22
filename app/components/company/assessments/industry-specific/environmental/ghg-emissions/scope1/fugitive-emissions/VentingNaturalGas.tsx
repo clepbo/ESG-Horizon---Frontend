@@ -43,7 +43,8 @@ export function VentingNaturalGas({
   const { state, dispatch } = useAssessment();
   const { assessmentData } = state;
 
-  const ventingNaturalGas = assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.ventingNaturalGas;
+  const ventingNaturalGas =
+    assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.ventingNaturalGas;
 
   // Use the formatted number hook for volumeOfGasVented
   const volumeOfGasVented = useFormattedNumber(

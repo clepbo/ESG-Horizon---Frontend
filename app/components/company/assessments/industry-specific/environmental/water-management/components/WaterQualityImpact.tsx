@@ -42,9 +42,11 @@ export default function WaterQualityImpact({
   const volumeRecycledReused = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, submitGroup, isLoading: isActionLoading } = useAssessmentFlow(
-    "water-quality-impacts"
-  );
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("water-quality-impacts");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -102,6 +104,8 @@ export default function WaterQualityImpact({
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,
+    numberOfWellsWithPublicDisclosure,
+    volumeRecycledReused,
   ]);
 
   const validateForm = () => {
@@ -195,7 +199,7 @@ export default function WaterQualityImpact({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };
@@ -226,7 +230,7 @@ export default function WaterQualityImpact({
       );
       await submitGroup();
       onContinueToNextAssessment();
-    } catch (error) {
+    } catch {
       toast.error("Failed to submit water management assessment");
     }
   };

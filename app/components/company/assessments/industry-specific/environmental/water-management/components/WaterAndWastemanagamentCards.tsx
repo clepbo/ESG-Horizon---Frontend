@@ -11,7 +11,6 @@ import ProducedWaterManagement from "./ProducedWaterManagement";
 import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
 import { SuccessScreen } from "../../../../SuccessScreen";
-import { TotalsResponse } from "@/services/assessment.service";
 
 const cards1 = [
   {
@@ -49,7 +48,6 @@ export default function WaterAndWastemanagamentCards({
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
-  const [totals, setTotals] = React.useState<TotalsResponse | null>(null);
 
   function backToWasteWaterManagement() {
     setStep(0);
@@ -91,7 +89,7 @@ export default function WaterAndWastemanagamentCards({
     return (
       <SuccessScreen
         assessmentName="Water and Wastewater Management"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment="Biodiversity Impact"
         onContinue={backToDisclosureTopics}
         onBackToHub={backToAssessmentHub}

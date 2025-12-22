@@ -84,7 +84,8 @@ export function EnergyRelatedActivities({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.fuelEnergyRelatedActivities;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.fuelEnergyRelatedActivities;
     if (existingData) {
       setFuelVolume(existingData.fuelVolume || "");
       setElectricityConsumed(existingData.energyType || ""); // Wait, looking at state...

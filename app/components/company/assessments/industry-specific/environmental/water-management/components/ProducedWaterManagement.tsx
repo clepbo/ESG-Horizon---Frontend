@@ -101,6 +101,10 @@ export default function ProducedWaterManagement({
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.producedWaterManagement,
+    totalProducedWaterGenerated,
+    volumeDischargedToSurface,
+    volumeInjectedForDisposal,
+    volumeRecycledReused,
   ]);
 
   // Calculate percentages based on total produced water
@@ -225,7 +229,7 @@ export default function ProducedWaterManagement({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };

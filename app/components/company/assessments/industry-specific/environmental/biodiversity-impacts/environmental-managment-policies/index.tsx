@@ -118,7 +118,7 @@ export default function EnvironmentalManagementPolicies({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };

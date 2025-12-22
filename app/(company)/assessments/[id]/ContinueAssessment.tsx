@@ -44,12 +44,12 @@ export default function ContinueAssessment() {
 
     const mappedStationarySources = stationarySources
       ? {
-        ...stationarySources,
-        industrialProcesses:
-          stationarySources.industrialProcesses || stationarySources.industrialprocess,
-        oilGasOperations:
-          stationarySources.oilGasOperations || stationarySources.oilgasoperations,
-      }
+          ...stationarySources,
+          industrialProcesses:
+            stationarySources.industrialProcesses || stationarySources.industrialprocess,
+          oilGasOperations:
+            stationarySources.oilGasOperations || stationarySources.oilgasoperations,
+        }
       : undefined;
 
     dispatch({ type: "SET_CONTINUE_MODE", payload: true });
@@ -93,7 +93,7 @@ export default function ContinueAssessment() {
     } else {
       dispatch({ type: "SET_VIEW", payload: "disclosure" });
     }
-  }, [data, dispatch, assessmentId, state.assessmentId, forceDisclosure]);
+  }, [data, dispatch, assessmentId, state.assessmentId, state.currentView, forceDisclosure]);
 
   if (isLoading) return <div className="p-10">Loading...</div>;
 

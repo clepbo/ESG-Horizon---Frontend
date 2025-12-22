@@ -63,6 +63,11 @@ export default function HydrocarbonSpills({
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.hydrocarbonSpills,
+    numberOfSpills,
+    totalVolumeSpilled,
+    volumeRecovered,
+    volumeInArctic,
+    volumeImpactingShorelines,
   ]);
 
   useEffect(() => {
@@ -141,7 +146,7 @@ export default function HydrocarbonSpills({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };

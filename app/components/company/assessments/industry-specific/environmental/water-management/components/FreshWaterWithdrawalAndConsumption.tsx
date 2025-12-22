@@ -87,7 +87,9 @@ export default function FreshWaterWithdrawalAndConsumption({
       state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
         ?.freshwaterWithdrawals;
     if (existingData && Object.keys(existingData).length > 0) {
-      withdrawalfromSurfaceWater.handleChange(String(existingData.withdrawalfromSurfaceWater || ""));
+      withdrawalfromSurfaceWater.handleChange(
+        String(existingData.withdrawalfromSurfaceWater || "")
+      );
       withdrawalfromGroundwater.handleChange(String(existingData.withdrawalfromGroundwater || ""));
       withdrawalfromMunicipalotherOtherSources.handleChange(
         String(existingData.withdrawalfromMunicipalotherOtherSources || "")
@@ -110,6 +112,11 @@ export default function FreshWaterWithdrawalAndConsumption({
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.freshwaterWithdrawals,
+    withdrawalfromSurfaceWater,
+    withdrawalfromGroundwater,
+    withdrawalfromMunicipalotherOtherSources,
+    totalWaterConsumed,
+    volumeWithdrawnfromWaterStressedRegions,
   ]);
 
   const validateForm = () => {
@@ -234,7 +241,7 @@ export default function FreshWaterWithdrawalAndConsumption({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };

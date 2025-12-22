@@ -100,6 +100,8 @@ export default function ChemicalDisclosure({
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.chemicalDisclosure,
+    numberOfWellsWithPublicDisclosure,
+    volumeRecycledReused,
   ]);
 
   const validateForm = () => {
@@ -193,7 +195,7 @@ export default function ChemicalDisclosure({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };

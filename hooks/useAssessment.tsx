@@ -42,6 +42,7 @@ export interface AssessmentData {
   endYear: string;
   lastSavedForm?: string;
   progress?: any;
+  overallProgress?: number;
   scopeTotals?: ScopeTotals;
   totals?: TotalsResponse;
   environment?: {
@@ -1716,7 +1717,8 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
             waterManagement: {
               ...state.assessmentData.environment?.waterManagement,
               waterAndProducedWaterManagement: {
-                ...state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement,
+                ...state.assessmentData.environment?.waterManagement
+                  ?.waterAndProducedWaterManagement,
                 freshwaterWithdrawals: action.payload,
               },
             },
@@ -1734,7 +1736,8 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
             waterManagement: {
               ...state.assessmentData.environment?.waterManagement,
               waterAndProducedWaterManagement: {
-                ...state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement,
+                ...state.assessmentData.environment?.waterManagement
+                  ?.waterAndProducedWaterManagement,
                 producedWaterManagement: action.payload,
               },
             },

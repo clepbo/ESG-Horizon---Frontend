@@ -75,7 +75,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing;
     if (existingData) {
       setCementRaw(existingData.cementQuantity?.toString() || "0");
       setFiles(
@@ -83,7 +84,10 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing, setCementRaw]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing,
+    setCementRaw,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);

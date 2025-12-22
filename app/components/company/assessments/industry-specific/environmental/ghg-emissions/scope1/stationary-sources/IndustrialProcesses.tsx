@@ -94,7 +94,8 @@ export function IndustrialProcessesForm({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses;
     if (existingData) {
       setBoilerFurnaces(
         existingData.boilerFurnaces || getInitialSources([], boilerFurnacesOptions)
@@ -104,7 +105,10 @@ export function IndustrialProcessesForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [boilerFurnacesOptions, state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses]);
+  }, [
+    boilerFurnacesOptions,
+    state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasBoilerFurnacesData = boilerFurnaces.some(

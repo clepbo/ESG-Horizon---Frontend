@@ -94,7 +94,8 @@ export function WasteGeneratedInOperations({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.wasteGeneratedInOperations;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.wasteGeneratedInOperations;
     if (existingData) {
       const savedMethods = existingData.selectedMethods;
       const savedOtherValue = existingData.otherMethodValue;

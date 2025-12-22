@@ -42,7 +42,7 @@ export default function ReservesInSensitiveAreas({
   stepIndex,
   totalSteps,
   breadcrumb,
-  onSubmit,
+  onSubmit: _onSubmit,
 }: ReservesInSensitiveAreasProps) {
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedReservesSensitiveVolume = useFormattedNumber("");
@@ -50,9 +50,11 @@ export default function ReservesInSensitiveAreas({
   const probableReservesSensitiveVolume = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, submitGroup, isLoading: isActionLoading } = useAssessmentFlow(
-    "reserves-in-sensitive-areas"
-  );
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("reserves-in-sensitive-areas");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -97,6 +99,10 @@ export default function ReservesInSensitiveAreas({
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.reservesInSensitiveAreas,
+    totalProvedReservesVolume,
+    provedReservesSensitiveVolume,
+    totalProbableReservesVolume,
+    probableReservesSensitiveVolume,
   ]);
 
   const { filled, total } = useMemo(() => {
@@ -202,7 +208,7 @@ export default function ReservesInSensitiveAreas({
       );
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   };
@@ -238,7 +244,7 @@ export default function ReservesInSensitiveAreas({
       );
       await submitGroup();
       onContinueToNextAssessment();
-    } catch (error) {
+    } catch {
       toast.error("Failed to submit biodiversity assessment");
     }
   };

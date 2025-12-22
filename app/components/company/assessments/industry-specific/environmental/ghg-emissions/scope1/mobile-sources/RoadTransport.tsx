@@ -107,7 +107,8 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport;
     if (existingData) {
       setVehicleFleet(existingData.vehicleFleet || getInitialSources([], vehicleFleetOptions));
       setCarsBuses(existingData.carsBuses || getInitialSources([], carsBusesOptions));
@@ -116,7 +117,11 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport, vehicleFleetOptions, carsBusesOptions]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport,
+    vehicleFleetOptions,
+    carsBusesOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasVehicleFleetData = vehicleFleet.some(

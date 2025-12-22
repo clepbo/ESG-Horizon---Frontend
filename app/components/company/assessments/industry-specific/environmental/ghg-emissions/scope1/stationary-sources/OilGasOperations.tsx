@@ -93,7 +93,8 @@ export function OilGasOperations({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
     if (existingData) {
       setOnShoreProduction(
         existingData.onShoreProduction || getInitialSources([], onShoreProductionOptions)
@@ -103,7 +104,10 @@ export function OilGasOperations({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations, onShoreProductionOptions]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations,
+    onShoreProductionOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasOnShoreProductionData = onShoreProduction.some(

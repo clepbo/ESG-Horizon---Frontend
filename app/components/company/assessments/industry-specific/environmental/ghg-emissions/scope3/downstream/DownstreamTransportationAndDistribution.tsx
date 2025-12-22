@@ -88,7 +88,9 @@ export function DownstreamTransportationAndDistribution({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.downstreamTransportationDistribution;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.downstream
+        ?.downstreamTransportationDistribution;
     if (existingData) {
       // Input fields
       setMassOfProductsSold(existingData.massOfProductsSold || "");
@@ -194,7 +196,10 @@ export function DownstreamTransportationAndDistribution({
     });
 
     try {
-      await saveNow("environment.ghg.scope3.downstream.downstreamTransportationDistribution", payload);
+      await saveNow(
+        "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
+        payload
+      );
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

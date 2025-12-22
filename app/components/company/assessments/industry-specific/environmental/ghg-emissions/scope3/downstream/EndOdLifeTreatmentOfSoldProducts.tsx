@@ -101,7 +101,8 @@ export function EndOfLifeTreatment({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.endOfLifeTreatment;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.downstream?.endOfLifeTreatment;
     if (existingData) {
       // Checkbox fields
       setSelectedMethods(

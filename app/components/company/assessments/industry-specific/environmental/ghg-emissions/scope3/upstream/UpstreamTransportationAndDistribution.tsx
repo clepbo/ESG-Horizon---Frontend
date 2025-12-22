@@ -86,7 +86,8 @@ export function UpstreamTransportationAndDistribution({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamTransportationDistribution;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamTransportationDistribution;
     if (existingData) {
       setMassTransported(existingData.massTransported || "");
       setDistanceTravelled(existingData.distanceTravelled || "");

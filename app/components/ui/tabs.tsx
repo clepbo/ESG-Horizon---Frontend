@@ -33,9 +33,9 @@ export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
           {React.Children.map(list, (child) =>
             React.isValidElement(child)
               ? React.cloneElement(child as React.ReactElement<TabsListProps>, {
-                value,
-                onValueChange: setValue,
-              })
+                  value,
+                  onValueChange: setValue,
+                })
               : child
           )}
           {content}

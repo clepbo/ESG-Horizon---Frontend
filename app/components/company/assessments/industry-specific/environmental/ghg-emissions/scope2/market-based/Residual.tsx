@@ -390,8 +390,9 @@ export function ResidualForm({
                       residualMixFactor: undefined,
                     }));
                 }}
-                className={`w-full border-gray-400 ${errors.residualMixFactor ? "border-red-500" : ""
-                  }`}
+                className={`w-full border-gray-400 ${
+                  errors.residualMixFactor ? "border-red-500" : ""
+                }`}
               />
               {errors.residualMixFactor && (
                 <p className="text-sm text-red-500 mt-1">{errors.residualMixFactor}</p>

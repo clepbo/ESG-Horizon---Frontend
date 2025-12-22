@@ -88,7 +88,8 @@ export function UseOfSoldProducts({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.useOfSoldProducts;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.downstream?.useOfSoldProducts;
     if (existingData) {
       // Input fields
       setUnitsSold(existingData.unitsSold || "");

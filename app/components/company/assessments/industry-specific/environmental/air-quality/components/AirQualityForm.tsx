@@ -44,7 +44,11 @@ export default function AirQualityForm({
     },
   ];
   const { state, dispatch } = useAssessment();
-  const { saveNow, submitGroup, isLoading: isActionLoading } = useAssessmentFlow("air-pollutant-emissions");
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("air-pollutant-emissions");
 
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
@@ -147,7 +151,7 @@ export default function AirQualityForm({
       await saveNow("environment.airQuality.airPollutantEmissions", formData);
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to save data");
     }
   }
