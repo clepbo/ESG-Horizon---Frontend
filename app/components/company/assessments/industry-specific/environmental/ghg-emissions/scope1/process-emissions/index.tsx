@@ -6,6 +6,7 @@ import { GasFlaring } from "./GasFlaring";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface ProcessEmissionsFormProps {
   onBack: () => void;
@@ -30,6 +31,16 @@ export function ProcessEmissionsForm({
 
   const isAssignedTask = state.isAssignedTask || false;
 
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Stationary Sources", onClick: handleBackToOverview },
+  ];
+
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -51,6 +62,7 @@ export function ProcessEmissionsForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Cement Manufacturing" }]}
       />
     );
   }
@@ -74,6 +86,7 @@ export function ProcessEmissionsForm({
         stepIndex={2}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "Gas Flaring" }]}
       />
     );
   }

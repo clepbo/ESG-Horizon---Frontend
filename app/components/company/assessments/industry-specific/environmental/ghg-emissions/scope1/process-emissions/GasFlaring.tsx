@@ -23,6 +23,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 // import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface GasFlaringProps {
   onBack: () => void;
@@ -31,6 +32,7 @@ interface GasFlaringProps {
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -46,6 +48,7 @@ export function GasFlaring({
   stepIndex,
   totalSteps,
   isSubmitted,
+  breadcrumb,
 }: GasFlaringProps) {
   const { state, dispatch } = useAssessment();
 
@@ -275,7 +278,8 @@ export function GasFlaring({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

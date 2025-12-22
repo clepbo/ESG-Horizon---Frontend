@@ -8,6 +8,7 @@ import { PurchasedHeatingForm } from "./PurchasedHeating";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface LocationBasedFormProps {
   onBack: () => void;
@@ -36,6 +37,16 @@ export function LocationBasedForm({
 
   const isAssignedTask = state.isAssignedTask || false;
 
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Scope 2 - Location Based", onClick: handleBackToOverview },
+  ];
+
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -57,6 +68,7 @@ export function LocationBasedForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Electricity" }]}
       />
     );
   }
@@ -69,6 +81,7 @@ export function LocationBasedForm({
         onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Cooling" }]}
       />
     );
   }
@@ -81,6 +94,7 @@ export function LocationBasedForm({
         onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Steam" }]}
       />
     );
   }
@@ -104,6 +118,7 @@ export function LocationBasedForm({
         stepIndex={4}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Heating" }]}
       />
     );
   }
