@@ -394,7 +394,7 @@ export function PurchasedGoodsAndServices({
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"
-            onClick={onBack}
+            onClick={backToGHGEmissions}
             className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
             aria-label="Go back to previous step"
           >
