@@ -9,17 +9,22 @@ import { EvidenceList } from "../../../social-capital/community-relations/compon
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { ArrowLeft, CheckCircle2, Save } from "lucide-react";
 import { toast } from "react-toastify";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useEffect } from "react";
 
 interface AirQualityFormProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   backToAirQualityCard: () => void;
+  onSubmit: () => void;
 }
 
 export default function AirQualityForm({
   backToDisclosureTopics,
   backToAssessmentHub,
   backToAirQualityCard,
+  onSubmit,
 }: AirQualityFormProps) {
   const features = [
     {
@@ -38,6 +43,13 @@ export default function AirQualityForm({
       label: "Air Pollutant Emissions",
     },
   ];
+  const { state, dispatch } = useAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("air-pollutant-emissions");
+
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
     oxidesOfNitrogenUnit: "",
@@ -49,7 +61,24 @@ export default function AirQualityForm({
     particulateMatterUnit: "",
     evidenceList: [],
   });
-  const [isSaving, setIsSaving] = React.useState(false);
+
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.airQuality?.airPollutantEmissions;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData({
+        oxidesOfNitrogen: existingData.oxidesOfNitrogen || 0,
+        oxidesOfNitrogenUnit: existingData.oxidesOfNitrogenUnit || "",
+        oxidesOfSuplphur: existingData.oxidesOfSuplphur || 0,
+        oxidesOfSulphurUnit: existingData.oxidesOfSulphurUnit || "",
+        volatileOrganicCompound: existingData.volatileOrganicCompound || 0,
+        volatileOrganicCompoundUnit: existingData.volatileOrganicCompoundUnit || "",
+        particulateMatter: existingData.particulateMatter || 0,
+        particulateMatterUnit: existingData.particulateMatterUnit || "",
+        evidenceList: existingData.evidenceList || [],
+      });
+    }
+  }, [state.assessmentData.environment?.airQuality?.airPollutantEmissions]);
+
   const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -115,38 +144,40 @@ export default function AirQualityForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  function handleSaveAndContinue() {
-    setIsSaving(true);
+  async function handleSaveAndContinue() {
+    dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
 
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await saveNow("environment.airQuality.airPollutantEmissions", formData);
       setShowSaveSuccess(true);
-
-      setTimeout(() => {
-        setShowSaveSuccess(false);
-      }, 2000);
-    }, 1500);
+      setTimeout(() => setShowSaveSuccess(false), 2000);
+    } catch {
+      toast.error("Failed to save data");
+    }
   }
 
   function handlePrevious() {
     // Logic to go back to the previous step
   }
 
-  function handleSubmit() {
-    // Validate form before submission
+  async function handleSubmit() {
     if (!validateForm()) {
       toast.error("Please fill in all required fields before submitting");
       return;
     }
 
     setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
+      await saveNow("environment.airQuality.airPollutantEmissions", formData);
+      await submitGroup();
+      onSubmit();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to submit assessment");
+    } finally {
       setIsSubmitting(false);
-      toast.success("Form submitted successfully!");
-      // Further actions after submission can be added here
-    }, 2000);
+    }
   }
 
   // Check if form is valid for enabling submit button
@@ -267,10 +298,10 @@ export default function AirQualityForm({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 transition-colors"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -288,7 +319,7 @@ export default function AirQualityForm({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving || isSubmitting || !isFormValid()}
+                disabled={isActionLoading || isSubmitting || !isFormValid()}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (

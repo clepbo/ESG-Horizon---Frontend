@@ -6,6 +6,7 @@ import { UpstreamTransportationAndDistribution } from "./upstream/UpstreamTransp
 import { WasteGeneratedInOperations } from "./upstream/WasteGeneratedInOperations";
 import { BusinessTravel } from "./upstream/BusinessTravel";
 import { EmployeeCommuting } from "./upstream/EmployeeCommuting";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { LeasedAssets } from "./upstream/LeasedAssets";
 
 export interface UpstreamProps {
@@ -20,8 +21,15 @@ export default function UpstreamEmissionHome({
 }: UpstreamProps) {
   const [step, setStep] = useState(0);
 
+  const { submitGroup } = useAssessmentFlow("ghg-scope3-upstream");
+
   function handleNext(val: number) {
     setStep(val);
+  }
+
+  async function handleFinalNext() {
+    await submitGroup();
+    handleBacktoGHG();
   }
 
   if (step === 0) {
@@ -119,7 +127,7 @@ export default function UpstreamEmissionHome({
     return (
       <LeasedAssets
         onBack={() => handleNext(6)}
-        onNext={() => handleNext(7)}
+        onNext={handleFinalNext}
         stepIndex={8}
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}

@@ -94,20 +94,21 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
 
   const [vehicleFleet, setVehicleFleet] = useState<SourceData[]>(() =>
     getInitialSources(
-      state.assessmentData.mobileSources?.roadTransport?.vehicleFleet,
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport?.vehicleFleet,
       vehicleFleetOptions
     )
   );
 
   const [carsBuses, setCarsBuses] = useState<SourceData[]>(() =>
     getInitialSources(
-      state.assessmentData.mobileSources?.roadTransport?.carsBuses,
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport?.carsBuses,
       carsBusesOptions
     )
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources?.roadTransport;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport;
     if (existingData) {
       setVehicleFleet(existingData.vehicleFleet || getInitialSources([], vehicleFleetOptions));
       setCarsBuses(existingData.carsBuses || getInitialSources([], carsBusesOptions));
@@ -116,7 +117,11 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.mobileSources?.roadTransport, vehicleFleetOptions, carsBusesOptions]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport,
+    vehicleFleetOptions,
+    carsBusesOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasVehicleFleetData = vehicleFleet.some(
@@ -265,16 +270,6 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
     onNext();
   };
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_MOBILE_ROAD_TRANSPORT",
-      payload: {
-        vehicleFleet,
-        carsBuses,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
     onBack();
   };
 

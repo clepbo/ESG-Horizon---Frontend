@@ -34,19 +34,17 @@ export function Scope1EmissionsChart() {
 
     const data: { category: string; emissions: number }[] = [];
 
+    const scope1 = assessmentData.environment?.ghg?.scope1;
+
     // Stationary Sources
     const stationaryEmissions =
-      (calculateSourceEmissions(
-        assessmentData.stationarySources?.electricityHeat?.dieselGenerators
-      ) || 0) +
-      (calculateSourceEmissions(assessmentData.stationarySources?.electricityHeat?.gasTurbines) ||
+      (calculateSourceEmissions(scope1?.stationarySources?.electricityHeat?.dieselGenerators) ||
         0) +
-      (calculateSourceEmissions(
-        assessmentData.stationarySources?.industrialProcesses?.boilerFurnaces
-      ) || 0) +
-      (calculateSourceEmissions(
-        assessmentData.stationarySources?.oilGasOperations?.onShoreProduction
-      ) || 0);
+      (calculateSourceEmissions(scope1?.stationarySources?.electricityHeat?.gasTurbines) || 0) +
+      (calculateSourceEmissions(scope1?.stationarySources?.industrialProcesses?.boilerFurnaces) ||
+        0) +
+      (calculateSourceEmissions(scope1?.stationarySources?.oilGasOperations?.onShoreProduction) ||
+        0);
     if (stationaryEmissions > 0) {
       data.push({
         category: "Stationary Sources",
@@ -56,25 +54,21 @@ export function Scope1EmissionsChart() {
 
     // Mobile Sources
     const mobileEmissions =
-      (calculateSourceEmissions(assessmentData.mobileSources?.roadTransport?.vehicleFleet) || 0) +
-      (calculateSourceEmissions(assessmentData.mobileSources?.roadTransport?.carsBuses) || 0) +
-      (calculateSourceEmissions(assessmentData.mobileSources?.vehicleEquipment?.forkliftFuelType) ||
-        0) +
-      (calculateSourceEmissions(
-        assessmentData.mobileSources?.vehicleEquipment?.heavyDutyFuelType
-      ) || 0) +
-      (calculateSourceEmissions(assessmentData.mobileSources?.vehicleEquipment?.tractorFuelType) ||
-        0) +
-      (calculateSourceEmissions(assessmentData.mobileSources?.marineAviation?.air) || 0) +
-      (calculateSourceEmissions(assessmentData.mobileSources?.marineAviation?.marine) || 0);
+      (calculateSourceEmissions(scope1?.mobileSources?.roadTransport?.vehicleFleet) || 0) +
+      (calculateSourceEmissions(scope1?.mobileSources?.roadTransport?.carsBuses) || 0) +
+      (calculateSourceEmissions(scope1?.mobileSources?.vehicleEquipment?.forkliftFuelType) || 0) +
+      (calculateSourceEmissions(scope1?.mobileSources?.vehicleEquipment?.heavyDutyFuelType) || 0) +
+      (calculateSourceEmissions(scope1?.mobileSources?.vehicleEquipment?.tractorFuelType) || 0) +
+      (calculateSourceEmissions(scope1?.mobileSources?.marineAviation?.air) || 0) +
+      (calculateSourceEmissions(scope1?.mobileSources?.marineAviation?.marine) || 0);
     if (mobileEmissions > 0) {
       data.push({ category: "Mobile Sources", emissions: mobileEmissions });
     }
 
     // Process Emissions
-    if (assessmentData.processEmissions) {
+    if (scope1?.processEmissions) {
       const cementEmissions =
-        toNumber(assessmentData.processEmissions.cementManufacturing?.cementQuantity) * 0.44; // Using example factor
+        toNumber(scope1.processEmissions.cementManufacturing?.cementQuantity) * 0.44; // Using example factor
       if (cementEmissions > 0) {
         data.push({
           category: "Cement Manufacturing",
@@ -83,23 +77,22 @@ export function Scope1EmissionsChart() {
       }
 
       const gasFlaringEmissions =
-        toNumber(assessmentData.processEmissions.gasFlaring?.gasVolume) *
-        toNumber(assessmentData.processEmissions.gasFlaring?.carbonContent);
+        toNumber(scope1.processEmissions.gasFlaring?.gasVolume) *
+        toNumber(scope1.processEmissions.gasFlaring?.carbonContent);
       if (gasFlaringEmissions > 0) {
         data.push({ category: "Gas Flaring", emissions: gasFlaringEmissions });
       }
     }
 
     // Fugitive Emissions
-    if (assessmentData.fugitiveEmissions) {
+    if (scope1?.fugitiveEmissions) {
       const ventingEmissions =
-        toNumber(assessmentData.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) * 0.002; // Using example factor
+        toNumber(scope1.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) * 0.002; // Using example factor
       if (ventingEmissions > 0) {
         data.push({ category: "Gas Venting", emissions: ventingEmissions });
       }
 
-      const hfcEmissions =
-        toNumber(assessmentData.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Using example GWP
+      const hfcEmissions = toNumber(scope1.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Using example GWP
       if (hfcEmissions > 0) {
         data.push({ category: "HFC Leaks", emissions: hfcEmissions });
       }
@@ -181,7 +174,10 @@ export function Scope1EmissionsChart() {
                   domain={[0, "dataMax + 10"]}
                 />
                 <Tooltip
-                  formatter={(value?: number) => [`${(value ?? 0).toFixed(1)} tonnes CO2e`, "Emissions"]}
+                  formatter={(value?: number) => [
+                    `${(value ?? 0).toFixed(1)} tonnes CO2e`,
+                    "Emissions",
+                  ]}
                   labelStyle={{ color: "#374151" }}
                 />
                 <Bar dataKey="emissions" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6" />

@@ -87,7 +87,7 @@ export function PurchasedHeatingForm({
   const isPending = isLoading;
 
   useEffect(() => {
-    const existingData = state.assessmentData.heating;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.heating;
 
     if (existingData) {
       setHeatingPurchased(existingData.heatingPurchased || "");
@@ -105,7 +105,7 @@ export function PurchasedHeatingForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, setFiles]);
+  }, [state.assessmentData, setFiles, setHeatingConsumedRaw]);
 
   const { total, filled } = calculateProgress([
     heatingPurchased,
@@ -179,7 +179,7 @@ export function PurchasedHeatingForm({
     };
 
     dispatch({
-      type: "UPDATE_HEATING",
+      type: "UPDATE_LOCATION_HEATING",
       payload,
     });
 
@@ -209,13 +209,29 @@ export function PurchasedHeatingForm({
   };
 
   const handleSubmit = async () => {
-    await saveForm({ showToast: false, redirect: false });
+    const payload = {
+      heatingPurchased,
+      heatingConsumed: heatingConsumedRaw,
+      supplierName,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_LOCATION_HEATING",
+      payload,
+    });
 
     try {
+      await saveNow("environment.ghg.scope2.locationBased.purchasedHeating", payload);
       const response = await submitGroup();
-      const groupTotal = response.scopeTotals.scope2.locationBased.totalEmission || 0;
-      toast.success("Assessment submitted successfully!");
-      onSubmit(groupTotal);
+      onSubmit(response.totals);
     } catch (err) {
       toast.error("Failed to submit");
       console.error("Submission failed:", err);
@@ -223,7 +239,6 @@ export function PurchasedHeatingForm({
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

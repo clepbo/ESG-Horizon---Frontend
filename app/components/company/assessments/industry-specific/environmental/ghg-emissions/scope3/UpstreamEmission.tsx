@@ -97,7 +97,7 @@ export function UpstreamEmission({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources?.electricityHeat;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.stationarySources?.electricityHeat;
     if (existingData) {
       setDieselGenerators(
         existingData.dieselGenerators || getInitialSources([], dieselFuelOptions)

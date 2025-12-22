@@ -109,7 +109,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
       localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
 
-      router.push("/ranking/create/summary");
+      router.push("/kpis/create/summary");
     }
   };
 

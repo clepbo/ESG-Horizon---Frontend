@@ -54,14 +54,15 @@ export function AssessmentProgressCard() {
       let present = 0;
       let nonEmpty = 0;
 
+      const scope1 = assessmentData.environment?.ghg?.scope1;
       const container: Scope1Category | undefined = (
         section.name === "Stationary Sources"
-          ? assessmentData.stationarySources
+          ? scope1?.stationarySources
           : section.name === "Mobile Sources"
-            ? assessmentData.mobileSources
+            ? scope1?.mobileSources
             : section.name === "Process Emissions"
-              ? assessmentData.processEmissions
-              : assessmentData.fugitiveEmissions
+              ? scope1?.processEmissions
+              : scope1?.fugitiveEmissions
       ) as Scope1Category | undefined;
 
       section.keys.forEach((k) => {

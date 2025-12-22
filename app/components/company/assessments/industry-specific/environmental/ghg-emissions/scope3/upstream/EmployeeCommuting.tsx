@@ -65,7 +65,7 @@ export function EmployeeCommuting({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: EmployeeCommutingProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -95,7 +95,7 @@ export function EmployeeCommuting({
     workdaysPerYear: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-employee-commuting");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-employee-commuting");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -105,7 +105,7 @@ export function EmployeeCommuting({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.employeeCommuting;
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.employeeCommuting;
     if (existingData) {
       // Input fields
       setNumberOfEmployees(existingData.numberOfEmployees || "");
@@ -113,8 +113,8 @@ export function EmployeeCommuting({
       setWorkdaysPerYear(existingData.workdaysPerYear || "");
 
       // Checkbox fields
-      const savedMethods = (existingData as any).selectedMethods;
-      const savedOtherValue = (existingData as any).otherMethodValue;
+      const savedMethods = existingData.selectedMethods;
+      const savedOtherValue = existingData.otherMethodValue;
 
       if (savedMethods && Array.isArray(savedMethods)) {
         setSelectedMethods(savedMethods);
@@ -131,7 +131,7 @@ export function EmployeeCommuting({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -257,13 +257,13 @@ export function EmployeeCommuting({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_EMPLOYEE_COMMUTING",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.employeeCommuting", payload);
+      await saveNow("environment.ghg.scope3.upstream.employeeCommuting", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

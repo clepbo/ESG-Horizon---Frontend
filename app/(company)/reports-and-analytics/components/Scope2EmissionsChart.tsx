@@ -24,45 +24,48 @@ export function Scope2EmissionsChart() {
   const computeScope2Totals = () => {
     if (!assessmentData) return { locationBased: 0, marketBased: 0 };
 
+    const scope2 = assessmentData.environment?.ghg?.scope2;
+    const locationData = scope2?.locationBased;
+    const marketData = scope2?.marketBased;
+
     // Location-based sources
     let locationBased = 0;
-    if (assessmentData.electricity) {
-      locationBased += parseNum(assessmentData.electricity.electricityConsumed) * gridEF;
+    if (locationData?.electricity) {
+      locationBased += parseNum(locationData.electricity.electricityConsumed) * gridEF;
     }
-    if (assessmentData.cooling) {
-      locationBased += parseNum(assessmentData.cooling.coolingConsumed) * gridEF;
+    if (locationData?.cooling) {
+      locationBased += parseNum(locationData.cooling.coolingConsumed) * gridEF;
     }
-    if (assessmentData.steam) {
-      locationBased += parseNum(assessmentData.steam.volume) * gridEF;
+    if (locationData?.steam) {
+      locationBased += parseNum(locationData.steam.volume) * gridEF;
     }
-    if (assessmentData.heating) {
-      // Try both fields in case one is used
+    if (locationData?.heating) {
       const heatingValue =
-        parseNum(assessmentData.heating.heatingConsumed) ||
-        parseNum(assessmentData.heating.heatingPurchased);
+        parseNum(locationData.heating.heatingConsumed) ||
+        parseNum(locationData.heating.heatingPurchased);
       locationBased += heatingValue * gridEF;
     }
 
     let marketBased = 0;
-    if (assessmentData.ipps) {
+    if (marketData?.ipps) {
       marketBased +=
-        parseNum(assessmentData.ipps.electricityConsumed) *
-        (parseNum(assessmentData.ipps.emissionFactor) || gridEF);
+        parseNum(marketData.ipps.electricityConsumed) *
+        (parseNum(marketData.ipps.emissionFactor) || gridEF);
     }
-    if (assessmentData.eac) {
+    if (marketData?.eac) {
       marketBased +=
-        parseNum(assessmentData.eac.gridElectricity) *
-        (parseNum(assessmentData.eac.emissionFactor) || gridEF);
+        parseNum(marketData.eac.gridElectricity) *
+        (parseNum(marketData.eac.emissionFactor) || gridEF);
     }
-    if (assessmentData.residual) {
+    if (marketData?.residual) {
       marketBased +=
-        parseNum(assessmentData.residual.electricityConsumed) *
-        (parseNum(assessmentData.residual.residualMixFactor) || gridEF);
+        parseNum(marketData.residual.electricityConsumed) *
+        (parseNum(marketData.residual.residualMixFactor) || gridEF);
     }
-    if (assessmentData.coolingSteam) {
+    if (marketData?.coolingSteam) {
       marketBased +=
-        parseNum(assessmentData.coolingSteam.energyConsumed) *
-        (parseNum(assessmentData.coolingSteam.emissionFactor) || gridEF);
+        parseNum(marketData.coolingSteam.energyConsumed) *
+        (parseNum(marketData.coolingSteam.emissionFactor) || gridEF);
     }
 
     return { locationBased, marketBased };

@@ -89,7 +89,7 @@ export function ElectricityIppsForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.ipps;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.ipps;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.electricityConsumed) {
@@ -191,7 +191,7 @@ export function ElectricityIppsForm({
     };
 
     dispatch({
-      type: "UPDATE_IPPS",
+      type: "UPDATE_MARKET_IPPS",
       payload,
     });
 
@@ -222,12 +222,25 @@ export function ElectricityIppsForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_MARKET_IPPS",
+      payload: {
+        electricityConsumed: electricityConsumedRaw,
+        emissionFactor: emissionFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

@@ -16,6 +16,7 @@ import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
@@ -53,7 +54,7 @@ export function DownstreamTransportationAndDistribution({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: DownstreamTransportationAndDistributionProps) {
-  // const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -86,21 +87,23 @@ export function DownstreamTransportationAndDistribution({
   }, [stepIndex]);
 
   // Load existing data
-  //   useEffect(() => {
-  //     const existingData = (state.assessmentData.downstreamLeasedAssets as any);
-  //     if (existingData) {
-  //       // Input fields
-  //       setMassOfProductsSold(existingData.massOfProductsSold || "");
-  //       setAverageDistributionDistance(existingData.averageDistributionDistance || "");
-  //       setFuelConsumedByDistribution(existingData.fuelConsumedByDistribution || "");
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.downstream
+        ?.downstreamTransportationDistribution;
+    if (existingData) {
+      // Input fields
+      setMassOfProductsSold(existingData.massOfProductsSold || "");
+      setAverageDistributionDistance(existingData.averageDistributionDistance || "");
+      setFuelConsumedByDistribution(existingData.fuelConsumedByDistribution || "");
 
-  //       // Files
-  //       setFiles(
-  //         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
-  //       );
-  //       setAdditionalFields(existingData.additionalFields || []);
-  //     }
-  //   }, [state.assessmentData]);
+      // Files
+      setFiles(
+        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
+      setAdditionalFields(existingData.additionalFields || []);
+    }
+  }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -187,8 +190,16 @@ export function DownstreamTransportationAndDistribution({
       })),
     };
 
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_TRANSPORTATION",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope3.downstreamTransportation", payload);
+      await saveNow(
+        "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
+        payload
+      );
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

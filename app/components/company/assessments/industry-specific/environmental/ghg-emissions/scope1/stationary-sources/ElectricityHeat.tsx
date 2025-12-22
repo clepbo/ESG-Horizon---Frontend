@@ -100,7 +100,8 @@ export function ElectricityHeatForm({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources?.electricityHeat;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.electricityHeat;
     if (existingData) {
       setDieselGenerators(
         existingData.dieselGenerators || getInitialSources([], dieselFuelOptions)
@@ -111,7 +112,11 @@ export function ElectricityHeatForm({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [dieselFuelOptions, gasFuelOptions, state.assessmentData]);
+  }, [
+    dieselFuelOptions,
+    gasFuelOptions,
+    state.assessmentData.environment?.ghg?.scope1?.stationarySources?.electricityHeat,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasDieselData = dieselGenerators.some(
@@ -196,9 +201,23 @@ export function ElectricityHeatForm({
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+      payload: {
+        dieselGenerators,
+        gasTurbines,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
@@ -272,16 +291,6 @@ export function ElectricityHeatForm({
   };
 
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
-      payload: {
-        dieselGenerators,
-        gasTurbines,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
     onBack();
   };
 

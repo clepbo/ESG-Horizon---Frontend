@@ -12,6 +12,7 @@ import { Department } from "@/services/department.service";
 import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useAllUserRoles } from "@/services/hooks/user.hooks";
 import { formatRoleName } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 interface CompanySetupModalProps {
   isOpen: boolean;
@@ -189,6 +190,22 @@ export default function CompanySetupModal({
         };
         setNewDepartments((prev) => [...prev, newDept]);
       } else if (activeTab === "user") {
+        // Check for duplicate email in existing users and new users
+        const emailLower = formData.email.toLowerCase();
+        const isDuplicateInExisting = allUsers.some(
+          (user: User) => user.email.toLowerCase() === emailLower
+        );
+        const isDuplicateInNew = newUsers.some(
+          (user: User) => user.email.toLowerCase() === emailLower
+        );
+
+        if (isDuplicateInExisting || isDuplicateInNew) {
+          toast.error(
+            `User with email ${formData.email} already exists or is already being invited`
+          );
+          return;
+        }
+
         const newUser: User = {
           id: Date.now(),
           email: formData.email,

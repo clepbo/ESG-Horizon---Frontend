@@ -14,6 +14,11 @@ export interface CompanyDashboardData {
   recentActivities: any[];
   esgJourney: ESGJourneyItem[];
   stats: { totalAssessments: number; reviewedAssessments: number };
+  hubStats?: {
+    environment: { progress: number; completed: string };
+    social: { progress: number; completed: string };
+    governance: { progress: number; completed: string };
+  } | null;
 }
 
 export interface CompanyDashboardApiResponse {
