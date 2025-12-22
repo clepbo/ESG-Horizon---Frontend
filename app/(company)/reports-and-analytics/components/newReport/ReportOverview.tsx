@@ -7,8 +7,32 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
+import { useSingleReport } from "../service/useReport";
+import { useParams } from "next/navigation";
+import ReportEmptyState from "../ReportEmptyState";
 
 export default function ReportOverview() {
+ 
+  const params = useParams();
+    const { data, isError } = useSingleReport(Number(params?.id));
+    console.log("Overview Data", data);
+    
+    if (isError) {  
+      return (
+        <div className="w-full flex justify-center items-center py-12 text-red-500">
+          Failed to load report.
+        </div>
+      );
+    }
+    if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
+      return (
+        <div className="w-full flex justify-center items-center py-12 text-gray-600">
+          No report data found.
+          <ReportEmptyState />
+        </div>
+      );
+    }
+
   const environmentalAmount = (
     <h5 className="font-bold">
       154,000 <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
