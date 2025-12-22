@@ -54,7 +54,7 @@ export function UpstreamTransportationAndDistribution({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: UpstreamTransportationProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -76,7 +76,7 @@ export function UpstreamTransportationAndDistribution({
     logisticsSpend: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-upstream-transportation");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-transportation");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +86,7 @@ export function UpstreamTransportationAndDistribution({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.upstreamTransportation;
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamTransportationDistribution;
     if (existingData) {
       setMassTransported(existingData.massTransported || "");
       setDistanceTravelled(existingData.distanceTravelled || "");
@@ -96,7 +96,7 @@ export function UpstreamTransportationAndDistribution({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     const hasMassTransported = massTransported.trim().length > 0;
@@ -174,13 +174,13 @@ export function UpstreamTransportationAndDistribution({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_UPSTREAM_TRANSPORTATION",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_TRANSPORTATION",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.upstreamTransportation", payload);
+      await saveNow("environment.ghg.scope3.upstream.upstreamTransportationDistribution", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

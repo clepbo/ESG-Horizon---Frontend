@@ -87,7 +87,7 @@ export function ResidualForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.residual;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.residual;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.electricityConsumed) {
@@ -189,7 +189,7 @@ export function ResidualForm({
     };
 
     dispatch({
-      type: "UPDATE_RESIDUAL",
+      type: "UPDATE_MARKET_RESIDUAL",
       payload,
     });
 
@@ -221,12 +221,25 @@ export function ResidualForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_MARKET_RESIDUAL",
+      payload: {
+        electricityConsumed: electricityConsumedRaw,
+        residualMixFactor: residualMixFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -377,9 +390,8 @@ export function ResidualForm({
                       residualMixFactor: undefined,
                     }));
                 }}
-                className={`w-full border-gray-400 ${
-                  errors.residualMixFactor ? "border-red-500" : ""
-                }`}
+                className={`w-full border-gray-400 ${errors.residualMixFactor ? "border-red-500" : ""
+                  }`}
               />
               {errors.residualMixFactor && (
                 <p className="text-sm text-red-500 mt-1">{errors.residualMixFactor}</p>

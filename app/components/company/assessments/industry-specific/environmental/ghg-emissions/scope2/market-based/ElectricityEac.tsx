@@ -90,7 +90,7 @@ export function ElectricityEACForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.eac;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.eac;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.gridElectricity) {
@@ -192,7 +192,7 @@ export function ElectricityEACForm({
     };
 
     dispatch({
-      type: "UPDATE_EAC",
+      type: "UPDATE_MARKET_EAC",
       payload,
     });
 
@@ -224,12 +224,25 @@ export function ElectricityEACForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_MARKET_EAC",
+      payload: {
+        gridElectricity: gridElectricityRaw,
+        emissionFactor: emissionFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -433,9 +446,8 @@ export function ElectricityEACForm({
                     emissionFactor: undefined,
                   }));
                 }}
-                className={`w-full border-gray-400 ${
-                  errors.emissionFactor ? "border-red-500" : ""
-                }`}
+                className={`w-full border-gray-400 ${errors.emissionFactor ? "border-red-500" : ""
+                  }`}
               />
               {errors.emissionFactor && (
                 <p className="text-sm text-red-500 mt-1">{errors.emissionFactor}</p>

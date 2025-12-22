@@ -11,6 +11,8 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
@@ -39,9 +41,11 @@ export default function ChemicalDisclosure({
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
   const volumeRecycledReused = useFormattedNumber("");
 
+  const { state, dispatch } = useAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("chemical-disclosure");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [operatesFrackedWells, setOperatesFrackedWells] = useState<string>("");
 
@@ -73,6 +77,30 @@ export default function ChemicalDisclosure({
     numberOfWellsWithPublicDisclosureUnit: "",
     volumeRecycledReusedUnit: "",
   });
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
+        ?.chemicalDisclosure;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setOperatesFrackedWells(existingData.operatesFrackedWells || "");
+      if (existingData.operatesFrackedWells === "yes") {
+        numberOfWellsWithPublicDisclosure.handleChange(
+          String(existingData.numberOfWellsWithPublicDisclosure || "")
+        );
+        volumeRecycledReused.handleChange(String(existingData.volumeRecycledReused || ""));
+        setFormData({
+          numberOfWellsWithPublicDisclosureUnit:
+            existingData.numberOfWellsWithPublicDisclosureUnit || "",
+          volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "",
+        });
+      }
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+  }, [
+    state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
+      ?.chemicalDisclosure,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -139,13 +167,11 @@ export default function ChemicalDisclosure({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
-    setShowSaveSuccess(true);
-    setIsSaving(true);
 
     const payload = {
       operatesFrackedWells,
@@ -158,22 +184,42 @@ export default function ChemicalDisclosure({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("DATA TO SAVE:", payload);
-    toast.success("Data logged to console.");
-    setIsSaving(false);
+    dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
+
+    try {
+      await saveNow(
+        "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
+        payload
+      );
+      setShowSaveSuccess(true);
+      setTimeout(() => setShowSaveSuccess(false), 2000);
+    } catch (error) {
+      toast.error("Failed to save data");
+    }
   };
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before continuing.");
       return;
     }
-    toast.success("Moved to next section");
+
+    const payload = {
+      operatesFrackedWells,
+      ...(operatesFrackedWells === "yes" && {
+        numberOfWellsWithPublicDisclosure: Number(numberOfWellsWithPublicDisclosure.rawValue),
+        numberOfWellsWithPublicDisclosureUnit: formData.numberOfWellsWithPublicDisclosureUnit,
+        volumeRecycledReused: Number(volumeRecycledReused.rawValue),
+        volumeRecycledReusedUnit: formData.volumeRecycledReusedUnit,
+      }),
+      filesAndLinks: filesAndLinks,
+    };
+
+    dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
     onContinueToNextAssessment();
   };
 
   const handlePrevious = () => {
-    toast.info("Returning to previous section");
     onBack();
   };
 
@@ -350,10 +396,10 @@ export default function ChemicalDisclosure({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -374,7 +420,7 @@ export default function ChemicalDisclosure({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next

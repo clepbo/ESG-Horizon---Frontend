@@ -93,7 +93,7 @@ export function OilGasOperations({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources?.oilGasOperations;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
     if (existingData) {
       setOnShoreProduction(
         existingData.onShoreProduction || getInitialSources([], onShoreProductionOptions)
@@ -103,7 +103,7 @@ export function OilGasOperations({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.stationarySources?.oilGasOperations, onShoreProductionOptions]);
+  }, [state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations, onShoreProductionOptions]);
 
   const { filled, total } = useMemo(() => {
     const hasOnShoreProductionData = onShoreProduction.some(
@@ -217,8 +217,19 @@ export function OilGasOperations({
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    const payload = {
+      onShoreProduction,
+      additionalFields: normalizeFiles(additionalFields),
+      files,
+    };
+
+    dispatch({
+      type: "UPDATE_STATIONARY_OIL_GAS",
+      payload,
+    });
+
     try {
+      await saveNow("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
       const response = await submitGroup();
       const groupTotal =
         response?.assessment?.assessmentData?.environment?.ghg?.scope1?.stationarySources
@@ -231,17 +242,6 @@ export function OilGasOperations({
   };
 
   const handlePrevious = () => {
-    const payload = {
-      onShoreProduction,
-      additionalFields: normalizeFiles(additionalFields),
-      files,
-    };
-
-    dispatch({
-      type: "UPDATE_STATIONARY_OIL_GAS",
-      payload,
-    });
-
     onBack();
   };
 

@@ -14,7 +14,7 @@ import {
   FileCheck,
   ClipboardList,
 } from "lucide-react";
-import { FileMetadata } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -75,7 +75,7 @@ export function DocumentUpload({
   backToDisclosureTopics,
   backToParentSection,
 }: DocumentUploadProps) {
-  // const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -100,18 +100,18 @@ export function DocumentUpload({
   }, [stepIndex]);
 
   // Load existing data
-  //   useEffect(() => {
-  //     const existingData = (state.assessmentData.documentUpload as any);
-  //     if (existingData) {
-  //       // Files
-  //       const loadedFiles: { [key: string]: FileMetadata | null } = {};
-  //       uploadFields.forEach(field => {
-  //         loadedFiles[field.key] = existingData.files?.[field.key] || null;
-  //       });
-  //       setFiles(loadedFiles);
-  //       setAdditionalFields(existingData.additionalFields || []);
-  //     }
-  //   }, [state.assessmentData]);
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.processingSoldProducts;
+    if (existingData) {
+      // Files
+      const loadedFiles: { [key: string]: FileMetadata | null } = {};
+      uploadFields.forEach((field) => {
+        loadedFiles[field.key] = existingData.files?.[field.key] || null;
+      });
+      setFiles(loadedFiles);
+      setAdditionalFields(existingData.additionalFields || []);
+    }
+  }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
     // Check if all three required files are uploaded
@@ -174,8 +174,13 @@ export function DocumentUpload({
       })),
     };
 
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_PROCESSING_SOLD",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope3.documentUpload", payload);
+      await saveNow("environment.ghg.scope3.downstream.processingSoldProducts", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -359,13 +364,12 @@ export function DocumentUpload({
                       </div>
 
                       <Card
-                        className={`p-4 flex flex-col items-center justify-center border transition-all h-full flex-1 ${
-                          fieldErrors[field.key]
-                            ? "border-red-300 bg-red-50/50"
-                            : files[field.key]
-                              ? "border-green-300 bg-green-50/30"
-                              : "border-gray-200 hover:border-primary"
-                        }`}
+                        className={`p-4 flex flex-col items-center justify-center border transition-all h-full flex-1 ${fieldErrors[field.key]
+                          ? "border-red-300 bg-red-50/50"
+                          : files[field.key]
+                            ? "border-green-300 bg-green-50/30"
+                            : "border-gray-200 hover:border-primary"
+                          }`}
                       >
                         <Label
                           htmlFor={`upload-${field.key}`}
@@ -509,11 +513,10 @@ export function DocumentUpload({
                 variant="outline"
                 onClick={handleSubmit}
                 disabled={isLoading || Object.values(files).filter(Boolean).length < 3}
-                className={`justify-self-end hover:cursor-pointer flex items-center gap-2 ${
-                  Object.values(files).filter(Boolean).length < 3
-                    ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
-                    : "border-primary text-primary bg-transparent hover:bg-green-50"
-                }`}
+                className={`justify-self-end hover:cursor-pointer flex items-center gap-2 ${Object.values(files).filter(Boolean).length < 3
+                  ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
+                  : "border-primary text-primary bg-transparent hover:bg-green-50"
+                  }`}
                 aria-label="Next step"
               >
                 {Object.values(files).filter(Boolean).length < 3

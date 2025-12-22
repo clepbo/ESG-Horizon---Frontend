@@ -33,9 +33,9 @@ export const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
           {React.Children.map(list, (child) =>
             React.isValidElement(child)
               ? React.cloneElement(child as React.ReactElement<TabsListProps>, {
-                  value,
-                  onValueChange: setValue,
-                })
+                value,
+                onValueChange: setValue,
+              })
               : child
           )}
           {content}
@@ -48,13 +48,19 @@ Tabs.displayName = "Tabs";
 
 interface TabsListProps {
   children: React.ReactNode;
+  className?: string;
   value?: string;
   onValueChange?: (value: string) => void;
 }
 
-export function TabsList({ children, value, onValueChange }: TabsListProps) {
+export function TabsList({ children, className, value, onValueChange }: TabsListProps) {
   return (
-    <div className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+    <div
+      className={cn(
+        "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+        className
+      )}
+    >
       {React.Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child;
 
@@ -75,7 +81,7 @@ interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   active?: boolean;
 }
 
-export function TabsTrigger({ active, onClick, children, ...props }: TabsTriggerProps) {
+export function TabsTrigger({ active, onClick, className, children, ...props }: TabsTriggerProps) {
   return (
     <button
       type="button"
@@ -83,7 +89,8 @@ export function TabsTrigger({ active, onClick, children, ...props }: TabsTrigger
         "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         "disabled:pointer-events-none disabled:opacity-50",
-        active ? "bg-background text-foreground shadow-sm" : "hover:text-foreground"
+        active ? "bg-background text-foreground shadow-sm" : "hover:text-foreground",
+        className
       )}
       onClick={onClick}
       {...props}

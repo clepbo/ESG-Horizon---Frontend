@@ -10,6 +10,8 @@ import FreshWaterWithdrawalAndConsumption from "./FreshWaterWithdrawalAndConsump
 import ProducedWaterManagement from "./ProducedWaterManagement";
 import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
+import { SuccessScreen } from "../../../../SuccessScreen";
+import { TotalsResponse } from "@/services/assessment.service";
 
 const cards1 = [
   {
@@ -46,6 +48,8 @@ export default function WaterAndWastemanagamentCards({
   backToDisclosureTopics,
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [totals, setTotals] = React.useState<TotalsResponse | null>(null);
 
   function backToWasteWaterManagement() {
     setStep(0);
@@ -82,6 +86,18 @@ export default function WaterAndWastemanagamentCards({
       label: "Water and Wastewater Management",
     },
   ];
+
+  if (showSuccess) {
+    return (
+      <SuccessScreen
+        assessmentName="Water and Wastewater Management"
+        totals={totals ?? undefined}
+        nextAssessment="Biodiversity Impact"
+        onContinue={backToDisclosureTopics}
+        onBackToHub={backToAssessmentHub}
+      />
+    );
+  }
 
   if (step === 0) {
     return (
@@ -223,7 +239,7 @@ export default function WaterAndWastemanagamentCards({
         backToAssessment={backToAssessmentHub}
         backToWaterWasteManagement={backToWasteWaterManagement}
         onBack={backToWasteWaterManagement}
-        onContinueToNextAssessment={() => alert("Submitted")}
+        onContinueToNextAssessment={() => setShowSuccess(true)}
         stepIndex={4}
         totalSteps={4}
       />

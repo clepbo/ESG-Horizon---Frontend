@@ -88,7 +88,7 @@ export function CoolingSteamForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.coolingSteam;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.energyConsumed) {
@@ -201,7 +201,7 @@ export function CoolingSteamForm({
     };
 
     dispatch({
-      type: "UPDATE_COOLING_STEAM",
+      type: "UPDATE_MARKET_COOLING_STEAM",
       payload,
     });
 
@@ -234,13 +234,21 @@ export function CoolingSteamForm({
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    await saveForm({ showToast: false, redirect: false });
-
     try {
+      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", {
+        energyConsumed: energyConsumedRaw,
+        emissionFactor: emissionFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      });
       const response = await submitGroup();
-      const groupTotal = response.scopeTotals.scope2.marketBased.totalEmission || 0;
-      toast.success("Assessment submitted successfully!");
-      onSubmit(groupTotal);
+      onSubmit(response.totals);
       resetForm();
     } catch (err) {
       toast.error("Failed to submit");
@@ -249,7 +257,6 @@ export function CoolingSteamForm({
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

@@ -53,7 +53,7 @@ export function LeasedAssets({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: LeasedAssetsProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -77,7 +77,7 @@ export function LeasedAssets({
     floorArea: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-leased-assets");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +87,7 @@ export function LeasedAssets({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.leasedAssets;
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
     if (existingData) {
       setElectricityConsumed(existingData.electricityConsumed || "");
       setFuelConsumed(existingData.fuelConsumed || "");
@@ -99,7 +99,7 @@ export function LeasedAssets({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -180,13 +180,13 @@ export function LeasedAssets({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_LEASED_ASSETS",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.leasedAssets", payload);
+      await saveNow("environment.ghg.scope3.upstream.upstreamLeasedAssets", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

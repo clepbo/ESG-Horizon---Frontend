@@ -90,10 +90,7 @@ export function PurchasedGoodsAndServices({
     goodsCategories: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-electricityheat");
-
-  const dieselFuelOptions = useMemo(() => getFuelOptions("dieselGenerators"), []);
-  const gasFuelOptions = useMemo(() => getFuelOptions("gasTurbines"), []);
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-purchasedgoodsandservices");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -103,10 +100,13 @@ export function PurchasedGoodsAndServices({
 
   // Load existing data
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources?.electricityHeat;
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.purchasedGoodsAndServices;
     if (existingData) {
-      const savedCategories = (existingData as any).selectedCategories;
-      const savedOtherValue = (existingData as any).otherCategoryValue;
+      setElectricity(existingData.totalAmountSpent || "");
+      setPurchasedGoods(existingData.massOfGoods || "");
+
+      const savedCategories = existingData.selectedCategories;
+      const savedOtherValue = existingData.otherCategoryValue;
 
       if (savedCategories && Array.isArray(savedCategories)) {
         setSelectedCategories(savedCategories);
@@ -117,60 +117,30 @@ export function PurchasedGoodsAndServices({
         }
       }
 
-      setDieselGenerators(
-        existingData.dieselGenerators || getInitialSources([], dieselFuelOptions)
-      );
-      setGasTurbines(existingData.gasTurbines || getInitialSources([], gasFuelOptions));
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [dieselFuelOptions, gasFuelOptions, state.assessmentData]);
-
-  const getInitialSources = (existingSources: SourceData[], fuelOptions: FuelOption[]) => {
-    if (existingSources?.length > 0) {
-      return existingSources;
-    }
-    return [
-      {
-        id: "initial-" + Date.now().toString(),
-        fuelType: fuelOptions[0]?.value || "",
-        volume: "",
-        unit: unitOptions[0]?.value || "",
-        emissionFactor: fuelOptions[0]?.emissionFactor || 2.68,
-        source: fuelOptions[0]?.source || "IPCC 2006, Vintage: 2006",
-      },
-    ];
-  };
-
-  const [dieselGenerators, setDieselGenerators] = useState<SourceData[]>(() =>
-    getInitialSources([], dieselFuelOptions)
-  );
-
-  const [gasTurbines, setGasTurbines] = useState<SourceData[]>(() =>
-    getInitialSources([], gasFuelOptions)
-  );
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
-    const hasDieselData = dieselGenerators.some(
-      (s) => s.volume && parseFloat(s.volume.toString()) > 0
-    );
-    const hasGasData = gasTurbines.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);
+    const hasSpendingData = electricity.trim().length > 0;
+    const hasMassData = purchasedGoods.trim().length > 0;
 
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
     const hasSelectedCategories = selectedCategories.length > 0;
 
     const progressChecks = [
-      hasDieselData,
-      hasGasData,
+      hasSpendingData,
+      hasMassData,
       hasFileUploaded || hasAdditionalFields,
       hasSelectedCategories,
     ];
 
     return calculateProgress(progressChecks);
-  }, [dieselGenerators, gasTurbines, files, additionalFields, selectedCategories]);
+  }, [electricity, purchasedGoods, files, additionalFields, selectedCategories]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -256,8 +226,8 @@ export function PurchasedGoodsAndServices({
     const { showToast = true, redirect = true } = options;
 
     const payload = {
-      dieselGenerators,
-      gasTurbines,
+      totalAmountSpent: electricity,
+      massOfGoods: purchasedGoods,
       files,
       selectedCategories,
       otherCategoryValue: selectedCategories.includes("others") ? otherCategoryInput : "",
@@ -271,12 +241,12 @@ export function PurchasedGoodsAndServices({
     };
 
     dispatch({
-      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
+      type: "UPDATE_UPSTREAM_PURCHASED_GOODS",
       payload,
     });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.electricityHeat", payload);
+      await saveNow("environment.ghg.scope3.upstream.purchasedGoodsAndServices", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

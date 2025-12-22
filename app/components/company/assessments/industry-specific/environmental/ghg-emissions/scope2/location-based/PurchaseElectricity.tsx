@@ -74,9 +74,7 @@ export function PurchasedElectricityForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData?.electricity as NonNullable<
-      AssessmentData["electricity"]
-    >;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.electricity;
 
     if (existingData) {
       electricityConsumed.setRawValue(existingData.electricityConsumed?.toString() ?? "");
@@ -195,7 +193,7 @@ export function PurchasedElectricityForm({
     };
 
     dispatch({
-      type: "UPDATE_ELECTRICITY",
+      type: "UPDATE_LOCATION_ELECTRICITY",
       payload,
     });
 
@@ -226,12 +224,25 @@ export function PurchasedElectricityForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_LOCATION_ELECTRICITY",
+      payload: {
+        electricityConsumed: electricityConsumed.rawValue,
+        supplier,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

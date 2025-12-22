@@ -15,7 +15,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/app/components/ui/table";
-import { CheckCircle2, XCircle, FileText, AlertCircle, Clock, Zap } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  FileText,
+  AlertCircle,
+  Clock,
+  Zap,
+  Leaf,
+  Users,
+  Building2,
+  ChevronRight,
+  Droplets,
+  Wind,
+  TreeDeciduous,
+} from "lucide-react";
 import Image from "next/image";
 import {
   useAssessment,
@@ -24,12 +38,58 @@ import {
 } from "@/services/hooks/assessment.hooks";
 import type { Assessment } from "./AssessmentTable";
 import { Separator } from "@/app/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/app/components/ui/accordion";
 
 interface FileWithMeta {
   name: string;
   url?: string;
   section: string;
 }
+
+const DataField = ({ label, value, unit }: { label: string; value: any; unit?: string }) => {
+  const isEmpty = value === undefined || value === null || value === "";
+  return (
+    <div className="flex flex-col gap-1 py-2 border-b border-gray-50 last:border-0">
+      <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</span>
+      <div className="flex items-baseline gap-1">
+        {isEmpty ? (
+          <span className="text-gray-400 text-xs italic">n/a</span>
+        ) : (
+          <>
+            <span className="text-sm font-semibold text-gray-800">{value}</span>
+            {unit && <span className="text-[10px] text-gray-500 font-normal">{unit}</span>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
+  <div className="flex items-center gap-2 mb-4 mt-6 first:mt-0">
+    <div className="p-1.5 bg-teal-50 rounded-md">
+      <Icon className="w-4 h-4 text-teal-600" />
+    </div>
+    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-tight">{title}</h4>
+  </div>
+);
+
+const MetricCard = ({ title, children }: { title?: string; children: React.ReactNode }) => (
+  <Card className="bg-white border-gray-100 shadow-xs overflow-hidden">
+    {title && (
+      <CardHeader className="py-3 px-4 bg-gray-50/50 border-b border-gray-100">
+        <CardTitle className="text-xs font-bold text-gray-600 uppercase">{title}</CardTitle>
+      </CardHeader>
+    )}
+    <CardContent className="p-4">{children}</CardContent>
+  </Card>
+);
 
 export function AssessmentDetailsModal({
   open,
@@ -84,13 +144,47 @@ export function AssessmentDetailsModal({
   };
 
   extractFiles(scope1.stationarySources?.electricityHeat, "Stationary - Electricity & Heat");
-  extractFiles(scope1.stationarySources?.industrialProcess, "Stationary - Industrial");
+  extractFiles(scope1.stationarySources?.industrialProcesses, "Stationary - Industrial");
   extractFiles(scope1.stationarySources?.oilGasOperations, "Stationary - Oil & Gas");
   extractFiles(scope1.mobileSources?.roadTransport, "Mobile - Road Transport");
   extractFiles(scope1.mobileSources?.vehicleEquipment, "Mobile - Vehicle Equipment");
   extractFiles(scope1.mobileSources?.marineAviation, "Mobile - Marine/Aviation");
-  extractFiles(scope1.processEmissions, "Process Emissions");
-  extractFiles(scope1.fugitiveEmissions, "Fugitive Emissions");
+  extractFiles(scope1.processEmissions?.cementManufacturing, "Process - Cement");
+  extractFiles(scope1.processEmissions?.gasFlaring, "Process - Gas Flaring");
+  extractFiles(scope1.fugitiveEmissions?.ventingNaturalGas, "Fugitive - Venting");
+  extractFiles(scope1.fugitiveEmissions?.hfcLeaks, "Fugitive - HFC Leaks");
+
+  // Scope 2
+  const scope2 = ghg.scope2 || {};
+  extractFiles(scope2.locationBased?.electricity, "Scope 2 - Location Electricity");
+  extractFiles(scope2.locationBased?.cooling, "Scope 2 - Location Cooling");
+  extractFiles(scope2.locationBased?.steam, "Scope 2 - Location Steam");
+  extractFiles(scope2.locationBased?.heating, "Scope 2 - Location Heating");
+  extractFiles(scope2.marketBased?.ipps, "Scope 2 - Market IPPs");
+  extractFiles(scope2.marketBased?.eac, "Scope 2 - Market EAC");
+  extractFiles(scope2.marketBased?.residual, "Scope 2 - Market Residual");
+  extractFiles(scope2.marketBased?.coolingSteam, "Scope 2 - Market Cooling/Steam");
+
+  // Scope 3
+  const scope3 = ghg.scope3 || {};
+  const upstream = scope3.upstream || {};
+  const downstream = scope3.downstream || {};
+  extractFiles(upstream.purchasedGoodsAndServices, "Scope 3 - Purchased Goods");
+  extractFiles(upstream.capitalGoods, "Scope 3 - Capital Goods");
+  extractFiles(upstream.fuelEnergyRelatedActivities, "Scope 3 - Fuel/Energy Related");
+  extractFiles(upstream.upstreamTransportationDistribution, "Scope 3 - Upstream Transport");
+  extractFiles(upstream.wasteGeneratedInOperations, "Scope 3 - Waste in Ops");
+  extractFiles(upstream.businessTravel, "Scope 3 - Business Travel");
+  extractFiles(upstream.employeeCommuting, "Scope 3 - Employee Commuting");
+  extractFiles(upstream.upstreamLeasedAssets, "Scope 3 - Upstream Leased");
+
+  extractFiles(downstream.downstreamTransportationDistribution, "Scope 3 - Downstream Transport");
+  extractFiles(downstream.processingSoldProducts, "Scope 3 - Processing Sold");
+  extractFiles(downstream.useOfSoldProducts, "Scope 3 - Use of Sold");
+  extractFiles(downstream.endOfLifeTreatment, "Scope 3 - End of Life");
+  extractFiles(downstream.downstreamLeasedAssets, "Scope 3 - Downstream Leased");
+  extractFiles(downstream.franchises, "Scope 3 - Franchises");
+  extractFiles(downstream.investments, "Scope 3 - Investments");
 
   const statusConfig = {
     in_progress: {
@@ -265,27 +359,232 @@ export function AssessmentDetailsModal({
 
               <Separator />
 
-              {/* DETAILED DATA - Scope 1 */}
-              <div className="space-y-8">
-                <h3 className="text-xl font-bold">Detailed Data Entry</h3>
+              <Tabs defaultValue="environmental" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-8 bg-gray-100/50 p-1">
+                  <TabsTrigger value="environmental" className="gap-2">
+                    <Leaf className="w-4 h-4" /> Environmental
+                  </TabsTrigger>
+                  <TabsTrigger value="social" className="gap-2">
+                    <Users className="w-4 h-4" /> Social
+                  </TabsTrigger>
+                  <TabsTrigger value="governance" className="gap-2">
+                    <Building2 className="w-4 h-4" /> Governance
+                  </TabsTrigger>
+                </TabsList>
 
-                {/* Stationary Sources - Electricity & Heat */}
-                {scope1.stationarySources?.electricityHeat && (
-                  <>
-                    {renderSources(
-                      scope1.stationarySources.electricityHeat.dieselGenerators,
-                      "Diesel-Powered Generators"
-                    )}
-                    {renderSources(
-                      scope1.stationarySources.electricityHeat.gasTurbines,
-                      "Gas-Fired Turbines"
-                    )}
-                  </>
-                )}
+                <TabsContent value="environmental" className="space-y-6">
+                  <Accordion type="multiple" defaultValue={["ghg-emissions"]} className="space-y-4">
+                    {/* GHG EMISSIONS TAB */}
+                    <AccordionItem value="ghg-emissions" className="border rounded-lg px-4 bg-gray-50/30">
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-5 h-5 text-yellow-600" />
+                          <span className="text-lg font-bold">GHG Emissions</span>
+                          <Badge variant="outline" className="ml-2">
+                            {assessmentData.totalEmission?.toFixed(2) || "0.00"} tCO₂e
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 pb-6 space-y-8">
+                        {/* Scope 1 */}
+                        <div className="space-y-6">
+                          <SectionHeader icon={ChevronRight} title="Scope 1: Direct Emissions" />
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <MetricCard title="Stationary Sources">
+                              <DataField
+                                label="Electricity & Heat"
+                                value={scope1.stationarySources?.electricityHeat?.dieselGenerators?.length ? `${scope1.stationarySources?.electricityHeat?.dieselGenerators?.length} entries` : ""}
+                              />
+                              <DataField
+                                label="Industrial Processes"
+                                value={scope1.stationarySources?.industrialProcesses?.boilerFurnaces?.length ? `${scope1.stationarySources?.industrialProcesses?.boilerFurnaces?.length} entries` : ""}
+                              />
+                              <DataField
+                                label="Oil & Gas"
+                                value={scope1.stationarySources?.oilGasOperations?.onShoreProduction?.length ? `${scope1.stationarySources?.oilGasOperations?.onShoreProduction?.length} entries` : ""}
+                              />
+                            </MetricCard>
+                            <MetricCard title="Mobile Sources">
+                              <DataField
+                                label="Road Transport"
+                                value={scope1.mobileSources?.roadTransport?.vehicleFleet?.length ? `${scope1.mobileSources?.roadTransport?.vehicleFleet?.length} entries` : ""}
+                              />
+                              <DataField
+                                label="Vehicle Equipment"
+                                value={scope1.mobileSources?.vehicleEquipment?.forkliftFuelType?.length ? `${scope1.mobileSources?.vehicleEquipment?.forkliftFuelType?.length} entries` : ""}
+                              />
+                              <DataField
+                                label="Marine & Aviation"
+                                value={scope1.mobileSources?.marineAviation?.air?.length ? `${scope1.mobileSources?.marineAviation?.air?.length} entries` : ""}
+                              />
+                            </MetricCard>
+                            <MetricCard title="Others">
+                              <DataField
+                                label="Process: Cement"
+                                value={scope1.processEmissions?.cementManufacturing?.cementQuantity}
+                                unit="kg"
+                              />
+                              <DataField
+                                label="Process: Gas Flaring"
+                                value={scope1.processEmissions?.gasFlaring?.gasVolume}
+                                unit="m³"
+                              />
+                              <DataField
+                                label="Fugitive: Venting"
+                                value={scope1.fugitiveEmissions?.ventingNaturalGas?.volumeOfGasVented}
+                                unit="m³"
+                              />
+                            </MetricCard>
+                          </div>
+                        </div>
 
-                {/* Add more groups as you build them */}
-                {/* Mobile Sources, Process Emissions, Fugitive Emissions — same pattern */}
-              </div>
+                        {/* Scope 2 */}
+                        <div className="space-y-6">
+                          <SectionHeader icon={ChevronRight} title="Scope 2: Indirect Emissions" />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <MetricCard title="Location-Based">
+                              <DataField
+                                label="Electricity"
+                                value={scope2.locationBased?.electricity?.electricityConsumed}
+                                unit="kWh"
+                              />
+                              <DataField label="Cooling" value={scope2.locationBased?.cooling?.coolingConsumed} unit="kWh" />
+                              <DataField label="Heating" value={scope2.locationBased?.heating?.heatingConsumed} unit="kWh" />
+                            </MetricCard>
+                            <MetricCard title="Market-Based">
+                              <DataField label="IPPs" value={scope2.marketBased?.ipps?.electricityConsumed} unit="kWh" />
+                              <DataField label="EAC" value={scope2.marketBased?.eac?.gridElectricity} unit="kWh" />
+                              <DataField label="Residual Mix" value={scope2.marketBased?.residual?.electricityConsumed} unit="kWh" />
+                            </MetricCard>
+                          </div>
+                        </div>
+
+                        {/* Scope 3 */}
+                        <div className="space-y-6">
+                          <SectionHeader icon={ChevronRight} title="Scope 3: Value Chain Emissions" />
+                          <div className="space-y-4">
+                            <h5 className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Upstream (Categories 1-8)</h5>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <MetricCard title="Goods & Services">
+                                <DataField label="Purchased Goods" value={upstream.purchasedGoodsAndServices?.massOfGoods} unit="kg" />
+                                <DataField label="Capital Goods Cost" value={upstream.capitalGoods?.totalCost} unit="$" />
+                              </MetricCard>
+                              <MetricCard title="Operations">
+                                <DataField label="Waste Weight" value={upstream.wasteGeneratedInOperations?.wasteWeight} unit="kg" />
+                                <DataField label="Leased Assets Floor" value={upstream.upstreamLeasedAssets?.floorArea} unit="m²" />
+                              </MetricCard>
+                              <MetricCard title="Travel & Commuting">
+                                <DataField label="Business Flights" value={upstream.businessTravel?.totalFlights} />
+                                <DataField label="Employee Count" value={upstream.employeeCommuting?.numberOfEmployees} />
+                              </MetricCard>
+                            </div>
+
+                            <h5 className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1 mt-6">Downstream (Categories 9-15)</h5>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <MetricCard title="Distribution">
+                                <DataField label="Products Sold" value={downstream.downstreamTransportationDistribution?.massOfProductsSold} unit="kg" />
+                              </MetricCard>
+                              <MetricCard title="Product Use">
+                                <DataField label="Units Sold" value={downstream.useOfSoldProducts?.unitsSold} />
+                                <DataField label="Lifetime" value={downstream.useOfSoldProducts?.productLifetime} unit="years" />
+                              </MetricCard>
+                              <MetricCard title="End of Life & Finance">
+                                <DataField label="Franchise Fuel" value={downstream.franchises?.fuelConsumption} unit="L" />
+                                <DataField label="Investments" value={downstream.investments?.investmentAmount} unit="$" />
+                              </MetricCard>
+                            </div>
+                          </div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* AIR QUALITY */}
+                    <AccordionItem value="air-quality" className="border rounded-lg px-4 bg-gray-50/30">
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <Wind className="w-5 h-5 text-blue-500" />
+                          <span className="text-lg font-bold">Air Quality</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 pb-6">
+                        <MetricCard>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <DataField label="NOx Emissions" value={env.airQuality?.airPollutantEmissions?.nox} unit="t" />
+                            <DataField label="SOx Emissions" value={env.airQuality?.airPollutantEmissions?.sox} unit="t" />
+                            <DataField label="Particulate Matter" value={env.airQuality?.airPollutantEmissions?.pm} unit="t" />
+                            <DataField label="VOCs" value={env.airQuality?.airPollutantEmissions?.voc} unit="t" />
+                          </div>
+                        </MetricCard>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* WATER MANAGEMENT */}
+                    <AccordionItem value="water-management" className="border rounded-lg px-4 bg-gray-50/30">
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <Droplets className="w-5 h-5 text-cyan-500" />
+                          <span className="text-lg font-bold">Water Management</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 pb-6 space-y-4">
+                        <MetricCard title="Freshwater & Produced Water">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                            <DataField label="Total Freshwater Withdrawal" value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.totalWithdrawal} unit="m³" />
+                            <DataField label="Produced Water Discharged" value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.totalDischarged} unit="m³" />
+                          </div>
+                        </MetricCard>
+                        <MetricCard title="Hydraulic Fracturing">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                            <DataField label="Chemical Disclosure %" value={env.waterManagement?.hydraulicFracturingImpacts?.chemicalDisclosure?.percentage} unit="%" />
+                            <DataField label="Water Quality Impact" value={env.waterManagement?.hydraulicFracturingImpacts?.waterQualityImpacts?.status} />
+                          </div>
+                        </MetricCard>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* BIODIVERSITY */}
+                    <AccordionItem value="biodiversity" className="border rounded-lg px-4 bg-gray-50/30">
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <TreeDeciduous className="w-5 h-5 text-emerald-600" />
+                          <span className="text-lg font-bold">Biodiversity Impact</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 pb-6">
+                        <MetricCard>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <DataField label="Sensitive Area Reserves" value={env.biodiversityImpact?.environmentalManagement?.reservesInSensitiveAreas?.totalReserves} unit="ha" />
+                            <DataField label="Number of Spills" value={env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills?.totalSpills} />
+                            <DataField label="Policy Coverage" value={env.biodiversityImpact?.environmentalManagement?.environmentalManagementPolicies?.coverage} unit="%" />
+                          </div>
+                        </MetricCard>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </TabsContent>
+
+                <TabsContent value="social" className="py-12 text-center text-gray-500 space-y-4">
+                  <div className="flex flex-col items-center gap-3">
+                    <Users className="w-12 h-12 text-gray-300" />
+                    <h3 className="text-xl font-semibold">Social Pillar Data</h3>
+                    <p className="max-w-md mx-auto text-sm">
+                      Details for Social Capital, Human Capital, and Business Model innovation will appear here once the assessments are completed.
+                    </p>
+                    <Badge variant="secondary" className="mt-4">COMING SOON</Badge>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="governance" className="py-12 text-center text-gray-500 space-y-4">
+                  <div className="flex flex-col items-center gap-3">
+                    <Building2 className="w-12 h-12 text-gray-300" />
+                    <h3 className="text-xl font-semibold">Governance Pillar Data</h3>
+                    <p className="max-w-md mx-auto text-sm">
+                      Details for Leadership & Governance, Business Ethics, and Risk Management will appear here once the assessments are completed.
+                    </p>
+                    <Badge variant="secondary" className="mt-4">COMING SOON</Badge>
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               <Separator />
 

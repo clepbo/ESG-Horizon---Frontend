@@ -103,15 +103,21 @@ export function MarineAviation({
   };
 
   const [air, setAir] = useState<SourceData[]>(() =>
-    getInitialSources(state.assessmentData.mobileSources?.marineAviation?.air, airOptions)
+    getInitialSources(
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation?.air,
+      airOptions
+    )
   );
 
   const [marine, setMarine] = useState<SourceData[]>(() =>
-    getInitialSources(state.assessmentData.mobileSources?.marineAviation?.marine, marineOptions)
+    getInitialSources(
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation?.marine,
+      marineOptions
+    )
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources?.marineAviation;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
     if (existingData) {
       setAir(existingData.air || getInitialSources([], airOptions));
       setMarine(existingData.marine || getInitialSources([], marineOptions));
@@ -120,7 +126,7 @@ export function MarineAviation({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.mobileSources?.marineAviation, airOptions, marineOptions]);
+  }, [state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation, airOptions, marineOptions]);
 
   const { filled, total } = useMemo(() => {
     const hasAirData = air.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);
@@ -259,15 +265,6 @@ export function MarineAviation({
   };
 
   const handlePrevious = () => {
-    const payload = {
-      air,
-      marine,
-      files,
-      additionalFields: additionalFields as FileMetadata[],
-    };
-
-    dispatch({ type: "UPDATE_MOBILE_MARINE_AVIATION", payload });
-
     onBack();
   };
 

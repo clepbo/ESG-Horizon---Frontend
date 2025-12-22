@@ -21,7 +21,10 @@ export default function ContinueAssessment() {
   const { dispatch, state } = useAssessment();
 
   useEffect(() => {
-    if (!data?.data || state.assessmentId) return;
+    if (!data?.data) return;
+
+    // If we've already loaded this assessment and transitioned away from the initial hub view, don't re-run
+    if (state.assessmentId === assessmentId && state.currentView !== "hub") return;
 
     const assessment = data.data;
     const lastSavedForm = assessment.assessmentData?.lastSavedForm;
@@ -31,6 +34,8 @@ export default function ContinueAssessment() {
     };
 
     const scope1Data = getNestedData(assessment.assessmentData, ["environment", "ghg", "scope1"]);
+    const scope2Data = getNestedData(assessment.assessmentData, ["environment", "ghg", "scope2"]);
+    const scope3Data = getNestedData(assessment.assessmentData, ["environment", "ghg", "scope3"]);
 
     const stationarySources = scope1Data?.stationarySources;
     const mobileSources = scope1Data?.mobileSources;
@@ -39,15 +44,13 @@ export default function ContinueAssessment() {
 
     const mappedStationarySources = stationarySources
       ? {
-          ...stationarySources,
-          industrialProcesses:
-            stationarySources.industrialProcesses || stationarySources.industrialprocess,
-          oilGasOperations:
-            stationarySources.oilGasOperations || stationarySources.oilgasoperations,
-        }
+        ...stationarySources,
+        industrialProcesses:
+          stationarySources.industrialProcesses || stationarySources.industrialprocess,
+        oilGasOperations:
+          stationarySources.oilGasOperations || stationarySources.oilgasoperations,
+      }
       : undefined;
-
-    // const scope2Data = getNestedData(assessment.assessmentData, ["environment", "ghg", "scope2"]);
 
     dispatch({ type: "SET_CONTINUE_MODE", payload: true });
     dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
@@ -65,6 +68,10 @@ export default function ContinueAssessment() {
       mobileSources: mobileSources || assessment.assessmentData?.mobileSources,
       processEmissions: processEmissions || assessment.assessmentData?.processEmissions,
       fugitiveEmissions: fugitiveEmissions || assessment.assessmentData?.fugitiveEmissions,
+      locationBased: scope2Data?.locationBased || assessment.assessmentData?.locationBased,
+      marketBased: scope2Data?.marketBased || assessment.assessmentData?.marketBased,
+      upstream: scope3Data?.upstream || assessment.assessmentData?.upstream,
+      downstream: scope3Data?.downstream || assessment.assessmentData?.downstream,
     };
 
     dispatch({

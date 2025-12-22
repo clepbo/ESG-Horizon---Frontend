@@ -97,27 +97,27 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
   };
 
   const [forkliftFuelType, setForkliftFuelType] = useState<SourceData[]>(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment?.forkliftFuelType;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment?.forkliftFuelType;
     return Array.isArray(existingData)
       ? existingData
       : getInitialSources([], forkliftFuelTypeOptions);
   });
 
   const [heavyDutyFuelType, setHeavyDutyFuelType] = useState<SourceData[]>(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment?.heavyDutyFuelType;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment?.heavyDutyFuelType;
     return Array.isArray(existingData)
       ? existingData
       : getInitialSources([], heavyDutyFuelTypeOptions);
   });
   const [tractorFuelType, setTractorFuelType] = useState<SourceData[]>(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment?.tractorFuelType;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment?.tractorFuelType;
     return Array.isArray(existingData)
       ? existingData
       : getInitialSources([], tractorFuelTypeOptions);
   });
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment;
+    const existingData = state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment;
     if (existingData) {
       setForkliftFuelType(
         Array.isArray(existingData.forkliftFuelType)
@@ -140,7 +140,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
       setAdditionalFields(existingData.additionalFields || []);
     }
   }, [
-    state.assessmentData.mobileSources?.vehicleEquipment,
+    state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment,
     forkliftFuelTypeOptions,
     heavyDutyFuelTypeOptions,
     tractorFuelTypeOptions,
@@ -306,17 +306,6 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
     onNext();
   };
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
-      payload: {
-        forkliftFuelType,
-        heavyDutyFuelType,
-        tractorFuelType,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
     onBack();
   };
 

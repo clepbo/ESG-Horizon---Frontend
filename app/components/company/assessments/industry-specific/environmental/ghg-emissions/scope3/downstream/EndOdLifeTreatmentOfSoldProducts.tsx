@@ -16,6 +16,7 @@ import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
@@ -62,7 +63,7 @@ export function EndOfLifeTreatment({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: EndOfLifeTreatmentProps) {
-  // const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -99,26 +100,28 @@ export function EndOfLifeTreatment({
   }, [stepIndex]);
 
   // Load existing data
-  //   useEffect(() => {
-  //     const existingData = (state.assessmentData.endOfLifeTreatment as any);
-  //     if (existingData) {
-  //       // Checkbox fields
-  //       setSelectedMethods(existingData.selectedMethods || {
-  //         landfill: false,
-  //         recycling: false,
-  //         composting: false,
-  //         incineration: false,
-  //         others: false,
-  //       });
-  //       setOtherDisposalMethod(existingData.otherDisposalMethod || "");
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.endOfLifeTreatment;
+    if (existingData) {
+      // Checkbox fields
+      setSelectedMethods(
+        existingData.selectedMethods || {
+          landfill: false,
+          recycling: false,
+          composting: false,
+          incineration: false,
+          others: false,
+        }
+      );
+      setOtherDisposalMethod(existingData.otherDisposalMethod || "");
 
-  //       // Files
-  //       setFiles(
-  //         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
-  //       );
-  //       setAdditionalFields(existingData.additionalFields || []);
-  //     }
-  //   }, [state.assessmentData]);
+      // Files
+      setFiles(
+        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
+      setAdditionalFields(existingData.additionalFields || []);
+    }
+  }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -191,8 +194,13 @@ export function EndOfLifeTreatment({
       })),
     };
 
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_END_OF_LIFE",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope3.endOfLifeTreatment", payload);
+      await saveNow("environment.ghg.scope3.downstream.endOfLifeTreatment", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
