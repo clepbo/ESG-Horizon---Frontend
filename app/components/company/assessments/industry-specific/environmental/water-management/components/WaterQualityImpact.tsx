@@ -133,11 +133,6 @@ export default function WaterQualityImpact({
       }
     }
 
-    // Always require evidence upload
-    if (filesAndLinks.length === 0) {
-      newErrors.filesAndLinks = "At least one document or evidence is required";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

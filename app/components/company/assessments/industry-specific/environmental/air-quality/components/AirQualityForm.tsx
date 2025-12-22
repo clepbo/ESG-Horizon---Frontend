@@ -52,13 +52,9 @@ export default function AirQualityForm({
 
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
-    oxidesOfNitrogenUnit: "",
     oxidesOfSuplphur: 0,
-    oxidesOfSulphurUnit: "",
     volatileOrganicCompound: 0,
-    volatileOrganicCompoundUnit: "",
     particulateMatter: 0,
-    particulateMatterUnit: "",
     evidenceList: [],
   });
 
@@ -95,18 +91,6 @@ export default function AirQualityForm({
     }
   };
 
-  const setUnit = (key: keyof typeof formData) => (value: string) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-    // Clear error when user starts typing
-    if (errors[key]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[key];
-        return newErrors;
-      });
-    }
-  };
-
   // Validation function
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -115,29 +99,17 @@ export default function AirQualityForm({
     if (!formData.oxidesOfNitrogen || formData.oxidesOfNitrogen <= 0) {
       newErrors.oxidesOfNitrogen = "Oxides of Nitrogen emissions value is required";
     }
-    if (!formData.oxidesOfNitrogenUnit) {
-      newErrors.oxidesOfNitrogenUnit = "Unit for Oxides of Nitrogen is required";
-    }
 
     if (!formData.oxidesOfSuplphur || formData.oxidesOfSuplphur <= 0) {
       newErrors.oxidesOfSuplphur = "Oxides of Sulphur emissions value is required";
-    }
-    if (!formData.oxidesOfSulphurUnit) {
-      newErrors.oxidesOfSulphurUnit = "Unit for Oxides of Sulphur is required";
     }
 
     if (!formData.volatileOrganicCompound || formData.volatileOrganicCompound <= 0) {
       newErrors.volatileOrganicCompound = "Volatile Organic Compounds emissions value is required";
     }
-    if (!formData.volatileOrganicCompoundUnit) {
-      newErrors.volatileOrganicCompoundUnit = "Unit for Volatile Organic Compounds is required";
-    }
 
     if (!formData.particulateMatter || formData.particulateMatter <= 0) {
       newErrors.particulateMatter = "Particulate Matter emissions value is required";
-    }
-    if (!formData.particulateMatterUnit) {
-      newErrors.particulateMatterUnit = "Unit for Particulate Matter is required";
     }
 
     setErrors(newErrors);
@@ -184,13 +156,9 @@ export default function AirQualityForm({
   const isFormValid = () => {
     return (
       formData.oxidesOfNitrogen > 0 &&
-      formData.oxidesOfNitrogenUnit !== "" &&
       formData.oxidesOfSuplphur > 0 &&
-      formData.oxidesOfSulphurUnit !== "" &&
       formData.volatileOrganicCompound > 0 &&
-      formData.volatileOrganicCompoundUnit !== "" &&
-      formData.particulateMatter > 0 &&
-      formData.particulateMatterUnit !== ""
+      formData.particulateMatter > 0
     );
   };
 
@@ -226,11 +194,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.oxidesOfNitrogenUnit}
-              setUnit={setUnit("oxidesOfNitrogenUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.oxidesOfNitrogen || errors.oxidesOfNitrogenUnit}
+              error={errors.oxidesOfNitrogen}
             />
 
             <OperationsDelayReusableInput
@@ -243,11 +210,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("oxidesOfSuplphur")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.oxidesOfSulphurUnit}
-              setUnit={setUnit("oxidesOfSulphurUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.oxidesOfSuplphur || errors.oxidesOfSulphurUnit}
+              error={errors.oxidesOfSuplphur}
             />
 
             <OperationsDelayReusableInput
@@ -260,11 +226,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.volatileOrganicCompoundUnit}
-              setUnit={setUnit("volatileOrganicCompoundUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.volatileOrganicCompound || errors.volatileOrganicCompoundUnit}
+              error={errors.volatileOrganicCompound}
             />
 
             <OperationsDelayReusableInput
@@ -277,11 +242,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.particulateMatterUnit}
-              setUnit={setUnit("particulateMatterUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.particulateMatter || errors.particulateMatterUnit}
+              error={errors.particulateMatter}
             />
 
             <EvidenceList />
