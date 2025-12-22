@@ -6,6 +6,7 @@ import { UseOfSoldProducts } from "./downstream/UseOfSoldProducts";
 import { EndOfLifeTreatment } from "./downstream/EndOdLifeTreatmentOfSoldProducts";
 import { DownstreamLeasedAsset } from "./downstream/DownstreamLeasedAssets";
 import { Franchise } from "./downstream/Franchises";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { Investments } from "./downstream/Investments";
 
 export default function DownstreamEmission({
@@ -15,8 +16,15 @@ export default function DownstreamEmission({
 }: UpstreamProps) {
   const [step, setStep] = useState(0);
 
+  const { submitGroup } = useAssessmentFlow("ghg-scope3-downstream");
+
   function handleNext(val: number) {
     setStep(val);
+  }
+
+  async function handleFinalNext() {
+    await submitGroup();
+    handleBacktoGHG();
   }
 
   if (step === 0) {
@@ -101,7 +109,7 @@ export default function DownstreamEmission({
     return (
       <Investments
         onBack={() => handleNext(5)}
-        onNext={() => handleNext(6)}
+        onNext={handleFinalNext}
         stepIndex={7}
         totalSteps={7}
         backToAssessment={handleBacktoAssessment}

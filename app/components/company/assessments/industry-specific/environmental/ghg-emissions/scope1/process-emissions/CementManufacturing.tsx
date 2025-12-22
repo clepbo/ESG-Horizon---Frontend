@@ -75,7 +75,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.processEmissions?.cementManufacturing;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing;
     if (existingData) {
       setCementRaw(existingData.cementQuantity?.toString() || "0");
       setFiles(
@@ -83,7 +84,10 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.processEmissions?.cementManufacturing, setCementRaw]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing,
+    setCementRaw,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
@@ -162,7 +166,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     });
 
     try {
-      await saveNow("environment.ghg.processEmissions.cementManufacturing", payload);
+      await saveNow("environment.ghg.scope1.processEmissions.cementManufacturing", payload);
       if (!assessmentId) toast.success("Saved!");
 
       if (isAssignedTask) {
@@ -188,14 +192,6 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     onNext();
   };
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
-      payload: {
-        cementQuantity: Number(cementQuantity),
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
     onBack();
   };
 

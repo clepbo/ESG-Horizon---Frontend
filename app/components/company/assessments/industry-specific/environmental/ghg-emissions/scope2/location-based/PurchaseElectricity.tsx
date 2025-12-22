@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
-import { AssessmentData, FileMetadata, useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -74,9 +74,7 @@ export function PurchasedElectricityForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData?.electricity as NonNullable<
-      AssessmentData["electricity"]
-    >;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.electricity;
 
     if (existingData) {
       electricityConsumed.setRawValue(existingData.electricityConsumed?.toString() ?? "");
@@ -195,7 +193,7 @@ export function PurchasedElectricityForm({
     };
 
     dispatch({
-      type: "UPDATE_ELECTRICITY",
+      type: "UPDATE_LOCATION_ELECTRICITY",
       payload,
     });
 
@@ -226,12 +224,25 @@ export function PurchasedElectricityForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_LOCATION_ELECTRICITY",
+      payload: {
+        electricityConsumed: electricityConsumed.rawValue,
+        supplier,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 

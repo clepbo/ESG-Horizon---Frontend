@@ -37,49 +37,54 @@ function ReportsContent() {
   // we can use useMemo with 'data' as the only dependency.
   const calculateScope1Total = React.useMemo(() => {
     let scope1 = 0;
+    const scope1Data = data.environment?.ghg?.scope1;
 
     // Stationary Sources
-    if (data.stationarySources) {
-      scope1 += calculateSourceEmissions(data.stationarySources.electricityHeat?.dieselGenerators);
-      scope1 += calculateSourceEmissions(data.stationarySources.electricityHeat?.gasTurbines);
+    if (scope1Data?.stationarySources) {
       scope1 += calculateSourceEmissions(
-        data.stationarySources.industrialProcesses?.boilerFurnaces
+        scope1Data.stationarySources.electricityHeat?.dieselGenerators
+      );
+      scope1 += calculateSourceEmissions(scope1Data.stationarySources.electricityHeat?.gasTurbines);
+      scope1 += calculateSourceEmissions(
+        scope1Data.stationarySources.industrialProcesses?.boilerFurnaces
       );
       scope1 += calculateSourceEmissions(
-        data.stationarySources.oilGasOperations?.onShoreProduction
+        scope1Data.stationarySources.oilGasOperations?.onShoreProduction
       );
     }
 
     // Mobile Sources
-    if (data.mobileSources) {
-      scope1 += calculateSourceEmissions(data.mobileSources.roadTransport?.vehicleFleet);
-      scope1 += calculateSourceEmissions(data.mobileSources.roadTransport?.carsBuses);
-      scope1 += calculateSourceEmissions(data.mobileSources.vehicleEquipment?.forkliftFuelType);
-      scope1 += calculateSourceEmissions(data.mobileSources.vehicleEquipment?.heavyDutyFuelType);
-      scope1 += calculateSourceEmissions(data.mobileSources.vehicleEquipment?.tractorFuelType);
-      scope1 += calculateSourceEmissions(data.mobileSources.marineAviation?.air);
-      scope1 += calculateSourceEmissions(data.mobileSources.marineAviation?.marine);
+    if (scope1Data?.mobileSources) {
+      scope1 += calculateSourceEmissions(scope1Data.mobileSources.roadTransport?.vehicleFleet);
+      scope1 += calculateSourceEmissions(scope1Data.mobileSources.roadTransport?.carsBuses);
+      scope1 += calculateSourceEmissions(scope1Data.mobileSources.vehicleEquipment?.forkliftFuelType);
+      scope1 += calculateSourceEmissions(
+        scope1Data.mobileSources.vehicleEquipment?.heavyDutyFuelType
+      );
+      scope1 += calculateSourceEmissions(scope1Data.mobileSources.vehicleEquipment?.tractorFuelType);
+      scope1 += calculateSourceEmissions(scope1Data.mobileSources.marineAviation?.air);
+      scope1 += calculateSourceEmissions(scope1Data.mobileSources.marineAviation?.marine);
     }
 
     // Process Emissions
-    if (data.processEmissions) {
+    if (scope1Data?.processEmissions) {
       const cementEmissions =
-        toNumber(data.processEmissions.cementManufacturing?.cementQuantity) * 0.44; // Example factor
+        toNumber(scope1Data.processEmissions.cementManufacturing?.cementQuantity) * 0.44; // Example factor
       if (!isNaN(cementEmissions)) scope1 += cementEmissions;
 
       const gasFlaringEmissions =
-        toNumber(data.processEmissions.gasFlaring?.gasVolume) *
-        toNumber(data.processEmissions.gasFlaring?.carbonContent);
+        toNumber(scope1Data.processEmissions.gasFlaring?.gasVolume) *
+        toNumber(scope1Data.processEmissions.gasFlaring?.carbonContent);
       if (!isNaN(gasFlaringEmissions)) scope1 += gasFlaringEmissions;
     }
 
     // Fugitive Emissions
-    if (data.fugitiveEmissions) {
+    if (scope1Data?.fugitiveEmissions) {
       const ventingEmissions =
-        toNumber(data.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
+        toNumber(scope1Data.fugitiveEmissions.ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
       if (!isNaN(ventingEmissions)) scope1 += ventingEmissions;
 
-      const hfcEmissions = toNumber(data.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Example GWP
+      const hfcEmissions = toNumber(scope1Data.fugitiveEmissions.hfcLeaks?.refrigerantAdded) * 1430; // Example GWP
       if (!isNaN(hfcEmissions)) scope1 += hfcEmissions;
     }
 
@@ -88,19 +93,30 @@ function ReportsContent() {
 
   const calculateScope2Total = React.useMemo(() => {
     let scope2 = 0;
-    if (data.electricity) scope2 += toNumber(data.electricity.electricityConsumed) * 0.35; // Example factor
-    if (data.cooling) scope2 += toNumber(data.cooling.coolingConsumed) * 0.1; // Example factor
-    if (data.steam) scope2 += toNumber(data.steam.volume) * 0.2; // Example factor
-    if (data.heating) scope2 += toNumber(data.heating.heatingPurchased) * 0.15; // Example factor
-    if (data.ipps)
-      scope2 += toNumber(data.ipps.electricityConsumed) * toNumber(data.ipps.emissionFactor);
-    if (data.eac) scope2 += toNumber(data.eac.gridElectricity) * toNumber(data.eac.emissionFactor);
-    if (data.residual)
-      scope2 +=
-        toNumber(data.residual.electricityConsumed) * toNumber(data.residual.residualMixFactor);
-    if (data.coolingSteam)
-      scope2 +=
-        toNumber(data.coolingSteam.energyConsumed) * toNumber(data.coolingSteam.emissionFactor);
+    const scope2Data = data.environment?.ghg?.scope2;
+    const locationBased = scope2Data?.locationBased;
+    const marketBased = scope2Data?.marketBased;
+
+    if (locationBased) {
+      if (locationBased.electricity)
+        scope2 += toNumber(locationBased.electricity.electricityConsumed) * 0.35;
+      if (locationBased.cooling) scope2 += toNumber(locationBased.cooling.coolingConsumed) * 0.1;
+      if (locationBased.steam) scope2 += toNumber(locationBased.steam.volume) * 0.2;
+      if (locationBased.heating)
+        scope2 += toNumber(locationBased.heating.heatingPurchased) * 0.15;
+    }
+
+    if (marketBased) {
+      if (marketBased.ipps)
+        scope2 += toNumber(marketBased.ipps.electricityConsumed) * toNumber(marketBased.ipps.emissionFactor);
+      if (marketBased.eac)
+        scope2 += toNumber(marketBased.eac.gridElectricity) * toNumber(marketBased.eac.emissionFactor);
+      if (marketBased.residual)
+        scope2 += toNumber(marketBased.residual.electricityConsumed) * toNumber(marketBased.residual.residualMixFactor);
+      if (marketBased.coolingSteam)
+        scope2 += toNumber(marketBased.coolingSteam.energyConsumed) * toNumber(marketBased.coolingSteam.emissionFactor);
+    }
+
     return scope2;
   }, [data]);
 
@@ -108,21 +124,10 @@ function ReportsContent() {
   const scope2 = calculateScope2Total;
   const total = scope1 + scope2;
 
-  // A more dynamic way to calculate progress
-  const totalSections = 14; // Total number of sections in the assessment
-  const completedSections = Object.entries(data).filter(([value]) => {
-    // Check if the section object exists and has at least one filled field
-    if (typeof value === "object" && value !== null) {
-      return Object.values(value).some(
-        (field) =>
-          (Array.isArray(field) && field.length > 0) || // Check if array is not empty
-          (typeof field === "string" && field.trim() !== "") || // Check if string is not empty
-          (typeof field === "number" && field !== 0) // Check if number is not zero
-      );
-    }
-    return false;
-  }).length;
-  const progress = Math.round((completedSections / totalSections) * 100);
+  // Use the overallProgress from context if available
+  const progress = data.overallProgress || 0;
+  const completedSections = Math.round((progress / 100) * 14); // estimation for display
+  const totalSections = 14;
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">

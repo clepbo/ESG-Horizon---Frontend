@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAssessments } from "@/services/hooks/assessment.hooks";
-import { AssessmentData } from "@/hooks/useAssessment";
 import Header from "../../components/Header";
 import { motion } from "framer-motion";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
@@ -54,7 +53,7 @@ function NewAssessmentPage() {
   }
 
   const tableData =
-    assessments?.map((a: Partial<AssessmentData>) => {
+    assessments?.map((a: any) => {
       const startPeriod =
         a.startMonth && a.startYear
           ? `${a.startMonth}, ${a.startYear}`
