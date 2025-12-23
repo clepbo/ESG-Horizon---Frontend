@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
+import { companyService } from "@/services/company.service";
 
 interface TourCardProps {
   title: string;
@@ -28,23 +29,25 @@ function TourCard({
   onClick,
 }: TourCardProps) {
   return (
-    <Card className="h-full flex flex-col p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-      <CardHeader className="flex-1 text-center p-0">
-        <CardTitle className="text-sm font-medium text-gray-900 mb-2">{title}</CardTitle>
-        <CardDescription className="text-xs text-gray-500 leading-snug px-2">
+    <Card className="h-full flex flex-col p-5 shadow-sm border border-gray-100 rounded-xl bg-white">
+      <CardHeader className="flex-1 text-center p-0 space-y-2.5">
+        <CardTitle className="text-[15px] font-semibold text-gray-800 leading-tight">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-[12px] text-gray-500 leading-relaxed px-1">
           {description}
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-4 px-0">
+      <CardContent className="pt-5 px-0">
         <Button
           onClick={onClick}
           variant="outline"
-          className="w-full border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50 bg-transparent flex items-center justify-center gap-2 text-xs"
+          className="w-full h-10 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-green-50 bg-transparent flex items-center justify-center gap-2 text-[12px] font-medium rounded-lg"
           disabled={allButtonsDisabled}
         >
           {isCurrentLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
               Loading...
             </>
           ) : (
@@ -70,19 +73,34 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const { user } = useAuth();
 
+  const [onboardingData, setOnboardingData] = useState<{
+    progressPercent: number;
+    checklist: { title: string; isCompleted: boolean }[];
+  } | null>(null);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
+  const fetchProgress = async () => {
+    try {
+      const data = await companyService.getOnboardingProgress();
+      setOnboardingData(data);
+    } catch (err) {
+      console.error("Failed to fetch onboarding progress", err);
+    } finally {
+      setIsDataLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProgress();
+  }, []);
+
   const handleCardClick = (index: number, href: string, onAction?: () => void): void => {
     setLoadingIndex(index);
     setTimeout(() => {
-      const clickedCard = tourCards[index];
-      if (clickedCard.title === "View Tutorials or Walkthrough") {
-        alert("This feature is coming soon. Stay tuned!");
-        setLoadingIndex(null);
+      if (onAction) {
+        onAction();
       } else {
-        if (onAction) {
-          onAction();
-        } else {
-          window.location.href = href;
-        }
+        window.location.href = href;
       }
     }, 500);
   };
@@ -120,44 +138,37 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
 
   const tourCards = [
     {
-      title: "Complete Company Profile",
-      description: "Add basic company details (name, industry, location, size).",
-      buttonText: "Complete Company Profile",
+      title: "Complete Organization & Personal Profile",
+      description: "Set up your company and personal details to personalize your dashboard and unlock all platform features.",
+      buttonText: "Complete Profile",
       href: "/settings-esg/company",
+      isCompleted: onboardingData?.checklist[0]?.isCompleted ?? false,
     },
     {
-      title: "Complete Your Profile",
-      description: "Add basic details (phone number, profile photo, etc).",
-      buttonText: "Complete Your Profile",
-      href: "/settings-esg/account",
-    },
-    {
-      title: "Set Up Teams, Departments or Subsidiary",
-      description:
-        "Create departments and invite team members. Assign roles (Admin, Editor, Viewer).",
-      buttonText: "Set Up Departments & Teams",
+      title: "Invite Your Teams, Set Up Departments & Subsidiaries",
+      description: "Add team members, assign roles, and structure your departments or subsidiaries for seamless collaboration.",
+      buttonText: "Start Now",
       href: "/settings-esg/subsidiaries?setup=true",
+      isCompleted: onboardingData?.checklist[1]?.isCompleted ?? false,
     },
     {
       title: "Start First Assessment",
-      description: "Launch GHG (Scope 1, 2, or 3) or ESG metric assessments.",
-      buttonText: "Start First Assessment",
+      description: "Begin your ESG assessment and start capturing the data needed for reporting and performance tracking.",
+      buttonText: "Start Now",
       href: "/assessments",
+      isCompleted: onboardingData?.checklist[2]?.isCompleted ?? false,
     },
     {
-      title: "View Tutorials or Walkthrough",
-      description: "Quick interactive guide on using the platform effectively.",
-      buttonText: "View Tutorials or Walkthrough",
-      href: "#",
-    },
-    {
-      title: "Continue To Dashboard",
-      description: "Move into the main dashboard to begin full platform use.",
-      buttonText: "Continue To Dashboard",
+      title: "View ESG Dashboard",
+      description: "See your company's ESG performance, track progress, and access key insights from all your assessments.",
+      buttonText: "View Dashboard",
       href: "/dashboard-esg",
+      isCompleted: onboardingData?.checklist[3]?.isCompleted ?? false,
       onAction: handleContinueToDashboard,
     },
   ];
+
+  const progressPercent = onboardingData?.progressPercent ?? 0;
 
   const allButtonsDisabled: boolean = loadingIndex !== null;
 
@@ -178,40 +189,102 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
       }}
     >
       <div className={mainContentClasses}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center relative">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center relative border-2 border-white shadow-sm overflow-hidden">
                 {user && user.profile_photo_url ? (
                   <Image
                     src={user.profile_photo_url || "/image.png"}
                     alt={`${user.first_name} photo`}
-                    className="rounded-full object-cover"
+                    className="object-cover"
                     fill
                   />
                 ) : (
-                  <User className="w-8 h-8 text-gray-600" />
+                  <User className="w-10 h-10 text-gray-400" />
                 )}
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome {firstName},</h1>
-            <p className="text-gray-600">What would you like to do?</p>
+            <h1 className="text-3xl font-bold text-gray-800 mb-1.5 tracking-tight">
+              Welcome {firstName},
+            </h1>
+            <p className="text-lg text-gray-500 font-medium">What would you like to do?</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {tourCards.map((card, index) => (
-              <TourCard
-                key={index}
-                title={card.title}
-                description={card.description}
-                buttonText={card.buttonText}
-                href={card.href}
-                onAction={card.onAction}
-                isCurrentLoading={loadingIndex === index}
-                allButtonsDisabled={allButtonsDisabled}
-                onClick={() => handleCardClick(index, card.href, card.onAction)}
-              />
-            ))}
+          <div className="flex flex-col lg:flex-row gap-8 items-start mb-10">
+            {/* Left Sidebar: Progress Checklist */}
+            <div className="w-full lg:w-[32%] flex flex-col gap-4">
+              <div className="flex justify-between items-end mb-0.5 px-0.5">
+                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Set Up Progress</span>
+                <span className="text-xs font-bold text-gray-600">{progressPercent}% Complete</span>
+              </div>
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
+                <div
+                  className="h-full bg-[var(--color-primary)] transition-all duration-1000"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+
+              <Card className="border border-gray-100 shadow-sm rounded-xl overflow-hidden bg-white">
+                <CardContent className="p-6 space-y-5">
+                  {isDataLoading ? (
+                    <div className="py-6 flex justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    </div>
+                  ) : (
+                    tourCards.map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <p className="text-xs font-semibold text-gray-700 leading-snug">
+                            {idx + 1}. {item.title}
+                          </p>
+                        </div>
+                        <div
+                          className={`w-5.5 h-5.5 rounded flex items-center justify-center border-2 transition-colors duration-300 ${item.isCompleted
+                            ? "bg-transparent border-[var(--color-primary)] text-[var(--color-primary)]"
+                            : "bg-transparent border-gray-200 text-transparent"
+                            }`}
+                        >
+                          <motion.div
+                            initial={false}
+                            animate={item.isCompleted ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
+                          >
+                            <svg
+                              className="w-3.5 h-3.5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={4}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </motion.div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Side: Action Cards Grid */}
+            <div className="w-full lg:w-[68%]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {tourCards.map((card, index) => (
+                  <TourCard
+                    key={index}
+                    title={card.title}
+                    description={card.description}
+                    buttonText={card.buttonText}
+                    href={card.href}
+                    onAction={card.onAction}
+                    isCurrentLoading={loadingIndex === index}
+                    allButtonsDisabled={allButtonsDisabled}
+                    onClick={() => handleCardClick(index, card.href, card.onAction)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="text-center text-sm text-gray-600">
