@@ -227,7 +227,7 @@ export default function ProducedWaterManagement({
         router.push("/assessments");
       }, 1500);
     } catch {
-      toast.error("Failed to save data. Please try again.");
+      // toast.error is already handled in useAssessmentFlow
     }
   };
 
