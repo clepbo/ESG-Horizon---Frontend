@@ -48,30 +48,26 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   const saveNow = async (path: string, data: any) => {
     try {
       await ensureIdAndSave(path, data);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to save data. Please try again.";
+      toast.error(msg);
       throw err;
     }
   };
+
   const submitMut = useMutation({
     mutationFn: () => assessmentService.submitGroup(state.assessmentId!, currentFormKey),
-    onSuccess: () => {
-      // toast.success("Assessment Submitted!")
-    },
   });
 
   const submitGroup = async () => {
-    const response = await submitMut.mutateAsync();
-    // toast.success(
-    //   `${
-    //     currentFormKey
-    //       .split("-")
-    //       .pop()
-    //       ?.replace(/([A-Z])/g, " $1")
-    //       .trim() || "Assessment"
-    //   } submitted successfully`
-    // );
-    return response;
+    try {
+      const response = await submitMut.mutateAsync();
+      return response;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to submit assessment. Please try again.";
+      toast.error(msg);
+      throw err;
+    }
   };
 
   const isAssignedTask = state.isAssignedTask || false;

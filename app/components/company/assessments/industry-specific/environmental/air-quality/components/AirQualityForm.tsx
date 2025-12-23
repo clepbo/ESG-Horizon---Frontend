@@ -134,7 +134,7 @@ export default function AirQualityForm({
         router.push("/assessments");
       }, 1500);
     } catch {
-      toast.error("Failed to save data. Please try again.");
+      // toast.error is already handled in useAssessmentFlow
     }
   }
 
@@ -156,7 +156,7 @@ export default function AirQualityForm({
       onSubmit();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to submit assessment");
+      // toast.error is already handled in useAssessmentFlow
     } finally {
       setIsSubmitting(false);
     }

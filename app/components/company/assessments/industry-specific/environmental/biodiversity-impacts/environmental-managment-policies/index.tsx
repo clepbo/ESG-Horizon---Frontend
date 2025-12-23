@@ -119,7 +119,7 @@ export default function EnvironmentalManagementPolicies({
       setShowSaveSuccess(true);
       setTimeout(() => setShowSaveSuccess(false), 2000);
     } catch {
-      toast.error("Failed to save data");
+      // toast.error is already handled in useAssessmentFlow
     }
   };
 

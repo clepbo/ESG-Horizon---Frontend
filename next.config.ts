@@ -15,18 +15,15 @@ const nextConfig: NextConfig = {
   // Development optimizations
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts", "highcharts-react-official"],
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
+  },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
   },
-
-  // Faster builds
-  swcMinify: true,
 
   images: {
     loader: "custom",
