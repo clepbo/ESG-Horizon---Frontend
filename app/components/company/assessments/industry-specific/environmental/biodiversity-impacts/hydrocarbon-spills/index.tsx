@@ -16,6 +16,7 @@ import { uploadService } from "@/services/upload.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 import { Input } from "@/app/components/ui/input";
 
 interface HydrocarbonSpillsProps {
@@ -33,6 +34,7 @@ export default function HydrocarbonSpills({
   totalSteps,
   breadcrumb,
 }: HydrocarbonSpillsProps) {
+  const router = useRouter();
   const numberOfSpills = useFormattedNumber("");
   const totalVolumeSpilled = useFormattedNumber("");
   const volumeRecovered = useFormattedNumber("");
@@ -63,11 +65,6 @@ export default function HydrocarbonSpills({
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.hydrocarbonSpills,
-    numberOfSpills,
-    totalVolumeSpilled,
-    volumeRecovered,
-    volumeInArctic,
-    volumeImpactingShorelines,
   ]);
 
   useEffect(() => {
@@ -123,11 +120,6 @@ export default function HydrocarbonSpills({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     const payload = {
       numberOfSpills: Number(numberOfSpills.rawValue),
       totalVolumeSpilled: Number(totalVolumeSpilled.rawValue),
@@ -145,9 +137,13 @@ export default function HydrocarbonSpills({
         payload
       );
       setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 2000);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments");
+      }, 1500);
     } catch {
-      toast.error("Failed to save data");
+      toast.error("Failed to save data. Please try again.");
     }
   };
 

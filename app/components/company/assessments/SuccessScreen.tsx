@@ -27,7 +27,7 @@ export function SuccessScreen({
   const router = useRouter();
 
   const handleBackToHub = () => {
-    router.push("/assessments/new-assessment");
+    router.push("/assessments");
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

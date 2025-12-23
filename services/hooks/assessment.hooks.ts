@@ -90,3 +90,18 @@ export const useDeclineAssessment = () => {
     },
   });
 };
+export const useGenerateReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ message: string; data: any }, Error, number>({
+    mutationFn: (assessmentId: number) => assessmentService.generateReport(assessmentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["report"] });
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      toast.success("Report generated successfully.");
+    },
+    onError: () => {
+      toast.error("Failed to generate report.");
+    },
+  });
+};

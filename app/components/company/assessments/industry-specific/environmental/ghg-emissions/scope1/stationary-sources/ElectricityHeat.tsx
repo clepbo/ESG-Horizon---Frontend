@@ -19,6 +19,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface ElectricityHeatFormProps {
   onBack: () => void;
@@ -26,6 +27,7 @@ interface ElectricityHeatFormProps {
   onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 interface ElectricityHeatErrors {
@@ -49,6 +51,7 @@ export function ElectricityHeatForm({
   onBackToHub,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: ElectricityHeatFormProps) {
   const { state, dispatch } = useAssessment();
   const router = useRouter();
@@ -296,7 +299,8 @@ export function ElectricityHeatForm({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

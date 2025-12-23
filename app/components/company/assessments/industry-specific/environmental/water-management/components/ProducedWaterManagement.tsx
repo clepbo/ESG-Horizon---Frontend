@@ -13,6 +13,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { useRouter } from "next/navigation";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "./ReusableInput";
 
@@ -35,6 +36,7 @@ export default function ProducedWaterManagement({
   backToDisclosureTopic,
   backToWaterWasteManagement,
 }: ProducedWaterManagementProps) {
+  const router = useRouter();
   const totalProducedWaterGenerated = useFormattedNumber("");
   const volumeDischargedToSurface = useFormattedNumber("");
   const volumeInjectedForDisposal = useFormattedNumber("");
@@ -101,10 +103,6 @@ export default function ProducedWaterManagement({
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.producedWaterManagement,
-    totalProducedWaterGenerated,
-    volumeDischargedToSurface,
-    volumeInjectedForDisposal,
-    volumeRecycledReused,
   ]);
 
   // Calculate percentages based on total produced water
@@ -198,11 +196,6 @@ export default function ProducedWaterManagement({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     const payload = {
       totalProducedWaterGenerated: Number(totalProducedWaterGenerated.rawValue),
       totalProducedWaterGeneratedUnit: formData.totalProducedWaterGeneratedUnit,
@@ -228,9 +221,13 @@ export default function ProducedWaterManagement({
         payload
       );
       setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 2000);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments");
+      }, 1500);
     } catch {
-      toast.error("Failed to save data");
+      toast.error("Failed to save data. Please try again.");
     }
   };
 

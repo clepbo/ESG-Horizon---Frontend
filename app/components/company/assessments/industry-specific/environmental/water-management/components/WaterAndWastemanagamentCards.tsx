@@ -199,8 +199,8 @@ export default function WaterAndWastemanagamentCards({
         backToWaterWasteManagement={() => setStep(0)}
         onBack={backToWasteWaterManagement}
         onContinueToNextAssessment={() => setStep(2)}
-        stepIndex={0}
-        totalSteps={3}
+        stepIndex={1}
+        totalSteps={4}
       />
     );
   }
@@ -212,8 +212,8 @@ export default function WaterAndWastemanagamentCards({
         backToWaterWasteManagement={backToWasteWaterManagement}
         onBack={backToWasteWaterManagement}
         onContinueToNextAssessment={() => setStep(3)}
-        stepIndex={1}
-        totalSteps={3}
+        stepIndex={2}
+        totalSteps={4}
       />
     );
   }
@@ -225,8 +225,8 @@ export default function WaterAndWastemanagamentCards({
         backToWaterWasteManagement={backToWasteWaterManagement}
         onBack={backToWasteWaterManagement}
         onContinueToNextAssessment={() => setStep(4)}
-        stepIndex={0}
-        totalSteps={0}
+        stepIndex={3}
+        totalSteps={4}
       />
     );
   }

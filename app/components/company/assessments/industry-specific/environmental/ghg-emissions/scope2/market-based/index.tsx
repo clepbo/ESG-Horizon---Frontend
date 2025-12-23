@@ -8,6 +8,7 @@ import { CoolingSteamForm } from "./CoolingSteam";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface MarketBasedFormProps {
   onBack: () => void;
@@ -37,6 +38,16 @@ export function MarketBasedForm({
 
   const isAssignedTask = state.isAssignedTask || false;
 
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Stationary Sources", onClick: handleBackToOverview },
+  ];
+
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -58,6 +69,7 @@ export function MarketBasedForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Electricity (IPPs)" }]}
       />
     );
   }
@@ -70,6 +82,7 @@ export function MarketBasedForm({
         onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Electricity (EACs/RECs)" }]}
       />
     );
   }
@@ -82,6 +95,7 @@ export function MarketBasedForm({
         onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Residual" }]}
       />
     );
   }
@@ -105,6 +119,7 @@ export function MarketBasedForm({
         stepIndex={4}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Cooling/Steam" }]}
       />
     );
   }

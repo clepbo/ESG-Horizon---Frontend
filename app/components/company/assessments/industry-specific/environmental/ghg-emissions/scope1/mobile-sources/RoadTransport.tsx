@@ -20,6 +20,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface RoadTransportProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface RoadTransportProps {
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -37,7 +39,13 @@ const uploadFields = [
   "Vehicle inventory list (make, model, fuel type)",
 ];
 
-export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTransportProps) {
+export function RoadTransport({
+  onBack,
+  onNext,
+  stepIndex,
+  totalSteps,
+  breadcrumb,
+}: RoadTransportProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -312,7 +320,8 @@ export function RoadTransport({ onBack, onNext, stepIndex, totalSteps }: RoadTra
   };
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

@@ -25,6 +25,7 @@ import { uploadService } from "@/services/upload.service";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/navigation";
 
 interface ReservesInSensitiveAreasProps {
   onBack: () => void;
@@ -44,6 +45,7 @@ export default function ReservesInSensitiveAreas({
   breadcrumb,
   onSubmit: _onSubmit,
 }: ReservesInSensitiveAreasProps) {
+  const router = useRouter();
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedReservesSensitiveVolume = useFormattedNumber("");
   const totalProbableReservesVolume = useFormattedNumber("");
@@ -99,10 +101,6 @@ export default function ReservesInSensitiveAreas({
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.reservesInSensitiveAreas,
-    totalProvedReservesVolume,
-    provedReservesSensitiveVolume,
-    totalProbableReservesVolume,
-    probableReservesSensitiveVolume,
   ]);
 
   const { filled, total } = useMemo(() => {
@@ -178,11 +176,6 @@ export default function ReservesInSensitiveAreas({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
@@ -207,9 +200,13 @@ export default function ReservesInSensitiveAreas({
         payload
       );
       setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 2000);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments");
+      }, 1500);
     } catch {
-      toast.error("Failed to save data");
+      toast.error("Failed to save data. Please try again.");
     }
   };
 

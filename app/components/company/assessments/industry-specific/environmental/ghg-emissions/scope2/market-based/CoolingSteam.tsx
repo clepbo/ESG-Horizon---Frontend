@@ -21,6 +21,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { TotalsResponse } from "@/services/assessment.service";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
@@ -29,6 +30,7 @@ interface CoolingSteamFormProps {
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -44,6 +46,7 @@ export function CoolingSteamForm({
   stepIndex,
   totalSteps,
   isSubmitted,
+  breadcrumb,
 }: CoolingSteamFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -301,7 +304,8 @@ export function CoolingSteamForm({
   };
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         {/* Header */}
         <div className="flex items-center gap-6 mb-4">
           <Button

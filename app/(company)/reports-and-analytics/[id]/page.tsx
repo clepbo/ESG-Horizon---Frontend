@@ -1,32 +1,30 @@
 "use client";
 import React from "react";
-import ReportSummary from "../components/ReportSummary";
-import ReportSummarySkeleton from "../components/skeleton/ReportSummarySkeleton";
 import { motion } from "framer-motion";
-import { useSingleReport } from "../components/service/useReport";
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
+import NewReportSummary from "../components/newReport/NewReportSummary";
 
 export default function Pages() {
-  const params = useParams();
-  const { data, isLoading, error } = useSingleReport(Number(params?.id));
+  // const params = useParams();
+  // const { data, isLoading, error } = useSingleReport(Number(params?.id));
 
   // Proper logging
 
-  if (isLoading) {
-    return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <ReportSummarySkeleton />
-      </React.Suspense>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <React.Suspense fallback={<div>Loading...</div>}>
+  //       <ReportSummarySkeleton />
+  //     </React.Suspense>
+  //   );
+  // }
 
-  if (error) {
-    return <div>Error loading report</div>;
-  }
+  // if (error) {
+  //   return <div>Error loading report</div>;
+  // }
 
-  if (!data) {
-    return <div>No report data found</div>;
-  }
+  // if (!data) {
+  //   return <div>No report data found</div>;
+  // }
 
   // Use the actual data from your API response
   return (
@@ -41,7 +39,8 @@ export default function Pages() {
         duration: 0.5,
       }}
     >
-      <ReportSummary reportData={data} />
+      {/* <ReportSummary reportData={data} /> */}
+      <NewReportSummary />
     </motion.div>
   );
 }

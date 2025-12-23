@@ -34,6 +34,7 @@ export default function SmartInput({
   const [_hasValue, setHasValue] = useState(!!value);
   const [touched, setTouched] = useState(false); // Track if user has interacted
 
+  // Check if field has valid value - wrapped in useCallback
   // Check if field has valid value
   const validateField = useCallback(() => {
     if (!required) return true;
@@ -57,7 +58,7 @@ export default function SmartInput({
     } else {
       setInternalError(false);
     }
-  }, [errorTrigger, value, rawValue, onErrorStateChange, validateField]);
+  }, [errorTrigger, validateField, onErrorStateChange]); // Removed value and rawValue as they're in validateField deps
 
   // Auto-clear error when user starts typing
   useEffect(() => {

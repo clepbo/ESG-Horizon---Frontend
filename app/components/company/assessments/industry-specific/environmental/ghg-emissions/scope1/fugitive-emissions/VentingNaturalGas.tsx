@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface VentingNaturalGasProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface VentingNaturalGasProps {
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -39,6 +41,7 @@ export function VentingNaturalGas({
   onNext,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: VentingNaturalGasProps) {
   const { state, dispatch } = useAssessment();
   const { assessmentData } = state;
@@ -260,7 +263,8 @@ export function VentingNaturalGas({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"
