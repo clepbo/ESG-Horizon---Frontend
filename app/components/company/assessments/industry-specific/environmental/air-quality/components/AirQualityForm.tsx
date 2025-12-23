@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface AirQualityFormProps {
   backToDisclosureTopics: () => void;
@@ -26,6 +27,7 @@ export default function AirQualityForm({
   backToAirQualityCard,
   onSubmit,
 }: AirQualityFormProps) {
+  const router = useRouter();
   const features = [
     {
       label: "Assessments",
@@ -52,9 +54,13 @@ export default function AirQualityForm({
 
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
+    oxidesOfNitrogenUnit: "",
     oxidesOfSuplphur: 0,
+    oxidesOfSulphurUnit: "",
     volatileOrganicCompound: 0,
+    volatileOrganicCompoundUnit: "",
     particulateMatter: 0,
+    particulateMatterUnit: "",
     evidenceList: [],
   });
 
@@ -122,9 +128,13 @@ export default function AirQualityForm({
     try {
       await saveNow("environment.airQuality.airPollutantEmissions", formData);
       setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 2000);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments");
+      }, 1500);
     } catch {
-      toast.error("Failed to save data");
+      toast.error("Failed to save data. Please try again.");
     }
   }
 
@@ -195,7 +205,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.oxidesOfNitrogen}
             />
@@ -211,7 +221,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfSuplphur")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.oxidesOfSuplphur}
             />
@@ -227,7 +237,7 @@ export default function AirQualityForm({
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.volatileOrganicCompound}
             />
@@ -243,7 +253,7 @@ export default function AirQualityForm({
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.particulateMatter}
             />

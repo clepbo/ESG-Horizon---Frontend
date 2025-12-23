@@ -14,6 +14,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { useRouter } from "next/navigation";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "./ReusableInput";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
@@ -38,6 +39,7 @@ export default function WaterQualityImpact({
   backToDisclosureTopic,
   backToWaterWasteManagement,
 }: WaterQualityImpactProps) {
+  const router = useRouter();
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
   const volumeRecycledReused = useFormattedNumber("");
 
@@ -104,8 +106,6 @@ export default function WaterQualityImpact({
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,
-    numberOfWellsWithPublicDisclosure,
-    volumeRecycledReused,
   ]);
 
   const validateForm = () => {
@@ -169,11 +169,6 @@ export default function WaterQualityImpact({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     const payload = {
       operatesFrackedWells,
       ...(operatesFrackedWells === "yes" && {
@@ -193,9 +188,13 @@ export default function WaterQualityImpact({
         payload
       );
       setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 2000);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments");
+      }, 1500);
     } catch {
-      toast.error("Failed to save data");
+      toast.error("Failed to save data. Please try again.");
     }
   };
 

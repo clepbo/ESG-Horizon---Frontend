@@ -30,7 +30,7 @@ import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
-import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
+import { useDeleteAssessment, useGenerateReport } from "@/services/hooks/assessment.hooks";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -130,7 +130,10 @@ function ActionDropdown({
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuItem onClick={onContinue}>
+        <DropdownMenuItem
+          onClick={onContinue}
+          disabled={status === "approved" || status === "submitted_approved"}
+        >
           {getActionIcon("Continue")}
           Continue
         </DropdownMenuItem>
@@ -180,15 +183,16 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   >();
 
   const deleteMutation = useDeleteAssessment();
+  const generateReportMutation = useGenerateReport();
 
   const filteredData = dateRange
     ? data.filter((a) => {
-        const startDate = new Date(a.startPeriod);
-        const endDate = new Date(a.endPeriod);
-        const rangeStart = new Date(dateRange.startMonth);
-        const rangeEnd = new Date(dateRange.endMonth);
-        return startDate >= rangeStart && endDate <= rangeEnd;
-      })
+      const startDate = new Date(a.startPeriod);
+      const endDate = new Date(a.endPeriod);
+      const rangeStart = new Date(dateRange.startMonth);
+      const rangeEnd = new Date(dateRange.endMonth);
+      return startDate >= rangeStart && endDate <= rangeEnd;
+    })
     : data;
 
   const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);
@@ -234,13 +238,17 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   };
 
   const handleGenerateReport = (id: number) => {
-    const assessment = data.find((a) => a.id === id);
-    if (assessment) {
-      setSelectedAssessment(assessment);
-    }
-    setTimeout(() => {
-      setShowReportSuccess(true);
-    }, 500);
+    generateReportMutation.mutate(id, {
+      onSuccess: () => {
+        const assessment = data.find((a) => a.id === id);
+        if (assessment) {
+          setSelectedAssessment(assessment);
+        }
+        setTimeout(() => {
+          setShowReportSuccess(true);
+        }, 500);
+      },
+    });
   };
 
   const handleContinue = (assessment: Assessment) => {

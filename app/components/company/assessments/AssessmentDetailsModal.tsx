@@ -572,22 +572,40 @@ export function AssessmentDetailsModal({
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <DataField
                               label="NOx Emissions"
-                              value={env.airQuality?.airPollutantEmissions?.nox}
+                              value={
+                                env.airQuality?.airPollutantEmissions?.oxidesOfNitrogen ||
+                                env.airQuality?.airPollutantEmissions?.calculated?.breakdown
+                                  ?.oxidesOfNitrogen?.volume
+                              }
                               unit="t"
                             />
                             <DataField
                               label="SOx Emissions"
-                              value={env.airQuality?.airPollutantEmissions?.sox}
+                              value={
+                                env.airQuality?.airPollutantEmissions?.oxidesOfSulphur ||
+                                env.airQuality?.airPollutantEmissions?.oxidesOfSuplphur ||
+                                env.airQuality?.airPollutantEmissions?.calculated?.breakdown
+                                  ?.oxidesOfSulphur?.volume
+                              }
                               unit="t"
                             />
                             <DataField
                               label="Particulate Matter"
-                              value={env.airQuality?.airPollutantEmissions?.pm}
+                              value={
+                                env.airQuality?.airPollutantEmissions?.particulateMatter ||
+                                env.airQuality?.airPollutantEmissions?.calculated?.breakdown
+                                  ?.particulateMatter?.volume
+                              }
                               unit="t"
                             />
                             <DataField
                               label="VOCs"
-                              value={env.airQuality?.airPollutantEmissions?.voc}
+                              value={
+                                env.airQuality?.airPollutantEmissions?.volatileOrganicCompound ||
+                                env.airQuality?.airPollutantEmissions?.volatileOrganicCompounds ||
+                                env.airQuality?.airPollutantEmissions?.calculated?.breakdown
+                                  ?.volatileOrganicCompounds?.volume
+                              }
                               unit="t"
                             />
                           </div>
@@ -613,7 +631,13 @@ export function AssessmentDetailsModal({
                               label="Total Freshwater Withdrawal"
                               value={
                                 env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.freshwaterWithdrawals?.totalWithdrawal
+                                  ?.freshwaterWithdrawals?.totalWithdrawal ||
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromSurfaceWater +
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromGroundwater ||
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.calculated?.total_withdrawal
                               }
                               unit="m³"
                             />
@@ -621,7 +645,9 @@ export function AssessmentDetailsModal({
                               label="Produced Water Discharged"
                               value={
                                 env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.producedWaterManagement?.totalDischarged
+                                  ?.producedWaterManagement?.totalProducedWaterGenerated ||
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.calculated?.total_produced_water
                               }
                               unit="m³"
                             />
@@ -667,24 +693,29 @@ export function AssessmentDetailsModal({
                               label="Sensitive Area Reserves"
                               value={
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.reservesInSensitiveAreas?.totalReserves
+                                  ?.reservesInSensitiveAreas?.totalProvedReservesVolume ||
+                                env.biodiversityImpact?.environmentalManagement
+                                  ?.reservesInSensitiveAreas?.calculated?.total_reserves
                               }
-                              unit="ha"
+                              unit="BOE"
                             />
                             <DataField
                               label="Number of Spills"
                               value={
                                 env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
-                                  ?.totalSpills
+                                  ?.numberOfSpills ||
+                                env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
+                                  ?.calculated?.total_spills
                               }
                             />
                             <DataField
-                              label="Policy Coverage"
+                              label="ISO 14001 Certified"
                               value={
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.environmentalManagementPolicies?.coverage
+                                  ?.environmentalManagementPolicies?.isISO14001Certified
+                                  ? "Yes"
+                                  : "No"
                               }
-                              unit="%"
                             />
                           </div>
                         </MetricCard>

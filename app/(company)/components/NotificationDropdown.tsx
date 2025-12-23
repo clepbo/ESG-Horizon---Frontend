@@ -49,15 +49,6 @@ export default function NotificationDropdown({ tasks }: NotificationDropdownProp
   const endIndex = startIndex + TASKS_PER_PAGE;
   const currentTasks = tasks.slice(startIndex, endIndex);
 
-  console.log("NotificationDropdown: currentTasks", {
-    tasks,
-    currentPage,
-    totalPages,
-    startIndex,
-    endIndex,
-    currentTasks,
-  });
-
   const handleTaskClick = () => {
     setOpen(false);
     router.push("/assessments/new-assessment");
