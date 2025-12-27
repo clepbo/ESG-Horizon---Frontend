@@ -1,12 +1,19 @@
+import { Sura } from "next/font/google";
 import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 
-const data = [
-  { source: "Surface Water", quantity: 580000 },
-  { source: "Groundwater", quantity: 280000 },
-  { source: "Municipal", quantity: 120000 },
-];
 
-export const FreshWaterWithdrawalSource = () => (
+interface FreshWaterWithdrawalSourceProps {
+  surfaceWater?: number;
+  groundwater?: number;
+  municipal?: number;
+}
+export function FreshWaterWithdrawalSource({surfaceWater, groundwater, municipal}: FreshWaterWithdrawalSourceProps) {
+  const data = [
+  { source: "Surface Water", quantity: surfaceWater || 0 },
+  { source: "Groundwater", quantity: groundwater || 0 },
+  { source: "Municipal", quantity: municipal || 0 },
+];
+  return (
   <BarChart
     layout="vertical"
     width={600}
@@ -22,3 +29,4 @@ export const FreshWaterWithdrawalSource = () => (
     <Bar dataKey="quantity" fill="#3b82f6" radius={[0, 10, 10, 0]} />
   </BarChart>
 );
+} 

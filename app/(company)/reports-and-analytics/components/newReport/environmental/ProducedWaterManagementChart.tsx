@@ -8,11 +8,25 @@ const data = [
 ];
 // #endregion
 
+interface ProducedWaterManagementChartProps {
+  isAnimationActive?: boolean;
+  recycled?: number;
+  injected?: number;
+  discharged?: number;
+}
+
 export default function ProducedWaterManagementChart({
   isAnimationActive = true,
-}: {
-  isAnimationActive?: boolean;
-}) {
+  recycled = 1400,
+  injected = 1050,
+  discharged = 700,
+  
+}: ProducedWaterManagementChartProps) {
+  const data = [
+  { name: "Recycled", value: recycled, fill: "#2fb856" },
+  { name: "Injected", value: injected, fill: "#dca54b" },
+  { name: "Discharged", value: discharged, fill: "#eb6f70" },
+];
   return (
     <>
       <h6 className="border-b pb-2 border-gray-200">Produced Water Management </h6>

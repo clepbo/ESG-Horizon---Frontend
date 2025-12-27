@@ -92,7 +92,7 @@ const EmissionsChart = ({
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div
             style={{
-              fontSize: "36px",
+              fontSize: "24px",
               fontWeight: 600,
               color: "#111",
               marginRight: "0px",

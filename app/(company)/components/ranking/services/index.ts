@@ -17,6 +17,25 @@ export const useBaseline = (companyId?: number) => {
     refetchOnWindowFocus: false,
   });
 };
+export const useBaselineByScope = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["baseline", companyId],
+    queryFn: async () => {
+      if (!companyId) throw new Error("Company ID not available");
+      const response = await api.get(`/target/baseline-scope/${companyId}`);
+
+      return response;
+    },
+    enabled: !!companyId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+
+
+
+
+// console.log(" Baseline by Scope", data );
 
 export const useCreateTarget = (companyId?: string) => {
   const queryClient = useQueryClient();
