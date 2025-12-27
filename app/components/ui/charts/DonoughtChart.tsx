@@ -58,7 +58,12 @@ interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   isTarget?: boolean;
 }
 
-export const KpiCard: React.FC<KpiCardProps> = ({ title, children,isTarget = false, className }) => {
+export const KpiCard: React.FC<KpiCardProps> = ({
+  title,
+  children,
+  isTarget = false,
+  className,
+}) => {
   const router = useRouter();
   return (
     <div className={cn("w-full rounded-lg bg-white p-6 shadow-sm", className)}>
@@ -73,17 +78,15 @@ export const KpiCard: React.FC<KpiCardProps> = ({ title, children,isTarget = fal
           >
             Set New Target
           </CustomButton>
-          {
-            isTarget && (
-              <CustomButton
-            variant="filled"
-            icon={<Edit />}
-            onClick={() => router.push("/ranking/edit")}
-          >
-            Edit Target
-          </CustomButton>
-            )
-          }
+          {isTarget && (
+            <CustomButton
+              variant="filled"
+              icon={<Edit />}
+              onClick={() => router.push("/ranking/edit")}
+            >
+              Edit Target
+            </CustomButton>
+          )}
         </div>
       </div>
       {children}

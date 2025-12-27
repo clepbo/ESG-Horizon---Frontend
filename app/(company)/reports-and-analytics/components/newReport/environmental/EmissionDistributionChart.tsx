@@ -17,16 +17,13 @@ export default function EmissionDistributionChart({
   SOx,
   VOCs,
   PM10,
-}: 
-  EmissionDistributionChartProps
-) {
-
+}: EmissionDistributionChartProps) {
   const data = [
-  { name: "NOx", value: NOx, fill: "#0088FE" },
-  { name: "SOx", value: SOx, fill: "#f9b232" },
-  { name: "VOCs", value: VOCs, fill: "#af57db" },
-  { name: "PM10", value: PM10, fill: "#eb6f70" },
-];
+    { name: "NOx", value: NOx, fill: "#0088FE" },
+    { name: "SOx", value: SOx, fill: "#f9b232" },
+    { name: "VOCs", value: VOCs, fill: "#af57db" },
+    { name: "PM10", value: PM10, fill: "#eb6f70" },
+  ];
 
   return (
     <>

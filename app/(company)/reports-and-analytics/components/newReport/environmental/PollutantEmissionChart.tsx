@@ -1,7 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts";
 
-
-
 export interface PollutantData {
   NOx: number;
   SOx: number;
@@ -35,13 +33,13 @@ const renderLegend = () => (
   </ul>
 );
 
-const PollutantEmissionChart = ({NOx, SOx, VOCs, PM10}:PollutantData ) => {
+const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
   const transformedData = [
-  { name: "NOx", value: NOx },
-  { name: "SOx", value: SOx },
-  { name: "VOCs", value: VOCs },
-  { name: "PM10", value: PM10 },
-];
+    { name: "NOx", value: NOx },
+    { name: "SOx", value: SOx },
+    { name: "VOCs", value: VOCs },
+    { name: "PM10", value: PM10 },
+  ];
 
   return (
     <>

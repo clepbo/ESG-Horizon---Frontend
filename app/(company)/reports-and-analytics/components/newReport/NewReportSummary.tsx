@@ -16,46 +16,41 @@ import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
 
-
-
 export default function NewReportSummary() {
   const [view, setView] = useState("overview");
 
-
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
-   
-    const params = useParams();
-      const { data, isError, isLoading } = useSingleReport(Number(params?.id));
-  
-      useEffect(()=> {
-        setReportData(data);
-      })
-  
-      // console.log("ReportOverview Data", reportData);
-      
-      if (isError) {  
-        return (
-          <div className="w-full flex justify-center items-center py-12 text-red-500">
-            Failed to load report.
-          </div>
-        );
-      }
-      if( isLoading ) {
-        return (
-          <div className="w-full flex justify-center items-center py-12 text-gray-500">
-            <CardSkeleton />
-          </div>
-        );
-      }
-      if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
-        return (
-          <div className="w-full flex justify-center items-center py-12 text-gray-600">
-            <ReportEmptyState />
-          </div>
-        );
-      }
 
-      
+  const params = useParams();
+  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+
+  useEffect(() => {
+    setReportData(data);
+  }, [data]);
+
+  // console.log("ReportOverview Data", reportData);
+
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-500">
+        <CardSkeleton />
+      </div>
+    );
+  }
+  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">
+        <ReportEmptyState />
+      </div>
+    );
+  }
 
   const bg = {
     progress: "bg-orange-300",
@@ -88,7 +83,10 @@ export default function NewReportSummary() {
             <span>
               <GoDotFill className="text-gray-500" />
             </span>
-            <span> { ` ${reportData?.report?.startMonth} ${reportData?.report?.startYear} - ${reportData?.report?.endMonth} ${reportData?.report?.endYear}` } </span>
+            <span>
+              {" "}
+              {` ${reportData?.report?.startMonth} ${reportData?.report?.startYear} - ${reportData?.report?.endMonth} ${reportData?.report?.endYear}`}{" "}
+            </span>
           </div>
         </div>
 

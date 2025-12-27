@@ -29,9 +29,11 @@ export interface EmissionData {
   scope3: number;
 }
 
-interface EmissionByScopeProps { data: EmissionData[]; }
+interface EmissionByScopeProps {
+  data: EmissionData[];
+}
 // #endregion
-const EmissionByScope: React.FC<EmissionByScopeProps> = ({data}) => {
+const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
   return (
     <BarChart
       style={{ width: "100%", maxWidth: "700px", maxHeight: "70vh", aspectRatio: 1.618 }}

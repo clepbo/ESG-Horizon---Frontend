@@ -3,7 +3,6 @@ import "react-circular-progressbar/dist/styles.css";
 
 import React from "react";
 
-
 export default function ReductionTarget() {
   return (
     <div className="p-2">

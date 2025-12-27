@@ -42,7 +42,7 @@ export default function PerformanceOverview() {
   // console.log("Latest Target Data:", target?.name.length);
   const isTargt = target ? target.name.length > 3 : undefined;
   return (
-    <KpiCard title="Targets and Performance" isTarget={isTargt}  className="space-y-6 w-full">
+    <KpiCard title="Targets and Performance" isTarget={isTargt} className="space-y-6 w-full">
       {/* General Target Display */}
       {isGeneralTarget && general && (
         <div className="flex items-center justify-center">

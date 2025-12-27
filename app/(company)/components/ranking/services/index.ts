@@ -31,10 +31,6 @@ export const useBaselineByScope = (companyId?: number) => {
   });
 };
 
-
-
-
-
 // console.log(" Baseline by Scope", data );
 
 export const useCreateTarget = (companyId?: string) => {

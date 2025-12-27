@@ -34,7 +34,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const [emissionData, setEmissionData] = useState<EmissionDataResponseGeneral>({
     startYear: 0,
     endYear: 0,
-    totals: 0
+    totals: 0,
   });
 
   const base = useBaseline(companyId);
@@ -271,10 +271,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               {data.reductionPercentage && data.reductionPercentage > 0 && (
                 <div className="text-sm text-primary font-semibold">
                   {formatNumberWithCommas(
-                    CalculateEmissionPercentage(
-                      data.reductionPercentage ?? 0,
-                      emissionData?.totals
-                    )
+                    CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals)
                   )}
                   tCO₂e
                 </div>

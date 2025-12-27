@@ -8,7 +8,7 @@ import api from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { TargetPayload } from "@/types/target/index";
 import { useBaseline } from "@/app/(company)/components/ranking/services";
-import { EmissionDataResponse, EmissionDataResponseGeneral } from "../type";
+import { EmissionDataResponseGeneral } from "../type";
 import { CalculateEmissionPercentage, calculateTotal } from "../utils";
 import { GeneralTargetSummary } from "../components/general/GeneralTargetSummary";
 import { SuccessModal } from "../components/SuccessModal";
@@ -112,7 +112,10 @@ export default function SummaryPage() {
       // Clear localStorage after successful creation
       localStorage.removeItem("generalTargetSummary");
     },
-   onError: (error: any) => { const serverMessage = error?.response?.data?.message || error.message || "Unknown error"; toast.error(serverMessage); },
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.message || error.message || "Unknown error";
+      toast.error(serverMessage);
+    },
   });
 
   const handlePrevious = () => {

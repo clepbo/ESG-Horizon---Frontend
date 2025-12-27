@@ -23,43 +23,41 @@ import { formatNumberWithCommas } from "../utils/helpers";
 
 export default function ReportEnvironmental() {
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
-     
-      const params = useParams();
-        const { data, isError, isLoading } = useSingleReport(Number(params?.id));
-    
-        useEffect(()=> {
-          setReportData(data);
-        })
 
-        const airQuality = reportData?.environment_details?.airQuality;
-        const waterManagement = reportData?.environment_details?.waterManagement;
-        const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
-    
-        // console.log("ReportOverview Data", bioDiversity);
-        
-        if (isError) {  
-          return (
-            <div className="w-full flex justify-center items-center py-12 text-red-500">
-              Failed to load report.
-            </div>
-          );
-        }
-        if( isLoading ) {
-          return (
-            <div className="w-full flex justify-center items-center py-12 text-gray-500">
-              <CardSkeleton />
-            </div>
-          );
-        }
-        if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
-          return (
-            <div className="w-full flex justify-center items-center py-12 text-gray-600">
-              No data
-            </div>
-          );
-        }
-        
-        // const emissionScopeData = reportData?.
+  const params = useParams();
+  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+
+  useEffect(() => {
+    setReportData(data);
+  }, [data]);
+
+  const airQuality = reportData?.environment_details?.airQuality;
+  const waterManagement = reportData?.environment_details?.waterManagement;
+  const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
+
+  // console.log("ReportOverview Data", bioDiversity);
+
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-500">
+        <CardSkeleton />
+      </div>
+    );
+  }
+  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">No data</div>
+    );
+  }
+
+  // const emissionScopeData = reportData?.
   return (
     <div className="flex flex-col gap-4 lg:gap-20">
       <div className="grid gap-3">
@@ -75,10 +73,41 @@ export default function ReportEnvironmental() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-          <EmissionsChart borderColor="#1e8a3d" bgColor="#dff9e6" color="#84bb94" value={formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.totalEmission ?? 0)} />
-          <EmissionsChart borderColor="#2570eb" bgColor="#dff9e6" title="Scope 1" value={formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.ghg?.scope1?.totalEmission ?? 0)} color="#84bb94" />
-          <EmissionsChart borderColor="#fac565" bgColor="#dff9e6" title="Scope 2" value={formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.ghg?.scope2?.totalEmission ?? 0)} color="#84bb94" />
-          <EmissionsChart borderColor="#af57db" bgColor="#dff9e6" title="Scope 3" value={formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.ghg?.scope3?.totalEmission ?? 0)} color="#84bb94" />
+          <EmissionsChart
+            borderColor="#1e8a3d"
+            bgColor="#dff9e6"
+            color="#84bb94"
+            value={formatNumberWithCommas(
+              reportData?.summary?.startMonth?.environment?.totalEmission ?? 0
+            )}
+          />
+          <EmissionsChart
+            borderColor="#2570eb"
+            bgColor="#dff9e6"
+            title="Scope 1"
+            value={formatNumberWithCommas(
+              reportData?.summary?.startMonth?.environment?.ghg?.scope1?.totalEmission ?? 0
+            )}
+            color="#84bb94"
+          />
+          <EmissionsChart
+            borderColor="#fac565"
+            bgColor="#dff9e6"
+            title="Scope 2"
+            value={formatNumberWithCommas(
+              reportData?.summary?.startMonth?.environment?.ghg?.scope2?.totalEmission ?? 0
+            )}
+            color="#84bb94"
+          />
+          <EmissionsChart
+            borderColor="#af57db"
+            bgColor="#dff9e6"
+            title="Scope 3"
+            value={formatNumberWithCommas(
+              reportData?.summary?.startMonth?.environment?.ghg?.scope3?.totalEmission ?? 0
+            )}
+            color="#84bb94"
+          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-2 rounded-2xl shadow p-2">
@@ -135,10 +164,20 @@ export default function ReportEnvironmental() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-1 md:col-span-2 rounded-2xl shadow p-3">
-            <PollutantEmissionChart NOx={airQuality?.nox ?? 0} SOx={airQuality?.sox ?? 0 } VOCs={airQuality?.voc ?? 0} PM10={airQuality?.pm ?? 0} />
+            <PollutantEmissionChart
+              NOx={airQuality?.nox ?? 0}
+              SOx={airQuality?.sox ?? 0}
+              VOCs={airQuality?.voc ?? 0}
+              PM10={airQuality?.pm ?? 0}
+            />
           </div>
           <div className="col-span-1 rounded-2xl shadow p-3">
-            <EmissionDistributionChart NOx={airQuality?.nox ?? 0} SOx={airQuality?.sox ?? 0 } VOCs={airQuality?.voc ?? 0} PM10={airQuality?.pm ?? 0} />
+            <EmissionDistributionChart
+              NOx={airQuality?.nox ?? 0}
+              SOx={airQuality?.sox ?? 0}
+              VOCs={airQuality?.voc ?? 0}
+              PM10={airQuality?.pm ?? 0}
+            />
           </div>
         </div>
       </div>
@@ -202,8 +241,11 @@ export default function ReportEnvironmental() {
             <FreshWaterWithdrawalSource municipal={0} groundwater={0} surfaceWater={0} />
           </div>
           <div className="col-span-1 rounded-2xl shadow p-3">
-            <ProducedWaterManagementChart recycled={waterManagement?.recycledReused || 0} 
-            injected={waterManagement?.injectedForDisposal || 0} discharged={waterManagement?.dischargedToSurface || 0} />
+            <ProducedWaterManagementChart
+              recycled={waterManagement?.recycledReused || 0}
+              injected={waterManagement?.injectedForDisposal || 0}
+              discharged={waterManagement?.dischargedToSurface || 0}
+            />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -216,7 +258,10 @@ export default function ReportEnvironmental() {
               <div className="flex items-center justify-center gap-4">
                 <div className="flex flex-col items-center">
                   <p className=""> Total Fractured Wells</p>
-                  <p className="font-bold"> {waterManagement?.hydraulicFracturing?.totalFracturedWells || 0} </p>
+                  <p className="font-bold">
+                    {" "}
+                    {waterManagement?.hydraulicFracturing?.totalFracturedWells || 0}{" "}
+                  </p>
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
@@ -286,7 +331,9 @@ export default function ReportEnvironmental() {
             <div className="p-4 flex flex-col my-20 w-full gap-6 h-full">
               <div className="flex flex-col items-center justify-center text-sm">
                 <p className="font-thin">Number of Spills</p>
-                <p className="font-semibold text-3xl ml-4">{bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0} </p>
+                <p className="font-semibold text-3xl ml-4">
+                  {bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0}{" "}
+                </p>
               </div>
 
               <CustomProgressWithoutSections
@@ -325,8 +372,10 @@ export default function ReportEnvironmental() {
               <hr className="text-gray-200" />
             </span>
             <div className="p-4 grid grid-cols-1 gap-4 justify-end align-bottom">
-              <ReserveInSensitiveAreasChart provedTotal={bioDiversity?.reservesInSensitiveAreas?.proved || 0} 
-              probableTotal={bioDiversity?.reservesInSensitiveAreas?.probable || 0} />
+              <ReserveInSensitiveAreasChart
+                provedTotal={bioDiversity?.reservesInSensitiveAreas?.proved || 0}
+                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probable || 0}
+              />
             </div>
           </div>
           <div className="rounded-2xl shadow gap-2 flex flex-col">

@@ -16,39 +16,40 @@ import { ReportResponse } from "@/types/report/reportResponse";
 
 export default function ReportOverview() {
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
- 
-  const params = useParams();
-    const { data, isError, isLoading } = useSingleReport(Number(params?.id));
 
-    useEffect(()=> {
-      setReportData(data);
-    })
-    
-    if (isError) {  
-      return (
-        <div className="w-full flex justify-center items-center py-12 text-red-500">
-          Failed to load report.
-        </div>
-      );
-    }
-    if( isLoading ) {
-      return (
-        <div className="w-full flex justify-center items-center py-12 text-gray-500">
-          <CardSkeleton />
-        </div>
-      );
-    }
-    if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
-      return (
-        <div className="w-full flex justify-center items-center py-12 text-gray-600">
-          <ReportEmptyState />
-        </div>
-      );
-    }
+  const params = useParams();
+  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+
+  useEffect(() => {
+    setReportData(data);
+  }, [data]);
+
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-500">
+        <CardSkeleton />
+      </div>
+    );
+  }
+  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">
+        <ReportEmptyState />
+      </div>
+    );
+  }
 
   const environmentalAmount = (
     <p className="font-bold">
-      {formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.totalEmission ?? 0)} <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
+      {formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.totalEmission ?? 0)}{" "}
+      <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
     </p>
   );
   const socialAmount = (

@@ -41,7 +41,9 @@ export function DataQualityIndicator() {
     const hasNumeric = (obj: unknown) => {
       if (!obj || typeof obj !== "object") return false;
       return Object.values(obj as Record<string, unknown>).some(
-        (v) => (typeof v === "number" && (v as number) > 0) || (typeof v === "string" && parseFloat(v) > 0)
+        (v) =>
+          (typeof v === "number" && (v as number) > 0) ||
+          (typeof v === "string" && parseFloat(v) > 0)
       );
     };
 
@@ -93,10 +95,14 @@ export function DataQualityIndicator() {
 
     // Check Scope 2 files
     if (!hasFiles && locationBased) {
-      hasFiles = Object.values(locationBased).some((item: any) => item?.files && Object.keys(item.files).length > 0);
+      hasFiles = Object.values(locationBased).some(
+        (item: any) => item?.files && Object.keys(item.files).length > 0
+      );
     }
     if (!hasFiles && marketBased) {
-      hasFiles = Object.values(marketBased).some((item: any) => item?.files && Object.keys(item.files).length > 0);
+      hasFiles = Object.values(marketBased).some(
+        (item: any) => item?.files && Object.keys(item.files).length > 0
+      );
     }
 
     if (hasFiles) passedChecks++;
