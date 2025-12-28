@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell } from "recharts";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "../reusables/CustomButton";
-import { Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface MiniDonutChartProps {
@@ -55,9 +55,15 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
 
 interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
+  isTarget?: boolean;
 }
 
-export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) => {
+export const KpiCard: React.FC<KpiCardProps> = ({
+  title,
+  children,
+  isTarget = false,
+  className,
+}) => {
   const router = useRouter();
   return (
     <div className={cn("w-full rounded-lg bg-white p-6 shadow-sm", className)}>
@@ -72,13 +78,15 @@ export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) 
           >
             Set New Target
           </CustomButton>
-          {/* <CustomButton
-            variant="filled"
-            icon={<Edit />}
-            onClick={() => router.push("/ranking/edit")}
-          >
-            Edit Target
-          </CustomButton> */}
+          {isTarget && (
+            <CustomButton
+              variant="filled"
+              icon={<Edit />}
+              onClick={() => router.push("/ranking/edit")}
+            >
+              Edit Target
+            </CustomButton>
+          )}
         </div>
       </div>
       {children}

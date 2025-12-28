@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CiWavePulse1 } from "react-icons/ci";
 import OilRenderCard, { cardData } from "./overview/OilRenderCard";
 import ProductionVolumesChart from "./overview/oilProductionChart";
@@ -7,17 +7,55 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
+import { useSingleReport } from "../service/useReport";
+import { useParams } from "next/navigation";
+import ReportEmptyState from "../ReportEmptyState";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import { formatNumberWithCommas } from "../utils/helpers";
+import { ReportResponse } from "@/types/report/reportResponse";
 
 export default function ReportOverview() {
+  const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+
+  const params = useParams();
+  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+
+  useEffect(() => {
+    setReportData(data);
+  }, [data]);
+
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-500">
+        <CardSkeleton />
+      </div>
+    );
+  }
+  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">
+        <ReportEmptyState />
+      </div>
+    );
+  }
+
   const environmentalAmount = (
-    <h5 className="font-bold">
-      154,000 <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
-    </h5>
+    <p className="font-bold">
+      {formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.totalEmission ?? 0)}{" "}
+      <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
+    </p>
   );
   const socialAmount = (
-    <h5 className="font-bold">
+    <p className="font-bold">
       High Risk<sub className="text-xs font-normal text-gray-400"> in 2 regions</sub>
-    </h5>
+    </p>
   );
   const environmentalScore = (
     <small className="flex items-center gap-2">
@@ -26,9 +64,9 @@ export default function ReportOverview() {
     </small>
   );
   const humanAmt = (
-    <h5 className="font-bold">
+    <p className="font-bold">
       0.45<sub className="text-xs font-normal text-gray-400"> per 200k hrs </sub>
-    </h5>
+    </p>
   );
   return (
     <div className="flex flex-col gap-4 lg:gap-10">
@@ -38,7 +76,7 @@ export default function ReportOverview() {
         </span>
         <div className="flex flex-col">
           <h6 className="text-sm"> Activity metrics</h6>
-          <text className="text-xs text-gray-600"> Production Data and Asset Portfolio</text>
+          <p className="text-xs text-gray-600"> Production Data and Asset Portfolio</p>
         </div>
       </div>
 
@@ -78,9 +116,9 @@ export default function ReportOverview() {
           <span className="max-w-sm">
             <OilRenderCard
               borderColor={"#0000"}
-              title={"Total Number of Offshore Sites"}
+              title={"Total Number of Terrestrial Sites"}
               sub={"sites"}
-              amount={23}
+              amount={13}
             />
           </span>
         </div>
@@ -114,11 +152,11 @@ export default function ReportOverview() {
         </span>
         <div className="flex flex-col">
           <h6 className="text-sm"> ESG Assessment Report </h6>
-          <text className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600">
             {" "}
             Environmental, Social Capital, Human Capital, Business Model, and Leadership &
             Governance{" "}
-          </text>
+          </p>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

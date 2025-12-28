@@ -140,8 +140,9 @@ export function Scope1EmissionsChart() {
               <TrendingUp className="w-4 h-4 text-red-600" />
             )}
             <span
-              className={`text-sm font-medium ${trend === "down" ? "text-green-600" : "text-red-600"
-                }`}
+              className={`text-sm font-medium ${
+                trend === "down" ? "text-green-600" : "text-red-600"
+              }`}
             >
               {trendValue}%
             </span>
