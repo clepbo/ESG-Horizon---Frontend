@@ -274,14 +274,25 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
     columnHelper.accessor("lastUpdated", {
       header: "Last Updated",
       cell: (info) => {
-        const date = info.getValue();
-        if (!date) return "—";
+        const dateValue = info.getValue();
+        if (!dateValue) return "—";
         try {
-          return new Date(date).toLocaleDateString("en-US", {
+          const date = new Date(dateValue);
+          const dateStr = date.toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
             year: "numeric",
           });
+          const timeStr = date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          return (
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-800">{dateStr}</span>
+              <span className="text-[10px] text-gray-500 leading-tight">{timeStr}</span>
+            </div>
+          );
         } catch (e) {
           return "—";
         }
