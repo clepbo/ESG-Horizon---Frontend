@@ -95,7 +95,6 @@ const SCOPE_MAPPING: Record<string, string[]> = {
  */
 const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
   // Water Management
-
   "Freshwater Withdrawal & Consumption": [
     "environment",
     "waterManagement",
@@ -186,7 +185,16 @@ function isFilled(value: any): boolean {
 function hasActualData(data: any): boolean {
   if (!data || typeof data !== "object") return false;
 
-  const excludedKeys = ["status", "lastUpdated", "id", "createdAt", "updatedAt", "_id"];
+  const excludedKeys = [
+    "status",
+    "lastUpdated",
+    "id",
+    "createdAt",
+    "updatedAt",
+    "_id",
+    "progress",
+    "totalEmission",
+  ];
   const meaningfulKeys = Object.keys(data).filter((key) => !excludedKeys.includes(key));
 
   if (meaningfulKeys.length === 0) return false;
@@ -205,7 +213,16 @@ function calculateFieldCompletion(data: any): { total: number; filled: number } 
     return { total: 0, filled: 0 };
   }
 
-  const excludedKeys = ["status", "lastUpdated", "id", "createdAt", "updatedAt", "_id"];
+  const excludedKeys = [
+    "status",
+    "lastUpdated",
+    "id",
+    "createdAt",
+    "updatedAt",
+    "_id",
+    "progress",
+    "totalEmission",
+  ];
   let total = 0;
   let filled = 0;
 
@@ -270,7 +287,8 @@ function checkDataCompletion(data: any): CompletionStatus {
 function checkMultiComponentCompletion(
   topicData: any,
   subComponentPaths: string[],
-  isSubmitted: boolean
+  isSubmitted: boolean,
+  submittedGroups: string[] = []
 ): CompletionStatus {
   if (!topicData) {
     return { status: "not-started", completionPercentage: 0 };
@@ -313,7 +331,7 @@ function checkMultiComponentCompletion(
 
   let status: CompletionStatusType;
 
-  if (isSubmitted) {
+  if (isSubmitted && submittedGroups.length > 0) {
     if (completedComponents === totalComponents) {
       status = "completed";
     } else if (componentsWithData > 0) {
@@ -361,7 +379,6 @@ export function checkScopeCompletion(scopeTitle: string, assessmentData?: any): 
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  const isSubmitted = isAssessmentSubmitted(assessmentData);
   const ghgConfig = TOPIC_CONFIGURATIONS["Greenhouse Gas Emissions"];
   const ghgData = getDataFromPaths(assessmentData, ghgConfig.path);
 
@@ -384,7 +401,14 @@ export function checkScopeCompletion(scopeTitle: string, assessmentData?: any): 
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  if (isSubmitted) {
+  const isSubmitted = isAssessmentSubmitted(assessmentData);
+
+  // Check if this specific scope was actually submitted
+  const submittedGroups = assessmentData?.submittedGroups || [];
+  const scopePath = dataPath.join(".");
+  const isScopeSubmitted = submittedGroups.some((group: string) => group.includes(scopePath));
+
+  if (isSubmitted && isScopeSubmitted) {
     return { status: "completed", completionPercentage: 100 };
   }
 
@@ -403,6 +427,7 @@ export function checkSubComponentCompletion(
   }
 
   const isSubmitted = isAssessmentSubmitted(assessmentData);
+  const submittedGroups = assessmentData?.submittedGroups || [];
   const dataPath = SUB_COMPONENT_MAPPING[componentTitle];
 
   if (!dataPath) {
@@ -417,7 +442,13 @@ export function checkSubComponentCompletion(
 
   const completion = checkDataCompletion(componentData);
 
-  if (isSubmitted && completion.status !== "not-started") {
+  // Check if this specific component was submitted
+  const componentPath = dataPath.join(".");
+  const isComponentSubmitted = submittedGroups.some((group: string) =>
+    group.includes(componentPath)
+  );
+
+  if (isSubmitted && isComponentSubmitted && completion.status !== "not-started") {
     return { status: "completed", completionPercentage: 100 };
   }
 
@@ -438,6 +469,7 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
   }
 
   const isSubmitted = isAssessmentSubmitted(assessmentData);
+  const submittedGroups = assessmentData?.submittedGroups || [];
   const topicData = getDataFromPaths(assessmentData, config.path);
 
   if (!topicData) {
@@ -450,7 +482,11 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
       return { status: "not-started", completionPercentage: 0 };
     }
 
-    if (isSubmitted) {
+    // Check if this topic was submitted
+    const topicPath = config.path[0].join(".");
+    const isTopicSubmitted = submittedGroups.some((group: string) => group.includes(topicPath));
+
+    if (isSubmitted && isTopicSubmitted) {
       return { status: "completed", completionPercentage: 100 };
     }
 
@@ -459,7 +495,12 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
 
   // Handle multi-component topics
   if (config.type === "multi-component" && config.subComponents) {
-    const result = checkMultiComponentCompletion(topicData, config.subComponents, isSubmitted);
+    const result = checkMultiComponentCompletion(
+      topicData,
+      config.subComponents,
+      isSubmitted,
+      submittedGroups
+    );
 
     if (isSubmitted && result.status === "completed") {
       return { status: "completed", completionPercentage: 100 };
