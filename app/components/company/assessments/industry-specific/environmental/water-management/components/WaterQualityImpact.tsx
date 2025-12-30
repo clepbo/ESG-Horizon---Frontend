@@ -109,60 +109,65 @@ export default function WaterQualityImpact({
   ]);
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+  const newErrors: Record<string, string> = {};
 
-    // Validate radio button selection
-    if (!operatesFrackedWells) {
-      newErrors.operatesFrackedWells = "This field is required";
+  // Validate radio button selection
+  if (!operatesFrackedWells) {
+    newErrors.operatesFrackedWells = "This field is required";
+  }
+
+  // Validate fields based on selection
+  if (operatesFrackedWells === "yes") {
+    if (!numberOfWellsWithPublicDisclosure.rawValue) {
+      newErrors.numberOfWellsWithPublicDisclosure = "Number of wells is required";
+    }
+    if (!formData.numberOfWellsWithPublicDisclosureUnit) {
+      newErrors.numberOfWellsWithPublicDisclosureUnit = "Unit is required";
     }
 
-    // Validate fields based on selection
-    if (operatesFrackedWells === "yes") {
-      if (!numberOfWellsWithPublicDisclosure.rawValue) {
-        newErrors.numberOfWellsWithPublicDisclosure = "Number of wells is required";
-      }
-      if (!formData.numberOfWellsWithPublicDisclosureUnit) {
-        newErrors.numberOfWellsWithPublicDisclosureUnit = "Unit is required";
-      }
-
-      if (!volumeRecycledReused.rawValue) {
-        newErrors.volumeRecycledReused = "Volume is required";
-      }
-      if (!formData.volumeRecycledReusedUnit) {
-        newErrors.volumeRecycledReusedUnit = "Unit is required";
-      }
+    if (!volumeRecycledReused.rawValue) {
+      newErrors.volumeRecycledReused = "Volume is required";
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  useMemo(() => {
-    const hasRadioSelection = operatesFrackedWells !== "";
-
-    let hasAdditionalFields = false;
-    if (operatesFrackedWells === "yes") {
-      const hasNumberOfWells =
-        numberOfWellsWithPublicDisclosure.rawValue !== "" &&
-        formData.numberOfWellsWithPublicDisclosureUnit !== "";
-      const hasVolumeRecycled =
-        volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
-      hasAdditionalFields = hasNumberOfWells && hasVolumeRecycled;
-    } else if (operatesFrackedWells === "no") {
-      hasAdditionalFields = true; // No additional fields needed for "No"
+    if (!formData.volumeRecycledReusedUnit) {
+      newErrors.volumeRecycledReusedUnit = "Unit is required";
     }
+    
+    // Only require files when answer is "yes"
+    if (filesAndLinks.length === 0) {
+      newErrors.filesAndLinks = "Document/Evidence is required when operating fractured wells";
+    }
+  }
 
-    const hasEvidence = filesAndLinks.length > 0;
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
-  }, [
-    operatesFrackedWells,
-    numberOfWellsWithPublicDisclosure.rawValue,
-    volumeRecycledReused.rawValue,
-    formData.numberOfWellsWithPublicDisclosureUnit,
-    formData.volumeRecycledReusedUnit,
-    filesAndLinks,
-  ]);
+useMemo(() => {
+  const hasRadioSelection = operatesFrackedWells !== "";
+
+  let hasAdditionalFields = false;
+  if (operatesFrackedWells === "yes") {
+    const hasNumberOfWells =
+      numberOfWellsWithPublicDisclosure.rawValue !== "" &&
+      formData.numberOfWellsWithPublicDisclosureUnit !== "";
+    const hasVolumeRecycled =
+      volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
+    hasAdditionalFields = hasNumberOfWells && hasVolumeRecycled;
+  } else if (operatesFrackedWells === "no") {
+    hasAdditionalFields = true; // No additional fields needed for "No"
+  }
+
+  const hasEvidence = operatesFrackedWells === "no" ? true : filesAndLinks.length > 0;
+
+  return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+}, [
+  operatesFrackedWells,
+  numberOfWellsWithPublicDisclosure.rawValue,
+  volumeRecycledReused.rawValue,
+  formData.numberOfWellsWithPublicDisclosureUnit,
+  formData.volumeRecycledReusedUnit,
+  filesAndLinks,
+]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

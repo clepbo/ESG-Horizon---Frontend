@@ -37,6 +37,7 @@ export function TargetSetting() {
   const { user } = useAuth();
   const baseline = useBaseline(user?.company?.id);
 
+  console.log("Baseline data:", baseline?.data);
   // If we're on summary pages, don't render the main target setting UI
   if (isScopeSummaryPage || isGeneralSummaryPage) {
     return null; // The summary pages will handle their own rendering

@@ -20,6 +20,8 @@ import { useParams } from "next/navigation";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { useSingleReport } from "../service/useReport";
 import { formatNumberWithCommas } from "../utils/helpers";
+import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
+import Link from "next/link";
 
 export default function ReportEnvironmental() {
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
@@ -35,7 +37,7 @@ export default function ReportEnvironmental() {
   const waterManagement = reportData?.environment_details?.waterManagement;
   const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
 
-  // console.log("ReportOverview Data", bioDiversity);
+  console.log("ReportOverview Data", reportData);
 
   if (isError) {
     return (
@@ -114,7 +116,13 @@ export default function ReportEnvironmental() {
             <EmissionsByScope data={emissionByScopedata} />
           </div>
           <div className="col-span-1 rounded-2xl shadow">
-            <ReductionTarget />
+            { reportData?.targets?.length === 0 &&  
+            <div className="w-full flex gap-4 flex-col justify-center items-center py-12 text-gray-600">
+              No Target Data 
+              <p> Click bellow to set target</p>
+              <Link className='p-4 py-1 rounded-md border border-primary text-primary' href={'/kpis'} > Set target </Link>
+              </div>}
+            { reportData?.targets?.length! > 0 && <ReductionTarget /> }
           </div>
         </div>
       </div>
@@ -300,10 +308,10 @@ export default function ReportEnvironmental() {
             <div className="p-4 grid grid-cols-1 gap-4">
               <WaterQualityCard
                 title={"Wells with public chemical disclosure"}
-                amount={45}
+                amount={waterManagement?.waterQualityImpacts?.wellsWithPublicChemicalDisclosure || 0}
                 progress={48}
               />
-              <WaterQualityCard title={"Volume ecycled/Reused"} amount={65} progress={67} sub="m" />
+              <WaterQualityCard title={"Volume ecycled/Reused"} amount={waterManagement?.waterQualityImpacts?.volumeRecycledReused || 0} progress={67} sub="m" />
             </div>
           </div>
         </div>
