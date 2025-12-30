@@ -76,6 +76,7 @@ function NewAssessmentPage() {
         status: a.status || "in_progress",
         progress: a.assessmentData?.overallProgress ?? 0,
         rejection_reason: (a as any).rejection_reason,
+        lastUpdated: a.updatedAt,
       };
     }) ?? [];
 
