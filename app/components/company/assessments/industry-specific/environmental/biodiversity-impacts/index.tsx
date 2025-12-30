@@ -81,7 +81,7 @@ export function BioDiversityImpact({
   const { state } = useAssessment();
 
   // Use the reusable hook with checkSubComponentCompletion
-  const { scopeCompletionStatus, getStatus, getCardBorderClass } = useAssessmentCompletion(
+  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
     scopeData,
     state.assessmentData,
     checkSubComponentCompletion
