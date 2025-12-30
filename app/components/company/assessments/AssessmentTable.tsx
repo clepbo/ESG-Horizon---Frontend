@@ -48,6 +48,7 @@ export interface Assessment {
   status: AssessmentStatus;
   rejection_reason?: string;
   progress?: number;
+  lastUpdated?: string | Date;
 }
 
 interface AssessmentTableProps {
@@ -270,6 +271,22 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
     columnHelper.accessor("startPeriod", { header: "Starting Period" }),
     columnHelper.accessor("endPeriod", { header: "Ending Period" }),
     columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
+    columnHelper.accessor("lastUpdated", {
+      header: "Last Updated",
+      cell: (info) => {
+        const date = info.getValue();
+        if (!date) return "—";
+        try {
+          return new Date(date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+        } catch (e) {
+          return "—";
+        }
+      },
+    }),
 
     columnHelper.display({
       id: "progress",
