@@ -57,11 +57,15 @@ function ReportsContent() {
     if (scope1Data?.mobileSources) {
       scope1 += calculateSourceEmissions(scope1Data.mobileSources.roadTransport?.vehicleFleet);
       scope1 += calculateSourceEmissions(scope1Data.mobileSources.roadTransport?.carsBuses);
-      scope1 += calculateSourceEmissions(scope1Data.mobileSources.vehicleEquipment?.forkliftFuelType);
+      scope1 += calculateSourceEmissions(
+        scope1Data.mobileSources.vehicleEquipment?.forkliftFuelType
+      );
       scope1 += calculateSourceEmissions(
         scope1Data.mobileSources.vehicleEquipment?.heavyDutyFuelType
       );
-      scope1 += calculateSourceEmissions(scope1Data.mobileSources.vehicleEquipment?.tractorFuelType);
+      scope1 += calculateSourceEmissions(
+        scope1Data.mobileSources.vehicleEquipment?.tractorFuelType
+      );
       scope1 += calculateSourceEmissions(scope1Data.mobileSources.marineAviation?.air);
       scope1 += calculateSourceEmissions(scope1Data.mobileSources.marineAviation?.marine);
     }
@@ -102,19 +106,25 @@ function ReportsContent() {
         scope2 += toNumber(locationBased.electricity.electricityConsumed) * 0.35;
       if (locationBased.cooling) scope2 += toNumber(locationBased.cooling.coolingConsumed) * 0.1;
       if (locationBased.steam) scope2 += toNumber(locationBased.steam.volume) * 0.2;
-      if (locationBased.heating)
-        scope2 += toNumber(locationBased.heating.heatingPurchased) * 0.15;
+      if (locationBased.heating) scope2 += toNumber(locationBased.heating.heatingPurchased) * 0.15;
     }
 
     if (marketBased) {
       if (marketBased.ipps)
-        scope2 += toNumber(marketBased.ipps.electricityConsumed) * toNumber(marketBased.ipps.emissionFactor);
+        scope2 +=
+          toNumber(marketBased.ipps.electricityConsumed) *
+          toNumber(marketBased.ipps.emissionFactor);
       if (marketBased.eac)
-        scope2 += toNumber(marketBased.eac.gridElectricity) * toNumber(marketBased.eac.emissionFactor);
+        scope2 +=
+          toNumber(marketBased.eac.gridElectricity) * toNumber(marketBased.eac.emissionFactor);
       if (marketBased.residual)
-        scope2 += toNumber(marketBased.residual.electricityConsumed) * toNumber(marketBased.residual.residualMixFactor);
+        scope2 +=
+          toNumber(marketBased.residual.electricityConsumed) *
+          toNumber(marketBased.residual.residualMixFactor);
       if (marketBased.coolingSteam)
-        scope2 += toNumber(marketBased.coolingSteam.energyConsumed) * toNumber(marketBased.coolingSteam.emissionFactor);
+        scope2 +=
+          toNumber(marketBased.coolingSteam.energyConsumed) *
+          toNumber(marketBased.coolingSteam.emissionFactor);
     }
 
     return scope2;

@@ -1,23 +1,33 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 // #region Sample data
-const data = [
-  {
-    name: "Proved",
-    total: 9000,
-    sensitive: 1400,
-    amt: 2400,
-  },
-  {
-    name: "Probable",
-    total: 13000,
-    sensitive: 1398,
-    amt: 2210,
-  },
-];
 
 // #endregion
-const ReserveInSensitiveAreasChart = () => {
+interface ReserveInSensitiveAreasChartProps {
+  provedTotal: number;
+  provedSensitive?: number;
+  probableTotal: number;
+  probableSensitive?: number;
+}
+function ReserveInSensitiveAreasChart({
+  provedTotal,
+  provedSensitive = 0,
+  probableTotal,
+  probableSensitive = 0,
+}: ReserveInSensitiveAreasChartProps) {
+  const data = [
+    {
+      name: "Proved",
+      total: provedTotal,
+      sensitive: provedSensitive,
+    },
+    {
+      name: "Probable",
+      total: probableTotal,
+      sensitive: probableSensitive,
+    },
+  ];
+
   return (
     <BarChart
       style={{ width: "100%", height: "100%", minHeight: "400px", aspectRatio: 1.618 }}
@@ -39,6 +49,6 @@ const ReserveInSensitiveAreasChart = () => {
       <Bar dataKey="sensitive" fill="#f9b232" radius={[10, 10, 0, 0]} />
     </BarChart>
   );
-};
+}
 
 export default ReserveInSensitiveAreasChart;

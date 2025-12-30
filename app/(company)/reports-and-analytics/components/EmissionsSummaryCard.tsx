@@ -87,10 +87,17 @@ export function EmissionsSummaryCard() {
     }
 
     if (marketBased) {
-      scope2 += toNumber(marketBased.ipps?.electricityConsumed) * toNumber(marketBased.ipps?.emissionFactor);
-      scope2 += toNumber(marketBased.eac?.gridElectricity) * toNumber(marketBased.eac?.emissionFactor);
-      scope2 += toNumber(marketBased.residual?.electricityConsumed) * toNumber(marketBased.residual?.residualMixFactor);
-      scope2 += toNumber(marketBased.coolingSteam?.energyConsumed) * toNumber(marketBased.coolingSteam?.emissionFactor);
+      scope2 +=
+        toNumber(marketBased.ipps?.electricityConsumed) *
+        toNumber(marketBased.ipps?.emissionFactor);
+      scope2 +=
+        toNumber(marketBased.eac?.gridElectricity) * toNumber(marketBased.eac?.emissionFactor);
+      scope2 +=
+        toNumber(marketBased.residual?.electricityConsumed) *
+        toNumber(marketBased.residual?.residualMixFactor);
+      scope2 +=
+        toNumber(marketBased.coolingSteam?.energyConsumed) *
+        toNumber(marketBased.coolingSteam?.emissionFactor);
     }
 
     const total = scope1 + scope2;
@@ -177,8 +184,9 @@ export function EmissionsSummaryCard() {
                   <TrendingUp className="w-4 h-4 text-red-600" />
                 )}
                 <span
-                  className={`text-sm font-medium ${summary.reduction > 0 ? "text-green-600" : "text-red-600"
-                    }`}
+                  className={`text-sm font-medium ${
+                    summary.reduction > 0 ? "text-green-600" : "text-red-600"
+                  }`}
                 >
                   {Math.abs(summary.reduction).toFixed(1)}%
                 </span>

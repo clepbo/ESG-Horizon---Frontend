@@ -37,8 +37,7 @@ export function EmissionsBreakdownChart() {
 
     // Scope 1 Emissions
     if (scope1?.stationarySources) {
-      const { electricityHeat, industrialProcesses, oilGasOperations } =
-        scope1.stationarySources;
+      const { electricityHeat, industrialProcesses, oilGasOperations } = scope1.stationarySources;
 
       const stationaryTotal =
         calculateSourceEmissions(electricityHeat?.dieselGenerators) +

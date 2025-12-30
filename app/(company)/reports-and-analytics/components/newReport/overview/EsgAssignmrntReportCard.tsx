@@ -52,7 +52,7 @@ export default function EsgAssignmrntReportCard({
       <h6 className=""> {pillar} </h6>
       <hr className="text-gray-200" />
       <div className="flex items-center justify-between">
-        <text className="">{title}</text>
+        <p className="">{title}</p>
         <span
           className=" flex items-center gap-2 rounded-2xl text-sm p-1"
           style={{

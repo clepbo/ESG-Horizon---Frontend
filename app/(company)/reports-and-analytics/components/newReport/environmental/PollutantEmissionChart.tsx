@@ -1,11 +1,11 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts";
 
-const transformedData = [
-  { name: "NOx", value: 1400 },
-  { name: "SOx", value: 1050 },
-  { name: "VOCs", value: 700 },
-  { name: "PM10", value: 350 },
-];
+export interface PollutantData {
+  NOx: number;
+  SOx: number;
+  VOCs: number;
+  PM10: number;
+}
 
 const COLORS = {
   NOx: "#3b82f6",
@@ -33,7 +33,14 @@ const renderLegend = () => (
   </ul>
 );
 
-const PollutantEmissionChart = () => {
+const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
+  const transformedData = [
+    { name: "NOx", value: NOx },
+    { name: "SOx", value: SOx },
+    { name: "VOCs", value: VOCs },
+    { name: "PM10", value: PM10 },
+  ];
+
   return (
     <>
       <h6 className="border-b pb-2 border-gray-200"> Polutant Emission</h6>
