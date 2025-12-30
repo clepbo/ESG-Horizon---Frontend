@@ -1,12 +1,135 @@
-// File: lib/assessmentCompletionUtils.ts
-// FIXED VERSION - Only shows "in-progress" when actual data is filled
-
 export type CompletionStatusType = "completed" | "in-progress" | "not-started";
 
 export interface CompletionStatus {
   status: CompletionStatusType;
   completionPercentage: number;
 }
+
+interface TopicConfig {
+  path: string[][];
+  subComponents?: string[];
+  type: "simple" | "multi-component";
+}
+
+const TOPIC_CONFIGURATIONS: Record<string, TopicConfig> = {
+  "Greenhouse Gas Emissions": {
+    path: [["environment", "ghg"], ["ghg"]],
+    subComponents: [
+      "scope1.stationarySources",
+      "scope1.mobileSources",
+      "scope1.processEmissions",
+      "scope1.fugitiveEmissions",
+      "scope2.locationBased",
+      "scope2.marketBased",
+      "scope3.upstream",
+      "scope3.downstream",
+    ],
+    type: "multi-component",
+  },
+  "Air Quality": {
+    path: [["environment", "airQuality"]],
+    type: "simple",
+  },
+  "Water and Wastewater Management": {
+    path: [["environment", "waterManagement", "waterAndProducedWaterManagement"]],
+    subComponents: [
+      "freshwaterWithdrawals",
+      "producedWater",
+      "chemicalDisclosure",
+      "waterQualityImpacts",
+    ],
+    type: "multi-component",
+  },
+  "Biodiversity Impact": {
+    path: [
+      ["environment", "biodiversity"],
+      ["environment", "biodiversityImpact"],
+      ["biodiversity"],
+      ["biodiversityImpact"],
+    ],
+    subComponents: [
+      "environmentalManagement|environmental_management|environmentalManagementPolicies",
+      "hydrocarbonSpills|hydrocarbon_spills",
+      "reservesSensitiveAreas|reserves_sensitive_areas|reservesInSensitiveAreas",
+    ],
+    type: "multi-component",
+  },
+  "Community Relations": {
+    path: [["socialCapital", "communityRelations"]],
+    type: "simple",
+  },
+  "Security, Human Rights & Rights of Indigenous Peoples": {
+    path: [["socialCapital", "securityRights"]],
+    type: "simple",
+  },
+  "Workforce Health & Safety": {
+    path: [["humanCapital", "workforceHealth"]],
+    type: "simple",
+  },
+  "Reserves Valuation & Capital Expenditures": {
+    path: [["businessModel", "reservesValuation"]],
+    type: "simple",
+  },
+  "Business Ethics & Transparency": {
+    path: [["businessModel", "businessEthics"]],
+    type: "simple",
+  },
+};
+
+/**
+ * Mapping for scope titles (GHG specific)
+ */
+const SCOPE_MAPPING: Record<string, string[]> = {
+  "Stationary Sources": ["scope1", "stationarySources"],
+  "Mobile Sources": ["scope1", "mobileSources"],
+  "Process Emissions": ["scope1", "processEmissions"],
+  "Fugitive Emissions": ["scope1", "fugitiveEmissions"],
+  "Location-Based Scope 2 Emissions": ["scope2", "locationBased"],
+  "Market-Based Scope 2 Emissions": ["scope2", "marketBased"],
+  "Upstream Emissions (Categories 1-8)": ["scope3", "upstream"],
+  "Downstream Emissions (Categories 9-15)": ["scope3", "downstream"],
+};
+
+/**
+ * Mapping for sub-component titles
+ */
+const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
+  // Water Management
+
+  "Freshwater Withdrawal & Consumption": [
+    "environment",
+    "waterManagement",
+    "waterAndProducedWaterManagement",
+    "freshwaterWithdrawals",
+  ],
+  "Produced Water Management": [
+    "environment",
+    "waterManagement",
+    "waterAndProducedWaterManagement",
+    "producedWaterManagement",
+  ],
+  "Chemical Disclosure": [
+    "environment",
+    "waterManagement",
+    "waterAndProducedWaterManagement",
+    "chemicalDisclosure",
+  ],
+  "Water Quality Impacts": [
+    "environment",
+    "waterManagement",
+    "waterAndProducedWaterManagement",
+    "waterQualityImpacts",
+  ],
+
+  // Biodiversity Impact
+  "Environmental Management Policies": [
+    "environment",
+    "biodiversityImpact",
+    "environmentalManagement",
+  ],
+  "Hydrocarbon Spills": ["environment", "biodiversityImpact", "hydrocarbonSpills"],
+  "Reserves in Sensitive Areas": ["environment", "biodiversityImpact", "reservesSensitiveAreas"],
+};
 
 /**
  * Safely get nested property from object
@@ -18,6 +141,28 @@ function getNestedValue(obj: any, path: string[]): any {
 }
 
 /**
+ * Get nested value with support for dot notation
+ */
+function getNestedValueDotNotation(obj: any, path: string): any {
+  return path.split(".").reduce((current, key) => {
+    return current && typeof current === "object" ? current[key] : undefined;
+  }, obj);
+}
+
+/**
+ * Try multiple possible property names (separated by |)
+ */
+function getValueWithAlternatives(obj: any, alternatives: string): any {
+  const names = alternatives.split("|");
+  for (const name of names) {
+    if (obj[name] !== undefined) {
+      return obj[name];
+    }
+  }
+  return undefined;
+}
+
+/**
  * Check if a value is considered "filled" (has meaningful data)
  */
 function isFilled(value: any): boolean {
@@ -26,7 +171,6 @@ function isFilled(value: any): boolean {
   if (typeof value === "boolean") return true;
   if (Array.isArray(value)) return value.length > 0;
   if (typeof value === "object") {
-    // Check if object has any filled properties (excluding metadata)
     return Object.keys(value).some((key) => {
       if (key === "id" || key === "createdAt" || key === "updatedAt" || key === "_id") return false;
       return isFilled(value[key]);
@@ -43,13 +187,10 @@ function hasActualData(data: any): boolean {
   if (!data || typeof data !== "object") return false;
 
   const excludedKeys = ["status", "lastUpdated", "id", "createdAt", "updatedAt", "_id"];
-
-  // Get all keys except metadata
   const meaningfulKeys = Object.keys(data).filter((key) => !excludedKeys.includes(key));
 
   if (meaningfulKeys.length === 0) return false;
 
-  // Check if ANY of these keys have actual filled data
   return meaningfulKeys.some((key) => {
     const value = data[key];
     return isFilled(value);
@@ -65,25 +206,18 @@ function calculateFieldCompletion(data: any): { total: number; filled: number } 
   }
 
   const excludedKeys = ["status", "lastUpdated", "id", "createdAt", "updatedAt", "_id"];
-
   let total = 0;
   let filled = 0;
 
   Object.entries(data).forEach(([key, value]) => {
     if (excludedKeys.includes(key)) return;
 
-    // If it's an array of objects (like facilities, vehicles, etc.)
     if (Array.isArray(value)) {
-      if (value.length > 0) {
-        total += 1;
-        filled += 1;
-      } else {
-        total += 1;
-      }
+      total += 1;
+      if (value.length > 0) filled += 1;
       return;
     }
 
-    // If it's a nested object, recursively count its fields
     if (typeof value === "object" && value !== null && !Array.isArray(value)) {
       const nested = calculateFieldCompletion(value);
       total += nested.total;
@@ -91,11 +225,8 @@ function calculateFieldCompletion(data: any): { total: number; filled: number } 
       return;
     }
 
-    // Simple field
     total += 1;
-    if (isFilled(value)) {
-      filled += 1;
-    }
+    if (isFilled(value)) filled += 1;
   });
 
   return { total, filled };
@@ -109,7 +240,6 @@ function checkDataCompletion(data: any): CompletionStatus {
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  // CRITICAL FIX: Check if there's any actual data first
   if (!hasActualData(data)) {
     return { status: "not-started", completionPercentage: 0 };
   }
@@ -135,6 +265,95 @@ function checkDataCompletion(data: any): CompletionStatus {
 }
 
 /**
+ * Generic function to check multi-component topics
+ */
+function checkMultiComponentCompletion(
+  topicData: any,
+  subComponentPaths: string[],
+  isSubmitted: boolean
+): CompletionStatus {
+  if (!topicData) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
+
+  let componentsWithData = 0;
+  let completedComponents = 0;
+  let partialComponents = 0;
+
+  subComponentPaths.forEach((componentPath) => {
+    // Check if path contains alternatives (separated by |)
+    let componentData;
+    if (componentPath.includes("|")) {
+      const basePath = componentPath.split(".").slice(0, -1).join(".");
+      const alternatives = componentPath.split(".").pop()!;
+      const baseData = basePath ? getNestedValueDotNotation(topicData, basePath) : topicData;
+      componentData = baseData ? getValueWithAlternatives(baseData, alternatives) : undefined;
+    } else {
+      componentData = getNestedValueDotNotation(topicData, componentPath);
+    }
+
+    if (componentData && hasActualData(componentData)) {
+      componentsWithData += 1;
+      const componentCompletion = checkDataCompletion(componentData);
+
+      if (componentCompletion.status === "completed") {
+        completedComponents += 1;
+      } else if (componentCompletion.status === "in-progress") {
+        partialComponents += 1;
+      }
+    }
+  });
+
+  if (componentsWithData === 0) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
+
+  const totalComponents = subComponentPaths.length;
+  const completionPercentage = Math.round((completedComponents / totalComponents) * 100);
+
+  let status: CompletionStatusType;
+
+  if (isSubmitted) {
+    if (completedComponents === totalComponents) {
+      status = "completed";
+    } else if (componentsWithData > 0) {
+      status = "in-progress";
+    } else {
+      status = "not-started";
+    }
+  } else {
+    if (completedComponents === totalComponents) {
+      status = "completed";
+    } else if (completedComponents > 0 || partialComponents > 0) {
+      status = "in-progress";
+    } else {
+      status = "not-started";
+    }
+  }
+
+  return { status, completionPercentage };
+}
+
+/**
+ * Get data from multiple possible paths
+ */
+function getDataFromPaths(assessmentData: any, paths: string[][]): any {
+  for (const path of paths) {
+    const data = getNestedValue(assessmentData, path);
+    if (data) return data;
+  }
+  return null;
+}
+
+/**
+ * Check if assessment is submitted
+ */
+function isAssessmentSubmitted(assessmentData: any): boolean {
+  const status = assessmentData?.status;
+  return status === "awaiting_review" || status === "submitted_approved" || status === "approved";
+}
+
+/**
  * Check scope-specific completion for GHG emissions
  */
 export function checkScopeCompletion(scopeTitle: string, assessmentData?: any): CompletionStatus {
@@ -142,52 +361,67 @@ export function checkScopeCompletion(scopeTitle: string, assessmentData?: any): 
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  // Try multiple possible data paths
-  const possiblePaths = [["environment", "ghg"], ["ghg"], ["assessmentData", "environment", "ghg"]];
-
-  let ghgData = null;
-  for (const path of possiblePaths) {
-    const data = getNestedValue(assessmentData, path);
-    if (data) {
-      ghgData = data;
-      break;
-    }
-  }
+  const isSubmitted = isAssessmentSubmitted(assessmentData);
+  const ghgConfig = TOPIC_CONFIGURATIONS["Greenhouse Gas Emissions"];
+  const ghgData = getDataFromPaths(assessmentData, ghgConfig.path);
 
   if (!ghgData) {
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  // Map scope titles to their data paths
-  const scopeMapping: Record<string, string[]> = {
-    "Stationary Sources": ["scope1", "stationarySources"],
-    "Mobile Sources": ["scope1", "mobileSources"],
-    "Process Emissions": ["scope1", "processEmissions"],
-    "Fugitive Emissions": ["scope1", "fugitiveEmissions"],
-    "Location-Based Scope 2 Emissions": ["scope2", "locationBased"],
-    "Market-Based Scope 2 Emissions": ["scope2", "marketBased"],
-    "Upstream Emissions (Categories 1-8)": ["scope3", "upstream"],
-    "Downstream Emissions (Categories 9-15)": ["scope3", "downstream"],
-  };
-
-  const dataPath = scopeMapping[scopeTitle];
+  const dataPath = SCOPE_MAPPING[scopeTitle];
   if (!dataPath) {
     return { status: "not-started", completionPercentage: 0 };
   }
 
   const scopeData = getNestedValue(ghgData, dataPath);
 
-  // If no data exists at all, return not started
   if (!scopeData || Object.keys(scopeData).length === 0) {
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  // CRITICAL FIX: Check if there's actual meaningful data
   if (!hasActualData(scopeData)) {
     return { status: "not-started", completionPercentage: 0 };
   }
 
+  if (isSubmitted) {
+    return { status: "completed", completionPercentage: 100 };
+  }
+
   return checkDataCompletion(scopeData);
+}
+
+/**
+ * Check sub-component completion for topics with multiple sub-forms
+ */
+export function checkSubComponentCompletion(
+  componentTitle: string,
+  assessmentData?: any
+): CompletionStatus {
+  if (!assessmentData) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
+
+  const isSubmitted = isAssessmentSubmitted(assessmentData);
+  const dataPath = SUB_COMPONENT_MAPPING[componentTitle];
+
+  if (!dataPath) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
+
+  const componentData = getNestedValue(assessmentData, dataPath);
+
+  if (!componentData || !hasActualData(componentData)) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
+
+  const completion = checkDataCompletion(componentData);
+
+  if (isSubmitted && completion.status !== "not-started") {
+    return { status: "completed", completionPercentage: 100 };
+  }
+
+  return completion;
 }
 
 /**
@@ -198,139 +432,47 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  const topicDataPaths: Record<string, () => CompletionStatus> = {
-    "Greenhouse Gas Emissions": () => checkGHGCompletion(assessmentData),
-    "Air Quality": () => checkAirQualityCompletion(assessmentData),
-    "Water and Wastewater Management": () => checkWaterManagementCompletion(assessmentData),
-    "Biodiversity Impact": () => checkBiodiversityCompletion(assessmentData),
-    "Community Relations": () => checkCommunityRelationsCompletion(assessmentData),
-    "Security, Human Rights & Rights of Indigenous Peoples": () =>
-      checkSecurityRightsCompletion(assessmentData),
-    "Workforce Health & Safety": () => checkWorkforceHealthCompletion(assessmentData),
-    "Reserves Valuation & Capital Expenditures": () =>
-      checkReservesValuationCompletion(assessmentData),
-    "Business Ethics & Transparency": () => checkBusinessEthicsCompletion(assessmentData),
-  };
+  const config = TOPIC_CONFIGURATIONS[topicTitle];
+  if (!config) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
 
-  const checker = topicDataPaths[topicTitle];
-  if (checker) {
-    return checker();
+  const isSubmitted = isAssessmentSubmitted(assessmentData);
+  const topicData = getDataFromPaths(assessmentData, config.path);
+
+  if (!topicData) {
+    return { status: "not-started", completionPercentage: 0 };
+  }
+
+  // Handle simple topics (single form)
+  if (config.type === "simple") {
+    if (!hasActualData(topicData)) {
+      return { status: "not-started", completionPercentage: 0 };
+    }
+
+    if (isSubmitted) {
+      return { status: "completed", completionPercentage: 100 };
+    }
+
+    return checkDataCompletion(topicData);
+  }
+
+  // Handle multi-component topics
+  if (config.type === "multi-component" && config.subComponents) {
+    const result = checkMultiComponentCompletion(topicData, config.subComponents, isSubmitted);
+
+    if (isSubmitted && result.status === "completed") {
+      return { status: "completed", completionPercentage: 100 };
+    }
+
+    if (isSubmitted && result.status !== "not-started") {
+      return { status: "in-progress", completionPercentage: result.completionPercentage };
+    }
+
+    return result;
   }
 
   return { status: "not-started", completionPercentage: 0 };
-}
-
-/**
- * Check GHG completion - ALL scopes must be 100% complete
- */
-function checkGHGCompletion(assessmentData: any): CompletionStatus {
-  const possiblePaths = [["environment", "ghg"], ["ghg"]];
-
-  let ghgData = null;
-  for (const path of possiblePaths) {
-    const data = getNestedValue(assessmentData, path);
-    if (data) {
-      ghgData = data;
-      break;
-    }
-  }
-
-  if (!ghgData) {
-    return { status: "not-started", completionPercentage: 0 };
-  }
-
-  const scope1 = ghgData.scope1 || {};
-  const scope2 = ghgData.scope2 || {};
-  const scope3 = ghgData.scope3 || {};
-
-  // Check each individual section
-  const sections = [
-    { name: "stationarySources", data: scope1.stationarySources },
-    { name: "mobileSources", data: scope1.mobileSources },
-    { name: "processEmissions", data: scope1.processEmissions },
-    { name: "fugitiveEmissions", data: scope1.fugitiveEmissions },
-    { name: "locationBased", data: scope2.locationBased },
-    { name: "marketBased", data: scope2.marketBased },
-    { name: "upstream", data: scope3.upstream },
-    { name: "downstream", data: scope3.downstream },
-  ];
-
-  let totalSections = 0;
-  let completedSections = 0;
-  let partialSections = 0;
-
-  sections.forEach((section) => {
-    // Only count sections that have actual data
-    if (section.data && hasActualData(section.data)) {
-      totalSections += 1;
-      const sectionCompletion = checkDataCompletion(section.data);
-
-      if (sectionCompletion.status === "completed") {
-        completedSections += 1;
-      } else if (sectionCompletion.status === "in-progress") {
-        partialSections += 1;
-      }
-    }
-  });
-
-  // If no sections have been started
-  if (totalSections === 0) {
-    return { status: "not-started", completionPercentage: 0 };
-  }
-
-  // Calculate overall completion based on 8 possible sections
-  const completionPercentage = Math.round((completedSections / 8) * 100);
-
-  let status: CompletionStatusType;
-  if (completedSections === 8) {
-    status = "completed";
-  } else if (completedSections > 0 || partialSections > 0) {
-    status = "in-progress";
-  } else {
-    status = "not-started";
-  }
-
-  return { status, completionPercentage };
-}
-
-function checkAirQualityCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["environment", "airQuality"]);
-  return checkDataCompletion(data);
-}
-
-function checkWaterManagementCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["environment", "waterManagement"]);
-  return checkDataCompletion(data);
-}
-
-function checkBiodiversityCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["environment", "biodiversity"]);
-  return checkDataCompletion(data);
-}
-
-function checkCommunityRelationsCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["socialCapital", "communityRelations"]);
-  return checkDataCompletion(data);
-}
-
-function checkSecurityRightsCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["socialCapital", "securityRights"]);
-  return checkDataCompletion(data);
-}
-
-function checkWorkforceHealthCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["humanCapital", "workforceHealth"]);
-  return checkDataCompletion(data);
-}
-
-function checkReservesValuationCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["businessModel", "reservesValuation"]);
-  return checkDataCompletion(data);
-}
-
-function checkBusinessEthicsCompletion(assessmentData: any): CompletionStatus {
-  const data = getNestedValue(assessmentData, ["businessModel", "businessEthics"]);
-  return checkDataCompletion(data);
 }
 
 /**
