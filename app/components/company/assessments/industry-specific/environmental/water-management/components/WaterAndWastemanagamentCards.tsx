@@ -11,6 +11,10 @@ import ProducedWaterManagement from "./ProducedWaterManagement";
 import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
 import { SuccessScreen } from "../../../../SuccessScreen";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
+import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 const cards1 = [
   {
@@ -42,16 +46,39 @@ const cards2 = [
   },
 ];
 
-export default function WaterAndWastemanagamentCards({
+// Combine cards into sections for the hook
+const scopeData = [
+  {
+    id: "water-produced-water",
+    title: "Water and Produced Water Management",
+    cards: cards1,
+  },
+  {
+    id: "hydraulic-fracturing",
+    title: "Hydraulic Fracturing Impacts",
+    cards: cards2,
+  },
+];
+
+export default function WaterAndWastemanagementCards({
   backToAssessmentHub,
   backToDisclosureTopics,
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const { state } = useAssessment();
+
+  // Use the reusable hook with checkSubComponentCompletion
+  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+    scopeData,
+    state.assessmentData,
+    checkSubComponentCompletion
+  );
 
   function backToWasteWaterManagement() {
     setStep(0);
   }
+
   const handleCardClick = (cardTitle: string) => {
     switch (cardTitle) {
       case "Freshwater Withdrawal & Consumption":
@@ -67,7 +94,7 @@ export default function WaterAndWastemanagamentCards({
         setStep(4);
         break;
       default:
-        setStep(1); // fallback
+        setStep(1);
     }
   };
 
@@ -105,26 +132,29 @@ export default function WaterAndWastemanagamentCards({
           <Card className="w-full p-6 flex min-h-[90vh] flex-col gap-3 lg:gap-6 bg-white rounded-md shadow-md">
             <div className="flex flex-col gap-3 md:flex-row items-center w-full md:justify-between">
               <div className="flex flex-col gap-2">
-                <h5 className="">Water and Wastewater Management</h5>
-                <p className="text-sm">
+                <h5 className="text-2xl font-bold text-foreground">
+                  Water and Wastewater Management
+                </h5>
+                <p className="text-sm text-muted-foreground">
                   This disclosure topic quantifies the company&apos;s water footprint, from
                   freshwater withdrawal to the management and disposal of operational wastewater, to
                   assess overall resource efficiency and environmental impact. It metric IFRS codes:
                   EM-EP-140a.1, EM-EP-140a.2, EM-EP-140a.3 and EM-EP-140a.4
                 </p>
               </div>
-              <Button className="text-white cursor-pointer rounded">Assign task</Button>
+              <Button className="bg-primary hover:bg-teal-600 text-white cursor-pointer rounded">
+                Assign task
+              </Button>
             </div>
             <div>
-              <h5>
-                {" "}
+              <h5 className="text-lg font-semibold mb-3">
                 Water and Produced Water Management{" "}
                 <CustomTooltip
                   detail={
                     <TooltipMessage
                       title={"Water and Produced Water Management"}
                       message={
-                        "Report how your company manages freshwater use and wastewater generated during operations.This includes tracking water withdrawal, treatment, discharge, recycling, and measures taken to reduce environmental impacts such as contamination or excessive water consumption."
+                        "Report how your company manages freshwater use and wastewater generated during operations. This includes tracking water withdrawal, treatment, discharge, recycling, and measures taken to reduce environmental impacts such as contamination or excessive water consumption."
                       }
                     />
                   }
@@ -135,15 +165,20 @@ export default function WaterAndWastemanagamentCards({
                   <Card
                     key={i}
                     onClick={() => handleCardClick(card.title)}
-                    className="cursor-pointer hover:bg-gray-100 max-w-md shadow"
+                    className={`cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow ${getCardBorderClass(
+                      card.title
+                    )}`}
                   >
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1 flex-1">
-                          <h5 className="font-medium text-foreground">{card.title}</h5>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center justify-between">
+                            <h5 className="font-medium text-foreground">{card.title}</h5>
+                            <CompletionIndicator status={getStatus(card.title)} />
+                          </div>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
+                        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
                       </div>
                     </CardContent>
                   </Card>
@@ -151,15 +186,14 @@ export default function WaterAndWastemanagamentCards({
               </div>
             </div>
             <div>
-              <h5>
-                {" "}
+              <h5 className="text-lg font-semibold mb-3">
                 Hydraulic Fracturing Impacts{" "}
                 <CustomTooltip
                   detail={
                     <TooltipMessage
                       title={"Hydraulic Fracturing Impacts"}
                       message={
-                        "Disclose how hydraulic fracturing (fracking) activities affect local water systems.This includes chemical usage, wastewater handling, spill prevention, groundwater protection measures, and comparison of water quality before and after drilling activities."
+                        "Disclose how hydraulic fracturing (fracking) activities affect local water systems. This includes chemical usage, wastewater handling, spill prevention, groundwater protection measures, and comparison of water quality before and after drilling activities."
                       }
                     />
                   }
@@ -170,22 +204,26 @@ export default function WaterAndWastemanagamentCards({
                   <Card
                     key={i}
                     onClick={() => handleCardClick(card.title)}
-                    className="cursor-pointer hover:bg-gray-100 max-w-lg shadow"
+                    className={`cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow ${getCardBorderClass(
+                      card.title
+                    )}`}
                   >
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1 flex-1">
-                          <h5 className="font-medium text-foreground">{card.title}</h5>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center justify-between">
+                            <h5 className="font-medium text-foreground">{card.title}</h5>
+                            <CompletionIndicator status={getStatus(card.title)} />
+                          </div>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
+                        <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             </div>
-            <div></div>
           </Card>
         </div>
       </section>
