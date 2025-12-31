@@ -324,14 +324,6 @@ export function DisclosureTopics({
   // Use the custom hook for topic completion status
   const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
-  // Debug useEffect (can be removed in production)
-  useEffect(() => {
-    console.log("=== DISCLOSURE TOPICS DEBUG ===");
-    console.log("Full assessment data:", state.assessmentData);
-    console.log("Environment data:", state.assessmentData?.environment);
-    console.log("Biodiversity path:", state.assessmentData?.environment?.biodiversityImpact);
-  }, [state.assessmentData]);
-
   const handleCardClick = (cardTitle: string) => {
     switch (cardTitle) {
       case "Greenhouse Gas Emissions":
