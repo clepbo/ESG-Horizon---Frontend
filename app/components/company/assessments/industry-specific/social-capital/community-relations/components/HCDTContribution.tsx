@@ -1,18 +1,18 @@
-"use client";
-
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { PagetitleAndDescription } from "./PagetitleAndDescription";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
-import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
-import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
-import { Textarea } from "@/app/components/ui/textarea";
-import { Label } from "@/app/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle2, Save } from "lucide-react";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { Label } from "@/app/components/ui/label";
+import { Input } from "@/app/components/ui/input";
+import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
+import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 
 interface Props {
@@ -23,21 +23,24 @@ interface Props {
   totalSteps: number;
 }
 
-export default function CommunityRisk({
+export default function HCDTContribution({
   onBack,
   onDisclosureTopics,
   onNext,
   stepIndex,
   totalSteps,
 }: Props) {
+  const opexAmount = useFormattedNumber("");
+  const hcdtAmount = useFormattedNumber("");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
-    hcdtIncorporated: "",
-    riskDescription: "",
+    opexUnit: "NGN",
+    hcdtUnit: "NGN",
   });
 
   const features = [
@@ -45,7 +48,7 @@ export default function CommunityRisk({
     { label: "Assessments", href: "/assessments/hub" },
     { label: "Disclosure topics", onClick: onDisclosureTopics },
     { label: "Community Relations", onClick: onBack },
-    { label: "Community Risk & Opportunity Management" },
+    { label: "HCDT Contribution (PIA 2021)" },
   ];
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -56,25 +59,28 @@ export default function CommunityRisk({
 
   // Calculate progress
   const progress = useMemo(() => {
-    const hasHcdtAnswer = formData.hcdtIncorporated !== "";
-    const hasDescription = formData.riskDescription.trim() !== "";
+    const hasOpexAmount = opexAmount.rawValue !== "" && formData.opexUnit !== "";
+    const hasHcdtAmount = hcdtAmount.rawValue !== "" && formData.hcdtUnit !== "";
 
-    const completed = [hasHcdtAnswer, hasDescription].filter(Boolean).length;
+    const completed = [hasOpexAmount, hasHcdtAmount].filter(Boolean).length;
     return completed;
-  }, [formData.hcdtIncorporated, formData.riskDescription]);
+  }, [opexAmount.rawValue, hcdtAmount.rawValue, formData.opexUnit, formData.hcdtUnit]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.hcdtIncorporated) {
-      newErrors.hcdtIncorporated = "Please select Yes or No";
+    if (!opexAmount.rawValue) {
+      newErrors.opexAmount = "OPEX amount is required";
+    }
+    if (!formData.opexUnit) {
+      newErrors.opexUnit = "Unit is required";
     }
 
-    if (!formData.riskDescription.trim()) {
-      newErrors.riskDescription = "Risk management description is required";
-    } else if (formData.riskDescription.trim().length < 50) {
-      newErrors.riskDescription =
-        "Please provide a more detailed description (at least 50 characters)";
+    if (!hcdtAmount.rawValue) {
+      newErrors.hcdtAmount = "HCDT amount is required";
+    }
+    if (!formData.hcdtUnit) {
+      newErrors.hcdtUnit = "Unit is required";
     }
 
     setErrors(newErrors);
@@ -83,17 +89,21 @@ export default function CommunityRisk({
 
   const handleSaveAndContinue = async () => {
     const payload = {
-      hcdtIncorporated: formData.hcdtIncorporated,
-      riskDescription: formData.riskDescription,
+      opexAmount: Number(opexAmount.rawValue),
+      opexUnit: formData.opexUnit,
+      hcdtAmount: Number(hcdtAmount.rawValue),
+      hcdtUnit: formData.hcdtUnit,
       filesAndLinks: filesAndLinks,
     };
 
     setIsActionLoading(true);
 
     // Log the data
-    console.log("=== Community Risk & Opportunity Management Data ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
+    console.log("=== HCDT Contribution Data ===");
+    console.log("OPEX Amount:", payload.opexAmount);
+    console.log("OPEX Unit:", payload.opexUnit);
+    console.log("HCDT Amount:", payload.hcdtAmount);
+    console.log("HCDT Unit:", payload.hcdtUnit);
     console.log("Files and Links:", payload.filesAndLinks);
     console.log("Full Payload:", payload);
     console.log("=============================");
@@ -117,15 +127,19 @@ export default function CommunityRisk({
     }
 
     const payload = {
-      hcdtIncorporated: formData.hcdtIncorporated,
-      riskDescription: formData.riskDescription,
+      opexAmount: Number(opexAmount.rawValue),
+      opexUnit: formData.opexUnit,
+      hcdtAmount: Number(hcdtAmount.rawValue),
+      hcdtUnit: formData.hcdtUnit,
       filesAndLinks: filesAndLinks,
     };
 
     // Log the data
-    console.log("=== Community Risk & Opportunity Management Data (Next) ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
+    console.log("=== HCDT Contribution Data (Next) ===");
+    console.log("OPEX Amount:", payload.opexAmount);
+    console.log("OPEX Unit:", payload.opexUnit);
+    console.log("HCDT Amount:", payload.hcdtAmount);
+    console.log("HCDT Unit:", payload.hcdtUnit);
     console.log("Files and Links:", payload.filesAndLinks);
     console.log("Full Payload:", payload);
     console.log("====================================");
@@ -148,10 +162,10 @@ export default function CommunityRisk({
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
-            <h3 className="text-2xl font-semibold">Community Risk & Opportunity Management</h3>
+            <h3 className="text-2xl font-semibold">HCDT Contribution (PIA 2021)</h3>
             <p className="text-muted-foreground text-base">
-              Describe your organization's process for managing risks and opportunities related to
-              the rights and interests of the communities where you operate.
+              Report your company's annual contribution to the Host Community Development Trust
+              (HCDT) as mandated by the Petroleum Industry Act (PIA) 2021.
             </p>
           </div>
         </div>
@@ -166,94 +180,111 @@ export default function CommunityRisk({
               isSubmitted={false}
             />
 
-            {/* HCDT Incorporation Question */}
+            {/* Prior Year's Actual Operating Expenditure */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-semibold">
-                  Have Host Community Development Trusts (HCDTs) been fully incorporated and funded
-                  for all assets?
+                  Prior Year's Actual Operating Expenditure (OPEX)
                 </Label>
 
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title="HCDT Incorporation Status"
-                      message="Indicate whether your company has established and funded Host Community Development Trusts for all relevant oil and gas assets as required by the PIA 2021."
+                      title="Prior Year's Actual OPEX"
+                      message="Enter the 3% OPEX basis from the preceding financial year as defined in the Petroleum Industry Act 2021."
                     />
                   }
                 />
               </div>
 
               <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hcdtIncorporated"
-                      value="yes"
-                      checked={formData.hcdtIncorporated === "yes"}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="opexAmount">Amount</Label>
+                    <Input
+                      id="opexAmount"
+                      type="text"
+                      placeholder="e.g., 110,666,666,667"
+                      value={opexAmount.displayValue}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, hcdtIncorporated: e.target.value }));
-                        setErrors((prev) => ({ ...prev, hcdtIncorporated: "" }));
+                        opexAmount.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, opexAmount: "" }));
                       }}
-                      className="w-4 h-4 text-primary"
+                      className={errors.opexAmount ? "border-red-500" : ""}
                     />
-                    <span>Yes</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hcdtIncorporated"
-                      value="no"
-                      checked={formData.hcdtIncorporated === "no"}
+                    {errors.opexAmount && (
+                      <p className="text-sm text-red-500">{errors.opexAmount}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="opexUnit">Unit</Label>
+                    <Input
+                      id="opexUnit"
+                      type="text"
+                      value={formData.opexUnit}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, hcdtIncorporated: e.target.value }));
-                        setErrors((prev) => ({ ...prev, hcdtIncorporated: "" }));
+                        setFormData((prev) => ({ ...prev, opexUnit: e.target.value }));
+                        setErrors((prev) => ({ ...prev, opexUnit: "" }));
                       }}
-                      className="w-4 h-4 text-primary"
+                      readOnly
+                      className="bg-gray-50"
                     />
-                    <span>No</span>
-                  </label>
+                    {errors.opexUnit && <p className="text-sm text-red-500">{errors.opexUnit}</p>}
+                  </div>
                 </div>
-                {errors.hcdtIncorporated && (
-                  <p className="text-sm text-red-500">{errors.hcdtIncorporated}</p>
-                )}
               </div>
             </div>
 
-            {/* Risk Management Description */}
+            {/* Total Annual Contribution to HCDT */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold">
-                  Description of Community Risk Management Process
-                </Label>
+                <Label className="text-base font-semibold">Total Annual Contribution to HCDT</Label>
 
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title="Community Risk Management Process"
-                      message="Provide an overview of how your company identifies, evaluates, and manages risks related to local communities. This may include stakeholder engagement plans, grievance mechanisms, social impact assessments, conflict-prevention strategies, and processes for responding to community concerns. The goal is to show how your company protects community well-being while reducing operational and reputational risks."
+                      title="Total Annual Contribution to HCDT"
+                      message="Enter the total amount paid into the established Host Community Development Trust fund(s) for the reporting year."
                     />
                   }
                 />
               </div>
 
               <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <Textarea
-                  value={formData.riskDescription}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, riskDescription: e.target.value }));
-                    setErrors((prev) => ({ ...prev, riskDescription: "" }));
-                  }}
-                  placeholder="e.g., Our primary process is the implementation of Host Community Development Trusts (HCDTs) as required by the PIA 2021, which funds community projects and provides a formal grievance mechanism..."
-                  className={`min-h-37.5 ${errors.riskDescription ? "border-red-500" : ""}`}
-                />
-                {errors.riskDescription && (
-                  <p className="text-sm text-red-500">{errors.riskDescription}</p>
-                )}
-                <p className="text-sm text-gray-500">
-                  {formData.riskDescription.length} characters
-                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="hcdtAmount">Amount</Label>
+                    <Input
+                      id="hcdtAmount"
+                      type="text"
+                      placeholder="e.g., 3,500,000,000"
+                      value={hcdtAmount.displayValue}
+                      onChange={(e) => {
+                        hcdtAmount.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, hcdtAmount: "" }));
+                      }}
+                      className={errors.hcdtAmount ? "border-red-500" : ""}
+                    />
+                    {errors.hcdtAmount && (
+                      <p className="text-sm text-red-500">{errors.hcdtAmount}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="hcdtUnit">Unit</Label>
+                    <Input
+                      id="hcdtUnit"
+                      type="text"
+                      value={formData.hcdtUnit}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, hcdtUnit: e.target.value }));
+                        setErrors((prev) => ({ ...prev, hcdtUnit: "" }));
+                      }}
+                      readOnly
+                      className="bg-gray-50"
+                    />
+                    {errors.hcdtUnit && <p className="text-sm text-red-500">{errors.hcdtUnit}</p>}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -261,9 +292,8 @@ export default function CommunityRisk({
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600">
-                Upload supporting documents like Host Community Development Trust (HCDT) annual
-                reports, community grievance logs and resolution records, and minutes from HCDT
-                board meetings.
+                Upload the audited HCDT financial statements, your annual PIA compliance report
+                submitted to NUPRC, and evidence of the financial transfer to the HCDT account.
               </p>
 
               <div className="mt-6">
