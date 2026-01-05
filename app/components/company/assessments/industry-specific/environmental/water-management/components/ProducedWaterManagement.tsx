@@ -74,10 +74,10 @@ export default function ProducedWaterManagement({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    totalProducedWaterGeneratedUnit: "",
-    volumeDischargedToSurfaceUnit: "",
-    volumeInjectedForDisposalUnit: "",
-    volumeRecycledReusedUnit: "",
+    totalProducedWaterGeneratedUnit: "Cubic Meter (m3)",
+    volumeDischargedToSurfaceUnit: "Cubic Meter (m3)",
+    volumeInjectedForDisposalUnit: "Cubic Meter (m3)",
+    volumeRecycledReusedUnit: "Cubic Meter (m3)",
   });
 
   useEffect(() => {
@@ -93,10 +93,13 @@ export default function ProducedWaterManagement({
       volumeRecycledReused.handleChange(String(existingData.volumeRecycledReused || ""));
 
       setFormData({
-        totalProducedWaterGeneratedUnit: existingData.totalProducedWaterGeneratedUnit || "",
-        volumeDischargedToSurfaceUnit: existingData.volumeDischargedToSurfaceUnit || "",
-        volumeInjectedForDisposalUnit: existingData.volumeInjectedForDisposalUnit || "",
-        volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "",
+        totalProducedWaterGeneratedUnit:
+          existingData.totalProducedWaterGeneratedUnit || "Cubic Meter (m3)",
+        volumeDischargedToSurfaceUnit:
+          existingData.volumeDischargedToSurfaceUnit || "Cubic Meter (m3)",
+        volumeInjectedForDisposalUnit:
+          existingData.volumeInjectedForDisposalUnit || "Cubic Meter (m3)",
+        volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "Cubic Meter (m3)",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
@@ -120,6 +123,41 @@ export default function ProducedWaterManagement({
     volumeDischargedToSurface.rawValue,
     volumeInjectedForDisposal.rawValue,
     volumeRecycledReused.rawValue,
+  ]);
+
+  const { filled, total } = useMemo(() => {
+    const hasTotalProducedWaterGenerated =
+      totalProducedWaterGenerated.rawValue !== "" &&
+      formData.totalProducedWaterGeneratedUnit !== "";
+
+    const hasVolumeDischargedToSurface =
+      volumeDischargedToSurface.rawValue !== "" && formData.volumeDischargedToSurfaceUnit !== "";
+
+    const hasVolumeInjectedForDisposal =
+      volumeInjectedForDisposal.rawValue !== "" && formData.volumeInjectedForDisposalUnit !== "";
+
+    const hasVolumeRecycledReused =
+      volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
+
+    const hasEvidence = filesAndLinks.length > 0;
+
+    return calculateProgress([
+      hasTotalProducedWaterGenerated,
+      hasVolumeDischargedToSurface,
+      hasVolumeInjectedForDisposal,
+      hasVolumeRecycledReused,
+      hasEvidence,
+    ]);
+  }, [
+    totalProducedWaterGenerated.rawValue,
+    volumeDischargedToSurface.rawValue,
+    volumeInjectedForDisposal.rawValue,
+    volumeRecycledReused.rawValue,
+    formData.totalProducedWaterGeneratedUnit,
+    formData.volumeDischargedToSurfaceUnit,
+    formData.volumeInjectedForDisposalUnit,
+    formData.volumeRecycledReusedUnit,
+    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -157,45 +195,16 @@ export default function ProducedWaterManagement({
     return Object.keys(newErrors).length === 0;
   };
 
-  useMemo(() => {
-    const hasTotalProducedWaterGenerated =
-      totalProducedWaterGenerated.rawValue !== "" &&
-      formData.totalProducedWaterGeneratedUnit !== "";
-
-    const hasVolumeDischargedToSurface =
-      volumeDischargedToSurface.rawValue !== "" && formData.volumeDischargedToSurfaceUnit !== "";
-
-    const hasVolumeInjectedForDisposal =
-      volumeInjectedForDisposal.rawValue !== "" && formData.volumeInjectedForDisposalUnit !== "";
-
-    const hasVolumeRecycledReused =
-      volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
-
-    // const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([
-      hasTotalProducedWaterGenerated,
-      hasVolumeDischargedToSurface,
-      hasVolumeInjectedForDisposal,
-      hasVolumeRecycledReused,
-      // hasEvidence,
-    ]);
-  }, [
-    totalProducedWaterGenerated.rawValue,
-    volumeDischargedToSurface.rawValue,
-    volumeInjectedForDisposal.rawValue,
-    volumeRecycledReused.rawValue,
-    formData.totalProducedWaterGeneratedUnit,
-    formData.volumeDischargedToSurfaceUnit,
-    formData.volumeInjectedForDisposalUnit,
-    formData.volumeRecycledReusedUnit,
-  ]);
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSaveAndContinue = async () => {
+    if (!validateForm()) {
+      toast.error("Please fix the errors before saving.");
+      return;
+    }
+
     const payload = {
       totalProducedWaterGenerated: Number(totalProducedWaterGenerated.rawValue),
       totalProducedWaterGeneratedUnit: formData.totalProducedWaterGeneratedUnit,
@@ -255,10 +264,12 @@ export default function ProducedWaterManagement({
     };
 
     dispatch({ type: "UPDATE_WATER_PRODUCED", payload });
+    toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
 
   const handlePrevious = () => {
+    // toast.info("Returning to previous section");
     onBack();
   };
 
@@ -269,7 +280,7 @@ export default function ProducedWaterManagement({
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={features} />
-      <div className="max-w-5xl mx-auto space-y-6 ">
+      <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
             <h3 className="text-2xl font-semibold">Produced Water Management</h3>
@@ -288,16 +299,15 @@ export default function ProducedWaterManagement({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={1}
-              totalFields={4}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
+
             <ReusableInput
-              label={"Total Produced Water Generated"}
-              tooltipTitle={"Total Produced Water Generated"}
-              tooltipBody={
-                "Total volume of water that comes to the surface during oil and gas production activities. Includes formation water, injected water, and flowback from wells."
-              }
+              label="Total Produced Water Generated"
+              tooltipTitle="Total Produced Water Generated"
+              tooltipBody="Total volume of water that comes to the surface during oil and gas production activities. Includes formation water, injected water, and flowback from wells."
               inputValue={totalProducedWaterGenerated.displayValue}
               unitValue={formData.totalProducedWaterGeneratedUnit}
               onInputChange={(num) => {
@@ -311,14 +321,14 @@ export default function ProducedWaterManagement({
               error={errors.totalProducedWaterGenerated}
               unitError={errors.totalProducedWaterGeneratedUnit}
               formatNumbers={false}
+              customUnit="Cubic Meter (m3)"
+              placeholder="e.g., 5000"
             />
 
             <ReusableInput
-              label={"Volume Discharged to Surface"}
-              tooltipTitle={"Volume Discharged to Surface"}
-              tooltipBody={
-                "Produced water discharged to surface water bodies such as rivers, lakes, or oceans after treatment, in compliance with regulatory limits. Report total discharge volume for the reporting period."
-              }
+              label="Volume Discharged to Surface"
+              tooltipTitle="Volume Discharged to Surface"
+              tooltipBody="Produced water discharged to surface water bodies such as rivers, lakes, or oceans after treatment, in compliance with regulatory limits. Report total discharge volume for the reporting period."
               inputValue={volumeDischargedToSurface.displayValue}
               unitValue={formData.volumeDischargedToSurfaceUnit}
               onInputChange={(num) => {
@@ -332,14 +342,14 @@ export default function ProducedWaterManagement({
               error={errors.volumeDischargedToSurface}
               unitError={errors.volumeDischargedToSurfaceUnit}
               formatNumbers={false}
+              customUnit="Cubic Meter (m3)"
+              placeholder="e.g., 1200"
             />
 
             <ReusableInput
-              label={"Volume Injected for Disposal"}
-              tooltipTitle={"Volume Injected for Disposal"}
-              tooltipBody={
-                "Produced water permanently injected into underground formations or disposal wells. Commonly used when treatment or discharge is not feasible."
-              }
+              label="Volume Injected for Disposal"
+              tooltipTitle="Volume Injected for Disposal"
+              tooltipBody="Produced water permanently injected into underground formations or disposal wells. Commonly used when treatment or discharge is not feasible."
               inputValue={volumeInjectedForDisposal.displayValue}
               unitValue={formData.volumeInjectedForDisposalUnit}
               onInputChange={(num) => {
@@ -353,14 +363,14 @@ export default function ProducedWaterManagement({
               error={errors.volumeInjectedForDisposal}
               unitError={errors.volumeInjectedForDisposalUnit}
               formatNumbers={false}
+              customUnit="Cubic Meter (m3)"
+              placeholder="e.g., 2500"
             />
 
             <ReusableInput
-              label={"Volume Recycled/Reused"}
-              tooltipTitle={"Volume Recycled/Reused"}
-              tooltipBody={
-                "Produced water treated and reused for operational purposes—for example, reinjection for enhanced oil recovery, drilling, or hydraulic fracturing. Report how much water was recovered instead of disposed."
-              }
+              label="Volume Recycled/Reused"
+              tooltipTitle="Volume Recycled/Reused"
+              tooltipBody="Produced water treated and reused for operational purposes—for example, reinjection for enhanced oil recovery, drilling, or hydraulic fracturing. Report how much water was recovered instead of disposed."
               inputValue={volumeRecycledReused.displayValue}
               unitValue={formData.volumeRecycledReusedUnit}
               onInputChange={(num) => {
@@ -374,11 +384,17 @@ export default function ProducedWaterManagement({
               error={errors.volumeRecycledReused}
               unitError={errors.volumeRecycledReusedUnit}
               formatNumbers={false}
+              customUnit="Cubic Meter (m3)"
+              placeholder="e.g., 1300"
             />
 
             {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
+              <p className="text-sm text-gray-600">
+                Upload supporting documents like produced water management reports, discharge
+                permits, and disposal well records.
+              </p>
 
               <div className="mt-6">
                 <AddMoreFilesLinks
@@ -398,7 +414,7 @@ export default function ProducedWaterManagement({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"

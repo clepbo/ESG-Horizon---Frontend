@@ -634,8 +634,8 @@ export function AssessmentDetailsModal({
                                   ?.freshwaterWithdrawals?.totalWithdrawal ||
                                 env.waterManagement?.waterAndProducedWaterManagement
                                   ?.freshwaterWithdrawals?.withdrawalfromSurfaceWater +
-                                env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.freshwaterWithdrawals?.withdrawalfromGroundwater ||
+                                  env.waterManagement?.waterAndProducedWaterManagement
+                                    ?.freshwaterWithdrawals?.withdrawalfromGroundwater ||
                                 env.waterManagement?.waterAndProducedWaterManagement
                                   ?.freshwaterWithdrawals?.calculated?.total_withdrawal
                               }

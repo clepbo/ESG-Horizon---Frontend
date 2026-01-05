@@ -30,6 +30,20 @@ const nextConfig: NextConfig = {
     loaderFile: "./image-loader.ts",
     formats: ["image/avif", "image/webp"], // Modern formats (so our guy can bundle image better)
     minimumCacheTTL: 60,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 
   webpack(config, { isServer, dev }) {

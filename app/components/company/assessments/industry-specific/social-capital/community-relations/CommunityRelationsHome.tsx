@@ -24,7 +24,6 @@ interface Props {
 export default function CommunityRelationsHome({
   onBack,
   backToAssessmentHub,
-  onContinue,
   backToDisclosureTopics,
 }: Props) {
   const [currentView, setCurrentView] = useState<string>("");
