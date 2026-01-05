@@ -29,18 +29,25 @@ export function EmissionsSummaryCard() {
     let scope1 = 0;
     let scope2 = 0;
 
+    const env = assessmentData.environment;
+    const ghg = env?.ghg;
+    const scope1Data = ghg?.scope1;
+    const scope2Data = ghg?.scope2;
+    const locationBased = scope2Data?.locationBased;
+    const marketBased = scope2Data?.marketBased;
+
     // Calculate Scope 1 emissions
-    if (assessmentData.stationarySources) {
+    if (scope1Data?.stationarySources) {
       const { electricityHeat, industrialProcesses, oilGasOperations } =
-        assessmentData.stationarySources;
+        scope1Data.stationarySources;
       scope1 += calculateSourceEmissions(electricityHeat?.dieselGenerators);
       scope1 += calculateSourceEmissions(electricityHeat?.gasTurbines);
       scope1 += calculateSourceEmissions(industrialProcesses?.boilerFurnaces);
       scope1 += calculateSourceEmissions(oilGasOperations?.onShoreProduction);
     }
 
-    if (assessmentData.mobileSources) {
-      const { roadTransport, vehicleEquipment, marineAviation } = assessmentData.mobileSources;
+    if (scope1Data?.mobileSources) {
+      const { roadTransport, vehicleEquipment, marineAviation } = scope1Data.mobileSources;
       scope1 += calculateSourceEmissions(roadTransport?.vehicleFleet);
       scope1 += calculateSourceEmissions(roadTransport?.carsBuses);
       scope1 += calculateSourceEmissions(vehicleEquipment?.forkliftFuelType);
@@ -50,8 +57,8 @@ export function EmissionsSummaryCard() {
       scope1 += calculateSourceEmissions(marineAviation?.marine);
     }
 
-    if (assessmentData.processEmissions) {
-      const { cementManufacturing, gasFlaring } = assessmentData.processEmissions;
+    if (scope1Data?.processEmissions) {
+      const { cementManufacturing, gasFlaring } = scope1Data.processEmissions;
 
       const cementEmissions = toNumber(cementManufacturing?.cementQuantity) * 0.44; // Example factor
       if (!isNaN(cementEmissions)) scope1 += cementEmissions;
@@ -61,8 +68,8 @@ export function EmissionsSummaryCard() {
       if (!isNaN(gasFlaringEmissions)) scope1 += gasFlaringEmissions;
     }
 
-    if (assessmentData.fugitiveEmissions) {
-      const { ventingNaturalGas, hfcLeaks } = assessmentData.fugitiveEmissions;
+    if (scope1Data?.fugitiveEmissions) {
+      const { ventingNaturalGas, hfcLeaks } = scope1Data.fugitiveEmissions;
 
       const ventingEmissions = toNumber(ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
       if (!isNaN(ventingEmissions)) scope1 += ventingEmissions;
@@ -72,17 +79,26 @@ export function EmissionsSummaryCard() {
     }
 
     // Calculate Scope 2 emissions
-    const { electricity, cooling, steam, heating, ipps, eac, residual, coolingSteam } =
-      assessmentData;
+    if (locationBased) {
+      scope2 += toNumber(locationBased.electricity?.electricityConsumed) * 0.35;
+      scope2 += toNumber(locationBased.cooling?.coolingConsumed) * 0.1;
+      scope2 += toNumber(locationBased.steam?.volume) * 0.2;
+      scope2 += toNumber(locationBased.heating?.heatingPurchased) * 0.15;
+    }
 
-    scope2 += toNumber(electricity?.electricityConsumed) * 0.35; // Example factor
-    scope2 += toNumber(cooling?.coolingConsumed) * 0.1; // Example factor
-    scope2 += toNumber(steam?.volume) * 0.2; // Example factor
-    scope2 += toNumber(heating?.heatingPurchased) * 0.15; // Example factor
-    scope2 += toNumber(ipps?.electricityConsumed) * toNumber(ipps?.emissionFactor);
-    scope2 += toNumber(eac?.gridElectricity) * toNumber(eac?.emissionFactor);
-    scope2 += toNumber(residual?.electricityConsumed) * toNumber(residual?.residualMixFactor);
-    scope2 += toNumber(coolingSteam?.energyConsumed) * toNumber(coolingSteam?.emissionFactor);
+    if (marketBased) {
+      scope2 +=
+        toNumber(marketBased.ipps?.electricityConsumed) *
+        toNumber(marketBased.ipps?.emissionFactor);
+      scope2 +=
+        toNumber(marketBased.eac?.gridElectricity) * toNumber(marketBased.eac?.emissionFactor);
+      scope2 +=
+        toNumber(marketBased.residual?.electricityConsumed) *
+        toNumber(marketBased.residual?.residualMixFactor);
+      scope2 +=
+        toNumber(marketBased.coolingSteam?.energyConsumed) *
+        toNumber(marketBased.coolingSteam?.emissionFactor);
+    }
 
     const total = scope1 + scope2;
     const previousYear = total * 1.1; // arbitrary comparison to show trend

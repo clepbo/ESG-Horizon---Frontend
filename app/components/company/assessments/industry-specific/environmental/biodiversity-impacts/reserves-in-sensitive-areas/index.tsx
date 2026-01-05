@@ -18,11 +18,14 @@ import { toast } from "react-toastify";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { uploadService } from "@/services/upload.service";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/navigation";
 
 interface ReservesInSensitiveAreasProps {
   onBack: () => void;
@@ -40,16 +43,23 @@ export default function ReservesInSensitiveAreas({
   stepIndex,
   totalSteps,
   breadcrumb,
-  onSubmit,
+  onSubmit: _onSubmit,
 }: ReservesInSensitiveAreasProps) {
+  const router = useRouter();
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedReservesSensitiveVolume = useFormattedNumber("");
   const totalProbableReservesVolume = useFormattedNumber("");
   const probableReservesSensitiveVolume = useFormattedNumber("");
 
+  const { state, dispatch } = useAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("reserves-in-sensitive-areas");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -64,6 +74,34 @@ export default function ReservesInSensitiveAreas({
     totalProbableReservesUnit: "",
     probableReservesSensitiveUnit: "",
   });
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+        ?.reservesInSensitiveAreas;
+    if (existingData && Object.keys(existingData).length > 0) {
+      totalProvedReservesVolume.handleChange(String(existingData.totalProvedReservesVolume || ""));
+      provedReservesSensitiveVolume.handleChange(
+        String(existingData.provedReservesSensitiveVolume || "")
+      );
+      totalProbableReservesVolume.handleChange(
+        String(existingData.totalProbableReservesVolume || "")
+      );
+      probableReservesSensitiveVolume.handleChange(
+        String(existingData.probableReservesSensitiveVolume || "")
+      );
+      setFormData({
+        totalProvedReservesUnit: existingData.totalProvedReservesUnit || "",
+        provedReservesSensitiveUnit: existingData.provedReservesSensitiveUnit || "",
+        totalProbableReservesUnit: existingData.totalProbableReservesUnit || "",
+        probableReservesSensitiveUnit: existingData.probableReservesSensitiveUnit || "",
+      });
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+  }, [
+    state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+      ?.reservesInSensitiveAreas,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasTotalProvedReserves =
@@ -137,15 +175,7 @@ export default function ReservesInSensitiveAreas({
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleSaveAndContinue = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
-    setShowSaveSuccess(true);
-    setIsSaving(true);
-
+  const handleSaveAndContinue = async () => {
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
@@ -162,15 +192,27 @@ export default function ReservesInSensitiveAreas({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("DATA TO SAVE:", payload);
+    dispatch({ type: "UPDATE_BIODIVERSITY_RESERVES", payload });
 
-    toast.success("Progress saved! You can continue later.");
-    setIsSaving(false);
+    try {
+      await saveNow(
+        "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments");
+      }, 1500);
+    } catch {
+      // toast.error is already handled in useAssessmentFlow
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before submitting.");
       return;
     }
 
@@ -190,15 +232,21 @@ export default function ReservesInSensitiveAreas({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("FINAL SUBMISSION:", payload);
+    dispatch({ type: "UPDATE_BIODIVERSITY_RESERVES", payload });
 
-    toast.success("Assessment completed successfully!");
-    onSubmit(null);
-    setTimeout(() => onContinueToNextAssessment(), 1500);
+    try {
+      await saveNow(
+        "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
+        payload
+      );
+      await submitGroup();
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to submit biodiversity assessment");
+    }
   };
 
   const handlePrevious = () => {
-    toast.info("Returning to previous section");
     onBack();
   };
 
@@ -525,10 +573,10 @@ export default function ReservesInSensitiveAreas({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -549,7 +597,7 @@ export default function ReservesInSensitiveAreas({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Submit

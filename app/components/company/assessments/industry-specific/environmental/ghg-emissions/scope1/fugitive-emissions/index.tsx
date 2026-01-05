@@ -6,6 +6,7 @@ import { HFCLeaks } from "./HFCLeaks";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface FugitiveEmissionsFormProps {
   onBack: () => void;
@@ -29,6 +30,16 @@ export function FugitiveEmissionsForm({
 
   const isAssignedTask = state.isAssignedTask || false;
 
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Fugitive Emissions", onClick: handleBackToOverview },
+  ];
+
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -50,6 +61,7 @@ export function FugitiveEmissionsForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Venting Natural Gas" }]}
       />
     );
   }
@@ -73,6 +85,7 @@ export function FugitiveEmissionsForm({
         stepIndex={2}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "HFC Leaks" }]}
       />
     );
   }

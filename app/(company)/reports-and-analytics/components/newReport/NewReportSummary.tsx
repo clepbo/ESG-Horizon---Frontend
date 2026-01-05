@@ -1,7 +1,7 @@
 import { Card } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { GoDotFill, GoDownload } from "react-icons/go";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import ReportOverview from "./ReportOverview";
 import ReportEnvironmental from "./ReportEnvironmental";
@@ -9,9 +9,48 @@ import SocialCapital from "./SocialCapital";
 import ReportHumanCapital from "./ReportHumanCapital";
 import BusinessModelPillar from "./BusinessModelPillar";
 import ReportLeadershipPillar from "./ReportLeadershipPillar";
+import { ReportResponse } from "@/types/report/reportResponse";
+import { useParams } from "next/navigation";
+import { useSingleReport } from "../service/useReport";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import ReportEmptyState from "../ReportEmptyState";
+import { formatStatus } from "@/lib/utils";
 
 export default function NewReportSummary() {
   const [view, setView] = useState("overview");
+
+  const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+
+  const params = useParams();
+  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+
+  useEffect(() => {
+    setReportData(data);
+  }, [data]);
+
+  // console.log("ReportOverview Data", reportData);
+
+  if (isError) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-red-500">
+        Failed to load report.
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-500">
+        <CardSkeleton />
+      </div>
+    );
+  }
+  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
+    return (
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">
+        <ReportEmptyState />
+      </div>
+    );
+  }
 
   const bg = {
     progress: "bg-orange-300",
@@ -35,16 +74,19 @@ export default function NewReportSummary() {
           <div className="flex items-center gap-2 justify-start">
             <span className="text-start">ESG Performance Report</span>
             <span className={`rounded-3xl p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}>
-              Completed
+              {formatStatus(reportData?.status ?? "progress")}
             </span>
           </div>
 
           <div className="flex gap-2 lg:gap-4 items-center">
-            <span>Dangote Sugar</span>
+            <span> {reportData?.report?.subsidiary} </span>
             <span>
               <GoDotFill className="text-gray-500" />
             </span>
-            <span>Jan 2025 - Dec 2025</span>
+            <span>
+              {" "}
+              {` ${reportData?.report?.startMonth} ${reportData?.report?.startYear} - ${reportData?.report?.endMonth} ${reportData?.report?.endYear}`}{" "}
+            </span>
           </div>
         </div>
 

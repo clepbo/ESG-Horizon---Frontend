@@ -22,6 +22,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface HFCLeaksProps {
   onBack: () => void;
@@ -30,6 +31,7 @@ interface HFCLeaksProps {
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -46,10 +48,11 @@ export function HFCLeaks({
   stepIndex,
   totalSteps,
   isSubmitted,
+  breadcrumb,
 }: HFCLeaksProps) {
   const { state, dispatch } = useAssessment();
 
-  const hfcLeaks = state.assessmentData.fugitiveEmissions?.hfcLeaks;
+  const hfcLeaks = state.assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.hfcLeaks;
 
   // Use formatted number hooks for numeric fields
   const others = useFormattedNumber(hfcLeaks?.others?.toString() ?? "");
@@ -229,12 +232,12 @@ export function HFCLeaks({
     };
 
     dispatch({
-      type: "UPDATE_FUGITIVE_HFC_LEAKS",
+      type: "UPDATE_FUGITIVE_HFC",
       payload,
     });
 
     try {
-      await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
+      await saveNow("environment.ghg.scope1.fugitiveEmissions.hfcLeaks", payload);
       setShowSaveSuccess(true);
       if (isAssignedTask) {
         dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
@@ -273,12 +276,12 @@ export function HFCLeaks({
     };
 
     dispatch({
-      type: "UPDATE_FUGITIVE_HFC_LEAKS",
+      type: "UPDATE_FUGITIVE_HFC",
       payload,
     });
 
     try {
-      await saveNow("environment.ghg.fugitiveEmissions.hfcLeaks", payload);
+      await saveNow("environment.ghg.scope1.fugitiveEmissions.hfcLeaks", payload);
       const res = await submitGroup();
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
@@ -289,20 +292,6 @@ export function HFCLeaks({
   };
 
   const handlePrevious = () => {
-    const payload = {
-      R134a: formState.R134a,
-      R410A: formState.R410A,
-      R404A: formState.R404A,
-      R407C: formState.R407C,
-      R507A: formState.R507A,
-      others: Number(others.rawValue) || 0,
-      refrigerantAdded: Number(refrigerantAdded.rawValue),
-      files: files,
-      additionalFields: additionalFields as FileMetadata[],
-    };
-
-    dispatch({ type: "UPDATE_FUGITIVE_HFC_LEAKS", payload });
-
     onBack();
   };
 
@@ -381,7 +370,8 @@ export function HFCLeaks({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

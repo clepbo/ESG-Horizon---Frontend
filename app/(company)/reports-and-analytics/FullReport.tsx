@@ -18,7 +18,7 @@ export default function FullReport() {
   // const { data, isLoading, error } =  useSingleReportDetail(Number(params?.id));
   const { data, isError } = useSingleReport(Number(params?.id));
 
-  // console.log("FullReport", data);
+  console.log("FullReport", data);
 
   // if (isLoading) {
   //   return (

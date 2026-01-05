@@ -22,6 +22,8 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+
 interface PurchasedHeatingFormProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -29,6 +31,7 @@ interface PurchasedHeatingFormProps {
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -45,6 +48,7 @@ export function PurchasedHeatingForm({
   stepIndex,
   totalSteps,
   isSubmitted,
+  breadcrumb,
 }: PurchasedHeatingFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -87,7 +91,7 @@ export function PurchasedHeatingForm({
   const isPending = isLoading;
 
   useEffect(() => {
-    const existingData = state.assessmentData.heating;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.heating;
 
     if (existingData) {
       setHeatingPurchased(existingData.heatingPurchased || "");
@@ -179,7 +183,7 @@ export function PurchasedHeatingForm({
     };
 
     dispatch({
-      type: "UPDATE_HEATING",
+      type: "UPDATE_LOCATION_HEATING",
       payload,
     });
 
@@ -209,13 +213,29 @@ export function PurchasedHeatingForm({
   };
 
   const handleSubmit = async () => {
-    await saveForm({ showToast: false, redirect: false });
+    const payload = {
+      heatingPurchased,
+      heatingConsumed: heatingConsumedRaw,
+      supplierName,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_LOCATION_HEATING",
+      payload,
+    });
 
     try {
+      await saveNow("environment.ghg.scope2.locationBased.purchasedHeating", payload);
       const response = await submitGroup();
-      const groupTotal = response.scopeTotals.scope2.locationBased.totalEmission || 0;
-      toast.success("Assessment submitted successfully!");
-      onSubmit(groupTotal);
+      onSubmit(response.totals);
     } catch (err) {
       toast.error("Failed to submit");
       console.error("Submission failed:", err);
@@ -223,7 +243,6 @@ export function PurchasedHeatingForm({
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -267,7 +286,8 @@ export function PurchasedHeatingForm({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         {/* Header */}
         <div className="flex items-center gap-6 mb-4">
           <Button

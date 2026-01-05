@@ -20,6 +20,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface ResidualFormProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface ResidualFormProps {
   onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -41,6 +43,7 @@ export function ResidualForm({
   onBackToHub,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: ResidualFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -87,7 +90,7 @@ export function ResidualForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.residual;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.residual;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.electricityConsumed) {
@@ -189,7 +192,7 @@ export function ResidualForm({
     };
 
     dispatch({
-      type: "UPDATE_RESIDUAL",
+      type: "UPDATE_MARKET_RESIDUAL",
       payload,
     });
 
@@ -221,12 +224,25 @@ export function ResidualForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_MARKET_RESIDUAL",
+      payload: {
+        electricityConsumed: electricityConsumedRaw,
+        residualMixFactor: residualMixFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -278,7 +294,8 @@ export function ResidualForm({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

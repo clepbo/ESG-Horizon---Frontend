@@ -45,7 +45,7 @@ const getStatusLabel = (status: TaskStatus | string) =>
 const getStatusVariant = (status: TaskStatus) => {
   switch (status) {
     case "pending":
-      return "secondary";
+      return "grey";
     case "in_progress":
       return "yellow";
     case "completed":
@@ -299,7 +299,7 @@ export function TaskTable({
         cell: (info) => {
           const status = info.getValue() as TaskStatus;
           return (
-            <Badge variant={getStatusVariant(status)} className="capitalize">
+            <Badge variant={getStatusVariant(status)} className="capitalize whitespace-nowrap">
               {getStatusLabel(status)}
             </Badge>
           );

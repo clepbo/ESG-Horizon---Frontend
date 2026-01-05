@@ -21,6 +21,13 @@ export function DataQualityIndicator() {
     let totalChecks = 0;
     let passedChecks = 0;
 
+    const env = assessmentData.environment;
+    const ghg = env?.ghg;
+    const scope1 = ghg?.scope1;
+    const scope2 = ghg?.scope2;
+    const marketBased = scope2?.marketBased;
+    const locationBased = scope2?.locationBased;
+
     // Basic info
     totalChecks += 3;
     if (assessmentData.subsidiary) passedChecks++;
@@ -34,36 +41,27 @@ export function DataQualityIndicator() {
     const hasNumeric = (obj: unknown) => {
       if (!obj || typeof obj !== "object") return false;
       return Object.values(obj as Record<string, unknown>).some(
-        (v) => typeof v === "number" && (v as number) > 0
+        (v) =>
+          (typeof v === "number" && (v as number) > 0) ||
+          (typeof v === "string" && parseFloat(v) > 0)
       );
     };
 
     // Sections
-    // This array helps to check the top-level scope 1 categories.
-    const sections: Array<{
-      name: string;
-      data:
-        | typeof assessmentData.stationarySources
-        | typeof assessmentData.mobileSources
-        | typeof assessmentData.processEmissions
-        | typeof assessmentData.fugitiveEmissions;
-    }> = [
-      { name: "Stationary Sources", data: assessmentData.stationarySources },
-      { name: "Mobile Sources", data: assessmentData.mobileSources },
-      { name: "Process Emissions", data: assessmentData.processEmissions },
-      { name: "Fugitive Emissions", data: assessmentData.fugitiveEmissions },
+    const scope1Sections = [
+      { name: "Stationary Sources", data: scope1?.stationarySources },
+      { name: "Mobile Sources", data: scope1?.mobileSources },
+      { name: "Process Emissions", data: scope1?.processEmissions },
+      { name: "Fugitive Emissions", data: scope1?.fugitiveEmissions },
     ];
 
-    sections.forEach(({ name, data }) => {
+    scope1Sections.forEach(({ name, data }) => {
       totalChecks += 2;
-      // Check if the top-level section object exists and has keys
       if (data && typeof data === "object" && Object.keys(data).length > 0) {
-        // 'data' is already typed as a specific object or undefined
         passedChecks++;
       } else {
         issues.push(`No ${name} data provided`);
       }
-      // Check for numeric values within the section's sub-objects
       if (data && typeof data === "object") {
         const hasAnyNumericInSection = Object.values(data).some(
           (subCategory) => subCategory && typeof subCategory === "object" && hasNumeric(subCategory)
@@ -71,19 +69,16 @@ export function DataQualityIndicator() {
         if (hasAnyNumericInSection) passedChecks++;
         else issues.push(`${name} has no numeric values`);
       } else {
-        issues.push(`${name} has no numeric values`); // If data itself is missing
+        issues.push(`${name} has no numeric values`);
       }
     });
 
-    // Files check (any files anywhere)
+    // Files check
     totalChecks += 1;
     let hasFiles = false;
 
-    // Function to check for 'files' property in an object
     const checkForFiles = (obj: unknown): boolean => {
       if (!obj || typeof obj !== "object") return false;
-
-      // Iterate through the keys of the object (e.g., electricityHeat, roadTransport)
       return Object.values(obj).some((subSection) => {
         if (subSection && typeof subSection === "object" && "files" in subSection) {
           const files = (subSection as { files?: { [key: string]: FileMetadata | null } }).files;
@@ -93,32 +88,21 @@ export function DataQualityIndicator() {
       });
     };
 
-    // Check each of the main Scope 1 categories
-    if (checkForFiles(assessmentData.stationarySources)) hasFiles = true;
-    if (!hasFiles && checkForFiles(assessmentData.mobileSources)) hasFiles = true;
-    if (!hasFiles && checkForFiles(assessmentData.processEmissions)) hasFiles = true;
-    if (!hasFiles && checkForFiles(assessmentData.fugitiveEmissions)) hasFiles = true;
+    if (checkForFiles(scope1?.stationarySources)) hasFiles = true;
+    if (!hasFiles && checkForFiles(scope1?.mobileSources)) hasFiles = true;
+    if (!hasFiles && checkForFiles(scope1?.processEmissions)) hasFiles = true;
+    if (!hasFiles && checkForFiles(scope1?.fugitiveEmissions)) hasFiles = true;
 
-    // Check Scope 2 files (which are different: File | null)
-    const scope2Categories = [
-      assessmentData.electricity,
-      assessmentData.cooling,
-      assessmentData.steam,
-      assessmentData.heating,
-      assessmentData.ipps,
-      assessmentData.eac,
-      assessmentData.residual,
-      assessmentData.coolingSteam,
-    ];
-
-    if (!hasFiles) {
-      // Only check if files haven't been found yet
-      hasFiles = scope2Categories.some((scope2Data) => {
-        if (scope2Data && scope2Data.files && typeof scope2Data.files === "object") {
-          return Object.values(scope2Data.files).some((file) => file instanceof File);
-        }
-        return false;
-      });
+    // Check Scope 2 files
+    if (!hasFiles && locationBased) {
+      hasFiles = Object.values(locationBased).some(
+        (item: any) => item?.files && Object.keys(item.files).length > 0
+      );
+    }
+    if (!hasFiles && marketBased) {
+      hasFiles = Object.values(marketBased).some(
+        (item: any) => item?.files && Object.keys(item.files).length > 0
+      );
     }
 
     if (hasFiles) passedChecks++;

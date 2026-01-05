@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-
 import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
@@ -21,6 +20,7 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface VehicleEquipmentProps {
   onBack: () => void;
@@ -28,6 +28,7 @@ interface VehicleEquipmentProps {
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -37,7 +38,13 @@ const uploadFields = [
   "Land area serviced (for tractors)",
 ];
 
-export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: VehicleEquipmentProps) {
+export function VehicleEquipment({
+  onBack,
+  onNext,
+  stepIndex,
+  totalSteps,
+  breadcrumb,
+}: VehicleEquipmentProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
@@ -97,27 +104,34 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
   };
 
   const [forkliftFuelType, setForkliftFuelType] = useState<SourceData[]>(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment?.forkliftFuelType;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment
+        ?.forkliftFuelType;
     return Array.isArray(existingData)
       ? existingData
       : getInitialSources([], forkliftFuelTypeOptions);
   });
 
   const [heavyDutyFuelType, setHeavyDutyFuelType] = useState<SourceData[]>(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment?.heavyDutyFuelType;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment
+        ?.heavyDutyFuelType;
     return Array.isArray(existingData)
       ? existingData
       : getInitialSources([], heavyDutyFuelTypeOptions);
   });
   const [tractorFuelType, setTractorFuelType] = useState<SourceData[]>(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment?.tractorFuelType;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment
+        ?.tractorFuelType;
     return Array.isArray(existingData)
       ? existingData
       : getInitialSources([], tractorFuelTypeOptions);
   });
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources?.vehicleEquipment;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment;
     if (existingData) {
       setForkliftFuelType(
         Array.isArray(existingData.forkliftFuelType)
@@ -140,7 +154,7 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
       setAdditionalFields(existingData.additionalFields || []);
     }
   }, [
-    state.assessmentData.mobileSources?.vehicleEquipment,
+    state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment,
     forkliftFuelTypeOptions,
     heavyDutyFuelTypeOptions,
     tractorFuelTypeOptions,
@@ -306,17 +320,6 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
     onNext();
   };
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
-      payload: {
-        forkliftFuelType,
-        heavyDutyFuelType,
-        tractorFuelType,
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
-
     onBack();
   };
 
@@ -360,7 +363,8 @@ export function VehicleEquipment({ onBack, onNext, stepIndex, totalSteps }: Vehi
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"
