@@ -397,7 +397,7 @@ export default function ChemicalDisclosure({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"

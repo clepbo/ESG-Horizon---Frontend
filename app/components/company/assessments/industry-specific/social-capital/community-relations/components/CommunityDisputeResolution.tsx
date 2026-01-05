@@ -171,7 +171,7 @@ export default function CommunityDisputeResolution({
             <h3 className="text-2xl font-semibold">Community Dispute Resolution (NUPRC ADRC)</h3>
             <p className="text-muted-foreground text-base">
               Report the number of community disputes that were referred to and resolved through the
-              NUPRC's Alternative Dispute Resolution Centre (ADRC).
+              NUPRC&apos;s Alternative Dispute Resolution Centre (ADRC).
             </p>
           </div>
         </div>
@@ -304,7 +304,7 @@ export default function CommunityDisputeResolution({
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600">
-                Upload official correspondence from the NUPRC's ADRC, internal legal reports on
+                Upload official correspondence from the NUPRC&apos;s ADRC, internal legal reports on
                 community disputes, and any settlement agreements reached through the ADRC process.
               </p>
 
