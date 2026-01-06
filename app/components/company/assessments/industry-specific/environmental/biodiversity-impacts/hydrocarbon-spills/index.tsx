@@ -64,7 +64,7 @@ export default function HydrocarbonSpills({
     }
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
-      ?.hydrocarbonSpills,
+      ?.hydrocarbonSpills, numberOfSpills,totalVolumeSpilled,volumeImpactingShorelines,volumeInArctic, volumeRecovered
   ]);
 
   useEffect(() => {

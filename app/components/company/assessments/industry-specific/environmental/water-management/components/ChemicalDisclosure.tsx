@@ -101,7 +101,7 @@ export default function ChemicalDisclosure({
     }
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
-      ?.chemicalDisclosure,
+      ?.chemicalDisclosure, numberOfWellsWithPublicDisclosure, volumeRecycledReused
   ]);
 
   const validateForm = () => {

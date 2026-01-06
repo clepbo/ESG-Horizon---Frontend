@@ -3,7 +3,6 @@ import { FaLeaf } from "react-icons/fa";
 // import EnvironmentalEmissionCard from "./environmental/EnvironmentalEmissionCard";
 import EmissionsChart from "./environmental/EmissionsChart";
 import EmissionsByScope, {
-  emissionByScopedata,
   transformGHGData,
 } from "./environmental/EmissionByScope";
 import ReductionTarget from "./environmental/ReductionTarget";

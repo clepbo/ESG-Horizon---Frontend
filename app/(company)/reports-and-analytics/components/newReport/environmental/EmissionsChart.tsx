@@ -15,18 +15,15 @@ interface EmissionPoint {
   emissions: number; // value for Y-axis
 }
 
-interface EmissionsChartProps {
-  ghgData?: any;
-}
 
-function transformHistory(ghg: any): EmissionPoint[] {
-  if (!ghg?.ghg_history) return [];
+// function transformHistory(ghg: any): EmissionPoint[] {
+//   if (!ghg?.ghg_history) return [];
 
-  return ghg.ghg_history.map((item: any) => ({
-    period: item.period,
-    emissions: item.score, // use "score" as the value
-  }));
-}
+//   return ghg.ghg_history.map((item: any) => ({
+//     period: item.period,
+//     emissions: item.score, // use "score" as the value
+//   }));
+// }
 
 // Sample data for emissions over time (replace with your actual data)
 const emissionsData = [
