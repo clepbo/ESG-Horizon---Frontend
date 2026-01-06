@@ -92,7 +92,9 @@ export default function FreshWaterWithdrawalAndConsumption({
       withdrawalfromSurfaceWater.handleChange(
         String(existingData.withdrawalfromSurfaceWater || "")
       );
-      withdrawalfromGroundwater.handleChange(String(existingData.withdrawalvalues || existingData.withdrawalfromGroundwater || ""));
+      withdrawalfromGroundwater.handleChange(
+        String(existingData.withdrawalvalues || existingData.withdrawalfromGroundwater || "")
+      );
       withdrawalfromMunicipalotherOtherSources.handleChange(
         String(existingData.withdrawalfromMunicipalotherOtherSources || "")
       );

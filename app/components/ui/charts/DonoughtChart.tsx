@@ -53,7 +53,6 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
   );
 }
 
-
 export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniDonutChartProps) {
   const data = [{ value: percentage }, { value: 100 - percentage }];
   return (

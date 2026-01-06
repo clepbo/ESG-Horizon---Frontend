@@ -139,28 +139,32 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
   const tourCards = [
     {
       title: "Complete Organization & Personal Profile",
-      description: "Set up your company and personal details to personalize your dashboard and unlock all platform features.",
+      description:
+        "Set up your company and personal details to personalize your dashboard and unlock all platform features.",
       buttonText: "Complete Profile",
       href: "/settings-esg/company",
       isCompleted: onboardingData?.checklist[0]?.isCompleted ?? false,
     },
     {
       title: "Invite Your Teams, Set Up Departments & Subsidiaries",
-      description: "Add team members, assign roles, and structure your departments or subsidiaries for seamless collaboration.",
+      description:
+        "Add team members, assign roles, and structure your departments or subsidiaries for seamless collaboration.",
       buttonText: "Start Now",
       href: "/settings-esg/subsidiaries?setup=true",
       isCompleted: onboardingData?.checklist[1]?.isCompleted ?? false,
     },
     {
       title: "Start First Assessment",
-      description: "Begin your ESG assessment and start capturing the data needed for reporting and performance tracking.",
+      description:
+        "Begin your ESG assessment and start capturing the data needed for reporting and performance tracking.",
       buttonText: "Start Now",
       href: "/assessments",
       isCompleted: onboardingData?.checklist[2]?.isCompleted ?? false,
     },
     {
       title: "View ESG Dashboard",
-      description: "See your company's ESG performance, track progress, and access key insights from all your assessments.",
+      description:
+        "See your company's ESG performance, track progress, and access key insights from all your assessments.",
       buttonText: "View Dashboard",
       href: "/dashboard-esg",
       isCompleted: onboardingData?.checklist[3]?.isCompleted ?? false,
@@ -215,7 +219,9 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
             {/* Left Sidebar: Progress Checklist */}
             <div className="w-full lg:w-[32%] flex flex-col gap-4">
               <div className="flex justify-between items-end mb-0.5 px-0.5">
-                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Set Up Progress</span>
+                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Set Up Progress
+                </span>
                 <span className="text-xs font-bold text-gray-600">{progressPercent}% Complete</span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
@@ -240,14 +246,19 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
                           </p>
                         </div>
                         <div
-                          className={`w-5.5 h-5.5 rounded flex items-center justify-center border-2 transition-colors duration-300 ${item.isCompleted
-                            ? "bg-transparent border-[var(--color-primary)] text-[var(--color-primary)]"
-                            : "bg-transparent border-gray-200 text-transparent"
-                            }`}
+                          className={`w-5.5 h-5.5 rounded flex items-center justify-center border-2 transition-colors duration-300 ${
+                            item.isCompleted
+                              ? "bg-transparent border-[var(--color-primary)] text-[var(--color-primary)]"
+                              : "bg-transparent border-gray-200 text-transparent"
+                          }`}
                         >
                           <motion.div
                             initial={false}
-                            animate={item.isCompleted ? { scale: 1, opacity: 1 } : { scale: 0.5, opacity: 0 }}
+                            animate={
+                              item.isCompleted
+                                ? { scale: 1, opacity: 1 }
+                                : { scale: 0.5, opacity: 0 }
+                            }
                           >
                             <svg
                               className="w-3.5 h-3.5"
@@ -256,7 +267,11 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
                               stroke="currentColor"
                               strokeWidth={4}
                             >
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M5 13l4 4L19 7"
+                              />
                             </svg>
                           </motion.div>
                         </div>

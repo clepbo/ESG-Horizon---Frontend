@@ -22,7 +22,6 @@ import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { useParams } from "next/navigation";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { useSingleReport } from "../service/useReport";
-import { formatNumberWithCommas } from "../utils/helpers";
 import Link from "next/link";
 import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 
@@ -41,7 +40,7 @@ export default function ReportEnvironmental() {
   const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
   const ghg = reportData?.environment_details?.ghg;
 
-  console.log("ReportOverview Data", reportData?.targets);
+  console.log("ReportOverview Data", typeof reportData?.environment_details?.ghg?.ghg_scope_1);
 
   if (isError) {
     return (
@@ -83,35 +82,27 @@ export default function ReportEnvironmental() {
             borderColor="#1e8a3d"
             bgColor="#dff9e6"
             color="#84bb94"
-            value={formatNumberWithCommas(
-              reportData?.summary?.startMonth?.environment?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_total_emissions) : "0"}
           />
           <EmissionsChart
             borderColor="#2570eb"
             bgColor="#dff9e6"
             title="Scope 1"
-            value={formatNumberWithCommas(
-              reportData?.summary?.startMonth?.environment?.ghg?.scope1?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_1) : "0"}
             color="#84bb94"
           />
           <EmissionsChart
             borderColor="#fac565"
             bgColor="#dff9e6"
             title="Scope 2"
-            value={formatNumberWithCommas(
-              reportData?.summary?.startMonth?.environment?.ghg?.scope2?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_2) : "0"}
             color="#84bb94"
           />
           <EmissionsChart
             borderColor="#af57db"
             bgColor="#dff9e6"
             title="Scope 3"
-            value={formatNumberWithCommas(
-              reportData?.summary?.startMonth?.environment?.ghg?.scope3?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_3) : "0"}
             color="#84bb94"
           />
         </div>
@@ -123,12 +114,26 @@ export default function ReportEnvironmental() {
           <div className="col-span-1 rounded-2xl shadow">
             {reportData?.targets === undefined || reportData?.targets.length === 0 ? (
               <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
-                <p className="text-gray-700">You have not set any target yet, click bellow to set a target</p>
-                <Link href={'/kpis'} className="bg-primary text-white p-4 py-1 rounded-md"> Set target </Link>
+                <p className="text-gray-700">
+                  You have not set any target yet, click bellow to set a target
+                </p>
+                <Link href={"/kpis"} className="bg-primary text-white p-4 py-1 rounded-md">
+                  {" "}
+                  Set target{" "}
+                </Link>
               </div>
             ) : reportData?.targets?.[0]?.type === "GENERAL" ? (
               <ReductionTarget />
-            ) : <ReductionTargetByScope scope1percentage={0} scope1value={0} scope2percentage={0} scope2value={0} scope3percentage={0} scope3value={0} />}
+            ) : (
+              <ReductionTargetByScope
+                scope1percentage={0}
+                scope1value={0}
+                scope2percentage={0}
+                scope2value={0}
+                scope3percentage={0}
+                scope3value={0}
+              />
+            )}
           </div>
         </div>
       </div>

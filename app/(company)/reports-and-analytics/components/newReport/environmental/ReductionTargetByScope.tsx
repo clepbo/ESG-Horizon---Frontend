@@ -20,9 +20,24 @@ export default function ReductionTargetByScope({
 }: ReductionTargetByScopeProps) {
   return (
     <div className="flex flex-col gap-2 py-3">
-      <ScopeTargetDonutChart label="Scope 1" percentage={scope1percentage} value={scope1value} color="#EF4444" />
-      <ScopeTargetDonutChart label="Scope 2" percentage={scope2percentage} value={scope2value} color="#3B82F6" />
-      <ScopeTargetDonutChart label="Scope 3" percentage={scope3percentage} value={scope3value } color="#9333EA" />
+      <ScopeTargetDonutChart
+        label="Scope 1"
+        percentage={scope1percentage}
+        value={scope1value}
+        color="#EF4444"
+      />
+      <ScopeTargetDonutChart
+        label="Scope 2"
+        percentage={scope2percentage}
+        value={scope2value}
+        color="#3B82F6"
+      />
+      <ScopeTargetDonutChart
+        label="Scope 3"
+        percentage={scope3percentage}
+        value={scope3value}
+        color="#9333EA"
+      />
     </div>
   );
 }
