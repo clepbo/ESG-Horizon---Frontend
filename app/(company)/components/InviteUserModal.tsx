@@ -41,7 +41,7 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
   useEffect(() => {
     const loadSubsidiaries = async () => {
       try {
-        const data = await subsidiariesService.getAll();
+        const data = await subsidiariesService.getCompanySubsidiaries();
         setSubsidiaries(data || []);
       } catch (err) {
         console.error("Failed to load subsidiaries", err);
@@ -108,8 +108,9 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
       setDeptInput(newDept.name);
       toast.success("Department added successfully");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to add department";
-      toast.error(message);
+      toast.error(err instanceof Error ? err.message : "Failed to add department");
+    } finally {
+      setAddingDept(false);
     }
   };
 
@@ -177,7 +178,7 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
               // show only if input doesn't exactly match the selected dept
               (!selectedDepartment ||
                 deptInput.toLowerCase() !==
-                  deptList.find((d) => d.id === selectedDepartment)?.name.toLowerCase()) && (
+                deptList.find((d) => d.id === selectedDepartment)?.name.toLowerCase()) && (
                 <div className="mt-2 rounded-md max-h-40 overflow-y-auto bg-white shadow">
                   {deptList
                     .filter((d) => d.name.toLowerCase().includes(deptInput.toLowerCase()))
@@ -188,9 +189,8 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
                           setSelectedDepartment(dept.id);
                           setDeptInput(dept.name); // fill input with name
                         }}
-                        className={`px-3 py-2 cursor-pointer hover:bg-green-50 ${
-                          selectedDepartment === dept.id ? "bg-green-200" : ""
-                        }`}
+                        className={`px-3 py-2 cursor-pointer hover:bg-green-50 ${selectedDepartment === dept.id ? "bg-green-200" : ""
+                          }`}
                       >
                         {dept.name}
                       </div>

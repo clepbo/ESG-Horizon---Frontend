@@ -188,7 +188,7 @@ export function PurchasedHeatingForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.locationBased.purchasedHeating", payload);
+      await saveNow("environment.ghg.scope2.locationBased.heating", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -213,6 +213,11 @@ export function PurchasedHeatingForm({
   };
 
   const handleSubmit = async () => {
+    // Get previous steps data from state to ensure it's saved on submission
+    const electricity = state.assessmentData.environment?.ghg?.scope2?.locationBased?.electricity;
+    const cooling = state.assessmentData.environment?.ghg?.scope2?.locationBased?.cooling;
+    const steam = state.assessmentData.environment?.ghg?.scope2?.locationBased?.steam;
+
     const payload = {
       heatingPurchased,
       heatingConsumed: heatingConsumedRaw,
@@ -233,7 +238,18 @@ export function PurchasedHeatingForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.locationBased.purchasedHeating", payload);
+      // Bulk save all steps in the group before submitting
+      if (electricity) {
+        await saveNow("environment.ghg.scope2.locationBased.electricity", electricity);
+      }
+      if (cooling) {
+        await saveNow("environment.ghg.scope2.locationBased.cooling", cooling);
+      }
+      if (steam) {
+        await saveNow("environment.ghg.scope2.locationBased.steam", steam);
+      }
+      await saveNow("environment.ghg.scope2.locationBased.heating", payload);
+
       const response = await submitGroup();
       onSubmit(response.totals);
     } catch (err) {
@@ -416,9 +432,8 @@ export function PurchasedHeatingForm({
                       }));
                     }
                   }}
-                  className={`w-full border-gray-400 ${
-                    errors.supplierName ? "border-red-500" : ""
-                  }`}
+                  className={`w-full border-gray-400 ${errors.supplierName ? "border-red-500" : ""
+                    }`}
                 />
                 {errors.supplierName && (
                   <p className="text-sm text-red-500 mt-1">{errors.supplierName}</p>

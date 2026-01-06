@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import HumanRightEngagement from "./human-right-engagement";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 
 type SHRView =
   | "overview"
@@ -71,9 +73,11 @@ export function SecurityHumanRightsAssessment({
   initialForm,
   onContinueToNextAssessment,
 }: SecurityHumanRightsAssessmentProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { dispatch } = useAssessment();
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -105,6 +109,7 @@ export function SecurityHumanRightsAssessment({
         totals={totals ?? undefined}
         nextAssessment="Community Relations"
         onContinue={onContinueToNextAssessment}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}
       />
     );
@@ -169,7 +174,18 @@ export function SecurityHumanRightsAssessment({
                   codes: EM-EP-210a.1, EM-EP-210a.2, EM-EP-210a.3
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent(
+                      "Security, Human Rights & Rights of Indigenous Peoples"
+                    )}`
+                  )
+                }
+              >
+                Assign Task
+              </Button>
             </div>
 
             <Accordion
@@ -219,9 +235,8 @@ export function SecurityHumanRightsAssessment({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-colors bg-white shadow-sm rounded-lg ${
-                            card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
-                          }`}
+                          className={`transition-colors bg-white shadow-sm rounded-lg ${card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+                            }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

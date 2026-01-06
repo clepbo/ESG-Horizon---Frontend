@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { ChevronRight, Info } from "lucide-react";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 import ReservesSensitivityForm from "./reserves-sensitivity-carbon-pricing";
 import EmbeddedCarbonInReserves from "./embedded-carbon-in-reserves";
 import RenewableEnergyInvestment from "./renewable-energy-investment";
@@ -83,12 +85,15 @@ const scopeData = [
 
 export default function ReservesValuationAssessment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: ReservesValuationAssessmentProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<RVView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { dispatch } = useAssessment();
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -123,7 +128,8 @@ export default function ReservesValuationAssessment({
         totals={totals ?? undefined}
         nextAssessment="Next Assessment"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onBackToHub={onBackToHub}
       />
     );
   }
@@ -200,7 +206,18 @@ export default function ReservesValuationAssessment({
                   EM-EP-420a.1, EM-EP-420a.2, EM-EP-420a.3, EM-EP-420a.4
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent(
+                      "Reserves Valuation & Capital Expenditures"
+                    )}`
+                  )
+                }
+              >
+                Assign Task
+              </Button>
             </div>
 
             <Accordion
@@ -261,9 +278,8 @@ export default function ReservesValuationAssessment({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-colors bg-white shadow-sm rounded-lg ${
-                            card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
-                          }`}
+                          className={`transition-colors bg-white shadow-sm rounded-lg ${card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+                            }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

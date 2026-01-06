@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { VentingNaturalGas } from "./VentingNaturalGas";
 import { HFCLeaks } from "./HFCLeaks";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
@@ -12,6 +13,7 @@ interface FugitiveEmissionsFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = ["venting-natural-gas", "hfc-leaks"] as const;
@@ -21,7 +23,9 @@ export function FugitiveEmissionsForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: FugitiveEmissionsFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "venting-natural-gas");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -46,9 +50,11 @@ export function FugitiveEmissionsForm({
         assessmentName="Fugitive Emissions"
         sectionKey="fugitiveEmissions"
         totals={totals ?? undefined}
+
         nextAssessment="Stationary Sources"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments")}
       />
     );
   }

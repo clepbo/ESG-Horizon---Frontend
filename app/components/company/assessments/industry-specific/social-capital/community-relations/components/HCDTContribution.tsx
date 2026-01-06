@@ -163,7 +163,7 @@ export default function HCDTContribution({
           <div>
             <h3 className="text-2xl font-semibold">HCDT Contribution (PIA 2021)</h3>
             <p className="text-muted-foreground text-base">
-              Report your company's annual contribution to the Host Community Development Trust
+              Report your company&apos;s annual contribution to the Host Community Development Trust
               (HCDT) as mandated by the Petroleum Industry Act (PIA) 2021.
             </p>
           </div>
@@ -183,7 +183,7 @@ export default function HCDTContribution({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-semibold">
-                  Prior Year's Actual Operating Expenditure (OPEX)
+                  Prior Year&apos;s Actual Operating Expenditure (OPEX)
                 </Label>
 
                 <CustomTooltip

@@ -9,9 +9,10 @@ interface SuccessScreenProps {
   assessmentName: string;
   type?: "assessment" | "report";
   sectionKey?: string;
-  nextAssessment: string | null;
+  nextAssessment?: string | null;
   totals?: TotalsResponse;
-  onContinue: () => void;
+  onContinue?: () => void;
+  onContinueAssessment?: () => void;
   onBackToHub?: () => void;
   reportId?: string | number;
 }
@@ -23,21 +24,19 @@ export function SuccessScreen({
   nextAssessment,
   totals,
   onContinue,
+  onContinueAssessment,
+  onBackToHub,
+  reportId,
 }: SuccessScreenProps) {
   const router = useRouter();
 
   const handleBackToHub = () => {
-    router.push("/assessments");
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function placeholder() {
-    if (nextAssessment) {
-      onContinue();
+    if (onBackToHub) {
+      onBackToHub();
     } else {
-      handleBackToHub();
+      router.push("/assessments");
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -62,24 +61,45 @@ export function SuccessScreen({
           </p>
         )}
         <p className="text-white mb-4 text-center">
-          {assessmentName.toLowerCase() === "report"
+          {type === "report"
             ? "Your assessment report has been successfully generated. You can now review the summary, explore detailed insights, or download the full report for your records."
             : `Your data for the ${assessmentName} metric has been saved successfully. Thank you for completing this step toward accurate ESG reporting.`}
         </p>
-        {/* {nextAssessment && (
-          <p className="text-white font-semibold mb-6 text-center">
-            Next Assessment: {nextAssessment}
-          </p>
-        )} */}
         <div className="w-full flex flex-col gap-3">
+          {type === "report" && (
+            <Button
+              className="w-full bg-white text-black font-semibold py-3 rounded-sm transition-all duration-300 hover:bg-gray-200 hover:cursor-pointer"
+              onClick={() =>
+                onContinue
+                  ? onContinue()
+                  : router.push(`/reports-and-analytics/${reportId || ""}`)
+              }
+            >
+              View &amp; Download Report
+            </Button>
+          )}
+
+          {type !== "report" && onContinue && (
+            <Button
+              className="w-full bg-white text-black font-semibold py-3 rounded-sm transition-all duration-300 hover:bg-gray-200 hover:cursor-pointer"
+              onClick={onContinue}
+            >
+              Next Section {nextAssessment ? `: ${nextAssessment}` : ""}
+            </Button>
+          )}
+
+          {onContinueAssessment && (
+            <Button
+              className="w-full bg-[var(--color-primary)] hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-sm transition-all duration-300 hover:border-green-200 hover:cursor-pointer"
+              variant="outline"
+              onClick={onContinueAssessment}
+            >
+              Continue Assessment
+            </Button>
+          )}
+
           <Button
-            className="w-full bg-white text-black font-semibold py-3 rounded-sm transition-all duration-300 hover:bg-gray-200 hover:cursor-pointer"
-            onClick={() => router.push("/reports-and-analytics")}
-          >
-            View &amp; Download Report
-          </Button>
-          <Button
-            className="w-full bg-[var(--color-primary)]  hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-sm transition-all duration-300  hover:border-green-200 hover:cursor-pointer"
+            className="w-full bg-[var(--color-primary)] hover:bg-teal-600 border border-white text-white font-semibold py-3 rounded-sm transition-all duration-300 hover:border-green-200 hover:cursor-pointer"
             variant="outline"
             onClick={handleBackToHub}
           >

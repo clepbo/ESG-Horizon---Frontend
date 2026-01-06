@@ -107,17 +107,25 @@ export default function WaterQualityImpact({
           volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "",
           totalNumberOfWellsUnit: existingData.totalNumberOfWellsUnit || "",
           totalNumberOfSitesUnit: existingData.totalNumberOfSitesUnit || "",
-          numberOfSitesWithDeterioratedWaterQualityUnit: existingData.numberOfSitesWithDeterioratedWaterQualityUnit || "",
+          numberOfSitesWithDeterioratedWaterQualityUnit:
+            existingData.numberOfSitesWithDeterioratedWaterQualityUnit || "",
         });
       }
       totalNumberOfWells.handleChange(String(existingData.totalNumberOfWells || ""));
       totalNumberOfSites.handleChange(String(existingData.totalNumberOfSites || ""));
-      numberOfSitesWithDeterioratedWaterQuality.handleChange(String(existingData.numberOfSitesWithDeterioratedWaterQuality || ""));
+      numberOfSitesWithDeterioratedWaterQuality.handleChange(
+        String(existingData.numberOfSitesWithDeterioratedWaterQuality || "")
+      );
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,
+    numberOfSitesWithDeterioratedWaterQuality,
+    numberOfWellsWithPublicDisclosure,
+    totalNumberOfSites,
+    totalNumberOfWells,
+    volumeRecycledReused,
   ]);
 
   const validateForm = () => {
@@ -144,7 +152,8 @@ export default function WaterQualityImpact({
     }
 
     if (!numberOfSitesWithDeterioratedWaterQuality.rawValue) {
-      newErrors.numberOfSitesWithDeterioratedWaterQuality = "Number of sites with deteriorated water quality is required";
+      newErrors.numberOfSitesWithDeterioratedWaterQuality =
+        "Number of sites with deteriorated water quality is required";
     }
     if (!formData.numberOfSitesWithDeterioratedWaterQualityUnit) {
       newErrors.numberOfSitesWithDeterioratedWaterQualityUnit = "Unit is required";
@@ -186,13 +195,24 @@ export default function WaterQualityImpact({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasTotalWells = totalNumberOfWells.rawValue !== "" && formData.totalNumberOfWellsUnit !== "";
-    const hasTotalSites = totalNumberOfSites.rawValue !== "" && formData.totalNumberOfSitesUnit !== "";
-    const hasSitesDeteriorated = numberOfSitesWithDeterioratedWaterQuality.rawValue !== "" && formData.numberOfSitesWithDeterioratedWaterQualityUnit !== "";
+    const hasTotalWells =
+      totalNumberOfWells.rawValue !== "" && formData.totalNumberOfWellsUnit !== "";
+    const hasTotalSites =
+      totalNumberOfSites.rawValue !== "" && formData.totalNumberOfSitesUnit !== "";
+    const hasSitesDeteriorated =
+      numberOfSitesWithDeterioratedWaterQuality.rawValue !== "" &&
+      formData.numberOfSitesWithDeterioratedWaterQualityUnit !== "";
 
     const hasEvidence = filesAndLinks.length > 0;
 
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasTotalWells, hasTotalSites, hasSitesDeteriorated, hasEvidence]);
+    return calculateProgress([
+      hasRadioSelection,
+      hasAdditionalFields,
+      hasTotalWells,
+      hasTotalSites,
+      hasSitesDeteriorated,
+      hasEvidence,
+    ]);
   }, [
     operatesFrackedWells,
     numberOfWellsWithPublicDisclosure.rawValue,
@@ -219,8 +239,11 @@ export default function WaterQualityImpact({
       totalNumberOfWellsUnit: formData.totalNumberOfWellsUnit,
       totalNumberOfSites: Number(totalNumberOfSites.rawValue),
       totalNumberOfSitesUnit: formData.totalNumberOfSitesUnit,
-      numberOfSitesWithDeterioratedWaterQuality: Number(numberOfSitesWithDeterioratedWaterQuality.rawValue),
-      numberOfSitesWithDeterioratedWaterQualityUnit: formData.numberOfSitesWithDeterioratedWaterQualityUnit,
+      numberOfSitesWithDeterioratedWaterQuality: Number(
+        numberOfSitesWithDeterioratedWaterQuality.rawValue
+      ),
+      numberOfSitesWithDeterioratedWaterQualityUnit:
+        formData.numberOfSitesWithDeterioratedWaterQualityUnit,
       ...(operatesFrackedWells === "yes" && {
         numberOfWellsWithPublicDisclosure: Number(numberOfWellsWithPublicDisclosure.rawValue),
         numberOfWellsWithPublicDisclosureUnit: formData.numberOfWellsWithPublicDisclosureUnit,
@@ -422,7 +445,10 @@ export default function WaterQualityImpact({
                 }}
                 onUnitChange={(unit) => {
                   handleInputChange("numberOfSitesWithDeterioratedWaterQualityUnit", unit);
-                  setErrors((prev) => ({ ...prev, numberOfSitesWithDeterioratedWaterQualityUnit: "" }));
+                  setErrors((prev) => ({
+                    ...prev,
+                    numberOfSitesWithDeterioratedWaterQualityUnit: "",
+                  }));
                 }}
                 error={errors.numberOfSitesWithDeterioratedWaterQuality}
                 unitError={errors.numberOfSitesWithDeterioratedWaterQualityUnit}

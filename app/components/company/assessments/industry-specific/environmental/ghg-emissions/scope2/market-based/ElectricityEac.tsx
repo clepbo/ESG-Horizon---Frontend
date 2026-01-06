@@ -200,7 +200,7 @@ export function ElectricityEACForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.marketBased.electricityEac", payload);
+      await saveNow("environment.ghg.scope2.marketBased.eac", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -450,9 +450,8 @@ export function ElectricityEACForm({
                     emissionFactor: undefined,
                   }));
                 }}
-                className={`w-full border-gray-400 ${
-                  errors.emissionFactor ? "border-red-500" : ""
-                }`}
+                className={`w-full border-gray-400 ${errors.emissionFactor ? "border-red-500" : ""
+                  }`}
               />
               {errors.emissionFactor && (
                 <p className="text-sm text-red-500 mt-1">{errors.emissionFactor}</p>

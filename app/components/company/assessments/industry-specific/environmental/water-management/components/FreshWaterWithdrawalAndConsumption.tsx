@@ -37,11 +37,11 @@ export default function FreshWaterWithdrawalAndConsumption({
   backToWaterWasteManagement,
 }: FreshWaterWithdrawalAndConsumptionProps) {
   const router = useRouter();
-  const withdrawalfromSurfaceWater = useFormattedNumber("");
   const withdrawalfromGroundwater = useFormattedNumber("");
   const withdrawalfromMunicipalotherOtherSources = useFormattedNumber("");
   const totalWaterConsumed = useFormattedNumber("");
   const volumeWithdrawnfromWaterStressedRegions = useFormattedNumber("");
+  const withdrawalfromSurfaceWater = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
   const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
@@ -77,11 +77,11 @@ export default function FreshWaterWithdrawalAndConsumption({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    withdrawalfromSurfaceWaterUnit: "Cubic Meter (m3)",
-    withdrawalfromGroundwaterUnit: "Cubic Meter (m3)",
-    withdrawalfromMunicipalotherOtherSourcesUnit: "Cubic Meter (m3)",
-    totalWaterConsumedUnit: "Cubic Meter (m3)",
-    volumeWithdrawnfromWaterStressedRegionsUnit: "Cubic Meter (m3)",
+    withdrawalfromSurfaceWaterUnit: "",
+    withdrawalfromGroundwaterUnit: "",
+    withdrawalfromMunicipalotherOtherSourcesUnit: "",
+    totalWaterConsumedUnit: "",
+    volumeWithdrawnfromWaterStressedRegionsUnit: "",
   });
 
   useEffect(() => {
@@ -103,25 +103,27 @@ export default function FreshWaterWithdrawalAndConsumption({
         String(existingData.volumeWithdrawnfromWaterStressedRegions || "")
       );
       setFormData({
-        withdrawalfromSurfaceWaterUnit:
-          existingData.withdrawalfromSurfaceWaterUnit || "Cubic Meter (m3)",
-        withdrawalfromGroundwaterUnit:
-          existingData.withdrawalfromGroundwaterUnit || "Cubic Meter (m3)",
+        withdrawalfromSurfaceWaterUnit: existingData.withdrawalfromSurfaceWaterUnit || "",
+        withdrawalfromGroundwaterUnit: existingData.withdrawalfromGroundwaterUnit || "",
         withdrawalfromMunicipalotherOtherSourcesUnit:
-          existingData.withdrawalfromMunicipalotherOtherSourcesUnit || "Cubic Meter (m3)",
-        totalWaterConsumedUnit: existingData.totalWaterConsumedUnit || "Cubic Meter (m3)",
+          existingData.withdrawalfromMunicipalotherOtherSourcesUnit || "",
+        totalWaterConsumedUnit: existingData.totalWaterConsumedUnit || "",
         volumeWithdrawnfromWaterStressedRegionsUnit:
-          existingData.volumeWithdrawnfromWaterStressedRegionsUnit || "Cubic Meter (m3)",
+          existingData.volumeWithdrawnfromWaterStressedRegionsUnit || "",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
-      ?.freshwaterWithdrawals, totalWaterConsumed, withdrawalfromGroundwater, withdrawalfromSurfaceWater,
-    withdrawalfromMunicipalotherOtherSources, volumeWithdrawnfromWaterStressedRegions,
+      ?.freshwaterWithdrawals,
+    totalWaterConsumed,
+    volumeWithdrawnfromWaterStressedRegions,
+    withdrawalfromGroundwater,
+    withdrawalfromMunicipalotherOtherSources,
+    withdrawalfromSurfaceWater,
   ]);
 
-  const { filled, total } = useMemo(() => {
+  const { filled: _filled, total: _total } = useMemo(() => {
     const hasFreshWaterWithdrawn =
       withdrawalfromSurfaceWater.rawValue !== "" && formData.withdrawalfromSurfaceWaterUnit !== "";
     const hasFreshWaterConsumed =
@@ -158,16 +160,53 @@ export default function FreshWaterWithdrawalAndConsumption({
     return Object.keys(newErrors).length === 0;
   };
 
+  useMemo(() => {
+    const haswithdrawalFromGroundWater =
+      withdrawalfromGroundwater.rawValue !== "" && formData.withdrawalfromGroundwaterUnit !== "";
+
+    const haswithdrawalfromSurfaceWater =
+      withdrawalfromSurfaceWater.rawValue !== "" && formData.withdrawalfromSurfaceWaterUnit !== "";
+
+    const haswithdrawalfromMunicipalotherOtherSources =
+      withdrawalfromMunicipalotherOtherSources.rawValue !== "" &&
+      formData.withdrawalfromMunicipalotherOtherSourcesUnit !== "";
+
+    const hastotalWaterConsumed =
+      totalWaterConsumed.rawValue !== "" && formData.totalWaterConsumedUnit !== "";
+
+    const hasvolumeWithdrawnfromWaterStressedRegions =
+      volumeWithdrawnfromWaterStressedRegions.rawValue !== "" &&
+      formData.volumeWithdrawnfromWaterStressedRegionsUnit !== "";
+
+    const hasEvidence = filesAndLinks.length > 0;
+
+    return calculateProgress([
+      haswithdrawalFromGroundWater,
+      haswithdrawalfromSurfaceWater,
+      haswithdrawalfromMunicipalotherOtherSources,
+      hastotalWaterConsumed,
+      hasvolumeWithdrawnfromWaterStressedRegions,
+      hasEvidence,
+    ]);
+  }, [
+    withdrawalfromGroundwater.rawValue,
+    withdrawalfromSurfaceWater.rawValue,
+    withdrawalfromMunicipalotherOtherSources.rawValue,
+    totalWaterConsumed.rawValue,
+    volumeWithdrawnfromWaterStressedRegions.rawValue,
+    formData.withdrawalfromGroundwaterUnit,
+    formData.withdrawalfromSurfaceWaterUnit,
+    formData.withdrawalfromMunicipalotherOtherSourcesUnit,
+    formData.totalWaterConsumedUnit,
+    formData.volumeWithdrawnfromWaterStressedRegionsUnit,
+    filesAndLinks,
+  ]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     const payload = {
       withdrawalfromGroundwater: Number(withdrawalfromGroundwater.rawValue),
       withdrawalfromGroundwaterUnit: formData.withdrawalfromGroundwaterUnit,
@@ -233,12 +272,10 @@ export default function FreshWaterWithdrawalAndConsumption({
     };
 
     dispatch({ type: "UPDATE_WATER_FRESHWATER", payload });
-    toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
 
   const handlePrevious = () => {
-    // toast.info("Returning to previous section");
     onBack();
   };
 
@@ -249,10 +286,10 @@ export default function FreshWaterWithdrawalAndConsumption({
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={features} />
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center gap-6 mb-4 mt-4">
+      <div className="max-w-5xl mx-auto space-y-6 ">
+        <div className="flex items-center gap-6 mb-4  mt-4">
           <div>
-            <h3 className="text-2xl font-semibold">Freshwater Withdrawal & Consumption</h3>
+            <h3 className="text-2xl font-semibold"> Freshwater Withdrawal & Consumption</h3>
             <p className="text-muted-foreground text-base">
               This form covers metric EM-EP-140a.1, focusing on the company&apos;s overall water
               footprint.
@@ -267,15 +304,17 @@ export default function FreshWaterWithdrawalAndConsumption({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={filled}
-              totalFields={total}
+              fieldsCompleted={1}
+              totalFields={3}
               isSubmitted={false}
             />
 
             <ReusableInput
-              label="Withdrawal from Surface Water"
-              tooltipTitle="Withdrawal from Surface Water"
-              tooltipBody="Water taken directly from rivers, lakes, wetlands, reservoirs, or oceans for operational use. Report total volume withdrawn during the reporting period."
+              label={"Withdrawal from Surface Water"}
+              tooltipTitle={"Withdrawal from Surface Water"}
+              tooltipBody={
+                "Water taken directly from rivers, lakes, wetlands, reservoirs, or oceans for operational use. Report total volume withdrawn during the reporting period."
+              }
               inputValue={withdrawalfromSurfaceWater.displayValue}
               unitValue={formData.withdrawalfromSurfaceWaterUnit}
               onInputChange={(num) => {
@@ -286,17 +325,17 @@ export default function FreshWaterWithdrawalAndConsumption({
                 handleInputChange("withdrawalfromSurfaceWaterUnit", unit);
                 setErrors((prev) => ({ ...prev, withdrawalfromSurfaceWaterUnit: "" }));
               }}
-              error={errors.withdrawalfromSurfaceWater}
+              error={errors.withdrawalfromSurfaceWaterUnit}
               unitError={errors.withdrawalfromSurfaceWaterUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
-              placeholder="e.g., 1500"
             />
 
             <ReusableInput
-              label="Withdrawal from Groundwater"
-              tooltipTitle="Groundwater Withdrawal"
-              tooltipBody="Water extracted from underground aquifers or wells. Includes both shallow and deep groundwater sources used for drilling, processing, or facility operations."
+              label={"Withdrawal from Groundwater"}
+              tooltipTitle={"Groundwater Withdrawal"}
+              tooltipBody={
+                "Water extracted from underground aquifers or wells. Includes both shallow and deep groundwater sources used for drilling, processing, or facility operations."
+              }
               inputValue={withdrawalfromGroundwater.displayValue}
               unitValue={formData.withdrawalfromGroundwaterUnit}
               onInputChange={(num) => {
@@ -310,14 +349,13 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.withdrawalfromGroundwater}
               unitError={errors.withdrawalfromGroundwaterUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
-              placeholder="e.g., 1200"
             />
-
             <ReusableInput
-              label="Withdrawal from Municipal & Other Sources"
-              tooltipTitle="Withdrawal from Municipal & Other Sources"
-              tooltipBody="Water supplied by municipal utilities, third-party providers, or purchased from external sources. This includes treated potable water used in facilities."
+              label={"Withdrawal from Municipal & Other Sources"}
+              tooltipTitle={"Withdrawal from Municipal & Other Sources"}
+              tooltipBody={
+                "Water supplied by municipal utilities, third-party providers, or purchased from external sources. This includes treated potable water used in facilities."
+              }
               inputValue={withdrawalfromMunicipalotherOtherSources.displayValue}
               unitValue={formData.withdrawalfromMunicipalotherOtherSourcesUnit}
               onInputChange={(num) => {
@@ -334,14 +372,14 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.withdrawalfromMunicipalotherOtherSources}
               unitError={errors.withdrawalfromMunicipalotherOtherSourcesUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
-              placeholder="e.g., 800"
             />
 
             <ReusableInput
-              label="Total Water Consumed"
-              tooltipTitle="Total Water Consumed"
-              tooltipBody="The portion of water withdrawn that is not returned to the original source because it was evaporated, incorporated into products, or contaminated beyond reuse."
+              label={"Total Water Consumed"}
+              tooltipTitle={"Total Water Consumed"}
+              tooltipBody={
+                "The portion of water withdrawn that is not returned to the original source because it was evaporated, incorporated into products, or contaminated beyond reuse."
+              }
               inputValue={totalWaterConsumed.displayValue}
               unitValue={formData.totalWaterConsumedUnit}
               onInputChange={(num) => {
@@ -352,17 +390,16 @@ export default function FreshWaterWithdrawalAndConsumption({
                 handleInputChange("totalWaterConsumedUnit", unit);
                 setErrors((prev) => ({ ...prev, totalWaterConsumedUnit: "" }));
               }}
-              error={errors.totalWaterConsumed}
+              error={errors.totalWaterConsumedUnit}
               unitError={errors.totalWaterConsumedUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
-              placeholder="e.g., 2000"
             />
-
             <ReusableInput
-              label="Volume Withdrawn from Water-Stressed Regions"
-              tooltipTitle="Volume Withdrawn from Water-Stressed Regions"
-              tooltipBody="Total water withdrawal from locations identified as water-stressed or high-baseline water-risk areas. Typically determined using recognized tools such as WRI Aqueduct or WWF Water Risk Filter."
+              label={"Volume Withdrawn from Water-Stressed Regions"}
+              tooltipTitle={"Volume Withdrawn from Water-Stressed Regions"}
+              tooltipBody={
+                "Total water withdrawal from locations identified as water-stressed or high-baseline water-risk areas. Typically determined using recognized tools such as WRI Aqueduct or WWF Water Risk Filter."
+              }
               inputValue={volumeWithdrawnfromWaterStressedRegions.displayValue}
               unitValue={formData.volumeWithdrawnfromWaterStressedRegionsUnit}
               onInputChange={(num) => {
@@ -371,24 +408,19 @@ export default function FreshWaterWithdrawalAndConsumption({
               }}
               onUnitChange={(unit) => {
                 handleInputChange("volumeWithdrawnfromWaterStressedRegionsUnit", unit);
-                setErrors((prev) => ({
-                  ...prev,
-                  volumeWithdrawnfromWaterStressedRegionsUnit: "",
-                }));
+                setErrors((prev) => ({ ...prev, volumeWithdrawnfromWaterStressedRegionsUnit: "" }));
               }}
-              error={errors.volumeWithdrawnfromWaterStressedRegions}
+              error={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
               unitError={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
-              placeholder="e.g., 500"
             />
 
             {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600">
-                Upload supporting documents like water withdrawal permits, utility bills, and
-                internal water balance reports.
+                Upload supporting documents like your reserves statement, internal security risk
+                assessments for relevant regions, and citations for the UCDP data used.
               </p>
 
               <div className="mt-6">

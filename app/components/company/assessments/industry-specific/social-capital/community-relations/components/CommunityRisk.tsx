@@ -150,8 +150,8 @@ export default function CommunityRisk({
           <div>
             <h3 className="text-2xl font-semibold">Community Risk & Opportunity Management</h3>
             <p className="text-muted-foreground text-base">
-              Describe your organization's process for managing risks and opportunities related to
-              the rights and interests of the communities where you operate.
+              Describe your organization&apos;s process for managing risks and opportunities related
+              to the rights and interests of the communities where you operate.
             </p>
           </div>
         </div>

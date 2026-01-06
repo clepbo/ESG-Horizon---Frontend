@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -161,7 +162,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Workforce Health & Safety",
         subtitle:
           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
-        clickable: true,
+        clickable: false,
       },
     ],
   },
@@ -176,12 +177,12 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Reserves Valuation & Capital Expenditures",
         subtitle: "Report on investment strategies and valuation of natural resource reserves",
-        clickable: true,
+        clickable: false,
       },
       {
         title: "Business Ethics & Transparency",
         subtitle: "Assess anti-corruption measures and operational integrity",
-        clickable: true,
+        clickable: false,
       },
     ],
   },
@@ -316,6 +317,7 @@ export function DisclosureTopics({
   assignedTask,
   assignedTopics,
 }: DisclosureTopicsProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState(initialView);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
@@ -542,7 +544,12 @@ export function DisclosureTopics({
                   )}
                 </div>
                 {!assignedTask && (
-                  <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+                  <Button
+                    className="bg-primary hover:bg-teal-600 text-white"
+                    onClick={() => router.push("/assessments/tasks/assign?selectAll=true")}
+                  >
+                    Assign Task
+                  </Button>
                 )}
               </div>
 
@@ -614,11 +621,10 @@ export function DisclosureTopics({
                                   key={card.title}
                                   className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
                                     card.title
-                                  )} ${
-                                    card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                  }`}
+                                  )} ${card.clickable
+                                    ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                    : "cursor-default"
+                                    }`}
                                   onClick={() => card.clickable && handleCardClick(card.title)}
                                 >
                                   <CardContent className="p-4">

@@ -35,7 +35,7 @@ export default function AssessmentPage() {
       if (lastSavedForm) {
         dispatch({ type: "SET_VIEW", payload: lastSavedForm });
       } else {
-        dispatch({ type: "SET_VIEW", payload: "disclosure" });
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
       }
     }
   }, [data, dispatch, id]);

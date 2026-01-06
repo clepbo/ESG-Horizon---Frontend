@@ -3,6 +3,7 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import React from "react";
+import { useRouter } from "next/navigation";
 import { AirQualityProps } from "../../air-quality/components/AirQualityCard";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
@@ -64,9 +65,10 @@ export default function WaterAndWastemanagementCards({
   backToAssessmentHub,
   backToDisclosureTopics,
 }: AirQualityProps) {
+  const router = useRouter();
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
 
   // Use the reusable hook with checkSubComponentCompletion
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
@@ -119,6 +121,7 @@ export default function WaterAndWastemanagementCards({
         totals={undefined}
         nextAssessment="Biodiversity Impact"
         onContinue={backToDisclosureTopics}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={backToAssessmentHub}
       />
     );
@@ -142,7 +145,16 @@ export default function WaterAndWastemanagementCards({
                   EM-EP-140a.1, EM-EP-140a.2, EM-EP-140a.3 and EM-EP-140a.4
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white cursor-pointer rounded">
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white cursor-pointer rounded"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent(
+                      "Water and Wastewater Management"
+                    )}`
+                  )
+                }
+              >
                 Assign task
               </Button>
             </div>

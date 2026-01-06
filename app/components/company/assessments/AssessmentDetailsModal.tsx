@@ -37,6 +37,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
+import { allFuels } from "@/lib/fuelDataFile";
 
 interface FileWithMeta {
   name: string;
@@ -58,6 +59,55 @@ const DataField = ({ label, value, unit }: { label: string; value: any; unit?: s
             {unit && <span className="text-[10px] text-gray-500 font-normal">{unit}</span>}
           </>
         )}
+      </div>
+    </div>
+  );
+};
+
+const DataList = ({ data, label }: { data: any[]; label: string }) => {
+  if (!data || data.length === 0) return null;
+
+  return (
+    <div className="space-y-3 mt-4 first:mt-0">
+      <h5 className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-2 border-b border-teal-50 pb-1">
+        {label}
+      </h5>
+      <div className="space-y-2">
+        {data.map((item, idx) => {
+          const fuelLabel = allFuels.find((f) => f.value === item.fuelType)?.label || item.fuelType;
+          return (
+            <div
+              key={item.id || idx}
+              className="p-3 bg-gray-50/50 rounded-md border border-gray-100 space-y-2"
+            >
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+                {Object.entries(item).map(([key, val]) => {
+                  if (["id"].includes(key)) return null;
+                  if (val === undefined || val === null || val === "") return null;
+
+                  let displayValue = String(val);
+                  let displayLabel = key.replace(/([A-Z])/g, " $1").trim();
+
+                  if (key === "fuelType") {
+                    displayValue = fuelLabel;
+                  }
+
+                  return (
+                    <div key={key} className="flex flex-col gap-0.5">
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
+                        {displayLabel}
+                      </span>
+                      <span className="text-xs font-semibold text-gray-700 truncate">
+                        {displayValue}
+                        {key === "volume" && item.unit ? ` ${item.unit}` : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -349,77 +399,87 @@ export function AssessmentDetailsModal({
                           <SectionHeader icon={ChevronRight} title="Scope 1: Direct Emissions" />
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <MetricCard title="Stationary Sources">
-                              <DataField
+                              <DataList
                                 label="Electricity & Heat"
-                                value={
-                                  scope1.stationarySources?.electricityHeat?.dieselGenerators
-                                    ?.length
-                                    ? `${scope1.stationarySources?.electricityHeat?.dieselGenerators?.length} entries`
-                                    : ""
-                                }
+                                data={[
+                                  ...(scope1.stationarySources?.electricityHeat?.dieselGenerators || []),
+                                  ...(scope1.stationarySources?.electricityHeat?.gasTurbines || []),
+                                ]}
                               />
-                              <DataField
+                              <DataList
                                 label="Industrial Processes"
-                                value={
-                                  scope1.stationarySources?.industrialProcesses?.boilerFurnaces
-                                    ?.length
-                                    ? `${scope1.stationarySources?.industrialProcesses?.boilerFurnaces?.length} entries`
-                                    : ""
-                                }
+                                data={scope1.stationarySources?.industrialProcesses?.boilerFurnaces}
                               />
-                              <DataField
+                              <DataList
                                 label="Oil & Gas"
-                                value={
-                                  scope1.stationarySources?.oilGasOperations?.onShoreProduction
-                                    ?.length
-                                    ? `${scope1.stationarySources?.oilGasOperations?.onShoreProduction?.length} entries`
-                                    : ""
-                                }
+                                data={scope1.stationarySources?.oilGasOperations?.onShoreProduction}
                               />
+                              {!scope1.stationarySources?.electricityHeat?.dieselGenerators?.length &&
+                                !scope1.stationarySources?.electricityHeat?.gasTurbines?.length &&
+                                !scope1.stationarySources?.industrialProcesses?.boilerFurnaces?.length &&
+                                !scope1.stationarySources?.oilGasOperations?.onShoreProduction?.length && (
+                                  <p className="text-xs text-gray-400 italic">No data recorded</p>
+                                )}
                             </MetricCard>
+
                             <MetricCard title="Mobile Sources">
-                              <DataField
-                                label="Road Transport"
-                                value={
-                                  scope1.mobileSources?.roadTransport?.vehicleFleet?.length
-                                    ? `${scope1.mobileSources?.roadTransport?.vehicleFleet?.length} entries`
-                                    : ""
-                                }
+                              <DataList
+                                label="Road Transport Fleet"
+                                data={scope1.mobileSources?.roadTransport?.vehicleFleet}
                               />
-                              <DataField
+                              <DataList
+                                label="Cars and Buses"
+                                data={scope1.mobileSources?.roadTransport?.carsBuses}
+                              />
+                              <DataList
                                 label="Vehicle Equipment"
-                                value={
-                                  scope1.mobileSources?.vehicleEquipment?.forkliftFuelType?.length
-                                    ? `${scope1.mobileSources?.vehicleEquipment?.forkliftFuelType?.length} entries`
-                                    : ""
-                                }
+                                data={[
+                                  ...(scope1.mobileSources?.vehicleEquipment?.forkliftFuelType || []),
+                                  ...(scope1.mobileSources?.vehicleEquipment?.heavyDutyFuelType || []),
+                                  ...(scope1.mobileSources?.vehicleEquipment?.tractorFuelType || []),
+                                ]}
                               />
-                              <DataField
-                                label="Marine & Aviation"
-                                value={
-                                  scope1.mobileSources?.marineAviation?.air?.length
-                                    ? `${scope1.mobileSources?.marineAviation?.air?.length} entries`
-                                    : ""
-                                }
+                              <DataList
+                                label="Aviation (Air)"
+                                data={scope1.mobileSources?.marineAviation?.air}
                               />
+                              <DataList
+                                label="Marine (Water)"
+                                data={scope1.mobileSources?.marineAviation?.marine}
+                              />
+                              {!scope1.mobileSources?.roadTransport?.vehicleFleet?.length &&
+                                !scope1.mobileSources?.roadTransport?.carsBuses?.length &&
+                                !scope1.mobileSources?.vehicleEquipment?.forkliftFuelType?.length &&
+                                !scope1.mobileSources?.vehicleEquipment?.heavyDutyFuelType?.length &&
+                                !scope1.mobileSources?.vehicleEquipment?.tractorFuelType?.length &&
+                                !scope1.mobileSources?.marineAviation?.air?.length &&
+                                !scope1.mobileSources?.marineAviation?.marine?.length && (
+                                  <p className="text-xs text-gray-400 italic">No data recorded</p>
+                                )}
                             </MetricCard>
-                            <MetricCard title="Others">
+
+                            <MetricCard title="Processing & Fugitive">
                               <DataField
-                                label="Process: Cement"
+                                label="Cement Manufacturing"
                                 value={scope1.processEmissions?.cementManufacturing?.cementQuantity}
                                 unit="kg"
                               />
                               <DataField
-                                label="Process: Gas Flaring"
+                                label="Gas Flaring"
                                 value={scope1.processEmissions?.gasFlaring?.gasVolume}
                                 unit="m³"
                               />
                               <DataField
-                                label="Fugitive: Venting"
+                                label="Venting Natural Gas"
                                 value={
                                   scope1.fugitiveEmissions?.ventingNaturalGas?.volumeOfGasVented
                                 }
                                 unit="m³"
+                              />
+                              <DataField
+                                label="HFC Leaks (Added)"
+                                value={scope1.fugitiveEmissions?.hfcLeaks?.refrigerantAdded}
+                                unit="kg"
                               />
                             </MetricCard>
                           </div>
@@ -431,35 +491,45 @@ export function AssessmentDetailsModal({
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <MetricCard title="Location-Based">
                               <DataField
-                                label="Electricity"
+                                label="Electricity Consumed"
                                 value={scope2.locationBased?.electricity?.electricityConsumed}
                                 unit="kWh"
                               />
                               <DataField
-                                label="Cooling"
+                                label="Cooling Consumed"
                                 value={scope2.locationBased?.cooling?.coolingConsumed}
                                 unit="kWh"
                               />
                               <DataField
-                                label="Heating"
+                                label="Heating Consumed"
                                 value={scope2.locationBased?.heating?.heatingConsumed}
+                                unit="kWh"
+                              />
+                              <DataField
+                                label="Steam Consumed"
+                                value={scope2.locationBased?.steam?.volume}
                                 unit="kWh"
                               />
                             </MetricCard>
                             <MetricCard title="Market-Based">
                               <DataField
-                                label="IPPs"
+                                label="IPPs (Direct Purchase)"
                                 value={scope2.marketBased?.ipps?.electricityConsumed}
                                 unit="kWh"
                               />
                               <DataField
-                                label="EAC"
+                                label="EACs / RECs"
                                 value={scope2.marketBased?.eac?.gridElectricity}
                                 unit="kWh"
                               />
                               <DataField
                                 label="Residual Mix"
                                 value={scope2.marketBased?.residual?.electricityConsumed}
+                                unit="kWh"
+                              />
+                              <DataField
+                                label="Cooling & Steam"
+                                value={scope2.marketBased?.coolingSteam?.energyConsumed}
                                 unit="kWh"
                               />
                             </MetricCard>
@@ -479,7 +549,7 @@ export function AssessmentDetailsModal({
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <MetricCard title="Goods & Services">
                                 <DataField
-                                  label="Purchased Goods"
+                                  label="Purchased Goods Mass"
                                   value={upstream.purchasedGoodsAndServices?.massOfGoods}
                                   unit="kg"
                                 />
@@ -488,27 +558,42 @@ export function AssessmentDetailsModal({
                                   value={upstream.capitalGoods?.totalCost}
                                   unit="$"
                                 />
-                              </MetricCard>
-                              <MetricCard title="Operations">
                                 <DataField
-                                  label="Waste Weight"
+                                  label="Fuel/Energy Related"
+                                  value={upstream.fuelEnergyRelatedActivities?.fuelVolume}
+                                  unit="L/kWh"
+                                />
+                              </MetricCard>
+                              <MetricCard title="Logistics & Waste">
+                                <DataField
+                                  label="Upstream Transport"
+                                  value={upstream.upstreamTransportationDistribution?.massTransported}
+                                  unit="kg"
+                                />
+                                <DataField
+                                  label="Waste Generated"
                                   value={upstream.wasteGeneratedInOperations?.wasteWeight}
                                   unit="kg"
                                 />
                                 <DataField
-                                  label="Leased Assets Floor"
-                                  value={upstream.upstreamLeasedAssets?.floorArea}
-                                  unit="m²"
+                                  label="Waste Disposal Method"
+                                  value={upstream.wasteGeneratedInOperations?.disposalMethod}
                                 />
                               </MetricCard>
                               <MetricCard title="Travel & Commuting">
                                 <DataField
-                                  label="Business Flights"
+                                  label="Business Travel (Flights)"
                                   value={upstream.businessTravel?.totalFlights}
                                 />
                                 <DataField
-                                  label="Employee Count"
+                                  label="Employee Commuting"
                                   value={upstream.employeeCommuting?.numberOfEmployees}
+                                  unit="employees"
+                                />
+                                <DataField
+                                  label="Upstream Leased Assets"
+                                  value={upstream.upstreamLeasedAssets?.floorArea}
+                                  unit="m²"
                                 />
                               </MetricCard>
                             </div>
@@ -519,11 +604,16 @@ export function AssessmentDetailsModal({
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <MetricCard title="Distribution">
                                 <DataField
-                                  label="Products Sold"
+                                  label="Downstream Transport"
                                   value={
                                     downstream.downstreamTransportationDistribution
                                       ?.massOfProductsSold
                                   }
+                                  unit="kg"
+                                />
+                                <DataField
+                                  label="Processing Sold Products"
+                                  value={downstream.processingSoldProducts?.processedQuantity}
                                   unit="kg"
                                 />
                               </MetricCard>
@@ -533,19 +623,35 @@ export function AssessmentDetailsModal({
                                   value={downstream.useOfSoldProducts?.unitsSold}
                                 />
                                 <DataField
-                                  label="Lifetime"
+                                  label="Product Lifetime"
                                   value={downstream.useOfSoldProducts?.productLifetime}
                                   unit="years"
                                 />
+
                               </MetricCard>
-                              <MetricCard title="End of Life & Finance">
+                              <MetricCard title="Leased & Finance">
                                 <DataField
-                                  label="Franchise Fuel"
+                                  label="Electricity Consumed"
+                                  value={downstream.downstreamLeasedAssets?.electricityConsumed}
+                                  unit="kWh"
+                                />
+                                <DataField
+                                  label="Other Energy"
+                                  value={downstream.downstreamLeasedAssets?.otherEnergyConsumed}
+                                  unit="kWh"
+                                />
+                                <DataField
+                                  label="Fuel Consumption"
                                   value={downstream.franchises?.fuelConsumption}
                                   unit="L"
                                 />
                                 <DataField
-                                  label="Investments"
+                                  label="Electricity Consumption"
+                                  value={downstream.franchises?.electricityConsumption}
+                                  unit="kWh"
+                                />
+                                <DataField
+                                  label="Investments Amount"
                                   value={downstream.investments?.investmentAmount}
                                   unit="$"
                                 />
@@ -573,38 +679,38 @@ export function AssessmentDetailsModal({
                             <DataField
                               label="NOx Emissions"
                               value={
-                                env.airQuality?.airPollutantEmissions?.oxidesOfNitrogen ||
                                 env.airQuality?.airPollutantEmissions?.calculated?.breakdown
-                                  ?.oxidesOfNitrogen?.volume
+                                  ?.oxidesOfNitrogen?.volume ??
+                                env.airQuality?.airPollutantEmissions?.oxidesOfNitrogen
                               }
                               unit="t"
                             />
                             <DataField
                               label="SOx Emissions"
                               value={
-                                env.airQuality?.airPollutantEmissions?.oxidesOfSulphur ||
-                                env.airQuality?.airPollutantEmissions?.oxidesOfSuplphur ||
                                 env.airQuality?.airPollutantEmissions?.calculated?.breakdown
-                                  ?.oxidesOfSulphur?.volume
+                                  ?.oxidesOfSulphur?.volume ??
+                                env.airQuality?.airPollutantEmissions?.oxidesOfSulphur ??
+                                env.airQuality?.airPollutantEmissions?.oxidesOfSuplphur
                               }
                               unit="t"
                             />
                             <DataField
                               label="Particulate Matter"
                               value={
-                                env.airQuality?.airPollutantEmissions?.particulateMatter ||
                                 env.airQuality?.airPollutantEmissions?.calculated?.breakdown
-                                  ?.particulateMatter?.volume
+                                  ?.particulateMatter?.volume ??
+                                env.airQuality?.airPollutantEmissions?.particulateMatter
                               }
                               unit="t"
                             />
                             <DataField
                               label="VOCs"
                               value={
-                                env.airQuality?.airPollutantEmissions?.volatileOrganicCompound ||
-                                env.airQuality?.airPollutantEmissions?.volatileOrganicCompounds ||
                                 env.airQuality?.airPollutantEmissions?.calculated?.breakdown
-                                  ?.volatileOrganicCompounds?.volume
+                                  ?.volatileOrganicCompounds?.volume ??
+                                env.airQuality?.airPollutantEmissions?.volatileOrganicCompound ??
+                                env.airQuality?.airPollutantEmissions?.volatileOrganicCompounds
                               }
                               unit="t"
                             />
@@ -625,50 +731,51 @@ export function AssessmentDetailsModal({
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="pt-4 pb-6 space-y-4">
-                        <MetricCard title="Freshwater & Produced Water">
+                        <MetricCard title="Freshwater Management">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                             <DataField
-                              label="Total Freshwater Withdrawal"
-                              value={
-                                env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.freshwaterWithdrawals?.totalWithdrawal ||
-                                env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.freshwaterWithdrawals?.withdrawalfromSurfaceWater +
-                                  env.waterManagement?.waterAndProducedWaterManagement
-                                    ?.freshwaterWithdrawals?.withdrawalfromGroundwater ||
-                                env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.freshwaterWithdrawals?.calculated?.total_withdrawal
-                              }
-                              unit="m³"
+                              label="Surface Water Withdrawal"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromSurfaceWater}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromSurfaceWaterUnit || "m³"}
                             />
                             <DataField
-                              label="Produced Water Discharged"
-                              value={
-                                env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.producedWaterManagement?.totalProducedWaterGenerated ||
-                                env.waterManagement?.waterAndProducedWaterManagement
-                                  ?.producedWaterManagement?.calculated?.total_produced_water
-                              }
-                              unit="m³"
+                              label="Groundwater Withdrawal"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromGroundwater}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromGroundwaterUnit || "m³"}
+                            />
+                            <DataField
+                              label="Municipal/Other Sources"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromMunicipalotherOtherSources}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromMunicipalotherOtherSourcesUnit || "m³"}
+                            />
+                            <DataField
+                              label="Total Water Consumed"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.totalWaterConsumed}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.totalWaterConsumedUnit || "m³"}
                             />
                           </div>
                         </MetricCard>
-                        <MetricCard title="Hydraulic Fracturing">
+                        <MetricCard title="Produced Water Management">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                             <DataField
-                              label="Chemical Disclosure %"
-                              value={
-                                env.waterManagement?.hydraulicFracturingImpacts?.chemicalDisclosure
-                                  ?.percentage
-                              }
-                              unit="%"
+                              label="Total Produced Water"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.totalProducedWaterGenerated}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.totalProducedWaterGeneratedUnit || "m³"}
                             />
                             <DataField
-                              label="Water Quality Impact"
-                              value={
-                                env.waterManagement?.hydraulicFracturingImpacts?.waterQualityImpacts
-                                  ?.status
-                              }
+                              label="Discharged to Surface"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeDischargedToSurface}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeDischargedToSurfaceUnit || "m³"}
+                            />
+                            <DataField
+                              label="Injected for Disposal"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeInjectedForDisposal}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeInjectedForDisposalUnit || "m³"}
+                            />
+                            <DataField
+                              label="Recycled/Reused"
+                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeRecycledReused}
+                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeRecycledReusedUnit || "m³"}
                             />
                           </div>
                         </MetricCard>
@@ -693,7 +800,7 @@ export function AssessmentDetailsModal({
                               label="Sensitive Area Reserves"
                               value={
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.reservesInSensitiveAreas?.totalProvedReservesVolume ||
+                                  ?.reservesInSensitiveAreas?.totalProvedReservesVolume ??
                                 env.biodiversityImpact?.environmentalManagement
                                   ?.reservesInSensitiveAreas?.calculated?.total_reserves
                               }
@@ -703,10 +810,14 @@ export function AssessmentDetailsModal({
                               label="Number of Spills"
                               value={
                                 env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
-                                  ?.numberOfSpills ||
+                                  ?.numberOfSpills ??
                                 env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
                                   ?.calculated?.total_spills
                               }
+                            />
+                            <DataField
+                              label="Spills in Sensitive Areas"
+                              value={env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills?.spillsInSensitiveAreas}
                             />
                             <DataField
                               label="ISO 14001 Certified"
