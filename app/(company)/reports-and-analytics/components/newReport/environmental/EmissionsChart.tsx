@@ -15,7 +15,6 @@ interface EmissionPoint {
   emissions: number; // value for Y-axis
 }
 
-
 // function transformHistory(ghg: any): EmissionPoint[] {
 //   if (!ghg?.ghg_history) return [];
 

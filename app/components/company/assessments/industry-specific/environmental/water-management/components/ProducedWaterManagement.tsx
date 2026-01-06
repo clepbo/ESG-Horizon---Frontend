@@ -105,8 +105,11 @@ export default function ProducedWaterManagement({
     }
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
-      ?.producedWaterManagement, totalProducedWaterGenerated, volumeDischargedToSurface,
-    volumeInjectedForDisposal, volumeRecycledReused
+      ?.producedWaterManagement,
+    totalProducedWaterGenerated,
+    volumeDischargedToSurface,
+    volumeInjectedForDisposal,
+    volumeRecycledReused,
   ]);
 
   // Calculate percentages based on total produced water

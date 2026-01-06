@@ -105,7 +105,9 @@ export default function WaterQualityImpact({
     }
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
-      ?.waterQualityImpacts, numberOfWellsWithPublicDisclosure, volumeRecycledReused
+      ?.waterQualityImpacts,
+    numberOfWellsWithPublicDisclosure,
+    volumeRecycledReused,
   ]);
 
   const { filled, total } = useMemo(() => {

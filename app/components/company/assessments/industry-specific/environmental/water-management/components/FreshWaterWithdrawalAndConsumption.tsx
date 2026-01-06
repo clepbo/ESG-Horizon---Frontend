@@ -117,8 +117,12 @@ export default function FreshWaterWithdrawalAndConsumption({
     }
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
-      ?.freshwaterWithdrawals, totalWaterConsumed, withdrawalfromGroundwater, withdrawalfromSurfaceWater,
-    withdrawalfromMunicipalotherOtherSources, volumeWithdrawnfromWaterStressedRegions,
+      ?.freshwaterWithdrawals,
+    totalWaterConsumed,
+    withdrawalfromGroundwater,
+    withdrawalfromSurfaceWater,
+    withdrawalfromMunicipalotherOtherSources,
+    volumeWithdrawnfromWaterStressedRegions,
   ]);
 
   const { filled, total } = useMemo(() => {
