@@ -13,6 +13,8 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface Props {
   onBack: () => void;
@@ -29,6 +31,9 @@ export default function HCDTContribution({
   stepIndex,
   totalSteps,
 }: Props) {
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution");
+
   const opexAmount = useFormattedNumber("");
   const hcdtAmount = useFormattedNumber("");
 
@@ -97,29 +102,21 @@ export default function HCDTContribution({
 
     setIsActionLoading(true);
 
-    // Log the data
-    console.log("=== HCDT Contribution Data ===");
-    console.log("OPEX Amount:", payload.opexAmount);
-    console.log("OPEX Unit:", payload.opexUnit);
-    console.log("HCDT Amount:", payload.hcdtAmount);
-    console.log("HCDT Unit:", payload.hcdtUnit);
-    console.log("Files and Links:", payload.filesAndLinks);
-    console.log("Full Payload:", payload);
-    console.log("=============================");
-
-    // Simulate save delay
-    setTimeout(() => {
-      setIsActionLoading(false);
+    try {
+      await saveNow("socialCapital.communityRelations.hcdtContribution", payload);
       setShowSaveSuccess(true);
-      toast.success("Data logged successfully");
-
+      toast.success("Data saved successfully!");
       setTimeout(() => {
-        setShowSaveSuccess(false);
-      }, 1500);
-    }, 1000);
+        router.push("/assessments");
+      }, 1000);
+    } catch (error) {
+      toast.error("Failed to save data");
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -133,17 +130,13 @@ export default function HCDTContribution({
       filesAndLinks: filesAndLinks,
     };
 
-    // Log the data
-    console.log("=== HCDT Contribution Data (Next) ===");
-    console.log("OPEX Amount:", payload.opexAmount);
-    console.log("OPEX Unit:", payload.opexUnit);
-    console.log("HCDT Amount:", payload.hcdtAmount);
-    console.log("HCDT Unit:", payload.hcdtUnit);
-    console.log("Files and Links:", payload.filesAndLinks);
-    console.log("Full Payload:", payload);
-    console.log("====================================");
-
-    onNext();
+    try {
+      await saveNow("socialCapital.communityRelations.hcdtContribution", payload);
+      toast.success("Progress saved!");
+      onNext();
+    } catch (error) {
+      toast.error("Failed to save data");
+    }
   };
 
   const handlePrevious = () => {

@@ -4,16 +4,19 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, CheckCircle2, Save } from "lucide-react";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { Label } from "@/app/components/ui/label";
+import { Input } from "@/app/components/ui/input";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
-import { Textarea } from "@/app/components/ui/textarea";
-import { Label } from "@/app/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CheckCircle2, Save } from "lucide-react";
-import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface Props {
   onBack: () => void;
@@ -23,21 +26,25 @@ interface Props {
   totalSteps: number;
 }
 
-export default function CommunityRisk({
+export default function OperationalDelay({
   onBack,
   onDisclosureTopics,
   onNext,
   stepIndex,
   totalSteps,
 }: Props) {
+  const router = useRouter();
+  const { saveNow, submitGroup } = useAssessmentFlow("socialCapital.communityRelations.operationalDelays");
+
+  const delayDays = useFormattedNumber("");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
-    hcdtIncorporated: "",
-    riskDescription: "",
+    delayDaysUnit: "Days",
   });
 
   const features = [
@@ -45,7 +52,7 @@ export default function CommunityRisk({
     { label: "Assessments", href: "/assessments/hub" },
     { label: "Disclosure topics", onClick: onDisclosureTopics },
     { label: "Community Relations", onClick: onBack },
-    { label: "Community Risk & Opportunity Management" },
+    { label: "Operational Delays (Non-Technical)" },
   ];
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -56,25 +63,19 @@ export default function CommunityRisk({
 
   // Calculate progress
   const progress = useMemo(() => {
-    const hasHcdtAnswer = formData.hcdtIncorporated !== "";
-    const hasDescription = formData.riskDescription.trim() !== "";
-
-    const completed = [hasHcdtAnswer, hasDescription].filter(Boolean).length;
+    const hasDelayDays = delayDays.rawValue !== "" && formData.delayDaysUnit !== "";
+    const completed = [hasDelayDays].filter(Boolean).length;
     return completed;
-  }, [formData.hcdtIncorporated, formData.riskDescription]);
+  }, [delayDays.rawValue, formData.delayDaysUnit]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.hcdtIncorporated) {
-      newErrors.hcdtIncorporated = "Please select Yes or No";
+    if (!delayDays.rawValue) {
+      newErrors.delayDays = "Number of delay days is required";
     }
-
-    if (!formData.riskDescription.trim()) {
-      newErrors.riskDescription = "Risk management description is required";
-    } else if (formData.riskDescription.trim().length < 50) {
-      newErrors.riskDescription =
-        "Please provide a more detailed description (at least 50 characters)";
+    if (!formData.delayDaysUnit) {
+      newErrors.delayDaysUnit = "Unit is required";
     }
 
     setErrors(newErrors);
@@ -83,54 +84,51 @@ export default function CommunityRisk({
 
   const handleSaveAndContinue = async () => {
     const payload = {
-      hcdtIncorporated: formData.hcdtIncorporated,
-      riskDescription: formData.riskDescription,
+      delayDays: Number(delayDays.rawValue),
+      delayDaysUnit: formData.delayDaysUnit,
       filesAndLinks: filesAndLinks,
     };
 
     setIsActionLoading(true);
 
-    // Log the data
-    console.log("=== Community Risk & Opportunity Management Data ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
-    console.log("Files and Links:", payload.filesAndLinks);
-    console.log("Full Payload:", payload);
-    console.log("=============================");
-
-    // Simulate save delay
-    setTimeout(() => {
-      setIsActionLoading(false);
+    try {
+      await saveNow("socialCapital.communityRelations.operationalDelays", payload);
       setShowSaveSuccess(true);
-      toast.success("Data logged successfully");
-
+      toast.success("Data saved successfully!");
       setTimeout(() => {
-        setShowSaveSuccess(false);
-      }, 1500);
-    }, 1000);
+        router.push("/assessments");
+      }, 1000);
+    } catch (error) {
+      toast.error("Failed to save data");
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before continuing.");
+      toast.error("Please fix the errors before submitting.");
       return;
     }
 
     const payload = {
-      hcdtIncorporated: formData.hcdtIncorporated,
-      riskDescription: formData.riskDescription,
+      delayDays: Number(delayDays.rawValue),
+      delayDaysUnit: formData.delayDaysUnit,
       filesAndLinks: filesAndLinks,
     };
 
-    // Log the data
-    console.log("=== Community Risk & Opportunity Management Data (Next) ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
-    console.log("Files and Links:", payload.filesAndLinks);
-    console.log("Full Payload:", payload);
-    console.log("====================================");
+    setIsActionLoading(true);
 
-    onNext();
+    try {
+      await saveNow("socialCapital.communityRelations.operationalDelays", payload);
+      await submitGroup();
+      toast.success("Assessment completed successfully!");
+      onNext(); // This triggers the success screen
+    } catch (error) {
+      toast.error("Failed to submit assessment");
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   const handlePrevious = () => {
@@ -148,10 +146,10 @@ export default function CommunityRisk({
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
-            <h3 className="text-2xl font-semibold">Community Risk & Opportunity Management</h3>
+            <h3 className="text-2xl font-semibold">Operational Delays (Non-Technical)</h3>
             <p className="text-muted-foreground text-base">
-              Describe your organization&apos;s process for managing risks and opportunities related
-              to the rights and interests of the communities where you operate.
+              Report the quantitative impact of non-technical, community-related disruptions on your
+              operations during the reporting period.
             </p>
           </div>
         </div>
@@ -162,98 +160,64 @@ export default function CommunityRisk({
               stepIndex={stepIndex}
               totalSteps={totalSteps}
               fieldsCompleted={progress}
-              totalFields={2}
+              totalFields={1}
               isSubmitted={false}
             />
 
-            {/* HCDT Incorporation Question */}
+            {/* Number of Delay Days */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-semibold">
-                  Have Host Community Development Trusts (HCDTs) been fully incorporated and funded
-                  for all assets?
+                  Number of Operational Delay Days (Non-Technical)
                 </Label>
 
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title="HCDT Incorporation Status"
-                      message="Indicate whether your company has established and funded Host Community Development Trusts for all relevant oil and gas assets as required by the PIA 2021."
+                      title="Operational Delay Days"
+                      message="Enter the total number of days that operations were delayed or disrupted due to non-technical, community-related issues such as protests, access restrictions, or unresolved disputes."
                     />
                   }
                 />
               </div>
 
               <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hcdtIncorporated"
-                      value="yes"
-                      checked={formData.hcdtIncorporated === "yes"}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="delayDays">Count</Label>
+                    <Input
+                      id="delayDays"
+                      type="text"
+                      placeholder="e.g., 15"
+                      value={delayDays.displayValue}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, hcdtIncorporated: e.target.value }));
-                        setErrors((prev) => ({ ...prev, hcdtIncorporated: "" }));
+                        delayDays.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, delayDays: "" }));
                       }}
-                      className="w-4 h-4 text-primary"
+                      className={errors.delayDays ? "border-red-500" : ""}
                     />
-                    <span>Yes</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hcdtIncorporated"
-                      value="no"
-                      checked={formData.hcdtIncorporated === "no"}
+                    {errors.delayDays && (
+                      <p className="text-sm text-red-500">{errors.delayDays}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="delayDaysUnit">Unit</Label>
+                    <Input
+                      id="delayDaysUnit"
+                      type="text"
+                      value={formData.delayDaysUnit}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, hcdtIncorporated: e.target.value }));
-                        setErrors((prev) => ({ ...prev, hcdtIncorporated: "" }));
+                        setFormData((prev) => ({ ...prev, delayDaysUnit: e.target.value }));
+                        setErrors((prev) => ({ ...prev, delayDaysUnit: "" }));
                       }}
-                      className="w-4 h-4 text-primary"
+                      readOnly
+                      className="bg-gray-50"
                     />
-                    <span>No</span>
-                  </label>
+                    {errors.delayDaysUnit && (
+                      <p className="text-sm text-red-500">{errors.delayDaysUnit}</p>
+                    )}
+                  </div>
                 </div>
-                {errors.hcdtIncorporated && (
-                  <p className="text-sm text-red-500">{errors.hcdtIncorporated}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Risk Management Description */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold">
-                  Description of Community Risk Management Process
-                </Label>
-
-                <CustomTooltip
-                  detail={
-                    <TooltipMessage
-                      title="Community Risk Management Process"
-                      message="Provide an overview of how your company identifies, evaluates, and manages risks related to local communities. This may include stakeholder engagement plans, grievance mechanisms, social impact assessments, conflict-prevention strategies, and processes for responding to community concerns. The goal is to show how your company protects community well-being while reducing operational and reputational risks."
-                    />
-                  }
-                />
-              </div>
-
-              <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <Textarea
-                  value={formData.riskDescription}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, riskDescription: e.target.value }));
-                    setErrors((prev) => ({ ...prev, riskDescription: "" }));
-                  }}
-                  placeholder="e.g., Our primary process is the implementation of Host Community Development Trusts (HCDTs) as required by the PIA 2021, which funds community projects and provides a formal grievance mechanism..."
-                  className={`min-h-37.5 ${errors.riskDescription ? "border-red-500" : ""}`}
-                />
-                {errors.riskDescription && (
-                  <p className="text-sm text-red-500">{errors.riskDescription}</p>
-                )}
-                <p className="text-sm text-gray-500">
-                  {formData.riskDescription.length} characters
-                </p>
               </div>
             </div>
 
@@ -261,9 +225,9 @@ export default function CommunityRisk({
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600">
-                Upload supporting documents like Host Community Development Trust (HCDT) annual
-                reports, community grievance logs and resolution records, and minutes from HCDT
-                board meetings.
+                Upload operational reports showing downtime or delays, incident logs detailing
+                community-related disruptions, and correspondence with community representatives or
+                government authorities.
               </p>
 
               <div className="mt-6">
@@ -284,7 +248,7 @@ export default function CommunityRisk({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"
@@ -312,13 +276,21 @@ export default function CommunityRisk({
               </Button>
               <Button
                 type="button"
-                variant="outline"
-                onClick={handleNext}
+                onClick={handleSubmit}
                 disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
               >
-                Next
-                <ArrowRight className="h-4 w-4" />
+                {isActionLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Submit
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>

@@ -260,7 +260,7 @@ export default function WaterAndWastemanagementCards({
         backToAssessment={backToAssessmentHub}
         backToDisclosureTopic={backToDisclosureTopics}
         backToWaterWasteManagement={backToWasteWaterManagement}
-        onBack={backToWasteWaterManagement}
+        onBack={() => setStep(1)}
         onContinueToNextAssessment={() => setStep(3)}
         stepIndex={2}
         totalSteps={4}
@@ -273,7 +273,7 @@ export default function WaterAndWastemanagementCards({
         backToDisclosureTopic={backToDisclosureTopics}
         backToAssessment={backToAssessmentHub}
         backToWaterWasteManagement={backToWasteWaterManagement}
-        onBack={backToWasteWaterManagement}
+        onBack={() => setStep(2)}
         onContinueToNextAssessment={() => setStep(4)}
         stepIndex={3}
         totalSteps={4}
@@ -286,7 +286,7 @@ export default function WaterAndWastemanagementCards({
         backToDisclosureTopic={backToDisclosureTopics}
         backToAssessment={backToAssessmentHub}
         backToWaterWasteManagement={backToWasteWaterManagement}
-        onBack={backToWasteWaterManagement}
+        onBack={() => setStep(3)}
         onContinueToNextAssessment={() => setShowSuccess(true)}
         stepIndex={4}
         totalSteps={4}

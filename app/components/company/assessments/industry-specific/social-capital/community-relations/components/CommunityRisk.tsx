@@ -14,6 +14,8 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface Props {
   onBack: () => void;
@@ -30,6 +32,9 @@ export default function CommunityRisk({
   stepIndex,
   totalSteps,
 }: Props) {
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.communityRisk");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -90,27 +95,21 @@ export default function CommunityRisk({
 
     setIsActionLoading(true);
 
-    // Log the data
-    console.log("=== Community Risk & Opportunity Management Data ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
-    console.log("Files and Links:", payload.filesAndLinks);
-    console.log("Full Payload:", payload);
-    console.log("=============================");
-
-    // Simulate save delay
-    setTimeout(() => {
-      setIsActionLoading(false);
+    try {
+      await saveNow("socialCapital.communityRelations.communityRisk", payload);
       setShowSaveSuccess(true);
-      toast.success("Data logged successfully");
-
+      toast.success("Data saved successfully!");
       setTimeout(() => {
-        setShowSaveSuccess(false);
-      }, 1500);
-    }, 1000);
+        router.push("/assessments");
+      }, 1000);
+    } catch (error) {
+      toast.error("Failed to save data");
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -122,15 +121,13 @@ export default function CommunityRisk({
       filesAndLinks: filesAndLinks,
     };
 
-    // Log the data
-    console.log("=== Community Risk & Opportunity Management Data (Next) ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
-    console.log("Files and Links:", payload.filesAndLinks);
-    console.log("Full Payload:", payload);
-    console.log("====================================");
-
-    onNext();
+    try {
+      await saveNow("socialCapital.communityRelations.communityRisk", payload);
+      toast.success("Progress saved!");
+      onNext();
+    } catch (error) {
+      toast.error("Failed to save data");
+    }
   };
 
   const handlePrevious = () => {

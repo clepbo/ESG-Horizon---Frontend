@@ -3,7 +3,7 @@ import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { UnitSelect } from "../../../../UnitSelect";
+import { UnitSelect, UnitContext } from "../../../../UnitSelect";
 
 interface ReusableInputProps {
   label: string;
@@ -26,6 +26,7 @@ interface ReusableInputProps {
   className?: string;
   formatNumbers?: boolean; // when true, format on blur with commas
   customUnit?: string; // NEW: if provided, display as read-only text instead of UnitSelect
+  context?: UnitContext; // NEW: context for unit dropdown
 }
 
 export default function ReusableInput({
@@ -44,6 +45,7 @@ export default function ReusableInput({
   className = "",
   formatNumbers = false,
   customUnit, // NEW: optional custom unit
+  context = "water", // Default to water context
 }: ReusableInputProps) {
   const [displayValue, setDisplayValue] = useState<string>(inputValue ?? "");
 
@@ -128,9 +130,7 @@ export default function ReusableInput({
       </div>
 
       <div
-        className={`grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border ${
-          error || unitError ? "border-red-300" : "border-gray-200"
-        } transition-colors`}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200 transition-colors"
       >
         {/* Volume Input */}
         <div className="space-y-2">
@@ -149,7 +149,7 @@ export default function ReusableInput({
             placeholder={placeholder}
             className={`${error ? "border-red-300 focus:border-red-500" : "border-gray-300"}`}
             disabled={disabled}
-            // no maxLength here so users can type as many digits as they want
+          // no maxLength here so users can type as many digits as they want
           />
 
           {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
@@ -168,10 +168,13 @@ export default function ReusableInput({
               {customUnit}
             </div>
           ) : (
-            // Default UnitSelect component
-            <>
-              <UnitSelect value={unitValue} onValueChange={handleUnitChange} error={unitError} />
-            </>
+            // Default UnitSelect component with context
+            <UnitSelect
+              value={unitValue}
+              onValueChange={handleUnitChange}
+              error={unitError}
+              context={context}
+            />
           )}
         </div>
       </div>

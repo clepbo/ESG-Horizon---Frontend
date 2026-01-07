@@ -162,6 +162,7 @@ export default function FreshWaterWithdrawalAndConsumption({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    // Withdrawal from Surface Water
     if (!withdrawalfromSurfaceWater.rawValue) {
       newErrors.withdrawalfromSurfaceWater = "Volume is required";
     }
@@ -169,6 +170,7 @@ export default function FreshWaterWithdrawalAndConsumption({
       newErrors.withdrawalfromSurfaceWaterUnit = "Unit is required";
     }
 
+    // Withdrawal from Groundwater
     if (!withdrawalfromGroundwater.rawValue) {
       newErrors.withdrawalfromGroundwater = "Volume is required";
     }
@@ -176,6 +178,7 @@ export default function FreshWaterWithdrawalAndConsumption({
       newErrors.withdrawalfromGroundwaterUnit = "Unit is required";
     }
 
+    // Withdrawal from Municipal & Other Sources
     if (!withdrawalfromMunicipalotherOtherSources.rawValue) {
       newErrors.withdrawalfromMunicipalotherOtherSources = "Volume is required";
     }
@@ -183,6 +186,7 @@ export default function FreshWaterWithdrawalAndConsumption({
       newErrors.withdrawalfromMunicipalotherOtherSourcesUnit = "Unit is required";
     }
 
+    // Total Water Consumed
     if (!totalWaterConsumed.rawValue) {
       newErrors.totalWaterConsumed = "Volume is required";
     }
@@ -190,6 +194,7 @@ export default function FreshWaterWithdrawalAndConsumption({
       newErrors.totalWaterConsumedUnit = "Unit is required";
     }
 
+    // Volume Withdrawn from Water-Stressed Regions
     if (!volumeWithdrawnfromWaterStressedRegions.rawValue) {
       newErrors.volumeWithdrawnfromWaterStressedRegions = "Volume is required";
     }
@@ -447,7 +452,7 @@ export default function FreshWaterWithdrawalAndConsumption({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"
