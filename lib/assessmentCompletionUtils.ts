@@ -94,12 +94,11 @@ const SCOPE_MAPPING: Record<string, string[]> = {
  * Mapping for sub-component titles
  */
 const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
-  // Water Management
   "Freshwater Withdrawal & Consumption": [
     "environment",
     "waterManagement",
     "waterAndProducedWaterManagement",
-    "freshwaterWithdrawals",
+    "freshwaterWithdrawalAndConsumption",
   ],
   "Produced Water Management": [
     "environment",
@@ -107,19 +106,20 @@ const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
     "waterAndProducedWaterManagement",
     "producedWaterManagement",
   ],
+
+  // Water Management - Hydraulic Fracturing Impacts section
   "Chemical Disclosure": [
     "environment",
     "waterManagement",
-    "waterAndProducedWaterManagement",
+    "hydraulicFracturingImpacts",
     "chemicalDisclosure",
   ],
   "Water Quality Impacts": [
     "environment",
     "waterManagement",
-    "waterAndProducedWaterManagement",
+    "hydraulicFracturingImpacts",
     "waterQualityImpacts",
   ],
-
   // Biodiversity Impact
   "Environmental Management Policies": [
     "environment",
