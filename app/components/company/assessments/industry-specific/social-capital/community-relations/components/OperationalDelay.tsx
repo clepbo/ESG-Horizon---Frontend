@@ -34,7 +34,9 @@ export default function OperationalDelay({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow, submitGroup } = useAssessmentFlow("socialCapital.communityRelations.operationalDelays");
+  const { saveNow, submitGroup } = useAssessmentFlow(
+    "socialCapital.communityRelations.operationalDelays"
+  );
 
   const delayDays = useFormattedNumber("");
 
@@ -98,7 +100,7 @@ export default function OperationalDelay({
       setTimeout(() => {
         router.push("/assessments");
       }, 1000);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save data");
     } finally {
       setIsActionLoading(false);
@@ -124,7 +126,7 @@ export default function OperationalDelay({
       await submitGroup();
       toast.success("Assessment completed successfully!");
       onNext(); // This triggers the success screen
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to submit assessment");
     } finally {
       setIsActionLoading(false);
@@ -196,9 +198,7 @@ export default function OperationalDelay({
                       }}
                       className={errors.delayDays ? "border-red-500" : ""}
                     />
-                    {errors.delayDays && (
-                      <p className="text-sm text-red-500">{errors.delayDays}</p>
-                    )}
+                    {errors.delayDays && <p className="text-sm text-red-500">{errors.delayDays}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="delayDaysUnit">Unit</Label>

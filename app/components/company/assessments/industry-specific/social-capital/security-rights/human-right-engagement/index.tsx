@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
@@ -37,7 +37,9 @@ export default function HumanRightEngagement({
   onSubmit,
 }: HumanRightEngagementProps) {
   const router = useRouter();
-  const { saveNow, submitGroup } = useAssessmentFlow("socialCapital.securityRights.humanRightEngagement");
+  const { saveNow, submitGroup } = useAssessmentFlow(
+    "socialCapital.securityRights.humanRightEngagement"
+  );
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -92,7 +94,7 @@ export default function HumanRightEngagement({
       setTimeout(() => {
         router.push("/assessments");
       }, 1000);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
@@ -119,7 +121,7 @@ export default function HumanRightEngagement({
       await submitGroup();
       toast.success("Assessment completed successfully!");
       onSubmit(null);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to submit assessment");
     } finally {
       setIsSaving(false);
