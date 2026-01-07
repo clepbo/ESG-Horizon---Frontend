@@ -41,7 +41,7 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
   useEffect(() => {
     const loadSubsidiaries = async () => {
       try {
-        const data = await subsidiariesService.getAll();
+        const data = await subsidiariesService.getCompanySubsidiaries();
         setSubsidiaries(data || []);
       } catch (err) {
         console.error("Failed to load subsidiaries", err);
@@ -108,8 +108,9 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
       setDeptInput(newDept.name);
       toast.success("Department added successfully");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to add department";
-      toast.error(message);
+      toast.error(err instanceof Error ? err.message : "Failed to add department");
+    } finally {
+      setAddingDept(false);
     }
   };
 

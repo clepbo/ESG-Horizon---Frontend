@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CementManufacturing } from "./CementManufacturing";
 import { GasFlaring } from "./GasFlaring";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
@@ -12,6 +13,7 @@ interface ProcessEmissionsFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = ["Cement Manufacturing", "Gas Flaring"];
@@ -22,7 +24,9 @@ export function ProcessEmissionsForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: ProcessEmissionsFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "cement-manufacturing");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -46,10 +50,9 @@ export function ProcessEmissionsForm({
       <SuccessScreen
         assessmentName="Process Emissions"
         sectionKey="processEmissions"
-        totals={totals ?? undefined}
-        nextAssessment="Fugitive Emissions"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments")}
       />
     );
   }

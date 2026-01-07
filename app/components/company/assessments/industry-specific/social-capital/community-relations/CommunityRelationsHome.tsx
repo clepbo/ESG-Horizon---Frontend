@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Card } from "@/app/components/ui/card";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
@@ -24,8 +25,10 @@ interface Props {
 export default function CommunityRelationsHome({
   onBack,
   backToAssessmentHub,
+  onContinue: _onContinue,
   backToDisclosureTopics,
 }: Props) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<string>("");
   const { dispatch } = useAssessment();
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -71,6 +74,7 @@ export default function CommunityRelationsHome({
         totals={undefined}
         nextAssessment="Workforce Health & Safety"
         onContinue={handleSuccessContinue}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={handleBackToHub}
       />
     );
@@ -150,7 +154,9 @@ export default function CommunityRelationsHome({
           { label: "Assessments", href: "/assessments/hub" },
           {
             label: "Disclosure topics",
-            onClick: onBack ? onBack : () => dispatch({ type: "SET_VIEW", payload: "disclosure" }),
+            onClick: onBack
+              ? onBack
+              : () => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }),
           },
           { label: "Community Relations" },
         ]}
@@ -168,7 +174,16 @@ export default function CommunityRelationsHome({
                 EM-EP-210b.2
               </p>
             </div>
-            <Button className="text-white cursor-pointer">Assign task</Button>
+            <Button
+              className="text-white cursor-pointer"
+              onClick={() =>
+                router.push(
+                  `/assessments/tasks/assign?topic=${encodeURIComponent("Community Relations")}`
+                )
+              }
+            >
+              Assign task
+            </Button>
           </div>
 
           <FeatureCard

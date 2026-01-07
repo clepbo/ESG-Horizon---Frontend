@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ElectricityHeatForm } from "./ElectricityHeat";
 import { IndustrialProcessesForm } from "./IndustrialProcesses";
 import { OilGasOperations } from "./OilGasOperations";
@@ -14,6 +15,7 @@ interface StationarySourcesFormProps {
   onContinueToNextAssessment: () => void;
   onBackToHub: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = ["Electricity & Heat", "Industrial Processes", "Oil & Gas"];
@@ -24,7 +26,9 @@ export function StationarySourcesForm({
   onContinueToNextAssessment,
   onBackToHub,
   initialStep,
+  onBackToDisclosureTopics,
 }: StationarySourcesFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -50,7 +54,8 @@ export function StationarySourcesForm({
         nextAssessment="Mobile Sources"
         totals={totals ?? undefined}
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments")}
       />
     );
   }

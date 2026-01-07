@@ -3,6 +3,7 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, CheckCircle2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAssessment } from "@/hooks/useAssessment";
 import {
   checkTopicCompletion,
@@ -22,6 +23,7 @@ export default function AirQualityCard({
   backToAssessmentHub,
   handleCardClick,
 }: AirQualityProps) {
+  const router = useRouter();
   const { state } = useAssessment();
   const [completionStatus, setCompletionStatus] = useState<CompletionStatus>({
     status: "not-started",
@@ -97,7 +99,16 @@ export default function AirQualityCard({
                   management of associated environmental and health risks. IFRS code: EM-EP-120a.1
                 </p>
               </div>
-              <Button className="text-white cursor-pointer rounded">Assign task</Button>
+              <Button
+                className="text-white cursor-pointer rounded"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent("Air Quality")}`
+                  )
+                }
+              >
+                Assign task
+              </Button>
             </div>
 
             {cards.map((card, i) => (

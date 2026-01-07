@@ -89,11 +89,11 @@ export function UserTasksCoordinator({ onBack }: UserTasksCoordinatorProps) {
     setViewState({ type: "disclosure-topics", task, topics, assessmentId });
   };
 
-  // const handleBackFromDisclosureTopics = () => {
-  //   // When backing out of disclosure topics, go back to task list
-  //   // Don't clear the assigned task flag yet
-  //   setViewState({ type: "task-list" });
-  // };
+  const handleBackFromDisclosureTopics = () => {
+    // When backing out of disclosure topics, go back to task list
+    // Don't clear the assigned task flag yet
+    setViewState({ type: "task-list" });
+  };
 
   const handleBackFromTaskList = () => {
     dispatch({ type: "SET_CONTINUE_MODE", payload: false });
@@ -114,8 +114,7 @@ export function UserTasksCoordinator({ onBack }: UserTasksCoordinatorProps) {
   if (viewState.type === "disclosure-topics") {
     return (
       <DisclosureTopics
-        // onBack={handleBackFromDisclosureTopics}
-        onBack={onBack}
+        onBack={handleBackFromDisclosureTopics}
         assignedTask={viewState.task}
         assignedTopics={viewState.topics}
       />

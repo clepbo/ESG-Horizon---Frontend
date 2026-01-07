@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -163,6 +164,7 @@ export function GhgEmissionsAssessment({
   assignedTask,
   assignedTopics,
 }: GhgEmissionsAssessmentProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
@@ -249,6 +251,7 @@ export function GhgEmissionsAssessment({
         onContinueToNextAssessment={() => setCurrentView("mobile-sources")}
         onBackToHub={onBackToHub}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -258,6 +261,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("process-emissions")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -267,6 +271,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("fugitive-emissions")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -276,6 +281,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("location-based")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -286,6 +292,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("market-based")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -295,6 +302,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("scope3")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -346,7 +354,18 @@ export function GhgEmissionsAssessment({
                 )}
               </div>
               {!assignedTask && (
-                <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+                <Button
+                  className="bg-primary hover:bg-teal-600 text-white"
+                  onClick={() =>
+                    router.push(
+                      `/assessments/tasks/assign?topic=${encodeURIComponent(
+                        "GreenHouse Gas Emissions"
+                      )}`
+                    )
+                  }
+                >
+                  Assign Task
+                </Button>
               )}
             </div>
 

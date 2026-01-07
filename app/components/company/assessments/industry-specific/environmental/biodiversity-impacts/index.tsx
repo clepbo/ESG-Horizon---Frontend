@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -75,10 +76,11 @@ export function BioDiversityImpact({
   initialForm,
   onContinueToNextAssessment,
 }: BioDiversityImpactProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
 
   // Use the reusable hook with checkSubComponentCompletion
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
@@ -117,6 +119,7 @@ export function BioDiversityImpact({
         totals={totals ?? undefined}
         nextAssessment="Security, Human Rights &amp; Community Engagement"
         onContinue={onContinueToNextAssessment}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}
       />
     );
@@ -180,7 +183,16 @@ export function BioDiversityImpact({
                   (IFRS codes: EM-EP-160a.1, EM-EP-160a.2, EM-EP-160a.3)
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent("Biodiversity Impact")}`
+                  )
+                }
+              >
+                Assign Task
+              </Button>
             </div>
 
             <Accordion

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Checkbox } from "@/app/components/ui/checkbox";
 import { Card } from "@/app/components/ui/card";
 import {
   ArrowLeft,
@@ -27,6 +26,8 @@ import { toast } from "react-toastify";
 import { AssignSuccessModal } from "@/app/components/company/tasks/AssignSuccessModal";
 import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
 import { FrontendTask } from "@/services/assignTask.service";
+import InviteUserModal from "@/app/(company)/components/InviteUserModal";
+import { useCompanyDepartments } from "@/services/hooks/department.hooks";
 
 interface Topic {
   name: string;
@@ -105,24 +106,32 @@ const topicsData: Topic[] = [
         ],
       },
       { name: "Air Quality" },
-      { name: "Water Management" },
+      { name: "Water and Wastewater Management" },
       { name: "Biodiversity Impact" },
     ],
   },
   {
     name: "Social Capital",
     children: [
-      { name: "Community Engagement" },
+      { name: "Community Relations" },
       { name: "Stakeholder Relations" },
       { name: "Supply Chain Labor Standards" },
+      { name: "Security, Human Rights & Rights of Indigenous Peoples" },
     ],
   },
   {
     name: "Human Capital",
     children: [
       { name: "Employee Training & Development" },
-      { name: "Health & Safety" },
+      { name: "Workforce Health & Safety" },
       { name: "Diversity & Inclusion" },
+    ],
+  },
+  {
+    name: "Business Model Innovation",
+    children: [
+      { name: "Reserves Valuation & Capital Expenditures" },
+      { name: "Business Ethics & Transparency" },
     ],
   },
 ];
@@ -166,18 +175,81 @@ export default function AssignTaskPage() {
   const { data: companyDetails } = useCompanyDetails();
   const companyId = Number(companyDetails?.id);
   const { data: teamMembers } = useCompanyUsers(String(companyId));
+  const { data: departments } = useCompanyDepartments(companyId);
 
   const [taskName, setTaskName] = useState("");
   const [selectedMember, setSelectedMember] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>();
-  const [sendEmail, setSendEmail] = useState(false);
+  const [sendEmail, setSendEmail] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [initialData, setInitialData] = useState<FrontendTask | null>(null);
   const editTaskMutation = useEditTask();
+
+  useEffect(() => {
+    const topicParam = searchParams.get("topic");
+    const selectAllParam = searchParams.get("selectAll");
+
+    if (selectAllParam === "true" && !editId) {
+      // Select ALL topics
+      const allTopics: string[] = [];
+      const traverse = (list: Topic[]) => {
+        list.forEach((t) => {
+          allTopics.push(t.name);
+          if (t.children) traverse(t.children);
+        });
+      };
+      traverse(topicsData);
+      setSelectedTopics(allTopics);
+      // Optional: expand all top level?
+      setExpandedTopics(topicsData.map((t) => t.name));
+      return;
+    }
+
+    if (topicParam && !editId) {
+      // Find the topic object to match exactly or just add it strings
+      // Using toggleSelectTopic logic requires traversing, but for simply adding we can check existence
+      // However, we want to maintain the "toggle" logic consistency if possible, or just force add it.
+      // Let's force add it to selectedTopics if not already there.
+
+      const topicName = decodeURIComponent(topicParam);
+      setSelectedTopics((prev) => {
+        if (prev.includes(topicName)) return prev;
+
+        // Also simple logic: just add it. The "renderTopics" calculates indeterminate state based on this list.
+        // Ideally we should include descendants if the user expects "Selecting GHG" means "Selecting all GHG",
+        // but "toggleSelectTopic" does that. Let's call it?
+        // We can't call toggleSelectTopic easily in useEffect because it relies on state updater.
+        // We'll mimic the logic: find topic, get descendants, add all.
+
+        const findTopic = (list: Topic[]): Topic | undefined => {
+          for (const topic of list) {
+            if (topic.name.toLowerCase() === topicName.toLowerCase()) return topic;
+            if (topic.children) {
+              const found = findTopic(topic.children);
+              if (found) return found;
+            }
+          }
+          return undefined;
+        };
+
+        const topic = findTopic(topicsData);
+        if (topic) {
+          const descendants = findAllDescendants(topic);
+          const allRelated = [topic.name, ...descendants];
+          return Array.from(new Set([...prev, ...allRelated]));
+        }
+
+        return prev;
+      });
+      // Also expand the tree to show the topic? Optional but nice.
+      setExpandedTopics((prev) => [...prev, topicName]);
+    }
+  }, [searchParams, editId]);
 
   useEffect(() => {
     if (editId && tasks) {
@@ -193,11 +265,15 @@ export default function AssignTaskPage() {
           const member = teamMembers.find(
             (m) => `${m.first_name} ${m.last_name}`.trim() === memberName
           );
+
           if (member) {
             setSelectedMember(String(member.id));
           }
         }
-        setSendEmail(task.sendEmail ?? false);
+        // Always send email for new tasks, but respect saved setting for edits?
+        // Request says "Remove the checkbox and make notifications automatic."
+        // So we will force it to true always unless we really want to preserve legacy data.
+        setSendEmail(true);
       }
     }
   }, [editId, tasks, teamMembers]);
@@ -387,7 +463,14 @@ export default function AssignTaskPage() {
             <Label>Select Department / Team Member</Label>
             <select
               value={selectedMember}
-              onChange={(e) => setSelectedMember(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value === "invite_new") {
+                  setIsInviteModalOpen(true);
+                  // Don't set selectedMember to 'invite_new'
+                  return;
+                }
+                setSelectedMember(e.target.value);
+              }}
               className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
             >
               <option value="">Select a member</option>
@@ -398,18 +481,10 @@ export default function AssignTaskPage() {
                     {member.first_name} {member.last_name} ({member.email})
                   </option>
                 ))}
+              <option value="invite_new" className="font-semibold text-teal-600 bg-teal-50">
+                + Invite New Member
+              </option>
             </select>
-
-            <div className="flex items-center gap-2 mt-0">
-              <Checkbox
-                className="text-white"
-                checked={sendEmail}
-                onCheckedChange={(checked) => setSendEmail(checked === true)}
-              />
-              <span className="text-sm text-neutral-700">
-                Send email notification to inform department team member
-              </span>
-            </div>
           </div>
 
           <div className="space-y-1">
@@ -532,6 +607,20 @@ export default function AssignTaskPage() {
         teamMembers={teamMembers?.filter((m) => String(m.id) === selectedMember) || []}
         topics={selectedTopics}
       />
+      {isInviteModalOpen && (
+        <InviteUserModal
+          onClose={() => setIsInviteModalOpen(false)}
+          onInvite={() => {
+            // Optionally refresh team members here if not handled by hook re-fetch
+            // The useCompanyUsers hook should auto-update if it uses react-query and we invalidate,
+            // but InviteUserModal just calls service.invite.
+            // We'll rely on global state update or manual refresh if needed.
+            // For now just close modal.
+            toast.success("Invitation sent. They will appear in the list once they accept.");
+          }}
+          departments={departments || []}
+        />
+      )}
     </div>
   );
 }

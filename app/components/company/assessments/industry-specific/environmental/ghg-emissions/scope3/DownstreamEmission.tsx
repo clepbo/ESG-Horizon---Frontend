@@ -8,6 +8,10 @@ import { DownstreamLeasedAsset } from "./downstream/DownstreamLeasedAssets";
 import { Franchise } from "./downstream/Franchises";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { Investments } from "./downstream/Investments";
+import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+import { useAssessment } from "@/hooks/useAssessment";
+import { TotalsResponse } from "@/services/assessment.service";
+import { toast } from "react-toastify";
 
 export default function DownstreamEmission({
   handleBacktoAssessment,
@@ -15,22 +19,84 @@ export default function DownstreamEmission({
   backToDisclossureTopic,
 }: UpstreamProps) {
   const [step, setStep] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { state, dispatch } = useAssessment();
 
-  const { submitGroup } = useAssessmentFlow("ghg-scope3-downstream");
+  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-downstream");
 
   function handleNext(val: number) {
     setStep(val);
   }
 
-  async function handleFinalNext() {
-    await submitGroup();
-    handleBacktoGHG();
+  async function handleSubmit() {
+    const data = state.assessmentData.environment?.ghg?.scope3?.downstream;
+
+    try {
+      // Bulk save all steps in the group before submitting
+      if (data?.downstreamTransportationDistribution) {
+        await saveNow(
+          "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
+          data.downstreamTransportationDistribution
+        );
+      }
+      if (data?.processingSoldProducts) {
+        await saveNow(
+          "environment.ghg.scope3.downstream.processingSoldProducts",
+          data.processingSoldProducts
+        );
+      }
+      if (data?.useOfSoldProducts) {
+        await saveNow(
+          "environment.ghg.scope3.downstream.useOfSoldProducts",
+          data.useOfSoldProducts
+        );
+      }
+      if (data?.endOfLifeTreatment) {
+        await saveNow(
+          "environment.ghg.scope3.downstream.endOfLifeTreatment",
+          data.endOfLifeTreatment
+        );
+      }
+      if (data?.downstreamLeasedAssets) {
+        await saveNow(
+          "environment.ghg.scope3.downstream.downstreamLeasedAssets",
+          data.downstreamLeasedAssets
+        );
+      }
+      if (data?.franchises) {
+        await saveNow("environment.ghg.scope3.downstream.franchises", data.franchises);
+      }
+      if (data?.investments) {
+        await saveNow("environment.ghg.scope3.downstream.investments", data.investments);
+      }
+
+      const response = await submitGroup();
+      setTotals(response?.totals ?? null);
+      setShowSuccess(true);
+    } catch (err) {
+      toast.error("Submission failed");
+      console.error("Submission failed:", err);
+    }
+  }
+
+  if (showSuccess) {
+    return (
+      <SuccessScreen
+        assessmentName="Downstream Emissions"
+        sectionKey="downstream"
+        totals={totals ?? undefined}
+        onContinue={handleBacktoGHG}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onBackToHub={handleBacktoAssessment}
+      />
+    );
   }
 
   if (step === 0) {
     return (
       <DownstreamTransportationAndDistribution
-        onBack={() => handleNext(0)}
+        onBack={handleBacktoGHG}
         onNext={() => handleNext(1)}
         stepIndex={1}
         totalSteps={7}
@@ -109,7 +175,7 @@ export default function DownstreamEmission({
     return (
       <Investments
         onBack={() => handleNext(5)}
-        onNext={handleFinalNext}
+        onSubmit={handleSubmit}
         stepIndex={7}
         totalSteps={7}
         backToAssessment={handleBacktoAssessment}
@@ -118,4 +184,5 @@ export default function DownstreamEmission({
       />
     );
   }
+  return null;
 }

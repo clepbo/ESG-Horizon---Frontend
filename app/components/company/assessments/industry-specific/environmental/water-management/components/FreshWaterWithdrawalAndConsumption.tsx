@@ -37,11 +37,11 @@ export default function FreshWaterWithdrawalAndConsumption({
   backToWaterWasteManagement,
 }: FreshWaterWithdrawalAndConsumptionProps) {
   const router = useRouter();
-  const withdrawalfromSurfaceWater = useFormattedNumber("");
   const withdrawalfromGroundwater = useFormattedNumber("");
   const withdrawalfromMunicipalotherOtherSources = useFormattedNumber("");
   const totalWaterConsumed = useFormattedNumber("");
   const volumeWithdrawnfromWaterStressedRegions = useFormattedNumber("");
+  const withdrawalfromSurfaceWater = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
   const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
@@ -119,26 +119,44 @@ export default function FreshWaterWithdrawalAndConsumption({
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.freshwaterWithdrawals,
     totalWaterConsumed,
-    withdrawalfromGroundwater,
-    withdrawalfromSurfaceWater,
-    withdrawalfromMunicipalotherOtherSources,
     volumeWithdrawnfromWaterStressedRegions,
+    withdrawalfromGroundwater,
+    withdrawalfromMunicipalotherOtherSources,
+    withdrawalfromSurfaceWater,
   ]);
 
   const { filled, total } = useMemo(() => {
-    const hasFreshWaterWithdrawn =
+    const hasWithdrawalFromSurfaceWater =
       withdrawalfromSurfaceWater.rawValue !== "" && formData.withdrawalfromSurfaceWaterUnit !== "";
-    const hasFreshWaterConsumed =
+    const hasWithdrawalFromGroundwater =
+      withdrawalfromGroundwater.rawValue !== "" && formData.withdrawalfromGroundwaterUnit !== "";
+    const hasWithdrawalFromMunicipal =
+      withdrawalfromMunicipalotherOtherSources.rawValue !== "" &&
+      formData.withdrawalfromMunicipalotherOtherSourcesUnit !== "";
+    const hasTotalWaterConsumed =
       totalWaterConsumed.rawValue !== "" && formData.totalWaterConsumedUnit !== "";
-    const hasEvidence = filesAndLinks.length > 0;
+    const hasVolumeFromWaterStressed =
+      volumeWithdrawnfromWaterStressedRegions.rawValue !== "" &&
+      formData.volumeWithdrawnfromWaterStressedRegionsUnit !== "";
 
-    return calculateProgress([hasFreshWaterWithdrawn, hasFreshWaterConsumed, hasEvidence]);
+    return calculateProgress([
+      hasWithdrawalFromSurfaceWater,
+      hasWithdrawalFromGroundwater,
+      hasWithdrawalFromMunicipal,
+      hasTotalWaterConsumed,
+      hasVolumeFromWaterStressed,
+    ]);
   }, [
     withdrawalfromSurfaceWater.rawValue,
     formData.withdrawalfromSurfaceWaterUnit,
+    withdrawalfromGroundwater.rawValue,
+    formData.withdrawalfromGroundwaterUnit,
+    withdrawalfromMunicipalotherOtherSources.rawValue,
+    formData.withdrawalfromMunicipalotherOtherSourcesUnit,
     totalWaterConsumed.rawValue,
     formData.totalWaterConsumedUnit,
-    filesAndLinks,
+    volumeWithdrawnfromWaterStressedRegions.rawValue,
+    formData.volumeWithdrawnfromWaterStressedRegionsUnit,
   ]);
 
   const validateForm = () => {
@@ -151,11 +169,32 @@ export default function FreshWaterWithdrawalAndConsumption({
       newErrors.withdrawalfromSurfaceWaterUnit = "Unit is required";
     }
 
+    if (!withdrawalfromGroundwater.rawValue) {
+      newErrors.withdrawalfromGroundwater = "Volume is required";
+    }
+    if (!formData.withdrawalfromGroundwaterUnit) {
+      newErrors.withdrawalfromGroundwaterUnit = "Unit is required";
+    }
+
+    if (!withdrawalfromMunicipalotherOtherSources.rawValue) {
+      newErrors.withdrawalfromMunicipalotherOtherSources = "Volume is required";
+    }
+    if (!formData.withdrawalfromMunicipalotherOtherSourcesUnit) {
+      newErrors.withdrawalfromMunicipalotherOtherSourcesUnit = "Unit is required";
+    }
+
     if (!totalWaterConsumed.rawValue) {
       newErrors.totalWaterConsumed = "Volume is required";
     }
     if (!formData.totalWaterConsumedUnit) {
       newErrors.totalWaterConsumedUnit = "Unit is required";
+    }
+
+    if (!volumeWithdrawnfromWaterStressedRegions.rawValue) {
+      newErrors.volumeWithdrawnfromWaterStressedRegions = "Volume is required";
+    }
+    if (!formData.volumeWithdrawnfromWaterStressedRegionsUnit) {
+      newErrors.volumeWithdrawnfromWaterStressedRegionsUnit = "Unit is required";
     }
 
     setErrors(newErrors);
@@ -167,11 +206,6 @@ export default function FreshWaterWithdrawalAndConsumption({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     const payload = {
       withdrawalfromGroundwater: Number(withdrawalfromGroundwater.rawValue),
       withdrawalfromGroundwaterUnit: formData.withdrawalfromGroundwaterUnit,
@@ -212,7 +246,7 @@ export default function FreshWaterWithdrawalAndConsumption({
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before continuing.");
+      toast.error("Please fill the input fields before proceeding.");
       return;
     }
 

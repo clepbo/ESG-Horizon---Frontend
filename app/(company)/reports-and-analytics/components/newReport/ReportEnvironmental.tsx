@@ -250,11 +250,31 @@ export default function ReportEnvironmental() {
             sub={"m²"}
             amount={waterManagement?.dischargedToSurface || 0}
           />
+          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={0} />
+          <OilRenderCard
+            borderColor={"#2570eb"}
+            title={"Wells with Public Disclosure"}
+            sub={"wells"}
+            amount={0}
+          />
+          <OilRenderCard
+            borderColor={"#af57db"}
+            title={"Percentage with Disclosure"}
+            sub={"%"}
+            amount={0}
+          />
+          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={0} />
+          <OilRenderCard
+            borderColor={"#1e8a3d"}
+            title={"Sites with Deteriorated Water Quality"}
+            sub={"sites"}
+            amount={0}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-1 md:col-span-2 rounded-2xl shadow p-3">
-            <FreshWaterWithdrawalSource municipal={0} groundwater={0} surfaceWater={0} />
+            <FreshWaterWithdrawalSource surfaceWater={0} groundwater={0} municipal={0} />
           </div>
           <div className="col-span-1 rounded-2xl shadow p-3">
             <ProducedWaterManagementChart
@@ -281,29 +301,28 @@ export default function ReportEnvironmental() {
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
-                  value={51}
-                  // styles={buildStyles({ pathColor: progress > 50 ? "green" : "red", })}
+                  value={0}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
                   <div
                     style={{ fontSize: 12, marginTop: -5 }}
                     className="flex text-xs flex-col items-center"
                   >
-                    <strong>{51}%</strong>
+                    <strong>{Math.round(0)}%</strong>
                     <p className="font-thin">Disclosure Rate </p>
-                    <p className=""> 72 Wells Disclosed</p>
+                    <p className="">{0} Wells Disclosed</p>
                   </div>
                 </CircularProgressbarWithChildren>
               </div>
               <div className="bg-gray-100 p-2 py-4 rounded-md">
                 {/* <CustomProgressWithoutSections percent={51} title="Volume Recycled/Reused" value={30} total={4500} unit="m" className="" /> */}
                 <CustomProgressWithoutSections
-                  value={70}
+                  value={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
                   title="Volume Recycled/Reused"
-                  total={9300}
-                  unit="m"
+                  total={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
+                  unit="m³"
                   barColor=""
-                  percent={70}
+                  percent={100}
                 />
               </div>
             </div>
@@ -316,10 +335,17 @@ export default function ReportEnvironmental() {
             <div className="p-4 grid grid-cols-1 gap-4">
               <WaterQualityCard
                 title={"Wells with public chemical disclosure"}
-                amount={45}
-                progress={48}
+                amount={
+                  waterManagement?.waterQualityImpacts?.wellsWithPublicChemicalDisclosure || 0
+                }
+                progress={0}
               />
-              <WaterQualityCard title={"Volume ecycled/Reused"} amount={65} progress={67} sub="m" />
+              <WaterQualityCard
+                title={"Volume Recycled/Reused"}
+                amount={waterManagement?.waterQualityImpacts?.volumeRecycledReused || 0}
+                progress={70}
+                sub="m³"
+              />
             </div>
           </div>
         </div>

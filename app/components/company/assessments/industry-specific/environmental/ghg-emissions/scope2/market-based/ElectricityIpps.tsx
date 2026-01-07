@@ -199,7 +199,7 @@ export function ElectricityIppsForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.marketBased.electricityIpps", payload);
+      await saveNow("environment.ghg.scope2.marketBased.ipps", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
