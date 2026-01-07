@@ -10,6 +10,10 @@ import {
 import { FaArrowDown } from "react-icons/fa";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
+interface EmissionPoint {
+  period: string; // label for X-axis
+  emissions: number; // value for Y-axis
+}
 // Sample data for emissions over time (replace with your actual data)
 
 // function transformHistory(ghg: any): EmissionPoint[] {

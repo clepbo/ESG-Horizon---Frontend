@@ -94,12 +94,11 @@ const SCOPE_MAPPING: Record<string, string[]> = {
  * Mapping for sub-component titles
  */
 const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
-  // Water Management
   "Freshwater Withdrawal & Consumption": [
     "environment",
     "waterManagement",
     "waterAndProducedWaterManagement",
-    "freshwaterWithdrawals",
+    "freshwaterWithdrawalAndConsumption",
   ],
   "Produced Water Management": [
     "environment",
@@ -107,19 +106,20 @@ const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
     "waterAndProducedWaterManagement",
     "producedWaterManagement",
   ],
+
+  // Water Management - Hydraulic Fracturing Impacts section
   "Chemical Disclosure": [
     "environment",
     "waterManagement",
-    "waterAndProducedWaterManagement",
+    "hydraulicFracturingImpacts",
     "chemicalDisclosure",
   ],
   "Water Quality Impacts": [
     "environment",
     "waterManagement",
-    "waterAndProducedWaterManagement",
+    "hydraulicFracturingImpacts",
     "waterQualityImpacts",
   ],
-
   // Biodiversity Impact
   "Environmental Management Policies": [
     "environment",
@@ -163,19 +163,32 @@ function getValueWithAlternatives(obj: any, alternatives: string): any {
 
 /**
  * Check if a value is considered "filled" (has meaningful data)
+ * IMPORTANT: 0, false, empty arrays, and empty objects are NOT considered filled
  */
 function isFilled(value: any): boolean {
+  // Explicitly empty values
   if (value === null || value === undefined || value === "") return false;
-  if (typeof value === "number") return true;
-  if (typeof value === "boolean") return true;
+
+  // Numbers: only non-zero numbers are considered filled
+  if (typeof value === "number") return value !== 0;
+
+  // Booleans: only true is considered filled (false is default/unchecked state)
+  if (typeof value === "boolean") return value === true;
+
+  // Arrays: must have items
   if (Array.isArray(value)) return value.length > 0;
+
+  // Objects: check if any nested values are filled
   if (typeof value === "object") {
     return Object.keys(value).some((key) => {
       if (key === "id" || key === "createdAt" || key === "updatedAt" || key === "_id") return false;
       return isFilled(value[key]);
     });
   }
+
+  // Strings: must have content after trimming
   if (typeof value === "string") return value.trim().length > 0;
+
   return true;
 }
 
@@ -183,7 +196,9 @@ function isFilled(value: any): boolean {
  * Check if data object has any meaningful content (not just empty structure)
  */
 function hasActualData(data: any): boolean {
-  if (!data || typeof data !== "object") return false;
+  if (!data || typeof data !== "object") {
+    return false;
+  }
 
   const excludedKeys = [
     "status",
@@ -197,7 +212,9 @@ function hasActualData(data: any): boolean {
   ];
   const meaningfulKeys = Object.keys(data).filter((key) => !excludedKeys.includes(key));
 
-  if (meaningfulKeys.length === 0) return false;
+  if (meaningfulKeys.length === 0) {
+    return false;
+  }
 
   return meaningfulKeys.some((key) => {
     const value = data[key];
@@ -348,7 +365,6 @@ function checkMultiComponentCompletion(
       status = "not-started";
     }
   }
-
   return { status, completionPercentage };
 }
 
@@ -482,19 +498,98 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
       return { status: "not-started", completionPercentage: 0 };
     }
 
-    // Check if this topic was submitted
-    const topicPath = config.path[0].join(".");
-    const isTopicSubmitted = submittedGroups.some((group: string) => group.includes(topicPath));
+    const completion = checkDataCompletion(topicData);
 
-    if (isSubmitted && isTopicSubmitted) {
-      return { status: "completed", completionPercentage: 100 };
+    // If the assessment is submitted and this topic has data, mark it as completed
+    if (isSubmitted && completion.status !== "not-started") {
+      // Check if this specific topic was submitted
+      const isTopicSubmitted = config.path.some((pathOption) => {
+        const topicPath = pathOption.join(".");
+        return submittedGroups.some((group: string) => group.includes(topicPath));
+      });
+
+      if (isTopicSubmitted || submittedGroups.length > 0) {
+        return { status: "completed", completionPercentage: 100 };
+      }
     }
 
-    return checkDataCompletion(topicData);
+    return completion;
   }
 
   // Handle multi-component topics
   if (config.type === "multi-component" && config.subComponents) {
+    // Special handling for GHG Emissions - check scope-level completion
+    if (topicTitle === "Greenhouse Gas Emissions") {
+      const scopeTitles = Object.keys(SCOPE_MAPPING);
+      let completedScopes = 0;
+      let scopesWithData = 0;
+
+      scopeTitles.forEach((scopeTitle) => {
+        const scopeStatus = checkScopeCompletion(scopeTitle, assessmentData);
+        if (scopeStatus.status !== "not-started") {
+          scopesWithData++;
+          if (scopeStatus.status === "completed") {
+            completedScopes++;
+          }
+        }
+      });
+
+      if (scopesWithData === 0) {
+        return { status: "not-started", completionPercentage: 0 };
+      }
+
+      const completionPercentage = Math.round((completedScopes / scopeTitles.length) * 100);
+
+      if (completedScopes === scopeTitles.length) {
+        return { status: "completed", completionPercentage: 100 };
+      } else if (completedScopes > 0 || scopesWithData > 0) {
+        return { status: "in-progress", completionPercentage };
+      } else {
+        return { status: "not-started", completionPercentage: 0 };
+      }
+    }
+
+    // For other multi-component topics, check sub-component level completion
+    const subComponentTitles = Object.keys(SUB_COMPONENT_MAPPING).filter((title) => {
+      const path = SUB_COMPONENT_MAPPING[title];
+      // Check if this sub-component belongs to the current topic
+      return config.path.some((topicPath) => {
+        return topicPath.every((segment, index) => path[index] === segment);
+      });
+    });
+
+    if (subComponentTitles.length > 0) {
+      let completedComponents = 0;
+      let componentsWithData = 0;
+
+      subComponentTitles.forEach((componentTitle) => {
+        const componentStatus = checkSubComponentCompletion(componentTitle, assessmentData);
+        if (componentStatus.status !== "not-started") {
+          componentsWithData++;
+          if (componentStatus.status === "completed") {
+            completedComponents++;
+          }
+        }
+      });
+
+      if (componentsWithData === 0) {
+        return { status: "not-started", completionPercentage: 0 };
+      }
+
+      const completionPercentage = Math.round(
+        (completedComponents / subComponentTitles.length) * 100
+      );
+
+      if (completedComponents === subComponentTitles.length) {
+        return { status: "completed", completionPercentage: 100 };
+      } else if (completedComponents > 0 || componentsWithData > 0) {
+        return { status: "in-progress", completionPercentage };
+      } else {
+        return { status: "not-started", completionPercentage: 0 };
+      }
+    }
+
+    // Fallback to the existing logic if no sub-components found
     const result = checkMultiComponentCompletion(
       topicData,
       config.subComponents,
@@ -515,7 +610,6 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
 
   return { status: "not-started", completionPercentage: 0 };
 }
-
 /**
  * Get badge styling and text based on status
  */

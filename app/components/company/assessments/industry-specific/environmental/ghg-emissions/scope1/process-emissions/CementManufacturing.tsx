@@ -51,7 +51,7 @@ export function CementManufacturing({
     displayValue: cementQuantityDisplay,
     handleChange: handleCementChange,
     setRawValue: setCementRaw,
-  } = useFormattedNumber("0");
+  } = useFormattedNumber("");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -86,7 +86,7 @@ export function CementManufacturing({
     const existingData =
       state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing;
     if (existingData) {
-      setCementRaw(existingData.cementQuantity?.toString() || "0");
+      setCementRaw(existingData.cementQuantity ? existingData.cementQuantity.toString() : "");
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -99,7 +99,7 @@ export function CementManufacturing({
 
   const { filled, total } = useMemo(() => {
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
-    return calculateProgress([Number(cementQuantity) > 0, hasFiles]);
+    return calculateProgress([cementQuantity !== "" && Number(cementQuantity) > 0, hasFiles]);
   }, [cementQuantity, files, additionalFields]);
 
   const validateForm = () => {
@@ -107,7 +107,9 @@ export function CementManufacturing({
       cementQuantity?: string;
       files?: string;
     } = {};
-    if (Number(cementQuantity) <= 0) {
+
+    if (!cementQuantity || Number(cementQuantity) <= 0) {
+      // Added !cementQuantity check
       newErrors.cementQuantity = "Please enter a positive quantity of cement produced";
     }
     setErrors(newErrors);
@@ -308,11 +310,6 @@ export function CementManufacturing({
                       setErrors((prev) => ({ ...prev, cementQuantity: undefined }))
                     }
                   />
-                  {errors.cementQuantity && (
-                    <p id="cement-quantity-error" className="text-sm text-red-500">
-                      {errors.cementQuantity}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
