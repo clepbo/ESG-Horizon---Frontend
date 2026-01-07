@@ -23,12 +23,6 @@ export default function AirQiality({
         nextAssessment="Water and Wastewater Management"
         onContinue={backToDisclosureTopics}
         onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
-        breadcrumbs={[
-          {
-            label: "Disclosure topics",
-            onClick: () => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }),
-          },
-        ]}
         onBackToHub={backToAssessmentHub}
       />
     );

@@ -374,12 +374,13 @@ export function DocumentUpload({
                       </div>
 
                       <Card
-                        className={`p-4 flex flex-col items-center justify-center border transition-all h-full flex-1 ${fieldErrors[field.key]
+                        className={`p-4 flex flex-col items-center justify-center border transition-all h-full flex-1 ${
+                          fieldErrors[field.key]
                             ? "border-red-300 bg-red-50/50"
                             : files[field.key]
                               ? "border-green-300 bg-green-50/30"
                               : "border-gray-200 hover:border-primary"
-                          }`}
+                        }`}
                       >
                         <Label
                           htmlFor={`upload-${field.key}`}
@@ -523,10 +524,11 @@ export function DocumentUpload({
                 variant="outline"
                 onClick={handleSubmit}
                 disabled={isLoading || Object.values(files).filter(Boolean).length < 3}
-                className={`justify-self-end hover:cursor-pointer flex items-center gap-2 ${Object.values(files).filter(Boolean).length < 3
+                className={`justify-self-end hover:cursor-pointer flex items-center gap-2 ${
+                  Object.values(files).filter(Boolean).length < 3
                     ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
                     : "border-primary text-primary bg-transparent hover:bg-green-50"
-                  }`}
+                }`}
                 aria-label="Next step"
               >
                 {Object.values(files).filter(Boolean).length < 3

@@ -402,7 +402,8 @@ export function AssessmentDetailsModal({
                               <DataList
                                 label="Electricity & Heat"
                                 data={[
-                                  ...(scope1.stationarySources?.electricityHeat?.dieselGenerators || []),
+                                  ...(scope1.stationarySources?.electricityHeat?.dieselGenerators ||
+                                    []),
                                   ...(scope1.stationarySources?.electricityHeat?.gasTurbines || []),
                                 ]}
                               />
@@ -414,10 +415,13 @@ export function AssessmentDetailsModal({
                                 label="Oil & Gas"
                                 data={scope1.stationarySources?.oilGasOperations?.onShoreProduction}
                               />
-                              {!scope1.stationarySources?.electricityHeat?.dieselGenerators?.length &&
+                              {!scope1.stationarySources?.electricityHeat?.dieselGenerators
+                                ?.length &&
                                 !scope1.stationarySources?.electricityHeat?.gasTurbines?.length &&
-                                !scope1.stationarySources?.industrialProcesses?.boilerFurnaces?.length &&
-                                !scope1.stationarySources?.oilGasOperations?.onShoreProduction?.length && (
+                                !scope1.stationarySources?.industrialProcesses?.boilerFurnaces
+                                  ?.length &&
+                                !scope1.stationarySources?.oilGasOperations?.onShoreProduction
+                                  ?.length && (
                                   <p className="text-xs text-gray-400 italic">No data recorded</p>
                                 )}
                             </MetricCard>
@@ -434,9 +438,12 @@ export function AssessmentDetailsModal({
                               <DataList
                                 label="Vehicle Equipment"
                                 data={[
-                                  ...(scope1.mobileSources?.vehicleEquipment?.forkliftFuelType || []),
-                                  ...(scope1.mobileSources?.vehicleEquipment?.heavyDutyFuelType || []),
-                                  ...(scope1.mobileSources?.vehicleEquipment?.tractorFuelType || []),
+                                  ...(scope1.mobileSources?.vehicleEquipment?.forkliftFuelType ||
+                                    []),
+                                  ...(scope1.mobileSources?.vehicleEquipment?.heavyDutyFuelType ||
+                                    []),
+                                  ...(scope1.mobileSources?.vehicleEquipment?.tractorFuelType ||
+                                    []),
                                 ]}
                               />
                               <DataList
@@ -450,7 +457,8 @@ export function AssessmentDetailsModal({
                               {!scope1.mobileSources?.roadTransport?.vehicleFleet?.length &&
                                 !scope1.mobileSources?.roadTransport?.carsBuses?.length &&
                                 !scope1.mobileSources?.vehicleEquipment?.forkliftFuelType?.length &&
-                                !scope1.mobileSources?.vehicleEquipment?.heavyDutyFuelType?.length &&
+                                !scope1.mobileSources?.vehicleEquipment?.heavyDutyFuelType
+                                  ?.length &&
                                 !scope1.mobileSources?.vehicleEquipment?.tractorFuelType?.length &&
                                 !scope1.mobileSources?.marineAviation?.air?.length &&
                                 !scope1.mobileSources?.marineAviation?.marine?.length && (
@@ -567,7 +575,9 @@ export function AssessmentDetailsModal({
                               <MetricCard title="Logistics & Waste">
                                 <DataField
                                   label="Upstream Transport"
-                                  value={upstream.upstreamTransportationDistribution?.massTransported}
+                                  value={
+                                    upstream.upstreamTransportationDistribution?.massTransported
+                                  }
                                   unit="kg"
                                 />
                                 <DataField
@@ -627,7 +637,6 @@ export function AssessmentDetailsModal({
                                   value={downstream.useOfSoldProducts?.productLifetime}
                                   unit="years"
                                 />
-
                               </MetricCard>
                               <MetricCard title="Leased & Finance">
                                 <DataField
@@ -735,23 +744,48 @@ export function AssessmentDetailsModal({
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                             <DataField
                               label="Surface Water Withdrawal"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromSurfaceWater}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromSurfaceWaterUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromSurfaceWater
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromSurfaceWaterUnit || "m³"
+                              }
                             />
                             <DataField
                               label="Groundwater Withdrawal"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromGroundwater}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromGroundwaterUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromGroundwater
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromGroundwaterUnit || "m³"
+                              }
                             />
                             <DataField
                               label="Municipal/Other Sources"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromMunicipalotherOtherSources}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.withdrawalfromMunicipalotherOtherSourcesUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.withdrawalfromMunicipalotherOtherSources
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals
+                                  ?.withdrawalfromMunicipalotherOtherSourcesUnit || "m³"
+                              }
                             />
                             <DataField
                               label="Total Water Consumed"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.totalWaterConsumed}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals?.totalWaterConsumedUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.totalWaterConsumed
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.freshwaterWithdrawals?.totalWaterConsumedUnit || "m³"
+                              }
                             />
                           </div>
                         </MetricCard>
@@ -759,23 +793,47 @@ export function AssessmentDetailsModal({
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                             <DataField
                               label="Total Produced Water"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.totalProducedWaterGenerated}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.totalProducedWaterGeneratedUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.totalProducedWaterGenerated
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.totalProducedWaterGeneratedUnit || "m³"
+                              }
                             />
                             <DataField
                               label="Discharged to Surface"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeDischargedToSurface}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeDischargedToSurfaceUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.volumeDischargedToSurface
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.volumeDischargedToSurfaceUnit || "m³"
+                              }
                             />
                             <DataField
                               label="Injected for Disposal"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeInjectedForDisposal}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeInjectedForDisposalUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.volumeInjectedForDisposal
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.volumeInjectedForDisposalUnit || "m³"
+                              }
                             />
                             <DataField
                               label="Recycled/Reused"
-                              value={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeRecycledReused}
-                              unit={env.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement?.volumeRecycledReusedUnit || "m³"}
+                              value={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.volumeRecycledReused
+                              }
+                              unit={
+                                env.waterManagement?.waterAndProducedWaterManagement
+                                  ?.producedWaterManagement?.volumeRecycledReusedUnit || "m³"
+                              }
                             />
                           </div>
                         </MetricCard>
@@ -817,7 +875,10 @@ export function AssessmentDetailsModal({
                             />
                             <DataField
                               label="Spills in Sensitive Areas"
-                              value={env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills?.spillsInSensitiveAreas}
+                              value={
+                                env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
+                                  ?.spillsInSensitiveAreas
+                              }
                             />
                             <DataField
                               label="ISO 14001 Certified"

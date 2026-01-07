@@ -154,7 +154,9 @@ export default function CommunityRelationsHome({
           { label: "Assessments", href: "/assessments/hub" },
           {
             label: "Disclosure topics",
-            onClick: onBack ? onBack : () => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }),
+            onClick: onBack
+              ? onBack
+              : () => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }),
           },
           { label: "Community Relations" },
         ]}

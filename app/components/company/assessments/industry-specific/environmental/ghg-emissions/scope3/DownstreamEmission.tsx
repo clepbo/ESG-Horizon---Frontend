@@ -47,7 +47,10 @@ export default function DownstreamEmission({
         );
       }
       if (data?.useOfSoldProducts) {
-        await saveNow("environment.ghg.scope3.downstream.useOfSoldProducts", data.useOfSoldProducts);
+        await saveNow(
+          "environment.ghg.scope3.downstream.useOfSoldProducts",
+          data.useOfSoldProducts
+        );
       }
       if (data?.endOfLifeTreatment) {
         await saveNow(

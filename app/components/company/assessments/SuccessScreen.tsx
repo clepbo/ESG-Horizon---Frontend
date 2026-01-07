@@ -70,9 +70,7 @@ export function SuccessScreen({
             <Button
               className="w-full bg-white text-black font-semibold py-3 rounded-sm transition-all duration-300 hover:bg-gray-200 hover:cursor-pointer"
               onClick={() =>
-                onContinue
-                  ? onContinue()
-                  : router.push(`/reports-and-analytics/${reportId || ""}`)
+                onContinue ? onContinue() : router.push(`/reports-and-analytics/${reportId || ""}`)
               }
             >
               View &amp; Download Report

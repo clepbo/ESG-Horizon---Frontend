@@ -14,11 +14,11 @@ interface UserTasksCoordinatorProps {
 type ViewState =
   | { type: "task-list" }
   | {
-    type: "disclosure-topics";
-    task: FrontendTask | null;
-    topics: string[];
-    assessmentId: number;
-  };
+      type: "disclosure-topics";
+      task: FrontendTask | null;
+      topics: string[];
+      assessmentId: number;
+    };
 
 export function UserTasksCoordinator({ onBack }: UserTasksCoordinatorProps) {
   const [viewState, setViewState] = useState<ViewState>({ type: "task-list" });

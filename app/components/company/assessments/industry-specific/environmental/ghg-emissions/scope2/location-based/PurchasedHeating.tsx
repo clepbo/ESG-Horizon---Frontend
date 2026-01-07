@@ -432,8 +432,9 @@ export function PurchasedHeatingForm({
                       }));
                     }
                   }}
-                  className={`w-full border-gray-400 ${errors.supplierName ? "border-red-500" : ""
-                    }`}
+                  className={`w-full border-gray-400 ${
+                    errors.supplierName ? "border-red-500" : ""
+                  }`}
                 />
                 {errors.supplierName && (
                   <p className="text-sm text-red-500 mt-1">{errors.supplierName}</p>

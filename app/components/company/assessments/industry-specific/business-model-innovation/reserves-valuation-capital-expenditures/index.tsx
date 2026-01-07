@@ -278,8 +278,9 @@ export default function ReservesValuationAssessment({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-colors bg-white shadow-sm rounded-lg ${card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
-                            }`}
+                          className={`transition-colors bg-white shadow-sm rounded-lg ${
+                            card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+                          }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

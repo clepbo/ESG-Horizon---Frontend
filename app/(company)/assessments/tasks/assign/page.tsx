@@ -132,8 +132,8 @@ const topicsData: Topic[] = [
     name: "Business Model Innovation",
     children: [
       { name: "Reserves Valuation & Capital Expenditures" },
-      { name: "Business Ethics & Transparency" }
-    ]
+      { name: "Business Ethics & Transparency" },
+    ],
   },
 ];
 
@@ -207,7 +207,7 @@ export default function AssignTaskPage() {
       traverse(topicsData);
       setSelectedTopics(allTopics);
       // Optional: expand all top level?
-      setExpandedTopics(topicsData.map(t => t.name));
+      setExpandedTopics(topicsData.map((t) => t.name));
       return;
     }
 
@@ -248,7 +248,7 @@ export default function AssignTaskPage() {
         return prev;
       });
       // Also expand the tree to show the topic? Optional but nice.
-      setExpandedTopics(prev => [...prev, topicName]);
+      setExpandedTopics((prev) => [...prev, topicName]);
     }
   }, [searchParams, editId]);
 
@@ -271,7 +271,7 @@ export default function AssignTaskPage() {
             setSelectedMember(String(member.id));
           }
         }
-        // Always send email for new tasks, but respect saved setting for edits? 
+        // Always send email for new tasks, but respect saved setting for edits?
         // Request says "Remove the checkbox and make notifications automatic."
         // So we will force it to true always unless we really want to preserve legacy data.
         setSendEmail(true);
@@ -470,7 +470,7 @@ export default function AssignTaskPage() {
                   // Don't set selectedMember to 'invite_new'
                   return;
                 }
-                setSelectedMember(e.target.value)
+                setSelectedMember(e.target.value);
               }}
               className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
             >
@@ -613,9 +613,9 @@ export default function AssignTaskPage() {
           onClose={() => setIsInviteModalOpen(false)}
           onInvite={() => {
             // Optionally refresh team members here if not handled by hook re-fetch
-            // The useCompanyUsers hook should auto-update if it uses react-query and we invalidate, 
+            // The useCompanyUsers hook should auto-update if it uses react-query and we invalidate,
             // but InviteUserModal just calls service.invite.
-            // We'll rely on global state update or manual refresh if needed. 
+            // We'll rely on global state update or manual refresh if needed.
             // For now just close modal.
             toast.success("Invitation sent. They will appear in the list once they accept.");
           }}

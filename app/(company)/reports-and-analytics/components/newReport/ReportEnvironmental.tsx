@@ -2,9 +2,7 @@ import React, { useEffect } from "react";
 import { FaLeaf } from "react-icons/fa";
 // import EnvironmentalEmissionCard from "./environmental/EnvironmentalEmissionCard";
 import EmissionsChart from "./environmental/EmissionsChart";
-import EmissionsByScope, {
-  transformGHGData,
-} from "./environmental/EmissionByScope";
+import EmissionsByScope, { transformGHGData } from "./environmental/EmissionByScope";
 import ReductionTarget from "./environmental/ReductionTarget";
 import { IoWaterSharp } from "react-icons/io5";
 import { MdAir } from "react-icons/md";

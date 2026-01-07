@@ -50,7 +50,6 @@ export function FugitiveEmissionsForm({
         assessmentName="Fugitive Emissions"
         sectionKey="fugitiveEmissions"
         totals={totals ?? undefined}
-
         nextAssessment="Stationary Sources"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
