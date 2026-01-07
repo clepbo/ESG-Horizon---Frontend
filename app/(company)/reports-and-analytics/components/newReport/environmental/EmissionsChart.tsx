@@ -8,6 +8,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+
+interface EmissionPoint {
+  period: string; // label for X-axis
+  emissions: number; // value for Y-axis
+}
+
+// function transformHistory(ghg: any): EmissionPoint[] {
+//   if (!ghg?.ghg_history) return [];
+
+//   return ghg.ghg_history.map((item: any) => ({
+//     period: item.period,
+//     emissions: item.score, // use "score" as the value
+//   }));
+// }
 
 // Sample data for emissions over time (replace with your actual data)
 const emissionsData = [
@@ -29,7 +44,7 @@ const emissionsData = [
 const EmissionsChart = ({
   data = emissionsData,
   title = "Total Emissions",
-  value = "154,000",
+  value = "0",
   change = "0.0%",
   unit = "tCO₂e",
   height = 100,
@@ -98,7 +113,7 @@ const EmissionsChart = ({
               marginRight: "0px",
             }}
           >
-            {value}
+            {formatNumberFigures(Number(value))}
           </div>
           <div
             style={{

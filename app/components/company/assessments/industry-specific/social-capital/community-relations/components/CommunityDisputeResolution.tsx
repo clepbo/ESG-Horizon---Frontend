@@ -1,18 +1,17 @@
-"use client";
-
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
-import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
-import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
-import { Textarea } from "@/app/components/ui/textarea";
-import { Label } from "@/app/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle2, Save } from "lucide-react";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { Label } from "@/app/components/ui/label";
+import { Input } from "@/app/components/ui/input";
+import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
+import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 
 interface Props {
@@ -23,21 +22,24 @@ interface Props {
   totalSteps: number;
 }
 
-export default function CommunityRisk({
+export default function CommunityDisputeResolution({
   onBack,
   onDisclosureTopics,
   onNext,
   stepIndex,
   totalSteps,
 }: Props) {
+  const disputesReferred = useFormattedNumber("");
+  const disputesResolved = useFormattedNumber("");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
-    hcdtIncorporated: "",
-    riskDescription: "",
+    disputesReferredUnit: "Dispute",
+    disputesResolvedUnit: "Dispute",
   });
 
   const features = [
@@ -45,7 +47,7 @@ export default function CommunityRisk({
     { label: "Assessments", href: "/assessments/hub" },
     { label: "Disclosure topics", onClick: onDisclosureTopics },
     { label: "Community Relations", onClick: onBack },
-    { label: "Community Risk & Opportunity Management" },
+    { label: "Community Dispute Resolution (NUPRC ADRC)" },
   ];
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -56,25 +58,35 @@ export default function CommunityRisk({
 
   // Calculate progress
   const progress = useMemo(() => {
-    const hasHcdtAnswer = formData.hcdtIncorporated !== "";
-    const hasDescription = formData.riskDescription.trim() !== "";
+    const hasDisputesReferred =
+      disputesReferred.rawValue !== "" && formData.disputesReferredUnit !== "";
+    const hasDisputesResolved =
+      disputesResolved.rawValue !== "" && formData.disputesResolvedUnit !== "";
 
-    const completed = [hasHcdtAnswer, hasDescription].filter(Boolean).length;
+    const completed = [hasDisputesReferred, hasDisputesResolved].filter(Boolean).length;
     return completed;
-  }, [formData.hcdtIncorporated, formData.riskDescription]);
+  }, [
+    disputesReferred.rawValue,
+    disputesResolved.rawValue,
+    formData.disputesReferredUnit,
+    formData.disputesResolvedUnit,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.hcdtIncorporated) {
-      newErrors.hcdtIncorporated = "Please select Yes or No";
+    if (!disputesReferred.rawValue) {
+      newErrors.disputesReferred = "Number of disputes referred is required";
+    }
+    if (!formData.disputesReferredUnit) {
+      newErrors.disputesReferredUnit = "Unit is required";
     }
 
-    if (!formData.riskDescription.trim()) {
-      newErrors.riskDescription = "Risk management description is required";
-    } else if (formData.riskDescription.trim().length < 50) {
-      newErrors.riskDescription =
-        "Please provide a more detailed description (at least 50 characters)";
+    if (!disputesResolved.rawValue) {
+      newErrors.disputesResolved = "Number of disputes resolved is required";
+    }
+    if (!formData.disputesResolvedUnit) {
+      newErrors.disputesResolvedUnit = "Unit is required";
     }
 
     setErrors(newErrors);
@@ -83,17 +95,21 @@ export default function CommunityRisk({
 
   const handleSaveAndContinue = async () => {
     const payload = {
-      hcdtIncorporated: formData.hcdtIncorporated,
-      riskDescription: formData.riskDescription,
+      disputesReferred: Number(disputesReferred.rawValue),
+      disputesReferredUnit: formData.disputesReferredUnit,
+      disputesResolved: Number(disputesResolved.rawValue),
+      disputesResolvedUnit: formData.disputesResolvedUnit,
       filesAndLinks: filesAndLinks,
     };
 
     setIsActionLoading(true);
 
     // Log the data
-    console.log("=== Community Risk & Opportunity Management Data ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
+    console.log("=== Community Dispute Resolution Data ===");
+    console.log("Disputes Referred:", payload.disputesReferred);
+    console.log("Disputes Referred Unit:", payload.disputesReferredUnit);
+    console.log("Disputes Resolved:", payload.disputesResolved);
+    console.log("Disputes Resolved Unit:", payload.disputesResolvedUnit);
     console.log("Files and Links:", payload.filesAndLinks);
     console.log("Full Payload:", payload);
     console.log("=============================");
@@ -117,15 +133,19 @@ export default function CommunityRisk({
     }
 
     const payload = {
-      hcdtIncorporated: formData.hcdtIncorporated,
-      riskDescription: formData.riskDescription,
+      disputesReferred: Number(disputesReferred.rawValue),
+      disputesReferredUnit: formData.disputesReferredUnit,
+      disputesResolved: Number(disputesResolved.rawValue),
+      disputesResolvedUnit: formData.disputesResolvedUnit,
       filesAndLinks: filesAndLinks,
     };
 
     // Log the data
-    console.log("=== Community Risk & Opportunity Management Data (Next) ===");
-    console.log("HCDT Incorporated:", payload.hcdtIncorporated);
-    console.log("Risk Description:", payload.riskDescription);
+    console.log("=== Community Dispute Resolution Data (Next) ===");
+    console.log("Disputes Referred:", payload.disputesReferred);
+    console.log("Disputes Referred Unit:", payload.disputesReferredUnit);
+    console.log("Disputes Resolved:", payload.disputesResolved);
+    console.log("Disputes Resolved Unit:", payload.disputesResolvedUnit);
     console.log("Files and Links:", payload.filesAndLinks);
     console.log("Full Payload:", payload);
     console.log("====================================");
@@ -148,10 +168,10 @@ export default function CommunityRisk({
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
-            <h3 className="text-2xl font-semibold">Community Risk & Opportunity Management</h3>
+            <h3 className="text-2xl font-semibold">Community Dispute Resolution (NUPRC ADRC)</h3>
             <p className="text-muted-foreground text-base">
-              Describe your organization&apos;s process for managing risks and opportunities related
-              to the rights and interests of the communities where you operate.
+              Report the number of community disputes that were referred to and resolved through the
+              NUPRC&apos;s Alternative Dispute Resolution Centre (ADRC).
             </p>
           </div>
         </div>
@@ -166,94 +186,117 @@ export default function CommunityRisk({
               isSubmitted={false}
             />
 
-            {/* HCDT Incorporation Question */}
+            {/* Number of Disputes Referred to ADRC */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-semibold">
-                  Have Host Community Development Trusts (HCDTs) been fully incorporated and funded
-                  for all assets?
+                  Number of Disputes Referred to ADRC
                 </Label>
 
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title="HCDT Incorporation Status"
-                      message="Indicate whether your company has established and funded Host Community Development Trusts for all relevant oil and gas assets as required by the PIA 2021."
+                      title="Number of Disputes Referred to ADRC"
+                      message="Enter the total count of distinct community-related disputes formally submitted to the NUPRC's ADRC for mediation."
                     />
                   }
                 />
               </div>
 
               <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <div className="flex gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hcdtIncorporated"
-                      value="yes"
-                      checked={formData.hcdtIncorporated === "yes"}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="disputesReferred">Count</Label>
+                    <Input
+                      id="disputesReferred"
+                      type="text"
+                      placeholder="e.g., 5"
+                      value={disputesReferred.displayValue}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, hcdtIncorporated: e.target.value }));
-                        setErrors((prev) => ({ ...prev, hcdtIncorporated: "" }));
+                        disputesReferred.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, disputesReferred: "" }));
                       }}
-                      className="w-4 h-4 text-primary"
+                      className={errors.disputesReferred ? "border-red-500" : ""}
                     />
-                    <span>Yes</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="hcdtIncorporated"
-                      value="no"
-                      checked={formData.hcdtIncorporated === "no"}
+                    {errors.disputesReferred && (
+                      <p className="text-sm text-red-500">{errors.disputesReferred}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="disputesReferredUnit">Unit</Label>
+                    <Input
+                      id="disputesReferredUnit"
+                      type="text"
+                      value={formData.disputesReferredUnit}
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, hcdtIncorporated: e.target.value }));
-                        setErrors((prev) => ({ ...prev, hcdtIncorporated: "" }));
+                        setFormData((prev) => ({ ...prev, disputesReferredUnit: e.target.value }));
+                        setErrors((prev) => ({ ...prev, disputesReferredUnit: "" }));
                       }}
-                      className="w-4 h-4 text-primary"
+                      readOnly
+                      className="bg-gray-50"
                     />
-                    <span>No</span>
-                  </label>
+                    {errors.disputesReferredUnit && (
+                      <p className="text-sm text-red-500">{errors.disputesReferredUnit}</p>
+                    )}
+                  </div>
                 </div>
-                {errors.hcdtIncorporated && (
-                  <p className="text-sm text-red-500">{errors.hcdtIncorporated}</p>
-                )}
               </div>
             </div>
 
-            {/* Risk Management Description */}
+            {/* Number of Disputes Resolved via ADRC */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-semibold">
-                  Description of Community Risk Management Process
+                  Number of Disputes Resolved via ADRC
                 </Label>
 
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title="Community Risk Management Process"
-                      message="Provide an overview of how your company identifies, evaluates, and manages risks related to local communities. This may include stakeholder engagement plans, grievance mechanisms, social impact assessments, conflict-prevention strategies, and processes for responding to community concerns. The goal is to show how your company protects community well-being while reducing operational and reputational risks."
+                      title="Number of Disputes Resolved via ADRC"
+                      message="Enter the count of the referred disputes that were successfully resolved through the ADRC process during the reporting year."
                     />
                   }
                 />
               </div>
 
               <div className="border border-gray-300 rounded-lg p-4 space-y-4">
-                <Textarea
-                  value={formData.riskDescription}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, riskDescription: e.target.value }));
-                    setErrors((prev) => ({ ...prev, riskDescription: "" }));
-                  }}
-                  placeholder="e.g., Our primary process is the implementation of Host Community Development Trusts (HCDTs) as required by the PIA 2021, which funds community projects and provides a formal grievance mechanism..."
-                  className={`min-h-37.5 ${errors.riskDescription ? "border-red-500" : ""}`}
-                />
-                {errors.riskDescription && (
-                  <p className="text-sm text-red-500">{errors.riskDescription}</p>
-                )}
-                <p className="text-sm text-gray-500">
-                  {formData.riskDescription.length} characters
-                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="disputesResolved">Count</Label>
+                    <Input
+                      id="disputesResolved"
+                      type="text"
+                      placeholder="e.g., 4"
+                      value={disputesResolved.displayValue}
+                      onChange={(e) => {
+                        disputesResolved.handleChange(e.target.value);
+                        setErrors((prev) => ({ ...prev, disputesResolved: "" }));
+                      }}
+                      className={errors.disputesResolved ? "border-red-500" : ""}
+                    />
+                    {errors.disputesResolved && (
+                      <p className="text-sm text-red-500">{errors.disputesResolved}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="disputesResolvedUnit">Unit</Label>
+                    <Input
+                      id="disputesResolvedUnit"
+                      type="text"
+                      value={formData.disputesResolvedUnit}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, disputesResolvedUnit: e.target.value }));
+                        setErrors((prev) => ({ ...prev, disputesResolvedUnit: "" }));
+                      }}
+                      readOnly
+                      className="bg-gray-50"
+                    />
+                    {errors.disputesResolvedUnit && (
+                      <p className="text-sm text-red-500">{errors.disputesResolvedUnit}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -261,9 +304,8 @@ export default function CommunityRisk({
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600">
-                Upload supporting documents like Host Community Development Trust (HCDT) annual
-                reports, community grievance logs and resolution records, and minutes from HCDT
-                board meetings.
+                Upload official correspondence from the NUPRC&apos;s ADRC, internal legal reports on
+                community disputes, and any settlement agreements reached through the ADRC process.
               </p>
 
               <div className="mt-6">

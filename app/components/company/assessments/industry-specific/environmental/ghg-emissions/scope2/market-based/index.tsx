@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ElectricityIppsForm } from "./ElectricityIpps";
 import { ElectricityEACForm } from "./ElectricityEac";
 import { ResidualForm } from "./Residual";
@@ -14,6 +15,7 @@ interface MarketBasedFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = [
@@ -29,7 +31,9 @@ export function MarketBasedForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: MarketBasedFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -56,7 +60,8 @@ export function MarketBasedForm({
         totals={totals ?? undefined}
         nextAssessment="Scope3"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments")}
       />
     );
   }

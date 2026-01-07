@@ -23,7 +23,7 @@ import SmartInput from "../components/Scope3Input";
 
 interface InvestmentsProps {
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
@@ -46,7 +46,7 @@ const uploadFields = [
 
 export function Investments({
   onBack,
-  onNext,
+  onSubmit,
   stepIndex,
   totalSteps,
   backToAssessment,
@@ -209,40 +209,29 @@ export function Investments({
       return;
     }
 
-    // Proceed to save and submit
-    try {
-      const payload = {
-        // Input fields
-        investmentAmount,
-        portfolioEmissions,
+    const payload = {
+      // Input fields
+      investmentAmount,
+      portfolioEmissions,
 
-        // Files
-        files,
-        additionalFields: additionalFields.map((f) => ({
-          name: f.name,
-          size: f.size ?? 0,
-          lastModified: f.lastModified ?? Date.now(),
-          url: f.url ?? "",
-          publicId: f.publicId ?? "",
-        })),
-      };
+      // Files
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
 
-      dispatch({
-        type: "UPDATE_DOWNSTREAM_INVESTMENTS",
-        payload,
-      });
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_INVESTMENTS",
+      payload,
+    });
 
-      await saveNow("environment.ghg.scope3.downstream.investments", payload);
-      toast.success("Form submitted successfully!");
-
-      // Optional: Delay navigation to show the success message
-      setTimeout(() => {
-        onNext();
-      }, 1500);
-    } catch (err) {
-      toast.error("Failed to submit form");
-      console.error("Submit failed:", err);
-    }
+    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
+    onSubmit();
   };
 
   // Handle input changes with automatic error clearing

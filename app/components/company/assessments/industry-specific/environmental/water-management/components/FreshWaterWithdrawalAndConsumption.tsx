@@ -92,7 +92,9 @@ export default function FreshWaterWithdrawalAndConsumption({
       withdrawalfromSurfaceWater.handleChange(
         String(existingData.withdrawalfromSurfaceWater || "")
       );
-      withdrawalfromGroundwater.handleChange(String(existingData.withdrawalvalues || existingData.withdrawalfromGroundwater || ""));
+      withdrawalfromGroundwater.handleChange(
+        String(existingData.withdrawalvalues || existingData.withdrawalfromGroundwater || "")
+      );
       withdrawalfromMunicipalotherOtherSources.handleChange(
         String(existingData.withdrawalfromMunicipalotherOtherSources || "")
       );
@@ -114,9 +116,14 @@ export default function FreshWaterWithdrawalAndConsumption({
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.freshwaterWithdrawals,
+    totalWaterConsumed,
+    volumeWithdrawnfromWaterStressedRegions,
+    withdrawalfromGroundwater,
+    withdrawalfromMunicipalotherOtherSources,
+    withdrawalfromSurfaceWater,
   ]);
 
-  const { filled, total } = useMemo(() => {
+  const { filled: _filled, total: _total } = useMemo(() => {
     const hasFreshWaterWithdrawn =
       withdrawalfromSurfaceWater.rawValue !== "" && formData.withdrawalfromSurfaceWaterUnit !== "";
     const hasFreshWaterConsumed =

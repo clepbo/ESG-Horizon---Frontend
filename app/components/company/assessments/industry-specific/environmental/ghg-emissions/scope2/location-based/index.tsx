@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PurchasedElectricityForm } from "./PurchaseElectricity";
 import { PurchasedCoolingForm } from "./PurchasedCooling";
 import { PurchasedSteamForm } from "./PurchasedSteam";
@@ -14,6 +15,7 @@ interface LocationBasedFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = [
@@ -28,7 +30,9 @@ export function LocationBasedForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: LocationBasedFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -55,7 +59,8 @@ export function LocationBasedForm({
         totals={totals ?? undefined}
         nextAssessment="Market Based"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments")}
       />
     );
   }

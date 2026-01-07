@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
@@ -8,6 +9,7 @@ import { ChevronRight, Info } from "lucide-react";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 import HealthSafetyPerformance from "./health-safety-performance";
 import SafetyManagementSystems from "./safety-management-systems";
 
@@ -51,9 +53,11 @@ export default function WorkforceHealthSafety({
   initialForm,
   onContinueToNextAssessment,
 }: WorkforceHealthSafetyProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<WHSView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { dispatch } = useAssessment();
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -82,6 +86,7 @@ export default function WorkforceHealthSafety({
         totals={totals ?? undefined}
         nextAssessment="Reserves Valuation and Capital Expenditures"
         onContinue={onContinueToNextAssessment}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBackToHub}
       />
     );
@@ -149,7 +154,18 @@ export default function WorkforceHealthSafety({
                   EM-EP-320a.2
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent(
+                      "Workforce Health & Safety"
+                    )}`
+                  )
+                }
+              >
+                Assign Task
+              </Button>
             </div>
 
             <div className="space-y-6">

@@ -237,19 +237,42 @@ export function CoolingSteamForm({
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    // Get previous steps data from state to ensure it's saved on submission
+    const ipps = state.assessmentData.environment?.ghg?.scope2?.marketBased?.ipps;
+    const eac = state.assessmentData.environment?.ghg?.scope2?.marketBased?.eac;
+    const residual = state.assessmentData.environment?.ghg?.scope2?.marketBased?.residual;
+
+    const payload = {
+      energyConsumed: energyConsumedRaw,
+      emissionFactor: emissionFactorRaw,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_MARKET_COOLING_STEAM",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", {
-        energyConsumed: energyConsumedRaw,
-        emissionFactor: emissionFactorRaw,
-        files,
-        additionalFields: additionalFields.map((f) => ({
-          name: f.name,
-          size: f.size ?? 0,
-          lastModified: f.lastModified ?? Date.now(),
-          url: f.url ?? "",
-          publicId: f.publicId ?? "",
-        })),
-      });
+      // Bulk save all steps in the group before submitting
+      if (ipps) {
+        await saveNow("environment.ghg.scope2.marketBased.ipps", ipps);
+      }
+      if (eac) {
+        await saveNow("environment.ghg.scope2.marketBased.eac", eac);
+      }
+      if (residual) {
+        await saveNow("environment.ghg.scope2.marketBased.residual", residual);
+      }
+      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", payload);
+
       const response = await submitGroup();
       onSubmit(response.totals);
       resetForm();

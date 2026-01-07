@@ -22,7 +22,7 @@ import SmartInput from "../components/Scope3Input";
 
 interface LeasedAssetsProps {
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
@@ -46,7 +46,7 @@ const uploadFields = [
 
 export function LeasedAssets({
   onBack,
-  onNext,
+  onSubmit,
   stepIndex,
   totalSteps,
   backToAssessment,
@@ -205,16 +205,6 @@ export function LeasedAssets({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-    await saveForm({ showToast: false, redirect: false });
-    onNext();
-  };
-
   const handleSubmit = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
@@ -222,8 +212,30 @@ export function LeasedAssets({
       return;
     }
 
-    // Proceed to save and next
-    handleNext();
+    const payload = {
+      // Input fields
+      electricityConsumed,
+      fuelConsumed,
+      floorArea,
+
+      // Files
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS",
+      payload,
+    });
+
+    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
+    onSubmit();
   };
 
   // Handle input changes with automatic error clearing

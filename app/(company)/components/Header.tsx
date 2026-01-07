@@ -45,8 +45,9 @@ export default function Header({ showSearchBar = true }: { showSearchBar?: boole
             alt={`${user?.first_name || "N/A"}`}
             width={36}
             height={36}
-            className={`rounded-full object-cover ${isFallbackImage ? "opacity-50 blur-[1px]" : ""
-              }`}
+            className={`rounded-full object-cover ${
+              isFallbackImage ? "opacity-50 blur-[1px]" : ""
+            }`}
           />
           <div className="flex flex-col justify-center items-start text-sm">
             <span className="text-gray-900 font-medium ">

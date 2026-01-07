@@ -244,7 +244,7 @@ export function PurchasedSteamForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.locationBased.purchasedSteam", payload);
+      await saveNow("environment.ghg.scope2.locationBased.steam", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

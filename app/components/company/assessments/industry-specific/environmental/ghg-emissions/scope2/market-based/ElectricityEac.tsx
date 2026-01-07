@@ -200,7 +200,7 @@ export function ElectricityEACForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.marketBased.electricityEac", payload);
+      await saveNow("environment.ghg.scope2.marketBased.eac", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

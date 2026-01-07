@@ -223,6 +223,13 @@ export function OilGasOperations({
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+
+    // Get previous steps data from state to ensure it's saved on submission
+    const electricityHeat =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.electricityHeat;
+    const industrialProcesses =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses;
+
     const payload = {
       onShoreProduction,
       additionalFields: normalizeFiles(additionalFields),
@@ -235,12 +242,20 @@ export function OilGasOperations({
     });
 
     try {
+      // Bulk save all steps in the group before submitting
+      if (electricityHeat) {
+        await saveNow("environment.ghg.scope1.stationarySources.electricityHeat", electricityHeat);
+      }
+      if (industrialProcesses) {
+        await saveNow(
+          "environment.ghg.scope1.stationarySources.industrialProcesses",
+          industrialProcesses
+        );
+      }
       await saveNow("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
+
       const response = await submitGroup();
-      const groupTotal =
-        response?.assessment?.assessmentData?.environment?.ghg?.scope1?.stationarySources
-          ?.totalEmission || 0;
-      onSubmit(groupTotal);
+      onSubmit(response?.totals ?? null);
     } catch (err) {
       toast.error("Submission failed");
       console.error("Submission failed:", err);

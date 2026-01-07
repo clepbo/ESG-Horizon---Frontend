@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -28,6 +29,9 @@ import WaterAndWastewaterManagement from "./industry-specific/environmental/wate
 import ReservesValuationAndCapitalExpenditures from "./industry-specific/business-model-innovation/reserves-valuation-capital-expenditures";
 import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useTopicCompletion } from "@/hooks/useAssessmentCompletion";
+import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -86,7 +90,6 @@ const isTopicAssigned = (topicTitle: string, assignedTopics?: string[]): boolean
     "Workforce Health & Safety": ["Workforce Health & Safety"],
   };
 
-  // Check if any assigned topic is in the hierarchy of this card
   const childTopics = topicHierarchy[topicTitle] || [];
   const hasChildMatch = assignedTopics.some((assignedTopic) =>
     childTopics.some((child) => child.toLowerCase().trim() === assignedTopic.toLowerCase().trim())
@@ -137,13 +140,13 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Security, Human Rights & Rights of Indigenous Peoples",
         subtitle:
-          "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
-        // clickable: true,
+          "Asess how rights, safety, and cultural heritage are safeguarded in operational areas",
+        clickable: true,
       },
       {
         title: "Community Relations",
-        subtitle: "Report engagement strategies and impact on local  communities",
-        // clickable: true,
+        subtitle: "Report engagement strategies and impact on local communities",
+        clickable: true,
       },
     ],
   },
@@ -159,7 +162,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Workforce Health & Safety",
         subtitle:
           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
-        // clickable: true,
+        clickable: false,
       },
     ],
   },
@@ -173,13 +176,13 @@ const industrySpecificMetrics: MetricSection[] = [
     cards: [
       {
         title: "Reserves Valuation & Capital Expenditures",
-        subtitle: "Report on investment strategies and valuation of natural rsource reserves",
-        // clickable: true,
+        subtitle: "Report on investment strategies and valuation of natural resource reserves",
+        clickable: false,
       },
       {
         title: "Business Ethics & Transparency",
-        subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
-        // clickable: true,
+        subtitle: "Assess anti-corruption measures and operational integrity",
+        clickable: false,
       },
     ],
   },
@@ -197,8 +200,7 @@ const industrySpecificMetrics: MetricSection[] = [
       },
       {
         title: "Critical Incident Risk Management",
-        subtitle:
-          "Report preparedness plans and response strategies for major Subsidiaryal incidents",
+        subtitle: "Report preparedness plans and response strategies for major incidents",
       },
     ],
   },
@@ -244,11 +246,11 @@ const supplementaryMetrics: MetricSection[] = [
       {
         title: "Security, Human Rights & Rights of Indigenous Peoples",
         subtitle:
-          "Asess how rights, safety, and cultural heritage are safegiarded in Subsidiaryal areas",
+          "Assess how rights, safety, and cultural heritage are safeguarded in operational areas",
       },
       {
         title: "Community Relations",
-        subtitle: "Report engagement strategies and impact on local  communities",
+        subtitle: "Report engagement strategies and impact on local communities",
       },
     ],
   },
@@ -277,7 +279,7 @@ const supplementaryMetrics: MetricSection[] = [
     cards: [
       {
         title: "Reserves Valuation & Capital Expenditures",
-        subtitle: "Report on investment strategies and valuation of natural rsource reserves",
+        subtitle: "Report on investment strategies and valuation of natural resource reserves",
       },
     ],
   },
@@ -291,7 +293,7 @@ const supplementaryMetrics: MetricSection[] = [
     cards: [
       {
         title: "Business Ethics & Transparency",
-        subtitle: "Assess anti-corruption measures and Subsidiaryal integrity",
+        subtitle: "Assess anti-corruption measures and operational integrity",
       },
       {
         title: "Management of the Legal & Regulatory Environment",
@@ -299,12 +301,13 @@ const supplementaryMetrics: MetricSection[] = [
       },
       {
         title: "Critical Incident Risk Management",
-        subtitle:
-          "Report preparedness plans and response strategies for major Subsidiaryal incidents",
+        subtitle: "Report preparedness plans and response strategies for major incidents",
       },
     ],
   },
 ];
+
+const allMetrics: MetricSection[] = [...industrySpecificMetrics, ...supplementaryMetrics];
 
 export function DisclosureTopics({
   onBack,
@@ -314,22 +317,16 @@ export function DisclosureTopics({
   assignedTask,
   assignedTopics,
 }: DisclosureTopicsProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState(initialView);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+  const { state } = useAssessment();
+
+  // Use the custom hook for topic completion status
+  const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
   const handleCardClick = (cardTitle: string) => {
-    // if (cardTitle === "Greenhouse Gas Emissions") {
-    //   setCurrentView("ghg");
-    // } else if (cardTitle === "Biodiversity Impact") {
-    //   setCurrentView("biodiversity");
-    // } else if (cardTitle === "Community Relations") {
-    //   setCurrentView("crs");
-    // } else if (cardTitle === "Security, Human Rights & Rights of Indigenous Peoples") {
-    //   setCurrentView("security-human-rights");
-    // } else if (cardTitle === "Air Quality") {
-    //   setCurrentView("air-quality");
-    // }
     switch (cardTitle) {
       case "Greenhouse Gas Emissions":
         setCurrentView("ghg");
@@ -357,7 +354,7 @@ export function DisclosureTopics({
         break;
       case "Business Ethics & Transparency":
         setCurrentView("business-ethics-transparency");
-
+        break;
       default:
         break;
     }
@@ -369,7 +366,6 @@ export function DisclosureTopics({
 
   const filterMetrics = (metrics: MetricSection[], metricType: string) => {
     const searchLower = debouncedSearchTerm.toLowerCase();
-
     const topicsToFilter = assignedTopics || assignedTask?.topics;
 
     return metrics
@@ -381,10 +377,8 @@ export function DisclosureTopics({
           const isAssigned = isTopicAssigned(card.title, topicsToFilter);
           if (!isAssigned) return false;
 
-          // If no search term, show all assigned cards
           if (!debouncedSearchTerm) return true;
 
-          // Otherwise apply search filter
           const topicMatches = card.title.toLowerCase().includes(searchLower);
           const subtitleMatches = card.subtitle.toLowerCase().includes(searchLower);
           const metricTypeMatches = metricType.toLowerCase().includes(searchLower);
@@ -496,10 +490,6 @@ export function DisclosureTopics({
         onContinueToNextAssessment={() => {
           setCurrentView("topics");
         }}
-        // onSubmit={(data) => {
-        //   console.info(data);
-        //   setCurrentView("topics");
-        // }}
       />
     );
   }
@@ -554,7 +544,12 @@ export function DisclosureTopics({
                   )}
                 </div>
                 {!assignedTask && (
-                  <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+                  <Button
+                    className="bg-primary hover:bg-teal-600 text-white"
+                    onClick={() => router.push("/assessments/tasks/assign?selectAll=true")}
+                  >
+                    Assign Task
+                  </Button>
                 )}
               </div>
 
@@ -589,10 +584,8 @@ export function DisclosureTopics({
                               <h6>Industry-Specific Metrics</h6>
                               <p>
                                 These are core ESG assessment metrics that are most relevant to your
-                                industry. They reflect the Disclosure Topi key risks, impacts, and
-                                regulatory expectations sustainability-related risks and
-                                opportunities specific to your sector, and are required for
-                                consistent benchmarking and disclosure.
+                                industry. They reflect the key risks, impacts, and regulatory
+                                expectations specific to your sector.
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -626,24 +619,29 @@ export function DisclosureTopics({
                               {section.cards.map((card) => (
                                 <Card
                                   key={card.title}
-                                  className={`transition-colors shadow-sm bg-white rounded-lg border ${
+                                  className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
+                                    card.title
+                                  )} ${
                                     card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50"
+                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                       : "cursor-default"
                                   }`}
                                   onClick={() => card.clickable && handleCardClick(card.title)}
                                 >
                                   <CardContent className="p-4">
-                                    <div className="flex items-center justify-between">
-                                      <div className="space-y-1 flex-1">
-                                        <h5 className="font-medium text-foreground">
-                                          {card.title}
-                                        </h5>
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="space-y-2 flex-1">
+                                        <div className="flex items-center justify-between">
+                                          <h5 className="font-medium text-foreground">
+                                            {card.title}
+                                          </h5>
+                                          <CompletionIndicator status={getStatus(card.title)} />
+                                        </div>
                                         <p className="text-sm text-muted-foreground">
                                           {card.subtitle}
                                         </p>
                                       </div>
-                                      <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
+                                      {/* <ChevronRight className="h-7 w-7 text-muted-foreground" /> */}
                                     </div>
                                   </CardContent>
                                 </Card>
@@ -674,9 +672,8 @@ export function DisclosureTopics({
                             >
                               <h6>Supplementary Metrics</h6>
                               <p>
-                                These are optional metrics that provide additioanl insight into your
-                                sustainability performance. They are not mandatory but can be
-                                reported to demonstrate leadership, transparency, or broader impact.
+                                These are optional metrics that provide additional insight into your
+                                sustainability performance.
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -710,19 +707,24 @@ export function DisclosureTopics({
                               {section.cards.map((card) => (
                                 <Card
                                   key={card.title}
-                                  className="shadow-sm bg-white rounded-lg border cursor-default"
+                                  className={`shadow-sm bg-white rounded-lg ${getCardBorderClass(
+                                    card.title
+                                  )} cursor-default`}
                                 >
                                   <CardContent className="p-4">
-                                    <div className="flex items-center justify-between">
-                                      <div className="space-y-1 flex-1">
-                                        <h4 className="font-medium text-foreground">
-                                          {card.title}
-                                        </h4>
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="space-y-2 flex-1">
+                                        <div className="flex items-center justify-between">
+                                          <h4 className="font-medium text-foreground">
+                                            {card.title}
+                                          </h4>
+                                          <CompletionIndicator status={getStatus(card.title)} />
+                                        </div>
                                         <p className="text-sm text-muted-foreground">
                                           {card.subtitle}
                                         </p>
                                       </div>
-                                      <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0 ml-2" />
+                                      <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0" />
                                     </div>
                                   </CardContent>
                                 </Card>

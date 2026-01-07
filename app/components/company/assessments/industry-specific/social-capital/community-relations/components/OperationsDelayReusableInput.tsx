@@ -36,6 +36,7 @@ export default function OperationsDelayReusableInput({
   showError = false,
 }: Props) {
   const [isTouched, setIsTouched] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const [displayValue, setDisplayValue] = useState<string>("");
   const [shouldDisplayError, setShouldDisplayError] = useState(false);
 
@@ -64,10 +65,12 @@ export default function OperationsDelayReusableInput({
     return clean === "" ? 0 : parseFloat(clean);
   };
 
-  // Initialize display value
+  // Initialize display value (only when not focused to preserve user input)
   useEffect(() => {
-    setDisplayValue(formatNumber(count));
-  }, [count]);
+    if (!isFocused) {
+      setDisplayValue(formatNumber(count));
+    }
+  }, [count, isFocused]);
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsTouched(true);
@@ -76,6 +79,9 @@ export default function OperationsDelayReusableInput({
     // Allow only numbers, commas, and decimal point
     const isValidInput = /^[\d,.]*$/.test(value);
     if (!isValidInput) return;
+
+    // Update display value immediately to preserve user input
+    setDisplayValue(value);
 
     // Parse the raw number (remove commas)
     const rawNumber = parseFormattedNumber(value);
@@ -90,11 +96,13 @@ export default function OperationsDelayReusableInput({
 
   const handleBlur = () => {
     setIsTouched(true);
+    setIsFocused(false);
     setDisplayValue(formatNumber(count));
   };
 
   const handleFocus = () => {
     setIsTouched(true);
+    setIsFocused(true);
     if (count !== 0) {
       setDisplayValue(count.toString());
     }

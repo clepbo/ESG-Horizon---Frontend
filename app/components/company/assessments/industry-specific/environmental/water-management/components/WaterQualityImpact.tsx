@@ -42,6 +42,9 @@ export default function WaterQualityImpact({
   const router = useRouter();
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
   const volumeRecycledReused = useFormattedNumber("");
+  const totalNumberOfWells = useFormattedNumber("");
+  const totalNumberOfSites = useFormattedNumber("");
+  const numberOfSitesWithDeterioratedWaterQuality = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
   const {
@@ -82,6 +85,9 @@ export default function WaterQualityImpact({
   const [formData, setFormData] = useState({
     numberOfWellsWithPublicDisclosureUnit: "",
     volumeRecycledReusedUnit: "",
+    totalNumberOfWellsUnit: "",
+    totalNumberOfSitesUnit: "",
+    numberOfSitesWithDeterioratedWaterQualityUnit: "",
   });
 
   useEffect(() => {
@@ -99,13 +105,27 @@ export default function WaterQualityImpact({
           numberOfWellsWithPublicDisclosureUnit:
             existingData.numberOfWellsWithPublicDisclosureUnit || "",
           volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "",
+          totalNumberOfWellsUnit: existingData.totalNumberOfWellsUnit || "",
+          totalNumberOfSitesUnit: existingData.totalNumberOfSitesUnit || "",
+          numberOfSitesWithDeterioratedWaterQualityUnit:
+            existingData.numberOfSitesWithDeterioratedWaterQualityUnit || "",
         });
       }
+      totalNumberOfWells.handleChange(String(existingData.totalNumberOfWells || ""));
+      totalNumberOfSites.handleChange(String(existingData.totalNumberOfSites || ""));
+      numberOfSitesWithDeterioratedWaterQuality.handleChange(
+        String(existingData.numberOfSitesWithDeterioratedWaterQuality || "")
+      );
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,
+    numberOfSitesWithDeterioratedWaterQuality,
+    numberOfWellsWithPublicDisclosure,
+    totalNumberOfSites,
+    totalNumberOfWells,
+    volumeRecycledReused,
   ]);
 
   const validateForm = () => {
@@ -114,6 +134,29 @@ export default function WaterQualityImpact({
     // Validate radio button selection
     if (!operatesFrackedWells) {
       newErrors.operatesFrackedWells = "This field is required";
+    }
+
+    // Validate new fields
+    if (!totalNumberOfWells.rawValue) {
+      newErrors.totalNumberOfWells = "Total number of wells is required";
+    }
+    if (!formData.totalNumberOfWellsUnit) {
+      newErrors.totalNumberOfWellsUnit = "Unit is required";
+    }
+
+    if (!totalNumberOfSites.rawValue) {
+      newErrors.totalNumberOfSites = "Total number of sites is required";
+    }
+    if (!formData.totalNumberOfSitesUnit) {
+      newErrors.totalNumberOfSitesUnit = "Unit is required";
+    }
+
+    if (!numberOfSitesWithDeterioratedWaterQuality.rawValue) {
+      newErrors.numberOfSitesWithDeterioratedWaterQuality =
+        "Number of sites with deteriorated water quality is required";
+    }
+    if (!formData.numberOfSitesWithDeterioratedWaterQualityUnit) {
+      newErrors.numberOfSitesWithDeterioratedWaterQualityUnit = "Unit is required";
     }
 
     // Validate fields based on selection
@@ -152,15 +195,36 @@ export default function WaterQualityImpact({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
+    const hasTotalWells =
+      totalNumberOfWells.rawValue !== "" && formData.totalNumberOfWellsUnit !== "";
+    const hasTotalSites =
+      totalNumberOfSites.rawValue !== "" && formData.totalNumberOfSitesUnit !== "";
+    const hasSitesDeteriorated =
+      numberOfSitesWithDeterioratedWaterQuality.rawValue !== "" &&
+      formData.numberOfSitesWithDeterioratedWaterQualityUnit !== "";
+
     const hasEvidence = filesAndLinks.length > 0;
 
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+    return calculateProgress([
+      hasRadioSelection,
+      hasAdditionalFields,
+      hasTotalWells,
+      hasTotalSites,
+      hasSitesDeteriorated,
+      hasEvidence,
+    ]);
   }, [
     operatesFrackedWells,
     numberOfWellsWithPublicDisclosure.rawValue,
     volumeRecycledReused.rawValue,
     formData.numberOfWellsWithPublicDisclosureUnit,
     formData.volumeRecycledReusedUnit,
+    totalNumberOfWells.rawValue,
+    formData.totalNumberOfWellsUnit,
+    totalNumberOfSites.rawValue,
+    formData.totalNumberOfSitesUnit,
+    numberOfSitesWithDeterioratedWaterQuality.rawValue,
+    formData.numberOfSitesWithDeterioratedWaterQualityUnit,
     filesAndLinks,
   ]);
 
@@ -171,6 +235,15 @@ export default function WaterQualityImpact({
   const handleSaveAndContinue = async () => {
     const payload = {
       operatesFrackedWells,
+      totalNumberOfWells: Number(totalNumberOfWells.rawValue),
+      totalNumberOfWellsUnit: formData.totalNumberOfWellsUnit,
+      totalNumberOfSites: Number(totalNumberOfSites.rawValue),
+      totalNumberOfSitesUnit: formData.totalNumberOfSitesUnit,
+      numberOfSitesWithDeterioratedWaterQuality: Number(
+        numberOfSitesWithDeterioratedWaterQuality.rawValue
+      ),
+      numberOfSitesWithDeterioratedWaterQualityUnit:
+        formData.numberOfSitesWithDeterioratedWaterQualityUnit,
       ...(operatesFrackedWells === "yes" && {
         numberOfWellsWithPublicDisclosure: Number(numberOfWellsWithPublicDisclosure.rawValue),
         numberOfWellsWithPublicDisclosureUnit: formData.numberOfWellsWithPublicDisclosureUnit,
@@ -261,8 +334,8 @@ export default function WaterQualityImpact({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={3}
-              totalFields={4}
+              fieldsCompleted={6}
+              totalFields={7}
               isSubmitted={false}
             />
 
@@ -312,6 +385,75 @@ export default function WaterQualityImpact({
               {errors.operatesFrackedWells && (
                 <p className="text-sm text-red-600">{errors.operatesFrackedWells}</p>
               )}
+            </div>
+
+            {/* New Fields */}
+            <div className="space-y-8">
+              <ReusableInput
+                label={"Total Number of Wells"}
+                tooltipTitle={"Total Number of Wells"}
+                tooltipBody={
+                  "The total number of wells operated by the company during the reporting period."
+                }
+                inputValue={totalNumberOfWells.displayValue}
+                unitValue={formData.totalNumberOfWellsUnit}
+                onInputChange={(num) => {
+                  totalNumberOfWells.handleChange(String(num));
+                  setErrors((prev) => ({ ...prev, totalNumberOfWells: "" }));
+                }}
+                onUnitChange={(unit) => {
+                  handleInputChange("totalNumberOfWellsUnit", unit);
+                  setErrors((prev) => ({ ...prev, totalNumberOfWellsUnit: "" }));
+                }}
+                error={errors.totalNumberOfWells}
+                unitError={errors.totalNumberOfWellsUnit}
+                formatNumbers={false}
+              />
+
+              <ReusableInput
+                label={"Total Number of Sites"}
+                tooltipTitle={"Total Number of Sites"}
+                tooltipBody={
+                  "The total number of operational sites managed by the company during the reporting period."
+                }
+                inputValue={totalNumberOfSites.displayValue}
+                unitValue={formData.totalNumberOfSitesUnit}
+                onInputChange={(num) => {
+                  totalNumberOfSites.handleChange(String(num));
+                  setErrors((prev) => ({ ...prev, totalNumberOfSites: "" }));
+                }}
+                onUnitChange={(unit) => {
+                  handleInputChange("totalNumberOfSitesUnit", unit);
+                  setErrors((prev) => ({ ...prev, totalNumberOfSitesUnit: "" }));
+                }}
+                error={errors.totalNumberOfSites}
+                unitError={errors.totalNumberOfSitesUnit}
+                formatNumbers={false}
+              />
+
+              <ReusableInput
+                label={"Number of Sites Where Water Quality Deteriorated"}
+                tooltipTitle={"Number of Sites Where Water Quality Deteriorated"}
+                tooltipBody={
+                  "The number of sites where water quality has deteriorated compared to baseline measurements during the reporting period."
+                }
+                inputValue={numberOfSitesWithDeterioratedWaterQuality.displayValue}
+                unitValue={formData.numberOfSitesWithDeterioratedWaterQualityUnit}
+                onInputChange={(num) => {
+                  numberOfSitesWithDeterioratedWaterQuality.handleChange(String(num));
+                  setErrors((prev) => ({ ...prev, numberOfSitesWithDeterioratedWaterQuality: "" }));
+                }}
+                onUnitChange={(unit) => {
+                  handleInputChange("numberOfSitesWithDeterioratedWaterQualityUnit", unit);
+                  setErrors((prev) => ({
+                    ...prev,
+                    numberOfSitesWithDeterioratedWaterQualityUnit: "",
+                  }));
+                }}
+                error={errors.numberOfSitesWithDeterioratedWaterQuality}
+                unitError={errors.numberOfSitesWithDeterioratedWaterQualityUnit}
+                formatNumbers={false}
+              />
             </div>
 
             {/* Conditional Fields for YES response */}

@@ -101,6 +101,10 @@ export default function ReservesInSensitiveAreas({
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.reservesInSensitiveAreas,
+    probableReservesSensitiveVolume,
+    provedReservesSensitiveVolume,
+    totalProbableReservesVolume,
+    totalProvedReservesVolume,
   ]);
 
   const { filled, total } = useMemo(() => {

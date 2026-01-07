@@ -9,6 +9,20 @@ export interface ReportResponse {
   targets: Target[];
 }
 
+interface GHGData {
+  ghg_total_emissions: number;
+  ghg_history: EmissionHistory[];
+  ghg_scope_1: number;
+  ghg_scope_1_history: EmissionHistory[];
+  ghg_scope_2: number;
+  ghg_scope_2_history: EmissionHistory[];
+  ghg_scope_3: number;
+  ghg_scope_3_history: EmissionHistory[];
+}
+interface EmissionHistory {
+  score: number;
+  period: string;
+}
 export interface Report {
   id: number;
   assessmentId: number;
@@ -110,12 +124,7 @@ export interface Summary {
 
 export interface EnvironmentDetails {
   total: number;
-  ghg: {
-    total: number;
-    scope1: number;
-    scope2: number;
-    scope3: number;
-  };
+  ghg: GHGData;
   airQuality: {
     totalAirPollutantEmission: number;
     nox: number;

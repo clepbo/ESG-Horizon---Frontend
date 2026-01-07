@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
@@ -8,6 +9,7 @@ import { ChevronRight, Info } from "lucide-react";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 import ReservesCountriesCorruptionRisk from "./reserves-countries-corruption-risk";
 import AntiCorruptionManagement from "./anti-corruption-management";
 
@@ -29,9 +31,11 @@ export default function BusinessEthicsAssessment({
   initialForm,
   onContinueToNextAssessment,
 }: BusinessEthicsAssessmentProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<BEView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { dispatch } = useAssessment();
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -60,6 +64,7 @@ export default function BusinessEthicsAssessment({
         totals={totals ?? undefined}
         nextAssessment="Next Assessment"
         onContinue={onContinueToNextAssessment}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}
       />
     );
@@ -113,7 +118,18 @@ export default function BusinessEthicsAssessment({
                   chain. IFRS codes: EM-EP-510a.1, EM-EP-510a.2
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent(
+                      "Business Ethics & Transparency"
+                    )}`
+                  )
+                }
+              >
+                Assign Task
+              </Button>
             </div>
 
             <div className="space-y-6">
