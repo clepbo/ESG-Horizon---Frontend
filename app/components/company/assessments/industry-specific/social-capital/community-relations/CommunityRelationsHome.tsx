@@ -30,7 +30,7 @@ export default function CommunityRelationsHome({
 }: Props) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<string>("");
-  const { state, dispatch } = useAssessment();
+  const { dispatch } = useAssessment();
   const [showSuccess, setShowSuccess] = React.useState(false);
 
   function handleForwardBack() {

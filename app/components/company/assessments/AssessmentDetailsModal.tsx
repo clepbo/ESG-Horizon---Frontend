@@ -86,7 +86,7 @@ const DataList = ({ data, label }: { data: any[]; label: string }) => {
                   if (val === undefined || val === null || val === "") return null;
 
                   let displayValue = String(val);
-                  let displayLabel = key.replace(/([A-Z])/g, " $1").trim();
+                  const displayLabel = key.replace(/([A-Z])/g, " $1").trim();
 
                   if (key === "fuelType") {
                     displayValue = fuelLabel;
