@@ -41,7 +41,7 @@ export default function Reportcard({
         <CustomProgressWithoutUnit
           value={progress}
           title="Progress"
-          total={78}
+          total={Number(progress)}
           percent={progress}
           unit="%"
         />

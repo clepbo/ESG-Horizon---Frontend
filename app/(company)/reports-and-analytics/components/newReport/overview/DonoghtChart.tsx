@@ -2,6 +2,7 @@
 
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 
 // Sample data (replace with your real data or props)
 const data = [
@@ -14,14 +15,18 @@ interface DonutChartProps {
   title?: string;
   data?: { name: string; value: number; color: string }[];
 }
+let detail = false;
 
 export default function DonutChart({
   title = "Offshore Sites",
   data: chartData = data,
 }: DonutChartProps) {
   return (
-    <div className="w-full h-[400px] bg-white rounded-lg p-4 shadow">
+    <div className="w-full h-100 bg-white rounded-lg p-4 shadow">
       <h3 className="text-lg font-semibold mb-4 border-b border-b-gray-300 pb-3">{title}</h3>
+
+{
+  detail && (
 
       <ResponsiveContainer width="100%" height="90%">
         <PieChart>
@@ -49,6 +54,13 @@ export default function DonutChart({
           />
         </PieChart>
       </ResponsiveContainer>
+  )
+}
+{
+  !detail && (
+    <NotAvailablePlaceholder />
+  )
+}
     </div>
   );
 }

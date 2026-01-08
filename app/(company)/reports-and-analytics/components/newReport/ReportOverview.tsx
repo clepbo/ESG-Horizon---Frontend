@@ -110,7 +110,7 @@ export default function ReportOverview() {
               borderColor={"#0000"}
               title={"Total Number of Offshore Sites"}
               sub={"sites"}
-              amount={23}
+              amount={0}
             />
           </span>
           <span className="max-w-sm">
@@ -118,7 +118,7 @@ export default function ReportOverview() {
               borderColor={"#0000"}
               title={"Total Number of Terrestrial Sites"}
               sub={"sites"}
-              amount={13}
+              amount={0}
             />
           </span>
         </div>
@@ -179,7 +179,7 @@ export default function ReportOverview() {
           title={"Operational  Delays"}
           pillar={"Social Capital"}
           score={"15 indidents"}
-          amount={socialAmount}
+          amount={""}
           footer={
             "Community engagement efforts increased in conflict zones. Protest remain a key operational risk."
           }
@@ -193,7 +193,7 @@ export default function ReportOverview() {
           title={"Total recordable incident rate"}
           pillar={"Human Capital"}
           score={environmentalScore}
-          amount={humanAmt}
+          amount={""}
           footer={
             "Safety performance improved by 10% YoY. Zero fatalities recorded in the reporting period."
           }
@@ -207,7 +207,7 @@ export default function ReportOverview() {
           title={"Reserves at risk"}
           pillar={"Business Model"}
           score={environmentalScore}
-          amount={humanAmt}
+          amount={""}
           footer={
             "Strategic shift towards renewables accelerating. Carbon pricing impact on reserves modeled"
           }
@@ -221,7 +221,7 @@ export default function ReportOverview() {
           title={"Process safety"}
           pillar={"Leadership and Governance"}
           score={environmentalScore}
-          amount={humanAmt}
+          amount={""}
           footer={"Sustainability committee established. Whistleblower system active and verified"}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}

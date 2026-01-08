@@ -37,7 +37,7 @@ export function TargetSetting() {
   const { user } = useAuth();
   const baseline = useBaseline(user?.company?.id);
 
-  console.log("Baseline data:", baseline?.data);
+  // console.log("Baseline data:", baseline?.data);
   // If we're on summary pages, don't render the main target setting UI
   if (isScopeSummaryPage || isGeneralSummaryPage) {
     return null; // The summary pages will handle their own rendering
@@ -55,7 +55,7 @@ export function TargetSetting() {
   const handleDataChange = (newData: GeneralTargetData) => {
     setGeneralTargetData(newData);
   };
-
+// console.log(" General Target Data in Target Setting ", baseline);
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

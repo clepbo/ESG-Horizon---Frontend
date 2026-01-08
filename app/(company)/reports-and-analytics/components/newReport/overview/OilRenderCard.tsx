@@ -2,6 +2,7 @@ import React from "react";
 
 import { buildStyles, CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 
 interface Props {
   borderColor: string;
@@ -19,9 +20,13 @@ export default function OilRenderCard({ borderColor, title, sub, amount }: Props
       }}
     >
       <p className="text-gray-800">{title}</p>
-      <p className="font-bold text-3xl">
-        {amount.toLocaleString()} <sub className="text-gray-400 text-xs">{sub}</sub>
-      </p>
+      {typeof amount === "number" && amount > 0 && (
+        <p className="font-bold text-3xl">
+          {amount.toLocaleString()} <sub className="text-gray-400 text-xs">{sub}</sub>
+        </p>
+      )}
+
+      {typeof amount !== "number" || amount === 0 ? <NotAvailablePlaceholder /> : null}
     </div>
   );
 }
@@ -57,10 +62,10 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
 }
 
 export const cardData = [
-  { title: "Crude Oil", amount: 500, sub: "kbbl/day", borderColor: "#F28B0D" },
-  { title: "Synthetic Oil", amount: 38, sub: "kbbl/day", borderColor: "#FCDC8B" },
-  { title: "Natural Gas", amount: 300, sub: "mmscfd", borderColor: "#3B82F6" },
-  { title: "Synthetic Gas", amount: 30, sub: "mmscfd", borderColor: "#BFD7FE" },
+  { title: "Crude Oil", amount: 0, sub: "kbbl/day", borderColor: "#F28B0D" },
+  { title: "Synthetic Oil", amount: 0, sub: "kbbl/day", borderColor: "#FCDC8B" },
+  { title: "Natural Gas", amount: 0, sub: "mmscfd", borderColor: "#3B82F6" },
+  { title: "Synthetic Gas", amount: 0, sub: "mmscfd", borderColor: "#BFD7FE" },
 ];
 
 export const data = [

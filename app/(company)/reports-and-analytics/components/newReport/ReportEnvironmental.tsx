@@ -22,6 +22,7 @@ import { useSingleReport } from "../service/useReport";
 import { formatNumberWithCommas } from "../utils/helpers";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import Link from "next/link";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 export default function ReportEnvironmental() {
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
@@ -79,7 +80,7 @@ export default function ReportEnvironmental() {
             borderColor="#1e8a3d"
             bgColor="#dff9e6"
             color="#84bb94"
-            value={formatNumberWithCommas(
+            value={formatNumberFigures(
               reportData?.summary?.startMonth?.environment?.totalEmission ?? 0
             )}
           />
@@ -87,7 +88,7 @@ export default function ReportEnvironmental() {
             borderColor="#2570eb"
             bgColor="#dff9e6"
             title="Scope 1"
-            value={formatNumberWithCommas(
+            value={formatNumberFigures(
               reportData?.summary?.startMonth?.environment?.ghg?.scope1?.totalEmission ?? 0
             )}
             color="#84bb94"
@@ -96,7 +97,7 @@ export default function ReportEnvironmental() {
             borderColor="#fac565"
             bgColor="#dff9e6"
             title="Scope 2"
-            value={formatNumberWithCommas(
+            value={formatNumberFigures(
               reportData?.summary?.startMonth?.environment?.ghg?.scope2?.totalEmission ?? 0
             )}
             color="#84bb94"
@@ -105,7 +106,7 @@ export default function ReportEnvironmental() {
             borderColor="#af57db"
             bgColor="#dff9e6"
             title="Scope 3"
-            value={formatNumberWithCommas(
+            value={formatNumberFigures(
               reportData?.summary?.startMonth?.environment?.ghg?.scope3?.totalEmission ?? 0
             )}
             color="#84bb94"
