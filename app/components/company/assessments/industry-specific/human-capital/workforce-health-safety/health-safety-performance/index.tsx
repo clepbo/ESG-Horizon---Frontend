@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
-import DirectEmployeesForm from "./direct-employees-form";
-import ContractEmployeesForm from "./contract-employees-form";
+import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 
@@ -26,7 +25,6 @@ export default function HealthSafetyPerformance({
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
 
-  // Track progress from child forms
   const [directProgress, setDirectProgress] = useState({ filled: 0, total: 6 });
   const [contractProgress, setContractProgress] = useState({ filled: 0, total: 6 });
 
@@ -34,8 +32,10 @@ export default function HealthSafetyPerformance({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Use the active tab's progress
-  const currentProgress = activeTab === "direct" ? directProgress : contractProgress;
+  const combinedProgress = {
+    filled: directProgress.filled + contractProgress.filled,
+    total: directProgress.total + contractProgress.total,
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
@@ -56,12 +56,12 @@ export default function HealthSafetyPerformance({
         {/* Main Card */}
         <Card className="shadow-sm border border-gray-200">
           <CardContent className="p-8 space-y-8">
-            {/* Progress Bar */}
+            {/* Progress Bar - Shows combined progress from both tabs */}
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={currentProgress.filled}
-              totalFields={currentProgress.total}
+              fieldsCompleted={combinedProgress.filled}
+              totalFields={combinedProgress.total}
               isSubmitted={false}
             />
 
@@ -79,7 +79,8 @@ export default function HealthSafetyPerformance({
                   </TabsList>
 
                   <TabsContent value="direct" activeTab={activeTab}>
-                    <DirectEmployeesForm
+                    <EmployeeForm
+                      employeeType="direct"
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setDirectProgress}
@@ -87,7 +88,8 @@ export default function HealthSafetyPerformance({
                   </TabsContent>
 
                   <TabsContent value="contract" activeTab={activeTab}>
-                    <ContractEmployeesForm
+                    <EmployeeForm
+                      employeeType="contract"
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setContractProgress}
