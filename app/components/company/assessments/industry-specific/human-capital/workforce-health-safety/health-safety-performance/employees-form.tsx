@@ -11,17 +11,19 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import ReusableInput from "../../../environmental/water-management/components/ReusableInput";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
-interface ContractEmployeesFormProps {
+interface UnifiedEmployeeFormProps {
+  employeeType: "direct" | "contract";
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   onProgressChange: (progress: { filled: number; total: number }) => void;
 }
 
-export default function ContractEmployeesForm({
+export default function UnifiedEmployeeForm({
+  employeeType,
   onBack,
   onContinueToNextAssessment,
   onProgressChange,
-}: ContractEmployeesFormProps) {
+}: UnifiedEmployeeFormProps) {
   const totalHoursWorked = useFormattedNumber("");
   const recordableIncidents = useFormattedNumber("");
   const fatalities = useFormattedNumber("");
@@ -92,6 +94,7 @@ export default function ContractEmployeesForm({
   useEffect(() => {
     onProgressChange({ filled, total });
   }, [filled, total, onProgressChange]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -105,25 +108,21 @@ export default function ContractEmployeesForm({
     setIsSaving(true);
 
     const payload = {
+      employeeType,
       totalHoursWorked: Number(totalHoursWorked.rawValue),
       totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
-
       recordableIncidents: Number(recordableIncidents.rawValue),
       recordableIncidentsUnit: formData.recordableIncidentsUnit,
-
       fatalities: Number(fatalities.rawValue),
       fatalitiesUnit: formData.fatalitiesUnit,
-
       nearMisses: Number(nearMisses.rawValue),
       nearMissesUnit: formData.nearMissesUnit,
-
       safetyTrainingHours: Number(safetyTrainingHours.rawValue),
       safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
-
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("CONTRACT EMPLOYEES DATA:", payload);
+    console.log(`${employeeType.toUpperCase()} EMPLOYEES DATA:`, payload);
     toast.success("Data saved successfully.");
 
     setTimeout(() => {
@@ -169,6 +168,7 @@ export default function ContractEmployeesForm({
         error={errors.totalHoursWorked}
         formatNumbers={false}
         placeholder="e.g., 8,900,000"
+        customUnit={formData.totalHoursWorkedUnit}
       />
 
       {/* Number of Recordable Incidents */}
@@ -188,6 +188,7 @@ export default function ContractEmployeesForm({
         error={errors.recordableIncidents}
         formatNumbers={false}
         placeholder="e.g., 20"
+        customUnit={formData.recordableIncidentsUnit}
       />
 
       {/* Number of Fatalities */}
@@ -207,6 +208,7 @@ export default function ContractEmployeesForm({
         error={errors.fatalities}
         formatNumbers={false}
         placeholder="e.g., 1"
+        customUnit={formData.fatalitiesUnit}
       />
 
       {/* Number of Near Misses */}
@@ -226,13 +228,14 @@ export default function ContractEmployeesForm({
         error={errors.nearMisses}
         formatNumbers={false}
         placeholder="e.g., 1"
+        customUnit={formData.nearMissesUnit}
       />
 
       {/* Average Hours of Safety Training per Employee */}
       <ReusableInput
         label="Average Hours of Safety Training per Employee"
         tooltipTitle="Average Hours of Safety Training per Employee"
-        tooltipBody="Report the average number of hours each employee spent on health and safety training during the reporting period. This metric reflects your company’s investment in preventive safety practices and workforce competence."
+        tooltipBody="Report the average number of hours each employee spent on health and safety training during the reporting period. This metric reflects your company's investment in preventive safety practices and workforce competence."
         inputValue={safetyTrainingHours.displayValue}
         unitValue={formData.safetyTrainingHoursUnit}
         onInputChange={(num) => {
@@ -245,6 +248,7 @@ export default function ContractEmployeesForm({
         error={errors.safetyTrainingHours}
         formatNumbers={false}
         placeholder="e.g., 1"
+        customUnit={formData.safetyTrainingHoursUnit}
       />
 
       {/* Document/Evidence Upload */}

@@ -162,7 +162,7 @@ const industrySpecificMetrics: MetricSection[] = [
         title: "Workforce Health & Safety",
         subtitle:
           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
-        clickable: false,
+        clickable: true,
       },
     ],
   },
