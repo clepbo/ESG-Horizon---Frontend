@@ -11,19 +11,19 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import ReusableInput from "../../../environmental/water-management/components/ReusableInput";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
-interface UnifiedEmployeeFormProps {
+interface EmployeeFormProps {
   employeeType: "direct" | "contract";
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   onProgressChange: (progress: { filled: number; total: number }) => void;
 }
 
-export default function UnifiedEmployeeForm({
+export default function EmployeeForm({
   employeeType,
   onBack,
   onContinueToNextAssessment,
   onProgressChange,
-}: UnifiedEmployeeFormProps) {
+}: EmployeeFormProps) {
   const totalHoursWorked = useFormattedNumber("");
   const recordableIncidents = useFormattedNumber("");
   const fatalities = useFormattedNumber("");
