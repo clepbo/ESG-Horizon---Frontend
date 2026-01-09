@@ -22,7 +22,7 @@ export default function AirQiality({
         assessmentName="Air Pollutant Emissions"
         nextAssessment="Water and Wastewater Management"
         onContinue={backToDisclosureTopics}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={backToDisclosureTopics}
         onBackToHub={backToAssessmentHub}
       />
     );

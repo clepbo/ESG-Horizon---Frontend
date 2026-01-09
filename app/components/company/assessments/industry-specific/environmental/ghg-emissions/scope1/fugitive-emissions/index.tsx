@@ -53,7 +53,7 @@ export function FugitiveEmissionsForm({
         nextAssessment="Stationary Sources"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
-        onBackToHub={() => router.push("/assessments")}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }

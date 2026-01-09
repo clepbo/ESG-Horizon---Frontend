@@ -54,7 +54,7 @@ export function MobileSourcesForm({
         nextAssessment="Process Emissions"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
-        onBackToHub={() => router.push("/assessments")}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }

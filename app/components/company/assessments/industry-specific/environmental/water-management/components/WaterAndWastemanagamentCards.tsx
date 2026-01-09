@@ -121,7 +121,7 @@ export default function WaterAndWastemanagementCards({
         totals={undefined}
         nextAssessment="Biodiversity Impact"
         onContinue={backToDisclosureTopics}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={backToDisclosureTopics}
         onBackToHub={backToAssessmentHub}
       />
     );

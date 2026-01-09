@@ -131,7 +131,7 @@ export default function AirQualityForm({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow

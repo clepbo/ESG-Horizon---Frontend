@@ -62,14 +62,10 @@ export default function HydrocarbonSpills({
       volumeImpactingShorelines.handleChange(String(existingData.volumeImpactingShorelines || ""));
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.hydrocarbonSpills,
-    numberOfSpills,
-    totalVolumeSpilled,
-    volumeImpactingShorelines,
-    volumeInArctic,
-    volumeRecovered,
   ]);
 
   useEffect(() => {
@@ -145,7 +141,7 @@ export default function HydrocarbonSpills({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow

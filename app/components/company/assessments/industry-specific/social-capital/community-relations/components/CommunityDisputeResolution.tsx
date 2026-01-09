@@ -114,7 +114,7 @@ export default function CommunityDisputeResolution({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1000);
     } catch (_error) {
       toast.error("Failed to save data");

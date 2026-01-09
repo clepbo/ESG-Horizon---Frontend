@@ -41,6 +41,7 @@ interface UnitSelectProps {
   className?: string;
   error?: string;
   context?: UnitContext;
+  disabled?: boolean;
 }
 
 export function UnitSelect({
@@ -50,12 +51,13 @@ export function UnitSelect({
   className = "border-gray-300",
   error,
   context = "oil-gas",
+  disabled = false,
 }: UnitSelectProps) {
   const options = UNIT_OPTIONS_BY_CONTEXT[context];
 
   return (
     <div className="space-y-2">
-      <Select value={value} onValueChange={onValueChange}>
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
         <SelectTrigger className={error ? "border-red-500" : className}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

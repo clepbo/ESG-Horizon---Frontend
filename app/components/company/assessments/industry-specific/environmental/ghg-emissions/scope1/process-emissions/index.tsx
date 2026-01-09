@@ -52,7 +52,7 @@ export function ProcessEmissionsForm({
         sectionKey="processEmissions"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
-        onBackToHub={() => router.push("/assessments")}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }

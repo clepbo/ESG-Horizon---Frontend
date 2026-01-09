@@ -196,7 +196,7 @@ export default function WaterQualityImpact({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow
@@ -344,7 +344,6 @@ export default function WaterQualityImpact({
                   error={errors.totalMonitoredSites}
                   unitError={errors.totalMonitoredSitesUnit}
                   formatNumbers={false}
-                  customUnit="Sites"
                   placeholder="e.g., 50"
                 />
 
@@ -365,7 +364,6 @@ export default function WaterQualityImpact({
                   error={errors.sitesWithDeterioratedQuality}
                   unitError={errors.sitesWithDeterioratedQualityUnit}
                   formatNumbers={false}
-                  customUnit="Sites"
                   placeholder="e.g., 5"
                 />
               </div>
