@@ -57,14 +57,14 @@ export function GasFlaring({
     displayValue: gasVolumeDisplay,
     handleChange: handleGasVolumeChange,
     setRawValue: setGasVolumeRaw,
-  } = useFormattedNumber("0");
+  } = useFormattedNumber("");
 
   const {
     rawValue: carbonContent,
     displayValue: carbonContentDisplay,
     handleChange: handleCarbonContentChange,
     setRawValue: setCarbonContentRaw,
-  } = useFormattedNumber("0");
+  } = useFormattedNumber("");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -102,8 +102,16 @@ export function GasFlaring({
     const existingData =
       state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
     if (existingData) {
-      setGasVolumeRaw(existingData.gasVolume?.toString() || "0");
-      setCarbonContentRaw(existingData.carbonContent?.toString() || "0");
+      setGasVolumeRaw(
+        existingData.gasVolume && existingData.gasVolume > 0
+          ? existingData.gasVolume.toString()
+          : ""
+      );
+      setCarbonContentRaw(
+        existingData.carbonContent && existingData.carbonContent > 0
+          ? existingData.carbonContent.toString()
+          : ""
+      );
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -124,9 +132,9 @@ export function GasFlaring({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const validateForm = () => {
     const newErrors: { gasVolume?: string; carbonContent?: string; files?: string } = {};
-    if (Number(gasVolume) <= 0)
+    if (!gasVolume || Number(gasVolume) <= 0)
       newErrors.gasVolume = "Please enter a positive volume of gas flared";
-    if (Number(carbonContent) <= 0 || Number(carbonContent) > 100)
+    if (!carbonContent || Number(carbonContent) <= 0 || Number(carbonContent) > 100)
       newErrors.carbonContent = "Please enter a valid percentage (0-100)";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

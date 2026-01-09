@@ -205,7 +205,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.oxidesOfNitrogen}
             />
@@ -221,7 +221,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfSuplphur")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.oxidesOfSuplphur}
             />
@@ -237,7 +237,7 @@ export default function AirQualityForm({
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.volatileOrganicCompound}
             />
@@ -253,7 +253,7 @@ export default function AirQualityForm({
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.particulateMatter}
             />

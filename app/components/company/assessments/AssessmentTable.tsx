@@ -188,12 +188,12 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
 
   const filteredData = dateRange
     ? data.filter((a) => {
-      const startDate = new Date(a.startPeriod);
-      const endDate = new Date(a.endPeriod);
-      const rangeStart = new Date(dateRange.startMonth);
-      const rangeEnd = new Date(dateRange.endMonth);
-      return startDate >= rangeStart && endDate <= rangeEnd;
-    })
+        const startDate = new Date(a.startPeriod);
+        const endDate = new Date(a.endPeriod);
+        const rangeStart = new Date(dateRange.startMonth);
+        const rangeEnd = new Date(dateRange.endMonth);
+        return startDate >= rangeStart && endDate <= rangeEnd;
+      })
     : data;
 
   const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);

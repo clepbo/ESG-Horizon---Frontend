@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -17,6 +18,10 @@ import { TotalsResponse } from "@/services/assessment.service";
 import EnvironmentalManagementPolicies from "./environmental-managment-policies";
 import HydrocarbonSpills from "./hydrocarbon-spills";
 import ReservesInSensitiveAreas from "./reserves-in-sensitive-areas";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
+import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type SHRView =
   | "overview"
@@ -51,7 +56,7 @@ const scopeData = [
         clickable: true,
       },
       {
-        title: "Hydrocarbon Spills ",
+        title: "Hydrocarbon Spills",
         subtitle:
           "This form covers metric EM-EP-160a.2, focusing on the quantitative impact of operational spills on the environment.",
         clickable: true,
@@ -71,9 +76,18 @@ export function BioDiversityImpact({
   initialForm,
   onContinueToNextAssessment,
 }: BioDiversityImpactProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { state, dispatch } = useAssessment();
+
+  // Use the reusable hook with checkSubComponentCompletion
+  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+    scopeData,
+    state.assessmentData,
+    checkSubComponentCompletion
+  );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -90,7 +104,7 @@ export function BioDiversityImpact({
     if (cardTitle === "Environmental Management Policies") {
       setCurrentView("environmental-management-policies");
     }
-    if (cardTitle === "Hydrocarbon Spills ") {
+    if (cardTitle === "Hydrocarbon Spills") {
       setCurrentView("hydrocarbon-spills");
     }
     if (cardTitle === "Reserves in Sensitive Areas") {
@@ -105,10 +119,12 @@ export function BioDiversityImpact({
         totals={totals ?? undefined}
         nextAssessment="Security, Human Rights &amp; Community Engagement"
         onContinue={onContinueToNextAssessment}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}
       />
     );
   }
+
   if (currentView === "environmental-management-policies") {
     return (
       <EnvironmentalManagementPolicies
@@ -128,7 +144,7 @@ export function BioDiversityImpact({
         onContinueToNextAssessment={() => setCurrentView("reserves-in-sensitive-areas")}
         stepIndex={2}
         totalSteps={steps.length}
-        breadcrumb={[...overviewBreadcrumb, { label: "Hydrocarbon Spills " }]}
+        breadcrumb={[...overviewBreadcrumb, { label: "Hydrocarbon Spills" }]}
       />
     );
   }
@@ -167,7 +183,16 @@ export function BioDiversityImpact({
                   (IFRS codes: EM-EP-160a.1, EM-EP-160a.2, EM-EP-160a.3)
                 </p>
               </div>
-              <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+              <Button
+                className="bg-primary hover:bg-teal-600 text-white"
+                onClick={() =>
+                  router.push(
+                    `/assessments/tasks/assign?topic=${encodeURIComponent("Biodiversity Impact")}`
+                  )
+                }
+              >
+                Assign Task
+              </Button>
             </div>
 
             <Accordion
@@ -214,18 +239,25 @@ export function BioDiversityImpact({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-colors bg-white shadow-sm rounded-lg ${
-                            card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+                          className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
+                            card.title
+                          )} ${
+                            card.clickable
+                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                              : "cursor-default"
                           }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="space-y-1 flex-1">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-2 flex-1">
+                                <div className="flex items-center justify-between">
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
+                                  <CompletionIndicator status={getStatus(card.title)} />
+                                </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
+                              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
                             </div>
                           </CardContent>
                         </Card>

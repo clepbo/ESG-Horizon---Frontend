@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -270,11 +271,12 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
                   >
                     {getFileType(fieldData) === "image" ? (
                       <div className="relative w-24 h-24 bg-gray-50">
-                        <img
+                        <Image
                           src={fieldData.url}
                           alt={fieldData.name || "Preview"}
+                          width={96}
+                          height={96}
                           className="w-full h-full object-cover"
-                          loading="lazy"
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
                           <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
@@ -360,10 +362,12 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
 
             {/* Content */}
             <div className="flex-1 overflow-auto p-6 bg-white flex items-center justify-center">
-              {isImageFile(previewFile) ? (
-                <img
+              {isImageFile(previewFile) && previewFile.url ? (
+                <Image
                   src={previewFile.url}
                   alt={previewFile.name}
+                  width={800}
+                  height={600}
                   className="max-w-full max-h-full object-contain"
                   style={{ display: "block" }}
                 />

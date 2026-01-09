@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { FaLeaf } from "react-icons/fa";
 // import EnvironmentalEmissionCard from "./environmental/EnvironmentalEmissionCard";
 import EmissionsChart from "./environmental/EmissionsChart";
-import EmissionsByScope, { emissionByScopedata } from "./environmental/EmissionByScope";
+import EmissionsByScope, { transformGHGData } from "./environmental/EmissionByScope";
 import ReductionTarget from "./environmental/ReductionTarget";
 import { IoWaterSharp } from "react-icons/io5";
 import { MdAir } from "react-icons/md";
@@ -23,6 +23,7 @@ import { formatNumberWithCommas } from "../utils/helpers";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import Link from "next/link";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 
 export default function ReportEnvironmental() {
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
@@ -37,8 +38,9 @@ export default function ReportEnvironmental() {
   const airQuality = reportData?.environment_details?.airQuality;
   const waterManagement = reportData?.environment_details?.waterManagement;
   const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
+  const ghg = reportData?.environment_details?.ghg;
 
-  console.log("ReportOverview Data", reportData);
+  // console.log("ReportOverview Data", reportData);
 
   if (isError) {
     return (
@@ -80,50 +82,58 @@ export default function ReportEnvironmental() {
             borderColor="#1e8a3d"
             bgColor="#dff9e6"
             color="#84bb94"
-            value={formatNumberFigures(
-              reportData?.summary?.startMonth?.environment?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_total_emissions) : "0"}
           />
           <EmissionsChart
             borderColor="#2570eb"
             bgColor="#dff9e6"
             title="Scope 1"
-            value={formatNumberFigures(
-              reportData?.summary?.startMonth?.environment?.ghg?.scope1?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_1) : "0"}
             color="#84bb94"
           />
           <EmissionsChart
             borderColor="#fac565"
             bgColor="#dff9e6"
             title="Scope 2"
-            value={formatNumberFigures(
-              reportData?.summary?.startMonth?.environment?.ghg?.scope2?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_2) : "0"}
             color="#84bb94"
           />
           <EmissionsChart
             borderColor="#af57db"
             bgColor="#dff9e6"
             title="Scope 3"
-            value={formatNumberFigures(
-              reportData?.summary?.startMonth?.environment?.ghg?.scope3?.totalEmission ?? 0
-            )}
+            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_3) : "0"}
             color="#84bb94"
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-2 rounded-2xl shadow p-2">
-            <EmissionsByScope data={emissionByScopedata} />
+            {/* <EmissionsByScope data={transformGHGData(ghg)} /> */}
+            {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
           </div>
           <div className="col-span-1 rounded-2xl shadow">
-            { reportData?.targets?.length === 0 &&  
-            <div className="w-full flex gap-4 flex-col justify-center items-center py-12 text-gray-600">
-              No Target Data 
-              <p> Click bellow to set target</p>
-              <Link className='p-4 py-1 rounded-md border border-primary text-primary' href={'/kpis'} > Set target </Link>
-              </div>}
-            { reportData?.targets?.length! > 0 && <ReductionTarget /> }
+            {reportData?.targets === undefined || reportData?.targets.length === 0 ? (
+              <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
+                <p className="text-gray-700">
+                  You have not set any target yet, click bellow to set a target
+                </p>
+                <Link href={"/kpis"} className="bg-primary text-white p-4 py-1 rounded-md">
+                  {" "}
+                  Set target{" "}
+                </Link>
+              </div>
+            ) : reportData?.targets?.[0]?.type === "GENERAL" ? (
+              <ReductionTarget />
+            ) : (
+              <ReductionTargetByScope
+                scope1percentage={0}
+                scope1value={0}
+                scope2percentage={0}
+                scope2value={0}
+                scope3percentage={0}
+                scope3value={0}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -243,11 +253,31 @@ export default function ReportEnvironmental() {
             sub={"m²"}
             amount={waterManagement?.dischargedToSurface || 0}
           />
+          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={0} />
+          <OilRenderCard
+            borderColor={"#2570eb"}
+            title={"Wells with Public Disclosure"}
+            sub={"wells"}
+            amount={0}
+          />
+          <OilRenderCard
+            borderColor={"#af57db"}
+            title={"Percentage with Disclosure"}
+            sub={"%"}
+            amount={0}
+          />
+          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={0} />
+          <OilRenderCard
+            borderColor={"#1e8a3d"}
+            title={"Sites with Deteriorated Water Quality"}
+            sub={"sites"}
+            amount={0}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-1 md:col-span-2 rounded-2xl shadow p-3">
-            <FreshWaterWithdrawalSource municipal={0} groundwater={0} surfaceWater={0} />
+            <FreshWaterWithdrawalSource surfaceWater={0} groundwater={0} municipal={0} />
           </div>
           <div className="col-span-1 rounded-2xl shadow p-3">
             <ProducedWaterManagementChart
@@ -274,29 +304,28 @@ export default function ReportEnvironmental() {
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
-                  value={51}
-                  // styles={buildStyles({ pathColor: progress > 50 ? "green" : "red", })}
+                  value={0}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
                   <div
                     style={{ fontSize: 12, marginTop: -5 }}
                     className="flex text-xs flex-col items-center"
                   >
-                    <strong>{51}%</strong>
+                    <strong>{Math.round(0)}%</strong>
                     <p className="font-thin">Disclosure Rate </p>
-                    <p className=""> 72 Wells Disclosed</p>
+                    <p className="">{0} Wells Disclosed</p>
                   </div>
                 </CircularProgressbarWithChildren>
               </div>
               <div className="bg-gray-100 p-2 py-4 rounded-md">
                 {/* <CustomProgressWithoutSections percent={51} title="Volume Recycled/Reused" value={30} total={4500} unit="m" className="" /> */}
                 <CustomProgressWithoutSections
-                  value={70}
+                  value={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
                   title="Volume Recycled/Reused"
-                  total={9300}
-                  unit="m"
+                  total={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
+                  unit="m³"
                   barColor=""
-                  percent={70}
+                  percent={100}
                 />
               </div>
             </div>
@@ -309,10 +338,17 @@ export default function ReportEnvironmental() {
             <div className="p-4 grid grid-cols-1 gap-4">
               <WaterQualityCard
                 title={"Wells with public chemical disclosure"}
-                amount={waterManagement?.waterQualityImpacts?.wellsWithPublicChemicalDisclosure || 0}
-                progress={48}
+                amount={
+                  waterManagement?.waterQualityImpacts?.wellsWithPublicChemicalDisclosure || 0
+                }
+                progress={0}
               />
-              <WaterQualityCard title={"Volume ecycled/Reused"} amount={waterManagement?.waterQualityImpacts?.volumeRecycledReused || 0} progress={67} sub="m" />
+              <WaterQualityCard
+                title={"Volume Recycled/Reused"}
+                amount={waterManagement?.waterQualityImpacts?.volumeRecycledReused || 0}
+                progress={70}
+                sub="m³"
+              />
             </div>
           </div>
         </div>

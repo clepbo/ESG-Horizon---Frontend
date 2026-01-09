@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { RoadTransport } from "./RoadTransport";
 import { VehicleEquipment } from "./VehicleEquipment";
 import { MarineAviation } from "./MarineAviation";
@@ -13,6 +14,7 @@ interface MobileSourcesFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = ["Road Transport", "Vehicle Equipment", "Marine & Aviation"];
@@ -22,7 +24,9 @@ export function MobileSourcesForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: MobileSourcesFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "road-transport");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -49,7 +53,8 @@ export function MobileSourcesForm({
         totals={totals ?? undefined}
         nextAssessment="Process Emissions"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments")}
       />
     );
   }

@@ -8,6 +8,10 @@ import { BusinessTravel } from "./upstream/BusinessTravel";
 import { EmployeeCommuting } from "./upstream/EmployeeCommuting";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { LeasedAssets } from "./upstream/LeasedAssets";
+import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
+import { useAssessment } from "@/hooks/useAssessment";
+import { TotalsResponse } from "@/services/assessment.service";
+import { toast } from "react-toastify";
 
 export interface UpstreamProps {
   handleBacktoAssessment: () => void;
@@ -20,22 +24,87 @@ export default function UpstreamEmissionHome({
   backToDisclossureTopic,
 }: UpstreamProps) {
   const [step, setStep] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const { state, dispatch } = useAssessment();
 
-  const { submitGroup } = useAssessmentFlow("ghg-scope3-upstream");
+  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-upstream");
 
   function handleNext(val: number) {
     setStep(val);
   }
 
-  async function handleFinalNext() {
-    await submitGroup();
-    handleBacktoGHG();
+  async function handleSubmit() {
+    const data = state.assessmentData.environment?.ghg?.scope3?.upstream;
+
+    try {
+      // Bulk save all steps in the group before submitting
+      if (data?.purchasedGoodsAndServices) {
+        await saveNow(
+          "environment.ghg.scope3.upstream.purchasedGoodsAndServices",
+          data.purchasedGoodsAndServices
+        );
+      }
+      if (data?.capitalGoods) {
+        await saveNow("environment.ghg.scope3.upstream.capitalGoods", data.capitalGoods);
+      }
+      if (data?.fuelEnergyRelatedActivities) {
+        await saveNow(
+          "environment.ghg.scope3.upstream.fuelEnergyRelatedActivities",
+          data.fuelEnergyRelatedActivities
+        );
+      }
+      if (data?.upstreamTransportationDistribution) {
+        await saveNow(
+          "environment.ghg.scope3.upstream.upstreamTransportationDistribution",
+          data.upstreamTransportationDistribution
+        );
+      }
+      if (data?.wasteGeneratedInOperations) {
+        await saveNow(
+          "environment.ghg.scope3.upstream.wasteGeneratedInOperations",
+          data.wasteGeneratedInOperations
+        );
+      }
+      if (data?.businessTravel) {
+        await saveNow("environment.ghg.scope3.upstream.businessTravel", data.businessTravel);
+      }
+      if (data?.employeeCommuting) {
+        await saveNow("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting);
+      }
+      if (data?.upstreamLeasedAssets) {
+        await saveNow(
+          "environment.ghg.scope3.upstream.upstreamLeasedAssets",
+          data.upstreamLeasedAssets
+        );
+      }
+
+      const response = await submitGroup();
+      setTotals(response?.totals ?? null);
+      setShowSuccess(true);
+    } catch (err) {
+      toast.error("Submission failed");
+      console.error("Submission failed:", err);
+    }
+  }
+
+  if (showSuccess) {
+    return (
+      <SuccessScreen
+        assessmentName="Upstream Emissions"
+        sectionKey="upstream"
+        totals={totals ?? undefined}
+        onContinue={handleBacktoGHG}
+        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onBackToHub={handleBacktoAssessment}
+      />
+    );
   }
 
   if (step === 0) {
     return (
       <PurchasedGoodsAndServices
-        onBack={() => handleNext(0)}
+        onBack={handleBacktoGHG}
         onNext={() => handleNext(1)}
         stepIndex={1}
         totalSteps={8}
@@ -127,7 +196,7 @@ export default function UpstreamEmissionHome({
     return (
       <LeasedAssets
         onBack={() => handleNext(6)}
-        onNext={handleFinalNext}
+        onSubmit={handleSubmit}
         stepIndex={8}
         totalSteps={8}
         backToAssessment={handleBacktoAssessment}
@@ -136,4 +205,5 @@ export default function UpstreamEmissionHome({
       />
     );
   }
+  return null;
 }

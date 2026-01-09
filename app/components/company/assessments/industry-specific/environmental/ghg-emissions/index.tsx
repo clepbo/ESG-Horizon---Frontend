@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -23,6 +24,9 @@ import { MarketBasedForm } from "./scope2/market-based";
 import { FrontendTask } from "@/services/assignTask.service";
 import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
 import DownstreamEmission from "./scope3/DownstreamEmission";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type GHGView =
   | "overview"
@@ -65,7 +69,6 @@ const isScopeItemAssigned = (
 ): boolean => {
   if (!assignedTopics || assignedTopics.length === 0) return true;
 
-  // Mapping of scope items to their assignable topic names
   const itemHierarchy: Record<string, string[]> = {
     "Stationary Sources": ["Scope 1", "Stationary Sources"],
     "Mobile Sources": ["Scope 1", "Mobile Sources"],
@@ -77,7 +80,6 @@ const isScopeItemAssigned = (
     "Downstream Emissions (Categories 9-15)": ["Scope 3"],
   };
 
-  // Check direct match for item
   const itemTopics = itemHierarchy[itemTitle] || [];
   const hasItemMatch = assignedTopics.some((topic) =>
     itemTopics.some((item) => item.toLowerCase().trim() === topic.toLowerCase().trim())
@@ -85,7 +87,6 @@ const isScopeItemAssigned = (
 
   if (hasItemMatch) return true;
 
-  // Check if the parent scope is assigned
   const scopeMatch = assignedTopics.some(
     (topic) => topic.toLowerCase().trim() === scopeTitle.toLowerCase().trim()
   );
@@ -163,9 +164,16 @@ export function GhgEmissionsAssessment({
   assignedTask,
   assignedTopics,
 }: GhgEmissionsAssessmentProps) {
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+  const { state } = useAssessment();
+
+  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+    scopeData,
+    state.assessmentData
+  );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -205,12 +213,8 @@ export function GhgEmissionsAssessment({
     }
   };
 
-  // Filter function that searches across scope, category, and emission source
-  // AND filters by assigned topics if assignedTask is provided
   const filterScopes = (scopes: ScopeData[]) => {
     const searchLower = debouncedSearchTerm.toLowerCase();
-
-    // Use assignedTopics if provided, otherwise fall back to assignedTask?.topics
     const topicsToFilter = assignedTopics || assignedTask?.topics;
 
     return scopes
@@ -219,14 +223,11 @@ export function GhgEmissionsAssessment({
           !debouncedSearchTerm || scope.title.toLowerCase().includes(searchLower);
 
         const filteredCards = scope.cards.filter((card) => {
-          // First check if this scope item is assigned (if we have a task filter)
           const isAssigned = isScopeItemAssigned(card.title, scope.title, topicsToFilter);
           if (!isAssigned) return false;
 
-          // If no search term, show all assigned cards
           if (!debouncedSearchTerm) return true;
 
-          // Otherwise apply search filter
           const titleMatches = card.title.toLowerCase().includes(searchLower);
           const subtitleMatches = card.subtitle.toLowerCase().includes(searchLower);
 
@@ -250,6 +251,7 @@ export function GhgEmissionsAssessment({
         onContinueToNextAssessment={() => setCurrentView("mobile-sources")}
         onBackToHub={onBackToHub}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -259,6 +261,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("process-emissions")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -268,6 +271,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("fugitive-emissions")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -277,6 +281,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("location-based")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -287,6 +292,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("market-based")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -296,6 +302,7 @@ export function GhgEmissionsAssessment({
         onBack={handleBackToOverview}
         onContinueToNextAssessment={() => setCurrentView("scope3")}
         initialStep={initialStep as any}
+        onBackToDisclosureTopics={onBack}
       />
     );
   }
@@ -347,7 +354,18 @@ export function GhgEmissionsAssessment({
                 )}
               </div>
               {!assignedTask && (
-                <Button className="bg-primary hover:bg-teal-600 text-white">Assign Task</Button>
+                <Button
+                  className="bg-primary hover:bg-teal-600 text-white"
+                  onClick={() =>
+                    router.push(
+                      `/assessments/tasks/assign?topic=${encodeURIComponent(
+                        "GreenHouse Gas Emissions"
+                      )}`
+                    )
+                  }
+                >
+                  Assign Task
+                </Button>
               )}
             </div>
 
@@ -428,20 +446,25 @@ export function GhgEmissionsAssessment({
                         {scope.cards.map((card) => (
                           <Card
                             key={card.title}
-                            className={`transition-colors bg-white shadow-sm rounded-lg ${
+                            className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
+                              card.title
+                            )} ${
                               card.clickable
-                                ? "cursor-pointer hover:bg-accent/50"
+                                ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
                             }`}
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >
                             <CardContent className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="space-y-1 flex-1">
-                                  <h5 className="font-medium text-foreground">{card.title}</h5>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="space-y-2 flex-1">
+                                  <div className="flex items-center justify-between">
+                                    <h5 className="font-medium text-foreground">{card.title}</h5>
+                                    <CompletionIndicator status={getStatus(card.title)} />
+                                  </div>
                                   <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                                 </div>
-                                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
+                                <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
                               </div>
                             </CardContent>
                           </Card>

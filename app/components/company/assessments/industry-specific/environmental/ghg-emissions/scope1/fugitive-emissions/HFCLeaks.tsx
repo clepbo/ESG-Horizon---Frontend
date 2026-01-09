@@ -255,6 +255,10 @@ export function HFCLeaks({
   const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
+    // Get previous steps data from state to ensure it's saved on submission
+    const ventingNaturalGas =
+      state.assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.ventingNaturalGas;
+
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -281,7 +285,15 @@ export function HFCLeaks({
     });
 
     try {
+      // Bulk save all steps in the group before submitting
+      if (ventingNaturalGas) {
+        await saveNow(
+          "environment.ghg.scope1.fugitiveEmissions.ventingNaturalGas",
+          ventingNaturalGas
+        );
+      }
       await saveNow("environment.ghg.scope1.fugitiveEmissions.hfcLeaks", payload);
+
       const res = await submitGroup();
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });

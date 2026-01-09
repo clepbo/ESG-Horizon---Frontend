@@ -116,6 +116,10 @@ export default function AssessmentHub() {
   };
 
   const handleBack = () => {
+    if (state.isContinueMode) {
+      router.back();
+      return;
+    }
     dispatch({ type: "SET_VIEW", payload: "hub" });
   };
 
@@ -133,7 +137,7 @@ export default function AssessmentHub() {
     return <UserTasksCoordinator onBack={handleBack} />;
   }
 
-  if (state.currentView === "disclosure") {
+  if (state.currentView === "disclosure-topics") {
     return <DisclosureTopics onBack={handleBack} />;
   }
 

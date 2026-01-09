@@ -201,7 +201,7 @@ export function PurchasedElectricityForm({
     });
 
     try {
-      await saveNow("environment.ghg.scope2.locationBased.purchasedElectricity", payload);
+      await saveNow("environment.ghg.scope2.locationBased.electricity", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);

@@ -240,6 +240,12 @@ export function MarineAviation({
   const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
+    // Get previous steps data from state to ensure it's saved on submission
+    const roadTransport =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport;
+    const vehicleEquipment =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment;
+
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -261,7 +267,15 @@ export function MarineAviation({
     });
 
     try {
+      // Bulk save all steps in the group before submitting
+      if (roadTransport) {
+        await saveNow("environment.ghg.scope1.mobileSources.roadTransport", roadTransport);
+      }
+      if (vehicleEquipment) {
+        await saveNow("environment.ghg.scope1.mobileSources.vehicleEquipment", vehicleEquipment);
+      }
       await saveNow("environment.ghg.scope1.mobileSources.marineAviation", payload);
+
       const res = await submitGroup();
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
