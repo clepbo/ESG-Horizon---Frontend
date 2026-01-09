@@ -19,7 +19,7 @@ export default function ReportPage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [_sortBy, setSortBy] = useState("");
   const [reportData, setReportData] = useState<any[]>([]);
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -64,37 +64,33 @@ export default function ReportPage() {
 
   // Filter and sort logic
   const filteredReports = useMemo(() => {
-  let filtered = [...reportData];
+    let filtered = [...reportData];
 
-  if (searchTerm) {
-    filtered = filtered.filter((report) =>
-      report.subsidiary?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }
-
-  if (startDate || endDate) {
-    filtered = filtered.filter((report) => {
-      const reportStartDate = convertToDate(report.startMonth, report.startYear);
-      const reportEndDate = convertToDate(report.endMonth, report.endYear);
-
-      if (!reportStartDate || !reportEndDate) return true;
-
-      return (
-        (!startDate || reportEndDate >= startDate) &&
-        (!endDate || reportStartDate <= endDate)
+    if (searchTerm) {
+      filtered = filtered.filter((report) =>
+        report.subsidiary?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    });
-  }
+    }
 
-  if (statusFilter) {
-    filtered = filtered.filter(
-      (report) => report.status === statusFilter
-    );
-  }
+    if (startDate || endDate) {
+      filtered = filtered.filter((report) => {
+        const reportStartDate = convertToDate(report.startMonth, report.startYear);
+        const reportEndDate = convertToDate(report.endMonth, report.endYear);
 
-  return filtered;
-}, [reportData, searchTerm, startDate, endDate, statusFilter]);
+        if (!reportStartDate || !reportEndDate) return true;
 
+        return (
+          (!startDate || reportEndDate >= startDate) && (!endDate || reportStartDate <= endDate)
+        );
+      });
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter((report) => report.status === statusFilter);
+    }
+
+    return filtered;
+  }, [reportData, searchTerm, startDate, endDate, statusFilter]);
 
   // Helper function to format status for display
   const formatStatus = (status: string) => {
@@ -105,7 +101,6 @@ export default function ReportPage() {
       in_progress: "In Progress",
       approved: "Approved",
       declined: "Declined",
-
     };
     return statusMap[status] || status;
   };
@@ -114,18 +109,17 @@ export default function ReportPage() {
     setSearchTerm(e.target.value);
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-  };
+  // const handleSortChange = (value: string) => {
+  //   setSortBy(value);
+  // };
 
   // Clear all filters
   const clearFilters = () => {
-  setSearchTerm("");
-  setStartDate(null);
-  setEndDate(null);
-  setStatusFilter("");
-};
-
+    setSearchTerm("");
+    setStartDate(null);
+    setEndDate(null);
+    setStatusFilter("");
+  };
 
   // Debug function to check date conversion
   const debugDates = () => {
@@ -138,7 +132,7 @@ export default function ReportPage() {
       );
     });
   };
-console.log("Report Data:", reportData);
+  console.log("Report Data:", reportData);
   return (
     <section className="grid">
       {/* Debug button - remove in production */}
@@ -155,23 +149,22 @@ console.log("Report Data:", reportData);
           />
         </div>
 
-       <Select value={statusFilter} onValueChange={setStatusFilter}>
-  <SelectTrigger className="w-auto rounded p-3 border">
-    <SelectValue placeholder="Filter by status" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectGroup>
-      <SelectLabel>Status</SelectLabel>
-      <SelectItem value="submitted_approved">Submitted Approved</SelectItem>
-      <SelectItem value="awaiting_review">Awaiting Review</SelectItem>
-      <SelectItem value="in_progress">In Progress</SelectItem>
-      <SelectItem value="approved">Approved</SelectItem>
-      <SelectItem value="declined">Declined</SelectItem>
-      <SelectItem value="unapproved_rejected">Rejected</SelectItem>
-    </SelectGroup>
-  </SelectContent>
-</Select>
-
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-auto rounded p-3 border">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Status</SelectLabel>
+              <SelectItem value="submitted_approved">Submitted Approved</SelectItem>
+              <SelectItem value="awaiting_review">Awaiting Review</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="declined">Declined</SelectItem>
+              <SelectItem value="unapproved_rejected">Rejected</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
         <div className="rounded border border-gray-300 flex items-center col-span-1 w-auto">
           <DatePicker
@@ -218,6 +211,8 @@ console.log("Report Data:", reportData);
             dateRange={`${report.startMonth} ${report.startYear} - ${report.endMonth} ${report.endYear}`}
             status={formatStatus(report.status)}
             progress={report.progress}
+            done={20}
+            overall={100}
           />
         ))}
 

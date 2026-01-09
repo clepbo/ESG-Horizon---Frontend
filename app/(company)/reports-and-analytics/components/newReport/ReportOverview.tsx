@@ -52,22 +52,14 @@ export default function ReportOverview() {
       <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
     </p>
   );
-  const socialAmount = (
-    <p className="font-bold">
-      High Risk<sub className="text-xs font-normal text-gray-400"> in 2 regions</sub>
-    </p>
-  );
+
   const environmentalScore = (
     <small className="flex items-center gap-2">
       <FaArrowDown className={` rotate-180`} />
       23
     </small>
   );
-  const humanAmt = (
-    <p className="font-bold">
-      0.45<sub className="text-xs font-normal text-gray-400"> per 200k hrs </sub>
-    </p>
-  );
+
   return (
     <div className="flex flex-col gap-4 lg:gap-10">
       <div className="flex items-center gap-2">
@@ -110,7 +102,7 @@ export default function ReportOverview() {
               borderColor={"#0000"}
               title={"Total Number of Offshore Sites"}
               sub={"sites"}
-              amount={0}
+              amount={-20}
             />
           </span>
           <span className="max-w-sm">
@@ -118,7 +110,7 @@ export default function ReportOverview() {
               borderColor={"#0000"}
               title={"Total Number of Terrestrial Sites"}
               sub={"sites"}
-              amount={0}
+              amount={-30}
             />
           </span>
         </div>

@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { shortenPeriod } from "./GHGHistoryTransformer";
 
 // #region Sample data
 
@@ -10,7 +11,7 @@ type ChartData = {
 }[];
 
 export function transformGHGData(ghg: any): ChartData {
-  if (!ghg) return []; // return empty array if data not ready
+  if (!ghg) return [];
 
   const result: Record<
     string,
@@ -18,19 +19,19 @@ export function transformGHGData(ghg: any): ChartData {
   > = {};
 
   (ghg.ghg_scope_1_history ?? []).forEach((item: any) => {
-    const key = item.period;
+    const key = shortenPeriod(item.period);
     if (!result[key]) result[key] = { name: key };
     result[key].scope1 = item.score;
   });
 
   (ghg.ghg_scope_2_history ?? []).forEach((item: any) => {
-    const key = item.period;
+    const key = shortenPeriod(item.period);
     if (!result[key]) result[key] = { name: key };
     result[key].scope2 = item.score;
   });
 
   (ghg.ghg_scope_3_history ?? []).forEach((item: any) => {
-    const key = item.period;
+    const key = shortenPeriod(item.period);
     if (!result[key]) result[key] = { name: key };
     result[key].scope3 = item.score;
   });
@@ -43,26 +44,26 @@ export function transformGHGData(ghg: any): ChartData {
   }));
 }
 
-export const emissionByScopedata = [
-  {
-    name: "2023",
-    scope1: 4000,
-    scope2: 2400,
-    scope3: 2400,
-  },
-  {
-    name: "2024",
-    scope1: 2300,
-    scope2: 12203,
-    scope3: 3394,
-  },
-  {
-    name: "2025",
-    scope1: 44433,
-    scope2: 1223,
-    scope3: 23344,
-  },
-];
+// export const emissionByScopedata = [
+//   {
+//     name: "2023",
+//     scope1: 4000,
+//     scope2: 2400,
+//     scope3: 2400,
+//   },
+//   {
+//     name: "2024",
+//     scope1: 2300,
+//     scope2: 12203,
+//     scope3: 3394,
+//   },
+//   {
+//     name: "2025",
+//     scope1: 44433,
+//     scope2: 1223,
+//     scope3: 23344,
+//   },
+// ];
 
 export interface EmissionData {
   name: number | string;

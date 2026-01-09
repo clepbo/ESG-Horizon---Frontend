@@ -15,7 +15,7 @@ interface DonutChartProps {
   title?: string;
   data?: { name: string; value: number; color: string }[];
 }
-let detail = false;
+const detail = false;
 
 export default function DonutChart({
   title = "Offshore Sites",
@@ -25,42 +25,35 @@ export default function DonutChart({
     <div className="w-full h-100 bg-white rounded-lg p-4 shadow">
       <h3 className="text-lg font-semibold mb-4 border-b border-b-gray-300 pb-3">{title}</h3>
 
-{
-  detail && (
-
-      <ResponsiveContainer width="100%" height="90%">
-        <PieChart>
-          <Pie
-            data={chartData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            innerRadius={70} // donut thickness
-            outerRadius={100}
-            paddingAngle={4} // spacing between arcs
-            cornerRadius={5} // rounded edges
-          >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend
-            verticalAlign="bottom"
-            height={36}
-            iconType="circle"
-            wrapperStyle={{ fontSize: 14 }}
-          />
-        </PieChart>
-      </ResponsiveContainer>
-  )
-}
-{
-  !detail && (
-    <NotAvailablePlaceholder />
-  )
-}
+      {detail && (
+        <ResponsiveContainer width="100%" height="90%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={70} // donut thickness
+              outerRadius={100}
+              paddingAngle={4} // spacing between arcs
+              cornerRadius={5} // rounded edges
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend
+              verticalAlign="bottom"
+              height={36}
+              iconType="circle"
+              wrapperStyle={{ fontSize: 14 }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
+      {!detail && <NotAvailablePlaceholder />}
     </div>
   );
 }

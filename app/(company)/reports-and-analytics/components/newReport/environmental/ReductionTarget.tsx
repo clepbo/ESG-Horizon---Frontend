@@ -2,8 +2,26 @@ import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
 import React from "react";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
-export default function ReductionTarget() {
+interface ReductionTargetProps {
+  percentage: number;
+  targetValue: number;
+  baseline: number;
+  targetYear: number;
+  baselineYear?: number;
+  currentYear?: number;
+  currentValue?: number;
+}
+export default function ReductionTarget({
+
+  targetValue,
+  baseline,
+  targetYear,
+  baselineYear,
+  currentYear,
+  currentValue,
+}: ReductionTargetProps) {
   return (
     <div className="p-2">
       <CircularProgressbarWithChildren
@@ -25,23 +43,32 @@ export default function ReductionTarget() {
           style={{ fontSize: 12, marginTop: -5 }}
           className="text-2xl font-bold flex flex-col items-center justify-center"
         >
-          <strong className="text-2xl">66%</strong>
+          <strong className="text-2xl">{`${formatNumberFigures(targetValue)}%`} </strong>
           <span className=""> Reduction target achieved</span>
-          <span className="font-normal text-xs"> Target: 50% by 2030 </span>
+          <span className="font-normal text-xs">
+            {" "}
+            Target: {`${formatNumberFigures(targetValue)}%`} by {targetYear}{" "}
+          </span>
         </div>
       </CircularProgressbarWithChildren>
       <div className="flex flex-col gap-2 mt-4  p-4">
         <div className="flex w-full items-center justify-between">
-          <span className="font-thin text-sm"> Baseline (2024): </span>
-          <span className=" text-sm  font-semibold"> 23,4004 tCO2e </span>
+          <span className="font-thin text-sm"> Baseline ({baselineYear}): </span>
+          <span className=" text-sm  font-semibold"> {formatNumberFigures(baseline)} tCO2e </span>
         </div>
         <div className="flex w-full items-center justify-between">
-          <span className="font-thin text-sm"> Current (2025): </span>
-          <span className=" text-sm font-semibold"> 20,4004 tCO2e </span>
+          <span className="font-thin text-sm"> Current ({currentYear}): </span>
+          <span className=" text-sm font-semibold">
+            {" "}
+            {formatNumberFigures(currentValue || 0)} tCO2e{" "}
+          </span>
         </div>
         <div className="flex w-full items-center justify-between">
-          <span className="font-thin text-sm"> Target (2030): </span>
-          <span className=" text-sm font-semibold">10,050 tCO2e </span>
+          <span className="font-thin text-sm"> Target ({targetYear}): </span>
+          <span className=" text-sm font-semibold">
+            {" "}
+            {formatNumberFigures(targetValue || 0)} tCO2e{" "}
+          </span>
         </div>
       </div>
     </div>
