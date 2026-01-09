@@ -14,7 +14,6 @@ interface ReductionTargetProps {
   currentValue?: number;
 }
 export default function ReductionTarget({
-
   targetValue,
   baseline,
   targetYear,

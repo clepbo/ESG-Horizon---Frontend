@@ -14,7 +14,7 @@ import { data } from "./OilRenderCard";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 
 export default function ProductionVolumesChart() {
-  let item = false;
+  const item = false;
   return (
     <div className="w-full h-full bg-white rounded-lg p-6 shadow">
       <h3 className="text-lg font-semibold mb-4">Production Volumes</h3>

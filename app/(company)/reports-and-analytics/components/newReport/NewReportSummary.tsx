@@ -1,5 +1,4 @@
 import { Card } from "@/app/components/ui/card";
-import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { GoDotFill } from "react-icons/go";
 import React, { useEffect, useState } from "react";
 
@@ -124,25 +123,24 @@ export default function NewReportSummary() {
             </span>
           </CustomButton> */}
           <Select value={selected} onValueChange={exportfile}>
-  <SelectTrigger
-    className="
+            <SelectTrigger
+              className="
       min-w-xs rounded p-4 border-primary text-primary cursor-pointer
        hover:shadow-md hover:scale-[1.03]
       active:scale-[0.97]
     "
-  >
-    <SelectValue
-      placeholder="Export file"
-      className="data-placeholder-shown:text-white"
-    />
-  </SelectTrigger>
+            >
+              <SelectValue
+                placeholder="Export file"
+                className="data-placeholder-shown:text-white"
+              />
+            </SelectTrigger>
 
-  <SelectContent>
-    <SelectItem value="pdf">PDF</SelectItem>
-    <SelectItem value="png">PNG</SelectItem>
-  </SelectContent>
-</Select>
-
+            <SelectContent>
+              <SelectItem value="pdf">PDF</SelectItem>
+              <SelectItem value="png">PNG</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </Card>
 

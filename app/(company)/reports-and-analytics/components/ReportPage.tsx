@@ -19,7 +19,7 @@ export default function ReportPage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [_sortBy, setSortBy] = useState("");
+  // const [_sortBy, setSortBy] = useState("");
   const [reportData, setReportData] = useState<any[]>([]);
   const [statusFilter, setStatusFilter] = useState("");
 
