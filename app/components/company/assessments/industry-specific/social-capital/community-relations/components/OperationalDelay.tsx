@@ -9,14 +9,15 @@ import { ArrowLeft, CheckCircle2, Save } from "lucide-react";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { Info } from "lucide-react";
+
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
+import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
+import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 
 interface Props {
   onBack: () => void;
@@ -222,27 +223,14 @@ export default function OperationalDelay({
                 <Label className="text-base font-semibold text-gray-900">
                   Number of Delays (Community Protests)
                 </Label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer hover:border-gray-600 transition-colors"
-                    >
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                  >
-                    <p className="text-sm">
-                      Enter how many operational delays were caused by community protests within the
-                      reporting period. A delay refers to any interruption, slowdown, shutdown, or
-                      restricted access triggered directly by community action.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <CustomTooltip
+                  detail={
+                    <TooltipMessage
+                      title="Number of Delays (Community Protests)"
+                      message="Enter how many operational delays were caused by community protests within the reporting period. A delay refers to any interruption, slowdown, shutdown, or restricted access triggered directly by community action."
+                    />
+                  }
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-300 rounded-lg p-4">
@@ -289,27 +277,14 @@ export default function OperationalDelay({
                 <Label className="text-base font-semibold text-gray-900">
                   Duration of Delays (Community Protests, in days)
                 </Label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer hover:border-gray-600 transition-colors"
-                    >
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                  >
-                    <p className="text-sm">
-                      Report the total number of days operations were delayed due to community
-                      protests. If multiple events occurred, provide the combined duration in days
-                      (e.g., 3 delays totaling 12 days).
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <CustomTooltip
+                  detail={
+                    <TooltipMessage
+                      title="Duration of Delays (Community Protests)"
+                      message="Report the total number of days operations were delayed due to community protests. If multiple events occurred, provide the combined duration in days (e.g., 3 delays totaling 12 days)."
+                    />
+                  }
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-300 rounded-lg p-4">
@@ -356,27 +331,14 @@ export default function OperationalDelay({
                 <Label className="text-base font-semibold text-gray-900">
                   Number of Delays (Other Stakeholder/Political Issues)
                 </Label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer hover:border-gray-600 transition-colors"
-                    >
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                  >
-                    <p className="text-sm">
-                      Disclose the number of operational delays caused by non-technical issues such
-                      as government restrictions, land-access conflicts, regulatory actions, or
-                      disputes with other local stakeholders.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <CustomTooltip
+                  detail={
+                    <TooltipMessage
+                      title="Number of Delays (Other Stakeholder/Political Issues)"
+                      message="Disclose the number of operational delays caused by non-technical issues such as government restrictions, land-access conflicts, regulatory actions, or disputes with other local stakeholders."
+                    />
+                  }
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-300 rounded-lg p-4">
@@ -423,27 +385,14 @@ export default function OperationalDelay({
                 <Label className="text-base font-semibold text-gray-900">
                   Duration of Delays (Other Issues, in days)
                 </Label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer hover:border-gray-600 transition-colors"
-                    >
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                  >
-                    <p className="text-sm">
-                      Enter the total number of days operations could not proceed due to stakeholder
-                      or political issues. Combine all relevant events in the reporting year into
-                      one total duration.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <CustomTooltip
+                  detail={
+                    <TooltipMessage
+                      title="Duration of Delays (Other Issues)"
+                      message="Enter the total number of days operations could not proceed due to stakeholder or political issues. Combine all relevant events in the reporting year into one total duration."
+                    />
+                  }
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-gray-300 rounded-lg p-4">
