@@ -113,10 +113,8 @@ const topicsData: Topic[] = [
   {
     name: "Social Capital",
     children: [
-      { name: "Community Relations" },
-      { name: "Stakeholder Relations" },
-      { name: "Supply Chain Labor Standards" },
       { name: "Security, Human Rights & Rights of Indigenous Peoples" },
+      { name: "Community Relations" },
     ],
   },
   {

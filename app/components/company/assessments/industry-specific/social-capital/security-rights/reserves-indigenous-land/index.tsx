@@ -16,6 +16,8 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { UnitSelect } from "../../../../UnitSelect";
 import { uploadService } from "@/services/upload.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface ReservesIndigenousLandProps {
   onBack: () => void;
@@ -32,6 +34,9 @@ export default function ReservesIndigenousLand({
   totalSteps,
   breadcrumb,
 }: ReservesIndigenousLandProps) {
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand");
+
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedIndigenousVolume = useFormattedNumber("");
   const totalProbableReservesVolume = useFormattedNumber("");
@@ -129,41 +134,60 @@ export default function ReservesIndigenousLand({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveAndContinue = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-    setShowSaveSuccess(true);
+  const handleSaveAndContinue = async () => {
     setIsSaving(true);
 
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
-
       provedIndigenousVolume: Number(provedIndigenousVolume.rawValue),
       provedIndigenousUnit: formData.provedIndigenousUnit,
-
       totalProbableReservesVolume: Number(totalProbableReservesVolume.rawValue),
       totalProbableReservesUnit: formData.totalProbableReservesUnit,
-
       probableIndigenousVolume: Number(probableIndigenousVolume.rawValue),
       probableIndigenousUnit: formData.probableIndigenousUnit,
-
       filesAndLinks: filesAndLinks,
     };
-    console.log("DATA TO SAVE:", payload);
-    toast.success("Logged to console");
-    setIsSaving(false);
+
+    try {
+      await saveNow("socialCapital.securityRights.reservesIndigenousLand", payload);
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments");
+      }, 1000);
+    } catch (_error) {
+      toast.error("Failed to save data");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before proceeding.");
       return;
     }
-    toast.success("Moved to next section");
-    onContinueToNextAssessment();
+
+    const payload = {
+      totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
+      totalProvedReservesUnit: formData.totalProvedReservesUnit,
+      provedIndigenousVolume: Number(provedIndigenousVolume.rawValue),
+      provedIndigenousUnit: formData.provedIndigenousUnit,
+      totalProbableReservesVolume: Number(totalProbableReservesVolume.rawValue),
+      totalProbableReservesUnit: formData.totalProbableReservesUnit,
+      probableIndigenousVolume: Number(probableIndigenousVolume.rawValue),
+      probableIndigenousUnit: formData.probableIndigenousUnit,
+      filesAndLinks: filesAndLinks,
+    };
+
+    try {
+      await saveNow("socialCapital.securityRights.reservesIndigenousLand", payload);
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      toast.error("Failed to save data");
+    }
   };
 
   const handlePrevious = () => {

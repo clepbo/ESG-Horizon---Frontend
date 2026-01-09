@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
@@ -15,6 +15,8 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { TotalsResponse } from "@/services/assessment.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface HumanRightEngagementProps {
   onBack: () => void;
@@ -34,6 +36,11 @@ export default function HumanRightEngagement({
   breadcrumb,
   onSubmit,
 }: HumanRightEngagementProps) {
+  const router = useRouter();
+  const { saveNow, submitGroup } = useAssessmentFlow(
+    "socialCapital.securityRights.humanRightEngagement"
+  );
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -72,13 +79,7 @@ export default function HumanRightEngagement({
     }
   };
 
-  const handleSaveAndContinue = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
-    setShowSaveSuccess(true);
+  const handleSaveAndContinue = async () => {
     setIsSaving(true);
 
     const payload = {
@@ -86,28 +87,45 @@ export default function HumanRightEngagement({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("DATA TO SAVE:", payload);
-
-    toast.success("Progress saved! You can continue later.");
-    setIsSaving(false);
+    try {
+      await saveNow("socialCapital.securityRights.humanRightEngagement", payload);
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments");
+      }, 1000);
+    } catch (_error) {
+      toast.error("Failed to save data");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before submitting.");
       return;
     }
+
+    setIsSaving(true);
 
     const payload = {
       engagementDescription: formData.engagementDescription,
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("FINAL SUBMISSION:", payload);
-
-    toast.success("Assessment completed successfully!");
-    onSubmit(null);
-    setTimeout(() => onContinueToNextAssessment(), 1500);
+    try {
+      // Save data first
+      await saveNow("socialCapital.securityRights.humanRightEngagement", payload);
+      // Then submit the group
+      await submitGroup();
+      toast.success("Assessment completed successfully!");
+      onSubmit(null);
+    } catch (_error) {
+      toast.error("Failed to submit assessment");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePrevious = () => {
@@ -249,7 +267,6 @@ export default function HumanRightEngagement({
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Submit
-                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>
