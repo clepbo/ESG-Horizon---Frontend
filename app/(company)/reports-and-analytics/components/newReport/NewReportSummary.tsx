@@ -1,6 +1,6 @@
 import { Card } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { GoDotFill, GoDownload } from "react-icons/go";
+import { GoDotFill } from "react-icons/go";
 import React, { useEffect, useState } from "react";
 
 import ReportOverview from "./ReportOverview";
@@ -10,16 +10,30 @@ import ReportHumanCapital from "./ReportHumanCapital";
 import BusinessModelPillar from "./BusinessModelPillar";
 import ReportLeadershipPillar from "./ReportLeadershipPillar";
 import { ReportResponse } from "@/types/report/reportResponse";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSingleReport } from "../service/useReport";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
+import { exportPNG, generatePDF } from "../exportFiles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function NewReportSummary() {
-  const [view, setView] = useState("overview");
+  // const [view, setView] = useState("overview");
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const view = searchParams.get("tab") ?? "overview";
 
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+  const [selected, setSelected] = useState<string | undefined>(undefined);
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
@@ -66,10 +80,22 @@ export default function NewReportSummary() {
     { label: "Leadership", value: "leadership", content: <ReportLeadershipPillar /> },
   ];
 
+  async function exportfile(value: string) {
+    if (value === "pdf") {
+      await generatePDF("section", "esg-detail");
+    } else if (value === "png") {
+      await exportPNG("section");
+    }
+    setSelected(undefined);
+  }
+
   return (
-    <div className="min-h-screen flex flex-col gap-4">
+    <div className="min-h-screen flex flex-col gap-4" id="section">
       {/* Header Card */}
-      <Card className="p-4 rounded flex flex-col lg:flex-row justify-between w-full items-center">
+      <Card
+        className="p-4 no-export rounded flex flex-col lg:flex-row justify-between w-full items-center"
+        id="hide1"
+      >
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 justify-start">
             <span className="text-start">ESG Performance Report</span>
@@ -91,12 +117,32 @@ export default function NewReportSummary() {
         </div>
 
         <div>
-          <CustomButton variant="filled" className="text-white cursor-pointer rounded">
+          {/* <CustomButton  variant="filled" className="text-white cursor-pointer rounded">
             <span className="flex items-center gap-3">
               <GoDownload />
               Import and Download
             </span>
-          </CustomButton>
+          </CustomButton> */}
+          <Select value={selected} onValueChange={exportfile}>
+  <SelectTrigger
+    className="
+      min-w-xs rounded p-4 border-primary text-primary cursor-pointer
+       hover:shadow-md hover:scale-[1.03]
+      active:scale-[0.97]
+    "
+  >
+    <SelectValue
+      placeholder="Export file"
+      className="data-placeholder-shown:text-white"
+    />
+  </SelectTrigger>
+
+  <SelectContent>
+    <SelectItem value="pdf">PDF</SelectItem>
+    <SelectItem value="png">PNG</SelectItem>
+  </SelectContent>
+</Select>
+
         </div>
       </Card>
 
@@ -109,7 +155,9 @@ export default function NewReportSummary() {
             return (
               <span
                 key={tab.value}
-                onClick={() => setView(tab.value)}
+                onClick={() => {
+                  router.push(`?tab=${tab.value}`, { scroll: false });
+                }}
                 className={`
                   px-4 cursor-pointer border border-t-2 p-2 rounded text-sm font-medium transition
                   ${
