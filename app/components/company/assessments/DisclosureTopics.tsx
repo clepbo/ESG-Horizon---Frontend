@@ -32,6 +32,8 @@ import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforc
 import { useAssessment } from "@/hooks/useAssessment";
 import { useTopicCompletion } from "@/hooks/useAssessmentCompletion";
 import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
+import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -177,12 +179,12 @@ const industrySpecificMetrics: MetricSection[] = [
       {
         title: "Reserves Valuation & Capital Expenditures",
         subtitle: "Report on investment strategies and valuation of natural resource reserves",
-        clickable: false,
+        clickable: true,
       },
       {
         title: "Business Ethics & Transparency",
         subtitle: "Assess anti-corruption measures and operational integrity",
-        clickable: false,
+        clickable: true,
       },
     ],
   },
@@ -195,12 +197,14 @@ const industrySpecificMetrics: MetricSection[] = [
     },
     cards: [
       {
-        title: "Management of the Legal & Regulatory Environment",
-        subtitle: "Evaluate compliance with applicable laws and regulations",
-      },
-      {
         title: "Critical Incident Risk Management",
         subtitle: "Report preparedness plans and response strategies for major incidents",
+        clickable: true,
+      },
+      {
+        title: "Management of the Legal & Regulatory Environment",
+        subtitle: "Evaluate compliance with applicable laws and regulations",
+        clickable: true,
       },
     ],
   },
@@ -355,6 +359,12 @@ export function DisclosureTopics({
       case "Business Ethics & Transparency":
         setCurrentView("business-ethics-transparency");
         break;
+      case "Critical Incident Risk Management":
+        setCurrentView("critical-incident-risk-management");
+        break;
+      case "Management of the Legal & Regulatory Environment":
+        setCurrentView("management-of-legal-and-regulatory-environment");
+        break;
       default:
         break;
     }
@@ -497,6 +507,40 @@ export function DisclosureTopics({
   if (currentView === "business-ethics-transparency") {
     return (
       <BusinessEthicsAndTransparency
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        onSubmit={(data) => {
+          console.info(data);
+          setCurrentView("topics");
+        }}
+      />
+    );
+  }
+  if (currentView === "critical-incident-risk-management") {
+    return (
+      <CriticalIncidentRiskManagement
+        onBack={() => setCurrentView("topics")}
+        onBackToHub={handleBackToHub}
+        initialForm={initialForm as any}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => {
+          setCurrentView("topics");
+        }}
+        onSubmit={(data) => {
+          console.info(data);
+          setCurrentView("topics");
+        }}
+      />
+    );
+  }
+  if (currentView === "management-of-legal-and-regulatory-environment") {
+    return (
+      <ManagementOfLegalAndRegulatoryEnvironment
         onBack={() => setCurrentView("topics")}
         onBackToHub={handleBackToHub}
         initialForm={initialForm as any}
