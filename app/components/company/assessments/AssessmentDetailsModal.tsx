@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Badge } from "@/app/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
@@ -151,12 +151,26 @@ export function AssessmentDetailsModal({
   const [declineReason, setDeclineReason] = useState("");
   const [declineValidationError, setDeclineValidationError] = useState("");
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && open) {
+        onClose();
+      }
+    };
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
+
   if (!open || !assessment) return null;
 
   if (isLoading || !fullAssessment?.data) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <Card className="w-full max-w-4xl p-12">
+      <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <Card className="w-full max-w-4xl p-12 ">
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
             <p className="text-gray-600">Loading assessment details...</p>
@@ -303,8 +317,14 @@ export function AssessmentDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60 p-4">
-      <div className="bg-white rounded-lg p-8 w-full max-w-6xl shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/50 z-60 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-lg p-8 w-full max-w-6xl shadow-2xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <Card className="w-full max-w-7xl shadow-2xl bg-white">
           <CardHeader className="sticky top-0 bg-white border-b z-10">
             <div className="flex items-center justify-between">
@@ -314,9 +334,13 @@ export function AssessmentDetailsModal({
                   {statusInfo.icon} {statusInfo.label}
                 </Badge>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <XCircle className="w-5 h-5" />
-              </Button>
+
+              <button
+                onClick={onClose}
+                className="hover:bg-red-50 rounded-md p-2 transition-colors cursor-pointer"
+              >
+                <XCircle className="w-8 h-8 text-red-600 " strokeWidth={2.5} />
+              </button>
             </div>
           </CardHeader>
 
