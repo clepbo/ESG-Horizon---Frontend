@@ -165,7 +165,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <div className="text-lg">General Reduction Target</div>
+              <div className="text-lg">General Reduction Target Happening ...</div>
             </CardHeader>
             <CardContent className="space-y-6">
               <p className="text-sm text-gray-600">

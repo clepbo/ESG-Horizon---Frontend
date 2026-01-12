@@ -20,7 +20,7 @@ export default function EnvironmentalEmissionCard() {
         </text>
       </div>
       <div className="">
-        <EmissionsChart />
+        <EmissionsChart data={[]} />
       </div>
     </div>
   );

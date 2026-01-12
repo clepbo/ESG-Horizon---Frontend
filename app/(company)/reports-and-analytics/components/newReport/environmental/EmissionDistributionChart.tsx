@@ -5,10 +5,10 @@ import { Pie, PieChart, Legend } from "recharts";
 // #endregion
 interface EmissionDistributionChartProps {
   isAnimationActive?: boolean;
-  NOx: number;
-  SOx: number;
-  VOCs: number;
-  PM10: number;
+  NOx: number | React.ReactElement;
+  SOx: number | React.ReactElement;
+  VOCs: number | React.ReactElement;
+  PM10: number | React.ReactElement;
 }
 
 export default function EmissionDistributionChart({

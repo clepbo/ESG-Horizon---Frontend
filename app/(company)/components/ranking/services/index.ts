@@ -8,7 +8,6 @@ export const useBaseline = (companyId?: number) => {
   return useQuery({
     queryKey: ["baseline", companyId],
     queryFn: async () => {
-      if (!companyId) throw new Error("Company ID not available");
       const response = await api.get(`/target/baseline/${companyId}`);
 
       return response;

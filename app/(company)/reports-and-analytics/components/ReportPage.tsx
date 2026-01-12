@@ -19,8 +19,9 @@ export default function ReportPage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  // const [_sortBy, setSortBy] = useState("");
   const [reportData, setReportData] = useState<any[]>([]);
+  const [statusFilter, setStatusFilter] = useState("");
 
   const report = useReport();
 
@@ -62,68 +63,44 @@ export default function ReportPage() {
   };
 
   // Filter and sort logic
-  const filteredAndSortedReports = useMemo(() => {
+  const filteredReports = useMemo(() => {
     let filtered = [...reportData];
 
-    // Search filter by subsidiary
     if (searchTerm) {
       filtered = filtered.filter((report) =>
         report.subsidiary?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Date range filter - filter by assessment period
     if (startDate || endDate) {
       filtered = filtered.filter((report) => {
         const reportStartDate = convertToDate(report.startMonth, report.startYear);
         const reportEndDate = convertToDate(report.endMonth, report.endYear);
 
-        // If we can't parse the dates, don't filter them out
         if (!reportStartDate || !reportEndDate) return true;
 
-        // Check if the assessment period overlaps with the selected date range
-        const matchesStart = !startDate || reportEndDate >= startDate;
-        const matchesEnd = !endDate || reportStartDate <= endDate;
-
-        return matchesStart && matchesEnd;
+        return (
+          (!startDate || reportEndDate >= startDate) && (!endDate || reportStartDate <= endDate)
+        );
       });
     }
 
-    // Sort filter
-    if (sortBy) {
-      filtered.sort((a, b) => {
-        switch (sortBy) {
-          case "date-newest":
-            const dateA = convertToDate(a.startMonth, a.startYear) || new Date(0);
-            const dateB = convertToDate(b.startMonth, b.startYear) || new Date(0);
-            return dateB.getTime() - dateA.getTime();
-
-          case "date-oldest":
-            const dateAOld = convertToDate(a.startMonth, a.startYear) || new Date(0);
-            const dateBOld = convertToDate(b.startMonth, b.startYear) || new Date(0);
-            return dateAOld.getTime() - dateBOld.getTime();
-
-          case "progress-highest":
-            return (b.progress || 0) - (a.progress || 0);
-
-          case "progress-lowest":
-            return (a.progress || 0) - (b.progress || 0);
-
-          default:
-            return 0;
-        }
-      });
+    if (statusFilter) {
+      filtered = filtered.filter((report) => report.status === statusFilter);
     }
 
     return filtered;
-  }, [reportData, searchTerm, startDate, endDate, sortBy]);
+  }, [reportData, searchTerm, startDate, endDate, statusFilter]);
 
   // Helper function to format status for display
   const formatStatus = (status: string) => {
     const statusMap: { [key: string]: string } = {
-      submitted_approved: "Completed",
+      submitted_approved: "Submitted Approved",
       unapproved_rejected: "Rejected",
-      awaiting_review: "In Progress",
+      awaiting_review: "Awaiting Review",
+      in_progress: "In Progress",
+      approved: "Approved",
+      declined: "Declined",
     };
     return statusMap[status] || status;
   };
@@ -132,16 +109,16 @@ export default function ReportPage() {
     setSearchTerm(e.target.value);
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
-  };
+  // const handleSortChange = (value: string) => {
+  //   setSortBy(value);
+  // };
 
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm("");
     setStartDate(null);
     setEndDate(null);
-    setSortBy("");
+    setStatusFilter("");
   };
 
   // Debug function to check date conversion
@@ -155,7 +132,7 @@ export default function ReportPage() {
       );
     });
   };
-
+  console.log("Report Data:", reportData);
   return (
     <section className="grid">
       {/* Debug button - remove in production */}
@@ -172,17 +149,19 @@ export default function ReportPage() {
           />
         </div>
 
-        <Select value={sortBy} onValueChange={handleSortChange}>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-auto rounded p-3 border">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Sort by</SelectLabel>
-              <SelectItem value="date-newest">Date (Newest first)</SelectItem>
-              <SelectItem value="date-oldest">Date (Oldest first)</SelectItem>
-              <SelectItem value="progress-highest">Progress (Highest first)</SelectItem>
-              <SelectItem value="progress-lowest">Progress (Lowest first)</SelectItem>
+              <SelectLabel>Status</SelectLabel>
+              <SelectItem value="submitted_approved">Submitted Approved</SelectItem>
+              <SelectItem value="awaiting_review">Awaiting Review</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="declined">Declined</SelectItem>
+              <SelectItem value="unapproved_rejected">Rejected</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -208,10 +187,10 @@ export default function ReportPage() {
       </div>
 
       {/* Filter summary and clear button */}
-      {(searchTerm || startDate || endDate || sortBy) && (
+      {(searchTerm || startDate || endDate || statusFilter) && (
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-gray-600">
-            Showing {filteredAndSortedReports.length} of {reportData.length} reports
+            Showing {filteredReports.length} of {reportData.length} reports
             {searchTerm && ` for "${searchTerm}"`}
           </span>
           <button
@@ -224,7 +203,7 @@ export default function ReportPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredAndSortedReports.map((report) => (
+        {filteredReports.map((report) => (
           <Reportcard
             key={report.id}
             id={report.id}
@@ -232,10 +211,12 @@ export default function ReportPage() {
             dateRange={`${report.startMonth} ${report.startYear} - ${report.endMonth} ${report.endYear}`}
             status={formatStatus(report.status)}
             progress={report.progress}
+            done={20}
+            overall={100}
           />
         ))}
 
-        {filteredAndSortedReports.length === 0 && (
+        {filteredReports.length === 0 && (
           <div className="col-span-full text-center py-12 text-gray-500">
             <div className="text-lg font-medium mb-2">No reports found</div>
             <div className="text-sm">
