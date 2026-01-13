@@ -1,3 +1,5 @@
+import { GeneralTarget } from "@/app/(company)/reports-and-analytics/components/newReport/environmental/ReductionTarget";
+
 export interface ReportResponse {
   report: Report;
   percentage_emission_summary: PercentageEmissionSummary;
@@ -6,7 +8,7 @@ export interface ReportResponse {
   fuel_mix_breakdown: FuelMix[];
   summary: Summary;
   environment_details: EnvironmentDetails;
-  targets: Target[];
+  targets: Target;
 }
 
 interface GHGData {
@@ -169,7 +171,8 @@ export interface Target {
   baselineYear: number;
   targetYear: number;
   reductionPercentage: number;
-  baseline?: number;
-  current?: number | null;
-  target?: number;
+  baselineValue?: number;
+  generalTarget?:GeneralTarget;
+  currentValue?: number | null;
+  targetValue?: number;
 }

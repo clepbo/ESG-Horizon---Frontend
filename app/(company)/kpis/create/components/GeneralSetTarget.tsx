@@ -45,7 +45,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
   }, [base.isSuccess, base.data]);
 
-  console.log("Emission Data in GeneralTargetForm:", emissionData);
+  console.log("Emission Data in GeneralTargetForm:", base?.data);
 
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
