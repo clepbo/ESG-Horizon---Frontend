@@ -2,8 +2,6 @@ import React from "react";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
-import { emissionPercentagePerTime } from "../components/utils/calculateEmissionPercentagePerTime";
-
 
 export interface ReductionTargetProps {
   percentage: number;
@@ -13,17 +11,15 @@ export interface ReductionTargetProps {
   baselineEmission: number;
   baselineYear?: number;
   currentEmission: number;
-  general?: GeneralTarget
+  general?: GeneralTarget;
 }
 
 export interface GeneralTarget {
-baselineYearEmission: number;
-currentEmission: number; 
-reductionPercentage: number; 
-targetEmission:number;
+  baselineYearEmission: number;
+  currentEmission: number;
+  reductionPercentage: number;
+  targetEmission: number;
 }
-
-
 
 export default function ReductionTarget({
   percentage,
@@ -40,10 +36,7 @@ export default function ReductionTarget({
 
   const achievedPercentage =
     safeBaseline > 0
-      ? Math.min(
-          100,
-          Math.max(0, ((safeBaseline - safeCurrent) / safeBaseline) * 100)
-        )
+      ? Math.min(100, Math.max(0, ((safeBaseline - safeCurrent) / safeBaseline) * 100))
       : 0;
 
   return (
@@ -74,27 +67,17 @@ export default function ReductionTarget({
           <span className="text-sm font-thin">
             Baseline{baselineYear ? ` (${baselineYear})` : ""}:
           </span>
-          <span className="text-sm font-semibold">
-            {formatNumberFigures(safeBaseline)} tCO₂e
-          </span>
+          <span className="text-sm font-semibold">{formatNumberFigures(safeBaseline)} tCO₂e</span>
         </div>
 
         <div className="flex justify-between">
-          <span className="text-sm font-thin">
-            Current ({currentYear}):
-          </span>
-          <span className="text-sm font-semibold">
-            {formatNumberFigures(safeCurrent)} tCO₂e
-          </span>
+          <span className="text-sm font-thin">Current ({currentYear}):</span>
+          <span className="text-sm font-semibold">{formatNumberFigures(safeCurrent)} tCO₂e</span>
         </div>
 
         <div className="flex justify-between">
-          <span className="text-sm font-thin">
-            Target ({targetYear}):
-          </span>
-          <span className="text-sm font-semibold">
-            {formatNumberFigures(safeTarget)} tCO₂e
-          </span>
+          <span className="text-sm font-thin">Target ({targetYear}):</span>
+          <span className="text-sm font-semibold">{formatNumberFigures(safeTarget)} tCO₂e</span>
         </div>
       </div>
     </div>

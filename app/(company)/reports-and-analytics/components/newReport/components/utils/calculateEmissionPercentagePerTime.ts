@@ -7,7 +7,12 @@
  * @param {number} targetYear - Target year for reduction
  * @returns {number} Percentage change in emissions per year
  */
-export function emissionPercentagePerTime(currentValue: number, baselineValue : number, currentYear: number, targetYear: number) {
+export function emissionPercentagePerTime(
+  currentValue: number,
+  baselineValue: number,
+  currentYear: number,
+  targetYear: number
+) {
   if (baselineValue === 0) {
     throw new Error("Baseline value cannot be zero.");
   }
@@ -24,4 +29,3 @@ export function emissionPercentagePerTime(currentValue: number, baselineValue : 
   // Average percentage change per year
   return totalChange / yearsElapsed;
 }
-

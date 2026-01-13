@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { calculateProgress } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
@@ -32,7 +32,6 @@ export default function CatastrophicRiskManagement({
   stepIndex,
   totalSteps,
   breadcrumb,
-  onSubmit,
 }: CatastrophicRiskManagementProps) {
   const [auditDate, setAuditDate] = useState("");
   const [systemDescription, setSystemDescription] = useState("");

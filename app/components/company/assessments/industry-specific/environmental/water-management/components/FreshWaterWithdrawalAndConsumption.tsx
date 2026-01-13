@@ -103,10 +103,8 @@ export default function FreshWaterWithdrawalAndConsumption({
         String(existingData.volumeWithdrawnfromWaterStressedRegions || "")
       );
       setFormData({
-        withdrawalfromSurfaceWaterUnit:
-          existingData.withdrawalfromSurfaceWaterUnit || "m³",
-        withdrawalfromGroundwaterUnit:
-          existingData.withdrawalfromGroundwaterUnit || "m³",
+        withdrawalfromSurfaceWaterUnit: existingData.withdrawalfromSurfaceWaterUnit || "m³",
+        withdrawalfromGroundwaterUnit: existingData.withdrawalfromGroundwaterUnit || "m³",
         withdrawalfromMunicipalotherOtherSourcesUnit:
           existingData.withdrawalfromMunicipalotherOtherSourcesUnit || "m³",
         totalWaterConsumedUnit: existingData.totalWaterConsumedUnit || "m³",

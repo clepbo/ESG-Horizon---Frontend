@@ -122,9 +122,9 @@ export default function PublicPolicyEngagement({
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">Public Policy Engagement</h1>
           <p className="text-sm text-gray-600">
-            Discuss your company's corporate positions on significant government regulations or
-            policy proposals that address environmental and social factors affecting the oil and gas
-            industry.
+            Discuss your company&lsquo;s corporate positions on significant government regulations
+            or policy proposals that address environmental and social factors affecting the oil and
+            gas industry.
           </p>
         </div>
 

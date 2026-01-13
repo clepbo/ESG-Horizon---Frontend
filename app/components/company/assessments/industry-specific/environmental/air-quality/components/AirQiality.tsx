@@ -2,7 +2,7 @@ import React from "react";
 import AirQualityCard from "./AirQualityCard";
 import AirQualityForm from "./AirQualityForm";
 import { SuccessScreen } from "../../../../SuccessScreen";
-import { useAssessment } from "@/hooks/useAssessment";
+// import { useAssessment } from "@/hooks/useAssessment";
 
 interface AirQualityProps {
   backToDisclosureTopics: () => void;
@@ -14,7 +14,7 @@ export default function AirQiality({
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
-  const { dispatch } = useAssessment();
+  // const { dispatch } = useAssessment();
 
   if (showSuccess) {
     return (

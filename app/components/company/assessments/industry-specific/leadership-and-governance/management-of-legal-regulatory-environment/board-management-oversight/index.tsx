@@ -32,7 +32,6 @@ export default function BoardManagementOversight({
   stepIndex,
   totalSteps,
   breadcrumb,
-  onSubmit,
 }: BoardManagementOversightProps) {
   const [hasBoardCommittee, setHasBoardCommittee] = useState("");
   const [oversightDiscussion, setOversightDiscussion] = useState("");
@@ -138,10 +137,10 @@ export default function BoardManagementOversight({
             Board & Management Oversight of Sustainability
           </h1>
           <p className="text-sm text-gray-600">
-            Discuss the board's oversight structure and management's role in assessing and managing
-            sustainability-related risks and opportunities. Specifically describe the process for
-            identifying material issues and integrating Nigerian regulatory requirements (e.g., from
-            NUPRC, NGX).
+            Discuss the board&apos;s oversight structure and management&apos;s role in assessing and
+            managing sustainability-related risks and opportunities. Specifically describe the
+            process for identifying material issues and integrating Nigerian regulatory requirements
+            (e.g., from NUPRC, NGX).
           </p>
         </div>
 
@@ -213,7 +212,7 @@ export default function BoardManagementOversight({
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-2">
                 <Label className="text-sm font-medium text-gray-900">
-                  Discussion of Board Oversight and Management's Role
+                  Discussion of Board Oversight and Management&apos;s Role
                 </Label>
                 <CustomTooltip
                   detail={
@@ -245,8 +244,8 @@ export default function BoardManagementOversight({
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
               <h3 className="text-sm font-semibold text-gray-900 mb-2">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600 mb-6">
-                Upload your Board Committee's Terms of Reference, minutes from meetings showing the
-                review of the Environmental Risk Register (ERR), and the report from your
+                Upload your Board Committee&apos;s Terms of Reference, minutes from meetings showing
+                the review of the Environmental Risk Register (ERR), and the report from your
                 Materiality Assessment Process that links ERR items to your financial statements.
               </p>
 

@@ -172,7 +172,7 @@ export interface Target {
   targetYear: number;
   reductionPercentage: number;
   baselineValue?: number;
-  generalTarget?:GeneralTarget;
+  generalTarget?: GeneralTarget;
   currentValue?: number | null;
   targetValue?: number;
 }

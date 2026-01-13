@@ -133,13 +133,13 @@ export default function ReportEnvironmental() {
               </div>
             ) : reportData?.targets?.type === "GENERAL" ? (
               <ReductionTarget
-                  percentage={target?.generalTarget?.reductionPercentage || 0}
-                  targetValue={target?.generalTarget?.targetEmission || 0} 
-                  currentYear={getYear(new Date())} 
-                  targetYear={target?.targetYear || 0} 
-                  baselineEmission={target?.generalTarget?.baselineYearEmission || 0}    
-                  baselineYear={target?.baselineYear}
-                  currentEmission={target?.generalTarget?.currentEmission || 0}
+                percentage={target?.generalTarget?.reductionPercentage || 0}
+                targetValue={target?.generalTarget?.targetEmission || 0}
+                currentYear={getYear(new Date())}
+                targetYear={target?.targetYear || 0}
+                baselineEmission={target?.generalTarget?.baselineYearEmission || 0}
+                baselineYear={target?.baselineYear}
+                currentEmission={target?.generalTarget?.currentEmission || 0}
               />
             ) : (
               // <h2> General</h2>
