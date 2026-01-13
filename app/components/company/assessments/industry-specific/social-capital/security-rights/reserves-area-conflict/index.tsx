@@ -143,6 +143,7 @@ export default function ReservesAreaConflict({
         router.push("/assessments/new-assessment");
       }, 1000);
     } catch (_error) {
+      console.log(_error);
       toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
@@ -170,6 +171,7 @@ export default function ReservesAreaConflict({
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
+      console.log(error);
       toast.error("Failed to save data");
     }
   };

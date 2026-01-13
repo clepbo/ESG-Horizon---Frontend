@@ -39,9 +39,9 @@ export default function ReportEnvironmental() {
   const waterManagement = reportData?.environment_details?.waterManagement;
   const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
   const ghg = reportData?.environment_details?.ghg;
-  const target = reportData?.targets?.[0];
+  const target = reportData?.targets;
 
-  console.log("ReportOverview Data", reportData?.targets[0]);
+  console.log("Report target Data", target);
 
   if (isError) {
     return (
@@ -121,7 +121,7 @@ export default function ReportEnvironmental() {
             {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
           </div>
           <div className="col-span-1 rounded-2xl shadow">
-            {reportData?.targets === undefined || reportData?.targets.length === 0 ? (
+            {reportData?.targets === undefined || reportData?.targets === null ? (
               <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
                 <p className="text-gray-700">
                   You have not set any target yet, click bellow to set a target
@@ -131,17 +131,18 @@ export default function ReportEnvironmental() {
                   Set target{" "}
                 </Link>
               </div>
-            ) : reportData?.targets?.[0]?.type === "GENERAL" ? (
+            ) : reportData?.targets?.type === "GENERAL" ? (
               <ReductionTarget
-                percentage={target?.reductionPercentage ?? 0}
-                targetValue={target?.target ?? 0}
-                baseline={target?.baseline ?? 0}
-                currentValue={target?.current ?? 0}
+                percentage={target?.generalTarget?.reductionPercentage || 0}
+                targetValue={target?.generalTarget?.targetEmission || 0}
                 currentYear={getYear(new Date())}
-                targetYear={target?.targetYear ?? 0}
+                targetYear={target?.targetYear || 0}
+                baselineEmission={target?.generalTarget?.baselineYearEmission || 0}
                 baselineYear={target?.baselineYear}
+                currentEmission={target?.generalTarget?.currentEmission || 0}
               />
             ) : (
+              // <h2> General</h2>
               <ReductionTargetByScope
                 scope1percentage={0}
                 scope1value={0}

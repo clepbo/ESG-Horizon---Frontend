@@ -120,7 +120,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
             <CustomButton
               variant="filled"
               icon={<Edit />}
-              onClick={() => router.push("/ranking/edit")}
+              onClick={() => router.push("/kpis/edit")}
             >
               Edit Target
             </CustomButton>

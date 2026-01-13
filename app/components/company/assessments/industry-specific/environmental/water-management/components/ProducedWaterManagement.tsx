@@ -93,12 +93,9 @@ export default function ProducedWaterManagement({
       volumeRecycledReused.handleChange(String(existingData.volumeRecycledReused || ""));
 
       setFormData({
-        totalProducedWaterGeneratedUnit:
-          existingData.totalProducedWaterGeneratedUnit || "m³",
-        volumeDischargedToSurfaceUnit:
-          existingData.volumeDischargedToSurfaceUnit || "m³",
-        volumeInjectedForDisposalUnit:
-          existingData.volumeInjectedForDisposalUnit || "m³",
+        totalProducedWaterGeneratedUnit: existingData.totalProducedWaterGeneratedUnit || "m³",
+        volumeDischargedToSurfaceUnit: existingData.volumeDischargedToSurfaceUnit || "m³",
+        volumeInjectedForDisposalUnit: existingData.volumeInjectedForDisposalUnit || "m³",
         volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "m³",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);

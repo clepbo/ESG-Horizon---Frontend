@@ -49,7 +49,7 @@ export default function OperationalDelay({
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [formData, setFormData] = useState({
+  const [formData, _setFormData] = useState({
     numberOfDelaysCommunityProtestsUnit: "Delays",
     durationDelaysCommunityProtestsUnit: "Days",
     numberOfDelaysOtherStakeholderUnit: "Delays",
@@ -144,8 +144,9 @@ export default function OperationalDelay({
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 1000);
-    } catch (_error) {
-      toast.error("Failed to save data");
+    } catch (_error:any) {
+
+      toast.error("Failed to save data", _error.message);
     } finally {
       setIsActionLoading(false);
     }

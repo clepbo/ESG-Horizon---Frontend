@@ -125,7 +125,7 @@ export default function ProcessSafetyEvents({
             Process Safety Events (Tier 1)
           </h1>
           <p className="text-sm text-gray-600">
-            Report your organization's rate of Tier 1 Process Safety Events (PSEs) for the reporting
+            Report your organization&apos;s rate of Tier 1 Process Safety Events (PSEs) for the reporting
             year. The rate is calculated per 200,000 hours worked.
           </p>
         </div>
