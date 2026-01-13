@@ -17,6 +17,7 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { uploadService } from "@/services/upload.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface EnvironmentalManagementPoliciesProps {
   onBack: () => void;
@@ -34,6 +35,7 @@ export default function EnvironmentalManagementPolicies({
   totalSteps,
   breadcrumb,
 }: EnvironmentalManagementPoliciesProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
     "environmental-management-policies"
@@ -117,7 +119,11 @@ export default function EnvironmentalManagementPolicies({
         payload
       );
       setShowSaveSuccess(true);
-      setTimeout(() => setShowSaveSuccess(false), 2000);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments/new-assessment");
+      }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow
     }

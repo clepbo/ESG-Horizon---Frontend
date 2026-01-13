@@ -61,7 +61,7 @@ export function MarketBasedForm({
         nextAssessment="Scope3"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
-        onBackToHub={() => router.push("/assessments")}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }

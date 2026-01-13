@@ -114,9 +114,10 @@ export default function CommunityDisputeResolution({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1000);
     } catch (_error) {
+      console.error(_error);
       toast.error("Failed to save data");
     } finally {
       setIsActionLoading(false);
@@ -142,6 +143,7 @@ export default function CommunityDisputeResolution({
       toast.success("Progress saved!");
       onNext();
     } catch (error) {
+      console.log(error);
       toast.error("Failed to save data");
     }
   };

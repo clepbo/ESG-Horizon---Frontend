@@ -68,7 +68,7 @@ export default function WaterAndWastemanagementCards({
   const router = useRouter();
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   // Use the reusable hook with checkSubComponentCompletion
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
@@ -121,7 +121,7 @@ export default function WaterAndWastemanagementCards({
         totals={undefined}
         nextAssessment="Biodiversity Impact"
         onContinue={backToDisclosureTopics}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={backToDisclosureTopics}
         onBackToHub={backToAssessmentHub}
       />
     );

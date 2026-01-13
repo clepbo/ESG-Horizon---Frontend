@@ -21,6 +21,9 @@ import { ReportResponse } from "@/types/report/reportResponse";
 import { useSingleReport } from "../service/useReport";
 import Link from "next/link";
 import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
+import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
+import NotAvailablePlaceholder from "./components/NotAvailablePlaceholder";
+import { getYear } from "date-fns";
 
 export default function ReportEnvironmental() {
   const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
@@ -36,8 +39,9 @@ export default function ReportEnvironmental() {
   const waterManagement = reportData?.environment_details?.waterManagement;
   const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
   const ghg = reportData?.environment_details?.ghg;
+  const target = reportData?.targets;
 
-  console.log("ReportOverview Data", typeof reportData?.environment_details?.ghg?.ghg_scope_1);
+  console.log("Report target Data", target);
 
   if (isError) {
     return (
@@ -60,6 +64,10 @@ export default function ReportEnvironmental() {
   }
 
   // const emissionScopeData = reportData?.
+  const emissionData = GHGHistoryTransformer(ghg?.ghg_history || []);
+  const emissionDataScope1 = GHGHistoryTransformer(ghg?.ghg_scope_1_history || []);
+  const emissionDataScope2 = GHGHistoryTransformer(ghg?.ghg_scope_2_history || []);
+  const emissionDataScope3 = GHGHistoryTransformer(ghg?.ghg_scope_3_history || []);
   return (
     <div className="flex flex-col gap-4 lg:gap-20">
       <div className="grid gap-3">
@@ -80,6 +88,7 @@ export default function ReportEnvironmental() {
             bgColor="#dff9e6"
             color="#84bb94"
             value={ghg ? String(reportData?.environment_details?.ghg?.ghg_total_emissions) : "0"}
+            data={emissionData}
           />
           <EmissionsChart
             borderColor="#2570eb"
@@ -87,6 +96,7 @@ export default function ReportEnvironmental() {
             title="Scope 1"
             value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_1) : "0"}
             color="#84bb94"
+            data={emissionDataScope1}
           />
           <EmissionsChart
             borderColor="#fac565"
@@ -94,6 +104,7 @@ export default function ReportEnvironmental() {
             title="Scope 2"
             value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_2) : "0"}
             color="#84bb94"
+            data={emissionDataScope2}
           />
           <EmissionsChart
             borderColor="#af57db"
@@ -101,6 +112,7 @@ export default function ReportEnvironmental() {
             title="Scope 3"
             value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_3) : "0"}
             color="#84bb94"
+            data={emissionDataScope3}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -109,7 +121,7 @@ export default function ReportEnvironmental() {
             {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
           </div>
           <div className="col-span-1 rounded-2xl shadow">
-            {reportData?.targets === undefined || reportData?.targets.length === 0 ? (
+            {reportData?.targets === undefined || reportData?.targets === null ? (
               <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
                 <p className="text-gray-700">
                   You have not set any target yet, click bellow to set a target
@@ -119,9 +131,18 @@ export default function ReportEnvironmental() {
                   Set target{" "}
                 </Link>
               </div>
-            ) : reportData?.targets?.[0]?.type === "GENERAL" ? (
-              <ReductionTarget />
+            ) : reportData?.targets?.type === "GENERAL" ? (
+              <ReductionTarget
+                percentage={target?.generalTarget?.reductionPercentage || 0}
+                targetValue={target?.generalTarget?.targetEmission || 0}
+                currentYear={getYear(new Date())}
+                targetYear={target?.targetYear || 0}
+                baselineEmission={target?.generalTarget?.baselineYearEmission || 0}
+                baselineYear={target?.baselineYear}
+                currentEmission={target?.generalTarget?.currentEmission || 0}
+              />
             ) : (
+              // <h2> General</h2>
               <ReductionTargetByScope
                 scope1percentage={0}
                 scope1value={0}
@@ -189,10 +210,10 @@ export default function ReportEnvironmental() {
           </div>
           <div className="col-span-1 rounded-2xl shadow p-3">
             <EmissionDistributionChart
-              NOx={airQuality?.nox ?? 0}
-              SOx={airQuality?.sox ?? 0}
-              VOCs={airQuality?.voc ?? 0}
-              PM10={airQuality?.pm ?? 0}
+              NOx={airQuality?.nox ?? <NotAvailablePlaceholder />}
+              SOx={airQuality?.sox ?? <NotAvailablePlaceholder />}
+              VOCs={airQuality?.voc ?? <NotAvailablePlaceholder />}
+              PM10={airQuality?.pm ?? <NotAvailablePlaceholder />}
             />
           </div>
         </div>

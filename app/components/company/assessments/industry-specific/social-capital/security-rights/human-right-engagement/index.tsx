@@ -17,6 +17,7 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { uploadService } from "@/services/upload.service";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 
 interface HumanRightEngagementProps {
   onBack: () => void;
@@ -53,18 +54,23 @@ export default function HumanRightEngagement({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
+    hasGrievanceMechanism: "",
     engagementDescription: "",
   });
 
   const { filled, total } = useMemo(() => {
+    const hasGrievanceMechanism = formData.hasGrievanceMechanism !== "";
     const hasDescription = formData.engagementDescription.trim() !== "";
     const hasEvidence = filesAndLinks.length > 0;
 
-    return calculateProgress([hasDescription, hasEvidence]);
-  }, [formData.engagementDescription, filesAndLinks]);
+    return calculateProgress([hasGrievanceMechanism, hasDescription, hasEvidence]);
+  }, [formData.hasGrievanceMechanism, formData.engagementDescription, filesAndLinks]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    if (!formData.hasGrievanceMechanism) {
+      newErrors.hasGrievanceMechanism = "Please select an option.";
+    }
     if (!formData.engagementDescription.trim()) {
       newErrors.engagementDescription = "Description is required.";
     }
@@ -83,6 +89,7 @@ export default function HumanRightEngagement({
     setIsSaving(true);
 
     const payload = {
+      hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
       filesAndLinks: filesAndLinks,
     };
@@ -92,10 +99,11 @@ export default function HumanRightEngagement({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1000);
-    } catch (_error) {
-      toast.error("Failed to save data");
+    } catch (_error: any) {
+      console.error(_error);
+      toast.error("Failed to save data", _error.message);
     } finally {
       setIsSaving(false);
     }
@@ -110,6 +118,7 @@ export default function HumanRightEngagement({
     setIsSaving(true);
 
     const payload = {
+      hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
       filesAndLinks: filesAndLinks,
     };
@@ -161,6 +170,34 @@ export default function HumanRightEngagement({
               totalFields={total}
               isSubmitted={false}
             />
+
+            {/* Third-Party Grievance Mechanism Radio Button */}
+            <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <Label className="text-base font-semibold text-gray-900">
+                Is there a formal Third-Party Grievance Mechanism available to host communities?
+              </Label>
+              <RadioGroup
+                value={formData.hasGrievanceMechanism}
+                onValueChange={(value) => handleInputChange("hasGrievanceMechanism", value)}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="yes" />
+                  <Label htmlFor="yes" className="font-normal cursor-pointer">
+                    Yes
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="no" />
+                  <Label htmlFor="no" className="font-normal cursor-pointer">
+                    No
+                  </Label>
+                </div>
+              </RadioGroup>
+              {errors.hasGrievanceMechanism && (
+                <p className="text-red-600 text-sm mt-2">{errors.hasGrievanceMechanism}</p>
+              )}
+            </div>
 
             {/* Description of Engagement and Due Diligence Practices */}
             <div className="space-y-4">

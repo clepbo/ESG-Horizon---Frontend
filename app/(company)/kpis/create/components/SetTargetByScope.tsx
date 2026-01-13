@@ -61,6 +61,7 @@ export default function SetTargetByScope() {
 
   const baseline = useBaselineByScope(companyId);
   const base: EmissionDataResponse = baseline?.data;
+  console.log("Baseline by scope data:", baseline?.data);
 
   useEffect(() => {
     if (baseline.isSuccess) {

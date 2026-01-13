@@ -74,10 +74,10 @@ export default function ProducedWaterManagement({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    totalProducedWaterGeneratedUnit: "Cubic Meter (m3)",
-    volumeDischargedToSurfaceUnit: "Cubic Meter (m3)",
-    volumeInjectedForDisposalUnit: "Cubic Meter (m3)",
-    volumeRecycledReusedUnit: "Cubic Meter (m3)",
+    totalProducedWaterGeneratedUnit: "m³",
+    volumeDischargedToSurfaceUnit: "m³",
+    volumeInjectedForDisposalUnit: "m³",
+    volumeRecycledReusedUnit: "m³",
   });
 
   useEffect(() => {
@@ -93,13 +93,10 @@ export default function ProducedWaterManagement({
       volumeRecycledReused.handleChange(String(existingData.volumeRecycledReused || ""));
 
       setFormData({
-        totalProducedWaterGeneratedUnit:
-          existingData.totalProducedWaterGeneratedUnit || "Cubic Meter (m3)",
-        volumeDischargedToSurfaceUnit:
-          existingData.volumeDischargedToSurfaceUnit || "Cubic Meter (m3)",
-        volumeInjectedForDisposalUnit:
-          existingData.volumeInjectedForDisposalUnit || "Cubic Meter (m3)",
-        volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "Cubic Meter (m3)",
+        totalProducedWaterGeneratedUnit: existingData.totalProducedWaterGeneratedUnit || "m³",
+        volumeDischargedToSurfaceUnit: existingData.volumeDischargedToSurfaceUnit || "m³",
+        volumeInjectedForDisposalUnit: existingData.volumeInjectedForDisposalUnit || "m³",
+        volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "m³",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
@@ -237,7 +234,7 @@ export default function ProducedWaterManagement({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow
@@ -268,7 +265,6 @@ export default function ProducedWaterManagement({
     };
 
     dispatch({ type: "UPDATE_WATER_PRODUCED", payload });
-    toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
 
@@ -325,7 +321,6 @@ export default function ProducedWaterManagement({
               error={errors.totalProducedWaterGenerated}
               unitError={errors.totalProducedWaterGeneratedUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 5000"
             />
 
@@ -346,7 +341,6 @@ export default function ProducedWaterManagement({
               error={errors.volumeDischargedToSurface}
               unitError={errors.volumeDischargedToSurfaceUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 1200"
             />
 
@@ -367,7 +361,6 @@ export default function ProducedWaterManagement({
               error={errors.volumeInjectedForDisposal}
               unitError={errors.volumeInjectedForDisposalUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 2500"
             />
 
@@ -388,7 +381,6 @@ export default function ProducedWaterManagement({
               error={errors.volumeRecycledReused}
               unitError={errors.volumeRecycledReusedUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 1300"
             />
 

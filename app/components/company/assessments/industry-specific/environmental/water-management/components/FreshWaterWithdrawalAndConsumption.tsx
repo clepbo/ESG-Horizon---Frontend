@@ -77,11 +77,11 @@ export default function FreshWaterWithdrawalAndConsumption({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    withdrawalfromSurfaceWaterUnit: "Cubic Meter (m3)",
-    withdrawalfromGroundwaterUnit: "Cubic Meter (m3)",
-    withdrawalfromMunicipalotherOtherSourcesUnit: "Cubic Meter (m3)",
-    totalWaterConsumedUnit: "Cubic Meter (m3)",
-    volumeWithdrawnfromWaterStressedRegionsUnit: "Cubic Meter (m3)",
+    withdrawalfromSurfaceWaterUnit: "m³",
+    withdrawalfromGroundwaterUnit: "m³",
+    withdrawalfromMunicipalotherOtherSourcesUnit: "m³",
+    totalWaterConsumedUnit: "m³",
+    volumeWithdrawnfromWaterStressedRegionsUnit: "m³",
   });
 
   useEffect(() => {
@@ -103,15 +103,13 @@ export default function FreshWaterWithdrawalAndConsumption({
         String(existingData.volumeWithdrawnfromWaterStressedRegions || "")
       );
       setFormData({
-        withdrawalfromSurfaceWaterUnit:
-          existingData.withdrawalfromSurfaceWaterUnit || "Cubic Meter (m3)",
-        withdrawalfromGroundwaterUnit:
-          existingData.withdrawalfromGroundwaterUnit || "Cubic Meter (m3)",
+        withdrawalfromSurfaceWaterUnit: existingData.withdrawalfromSurfaceWaterUnit || "m³",
+        withdrawalfromGroundwaterUnit: existingData.withdrawalfromGroundwaterUnit || "m³",
         withdrawalfromMunicipalotherOtherSourcesUnit:
-          existingData.withdrawalfromMunicipalotherOtherSourcesUnit || "Cubic Meter (m3)",
-        totalWaterConsumedUnit: existingData.totalWaterConsumedUnit || "Cubic Meter (m3)",
+          existingData.withdrawalfromMunicipalotherOtherSourcesUnit || "m³",
+        totalWaterConsumedUnit: existingData.totalWaterConsumedUnit || "m³",
         volumeWithdrawnfromWaterStressedRegionsUnit:
-          existingData.volumeWithdrawnfromWaterStressedRegionsUnit || "Cubic Meter (m3)",
+          existingData.volumeWithdrawnfromWaterStressedRegionsUnit || "m³",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
@@ -242,7 +240,7 @@ export default function FreshWaterWithdrawalAndConsumption({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow
@@ -276,7 +274,6 @@ export default function FreshWaterWithdrawalAndConsumption({
     };
 
     dispatch({ type: "UPDATE_WATER_FRESHWATER", payload });
-    toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
 
@@ -332,7 +329,6 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.withdrawalfromSurfaceWater}
               unitError={errors.withdrawalfromSurfaceWaterUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 1500"
             />
 
@@ -353,7 +349,6 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.withdrawalfromGroundwater}
               unitError={errors.withdrawalfromGroundwaterUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 1200"
             />
 
@@ -377,7 +372,6 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.withdrawalfromMunicipalotherOtherSources}
               unitError={errors.withdrawalfromMunicipalotherOtherSourcesUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 800"
             />
 
@@ -398,7 +392,6 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.totalWaterConsumed}
               unitError={errors.totalWaterConsumedUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 2000"
             />
 
@@ -422,7 +415,6 @@ export default function FreshWaterWithdrawalAndConsumption({
               error={errors.volumeWithdrawnfromWaterStressedRegions}
               unitError={errors.volumeWithdrawnfromWaterStressedRegionsUnit}
               formatNumbers={false}
-              customUnit="Cubic Meter (m3)"
               placeholder="e.g., 500"
             />
 

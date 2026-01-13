@@ -104,7 +104,7 @@ export default function ChemicalDisclosure({
     }
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
-      ?.chemicalDisclosure,
+      ?.chemicalDisclosure, numberOfWellsWithPublicDisclosure, totalNumberOfFracturedWells
   ]);
 
   const { filled, total } = useMemo(() => {
@@ -196,7 +196,7 @@ export default function ChemicalDisclosure({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow
@@ -221,7 +221,6 @@ export default function ChemicalDisclosure({
     };
 
     dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
-    toast.success("Moved to next section");
     onContinueToNextAssessment();
   };
 
@@ -336,7 +335,6 @@ export default function ChemicalDisclosure({
                   error={errors.totalNumberOfFracturedWells}
                   unitError={errors.totalNumberOfFracturedWellsUnit}
                   formatNumbers={false}
-                  customUnit="Wells"
                   placeholder="e.g., 150"
                 />
 
@@ -357,7 +355,6 @@ export default function ChemicalDisclosure({
                   error={errors.numberOfWellsWithPublicDisclosure}
                   unitError={errors.numberOfWellsWithPublicDisclosureUnit}
                   formatNumbers={false}
-                  customUnit="Wells"
                   placeholder="e.g., 120"
                 />
               </div>

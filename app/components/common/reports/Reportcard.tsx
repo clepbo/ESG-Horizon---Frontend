@@ -12,6 +12,8 @@ interface ReportcardProps {
   status: "Completed" | "In Progress" | "Not Started" | "submitted_approved" | string;
   progress: number;
   id: number;
+  done?: number;
+  overall?: number;
 }
 
 export default function Reportcard({
@@ -20,12 +22,16 @@ export default function Reportcard({
   id,
   status = "Completed",
   progress = 80,
+  done = 12,
+  overall = 100,
 }: ReportcardProps) {
   const router = useRouter();
 
   function handleRoute() {
     router.push(`/reports-and-analytics/${id}`);
   }
+
+  console.log("DOne:", done, "Overall:", overall);
   return (
     <Card className="w-full h-64 flex flex-col p-4 gap-2 md:gap-4 justify-center">
       <CardTitle className=""> {subsidiary} </CardTitle>
@@ -41,9 +47,11 @@ export default function Reportcard({
         <CustomProgressWithoutUnit
           value={progress}
           title="Progress"
-          total={78}
+          total={Number(progress)}
           percent={progress}
           unit="%"
+          done={done}
+          overall={overall}
         />
         {/* <p className='text-sm'> 8 of 8 sections completed</p> */}
       </div>

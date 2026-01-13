@@ -14,6 +14,20 @@ interface EmissionPoint {
   period: string; // label for X-axis
   emissions: number; // value for Y-axis
 }
+
+interface EmissionsChartProps {
+  data: EmissionPoint[];
+  title?: string;
+  value?: string;
+  change?: string;
+  unit?: string;
+  height?: number;
+  width?: string;
+  borderColor?: string;
+  rotateIcon?: string;
+  bgColor?: string;
+  color?: string;
+}
 // Sample data for emissions over time (replace with your actual data)
 
 // function transformHistory(ghg: any): EmissionPoint[] {
@@ -26,24 +40,25 @@ interface EmissionPoint {
 // }
 
 // Sample data for emissions over time (replace with your actual data)
-const emissionsData = [
-  { month: "Jan", emissions: 13000 },
-  { month: "Feb", emissions: 16500 },
-  { month: "Mar", emissions: 14800 },
-  { month: "Apr", emissions: 19000 },
-  { month: "May", emissions: 17000 },
-  { month: "Jun", emissions: 15400 },
-  { month: "Jul", emissions: 18000 },
-  { month: "Aug", emissions: 16000 },
-  { month: "Sep", emissions: 17500 },
-  { month: "Oct", emissions: 14000 },
-  { month: "Nov", emissions: 16500 },
-  { month: "Dec", emissions: 15400 },
-];
+
+// const emissionsData = [
+//   { month: "Jan", emissions: 13000 },
+//   { month: "Feb", emissions: 16500 },
+//   { month: "Mar", emissions: 14800 },
+//   { month: "Apr", emissions: 19000 },
+//   { month: "May", emissions: 17000 },
+//   { month: "Jun", emissions: 15400 },
+//   { month: "Jul", emissions: 18000 },
+//   { month: "Aug", emissions: 16000 },
+//   { month: "Sep", emissions: 17500 },
+//   { month: "Oct", emissions: 14000 },
+//   { month: "Nov", emissions: 16500 },
+//   { month: "Dec", emissions: 15400 },
+// ];
 
 // #region Reusable EmissionsChart Component
 const EmissionsChart = ({
-  data = emissionsData,
+  data,
   title = "Total Emissions",
   value = "0",
   change = "0.0%",
@@ -54,7 +69,7 @@ const EmissionsChart = ({
   rotateIcon = "",
   bgColor = "",
   color = "",
-}) => {
+}: EmissionsChartProps) => {
   return (
     <div
       className="emissions-card border-l-4 p-4 w-full"
@@ -147,12 +162,8 @@ const EmissionsChart = ({
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-            <XAxis
-              dataKey="month"
-              axisLine={false}
-              tickLine={false}
-              hide={true} // Hide X-axis labels
-            />
+            <XAxis dataKey="period" axisLine={false} tickLine={false} hide />
+
             <YAxis
               axisLine={false}
               tickLine={false}

@@ -129,9 +129,7 @@ export default function ReusableInput({
         </Tooltip>
       </div>
 
-      <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200 transition-colors"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200 transition-colors">
         {/* Volume Input */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
@@ -149,7 +147,7 @@ export default function ReusableInput({
             placeholder={placeholder}
             className={`${error ? "border-red-300 focus:border-red-500" : "border-gray-300"}`}
             disabled={disabled}
-          // no maxLength here so users can type as many digits as they want
+            // no maxLength here so users can type as many digits as they want
           />
 
           {error && <p className="text-red-600 text-xs mt-1">{error}</p>}

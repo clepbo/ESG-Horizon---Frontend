@@ -31,7 +31,7 @@ export function ProcessEmissionsForm({
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "cement-manufacturing");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const [_totals, setTotals] = useState<TotalsResponse | null>(null);
 
   const isAssignedTask = state.isAssignedTask || false;
 
@@ -52,7 +52,7 @@ export function ProcessEmissionsForm({
         sectionKey="processEmissions"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
-        onBackToHub={() => router.push("/assessments")}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }

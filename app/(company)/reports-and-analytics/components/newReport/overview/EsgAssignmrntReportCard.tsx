@@ -1,6 +1,7 @@
 import { Card } from "@/app/components/ui/card";
 import React from "react";
 import { FaArrowRight } from "react-icons/fa";
+import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 
 interface Props {
   title: string;
@@ -20,7 +21,7 @@ export default function EsgAssignmrntReportCard({
   pillar,
   title,
   score,
-  amount,
+  amount = "",
   footer,
   icon,
   iconBg,
@@ -53,20 +54,28 @@ export default function EsgAssignmrntReportCard({
       <hr className="text-gray-200" />
       <div className="flex items-center justify-between">
         <p className="">{title}</p>
-        <span
-          className=" flex items-center gap-2 rounded-2xl text-sm p-1"
-          style={{
-            backgroundColor: scoreBg,
-            color: scoreColor,
-          }}
-        >
-          {/* <FaArrowDown /> */}
-          {score}
-        </span>
+        {amount === "" ? (
+          <NotAvailablePlaceholder />
+        ) : (
+          <span
+            className=" flex items-center gap-2 rounded-2xl text-sm p-1"
+            style={{
+              backgroundColor: scoreBg,
+              color: scoreColor,
+            }}
+          >
+            {/* <FaArrowDown /> */}
+            {score}
+          </span>
+        )}
       </div>
 
-      <h5 className="font-bold">{amount}</h5>
-      <small className="">{footer}</small>
+      {amount !== "" && (
+        <>
+          <h5 className="font-bold">{amount}</h5>
+          <small className="">{footer}</small>
+        </>
+      )}
     </Card>
   );
 }

@@ -98,13 +98,10 @@ export default function ReservesInSensitiveAreas({
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
       ?.reservesInSensitiveAreas,
-    probableReservesSensitiveVolume,
-    provedReservesSensitiveVolume,
-    totalProbableReservesVolume,
-    totalProvedReservesVolume,
   ]);
 
   const { filled, total } = useMemo(() => {
@@ -207,7 +204,7 @@ export default function ReservesInSensitiveAreas({
       toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
       // toast.error is already handled in useAssessmentFlow

@@ -100,9 +100,10 @@ export default function CommunityRisk({
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
-        router.push("/assessments");
+        router.push("/assessments/new-assessment");
       }, 1000);
     } catch (_error) {
+      console.log(_error);
       toast.error("Failed to save data");
     } finally {
       setIsActionLoading(false);
@@ -126,6 +127,7 @@ export default function CommunityRisk({
       toast.success("Progress saved!");
       onNext();
     } catch (error) {
+      console.log(error);
       toast.error("Failed to save data");
     }
   };

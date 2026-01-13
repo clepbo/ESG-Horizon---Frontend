@@ -11,6 +11,8 @@ interface CustomProgressProps {
   percent: number;
   unit?: string;
   barColor?: string;
+  done?: number;
+  overall?: number;
 }
 
 export function CustomProgress({ value, className, title, total, percent }: CustomProgressProps) {
@@ -33,8 +35,10 @@ export function CustomProgressWithoutUnit({
   value,
   className,
   title,
-  total,
   unit,
+  done,
+  total,
+  overall = 100,
 }: CustomProgressProps) {
   return (
     <div className="grid gap-0">
@@ -48,7 +52,10 @@ export function CustomProgressWithoutUnit({
       <div className={cn("w-full rounded-full bg-green-200 h-2", className)}>
         <Progress value={value} className="h-2 rounded-full bg-green-200 [&>div]:bg-green-700" />
       </div>
-      <small> 8 of 8 sections completed</small>
+      <small>
+        {" "}
+        {done} of {overall} sections completed
+      </small>
     </div>
   );
 }
