@@ -1,3 +1,315 @@
+"use client";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { CloudUpload, X, Plus, Trash2, FileText, Eye, ExternalLink } from "lucide-react";
+import { uploadService } from "@/services/upload.service";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { toast } from "react-toastify";
+
+export interface FileData {
+  id?: string;
+  name: string;
+  size?: number;
+  lastModified?: number;
+  url?: string;
+  publicId?: string;
+  file?: File | null;
+}
+
+interface AdditionalFileUploadProps {
+  onFieldsChange?: (fields: FileData[]) => void;
+  initialData?: FileData[];
+}
+
+export function AdditionalFileUpload({ onFieldsChange, initialData }: AdditionalFileUploadProps) {
+  const [additionalFields, setAdditionalFields] = useState<FileData[]>(initialData || []);
+  const [uploading, setUploading] = useState<{ [key: number]: boolean }>({});
+  const [deleting, setDeleting] = useState<{ [key: number]: boolean }>({});
+  const [previewFile, setPreviewFile] = useState<FileData | null>(null);
+
+  useEffect(() => {
+    if (initialData && JSON.stringify(initialData) !== JSON.stringify(additionalFields)) {
+      setAdditionalFields(initialData);
+    }
+  }, [initialData]);
+
+  const handleAddField = () => {
+    const newFields = [...additionalFields, { name: "", file: null }];
+    setAdditionalFields(newFields);
+    onFieldsChange?.(newFields);
+  };
+
+  const handleRemoveField = (index: number) => {
+    const newFields = additionalFields.filter((_, i) => i !== index);
+    setAdditionalFields(newFields);
+    onFieldsChange?.(newFields);
+  };
+
+  const handleFileChange = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File too large. Please select a file smaller than 10MB.");
+      return;
+    }
+
+    try {
+      setUploading((prev) => ({ ...prev, [index]: true }));
+      const uploaded = await uploadService.uploadImage(file);
+
+      const newFields = additionalFields.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              name: item.name || file.name,
+              file: file,
+              url: uploaded.url,
+              publicId: uploaded.publicId,
+              size: file.size,
+              lastModified: file.lastModified,
+            }
+          : item
+      );
+
+      setAdditionalFields(newFields);
+      onFieldsChange?.(newFields);
+      toast.success(`${file.name} uploaded successfully.`);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      toast.error("There was an error uploading your file.");
+    } finally {
+      setUploading((prev) => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const handleRemoveFile = async (index: number) => {
+    const fileData = additionalFields[index];
+    if (fileData?.publicId) {
+      try {
+        setDeleting((prev) => ({ ...prev, [index]: true }));
+        await uploadService.deleteImage(fileData.publicId);
+        toast.success("File was successfully removed.");
+      } catch (err) {
+        console.error("Delete failed:", err);
+        toast.error("There was an error deleting the file.");
+      } finally {
+        setDeleting((prev) => ({ ...prev, [index]: false }));
+      }
+    }
+
+    const newFields = additionalFields.map((item, i) =>
+      i === index ? { ...item, file: null, url: undefined, publicId: undefined } : item
+    );
+    setAdditionalFields(newFields);
+    onFieldsChange?.(newFields);
+  };
+
+  const handleNameChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const name = event.target.value;
+    const newFields = additionalFields.map((item, i) => (i === index ? { ...item, name } : item));
+    setAdditionalFields(newFields);
+    onFieldsChange?.(newFields);
+  };
+
+  const getFileExtension = (filename: string): string => {
+    if (!filename) return "";
+    return filename.split(".").pop()?.toLowerCase() || "";
+  };
+
+  const getFileType = (fieldData: FileData): "image" | "pdf" | "document" | "unknown" => {
+    const filename = fieldData.file?.name || fieldData.name || fieldData.url || "";
+    const ext = getFileExtension(filename);
+
+    if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext)) return "image";
+    if (ext === "pdf") return "pdf";
+    if (["doc", "docx"].includes(ext)) return "document";
+
+    return "unknown";
+  };
+
+  const isImageFile = (fieldData: FileData) => getFileType(fieldData) === "image";
+  const isPDFFile = (fieldData: FileData) => getFileType(fieldData) === "pdf";
+  const isDocFile = (fieldData: FileData) => getFileType(fieldData) === "document";
+
+  const handlePreview = (fieldData: FileData) => setPreviewFile(fieldData);
+  const closePreview = () => setPreviewFile(null);
+
+  return (
+    <>
+      <div className="space-y-4">
+        {additionalFields.map((fieldData, index) => (
+          <div
+            key={index}
+            className="flex flex-col md:flex-row gap-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
+          >
+            <div className="flex-1 min-w-0">
+              <Label className="text-sm font-medium mb-2 block text-gray-700">
+                Name of file/evidence
+              </Label>
+              <Input
+                placeholder="Enter name"
+                value={fieldData.name}
+                onChange={(e) => handleNameChange(index, e)}
+                disabled={uploading[index] || deleting[index]}
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <Label className="text-sm font-medium mb-2 block text-gray-700">Upload File</Label>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 justify-start"
+                  onClick={() => document.getElementById(`file-${index}`)?.click()}
+                  disabled={uploading[index] || deleting[index]}
+                >
+                  {uploading[index] ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <CloudUpload className="h-4 w-4 mr-2" />
+                  )}
+                  <span className="truncate">
+                    {fieldData.file?.name || fieldData.name || "Select file"}
+                  </span>
+                </Button>
+
+                {fieldData.url && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleRemoveFile(index)}
+                    className="text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <input
+                id={`file-${index}`}
+                type="file"
+                className="hidden"
+                onChange={(e) => handleFileChange(index, e)}
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              />
+
+              {fieldData.url && (
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() => handlePreview(fieldData)}
+                    className="relative group w-24 h-24 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center"
+                  >
+                    {isImageFile(fieldData) ? (
+                      <Image
+                        src={fieldData.url}
+                        alt="thumb"
+                        width={96}
+                        height={96}
+                        className="object-cover w-full h-full"
+                        unoptimized={fieldData.url.startsWith("blob:")}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <FileText
+                          className={`h-8 w-8 ${isPDFFile(fieldData) ? "text-red-500" : "text-blue-500"}`}
+                        />
+                        <span className="text-[10px] uppercase font-bold text-gray-400 mt-1">
+                          {getFileExtension(fieldData.url || fieldData.name)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <Eye className="text-white h-6 w-6" />
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        <Button type="button" variant="outline" onClick={handleAddField} className="w-full">
+          <Plus className="h-4 w-4 mr-2" /> Add More Files
+        </Button>
+      </div>
+
+      {/* Preview Modal */}
+      {previewFile && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4"
+          style={{ zIndex: 9999 }}
+          onClick={closePreview}
+        >
+          <div
+            className="bg-white rounded-lg max-w-5xl w-full h-[90vh] flex flex-col overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-4 border-b flex justify-between items-center bg-white">
+              <h3 className="font-semibold text-gray-900 truncate">
+                {previewFile.name || "File Preview"}
+              </h3>
+              <div className="flex items-center gap-2">
+                {/* Force Download with Original Name */}
+                <Button variant="ghost" size="sm" asChild>
+                  <a
+                    href={previewFile.url}
+                    download={previewFile.name}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <CloudUpload className="h-4 w-4 mr-2 rotate-180" />
+                    Download
+                  </a>
+                </Button>
+                <button onClick={closePreview} className="p-2 hover:bg-gray-100 rounded-full">
+                  <X className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 bg-gray-100 overflow-hidden relative">
+              {isImageFile(previewFile) ? (
+                <div className="w-full h-full flex items-center justify-center p-4">
+                  <img
+                    src={previewFile.url}
+                    alt="Preview"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              ) : isPDFFile(previewFile) || isDocFile(previewFile) ? (
+                /* Using Google Viewer for BOTH PDF and DOCS for maximum compatibility */
+                <iframe
+                  key={previewFile.url}
+                  src={`https://docs.google.com/gview?url=${encodeURIComponent(previewFile.url || "")}&embedded=true`}
+                  className="w-full h-full border-none bg-white"
+                  title="Document Preview"
+                />
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center bg-white">
+                  <FileText className="h-16 w-16 text-gray-400 mb-4" />
+                  <p className="text-gray-600 font-medium">Preview not available</p>
+                  <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700">
+                    <a href={previewFile.url} download={previewFile.name}>
+                      Download to View
+                    </a>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 // "use client";
 // import { useState, useEffect } from "react";
 // import Image from "next/image";
@@ -685,314 +997,3 @@
 //     </>
 //   );
 // }
-"use client";
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { Button } from "@/app/components/ui/button";
-import { Input } from "@/app/components/ui/input";
-import { Label } from "@/app/components/ui/label";
-import { CloudUpload, X, Plus, Trash2, FileText, Eye, ExternalLink } from "lucide-react";
-import { uploadService } from "@/services/upload.service";
-import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { toast } from "react-toastify";
-
-export interface FileData {
-  id?: string;
-  name: string;
-  size?: number;
-  lastModified?: number;
-  url?: string;
-  publicId?: string;
-  file?: File | null;
-}
-
-interface AdditionalFileUploadProps {
-  onFieldsChange?: (fields: FileData[]) => void;
-  initialData?: FileData[];
-}
-
-export function AdditionalFileUpload({ onFieldsChange, initialData }: AdditionalFileUploadProps) {
-  const [additionalFields, setAdditionalFields] = useState<FileData[]>(initialData || []);
-  const [uploading, setUploading] = useState<{ [key: number]: boolean }>({});
-  const [deleting, setDeleting] = useState<{ [key: number]: boolean }>({});
-  const [previewFile, setPreviewFile] = useState<FileData | null>(null);
-
-  useEffect(() => {
-    if (initialData && JSON.stringify(initialData) !== JSON.stringify(additionalFields)) {
-      setAdditionalFields(initialData);
-    }
-  }, [initialData]);
-
-  const handleAddField = () => {
-    const newFields = [...additionalFields, { name: "", file: null }];
-    setAdditionalFields(newFields);
-    onFieldsChange?.(newFields);
-  };
-
-  const handleRemoveField = (index: number) => {
-    const newFields = additionalFields.filter((_, i) => i !== index);
-    setAdditionalFields(newFields);
-    onFieldsChange?.(newFields);
-  };
-
-  const handleFileChange = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File too large. Please select a file smaller than 10MB.");
-      return;
-    }
-
-    try {
-      setUploading((prev) => ({ ...prev, [index]: true }));
-      const uploaded = await uploadService.uploadImage(file);
-
-      const newFields = additionalFields.map((item, i) =>
-        i === index
-          ? {
-              ...item,
-              name: item.name || file.name,
-              file: file,
-              url: uploaded.url,
-              publicId: uploaded.publicId,
-              size: file.size,
-              lastModified: file.lastModified,
-            }
-          : item
-      );
-
-      setAdditionalFields(newFields);
-      onFieldsChange?.(newFields);
-      toast.success(`${file.name} uploaded successfully.`);
-    } catch (err) {
-      console.error("Upload failed:", err);
-      toast.error("There was an error uploading your file.");
-    } finally {
-      setUploading((prev) => ({ ...prev, [index]: false }));
-    }
-  };
-
-  const handleRemoveFile = async (index: number) => {
-    const fileData = additionalFields[index];
-    if (fileData?.publicId) {
-      try {
-        setDeleting((prev) => ({ ...prev, [index]: true }));
-        await uploadService.deleteImage(fileData.publicId);
-        toast.success("File was successfully removed.");
-      } catch (err) {
-        console.error("Delete failed:", err);
-        toast.error("There was an error deleting the file.");
-      } finally {
-        setDeleting((prev) => ({ ...prev, [index]: false }));
-      }
-    }
-
-    const newFields = additionalFields.map((item, i) =>
-      i === index ? { ...item, file: null, url: undefined, publicId: undefined } : item
-    );
-    setAdditionalFields(newFields);
-    onFieldsChange?.(newFields);
-  };
-
-  const handleNameChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
-    const name = event.target.value;
-    const newFields = additionalFields.map((item, i) => (i === index ? { ...item, name } : item));
-    setAdditionalFields(newFields);
-    onFieldsChange?.(newFields);
-  };
-
-  const getFileExtension = (filename: string): string => {
-    if (!filename) return "";
-    return filename.split(".").pop()?.toLowerCase() || "";
-  };
-
-  const getFileType = (fieldData: FileData): "image" | "pdf" | "document" | "unknown" => {
-    const filename = fieldData.file?.name || fieldData.name || fieldData.url || "";
-    const ext = getFileExtension(filename);
-
-    if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext)) return "image";
-    if (ext === "pdf") return "pdf";
-    if (["doc", "docx"].includes(ext)) return "document";
-
-    return "unknown";
-  };
-
-  const isImageFile = (fieldData: FileData) => getFileType(fieldData) === "image";
-  const isPDFFile = (fieldData: FileData) => getFileType(fieldData) === "pdf";
-  const isDocFile = (fieldData: FileData) => getFileType(fieldData) === "document";
-
-  const handlePreview = (fieldData: FileData) => setPreviewFile(fieldData);
-  const closePreview = () => setPreviewFile(null);
-
-  return (
-    <>
-      <div className="space-y-4">
-        {additionalFields.map((fieldData, index) => (
-          <div
-            key={index}
-            className="flex flex-col md:flex-row gap-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
-          >
-            <div className="flex-1 min-w-0">
-              <Label className="text-sm font-medium mb-2 block text-gray-700">
-                Name of file/evidence
-              </Label>
-              <Input
-                placeholder="Enter name"
-                value={fieldData.name}
-                onChange={(e) => handleNameChange(index, e)}
-                disabled={uploading[index] || deleting[index]}
-              />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <Label className="text-sm font-medium mb-2 block text-gray-700">Upload File</Label>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1 justify-start"
-                  onClick={() => document.getElementById(`file-${index}`)?.click()}
-                  disabled={uploading[index] || deleting[index]}
-                >
-                  {uploading[index] ? (
-                    <LoadingSpinner size="sm" />
-                  ) : (
-                    <CloudUpload className="h-4 w-4 mr-2" />
-                  )}
-                  <span className="truncate">
-                    {fieldData.file?.name || fieldData.name || "Select file"}
-                  </span>
-                </Button>
-
-                {fieldData.url && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleRemoveFile(index)}
-                    className="text-red-500"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              <input
-                id={`file-${index}`}
-                type="file"
-                className="hidden"
-                onChange={(e) => handleFileChange(index, e)}
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              />
-
-              {fieldData.url && (
-                <div className="mt-3">
-                  <button
-                    type="button"
-                    onClick={() => handlePreview(fieldData)}
-                    className="relative group w-24 h-24 border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center"
-                  >
-                    {isImageFile(fieldData) ? (
-                      <Image
-                        src={fieldData.url}
-                        alt="thumb"
-                        width={96}
-                        height={96}
-                        className="object-cover w-full h-full"
-                        unoptimized={fieldData.url.startsWith("blob:")}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center">
-                        <FileText
-                          className={`h-8 w-8 ${isPDFFile(fieldData) ? "text-red-500" : "text-blue-500"}`}
-                        />
-                        <span className="text-[10px] uppercase font-bold text-gray-400 mt-1">
-                          {getFileExtension(fieldData.url || fieldData.name)}
-                        </span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                      <Eye className="text-white h-6 w-6" />
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-        <Button type="button" variant="outline" onClick={handleAddField} className="w-full">
-          <Plus className="h-4 w-4 mr-2" /> Add More Files
-        </Button>
-      </div>
-
-      {/* Preview Modal */}
-      {previewFile && (
-        <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center p-4"
-          style={{ zIndex: 9999 }}
-          onClick={closePreview}
-        >
-          <div
-            className="bg-white rounded-lg max-w-5xl w-full h-[90vh] flex flex-col overflow-hidden shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="p-4 border-b flex justify-between items-center bg-white">
-              <h3 className="font-semibold text-gray-900 truncate">
-                {previewFile.name || "File Preview"}
-              </h3>
-              <div className="flex items-center gap-2">
-                {/* Force Download with Original Name */}
-                <Button variant="ghost" size="sm" asChild>
-                  <a
-                    href={previewFile.url}
-                    download={previewFile.name}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <CloudUpload className="h-4 w-4 mr-2 rotate-180" />
-                    Download
-                  </a>
-                </Button>
-                <button onClick={closePreview} className="p-2 hover:bg-gray-100 rounded-full">
-                  <X className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="flex-1 bg-gray-100 overflow-hidden relative">
-              {isImageFile(previewFile) ? (
-                <div className="w-full h-full flex items-center justify-center p-4">
-                  <img
-                    src={previewFile.url}
-                    alt="Preview"
-                    className="max-w-full max-h-full object-contain"
-                  />
-                </div>
-              ) : isPDFFile(previewFile) || isDocFile(previewFile) ? (
-                /* Using Google Viewer for BOTH PDF and DOCS for maximum compatibility */
-                <iframe
-                  key={previewFile.url}
-                  src={`https://docs.google.com/gview?url=${encodeURIComponent(previewFile.url || "")}&embedded=true`}
-                  className="w-full h-full border-none bg-white"
-                  title="Document Preview"
-                />
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center bg-white">
-                  <FileText className="h-16 w-16 text-gray-400 mb-4" />
-                  <p className="text-gray-600 font-medium">Preview not available</p>
-                  <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700">
-                    <a href={previewFile.url} download={previewFile.name}>
-                      Download to View
-                    </a>
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
