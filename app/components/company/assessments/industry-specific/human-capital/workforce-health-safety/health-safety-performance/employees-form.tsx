@@ -10,6 +10,8 @@ import { uploadService } from "@/services/upload.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "../../../environmental/water-management/components/ReusableInput";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/router";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface EmployeeFormProps {
   employeeType: "direct" | "contract";
@@ -42,6 +44,9 @@ export default function EmployeeForm({
     nearMissesUnit: "Near Misses",
     safetyTrainingHoursUnit: "Hours",
   });
+
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance")
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -99,15 +104,7 @@ export default function EmployeeForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveAndContinue = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-    setShowSaveSuccess(true);
-    setIsSaving(true);
-
-    const payload = {
+  const payload = {
       employeeType,
       totalHoursWorked: Number(totalHoursWorked.rawValue),
       totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
@@ -121,23 +118,54 @@ export default function EmployeeForm({
       safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
       filesAndLinks: filesAndLinks,
     };
+  const handleSaveAndContinue = async() => {
+    if (!validateForm()) {
+      toast.error("Please fix the errors before saving.");
+      return;
+    }
+    // setShowSaveSuccess(true);
+    setIsSaving(true);
 
-    console.log(`${employeeType.toUpperCase()} EMPLOYEES DATA:`, payload);
-    toast.success("Data saved successfully.");
+    try {
+      await saveNow("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", payload)
+      setShowSaveSuccess(true)
+      toast.success("Data saved successfully!");
+            setTimeout(() => {
+              router.push("/assessments/new-assessment");
+            }, 1000);
+    }
+    catch(error){
+      console.log(error);
+      toast.error("Failed to save data");
+    } finally {
+      setIsSaving(false)
+    }
+    
 
-    setTimeout(() => {
-      setIsSaving(false);
-      setShowSaveSuccess(false);
-    }, 2000);
+    // console.log(`${employeeType.toUpperCase()} EMPLOYEES DATA:`, payload);
+    // toast.success("Data saved successfully.");
+
+    // setTimeout(() => {
+    //   setIsSaving(false);
+    //   setShowSaveSuccess(false);
+    // }, 2000);
   };
 
-  const handleNext = () => {
+  const handleNext = async() => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
-    toast.success("Moved to next section");
-    onContinueToNextAssessment();
+    try {
+          await saveNow("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", payload);
+          toast.success("Progress saved!");
+          onContinueToNextAssessment();
+        } catch (error) {
+          console.log(error);
+          toast.error("Failed to save data");
+        }
+    // toast.success("Moved to next section");
+    // onContinueToNextAssessment();
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
