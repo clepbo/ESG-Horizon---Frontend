@@ -28,7 +28,7 @@ interface SafetyManagementSystemProps {
 
 export default function SafetyManagementSystem({
   onBack,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
@@ -39,8 +39,9 @@ export default function SafetyManagementSystem({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-
-  const { saveNow, submitGroup} = useAssessmentFlow("humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems")
+  const { saveNow, submitGroup } = useAssessmentFlow(
+    "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
+  );
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -76,17 +77,17 @@ export default function SafetyManagementSystem({
   };
 
   const payload = {
-      executiveRemunerationLinked: formData.executiveRemunerationLinked,
-      safetyDescription: formData.safetyDescription,
-      filesAndLinks: filesAndLinks,
-    };
+    executiveRemunerationLinked: formData.executiveRemunerationLinked,
+    safetyDescription: formData.safetyDescription,
+    filesAndLinks: filesAndLinks,
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleSaveAndContinue = async() => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
@@ -95,18 +96,21 @@ export default function SafetyManagementSystem({
     // setIsSaving(true);
 
     try {
-          await saveNow("humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems", payload);
-          setShowSaveSuccess(true);
-          toast.success("Data saved successfully!");
-          setTimeout(() => {
-            router.push("/assessments/new-assessment");
-          }, 1000);
-        } catch (_error: any) {
-          console.error(_error);
-          toast.error("Failed to save data", _error.message);
-        } finally {
-          setIsSaving(false);
-        }
+      await saveNow(
+        "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error: any) {
+      console.error(_error);
+      toast.error("Failed to save data", _error.message);
+    } finally {
+      setIsSaving(false);
+    }
 
     // console.log("DATA TO SAVE:", payload);
   };
@@ -117,19 +121,22 @@ export default function SafetyManagementSystem({
       return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-          // Save data first
-          await saveNow("humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems", payload);
-          // Then submit the group
-          await submitGroup();
-          toast.success("Assessment completed successfully!");
-          onSubmit(null);
-        } catch (_error) {
-          toast.error("Failed to submit assessment");
-        } finally {
-          setIsSaving(false);
-        }    
+      // Save data first
+      await saveNow(
+        "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
+        payload
+      );
+      // Then submit the group
+      await submitGroup();
+      toast.success("Assessment completed successfully!");
+      onSubmit(null);
+    } catch (_error: any) {
+      toast.error("Failed to submit assessment", _error.message);
+    } finally {
+      setIsSaving(false);
+    }
 
     // console.log("FINAL SUBMISSION:", payload);
 

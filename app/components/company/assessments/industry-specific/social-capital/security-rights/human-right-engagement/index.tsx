@@ -31,7 +31,7 @@ interface HumanRightEngagementProps {
 
 export default function HumanRightEngagement({
   onBack,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
@@ -130,8 +130,8 @@ export default function HumanRightEngagement({
       await submitGroup();
       toast.success("Assessment completed successfully!");
       onSubmit(null);
-    } catch (_error) {
-      toast.error("Failed to submit assessment");
+    } catch (_error: any) {
+      toast.error("Failed to submit assessment", _error.message);
     } finally {
       setIsSaving(false);
     }

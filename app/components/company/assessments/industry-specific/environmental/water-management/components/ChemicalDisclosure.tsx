@@ -104,7 +104,9 @@ export default function ChemicalDisclosure({
     }
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
-      ?.chemicalDisclosure, numberOfWellsWithPublicDisclosure, totalNumberOfFracturedWells
+      ?.chemicalDisclosure,
+    numberOfWellsWithPublicDisclosure,
+    totalNumberOfFracturedWells,
   ]);
 
   const { filled, total } = useMemo(() => {

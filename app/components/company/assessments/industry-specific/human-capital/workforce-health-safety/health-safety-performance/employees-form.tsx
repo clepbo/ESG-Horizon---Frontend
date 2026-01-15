@@ -46,7 +46,9 @@ export default function EmployeeForm({
   });
 
   const router = useRouter();
-  const { saveNow } = useAssessmentFlow("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance")
+  const { saveNow } = useAssessmentFlow(
+    "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
+  );
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -105,20 +107,20 @@ export default function EmployeeForm({
   };
 
   const payload = {
-      employeeType,
-      totalHoursWorked: Number(totalHoursWorked.rawValue),
-      totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
-      recordableIncidents: Number(recordableIncidents.rawValue),
-      recordableIncidentsUnit: formData.recordableIncidentsUnit,
-      fatalities: Number(fatalities.rawValue),
-      fatalitiesUnit: formData.fatalitiesUnit,
-      nearMisses: Number(nearMisses.rawValue),
-      nearMissesUnit: formData.nearMissesUnit,
-      safetyTrainingHours: Number(safetyTrainingHours.rawValue),
-      safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
-      filesAndLinks: filesAndLinks,
-    };
-  const handleSaveAndContinue = async() => {
+    employeeType,
+    totalHoursWorked: Number(totalHoursWorked.rawValue),
+    totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
+    recordableIncidents: Number(recordableIncidents.rawValue),
+    recordableIncidentsUnit: formData.recordableIncidentsUnit,
+    fatalities: Number(fatalities.rawValue),
+    fatalitiesUnit: formData.fatalitiesUnit,
+    nearMisses: Number(nearMisses.rawValue),
+    nearMissesUnit: formData.nearMissesUnit,
+    safetyTrainingHours: Number(safetyTrainingHours.rawValue),
+    safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
+    filesAndLinks: filesAndLinks,
+  };
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
@@ -127,20 +129,21 @@ export default function EmployeeForm({
     setIsSaving(true);
 
     try {
-      await saveNow("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", payload)
-      setShowSaveSuccess(true)
+      await saveNow(
+        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        payload
+      );
+      setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-            setTimeout(() => {
-              router.push("/assessments/new-assessment");
-            }, 1000);
-    }
-    catch(error){
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (error) {
       console.log(error);
       toast.error("Failed to save data");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-    
 
     // console.log(`${employeeType.toUpperCase()} EMPLOYEES DATA:`, payload);
     // toast.success("Data saved successfully.");
@@ -151,19 +154,22 @@ export default function EmployeeForm({
     // }, 2000);
   };
 
-  const handleNext = async() => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
     try {
-          await saveNow("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", payload);
-          toast.success("Progress saved!");
-          onContinueToNextAssessment();
-        } catch (error) {
-          console.log(error);
-          toast.error("Failed to save data");
-        }
+      await saveNow(
+        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        payload
+      );
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    }
     // toast.success("Moved to next section");
     // onContinueToNextAssessment();
   };

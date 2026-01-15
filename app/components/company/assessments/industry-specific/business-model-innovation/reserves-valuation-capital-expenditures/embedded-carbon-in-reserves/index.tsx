@@ -13,6 +13,8 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/router";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface EmbeddedCarbonInReservesProps {
   onBack: () => void;
@@ -38,6 +40,11 @@ export default function EmbeddedCarbonInReserves({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
+
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow(
+    "businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve"
+  );
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -83,6 +90,16 @@ export default function EmbeddedCarbonInReserves({
   //   setFormData((prev) => ({ ...prev, [field]: value }));
   // };
 
+  const payload = {
+    totalProvedReserves: Number(totalProvedReserves.rawValue),
+    totalProvedReservesUnit: formData.totalProvedReservesUnit,
+
+    estimatedEmbeddedEmissions: Number(estimatedEmbeddedEmissions.rawValue),
+    estimatedEmbeddedEmissionsUnit: formData.estimatedEmbeddedEmissionsUnit,
+
+    filesAndLinks: filesAndLinks,
+  };
+
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
@@ -92,36 +109,42 @@ export default function EmbeddedCarbonInReserves({
     setIsSaving(true);
     setShowSaveSuccess(false);
 
-    const payload = {
-      totalProvedReserves: Number(totalProvedReserves.rawValue),
-      totalProvedReservesUnit: formData.totalProvedReservesUnit,
-
-      estimatedEmbeddedEmissions: Number(estimatedEmbeddedEmissions.rawValue),
-      estimatedEmbeddedEmissionsUnit: formData.estimatedEmbeddedEmissionsUnit,
-
-      filesAndLinks: filesAndLinks,
-    };
+    // businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve
 
     try {
-      console.log("EMBEDDED CARBON DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(
+        "businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve",
+        payload
+      );
       setShowSaveSuccess(true);
-      toast.success("Data saved successfully.");
-    } catch (error) {
-      toast.error(`Failed to save data. ${error}`);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error) {
+      console.log(_error);
+      toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
-    toast.success("Moved to next section");
-    onContinueToNextAssessment();
+    try {
+      await saveNow(
+        "businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve",
+        payload
+      );
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    }
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
