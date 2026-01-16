@@ -144,8 +144,7 @@ export default function OperationalDelay({
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 1000);
-    } catch (_error:any) {
-
+    } catch (_error: any) {
       toast.error("Failed to save data", _error.message);
     } finally {
       setIsActionLoading(false);
@@ -177,8 +176,8 @@ export default function OperationalDelay({
       await submitGroup();
       toast.success("Assessment completed successfully!");
       onNext();
-    } catch (_error) {
-      toast.error("Failed to submit assessment");
+    } catch (_error: any) {
+      toast.error("Failed to submit assessment", _error.message);
     } finally {
       setIsActionLoading(false);
     }

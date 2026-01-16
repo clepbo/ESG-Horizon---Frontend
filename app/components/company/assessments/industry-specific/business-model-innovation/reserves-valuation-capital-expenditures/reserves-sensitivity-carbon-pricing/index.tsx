@@ -13,6 +13,8 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/router";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface ReservesSensitivityFormProps {
   onBack: () => void;
@@ -39,6 +41,11 @@ export default function ReservesSensitivityForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
+
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow(
+    "businessModelAndInnovation.reserveValuation.climateImpact.reserveSensitivity"
+  );
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -96,6 +103,19 @@ export default function ReservesSensitivityForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const payload = {
+    carbonPriceScenario: Number(carbonPriceScenario.rawValue),
+    carbonPriceScenarioUnit: formData.carbonPriceScenarioUnit,
+
+    percentageDecrease: Number(percentageDecrease.rawValue),
+    percentageDecreaseUnit: formData.percentageDecreaseUnit,
+
+    estimatedDecrease: Number(estimatedDecrease.rawValue),
+    estimatedDecreaseUnit: formData.estimatedDecreaseUnit,
+
+    filesAndLinks: filesAndLinks,
+  };
+
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
@@ -105,41 +125,41 @@ export default function ReservesSensitivityForm({
     setIsSaving(true);
     setShowSaveSuccess(false);
 
-    const payload = {
-      carbonPriceScenario: Number(carbonPriceScenario.rawValue),
-      carbonPriceScenarioUnit: formData.carbonPriceScenarioUnit,
-
-      percentageDecrease: Number(percentageDecrease.rawValue),
-      percentageDecreaseUnit: formData.percentageDecreaseUnit,
-
-      estimatedDecrease: Number(estimatedDecrease.rawValue),
-      estimatedDecreaseUnit: formData.estimatedDecreaseUnit,
-
-      filesAndLinks: filesAndLinks,
-    };
-
     try {
-      console.log("RESERVES SENSITIVITY DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(
+        "businessModelAndInnovation.reserveValuation.climateImpact.reserveSensitivity",
+        payload
+      );
       setShowSaveSuccess(true);
-      toast.success("Data saved successfully.");
-    } catch (error) {
-      toast.error(`Failed to save data. ${error}`);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error: any) {
+      console.error(_error);
+      toast.error("Failed to save data", _error.message);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
 
-    toast.success("Moved to next section");
-
-    onContinueToNextAssessment();
+    try {
+      await saveNow(
+        "businessModelAndInnovation.reserveValuation.climateImpact.reserveSensitivity",
+        payload
+      );
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    }
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {

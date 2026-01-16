@@ -16,6 +16,8 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useRouter } from "next/router";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface CapitalExpenditureStrategyProps {
   onBack: () => void;
@@ -42,6 +44,10 @@ export default function CapitalExpenditureStrategy({
   const [capexDiscussion, setCapexDiscussion] = useState("");
 
   const formRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const current =
+    "businessModelAndInnovation.reserveValuation.strategicCapitalAllocation.capitalExpenditureStrategy";
+  const { saveNow, submitGroup } = useAssessmentFlow(current);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -78,42 +84,52 @@ export default function CapitalExpenditureStrategy({
   //   setFormData((prev) => ({ ...prev, [field]: value }));
   // };
 
+  const payload = {
+    capexPercentage: Number(capexPercentage.rawValue),
+    capexPercentageUnit: formData.capexPercentageUnit,
+    capexDiscussion: capexDiscussion,
+    filesAndLinks: filesAndLinks,
+  };
+
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
 
-    setIsSaving(true);
-    setShowSaveSuccess(false);
-
-    const payload = {
-      capexPercentage: Number(capexPercentage.rawValue),
-      capexPercentageUnit: formData.capexPercentageUnit,
-      capexDiscussion: capexDiscussion,
-      filesAndLinks: filesAndLinks,
-    };
-
     try {
-      console.log("CAPITAL EXPENDITURE STRATEGY DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(current, payload);
       setShowSaveSuccess(true);
-      toast.success("Data saved successfully.");
-    } catch (error) {
-      toast.error(`Failed to save data. ${error}`);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error) {
+      console.log(_error);
+      toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting.");
       return;
     }
-    toast.success("Form submitted successfully!");
-    onContinueToNextAssessment();
+    setIsSaving(true);
+    try {
+      // Save data first
+      await saveNow(current, payload);
+      // Then submit the group
+      await submitGroup();
+      toast.success("Assessment completed successfully!");
+      // onSubmit(null);
+    } catch (error: any) {
+      toast.error("Failed to submit assessment", error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {

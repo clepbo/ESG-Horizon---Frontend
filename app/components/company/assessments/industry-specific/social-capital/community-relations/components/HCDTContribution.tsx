@@ -109,7 +109,7 @@ export default function HCDTContribution({
       setTimeout(() => {
         router.push("/assessments/new-assessment");
       }, 1000);
-    } catch (_error:any) {
+    } catch (_error: any) {
       toast.error("Failed to save data", _error.message);
     } finally {
       setIsActionLoading(false);
@@ -134,8 +134,8 @@ export default function HCDTContribution({
       await saveNow("socialCapital.communityRelations.hcdtContribution", payload);
       toast.success("Progress saved!");
       onNext();
-    } catch (error) {
-      toast.error("Failed to save data");
+    } catch (error: any) {
+      toast.error("Failed to save data", error.message);
     }
   };
 

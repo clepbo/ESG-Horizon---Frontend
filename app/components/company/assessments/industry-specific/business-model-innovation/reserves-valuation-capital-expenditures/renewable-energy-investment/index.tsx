@@ -15,6 +15,8 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/router";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface RenewableEnergyInvestmentProps {
   onBack: () => void;
@@ -41,6 +43,10 @@ export default function RenewableEnergyInvestment({
   const [projectDescription, setProjectDescription] = useState("");
 
   const formRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const current =
+    "businessModelAndInnovation.reserveValuation.strategicCapitalAllocation.renewableEnergyInvestment";
+  const { saveNow } = useAssessmentFlow(current);
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -86,49 +92,53 @@ export default function RenewableEnergyInvestment({
   //   setFormData((prev) => ({ ...prev, [field]: value }));
   // };
 
+  const payload = {
+    investmentAmount: Number(investmentAmount.rawValue),
+    investmentAmountUnit: formData.investmentAmountUnit,
+
+    revenueAmount: Number(revenueAmount.rawValue),
+    revenueAmountUnit: formData.revenueAmountUnit,
+
+    projectDescription: projectDescription,
+
+    filesAndLinks: filesAndLinks,
+  };
+
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
 
-    setIsSaving(true);
-    setShowSaveSuccess(false);
-
-    const payload = {
-      investmentAmount: Number(investmentAmount.rawValue),
-      investmentAmountUnit: formData.investmentAmountUnit,
-
-      revenueAmount: Number(revenueAmount.rawValue),
-      revenueAmountUnit: formData.revenueAmountUnit,
-
-      projectDescription: projectDescription,
-
-      filesAndLinks: filesAndLinks,
-    };
-
     try {
-      console.log("RENEWABLE ENERGY INVESTMENT DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(current, payload);
       setShowSaveSuccess(true);
-      toast.success("Data saved successfully.");
-    } catch (error) {
-      toast.error(`Failed to save data. ${error}`);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error) {
+      console.log(_error);
+      toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
 
-    toast.success("Moved to next section");
-
-    onContinueToNextAssessment();
+    try {
+      await saveNow(current, payload);
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    }
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
