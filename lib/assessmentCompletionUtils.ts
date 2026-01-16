@@ -31,26 +31,25 @@ const TOPIC_CONFIGURATIONS: Record<string, TopicConfig> = {
     type: "simple",
   },
   "Water and Wastewater Management": {
-    path: [["environment", "waterManagement", "waterAndProducedWaterManagement"]],
+    // FIXED: Changed to point to waterManagement root, not nested waterAndProducedWaterManagement
+    path: [["environment", "waterManagement"]],
     subComponents: [
-      "freshwaterWithdrawals",
-      "producedWater",
-      "chemicalDisclosure",
-      "waterQualityImpacts",
+      // FIXED: Updated to match actual field names
+      "waterAndProducedWaterManagement.freshwaterWithdrawals", // Changed from freshwaterWithdrawalAndConsumption
+      "waterAndProducedWaterManagement.producedWaterManagement",
+      "hydraulicFracturingImpacts.chemicalDisclosure",
+      "hydraulicFracturingImpacts.waterQualityImpacts",
     ],
     type: "multi-component",
   },
   "Biodiversity Impact": {
-    path: [
-      ["environment", "biodiversity"],
-      ["environment", "biodiversityImpact"],
-      ["biodiversity"],
-      ["biodiversityImpact"],
-    ],
+    // FIXED: Removed incorrect path alternatives, only keep the correct one
+    path: [["environment", "biodiversityImpact"]],
     subComponents: [
-      "environmentalManagement|environmental_management|environmentalManagementPolicies",
-      "hydrocarbonSpills|hydrocarbon_spills",
-      "reservesSensitiveAreas|reserves_sensitive_areas|reservesInSensitiveAreas",
+      // FIXED: Full paths from biodiversityImpact level
+      "environmentalManagement.environmentalManagementPolicies",
+      "environmentalManagement.hydrocarbonSpills",
+      "environmentalManagement.reservesInSensitiveAreas",
     ],
     type: "multi-component",
   },
@@ -94,11 +93,12 @@ const SCOPE_MAPPING: Record<string, string[]> = {
  * Mapping for sub-component titles
  */
 const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
+  // Water Management - Water and Produced Water Management section
   "Freshwater Withdrawal & Consumption": [
     "environment",
     "waterManagement",
     "waterAndProducedWaterManagement",
-    "freshwaterWithdrawalAndConsumption",
+    "freshwaterWithdrawals", // FIXED: Changed from freshwaterWithdrawalAndConsumption
   ],
   "Produced Water Management": [
     "environment",
@@ -120,14 +120,26 @@ const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
     "hydraulicFracturingImpacts",
     "waterQualityImpacts",
   ],
-  // Biodiversity Impact
+
+  // Biodiversity Impact - FIXED: Match actual data structure
   "Environmental Management Policies": [
     "environment",
     "biodiversityImpact",
     "environmentalManagement",
+    "environmentalManagementPolicies",
   ],
-  "Hydrocarbon Spills": ["environment", "biodiversityImpact", "hydrocarbonSpills"],
-  "Reserves in Sensitive Areas": ["environment", "biodiversityImpact", "reservesSensitiveAreas"],
+  "Hydrocarbon Spills": [
+    "environment",
+    "biodiversityImpact",
+    "environmentalManagement",
+    "hydrocarbonSpills",
+  ],
+  "Reserves in Sensitive Areas": [
+    "environment",
+    "biodiversityImpact",
+    "environmentalManagement",
+    "reservesInSensitiveAreas",
+  ],
 };
 
 /**
@@ -431,17 +443,10 @@ export function checkScopeCompletion(scopeTitle: string, assessmentData?: any): 
   return checkDataCompletion(scopeData);
 }
 
-/**
- * Check sub-component completion for topics with multiple sub-forms
- */
 export function checkSubComponentCompletion(
   componentTitle: string,
   assessmentData?: any
 ): CompletionStatus {
-  if (!assessmentData) {
-    return { status: "not-started", completionPercentage: 0 };
-  }
-
   const isSubmitted = isAssessmentSubmitted(assessmentData);
   const submittedGroups = assessmentData?.submittedGroups || [];
   const dataPath = SUB_COMPONENT_MAPPING[componentTitle];
@@ -457,20 +462,24 @@ export function checkSubComponentCompletion(
   }
 
   const completion = checkDataCompletion(componentData);
-
-  // Check if this specific component was submitted
   const componentPath = dataPath.join(".");
+
   const isComponentSubmitted = submittedGroups.some((group: string) =>
     group.includes(componentPath)
   );
 
+  // If assessment is submitted and component has significant data (>= 80%), mark as completed
+  if (isSubmitted && completion.completionPercentage >= 80) {
+    return { status: "completed", completionPercentage: 100 };
+  }
+
+  // If explicitly in submittedGroups, mark as completed regardless of percentage
   if (isSubmitted && isComponentSubmitted && completion.status !== "not-started") {
     return { status: "completed", completionPercentage: 100 };
   }
 
   return completion;
 }
-
 /**
  * Check topic completion (for Disclosure Topics page)
  */
@@ -610,6 +619,7 @@ export function checkTopicCompletion(topicTitle: string, assessmentData?: any): 
 
   return { status: "not-started", completionPercentage: 0 };
 }
+
 /**
  * Get badge styling and text based on status
  */

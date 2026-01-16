@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AirQualityProps } from "../../air-quality/components/AirQualityCard";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
@@ -69,6 +69,26 @@ export default function WaterAndWastemanagementCards({
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
   const { state } = useAssessment();
+
+  useEffect(() => {
+    if (state.assessmentData) {
+      const waterMgmt = state.assessmentData?.environment?.waterManagement;
+      console.log("🔍 Water Management Structure:", waterMgmt);
+
+      // Test all completion checks
+      const tests = [
+        "Freshwater Withdrawal & Consumption",
+        "Produced Water Management",
+        "Chemical Disclosure",
+        "Water Quality Impacts",
+      ];
+
+      tests.forEach((title) => {
+        const status = checkSubComponentCompletion(title, state.assessmentData);
+        console.log(`${title}:`, status);
+      });
+    }
+  }, [state.assessmentData]);
 
   // Use the reusable hook with checkSubComponentCompletion
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
