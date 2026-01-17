@@ -22,7 +22,7 @@ import SmartInput from "../components/Scope3Input";
 
 interface LeasedAssetsProps {
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
@@ -46,14 +46,14 @@ const uploadFields = [
 
 export function LeasedAssets({
   onBack,
-  onNext,
+  onSubmit,
   stepIndex,
   totalSteps,
   backToAssessment,
   backToDisclosureTopics,
   backToGHGEmissions,
 }: LeasedAssetsProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -77,7 +77,7 @@ export function LeasedAssets({
     floorArea: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-leased-assets");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +87,8 @@ export function LeasedAssets({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.leasedAssets;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
     if (existingData) {
       setElectricityConsumed(existingData.electricityConsumed || "");
       setFuelConsumed(existingData.fuelConsumed || "");
@@ -99,7 +100,7 @@ export function LeasedAssets({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -180,13 +181,13 @@ export function LeasedAssets({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_LEASED_ASSETS",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.leasedAssets", payload);
+      await saveNow("environment.ghg.scope3.upstream.upstreamLeasedAssets", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -204,16 +205,6 @@ export function LeasedAssets({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-    await saveForm({ showToast: false, redirect: false });
-    onNext();
-  };
-
   const handleSubmit = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
@@ -221,8 +212,30 @@ export function LeasedAssets({
       return;
     }
 
-    // Proceed to save and next
-    handleNext();
+    const payload = {
+      // Input fields
+      electricityConsumed,
+      fuelConsumed,
+      floorArea,
+
+      // Files
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS",
+      payload,
+    });
+
+    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
+    onSubmit();
   };
 
   // Handle input changes with automatic error clearing

@@ -14,7 +14,7 @@ import {
   FileCheck,
   ClipboardList,
 } from "lucide-react";
-import { FileMetadata } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -75,7 +75,7 @@ export function DocumentUpload({
   backToDisclosureTopics,
   backToParentSection,
 }: DocumentUploadProps) {
-  // const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -100,18 +100,19 @@ export function DocumentUpload({
   }, [stepIndex]);
 
   // Load existing data
-  //   useEffect(() => {
-  //     const existingData = (state.assessmentData.documentUpload as any);
-  //     if (existingData) {
-  //       // Files
-  //       const loadedFiles: { [key: string]: FileMetadata | null } = {};
-  //       uploadFields.forEach(field => {
-  //         loadedFiles[field.key] = existingData.files?.[field.key] || null;
-  //       });
-  //       setFiles(loadedFiles);
-  //       setAdditionalFields(existingData.additionalFields || []);
-  //     }
-  //   }, [state.assessmentData]);
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.downstream?.processingSoldProducts;
+    if (existingData) {
+      // Files
+      const loadedFiles: { [key: string]: FileMetadata | null } = {};
+      uploadFields.forEach((field) => {
+        loadedFiles[field.key] = existingData.files?.[field.key] || null;
+      });
+      setFiles(loadedFiles);
+      setAdditionalFields(existingData.additionalFields || []);
+    }
+  }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
     // Check if all three required files are uploaded
@@ -174,8 +175,13 @@ export function DocumentUpload({
       })),
     };
 
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_PROCESSING_SOLD",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope3.documentUpload", payload);
+      await saveNow("environment.ghg.scope3.downstream.processingSoldProducts", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -193,24 +199,33 @@ export function DocumentUpload({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
-    await saveForm({ showToast: false, redirect: false });
+
+    const payload = {
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_PROCESSING_SOLD",
+      payload,
+    });
+
     onNext();
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
-    // Proceed to save and next
     handleNext();
   };
 

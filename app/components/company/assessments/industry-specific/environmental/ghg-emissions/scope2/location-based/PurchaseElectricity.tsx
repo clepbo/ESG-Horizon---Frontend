@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
-import { AssessmentData, FileMetadata, useAssessment } from "@/hooks/useAssessment";
+import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -20,6 +20,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface PurchasedElectricityFormProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface PurchasedElectricityFormProps {
   onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -41,6 +43,7 @@ export function PurchasedElectricityForm({
   onBackToHub,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: PurchasedElectricityFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -74,9 +77,7 @@ export function PurchasedElectricityForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData?.electricity as NonNullable<
-      AssessmentData["electricity"]
-    >;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.electricity;
 
     if (existingData) {
       electricityConsumed.setRawValue(existingData.electricityConsumed?.toString() ?? "");
@@ -195,12 +196,12 @@ export function PurchasedElectricityForm({
     };
 
     dispatch({
-      type: "UPDATE_ELECTRICITY",
+      type: "UPDATE_LOCATION_ELECTRICITY",
       payload,
     });
 
     try {
-      await saveNow("environment.ghg.scope2.locationBased.purchasedElectricity", payload);
+      await saveNow("environment.ghg.scope2.locationBased.electricity", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -226,12 +227,25 @@ export function PurchasedElectricityForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_LOCATION_ELECTRICITY",
+      payload: {
+        electricityConsumed: electricityConsumed.rawValue,
+        supplier,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -275,7 +289,8 @@ export function PurchasedElectricityForm({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

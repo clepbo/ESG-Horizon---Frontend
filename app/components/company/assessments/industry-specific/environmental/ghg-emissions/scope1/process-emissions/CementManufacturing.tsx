@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -26,6 +27,7 @@ interface CO2ReleaseProps {
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -34,7 +36,13 @@ const uploadFields = [
   "Kiln operation logs",
 ];
 
-export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: CO2ReleaseProps) {
+export function CementManufacturing({
+  onBack,
+  onNext,
+  stepIndex,
+  totalSteps,
+  breadcrumb,
+}: CO2ReleaseProps) {
   const { state, dispatch } = useAssessment();
 
   // ✅ Integrate the hook
@@ -43,7 +51,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     displayValue: cementQuantityDisplay,
     handleChange: handleCementChange,
     setRawValue: setCementRaw,
-  } = useFormattedNumber("0");
+  } = useFormattedNumber("");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -75,19 +83,23 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.processEmissions?.cementManufacturing;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing;
     if (existingData) {
-      setCementRaw(existingData.cementQuantity?.toString() || "0");
+      setCementRaw(existingData.cementQuantity ? existingData.cementQuantity.toString() : "");
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.processEmissions?.cementManufacturing, setCementRaw]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing,
+    setCementRaw,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
-    return calculateProgress([Number(cementQuantity) > 0, hasFiles]);
+    return calculateProgress([cementQuantity !== "" && Number(cementQuantity) > 0, hasFiles]);
   }, [cementQuantity, files, additionalFields]);
 
   const validateForm = () => {
@@ -95,7 +107,9 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
       cementQuantity?: string;
       files?: string;
     } = {};
-    if (Number(cementQuantity) <= 0) {
+
+    if (!cementQuantity || Number(cementQuantity) <= 0) {
+      // Added !cementQuantity check
       newErrors.cementQuantity = "Please enter a positive quantity of cement produced";
     }
     setErrors(newErrors);
@@ -162,7 +176,7 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     });
 
     try {
-      await saveNow("environment.ghg.processEmissions.cementManufacturing", payload);
+      await saveNow("environment.ghg.scope1.processEmissions.cementManufacturing", payload);
       if (!assessmentId) toast.success("Saved!");
 
       if (isAssignedTask) {
@@ -188,14 +202,6 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
     onNext();
   };
   const handlePrevious = () => {
-    dispatch({
-      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
-      payload: {
-        cementQuantity: Number(cementQuantity),
-        files,
-        additionalFields: additionalFields as FileMetadata[],
-      },
-    });
     onBack();
   };
 
@@ -235,7 +241,8 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"
@@ -303,11 +310,6 @@ export function CementManufacturing({ onBack, onNext, stepIndex, totalSteps }: C
                       setErrors((prev) => ({ ...prev, cementQuantity: undefined }))
                     }
                   />
-                  {errors.cementQuantity && (
-                    <p id="cement-quantity-error" className="text-sm text-red-500">
-                      {errors.cementQuantity}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>

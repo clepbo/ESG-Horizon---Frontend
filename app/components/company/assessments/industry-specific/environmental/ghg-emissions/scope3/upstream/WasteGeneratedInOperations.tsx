@@ -61,7 +61,7 @@ export function WasteGeneratedInOperations({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: WasteGeneratedProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -84,7 +84,7 @@ export function WasteGeneratedInOperations({
     wasteManagementMethod: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-waste-generated");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-waste");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -94,10 +94,11 @@ export function WasteGeneratedInOperations({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.wasteGenerated;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.wasteGeneratedInOperations;
     if (existingData) {
-      const savedMethods = (existingData as any).selectedMethods;
-      const savedOtherValue = (existingData as any).otherMethodValue;
+      const savedMethods = existingData.selectedMethods;
+      const savedOtherValue = existingData.otherMethodValue;
 
       if (savedMethods && Array.isArray(savedMethods)) {
         setSelectedMethods(savedMethods);
@@ -114,7 +115,7 @@ export function WasteGeneratedInOperations({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     const hasWasteWeight = wasteWeight.trim().length > 0;
@@ -207,13 +208,13 @@ export function WasteGeneratedInOperations({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_WASTE_GENERATED",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_WASTE",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.wasteGenerated", payload);
+      await saveNow("environment.ghg.scope3.upstream.wasteGeneratedInOperations", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -231,24 +232,36 @@ export function WasteGeneratedInOperations({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
-    await saveForm({ showToast: false, redirect: false });
+
+    const payload = {
+      wasteWeight,
+      selectedMethods,
+      otherMethodValue: selectedMethods.includes("others") ? otherMethodInput : "",
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_UPSTREAM_WASTE",
+      payload,
+    });
+
     onNext();
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
-    // Proceed to save and next
     handleNext();
   };
 

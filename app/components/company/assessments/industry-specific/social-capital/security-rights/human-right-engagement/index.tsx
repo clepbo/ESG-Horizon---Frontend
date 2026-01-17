@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
@@ -15,6 +15,9 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { TotalsResponse } from "@/services/assessment.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
+import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 
 interface HumanRightEngagementProps {
   onBack: () => void;
@@ -28,12 +31,17 @@ interface HumanRightEngagementProps {
 
 export default function HumanRightEngagement({
   onBack,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
   onSubmit,
 }: HumanRightEngagementProps) {
+  const router = useRouter();
+  const { saveNow, submitGroup } = useAssessmentFlow(
+    "socialCapital.securityRights.humanRightEngagement"
+  );
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -46,18 +54,23 @@ export default function HumanRightEngagement({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
+    hasGrievanceMechanism: "",
     engagementDescription: "",
   });
 
   const { filled, total } = useMemo(() => {
+    const hasGrievanceMechanism = formData.hasGrievanceMechanism !== "";
     const hasDescription = formData.engagementDescription.trim() !== "";
     const hasEvidence = filesAndLinks.length > 0;
 
-    return calculateProgress([hasDescription, hasEvidence]);
-  }, [formData.engagementDescription, filesAndLinks]);
+    return calculateProgress([hasGrievanceMechanism, hasDescription, hasEvidence]);
+  }, [formData.hasGrievanceMechanism, formData.engagementDescription, filesAndLinks]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    if (!formData.hasGrievanceMechanism) {
+      newErrors.hasGrievanceMechanism = "Please select an option.";
+    }
     if (!formData.engagementDescription.trim()) {
       newErrors.engagementDescription = "Description is required.";
     }
@@ -72,42 +85,56 @@ export default function HumanRightEngagement({
     }
   };
 
-  const handleSaveAndContinue = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
-    setShowSaveSuccess(true);
+  const handleSaveAndContinue = async () => {
     setIsSaving(true);
 
     const payload = {
+      hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("DATA TO SAVE:", payload);
-
-    toast.success("Progress saved! You can continue later.");
-    setIsSaving(false);
+    try {
+      await saveNow("socialCapital.securityRights.humanRightEngagement", payload);
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error: any) {
+      console.error(_error);
+      toast.error("Failed to save data", _error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before submitting.");
       return;
     }
 
+    setIsSaving(true);
+
     const payload = {
+      hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("FINAL SUBMISSION:", payload);
-
-    toast.success("Assessment completed successfully!");
-    onSubmit(null);
-    setTimeout(() => onContinueToNextAssessment(), 1500);
+    try {
+      // Save data first
+      await saveNow("socialCapital.securityRights.humanRightEngagement", payload);
+      // Then submit the group
+      await submitGroup();
+      toast.success("Assessment completed successfully!");
+      onSubmit(null);
+    } catch (_error: any) {
+      toast.error("Failed to submit assessment", _error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePrevious = () => {
@@ -143,6 +170,34 @@ export default function HumanRightEngagement({
               totalFields={total}
               isSubmitted={false}
             />
+
+            {/* Third-Party Grievance Mechanism Radio Button */}
+            <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <Label className="text-base font-semibold text-gray-900">
+                Is there a formal Third-Party Grievance Mechanism available to host communities?
+              </Label>
+              <RadioGroup
+                value={formData.hasGrievanceMechanism}
+                onValueChange={(value) => handleInputChange("hasGrievanceMechanism", value)}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="yes" />
+                  <Label htmlFor="yes" className="font-normal cursor-pointer">
+                    Yes
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="no" />
+                  <Label htmlFor="no" className="font-normal cursor-pointer">
+                    No
+                  </Label>
+                </div>
+              </RadioGroup>
+              {errors.hasGrievanceMechanism && (
+                <p className="text-red-600 text-sm mt-2">{errors.hasGrievanceMechanism}</p>
+              )}
+            </div>
 
             {/* Description of Engagement and Due Diligence Practices */}
             <div className="space-y-4">
@@ -249,7 +304,6 @@ export default function HumanRightEngagement({
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Submit
-                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>

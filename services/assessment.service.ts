@@ -86,4 +86,9 @@ export const assessmentService = {
   deleteAssessment: async (assessmentId: number): Promise<void> => {
     await api.delete(`/assessments/${assessmentId}`);
   },
+
+  generateReport: async (assessmentId: number): Promise<{ message: string; data: any }> => {
+    const response = await api.post(`/report/generate/${assessmentId}`);
+    return response;
+  },
 };

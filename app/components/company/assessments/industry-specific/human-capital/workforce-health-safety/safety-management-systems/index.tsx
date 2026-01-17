@@ -13,6 +13,8 @@ import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/router";
 
 interface SafetyManagementSystemProps {
   onBack: () => void;
@@ -26,7 +28,7 @@ interface SafetyManagementSystemProps {
 
 export default function SafetyManagementSystem({
   onBack,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
@@ -37,7 +39,11 @@ export default function SafetyManagementSystem({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { saveNow, submitGroup } = useAssessmentFlow(
+    "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
+  );
   const formRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -70,50 +76,73 @@ export default function SafetyManagementSystem({
     return Object.keys(newErrors).length === 0;
   };
 
+  const payload = {
+    executiveRemunerationLinked: formData.executiveRemunerationLinked,
+    safetyDescription: formData.safetyDescription,
+    filesAndLinks: filesAndLinks,
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
-    setShowSaveSuccess(true);
-    setIsSaving(true);
+    // setShowSaveSuccess(true);
+    // setIsSaving(true);
 
-    const payload = {
-      executiveRemunerationLinked: formData.executiveRemunerationLinked,
-      safetyDescription: formData.safetyDescription,
-      filesAndLinks: filesAndLinks,
-    };
-
-    console.log("DATA TO SAVE:", payload);
-
-    setTimeout(() => {
+    try {
+      await saveNow(
+        "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error: any) {
+      console.error(_error);
+      toast.error("Failed to save data", _error.message);
+    } finally {
       setIsSaving(false);
-      toast.success("Progress saved! You can continue later.");
-    }, 1000);
+    }
+
+    // console.log("DATA TO SAVE:", payload);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
 
-    const payload = {
-      executiveRemunerationLinked: formData.executiveRemunerationLinked,
-      safetyDescription: formData.safetyDescription,
-      filesAndLinks: filesAndLinks,
-    };
+    setIsSaving(true);
+    try {
+      // Save data first
+      await saveNow(
+        "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
+        payload
+      );
+      // Then submit the group
+      await submitGroup();
+      toast.success("Assessment completed successfully!");
+      onSubmit(null);
+    } catch (_error: any) {
+      toast.error("Failed to submit assessment", _error.message);
+    } finally {
+      setIsSaving(false);
+    }
 
-    console.log("FINAL SUBMISSION:", payload);
+    // console.log("FINAL SUBMISSION:", payload);
 
-    toast.success("Assessment completed successfully!");
-    onSubmit(null);
-    setTimeout(() => onContinueToNextAssessment(), 1500);
+    // toast.success("Assessment completed successfully!");
+    // onSubmit(null);
+    // setTimeout(() => onContinueToNextAssessment(), 1500);
   };
 
   const handlePrevious = () => {
@@ -206,7 +235,7 @@ export default function SafetyManagementSystem({
                   placeholder="e.g., We operate under a Safety Management System (SMS) framework aligned with ISO 45001. A key element is our 'Stop Work Authority' program, which empowers all employees and contractors to halt unsafe work without fear of reprisal..."
                   value={formData.safetyDescription}
                   onChange={(e) => handleInputChange("safetyDescription", e.target.value)}
-                  className="min-h-[200px] resize-none border-gray-300"
+                  className="min-h-50 resize-none border-gray-300"
                 />
                 {errors.safetyDescription && (
                   <p className="text-red-600 text-sm mt-2">{errors.safetyDescription}</p>

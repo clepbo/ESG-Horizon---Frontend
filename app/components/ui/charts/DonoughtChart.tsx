@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell } from "recharts";
 import React from "react";
 import { cn } from "@/lib/utils";
 import { CustomButton } from "../reusables/CustomButton";
-import { Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface MiniDonutChartProps {
@@ -53,11 +53,55 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
   );
 }
 
+export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniDonutChartProps) {
+  const data = [{ value: percentage }, { value: 100 - percentage }];
+  return (
+    <div className="flex items-center gap-3 text-center space-y-2">
+      <PieChart width={100} height={100}>
+        <Pie
+          data={data}
+          cx={50}
+          cy={50}
+          innerRadius={30}
+          outerRadius={45}
+          startAngle={90}
+          endAngle={-270}
+          dataKey="value"
+          labelLine={false}
+          label={({ cx, cy }) => (
+            <text
+              x={cx}
+              y={cy}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="text-base font-semibold"
+            >
+              {percentage}%
+            </text>
+          )}
+        >
+          <Cell fill={color} />
+          <Cell fill="#E5E7EB" />
+        </Pie>
+      </PieChart>
+      <div className="text-sm">
+        <p className="font-semibold">{label}</p>
+        <p className="text-gray-600">{value.toLocaleString()} tCO₂e</p>
+      </div>
+    </div>
+  );
+}
 interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
+  isTarget?: boolean;
 }
 
-export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) => {
+export const KpiCard: React.FC<KpiCardProps> = ({
+  title,
+  children,
+  isTarget = false,
+  className,
+}) => {
   const router = useRouter();
   return (
     <div className={cn("w-full rounded-lg bg-white p-6 shadow-sm", className)}>
@@ -72,13 +116,15 @@ export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) 
           >
             Set New Target
           </CustomButton>
-          {/* <CustomButton
-            variant="filled"
-            icon={<Edit />}
-            onClick={() => router.push("/ranking/edit")}
-          >
-            Edit Target
-          </CustomButton> */}
+          {isTarget && (
+            <CustomButton
+              variant="filled"
+              icon={<Edit />}
+              onClick={() => router.push("/kpis/edit")}
+            >
+              Edit Target
+            </CustomButton>
+          )}
         </div>
       </div>
       {children}

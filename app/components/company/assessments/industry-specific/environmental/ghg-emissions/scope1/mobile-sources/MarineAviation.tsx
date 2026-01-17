@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface MarineAviationProps {
   onBack: () => void;
@@ -29,6 +30,7 @@ interface MarineAviationProps {
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -44,6 +46,7 @@ export function MarineAviation({
   stepIndex,
   totalSteps,
   isSubmitted,
+  breadcrumb,
 }: MarineAviationProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -103,15 +106,22 @@ export function MarineAviation({
   };
 
   const [air, setAir] = useState<SourceData[]>(() =>
-    getInitialSources(state.assessmentData.mobileSources?.marineAviation?.air, airOptions)
+    getInitialSources(
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation?.air,
+      airOptions
+    )
   );
 
   const [marine, setMarine] = useState<SourceData[]>(() =>
-    getInitialSources(state.assessmentData.mobileSources?.marineAviation?.marine, marineOptions)
+    getInitialSources(
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation?.marine,
+      marineOptions
+    )
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.mobileSources?.marineAviation;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
     if (existingData) {
       setAir(existingData.air || getInitialSources([], airOptions));
       setMarine(existingData.marine || getInitialSources([], marineOptions));
@@ -120,7 +130,11 @@ export function MarineAviation({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.mobileSources?.marineAviation, airOptions, marineOptions]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation,
+    airOptions,
+    marineOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasAirData = air.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);
@@ -226,6 +240,12 @@ export function MarineAviation({
   const handleSubmit = async () => {
     const assessmentId = state.assessmentId;
 
+    // Get previous steps data from state to ensure it's saved on submission
+    const roadTransport =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.roadTransport;
+    const vehicleEquipment =
+      state.assessmentData.environment?.ghg?.scope1?.mobileSources?.vehicleEquipment;
+
     const progressPercent = computeProgressPercent({
       stepIndex,
       totalSteps,
@@ -247,7 +267,15 @@ export function MarineAviation({
     });
 
     try {
+      // Bulk save all steps in the group before submitting
+      if (roadTransport) {
+        await saveNow("environment.ghg.scope1.mobileSources.roadTransport", roadTransport);
+      }
+      if (vehicleEquipment) {
+        await saveNow("environment.ghg.scope1.mobileSources.vehicleEquipment", vehicleEquipment);
+      }
       await saveNow("environment.ghg.scope1.mobileSources.marineAviation", payload);
+
       const res = await submitGroup();
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
@@ -259,15 +287,6 @@ export function MarineAviation({
   };
 
   const handlePrevious = () => {
-    const payload = {
-      air,
-      marine,
-      files,
-      additionalFields: additionalFields as FileMetadata[],
-    };
-
-    dispatch({ type: "UPDATE_MOBILE_MARINE_AVIATION", payload });
-
     onBack();
   };
 
@@ -314,7 +333,8 @@ export function MarineAviation({
   };
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

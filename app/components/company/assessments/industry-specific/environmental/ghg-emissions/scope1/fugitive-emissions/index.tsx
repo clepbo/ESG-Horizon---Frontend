@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { VentingNaturalGas } from "./VentingNaturalGas";
 import { HFCLeaks } from "./HFCLeaks";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface FugitiveEmissionsFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = ["venting-natural-gas", "hfc-leaks"] as const;
@@ -20,7 +23,9 @@ export function FugitiveEmissionsForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: FugitiveEmissionsFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "venting-natural-gas");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -28,6 +33,16 @@ export function FugitiveEmissionsForm({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
   const isAssignedTask = state.isAssignedTask || false;
+
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Fugitive Emissions", onClick: handleBackToOverview },
+  ];
 
   if (showSuccess) {
     return (
@@ -37,7 +52,8 @@ export function FugitiveEmissionsForm({
         totals={totals ?? undefined}
         nextAssessment="Stationary Sources"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }
@@ -50,6 +66,7 @@ export function FugitiveEmissionsForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Venting Natural Gas" }]}
       />
     );
   }
@@ -73,6 +90,7 @@ export function FugitiveEmissionsForm({
         stepIndex={2}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "HFC Leaks" }]}
       />
     );
   }

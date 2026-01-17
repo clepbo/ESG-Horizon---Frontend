@@ -10,18 +10,22 @@ import { uploadService } from "@/services/upload.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "../../../environmental/water-management/components/ReusableInput";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useRouter } from "next/router";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
-interface ContractEmployeesFormProps {
+interface EmployeeFormProps {
+  employeeType: "direct" | "contract";
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   onProgressChange: (progress: { filled: number; total: number }) => void;
 }
 
-export default function ContractEmployeesForm({
+export default function EmployeeForm({
+  employeeType,
   onBack,
   onContinueToNextAssessment,
   onProgressChange,
-}: ContractEmployeesFormProps) {
+}: EmployeeFormProps) {
   const totalHoursWorked = useFormattedNumber("");
   const recordableIncidents = useFormattedNumber("");
   const fatalities = useFormattedNumber("");
@@ -40,6 +44,11 @@ export default function ContractEmployeesForm({
     nearMissesUnit: "Near Misses",
     safetyTrainingHoursUnit: "Hours",
   });
+
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow(
+    "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
+  );
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -92,53 +101,77 @@ export default function ContractEmployeesForm({
   useEffect(() => {
     onProgressChange({ filled, total });
   }, [filled, total, onProgressChange]);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveAndContinue = () => {
+  const payload = {
+    employeeType,
+    totalHoursWorked: Number(totalHoursWorked.rawValue),
+    totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
+    recordableIncidents: Number(recordableIncidents.rawValue),
+    recordableIncidentsUnit: formData.recordableIncidentsUnit,
+    fatalities: Number(fatalities.rawValue),
+    fatalitiesUnit: formData.fatalitiesUnit,
+    nearMisses: Number(nearMisses.rawValue),
+    nearMissesUnit: formData.nearMissesUnit,
+    safetyTrainingHours: Number(safetyTrainingHours.rawValue),
+    safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
+    filesAndLinks: filesAndLinks,
+  };
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
-    setShowSaveSuccess(true);
+    // setShowSaveSuccess(true);
     setIsSaving(true);
 
-    const payload = {
-      totalHoursWorked: Number(totalHoursWorked.rawValue),
-      totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
-
-      recordableIncidents: Number(recordableIncidents.rawValue),
-      recordableIncidentsUnit: formData.recordableIncidentsUnit,
-
-      fatalities: Number(fatalities.rawValue),
-      fatalitiesUnit: formData.fatalitiesUnit,
-
-      nearMisses: Number(nearMisses.rawValue),
-      nearMissesUnit: formData.nearMissesUnit,
-
-      safetyTrainingHours: Number(safetyTrainingHours.rawValue),
-      safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
-
-      filesAndLinks: filesAndLinks,
-    };
-
-    console.log("CONTRACT EMPLOYEES DATA:", payload);
-    toast.success("Data saved successfully.");
-
-    setTimeout(() => {
+    try {
+      await saveNow(
+        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    } finally {
       setIsSaving(false);
-      setShowSaveSuccess(false);
-    }, 2000);
+    }
+
+    // console.log(`${employeeType.toUpperCase()} EMPLOYEES DATA:`, payload);
+    // toast.success("Data saved successfully.");
+
+    // setTimeout(() => {
+    //   setIsSaving(false);
+    //   setShowSaveSuccess(false);
+    // }, 2000);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
-    toast.success("Moved to next section");
-    onContinueToNextAssessment();
+    try {
+      await saveNow(
+        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        payload
+      );
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    }
+    // toast.success("Moved to next section");
+    // onContinueToNextAssessment();
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
@@ -169,6 +202,7 @@ export default function ContractEmployeesForm({
         error={errors.totalHoursWorked}
         formatNumbers={false}
         placeholder="e.g., 8,900,000"
+        customUnit={formData.totalHoursWorkedUnit}
       />
 
       {/* Number of Recordable Incidents */}
@@ -188,6 +222,7 @@ export default function ContractEmployeesForm({
         error={errors.recordableIncidents}
         formatNumbers={false}
         placeholder="e.g., 20"
+        customUnit={formData.recordableIncidentsUnit}
       />
 
       {/* Number of Fatalities */}
@@ -207,6 +242,7 @@ export default function ContractEmployeesForm({
         error={errors.fatalities}
         formatNumbers={false}
         placeholder="e.g., 1"
+        customUnit={formData.fatalitiesUnit}
       />
 
       {/* Number of Near Misses */}
@@ -226,13 +262,14 @@ export default function ContractEmployeesForm({
         error={errors.nearMisses}
         formatNumbers={false}
         placeholder="e.g., 1"
+        customUnit={formData.nearMissesUnit}
       />
 
       {/* Average Hours of Safety Training per Employee */}
       <ReusableInput
         label="Average Hours of Safety Training per Employee"
         tooltipTitle="Average Hours of Safety Training per Employee"
-        tooltipBody="Report the average number of hours each employee spent on health and safety training during the reporting period. This metric reflects your company’s investment in preventive safety practices and workforce competence."
+        tooltipBody="Report the average number of hours each employee spent on health and safety training during the reporting period. This metric reflects your company's investment in preventive safety practices and workforce competence."
         inputValue={safetyTrainingHours.displayValue}
         unitValue={formData.safetyTrainingHoursUnit}
         onInputChange={(num) => {
@@ -245,6 +282,7 @@ export default function ContractEmployeesForm({
         error={errors.safetyTrainingHours}
         formatNumbers={false}
         placeholder="e.g., 1"
+        customUnit={formData.safetyTrainingHoursUnit}
       />
 
       {/* Document/Evidence Upload */}

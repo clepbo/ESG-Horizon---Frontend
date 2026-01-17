@@ -30,7 +30,7 @@ import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
-import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
+import { useDeleteAssessment, useGenerateReport } from "@/services/hooks/assessment.hooks";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -48,6 +48,7 @@ export interface Assessment {
   status: AssessmentStatus;
   rejection_reason?: string;
   progress?: number;
+  lastUpdated?: string | Date;
 }
 
 interface AssessmentTableProps {
@@ -130,7 +131,10 @@ function ActionDropdown({
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuItem onClick={onContinue}>
+        <DropdownMenuItem
+          onClick={onContinue}
+          disabled={status === "approved" || status === "submitted_approved"}
+        >
           {getActionIcon("Continue")}
           Continue
         </DropdownMenuItem>
@@ -180,6 +184,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   >();
 
   const deleteMutation = useDeleteAssessment();
+  const generateReportMutation = useGenerateReport();
 
   const filteredData = dateRange
     ? data.filter((a) => {
@@ -234,13 +239,17 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   };
 
   const handleGenerateReport = (id: number) => {
-    const assessment = data.find((a) => a.id === id);
-    if (assessment) {
-      setSelectedAssessment(assessment);
-    }
-    setTimeout(() => {
-      setShowReportSuccess(true);
-    }, 500);
+    generateReportMutation.mutate(id, {
+      onSuccess: () => {
+        const assessment = data.find((a) => a.id === id);
+        if (assessment) {
+          setSelectedAssessment(assessment);
+        }
+        setTimeout(() => {
+          setShowReportSuccess(true);
+        }, 500);
+      },
+    });
   };
 
   const handleContinue = (assessment: Assessment) => {
@@ -262,6 +271,33 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
     columnHelper.accessor("startPeriod", { header: "Starting Period" }),
     columnHelper.accessor("endPeriod", { header: "Ending Period" }),
     columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
+    columnHelper.accessor("lastUpdated", {
+      header: "Last Updated",
+      cell: (info) => {
+        const dateValue = info.getValue();
+        if (!dateValue) return "—";
+        try {
+          const date = new Date(dateValue);
+          const dateStr = date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+          const timeStr = date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          return (
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-800">{dateStr}</span>
+              <span className="text-[10px] text-gray-500 leading-tight">{timeStr}</span>
+            </div>
+          );
+        } catch (e) {
+          return "—";
+        }
+      },
+    }),
 
     columnHelper.display({
       id: "progress",

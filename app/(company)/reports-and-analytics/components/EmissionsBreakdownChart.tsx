@@ -29,10 +29,15 @@ export function EmissionsBreakdownChart() {
 
     const parts: { name: string; value: number; color: string }[] = [];
 
+    const env = assessmentData.environment;
+    const ghg = env?.ghg;
+    const scope1 = ghg?.scope1;
+    const scope2 = ghg?.scope2;
+    const locationBased = scope2?.locationBased;
+
     // Scope 1 Emissions
-    if (assessmentData.stationarySources) {
-      const { electricityHeat, industrialProcesses, oilGasOperations } =
-        assessmentData.stationarySources;
+    if (scope1?.stationarySources) {
+      const { electricityHeat, industrialProcesses, oilGasOperations } = scope1.stationarySources;
 
       const stationaryTotal =
         calculateSourceEmissions(electricityHeat?.dieselGenerators) +
@@ -49,8 +54,8 @@ export function EmissionsBreakdownChart() {
       }
     }
 
-    if (assessmentData.mobileSources) {
-      const { roadTransport, vehicleEquipment, marineAviation } = assessmentData.mobileSources;
+    if (scope1?.mobileSources) {
+      const { roadTransport, vehicleEquipment, marineAviation } = scope1.mobileSources;
 
       const mobileTotal =
         calculateSourceEmissions(roadTransport?.vehicleFleet) +
@@ -70,8 +75,8 @@ export function EmissionsBreakdownChart() {
       }
     }
 
-    if (assessmentData.processEmissions) {
-      const { cementManufacturing, gasFlaring } = assessmentData.processEmissions;
+    if (scope1?.processEmissions) {
+      const { cementManufacturing, gasFlaring } = scope1.processEmissions;
 
       const cementEmissions = toNumber(cementManufacturing?.cementQuantity) * 0.44; // Example factor
       if (cementEmissions > 0) {
@@ -93,8 +98,8 @@ export function EmissionsBreakdownChart() {
       }
     }
 
-    if (assessmentData.fugitiveEmissions) {
-      const { ventingNaturalGas, hfcLeaks } = assessmentData.fugitiveEmissions;
+    if (scope1?.fugitiveEmissions) {
+      const { ventingNaturalGas, hfcLeaks } = scope1.fugitiveEmissions;
 
       const ventingEmissions = toNumber(ventingNaturalGas?.volumeOfGasVented) * 0.002; // Example factor
       if (ventingEmissions > 0) {
@@ -117,7 +122,7 @@ export function EmissionsBreakdownChart() {
     }
 
     // Scope 2 Emissions
-    const electricityEmissions = toNumber(assessmentData.electricity?.electricityConsumed) * 0.35; // Example factor
+    const electricityEmissions = toNumber(locationBased?.electricity?.electricityConsumed) * 0.35; // Example factor
     if (electricityEmissions > 0) {
       parts.push({
         name: "Scope 2 - Electricity",
@@ -126,7 +131,7 @@ export function EmissionsBreakdownChart() {
       });
     }
 
-    const coolingEmissions = toNumber(assessmentData.cooling?.coolingConsumed) * 0.1; // Example factor
+    const coolingEmissions = toNumber(locationBased?.cooling?.coolingConsumed) * 0.1; // Example factor
     if (coolingEmissions > 0) {
       parts.push({
         name: "Scope 2 - Cooling",

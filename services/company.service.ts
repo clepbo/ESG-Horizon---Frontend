@@ -99,4 +99,9 @@ export const companyService = {
     const data = await api.post("/company-setup/bulk-create", payload);
     return data;
   },
+
+  getOnboardingProgress: async () => {
+    const data = await api.get("/company/esg/onboarding-progress");
+    return data.data;
+  },
 };

@@ -17,14 +17,6 @@ export default function Header({ showSearchBar = true }: { showSearchBar?: boole
     return task.assignedUserIds && task.assignedUserIds.includes(user?.id || 0);
   });
 
-  console.log("Header: task filtering", {
-    userId: user?.id,
-    allTasksCount: allTasks.length,
-    myTasksCount: myTasks.length,
-    allTasks,
-    myTasks,
-  });
-
   const avatarSrc =
     user?.profile_photo_url && user.profile_photo_url.trim() !== ""
       ? user.profile_photo_url

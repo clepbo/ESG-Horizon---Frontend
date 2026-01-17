@@ -16,6 +16,7 @@ import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
@@ -48,7 +49,7 @@ export function DownstreamLeasedAsset({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: DownstreamLeasedAssetProps) {
-  //   const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -79,20 +80,21 @@ export function DownstreamLeasedAsset({
   }, [stepIndex]);
 
   // Load existing data
-  //   useEffect(() => {
-  //     const existingData = (state.assessmentData.downstreamLeasedAssets as any);
-  //     if (existingData) {
-  //       // Input fields
-  //       setElectricityConsumed(existingData.electricityConsumed || "");
-  //       setOtherEnergyConsumed(existingData.otherEnergyConsumed || "");
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.downstream?.downstreamLeasedAssets;
+    if (existingData) {
+      // Input fields
+      setElectricityConsumed(existingData.electricityConsumed || "");
+      setOtherEnergyConsumed(existingData.otherEnergyConsumed || "");
 
-  //       // Files
-  //       setFiles(
-  //         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
-  //       );
-  //       setAdditionalFields(existingData.additionalFields || []);
-  //     }
-  //   }, [state.assessmentData]);
+      // Files
+      setFiles(
+        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
+      setAdditionalFields(existingData.additionalFields || []);
+    }
+  }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -162,8 +164,13 @@ export function DownstreamLeasedAsset({
       })),
     };
 
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_LEASED_ASSETS",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope3.downstreamLeasedAssets", payload);
+      await saveNow("environment.ghg.scope3.downstream.downstreamLeasedAssets", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -181,24 +188,38 @@ export function DownstreamLeasedAsset({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
-    await saveForm({ showToast: false, redirect: false });
+
+    const payload = {
+      // Input fields
+      electricityConsumed,
+      otherEnergyConsumed,
+
+      // Files
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_LEASED_ASSETS",
+      payload,
+    });
+
     onNext();
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
-    // Proceed to save and next
     handleNext();
   };
 

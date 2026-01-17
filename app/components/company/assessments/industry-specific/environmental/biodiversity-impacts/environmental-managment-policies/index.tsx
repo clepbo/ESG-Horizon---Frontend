@@ -15,6 +15,9 @@ import { calculateProgress } from "@/lib/utils";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface EnvironmentalManagementPoliciesProps {
   onBack: () => void;
@@ -32,9 +35,14 @@ export default function EnvironmentalManagementPolicies({
   totalSteps,
   breadcrumb,
 }: EnvironmentalManagementPoliciesProps) {
+  const router = useRouter();
+  const { state, dispatch } = useAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
+    "environmental-management-policies"
+  );
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -47,6 +55,22 @@ export default function EnvironmentalManagementPolicies({
     isISO14001Certified: "",
     policiesDescription: "",
   });
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+        ?.environmentalManagementPolicies;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData({
+        isISO14001Certified: existingData.isISO14001Certified ? "yes" : "no",
+        policiesDescription: existingData.policiesDescription || "",
+      });
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+  }, [
+    state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+      ?.environmentalManagementPolicies,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasISO = formData.isISO14001Certified !== "";
@@ -75,14 +99,11 @@ export default function EnvironmentalManagementPolicies({
     }
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
-
-    setShowSaveSuccess(true);
-    setIsSaving(true);
 
     const payload = {
       isISO14001Certified: formData.isISO14001Certified === "yes",
@@ -90,24 +111,41 @@ export default function EnvironmentalManagementPolicies({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("DATA TO SAVE:", payload);
+    dispatch({ type: "UPDATE_BIODIVERSITY_POLICIES", payload });
 
-    toast.success("Progress saved! You can continue later.");
-    setIsSaving(false);
+    try {
+      await saveNow(
+        "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments/new-assessment");
+      }, 1500);
+    } catch {
+      // toast.error is already handled in useAssessmentFlow
+    }
   };
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before continuing.");
       return;
     }
 
-    toast.success("Moved to next section");
+    const payload = {
+      isISO14001Certified: formData.isISO14001Certified === "yes",
+      policiesDescription: formData.policiesDescription,
+      filesAndLinks: filesAndLinks,
+    };
+
+    dispatch({ type: "UPDATE_BIODIVERSITY_POLICIES", payload });
     onContinueToNextAssessment();
   };
 
   const handlePrevious = () => {
-    toast.info("Returning to previous section");
     onBack();
   };
 
@@ -242,10 +280,10 @@ export default function EnvironmentalManagementPolicies({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -266,7 +304,7 @@ export default function EnvironmentalManagementPolicies({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next

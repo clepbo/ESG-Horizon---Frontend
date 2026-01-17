@@ -15,24 +15,35 @@ const nextConfig: NextConfig = {
   // Development optimizations
   experimental: {
     optimizePackageImports: ["lucide-react", "recharts", "highcharts-react-official"],
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
+  },
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
       },
     },
   },
-
-  // Faster builds
-  swcMinify: true,
 
   images: {
     loader: "custom",
     loaderFile: "./image-loader.ts",
     formats: ["image/avif", "image/webp"], // Modern formats (so our guy can bundle image better)
     minimumCacheTTL: 60,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 
   webpack(config, { isServer, dev }) {

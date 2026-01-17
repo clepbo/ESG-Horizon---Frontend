@@ -13,7 +13,10 @@ import { calculateProgress } from "@/lib/utils";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
+import { useRouter } from "next/navigation";
 import { Input } from "@/app/components/ui/input";
 
 interface HydrocarbonSpillsProps {
@@ -31,18 +34,39 @@ export default function HydrocarbonSpills({
   totalSteps,
   breadcrumb,
 }: HydrocarbonSpillsProps) {
+  const router = useRouter();
   const numberOfSpills = useFormattedNumber("");
   const totalVolumeSpilled = useFormattedNumber("");
   const volumeRecovered = useFormattedNumber("");
   const volumeInArctic = useFormattedNumber("");
   const volumeImpactingShorelines = useFormattedNumber("");
 
+  const { state, dispatch } = useAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("hydrocarbon-spills");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+        ?.hydrocarbonSpills;
+    if (existingData && Object.keys(existingData).length > 0) {
+      numberOfSpills.handleChange(String(existingData.numberOfSpills || ""));
+      totalVolumeSpilled.handleChange(String(existingData.totalVolumeSpilled || ""));
+      volumeRecovered.handleChange(String(existingData.volumeRecovered || ""));
+      volumeInArctic.handleChange(String(existingData.volumeInArctic || ""));
+      volumeImpactingShorelines.handleChange(String(existingData.volumeImpactingShorelines || ""));
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+      ?.hydrocarbonSpills,
+  ]);
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -96,13 +120,39 @@ export default function HydrocarbonSpills({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
+    const payload = {
+      numberOfSpills: Number(numberOfSpills.rawValue),
+      totalVolumeSpilled: Number(totalVolumeSpilled.rawValue),
+      volumeRecovered: Number(volumeRecovered.rawValue),
+      volumeInArctic: Number(volumeInArctic.rawValue),
+      volumeImpactingShorelines: Number(volumeImpactingShorelines.rawValue),
+      filesAndLinks: filesAndLinks,
+    };
+
+    dispatch({ type: "UPDATE_BIODIVERSITY_SPILLS", payload });
+
+    try {
+      await saveNow(
+        "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments/new-assessment");
+      }, 1500);
+    } catch {
+      // toast.error is already handled in useAssessmentFlow
+    }
+  };
+
+  const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before continuing.");
       return;
     }
-    setShowSaveSuccess(true);
-    setIsSaving(true);
 
     const payload = {
       numberOfSpills: Number(numberOfSpills.rawValue),
@@ -112,22 +162,12 @@ export default function HydrocarbonSpills({
       volumeImpactingShorelines: Number(volumeImpactingShorelines.rawValue),
       filesAndLinks: filesAndLinks,
     };
-    console.log("DATA TO SAVE:", payload);
-    toast.success("Logged to console");
-    setIsSaving(false);
-  };
 
-  const handleNext = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-    toast.success("Moved to next section");
+    dispatch({ type: "UPDATE_BIODIVERSITY_SPILLS", payload });
     onContinueToNextAssessment();
   };
 
   const handlePrevious = () => {
-    toast.info("Returning to previous section");
     onBack();
   };
 
@@ -456,10 +496,10 @@ export default function HydrocarbonSpills({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -480,7 +520,7 @@ export default function HydrocarbonSpills({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next

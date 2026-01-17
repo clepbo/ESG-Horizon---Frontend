@@ -20,6 +20,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface ElectricityEACFormProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface ElectricityEACFormProps {
   onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -41,6 +43,7 @@ export function ElectricityEACForm({
   onBackToHub,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: ElectricityEACFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -90,7 +93,7 @@ export function ElectricityEACForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.eac;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.eac;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.gridElectricity) {
@@ -192,12 +195,12 @@ export function ElectricityEACForm({
     };
 
     dispatch({
-      type: "UPDATE_EAC",
+      type: "UPDATE_MARKET_EAC",
       payload,
     });
 
     try {
-      await saveNow("environment.ghg.scope2.marketBased.electricityEac", payload);
+      await saveNow("environment.ghg.scope2.marketBased.eac", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -224,12 +227,25 @@ export function ElectricityEACForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_MARKET_EAC",
+      payload: {
+        gridElectricity: gridElectricityRaw,
+        emissionFactor: emissionFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -275,7 +291,8 @@ export function ElectricityEACForm({
   };
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         {/* Header */}
         <div className="flex items-center gap-6 mb-4">
           <Button

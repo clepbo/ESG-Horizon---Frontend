@@ -16,6 +16,8 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { UnitSelect } from "../../../../UnitSelect";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface ReservesAreaConflictProps {
   onBack: () => void;
@@ -32,6 +34,9 @@ export default function ReservesAreaConflict({
   totalSteps,
   breadcrumb,
 }: ReservesAreaConflictProps) {
+  const router = useRouter();
+  const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesAreaConflict");
+
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedReservesInConflictVolume = useFormattedNumber("");
   const probableReservesInConflictVolume = useFormattedNumber("");
@@ -117,39 +122,58 @@ export default function ReservesAreaConflict({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveAndContinue = () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-    setShowSaveSuccess(true);
+  const handleSaveAndContinue = async () => {
     setIsSaving(true);
 
     const payload = {
       totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
       totalProvedReservesUnit: formData.totalProvedReservesUnit,
-
       provedReservesInConflictVolume: Number(provedReservesInConflictVolume.rawValue),
       provedReservesInConflictUnit: formData.provedReservesInConflictUnit,
-
       probableReservesInConflictVolume: Number(probableReservesInConflictVolume.rawValue),
       probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
-
       filesAndLinks: filesAndLinks,
     };
-    console.log("DATA TO SAVE:", payload);
 
-    toast.success("Data logged to console.");
-    setIsSaving(false);
+    try {
+      await saveNow("socialCapital.securityRights.reservesAreaConflict", payload);
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully!");
+      setTimeout(() => {
+        router.push("/assessments/new-assessment");
+      }, 1000);
+    } catch (_error) {
+      console.log(_error);
+      toast.error("Failed to save data");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before proceeding.");
       return;
     }
-    toast.success("Moved to next section");
-    onContinueToNextAssessment();
+
+    const payload = {
+      totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
+      totalProvedReservesUnit: formData.totalProvedReservesUnit,
+      provedReservesInConflictVolume: Number(provedReservesInConflictVolume.rawValue),
+      provedReservesInConflictUnit: formData.provedReservesInConflictUnit,
+      probableReservesInConflictVolume: Number(probableReservesInConflictVolume.rawValue),
+      probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
+      filesAndLinks: filesAndLinks,
+    };
+
+    try {
+      await saveNow("socialCapital.securityRights.reservesAreaConflict", payload);
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to save data");
+    }
   };
 
   const handlePrevious = () => {

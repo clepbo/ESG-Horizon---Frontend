@@ -1,5 +1,4 @@
-// hooks/useAssessmentFlow.ts — FINAL, NO MORE ERRORS, WORKS FIRST CLICK
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assessmentService } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { toast } from "react-toastify";
@@ -7,6 +6,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 export const useAssessmentFlow = (currentFormKey: string) => {
   const { state, dispatch } = useAssessment();
+  const queryClient = useQueryClient();
 
   const createMut = useMutation({
     mutationFn: assessmentService.createAssessment,
@@ -18,6 +18,9 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   const saveMut = useMutation({
     mutationFn: ({ path, data, assessmentId }: { path: string; data: any; assessmentId: number }) =>
       assessmentService.saveProgress(assessmentId, path, data, currentFormKey),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assessment", state.assessmentId] });
+    },
   });
 
   const autoSave = useDebouncedCallback((path: string, data: any) => {
@@ -48,30 +51,30 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   const saveNow = async (path: string, data: any) => {
     try {
       await ensureIdAndSave(path, data);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to save data. Please try again.";
+      toast.error(msg);
       throw err;
     }
   };
+
   const submitMut = useMutation({
     mutationFn: () => assessmentService.submitGroup(state.assessmentId!, currentFormKey),
     onSuccess: () => {
-      // toast.success("Assessment Submitted!")
+      queryClient.invalidateQueries({ queryKey: ["assessment", state.assessmentId] });
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
     },
   });
 
   const submitGroup = async () => {
-    const response = await submitMut.mutateAsync();
-    toast.success(
-      `${
-        currentFormKey
-          .split("-")
-          .pop()
-          ?.replace(/([A-Z])/g, " $1")
-          .trim() || "Assessment"
-      } submitted successfully`
-    );
-    return response;
+    try {
+      const response = await submitMut.mutateAsync();
+      return response;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Failed to submit assessment. Please try again.";
+      toast.error(msg);
+      throw err;
+    }
   };
 
   const isAssignedTask = state.isAssignedTask || false;

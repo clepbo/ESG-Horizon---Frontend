@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PurchasedElectricityForm } from "./PurchaseElectricity";
 import { PurchasedCoolingForm } from "./PurchasedCooling";
 import { PurchasedSteamForm } from "./PurchasedSteam";
@@ -8,11 +9,13 @@ import { PurchasedHeatingForm } from "./PurchasedHeating";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface LocationBasedFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = [
@@ -27,7 +30,9 @@ export function LocationBasedForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: LocationBasedFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -35,6 +40,16 @@ export function LocationBasedForm({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
   const isAssignedTask = state.isAssignedTask || false;
+
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Scope 2 - Location Based", onClick: handleBackToOverview },
+  ];
 
   if (showSuccess) {
     return (
@@ -44,7 +59,8 @@ export function LocationBasedForm({
         totals={totals ?? undefined}
         nextAssessment="Market Based"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }
@@ -57,6 +73,7 @@ export function LocationBasedForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Electricity" }]}
       />
     );
   }
@@ -69,6 +86,7 @@ export function LocationBasedForm({
         onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Cooling" }]}
       />
     );
   }
@@ -81,6 +99,7 @@ export function LocationBasedForm({
         onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Steam" }]}
       />
     );
   }
@@ -104,6 +123,7 @@ export function LocationBasedForm({
         stepIndex={4}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Heating" }]}
       />
     );
   }

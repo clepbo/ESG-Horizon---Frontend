@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
-
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 interface OilGasOperationsProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -29,6 +29,7 @@ interface OilGasOperationsProps {
   stepIndex: number;
   totalSteps: number;
   isSubmitted: boolean;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -44,6 +45,7 @@ export function OilGasOperations({
   stepIndex,
   totalSteps,
   isSubmitted,
+  breadcrumb,
 }: OilGasOperationsProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -93,7 +95,8 @@ export function OilGasOperations({
   );
 
   useEffect(() => {
-    const existingData = state.assessmentData.stationarySources?.oilGasOperations;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
     if (existingData) {
       setOnShoreProduction(
         existingData.onShoreProduction || getInitialSources([], onShoreProductionOptions)
@@ -103,7 +106,10 @@ export function OilGasOperations({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData.stationarySources?.oilGasOperations, onShoreProductionOptions]);
+  }, [
+    state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations,
+    onShoreProductionOptions,
+  ]);
 
   const { filled, total } = useMemo(() => {
     const hasOnShoreProductionData = onShoreProduction.some(
@@ -217,20 +223,13 @@ export function OilGasOperations({
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
-    try {
-      const response = await submitGroup();
-      const groupTotal =
-        response?.assessment?.assessmentData?.environment?.ghg?.scope1?.stationarySources
-          ?.totalEmission || 0;
-      onSubmit(groupTotal);
-    } catch (err) {
-      toast.error("Submission failed");
-      console.error("Submission failed:", err);
-    }
-  };
 
-  const handlePrevious = () => {
+    // Get previous steps data from state to ensure it's saved on submission
+    const electricityHeat =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.electricityHeat;
+    const industrialProcesses =
+      state.assessmentData.environment?.ghg?.scope1?.stationarySources?.industrialProcesses;
+
     const payload = {
       onShoreProduction,
       additionalFields: normalizeFiles(additionalFields),
@@ -242,6 +241,28 @@ export function OilGasOperations({
       payload,
     });
 
+    try {
+      // Bulk save all steps in the group before submitting
+      if (electricityHeat) {
+        await saveNow("environment.ghg.scope1.stationarySources.electricityHeat", electricityHeat);
+      }
+      if (industrialProcesses) {
+        await saveNow(
+          "environment.ghg.scope1.stationarySources.industrialProcesses",
+          industrialProcesses
+        );
+      }
+      await saveNow("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
+
+      const response = await submitGroup();
+      onSubmit(response?.totals ?? null);
+    } catch (err) {
+      toast.error("Submission failed");
+      console.error("Submission failed:", err);
+    }
+  };
+
+  const handlePrevious = () => {
     onBack();
   };
 
@@ -284,7 +305,8 @@ export function OilGasOperations({
   };
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

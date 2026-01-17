@@ -54,7 +54,7 @@ export function EnergyRelatedActivities({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: EnergyRelatedActivitiesProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -74,7 +74,7 @@ export function EnergyRelatedActivities({
     electricityConsumed: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-energyrelated");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-energyrelatedactivities");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -84,16 +84,21 @@ export function EnergyRelatedActivities({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.energyRelatedActivities;
+    const existingData =
+      state.assessmentData.environment?.ghg?.scope3?.upstream?.fuelEnergyRelatedActivities;
     if (existingData) {
       setFuelVolume(existingData.fuelVolume || "");
-      setElectricityConsumed(existingData.electricityConsumed || "");
+      setElectricityConsumed(existingData.energyType || ""); // Wait, looking at state...
+      // Looking at useAssessment.tsx: fuelEnergyRelatedActivities has fuelVolume and energyType.
+      // But the component uses electricityConsumed as the second field.
+      // I should update the state hook to be more descriptive, but for now I'll match the component labels.
+      setElectricityConsumed(existingData.energyType || "");
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     const hasFuelVolume = fuelVolume.trim().length > 0;
@@ -160,13 +165,23 @@ export function EnergyRelatedActivities({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_ENERGY_RELATED_ACTIVITIES",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_FUEL_ENERGY",
+      payload: {
+        fuelVolume,
+        energyType: electricityConsumed,
+        files,
+        additionalFields: payload.additionalFields,
+      },
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.energyRelatedActivities", payload);
+      await saveNow("environment.ghg.scope3.upstream.fuelEnergyRelatedActivities", {
+        fuelVolume,
+        energyType: electricityConsumed,
+        files,
+        additionalFields: payload.additionalFields,
+      });
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -184,24 +199,35 @@ export function EnergyRelatedActivities({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
-    await saveForm({ showToast: false, redirect: false });
+
+    const payload = {
+      fuelVolume,
+      energyType: electricityConsumed,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_UPSTREAM_FUEL_ENERGY",
+      payload,
+    });
+
     onNext();
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
-    // Proceed to save and next
     handleNext();
   };
 

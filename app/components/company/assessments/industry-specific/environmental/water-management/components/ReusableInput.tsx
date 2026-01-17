@@ -3,7 +3,7 @@ import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { UnitSelect } from "../../../../UnitSelect";
+import { UnitSelect, UnitContext } from "../../../../UnitSelect";
 
 interface ReusableInputProps {
   label: string;
@@ -26,6 +26,7 @@ interface ReusableInputProps {
   className?: string;
   formatNumbers?: boolean; // when true, format on blur with commas
   customUnit?: string; // NEW: if provided, display as read-only text instead of UnitSelect
+  context?: UnitContext; // NEW: context for unit dropdown
 }
 
 export default function ReusableInput({
@@ -44,6 +45,7 @@ export default function ReusableInput({
   className = "",
   formatNumbers = false,
   customUnit, // NEW: optional custom unit
+  context = "water", // Default to water context
 }: ReusableInputProps) {
   const [displayValue, setDisplayValue] = useState<string>(inputValue ?? "");
 
@@ -127,11 +129,7 @@ export default function ReusableInput({
         </Tooltip>
       </div>
 
-      <div
-        className={`grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border ${
-          error || unitError ? "border-red-300" : "border-gray-200"
-        } transition-colors`}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200 transition-colors">
         {/* Volume Input */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
@@ -168,10 +166,13 @@ export default function ReusableInput({
               {customUnit}
             </div>
           ) : (
-            // Default UnitSelect component
-            <>
-              <UnitSelect value={unitValue} onValueChange={handleUnitChange} error={unitError} />
-            </>
+            // Default UnitSelect component with context
+            <UnitSelect
+              value={unitValue}
+              onValueChange={handleUnitChange}
+              error={unitError}
+              context={context}
+            />
           )}
         </div>
       </div>

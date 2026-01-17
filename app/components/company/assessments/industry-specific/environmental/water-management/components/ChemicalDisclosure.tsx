@@ -11,8 +11,11 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { useRouter } from "next/navigation";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "./ReusableInput";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
@@ -36,14 +39,18 @@ export default function ChemicalDisclosure({
   backToDisclosureTopic,
   backToWaterWasteManagement,
 }: ChemicalDisclosureProps) {
+  const router = useRouter();
+  const totalNumberOfFracturedWells = useFormattedNumber("");
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
-  const volumeRecycledReused = useFormattedNumber("");
+
+  const { state, dispatch } = useAssessment();
+  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("chemical-disclosure");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [operatesFrackedWells, setOperatesFrackedWells] = useState<string>("");
+  const [operatesHydraulicFracturingWells, setOperatesHydraulicFracturingWells] =
+    useState<string>("");
 
   const features = [
     {
@@ -70,110 +77,157 @@ export default function ChemicalDisclosure({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    numberOfWellsWithPublicDisclosureUnit: "",
-    volumeRecycledReusedUnit: "",
+    totalNumberOfFracturedWellsUnit: "Wells",
+    numberOfWellsWithPublicDisclosureUnit: "Wells",
   });
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
+        ?.chemicalDisclosure;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setOperatesHydraulicFracturingWells(existingData.operatesHydraulicFracturingWells || "");
+      if (existingData.operatesHydraulicFracturingWells === "yes") {
+        totalNumberOfFracturedWells.handleChange(
+          String(existingData.totalNumberOfFracturedWells || "")
+        );
+        numberOfWellsWithPublicDisclosure.handleChange(
+          String(existingData.numberOfWellsWithPublicDisclosure || "")
+        );
+        setFormData({
+          totalNumberOfFracturedWellsUnit: existingData.totalNumberOfFracturedWellsUnit || "Wells",
+          numberOfWellsWithPublicDisclosureUnit:
+            existingData.numberOfWellsWithPublicDisclosureUnit || "Wells",
+        });
+      }
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+  }, [
+    state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
+      ?.chemicalDisclosure,
+    numberOfWellsWithPublicDisclosure,
+    totalNumberOfFracturedWells,
+  ]);
+
+  const { filled, total } = useMemo(() => {
+    const hasRadioSelection = operatesHydraulicFracturingWells !== "";
+
+    let hasAdditionalFields = false;
+    if (operatesHydraulicFracturingWells === "yes") {
+      const hasTotalWells =
+        totalNumberOfFracturedWells.rawValue !== "" &&
+        formData.totalNumberOfFracturedWellsUnit !== "";
+      const hasDisclosureWells =
+        numberOfWellsWithPublicDisclosure.rawValue !== "" &&
+        formData.numberOfWellsWithPublicDisclosureUnit !== "";
+      hasAdditionalFields = hasTotalWells && hasDisclosureWells;
+    } else if (operatesHydraulicFracturingWells === "no") {
+      hasAdditionalFields = true; // No additional fields needed for "No"
+    }
+
+    const hasEvidence = operatesHydraulicFracturingWells !== "" ? filesAndLinks.length > 0 : false;
+
+    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+  }, [
+    operatesHydraulicFracturingWells,
+    totalNumberOfFracturedWells.rawValue,
+    numberOfWellsWithPublicDisclosure.rawValue,
+    formData.totalNumberOfFracturedWellsUnit,
+    formData.numberOfWellsWithPublicDisclosureUnit,
+    filesAndLinks,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     // Validate radio button selection
-    if (!operatesFrackedWells) {
-      newErrors.operatesFrackedWells = "This field is required";
+    if (!operatesHydraulicFracturingWells) {
+      newErrors.operatesHydraulicFracturingWells = "This field is required";
     }
 
     // Validate fields based on selection
-    if (operatesFrackedWells === "yes") {
+    if (operatesHydraulicFracturingWells === "yes") {
+      if (!totalNumberOfFracturedWells.rawValue) {
+        newErrors.totalNumberOfFracturedWells = "Number of wells is required";
+      }
+      if (!formData.totalNumberOfFracturedWellsUnit) {
+        newErrors.totalNumberOfFracturedWellsUnit = "Unit is required";
+      }
+
       if (!numberOfWellsWithPublicDisclosure.rawValue) {
         newErrors.numberOfWellsWithPublicDisclosure = "Number of wells is required";
       }
       if (!formData.numberOfWellsWithPublicDisclosureUnit) {
         newErrors.numberOfWellsWithPublicDisclosureUnit = "Unit is required";
       }
-
-      if (!volumeRecycledReused.rawValue) {
-        newErrors.volumeRecycledReused = "Volume is required";
-      }
-      if (!formData.volumeRecycledReusedUnit) {
-        newErrors.volumeRecycledReusedUnit = "Unit is required";
-      }
-    }
-
-    // Always require evidence upload
-    if (filesAndLinks.length === 0) {
-      newErrors.filesAndLinks = "At least one document or evidence is required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  useMemo(() => {
-    const hasRadioSelection = operatesFrackedWells !== "";
-
-    let hasAdditionalFields = false;
-    if (operatesFrackedWells === "yes") {
-      const hasNumberOfWells =
-        numberOfWellsWithPublicDisclosure.rawValue !== "" &&
-        formData.numberOfWellsWithPublicDisclosureUnit !== "";
-      const hasVolumeRecycled =
-        volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
-      hasAdditionalFields = hasNumberOfWells && hasVolumeRecycled;
-    } else if (operatesFrackedWells === "no") {
-      hasAdditionalFields = true; // No additional fields needed for "No"
-    }
-
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
-  }, [
-    operatesFrackedWells,
-    numberOfWellsWithPublicDisclosure.rawValue,
-    volumeRecycledReused.rawValue,
-    formData.numberOfWellsWithPublicDisclosureUnit,
-    formData.volumeRecycledReusedUnit,
-    filesAndLinks,
-  ]);
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveAndContinue = () => {
+  const handleSaveAndContinue = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before saving.");
       return;
     }
-    setShowSaveSuccess(true);
-    setIsSaving(true);
 
     const payload = {
-      operatesFrackedWells,
-      ...(operatesFrackedWells === "yes" && {
+      operatesHydraulicFracturingWells,
+      ...(operatesHydraulicFracturingWells === "yes" && {
+        totalNumberOfFracturedWells: Number(totalNumberOfFracturedWells.rawValue),
+        totalNumberOfFracturedWellsUnit: formData.totalNumberOfFracturedWellsUnit,
         numberOfWellsWithPublicDisclosure: Number(numberOfWellsWithPublicDisclosure.rawValue),
         numberOfWellsWithPublicDisclosureUnit: formData.numberOfWellsWithPublicDisclosureUnit,
-        volumeRecycledReused: Number(volumeRecycledReused.rawValue),
-        volumeRecycledReusedUnit: formData.volumeRecycledReusedUnit,
       }),
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("DATA TO SAVE:", payload);
-    toast.success("Data logged to console.");
-    setIsSaving(false);
+    dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
+
+    try {
+      await saveNow(
+        "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
+        payload
+      );
+      setShowSaveSuccess(true);
+      toast.success("Data saved successfully");
+      setTimeout(() => {
+        setShowSaveSuccess(false);
+        router.push("/assessments/new-assessment");
+      }, 1500);
+    } catch {
+      // toast.error is already handled in useAssessmentFlow
+    }
   };
 
   const handleNext = () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before continuing.");
       return;
     }
-    toast.success("Moved to next section");
+
+    const payload = {
+      operatesHydraulicFracturingWells,
+      ...(operatesHydraulicFracturingWells === "yes" && {
+        totalNumberOfFracturedWells: Number(totalNumberOfFracturedWells.rawValue),
+        totalNumberOfFracturedWellsUnit: formData.totalNumberOfFracturedWellsUnit,
+        numberOfWellsWithPublicDisclosure: Number(numberOfWellsWithPublicDisclosure.rawValue),
+        numberOfWellsWithPublicDisclosureUnit: formData.numberOfWellsWithPublicDisclosureUnit,
+      }),
+      filesAndLinks: filesAndLinks,
+    };
+
+    dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
     onContinueToNextAssessment();
   };
 
   const handlePrevious = () => {
-    toast.info("Returning to previous section");
+    // toast.info("Returning to previous section");
     onBack();
   };
 
@@ -187,13 +241,18 @@ export default function ChemicalDisclosure({
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={features} />
-      <div className="max-w-5xl mx-auto space-y-6 ">
+      <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
-            <h3 className="text-2xl font-semibold">Chemical Disclosure</h3>
+            <h3 className="text-2xl font-semibold">
+              {operatesHydraulicFracturingWells === "no"
+                ? "Hydraulic Fracturing"
+                : "Chemical Disclosure"}
+            </h3>
             <p className="text-muted-foreground text-base">
-              Report on hydraulic fracturing operations and chemical disclosure practices during the
-              reporting period.
+              {operatesHydraulicFracturingWells === "no"
+                ? "Report on the use of hydraulic fracturing to extract oil and gas from underground rock formations."
+                : "Report on the public disclosure of fracturing fluid chemicals for wells that were hydraulically fractured during the reporting year."}
             </p>
           </div>
         </div>
@@ -205,8 +264,8 @@ export default function ChemicalDisclosure({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={3}
-              totalFields={4}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
 
@@ -232,10 +291,10 @@ export default function ChemicalDisclosure({
               </div>
 
               <RadioGroup
-                value={operatesFrackedWells}
+                value={operatesHydraulicFracturingWells}
                 onValueChange={(value) => {
-                  setOperatesFrackedWells(value);
-                  setErrors((prev) => ({ ...prev, operatesFrackedWells: "" }));
+                  setOperatesHydraulicFracturingWells(value);
+                  setErrors((prev) => ({ ...prev, operatesHydraulicFracturingWells: "" }));
                 }}
                 className="flex space-x-4"
               >
@@ -253,20 +312,38 @@ export default function ChemicalDisclosure({
                 </div>
               </RadioGroup>
 
-              {errors.operatesFrackedWells && (
-                <p className="text-sm text-red-600">{errors.operatesFrackedWells}</p>
+              {errors.operatesHydraulicFracturingWells && (
+                <p className="text-sm text-red-600">{errors.operatesHydraulicFracturingWells}</p>
               )}
             </div>
 
             {/* Conditional Fields for YES response */}
-            {operatesFrackedWells === "yes" && (
+            {operatesHydraulicFracturingWells === "yes" && (
               <div className="space-y-8 animate-in fade-in duration-300">
                 <ReusableInput
-                  label={"Number of Wells with Public Disclosure of All Chemicals"}
-                  tooltipTitle={"Number of Wells with Public Disclosure of All Chemicals"}
-                  tooltipBody={
-                    "How many of the hydraulically fractured wells have full chemical disclosure publicly reported through government databases or platforms such as FracFocus or regulator portals."
-                  }
+                  label="Total Number of Hydraulically Fractured Wells"
+                  tooltipTitle="Total Number of Hydraulically Fractured Wells"
+                  tooltipBody="Report the total count of wells that were hydraulically fractured during the reporting period. Include all wells where fracturing operations took place, regardless of production status."
+                  inputValue={totalNumberOfFracturedWells.displayValue}
+                  unitValue={formData.totalNumberOfFracturedWellsUnit}
+                  onInputChange={(num) => {
+                    totalNumberOfFracturedWells.handleChange(String(num));
+                    setErrors((prev) => ({ ...prev, totalNumberOfFracturedWells: "" }));
+                  }}
+                  onUnitChange={(unit) => {
+                    handleInputChange("totalNumberOfFracturedWellsUnit", unit);
+                    setErrors((prev) => ({ ...prev, totalNumberOfFracturedWellsUnit: "" }));
+                  }}
+                  error={errors.totalNumberOfFracturedWells}
+                  unitError={errors.totalNumberOfFracturedWellsUnit}
+                  formatNumbers={false}
+                  placeholder="e.g., 150"
+                />
+
+                <ReusableInput
+                  label="Number of Wells with Public Disclosure of All Chemicals"
+                  tooltipTitle="Number of Wells with Public Disclosure of All Chemicals"
+                  tooltipBody="How many of the hydraulically fractured wells have full chemical disclosure publicly reported through government databases or platforms such as FracFocus or regulator portals."
                   inputValue={numberOfWellsWithPublicDisclosure.displayValue}
                   unitValue={formData.numberOfWellsWithPublicDisclosureUnit}
                   onInputChange={(num) => {
@@ -280,60 +357,35 @@ export default function ChemicalDisclosure({
                   error={errors.numberOfWellsWithPublicDisclosure}
                   unitError={errors.numberOfWellsWithPublicDisclosureUnit}
                   formatNumbers={false}
-                />
-
-                <ReusableInput
-                  label={"Volume Recycled/Reused"}
-                  tooltipTitle={"Volume Recycled/Reused"}
-                  tooltipBody={
-                    "Total volume of hydraulic fracturing fluids or flowback water that was treated and reused instead of disposed. Indicates level of chemical and water stewardship in operations."
-                  }
-                  inputValue={volumeRecycledReused.displayValue}
-                  unitValue={formData.volumeRecycledReusedUnit}
-                  onInputChange={(num) => {
-                    volumeRecycledReused.handleChange(String(num));
-                    setErrors((prev) => ({ ...prev, volumeRecycledReused: "" }));
-                  }}
-                  onUnitChange={(unit) => {
-                    handleInputChange("volumeRecycledReusedUnit", unit);
-                    setErrors((prev) => ({ ...prev, volumeRecycledReusedUnit: "" }));
-                  }}
-                  error={errors.volumeRecycledReused}
-                  unitError={errors.volumeRecycledReusedUnit}
-                  formatNumbers={false}
+                  placeholder="e.g., 120"
                 />
               </div>
             )}
 
-            {/* Document/Evidence Upload */}
-            <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <div className="flex items-center justify-between">
+            {/* Conditional Document/Evidence Upload - Only show when Yes or No is selected */}
+            {operatesHydraulicFracturingWells !== "" && (
+              <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200 animate-in fade-in duration-300">
                 <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
-                {operatesFrackedWells === "yes" && (
-                  <span className="text-sm text-blue-600 font-medium">
-                    Required for all submissions
-                  </span>
+
+                <p className="text-sm text-gray-600">
+                  {operatesHydraulicFracturingWells === "yes"
+                    ? "Upload supporting documents such as FracFocus disclosure reports, chemical inventory lists, recycling program documentation, and regulatory compliance records for hydraulic fracturing operations."
+                    : "Upload supporting documents or statements confirming that no hydraulic fracturing operations were conducted during the reporting period, along with any relevant policy documentation."}
+                </p>
+
+                <div className="mt-6">
+                  <AddMoreFilesLinks
+                    onFieldsChange={handleFilesAndLinksChange}
+                    initialData={filesAndLinks}
+                    uploadService={uploadService}
+                  />
+                </div>
+
+                {errors.filesAndLinks && (
+                  <p className="text-sm text-red-600 mt-2">{errors.filesAndLinks}</p>
                 )}
               </div>
-
-              <p className="text-sm text-gray-600">
-                {operatesFrackedWells === "yes"
-                  ? "Upload supporting documents such as FracFocus disclosure reports, chemical inventory lists, recycling program documentation, and regulatory compliance records for hydraulic fracturing operations."
-                  : "Upload supporting documents or statements confirming that no hydraulic fracturing operations were conducted during the reporting period, along with any relevant policy documentation."}
-              </p>
-
-              <div className="mt-6">
-                <AddMoreFilesLinks
-                  onFieldsChange={handleFilesAndLinksChange}
-                  initialData={filesAndLinks}
-                  uploadService={uploadService}
-                />
-              </div>
-
-              {errors.filesAndLinks && (
-                <p className="text-sm text-red-600 mt-2">{errors.filesAndLinks}</p>
-              )}
-            </div>
+            )}
 
             {/* Navigation buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">
@@ -344,16 +396,16 @@ export default function ChemicalDisclosure({
                 className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Go Back
+                Previous
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -374,7 +426,7 @@ export default function ChemicalDisclosure({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next

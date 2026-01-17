@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 export function useFormattedNumber(initialValue: string | number = "") {
   const [rawValue, setRawValue] = useState(String(initialValue));
@@ -16,12 +16,15 @@ export function useFormattedNumber(initialValue: string | number = "") {
     }
   }, [rawValue]);
 
-  const handleChange = (input: string) => {
+  const handleChange = useCallback((input: string) => {
     const stripped = input.replace(/,/g, "");
     if (/^\d*$/.test(stripped)) {
       setRawValue(stripped);
     }
-  };
+  }, []);
 
-  return { rawValue, displayValue, handleChange, setRawValue };
+  return useMemo(
+    () => ({ rawValue, displayValue, handleChange, setRawValue }),
+    [rawValue, displayValue, handleChange]
+  );
 }

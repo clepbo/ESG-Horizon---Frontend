@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ElectricityIppsForm } from "./ElectricityIpps";
 import { ElectricityEACForm } from "./ElectricityEac";
 import { ResidualForm } from "./Residual";
@@ -8,11 +9,13 @@ import { CoolingSteamForm } from "./CoolingSteam";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface MarketBasedFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = [
@@ -28,7 +31,9 @@ export function MarketBasedForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
+  onBackToDisclosureTopics,
 }: MarketBasedFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricityIPP");
   const [showSuccess, setShowSuccess] = useState(false);
@@ -36,6 +41,16 @@ export function MarketBasedForm({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
   const isAssignedTask = state.isAssignedTask || false;
+
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Stationary Sources", onClick: handleBackToOverview },
+  ];
 
   if (showSuccess) {
     return (
@@ -45,7 +60,8 @@ export function MarketBasedForm({
         totals={totals ?? undefined}
         nextAssessment="Scope3"
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }
@@ -58,6 +74,7 @@ export function MarketBasedForm({
         onBackToHub={onBack}
         stepIndex={1}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Electricity (IPPs)" }]}
       />
     );
   }
@@ -70,6 +87,7 @@ export function MarketBasedForm({
         onBackToHub={onBack}
         stepIndex={2}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Electricity (EACs/RECs)" }]}
       />
     );
   }
@@ -82,6 +100,7 @@ export function MarketBasedForm({
         onBackToHub={onBack}
         stepIndex={3}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Residual" }]}
       />
     );
   }
@@ -105,6 +124,7 @@ export function MarketBasedForm({
         stepIndex={4}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "Purchased Cooling/Steam" }]}
       />
     );
   }

@@ -16,13 +16,14 @@ import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 
 interface InvestmentsProps {
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
@@ -45,14 +46,14 @@ const uploadFields = [
 
 export function Investments({
   onBack,
-  onNext,
+  onSubmit,
   stepIndex,
   totalSteps,
   backToAssessment,
   backToDisclosureTopics,
   backToGHGEmissions,
 }: InvestmentsProps) {
-  // const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -83,20 +84,20 @@ export function Investments({
   }, [stepIndex]);
 
   // Load existing data
-  //   useEffect(() => {
-  //     const existingData = (state.assessmentData.investments as any);
-  //     if (existingData) {
-  //       // Input fields
-  //       setInvestmentAmount(existingData.investmentAmount || "");
-  //       setPortfolioEmissions(existingData.portfolioEmissions || "");
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.investments;
+    if (existingData) {
+      // Input fields
+      setInvestmentAmount(existingData.investmentAmount || "");
+      setPortfolioEmissions(existingData.portfolioEmissions || "");
 
-  //       // Files
-  //       setFiles(
-  //         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
-  //       );
-  //       setAdditionalFields(existingData.additionalFields || []);
-  //     }
-  //   }, [state.assessmentData]);
+      // Files
+      setFiles(
+        existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
+      );
+      setAdditionalFields(existingData.additionalFields || []);
+    }
+  }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -167,8 +168,13 @@ export function Investments({
       })),
     };
 
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_INVESTMENTS",
+      payload,
+    });
+
     try {
-      await saveNow("environment.ghg.scope3.investments", payload);
+      await saveNow("environment.ghg.scope3.downstream.investments", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -203,35 +209,29 @@ export function Investments({
       return;
     }
 
-    // Proceed to save and submit
-    try {
-      const payload = {
-        // Input fields
-        investmentAmount,
-        portfolioEmissions,
+    const payload = {
+      // Input fields
+      investmentAmount,
+      portfolioEmissions,
 
-        // Files
-        files,
-        additionalFields: additionalFields.map((f) => ({
-          name: f.name,
-          size: f.size ?? 0,
-          lastModified: f.lastModified ?? Date.now(),
-          url: f.url ?? "",
-          publicId: f.publicId ?? "",
-        })),
-      };
+      // Files
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
 
-      await saveNow("environment.ghg.scope3.investments", payload);
-      toast.success("Form submitted successfully!");
+    dispatch({
+      type: "UPDATE_DOWNSTREAM_INVESTMENTS",
+      payload,
+    });
 
-      // Optional: Delay navigation to show the success message
-      setTimeout(() => {
-        onNext();
-      }, 1500);
-    } catch (err) {
-      toast.error("Failed to submit form");
-      console.error("Submit failed:", err);
-    }
+    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
+    onSubmit();
   };
 
   // Handle input changes with automatic error clearing

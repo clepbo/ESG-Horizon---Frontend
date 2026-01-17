@@ -9,18 +9,25 @@ import { EvidenceList } from "../../../social-capital/community-relations/compon
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { ArrowLeft, CheckCircle2, Save } from "lucide-react";
 import { toast } from "react-toastify";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface AirQualityFormProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   backToAirQualityCard: () => void;
+  onSubmit: () => void;
 }
 
 export default function AirQualityForm({
   backToDisclosureTopics,
   backToAssessmentHub,
   backToAirQualityCard,
+  onSubmit,
 }: AirQualityFormProps) {
+  const router = useRouter();
   const features = [
     {
       label: "Assessments",
@@ -38,6 +45,13 @@ export default function AirQualityForm({
       label: "Air Pollutant Emissions",
     },
   ];
+  const { state, dispatch } = useAssessment();
+  const {
+    saveNow,
+    submitGroup,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow("air-pollutant-emissions");
+
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
     oxidesOfNitrogenUnit: "",
@@ -49,24 +63,29 @@ export default function AirQualityForm({
     particulateMatterUnit: "",
     evidenceList: [],
   });
-  const [isSaving, setIsSaving] = React.useState(false);
+
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.airQuality?.airPollutantEmissions;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData({
+        oxidesOfNitrogen: existingData.oxidesOfNitrogen || 0,
+        oxidesOfNitrogenUnit: existingData.oxidesOfNitrogenUnit || "",
+        oxidesOfSuplphur: existingData.oxidesOfSuplphur || 0,
+        oxidesOfSulphurUnit: existingData.oxidesOfSulphurUnit || "",
+        volatileOrganicCompound: existingData.volatileOrganicCompound || 0,
+        volatileOrganicCompoundUnit: existingData.volatileOrganicCompoundUnit || "",
+        particulateMatter: existingData.particulateMatter || 0,
+        particulateMatterUnit: existingData.particulateMatterUnit || "",
+        evidenceList: existingData.evidenceList || [],
+      });
+    }
+  }, [state.assessmentData.environment?.airQuality?.airPollutantEmissions]);
+
   const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   const setCount = (key: keyof typeof formData) => (value: number) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-    // Clear error when user starts typing
-    if (errors[key]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[key];
-        return newErrors;
-      });
-    }
-  };
-
-  const setUnit = (key: keyof typeof formData) => (value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
     // Clear error when user starts typing
     if (errors[key]) {
@@ -86,80 +105,70 @@ export default function AirQualityForm({
     if (!formData.oxidesOfNitrogen || formData.oxidesOfNitrogen <= 0) {
       newErrors.oxidesOfNitrogen = "Oxides of Nitrogen emissions value is required";
     }
-    if (!formData.oxidesOfNitrogenUnit) {
-      newErrors.oxidesOfNitrogenUnit = "Unit for Oxides of Nitrogen is required";
-    }
 
     if (!formData.oxidesOfSuplphur || formData.oxidesOfSuplphur <= 0) {
       newErrors.oxidesOfSuplphur = "Oxides of Sulphur emissions value is required";
-    }
-    if (!formData.oxidesOfSulphurUnit) {
-      newErrors.oxidesOfSulphurUnit = "Unit for Oxides of Sulphur is required";
     }
 
     if (!formData.volatileOrganicCompound || formData.volatileOrganicCompound <= 0) {
       newErrors.volatileOrganicCompound = "Volatile Organic Compounds emissions value is required";
     }
-    if (!formData.volatileOrganicCompoundUnit) {
-      newErrors.volatileOrganicCompoundUnit = "Unit for Volatile Organic Compounds is required";
-    }
 
     if (!formData.particulateMatter || formData.particulateMatter <= 0) {
       newErrors.particulateMatter = "Particulate Matter emissions value is required";
-    }
-    if (!formData.particulateMatterUnit) {
-      newErrors.particulateMatterUnit = "Unit for Particulate Matter is required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  function handleSaveAndContinue() {
-    setIsSaving(true);
+  async function handleSaveAndContinue() {
+    dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
 
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await saveNow("environment.airQuality.airPollutantEmissions", formData);
       setShowSaveSuccess(true);
-
+      toast.success("Data saved successfully");
       setTimeout(() => {
         setShowSaveSuccess(false);
-      }, 2000);
-    }, 1500);
+        router.push("/assessments/new-assessment");
+      }, 1500);
+    } catch {
+      // toast.error is already handled in useAssessmentFlow
+    }
   }
 
   function handlePrevious() {
     // Logic to go back to the previous step
   }
 
-  function handleSubmit() {
-    // Validate form before submission
+  async function handleSubmit() {
     if (!validateForm()) {
       toast.error("Please fill in all required fields before submitting");
       return;
     }
 
     setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
+      await saveNow("environment.airQuality.airPollutantEmissions", formData);
+      await submitGroup();
+      onSubmit();
+    } catch (error) {
+      console.error(error);
+      // toast.error is already handled in useAssessmentFlow
+    } finally {
       setIsSubmitting(false);
-      toast.success("Form submitted successfully!");
-      // Further actions after submission can be added here
-    }, 2000);
+    }
   }
 
   // Check if form is valid for enabling submit button
   const isFormValid = () => {
     return (
       formData.oxidesOfNitrogen > 0 &&
-      formData.oxidesOfNitrogenUnit !== "" &&
       formData.oxidesOfSuplphur > 0 &&
-      formData.oxidesOfSulphurUnit !== "" &&
       formData.volatileOrganicCompound > 0 &&
-      formData.volatileOrganicCompoundUnit !== "" &&
-      formData.particulateMatter > 0 &&
-      formData.particulateMatterUnit !== ""
+      formData.particulateMatter > 0
     );
   };
 
@@ -195,11 +204,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.oxidesOfNitrogenUnit}
-              setUnit={setUnit("oxidesOfNitrogenUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.oxidesOfNitrogen || errors.oxidesOfNitrogenUnit}
+              error={errors.oxidesOfNitrogen}
             />
 
             <OperationsDelayReusableInput
@@ -212,11 +220,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("oxidesOfSuplphur")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.oxidesOfSulphurUnit}
-              setUnit={setUnit("oxidesOfSulphurUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.oxidesOfSuplphur || errors.oxidesOfSulphurUnit}
+              error={errors.oxidesOfSuplphur}
             />
 
             <OperationsDelayReusableInput
@@ -229,11 +236,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.volatileOrganicCompoundUnit}
-              setUnit={setUnit("volatileOrganicCompoundUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.volatileOrganicCompound || errors.volatileOrganicCompoundUnit}
+              error={errors.volatileOrganicCompound}
             />
 
             <OperationsDelayReusableInput
@@ -246,11 +252,10 @@ export default function AirQualityForm({
               countPlaceholder={"Enter volume of Emissions"}
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
-              unit={formData.particulateMatterUnit}
-              setUnit={setUnit("particulateMatterUnit")}
-              // countLabel="Volume of Emissions"
+              unit="Metric Ton (Mt)"
+              setUnit={() => {}}
               required={true}
-              error={errors.particulateMatter || errors.particulateMatterUnit}
+              error={errors.particulateMatter}
             />
 
             <EvidenceList />
@@ -267,10 +272,10 @@ export default function AirQualityForm({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isSaving}
+                disabled={isActionLoading}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 transition-colors"
               >
-                {isSaving ? (
+                {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -288,7 +293,7 @@ export default function AirQualityForm({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving || isSubmitting || !isFormValid()}
+                disabled={isActionLoading || isSubmitting || !isFormValid()}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (

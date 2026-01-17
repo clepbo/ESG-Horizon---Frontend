@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ElectricityHeatForm } from "./ElectricityHeat";
 import { IndustrialProcessesForm } from "./IndustrialProcesses";
 import { OilGasOperations } from "./OilGasOperations";
 import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { BreadcrumbItemType } from "@/app/components/ui/CustomBreadcrumb";
 
 interface StationarySourcesFormProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   onBackToHub: () => void;
   initialStep?: StepKey;
+  onBackToDisclosureTopics?: () => void;
 }
 
 const steps = ["Electricity & Heat", "Industrial Processes", "Oil & Gas"];
@@ -23,13 +26,26 @@ export function StationarySourcesForm({
   onContinueToNextAssessment,
   onBackToHub,
   initialStep,
+  onBackToDisclosureTopics,
 }: StationarySourcesFormProps) {
+  const router = useRouter();
   const { state, dispatch } = useAssessment();
   const [currentStep, setCurrentStep] = useState<StepKey>(initialStep || "electricity-heat");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const isAssignedTask = state.isAssignedTask || false;
+
+  const handleBackToOverview = () => {
+    onBack();
+  };
+
+  const overviewBreadcrumb: BreadcrumbItemType[] = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Stationary Sources", onClick: handleBackToOverview },
+  ];
+
   if (showSuccess) {
     return (
       <SuccessScreen
@@ -38,7 +54,8 @@ export function StationarySourcesForm({
         nextAssessment="Mobile Sources"
         totals={totals ?? undefined}
         onContinue={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onContinueAssessment={onBackToDisclosureTopics}
+        onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );
   }
@@ -51,6 +68,7 @@ export function StationarySourcesForm({
         stepIndex={1}
         onBackToHub={onBackToHub}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Electricity & Heat Generation" }]}
       />
     );
   }
@@ -60,9 +78,10 @@ export function StationarySourcesForm({
       <IndustrialProcessesForm
         onBack={() => setCurrentStep("electricity-heat")}
         onNext={() => setCurrentStep("oil-gas")}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
         stepIndex={2}
         totalSteps={steps.length}
+        breadcrumb={[...overviewBreadcrumb, { label: "Industrial Processes" }]}
       />
     );
   }
@@ -81,10 +100,11 @@ export function StationarySourcesForm({
             setIsSubmitted(true);
           }
         }}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
         stepIndex={3}
         totalSteps={steps.length}
         isSubmitted={isSubmitted}
+        breadcrumb={[...overviewBreadcrumb, { label: "Oil & Gas Operations" }]}
       />
     );
   }

@@ -1,6 +1,8 @@
 import React from "react";
 import AirQualityCard from "./AirQualityCard";
 import AirQualityForm from "./AirQualityForm";
+import { SuccessScreen } from "../../../../SuccessScreen";
+// import { useAssessment } from "@/hooks/useAssessment";
 
 interface AirQualityProps {
   backToDisclosureTopics: () => void;
@@ -11,6 +13,20 @@ export default function AirQiality({
   backToAssessmentHub,
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  // const { dispatch } = useAssessment();
+
+  if (showSuccess) {
+    return (
+      <SuccessScreen
+        assessmentName="Air Pollutant Emissions"
+        nextAssessment="Water and Wastewater Management"
+        onContinue={backToDisclosureTopics}
+        onContinueAssessment={backToDisclosureTopics}
+        onBackToHub={backToAssessmentHub}
+      />
+    );
+  }
 
   if (step === 0) {
     return (
@@ -28,6 +44,7 @@ export default function AirQiality({
           backToDisclosureTopics={backToDisclosureTopics}
           backToAssessmentHub={backToAssessmentHub}
           backToAirQualityCard={() => setStep(0)}
+          onSubmit={() => setShowSuccess(true)}
         />
       </div>
     );

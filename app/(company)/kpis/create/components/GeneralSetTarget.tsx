@@ -14,7 +14,7 @@ import CustomTooltip from "./CustomTooltip";
 import { TooltipMessage } from "./TooltipMessage";
 import { CalculateEmissionPercentage, calculateTotal } from "../utils";
 import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
-import { EmissionDataResponse } from "../type";
+import { EmissionDataResponse, EmissionDataResponseGeneral } from "../type";
 import { useAuth } from "@/context/AuthContext";
 
 export interface GeneralTargetFormProps {
@@ -31,15 +31,10 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const { user } = useAuth();
   const companyId = user?.company?.id;
 
-  const [emissionData, setEmissionData] = useState<EmissionDataResponse>({
+  const [emissionData, setEmissionData] = useState<EmissionDataResponseGeneral>({
     startYear: 0,
     endYear: 0,
-    totals: {
-      total: 0,
-      scope1: 0,
-      scope2: 0,
-      scope3: 0,
-    },
+    totals: 0,
   });
 
   const base = useBaseline(companyId);
@@ -50,13 +45,15 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
   }, [base.isSuccess, base.data]);
 
+  console.log("Emission Data in GeneralTargetForm:", base?.data);
+
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
       if (processedValue !== null && data.baselineYear && data.targetYear) {
-        const baselineEmission = emissionData?.totals?.total || 0;
+        const baselineEmission = emissionData?.totals || 0;
         const targetEmission = baselineEmission * (1 - processedValue / 100);
         const totalReduction = baselineEmission * (processedValue / 100);
 
@@ -89,13 +86,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     if (data.reductionPercentage && base?.data?.startYear && data.targetYear) {
       // Calculate target emission (same calculation)
       const calculatedTargetEmission = data?.reductionPercentage
-        ? emissionData?.totals?.total * (1 - data?.reductionPercentage / 100)
+        ? emissionData?.totals * (1 - data?.reductionPercentage / 100)
         : 0;
 
       console.log("Saving to localStorage:", {
         // Debug log
         reductionPercentage: data.reductionPercentage,
-        baselineEmission: emissionData?.totals?.total,
+        baselineEmission: emissionData?.totals,
         calculatedTargetEmission: calculatedTargetEmission,
       });
 
@@ -103,7 +100,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       const storageData = {
         ...data,
         targetEmission: calculatedTargetEmission, // Make sure this is included
-        baselineEmission: emissionData?.totals?.total ?? 0,
+        baselineEmission: emissionData?.totals ?? 0,
         baselineYear: base.data.startYear || 0,
       };
 
@@ -115,12 +112,12 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
   // Calculate values for display (same as original)
   const calculatedTargetEmission = data?.reductionPercentage
-    ? emissionData?.totals?.total * (1 - data?.reductionPercentage / 100)
+    ? emissionData?.totals * (1 - data?.reductionPercentage / 100)
     : 0;
 
   const totalRed = calculateTotal(
-    emissionData?.totals?.total,
-    CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals?.total)
+    emissionData?.totals,
+    CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals)
   );
 
   const yearDifference =
@@ -129,8 +126,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       : 0;
 
   const reduction = calculateTotal(
-    emissionData?.totals?.total,
-    CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals?.total)
+    emissionData?.totals,
+    CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals)
   );
 
   const annualRate = yearDifference > 0 ? (+reduction / yearDifference).toFixed(3) : "0";
@@ -139,7 +136,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="text-lg">General Reduction Target</div>
+          <div className="text-lg">General Reduction Target from KPI</div>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-gray-600">
@@ -256,7 +253,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 Baseline ({emissionData?.startYear})
               </Label>
               <div className="text-sm text-gray-900 font-semibold">
-                {formatNumberWithCommas(emissionData?.totals?.total)} tCO₂e
+                {formatNumberWithCommas(emissionData?.totals)} tCO₂e
               </div>
             </div>
             <div className="space-y-2 flex items-center justify-between w-full">
@@ -274,10 +271,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               {data.reductionPercentage && data.reductionPercentage > 0 && (
                 <div className="text-sm text-primary font-semibold">
                   {formatNumberWithCommas(
-                    CalculateEmissionPercentage(
-                      data.reductionPercentage ?? 0,
-                      emissionData?.totals?.total
-                    )
+                    CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals)
                   )}
                   tCO₂e
                 </div>

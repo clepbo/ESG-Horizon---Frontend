@@ -16,5 +16,120 @@ export const LAST_SAVED_FORM_MAP: Record<string, { view: string; form?: string; 
     view: "ghg-mobile-sources",
     step: "road-transport",
   },
-  // Add more as needed
+  "ghg-scope1-mobile-vehicleequipment": {
+    view: "ghg-mobile-sources",
+    step: "vehicle-equipment",
+  },
+  "ghg-scope1-mobile-marineaviation": {
+    view: "ghg-mobile-sources",
+    step: "marine-aviation",
+  },
+  "ghg-scope1-process-cementmanufacturing": {
+    view: "ghg-process-emissions",
+    step: "cement-manufacturing",
+  },
+  "ghg-scope1-process-gasflaring": {
+    view: "ghg-process-emissions",
+    step: "gas-flaring",
+  },
+  "ghg-scope1-fugitive-ventingnaturalgas": {
+    view: "ghg-fugitive-emissions",
+    step: "venting-natural-gas",
+  },
+  "ghg-scope1-fugitive-hfcleaks": {
+    view: "ghg-fugitive-emissions",
+    step: "hfc-leaks",
+  },
+  "ghg-scope2-location-purchasedelectricity": {
+    view: "ghg-location-based",
+    step: "electricity",
+  },
+  "ghg-scope2-location-purchasedcooling": {
+    view: "ghg-location-based",
+    step: "cooling",
+  },
+  "ghg-scope2-location-purchasedsteam": {
+    view: "ghg-location-based",
+    step: "steam",
+  },
+  "ghg-scope2-location-purchasedheating": {
+    view: "ghg-location-based",
+    step: "heating",
+  },
+  "ghg-scope2-market-electricityipps": {
+    view: "ghg-market-based",
+    step: "electricityIPP",
+  },
+  "ghg-scope2-market-electricityeac": {
+    view: "ghg-market-based",
+    step: "electricityEAC",
+  },
+  "ghg-scope2-market-residual": {
+    view: "ghg-market-based",
+    step: "residual",
+  },
+  "ghg-scope2-market-coolingsteam": {
+    view: "ghg-market-based",
+    step: "coolingSteam",
+  },
+  "ghg-scope3-upstream-purchasedgoodsandservices": {
+    view: "ghg-upstream-emissions",
+    step: "0",
+  },
+  "ghg-scope3-upstream-capitalgoods": {
+    view: "ghg-upstream-emissions",
+    step: "1",
+  },
+  "ghg-scope3-upstream-energyrelatedactivities": {
+    view: "ghg-upstream-emissions",
+    step: "2",
+  },
+  "ghg-scope3-upstream-transportation": {
+    view: "ghg-upstream-emissions",
+    step: "3",
+  },
+  "ghg-scope3-upstream-waste": {
+    view: "ghg-upstream-emissions",
+    step: "4",
+  },
+  "ghg-scope3-upstream-businesstravel": {
+    view: "ghg-upstream-emissions",
+    step: "5",
+  },
+  "ghg-scope3-upstream-employeecommuting": {
+    view: "ghg-upstream-emissions",
+    step: "6",
+  },
+  "ghg-scope3-upstream-leasedassets": {
+    view: "ghg-upstream-emissions",
+    step: "7",
+  },
+  "ghg-scope3-downstream-transportation": {
+    view: "ghg-downstream-emissions",
+    step: "0",
+  },
+  "ghg-scope3-downstream-processing": {
+    view: "ghg-downstream-emissions",
+    step: "1",
+  },
+  "ghg-scope3-downstream-use": {
+    view: "ghg-downstream-emissions",
+    step: "2",
+  },
+  "ghg-scope3-downstream-endoflife": {
+    view: "ghg-downstream-emissions",
+    step: "3",
+  },
+  "ghg-scope3-downstream-leasedassets": {
+    view: "ghg-downstream-emissions",
+    step: "4",
+  },
+  "ghg-scope3-downstream-franchises": {
+    view: "ghg-downstream-emissions",
+    step: "5",
+  },
+  "ghg-scope3-downstream-investments": {
+    view: "ghg-downstream-emissions",
+    step: "6",
+  },
 };

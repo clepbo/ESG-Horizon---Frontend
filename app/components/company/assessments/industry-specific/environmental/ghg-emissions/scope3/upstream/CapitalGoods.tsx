@@ -53,7 +53,7 @@ export function CapitalGoods({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: CapitalGoodsProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -73,7 +73,7 @@ export function CapitalGoods({
     materialWeight: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-capitalgoods");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-capitalgoods");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -83,7 +83,7 @@ export function CapitalGoods({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.capitalGoods;
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.capitalGoods;
     if (existingData) {
       setTotalCost(existingData.totalCost || "");
       setMaterialWeight(existingData.materialWeight || "");
@@ -92,7 +92,7 @@ export function CapitalGoods({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     const hasTotalCost = totalCost.trim().length > 0;
@@ -159,13 +159,13 @@ export function CapitalGoods({
       })),
     };
 
-    // dispatch({
-    //     type: "",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_CAPITAL_GOODS",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.capitalGoods", payload);
+      await saveNow("environment.ghg.scope3.upstream.capitalGoods", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -183,24 +183,35 @@ export function CapitalGoods({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
-    await saveForm({ showToast: false, redirect: false });
+
+    const payload = {
+      totalCost,
+      materialWeight,
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_UPSTREAM_CAPITAL_GOODS",
+      payload,
+    });
+
     onNext();
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
-    // Proceed to save and next
     handleNext();
   };
 

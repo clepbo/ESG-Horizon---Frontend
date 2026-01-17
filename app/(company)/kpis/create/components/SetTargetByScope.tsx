@@ -15,7 +15,7 @@ import { EmissionDataResponse, ScopeTargetData } from "../type";
 import CustomTooltip from "./CustomTooltip";
 import { TooltipMessage } from "./TooltipMessage";
 import { calculateTimelineYear } from "../utils";
-import { useBaseline } from "@/app/(company)/components/ranking/services";
+import { useBaseline, useBaselineByScope } from "@/app/(company)/components/ranking/services";
 import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 export default function SetTargetByScope() {
@@ -49,20 +49,19 @@ export default function SetTargetByScope() {
   const [emissionData, setEmissionData] = useState<EmissionDataResponse>({
     startYear: 0,
     endYear: 0,
-    totals: {
-      total: 0,
-      scope1: 0,
-      scope2: 0,
-      scope3: 0,
-    },
+    ghg_scope_one: 0,
+    ghg_scope_two: 0,
+    ghg_scope_three: 0,
+    ghg_total_emissions: 0,
   });
 
   const router = useRouter();
   const { user } = useAuth();
   const companyId = user?.company?.id;
 
-  const baseline = useBaseline(companyId);
+  const baseline = useBaselineByScope(companyId);
   const base: EmissionDataResponse = baseline?.data;
+  console.log("Baseline by scope data:", baseline?.data);
 
   useEffect(() => {
     if (baseline.isSuccess) {
@@ -139,11 +138,11 @@ export default function SetTargetByScope() {
   const getScopeBaselineEmission = (scope: "scope1" | "scope2" | "scope3"): number => {
     switch (scope) {
       case "scope1":
-        return emissionData?.totals?.scope1 || 0;
+        return emissionData?.ghg_scope_one || 0;
       case "scope2":
-        return emissionData?.totals?.scope2 || 0;
+        return emissionData?.ghg_scope_two || 0;
       case "scope3":
-        return emissionData?.totals?.scope3 || 0;
+        return emissionData?.ghg_scope_three || 0;
       default:
         return 0;
     }

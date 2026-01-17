@@ -20,6 +20,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 
 interface ElectricityIppsFormProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ interface ElectricityIppsFormProps {
   onBackToHub: () => void;
   stepIndex: number;
   totalSteps: number;
+  breadcrumb: BreadcrumbItemType[];
 }
 
 const uploadFields = [
@@ -42,6 +44,7 @@ export function ElectricityIppsForm({
   onBackToHub,
   stepIndex,
   totalSteps,
+  breadcrumb,
 }: ElectricityIppsFormProps) {
   const { state, dispatch } = useAssessment();
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -89,7 +92,7 @@ export function ElectricityIppsForm({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.ipps;
+    const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.ipps;
     if (existingData) {
       // Initialize with existing data using the formatted number hook
       if (existingData.electricityConsumed) {
@@ -191,12 +194,12 @@ export function ElectricityIppsForm({
     };
 
     dispatch({
-      type: "UPDATE_IPPS",
+      type: "UPDATE_MARKET_IPPS",
       payload,
     });
 
     try {
-      await saveNow("environment.ghg.scope2.marketBased.electricityIpps", payload);
+      await saveNow("environment.ghg.scope2.marketBased.ipps", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -222,12 +225,25 @@ export function ElectricityIppsForm({
 
   const handleNext = async () => {
     if (!validateForm()) return;
-    await saveForm({ showToast: false, redirect: false });
+    dispatch({
+      type: "UPDATE_MARKET_IPPS",
+      payload: {
+        electricityConsumed: electricityConsumedRaw,
+        emissionFactor: emissionFactorRaw,
+        files,
+        additionalFields: additionalFields.map((f) => ({
+          name: f.name,
+          size: f.size ?? 0,
+          lastModified: f.lastModified ?? Date.now(),
+          url: f.url ?? "",
+          publicId: f.publicId ?? "",
+        })),
+      },
+    });
     onNext();
   };
 
   const handlePrevious = () => {
-    saveForm({ showToast: false, redirect: false });
     onBack();
   };
 
@@ -275,7 +291,8 @@ export function ElectricityIppsForm({
 
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <div className="max-w-4xl mx-auto space-y-6 mt-4">
         <div className="flex items-center gap-6 mb-4">
           <Button
             variant="outline"

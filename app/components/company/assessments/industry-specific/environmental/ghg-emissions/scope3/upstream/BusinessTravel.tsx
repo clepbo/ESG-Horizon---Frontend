@@ -61,7 +61,7 @@ export function BusinessTravel({
   backToDisclosureTopics,
   backToGHGEmissions,
 }: BusinessTravelProps) {
-  const { state } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const router = useRouter();
 
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -103,7 +103,7 @@ export function BusinessTravel({
     hotelNights: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope1-stationary-business-travel");
+  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-businesstravel");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -113,7 +113,7 @@ export function BusinessTravel({
 
   // Load existing data
   useEffect(() => {
-    const existingData = (state.assessmentData.stationarySources as any)?.businessTravel;
+    const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.businessTravel;
     if (existingData) {
       // Air Travel
       setTotalFlights(existingData.totalFlights || "");
@@ -137,7 +137,7 @@ export function BusinessTravel({
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData]);
+  }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
   const { filled, total } = useMemo(() => {
     // Check each required field
@@ -303,13 +303,13 @@ export function BusinessTravel({
       })),
     };
 
-    // dispatch({
-    //     type: "UPDATE_STATIONARY_BUSINESS_TRAVEL",
-    //     payload,
-    // });
+    dispatch({
+      type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL",
+      payload,
+    });
 
     try {
-      await saveNow("environment.ghg.scope1.stationarySources.businessTravel", payload);
+      await saveNow("environment.ghg.scope3.upstream.businessTravel", payload);
       if (showToast) {
         toast.success("Saved!");
         setShowSaveSuccess(true);
@@ -327,24 +327,50 @@ export function BusinessTravel({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validateForm()) {
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
-    await saveForm({ showToast: false, redirect: false });
+
+    const payload = {
+      // Air Travel
+      totalFlights,
+      airDistance,
+      airEmployees,
+      economyPercent,
+      businessPercent,
+      firstClassPercent,
+
+      // Ground Travel
+      groundDistance,
+      groundEmployees,
+      fuelConsumed,
+
+      // Accommodation
+      hotelNights,
+
+      // Files
+      files,
+      additionalFields: additionalFields.map((f) => ({
+        name: f.name,
+        size: f.size ?? 0,
+        lastModified: f.lastModified ?? Date.now(),
+        url: f.url ?? "",
+        publicId: f.publicId ?? "",
+      })),
+    };
+
+    dispatch({
+      type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL",
+      payload,
+    });
+
     onNext();
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
-    // Proceed to save and next
     handleNext();
   };
 
