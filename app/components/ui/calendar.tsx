@@ -33,9 +33,7 @@ export function Calendar({ selected, onSelect, className }: CalendarProps) {
   };
 
   return (
-    <div
-      className={cn("w-[280px] rounded-lg border bg-white shadow-md p-4 select-none", className)}
-    >
+    <div className={cn("w-70 rounded-lg border bg-white shadow-md p-4 select-none", className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <button onClick={goToPrevMonth} className="text-gray-500 hover:text-gray-800 px-2 py-1">
