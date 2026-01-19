@@ -16,8 +16,8 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { TotalsResponse } from "@/services/assessment.service";
-import { useRouter } from "next/router";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface CapitalExpenditureStrategyProps {
   onBack: () => void;
@@ -30,7 +30,7 @@ interface CapitalExpenditureStrategyProps {
 
 export default function CapitalExpenditureStrategy({
   onBack,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,

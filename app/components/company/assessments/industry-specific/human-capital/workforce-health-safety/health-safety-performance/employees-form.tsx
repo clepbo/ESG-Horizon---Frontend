@@ -10,8 +10,9 @@ import { uploadService } from "@/services/upload.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import ReusableInput from "../../../environmental/water-management/components/ReusableInput";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface EmployeeFormProps {
   employeeType: "direct" | "contract";

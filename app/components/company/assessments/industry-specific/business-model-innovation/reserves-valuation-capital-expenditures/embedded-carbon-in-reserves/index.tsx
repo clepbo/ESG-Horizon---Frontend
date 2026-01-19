@@ -13,8 +13,8 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { useRouter } from "next/router";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface EmbeddedCarbonInReservesProps {
   onBack: () => void;
