@@ -15,7 +15,7 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface RenewableEnergyInvestmentProps {
