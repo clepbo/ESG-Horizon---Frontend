@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -71,16 +71,23 @@ const scopeData = [
   },
 ];
 
-export function BioDiversityImpact({
-  onBack,
-  initialForm,
-  onContinueToNextAssessment,
-}: BioDiversityImpactProps) {
+export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
+  const params = useParams();
+
+  const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
+  const handleViewReport = () => {
+    if (reportId) {
+      router.push(`/reports-and-analytics/${reportId}?tab=environmental`);
+    } else {
+      router.push("/reports-and-analytics");
+    }
+  };
 
   // Use the reusable hook with checkSubComponentCompletion
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
@@ -115,11 +122,12 @@ export function BioDiversityImpact({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Reserves in Sensitive Areas"
+        assessmentName="Biodiversity Impacts"
+        nextAssessment="Social Capital &amp; Human Rights"
         totals={totals ?? undefined}
-        nextAssessment="Security, Human Rights &amp; Community Engagement"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        reportId={reportId}
+        onContinue={handleViewReport}
+        // onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}
       />
     );
