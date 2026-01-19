@@ -177,7 +177,7 @@ export default function AssignTaskPage() {
 
   const [taskName, setTaskName] = useState("");
   const [selectedMember, setSelectedMember] = useState("");
-  const [dueDate, setDueDate] = useState<Date | undefined>();
+  const [dueDate, setDueDate] = useState<Date | undefined>(new Date());
   const [sendEmail, setSendEmail] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
@@ -248,6 +248,20 @@ export default function AssignTaskPage() {
       setExpandedTopics((prev) => [...prev, topicName]);
     }
   }, [searchParams, editId]);
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    if (date >= tomorrow) {
+      setDueDate(date);
+    } else {
+      toast.warn("Please select a date from tomorrow onwards");
+    }
+  };
 
   useEffect(() => {
     if (editId && tasks) {
@@ -435,6 +449,13 @@ export default function AssignTaskPage() {
     }
   };
 
+  const tomorrow = useMemo(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }, []);
+
   return (
     <div className="p-8 space-y-8">
       <div className="flex items-center">
@@ -501,7 +522,7 @@ export default function AssignTaskPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar selected={dueDate} onSelect={setDueDate} />
+                <Calendar selected={dueDate} onSelect={handleDateSelect} />
               </PopoverContent>
             </Popover>
           </div>
