@@ -30,7 +30,7 @@ interface CapitalExpenditureStrategyProps {
 
 export default function CapitalExpenditureStrategy({
   onBack,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,

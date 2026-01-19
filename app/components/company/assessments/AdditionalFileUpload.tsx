@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CloudUpload, X, Plus, Trash2, FileText, Eye, ExternalLink } from "lucide-react";
+import { CloudUpload, X, Plus, Trash2, FileText, Eye } from "lucide-react";
 import { uploadService } from "@/services/upload.service";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { toast } from "react-toastify";
@@ -42,11 +42,11 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
     onFieldsChange?.(newFields);
   };
 
-  const handleRemoveField = (index: number) => {
-    const newFields = additionalFields.filter((_, i) => i !== index);
-    setAdditionalFields(newFields);
-    onFieldsChange?.(newFields);
-  };
+  // const handleRemoveField = (index: number) => {
+  //   const newFields = additionalFields.filter((_, i) => i !== index);
+  //   setAdditionalFields(newFields);
+  //   onFieldsChange?.(newFields);
+  // };
 
   const handleFileChange = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
