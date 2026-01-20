@@ -1,5 +1,9 @@
 import React from "react";
 import { HiUserGroup } from "react-icons/hi";
+import SocialStepOne from "../social/SocialStepOne";
+import SocialStepTwo from "../social/SocialStepTwo";
+import SocialStepThree from "../social/SocialStepThree";
+import SocialStepFour from "../social/SocialStepFour";
 
 export default function SocialCapital() {
   return (
@@ -21,6 +25,10 @@ export default function SocialCapital() {
           <h6 className="py-2 "> Security, Human Rights & Indegenious Peoples </h6>
           <hr className="text-gray-200" />
         </span>
+        <SocialStepOne />
+        <SocialStepTwo />
+        <SocialStepThree />
+        <SocialStepFour />
       </div>
     </div>
   );
