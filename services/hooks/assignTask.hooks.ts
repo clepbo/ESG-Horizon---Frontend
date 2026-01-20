@@ -23,6 +23,7 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
           )
           .join(", ")
       : "—",
+    assignedToEmail: task.assignments?.[0]?.user?.email,
     dateAssigned: task.createdAt ?? "Unknown",
     description: task.description ?? "",
     priority: task.priority ?? "medium",
@@ -48,6 +49,7 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       ? `${task.createdBy.first_name || ""} ${task.createdBy.last_name || ""}`.trim()
       : "Unknown";
 
+    const creatorEmail = task.createdBy?.email;
     // Extract user IDs from assignments - handle both nested and direct structures
     const assignedUserIds =
       task.assignments?.map((a: any) => a.userId || a.user?.id).filter(Boolean) || [];
@@ -61,6 +63,7 @@ function mapMyTasksResponseToFrontend(tasksFromApi: any[]): FrontendTask[] {
       dueDate: task.dueDate ?? "Unknown",
       status: task.status,
       assignedTo: creatorName,
+      assignedToEmail: creatorEmail,
       dateAssigned: task.createdAt ?? "Unknown",
       description: task.description ?? "",
       priority: task.priority ?? "medium",

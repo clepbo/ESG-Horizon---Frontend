@@ -279,7 +279,25 @@ export function TaskTable({
   const columns = useMemo(
     () => [
       columnHelper.accessor("taskName", { header: "Task Name" }),
-      columnHelper.accessor("assignedTo", { header: "Assigned To" }),
+      columnHelper.display({
+        id: "assignedTo",
+        header: "Assigned To",
+        cell: ({ row }) => {
+          const name = row.original.assignedTo;
+          const email = row.original.assignedToEmail;
+
+          if (!name || name === "—") {
+            return <span className="text-muted-foreground">—</span>;
+          }
+
+          return (
+            <div className="flex flex-col gap-0.5">
+              <span className="font-medium text-sm">{name}</span>
+              {email && <span className="text-xs text-muted-foreground">{email}</span>}
+            </div>
+          );
+        },
+      }),
       columnHelper.accessor("dateAssigned", {
         header: "Date Assigned",
         cell: (info) => {
