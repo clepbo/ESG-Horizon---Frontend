@@ -5,6 +5,7 @@ export interface TaskAssignment {
     id: number;
     first_name: string;
     last_name: string;
+    email: string;
   };
   topics: string[];
 }
@@ -38,6 +39,7 @@ export interface FrontendTask {
   id: number;
   taskName: string;
   assignedTo: string;
+  assignedToEmail?: string;
   dateAssigned: string;
   dueDate: string;
   status: TaskStatus;
