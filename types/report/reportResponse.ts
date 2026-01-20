@@ -1,169 +1,117 @@
 import { GeneralTarget } from "@/app/(company)/reports-and-analytics/components/newReport/environmental/ReductionTarget";
 
 export interface ReportResponse {
-  report: Report;
-  percentage_emission_summary: PercentageEmissionSummary;
-  status: string;
-  top_5_sources: TopSources;
-  fuel_mix_breakdown: FuelMix[];
-  summary: Summary;
-  environment_details: EnvironmentDetails;
-  targets: Target;
+  period: ReportingPeriod;
+  totals: Totals;
+  environment: EnvironmentPillar;
+  social: SocialPillar;
+  humanCapital: HumanCapitalPillar;
+  businessModel: BusinessModelPillar;
+  leadershipAndGovernance: LeadershipAndGovernancePillar;
+  targets: Target | null;
 }
 
-interface GHGData {
-  ghg_total_emissions: number;
-  ghg_history: EmissionHistory[];
-  ghg_scope_1: number;
-  ghg_scope_1_history: EmissionHistory[];
-  ghg_scope_2: number;
-  ghg_scope_2_history: EmissionHistory[];
-  ghg_scope_3: number;
-  ghg_scope_3_history: EmissionHistory[];
-}
-interface EmissionHistory {
-  score: number;
-  period: string;
-}
-export interface Report {
-  id: number;
-  assessmentId: number;
-  ghg_total_emissions: number;
+export interface ReportingPeriod {
   startMonth: string;
   startYear: string;
   endMonth: string;
   endYear: string;
   subsidiary: string;
-  progress: number | null;
-  ghg_scope_one: number;
-  ghg_scope_two: number;
-  ghg_scope_three: number;
+  status: string;
+}
+
+export interface Totals {
+  ghg_total_emissions: number;
   environmental_total_emissions: number;
-  // … add other scope fields as needed
+  social_total_emissions: number;
+  governance_total_emissions: number;
 }
 
-export interface PercentageEmissionSummary {
-  scope1_emission_summary: number;
-  scope2_emission_summary: number;
-  scope3_emission_summary: number;
-}
-
-export interface TopSources {
-  breakdown: {
-    fuelType: string;
-    volume: number;
-    percentage: number;
-  }[];
-}
-
-export interface FuelMix {
-  fuelType: string;
-  scope1: number;
-  scope2: number;
-  scope3: number;
-  total: number;
-}
-
-export interface Summary {
-  startMonth: {
-    environment: {
-      ghg: {
-        scope1: {
-          totalEmission: number;
-          mobileSources?: {
-            totalEmission: number;
-          };
-          processEmissions?: {
-            totalEmission: number;
-          };
-          fugitiveEmissions?: {
-            totalEmission: number;
-          };
-          stationarySources?: {
-            totalEmission: number;
-          };
-        };
-        scope2: {
-          totalEmission: number;
-        };
-        scope3: {
-          totalEmission: number;
-        };
-      };
-      airQuality?: {
-        airPollutantEmissions?: {
-          oxidesOfNitrogen?: number;
-          oxidesOfSuplphur?: number;
-          particulateMatter?: number;
-        };
-      };
-      totalEmission: number;
-    };
-    totalEmission: number;
-    overallProgress: number;
-  };
-}
-
-// export interface EnvironmentDetails {
-//   total: number;
-//   ghg: {
-//     total: number;
-//     scope1: number;
-//     scope2: number;
-//     scope3: number;
-//   };
-//   airQuality: {
-//     totalAirPollutantEmission: number;
-//     nox: number;
-//     sox: number;
-//     voc: number;
-//     pm: number;
-//   };
-//   waterManagement: WaterManagement;
-//   biodiversityImpact: BiodiversityImpact;
-//   // … add waterManagement, biodiversityImpacts, etc.
-// }
-
-export interface EnvironmentDetails {
-  total: number;
+export interface EnvironmentPillar {
   ghg: GHGData;
-  airQuality: {
-    totalAirPollutantEmission: number;
-    nox: number;
-    sox: number;
-    voc: number;
-    pm: number;
+  airQuality: AirQualityData;
+  waterManagement: WaterManagementData;
+  biodiversityImpacts: BiodiversityImpactsData;
+}
+
+export interface GHGData {
+  totalEmissions: number;
+  scope1: ScopeData;
+  scope2: ScopeData;
+  scope3: ScopeData;
+  allHistory: EmissionHistory[];
+}
+
+export interface ScopeData {
+  emissions: number;
+  percentage: number;
+  history: EmissionHistory[];
+}
+
+export interface EmissionHistory {
+  score: number;
+  period: string;
+}
+
+export interface AirQualityData {
+  totalEmission: number;
+  nox: number;
+  sox: number;
+  voc: number;
+  pm10: number;
+}
+
+export interface WaterManagementData {
+  freshwaterWithdrawals: {
+    surfaceWater: number;
+    groundwater: number;
+    municipal: number;
+    total: number;
   };
-  waterManagement: {
-    totalWaterWithdrawal: number;
-    totalWaterConsumed: number;
-    totalProducedWaterGenerated: number;
+  waterConsumed: {
+    total: number;
+  };
+  producedWater: {
+    totalGenerated: number;
     recycledReused: number;
     injectedForDisposal: number;
     dischargedToSurface: number;
-    hydraulicFracturing: {
-      totalFracturedWells: number;
-      volumeRecycledReused: number;
-    };
-    waterQualityImpacts: {
-      wellsWithPublicChemicalDisclosure: number;
-      volumeRecycledReused: number;
-    };
   };
-  biodiversityImpacts: {
-    hydrocarbonSpills: {
-      numberOfSpills: number;
-      totalVolumeSpilled: number;
-      volumeRecovered: number;
+  hydraulicFracturing: {
+    wells: {
+      total: number;
+      withPublicDisclosure: number;
+      percentageWithDisclosure: number;
     };
-    reservesInSensitiveAreas: {
-      proved: number;
-      probable: number;
+    sites: {
+      total: number;
+      withDeterioratedWaterQuality: number;
     };
-    volumeInArctic: number;
-    sensitiveShorelines: number;
+    chemicalDisclosure: {
+      volumeRecycled: number;
+    };
   };
 }
+
+export interface BiodiversityImpactsData {
+  hydrocarbonSpills: {
+    numberOfSpills: number;
+    totalVolumeSpilled: number;
+    volumeRecovered: number;
+    volumeInArctic: number;
+    volumeImpactingShorelines: number;
+  };
+  reservesInSensitiveAreas: {
+    proved: number;
+    probable: number;
+  };
+}
+
+// Placeholder pillar interfaces
+export interface SocialPillar {}
+export interface HumanCapitalPillar {}
+export interface BusinessModelPillar {}
+export interface LeadershipAndGovernancePillar {}
 
 export interface Target {
   name: string;
