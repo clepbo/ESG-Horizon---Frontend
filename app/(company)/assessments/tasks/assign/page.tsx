@@ -362,7 +362,7 @@ export default function AssignTaskPage() {
                 "hover:bg-gray-50"
               )}
             >
-              <div className="flex items-center gap-2 flex-grow">
+              <div className="flex items-center gap-2 grow">
                 <CustomCheckbox
                   checked={checked}
                   indeterminate={indeterminate}
@@ -544,7 +544,7 @@ export default function AssignTaskPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
           <div>
-            <div className="border border-gray-200 rounded-xl p-4 bg-white max-h-[500px] overflow-hidden shadow-inner">
+            <div className="border border-gray-200 rounded-xl p-4 bg-white max-h-125 overflow-hidden shadow-inner">
               {filteredTopics.length > 0 ? (
                 renderTopics(filteredTopics)
               ) : (
@@ -556,7 +556,7 @@ export default function AssignTaskPage() {
           </div>
 
           <div>
-            <div className="relative border border-gray-200 rounded-xl p-4 bg-white min-h-[400px] shadow-sm">
+            <div className="relative border border-gray-200 rounded-xl p-4 bg-white min-h-100 shadow-sm">
               {selectedTopics.length === 0 ? (
                 <div className="absolute inset-4 flex items-center justify-center">
                   <p className="text-md text-gray-500 text-center">
@@ -589,11 +589,7 @@ export default function AssignTaskPage() {
           <Button variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
-          <Button
-            className="bg-[var(--color-primary)] text-white"
-            onClick={handleSubmit}
-            disabled={isAssigning}
-          >
+          <Button className="bg-primary text-white" onClick={handleSubmit} disabled={isAssigning}>
             {isAssigning ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
