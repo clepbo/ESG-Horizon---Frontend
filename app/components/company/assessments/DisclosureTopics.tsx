@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/app/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
   Accordion,
@@ -34,6 +34,7 @@ import { useTopicCompletion } from "@/hooks/useAssessmentCompletion";
 import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
+import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -323,15 +324,17 @@ export function DisclosureTopics({
 }: DisclosureTopicsProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState(initialView);
+  // const [currentView, setCurrentView] = useState("activity-metrics");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
 
   // Use the custom hook for topic completion status
   const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
-
   const handleCardClick = (cardTitle: string) => {
     switch (cardTitle) {
+      // case "Activity Metrics":
+      //   setCurrentView("activity-metrics")
       case "Greenhouse Gas Emissions":
         setCurrentView("ghg");
         break;
@@ -407,6 +410,11 @@ export function DisclosureTopics({
   const filteredIndustryMetrics = filterMetrics(industrySpecificMetrics, "Industry-Specific");
   const filteredSupplementaryMetrics = filterMetrics(supplementaryMetrics, "Supplementary");
 
+  if( currentView === "activity-metrics" ){
+    return (
+      <ActivityMetricHome />
+    )
+  }
   if (currentView === "ghg") {
     return (
       <GhgEmissionsAssessment
@@ -607,7 +615,50 @@ export function DisclosureTopics({
                   className="pl-10"
                 />
               </div>
+              <div className="grid my-6">
 
+                <div className="flex items-center w-full relative">
+                  <span className="text-lg font-semibold flex items-center gap-2">
+                    Foundational Data
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="top"
+                        align="center"
+                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl  border-none"
+                      >
+                        <h6 className="underline">Foundational Data</h6>
+                        <p>
+                          Foundational data refers to the core, baseline information required to accurately calculate metrics and generate ESG assessments. It includes essential inputs such as activity data, operational figures, workforce totals, production volumes, or other primary data points that form the basis of all calculations and analysis. Providing accurate foundational data ensures consistency, reliability, and comparability across reporting periods.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                </div>
+                <Card
+                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
+                  onClick={() => setCurrentView("activity-metrics")}
+                >
+                  <CardContent className="p-4 flex justify-between items-center">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-foreground">
+                            Activity Metrics
+                          </h5>
+                          {/* <CompletionIndicator status={getStatus(card.title)} /> */}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Report production volumes and the number of operational sites.
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0" />
+                  </CardContent>
+                </Card>
+              </div>
               <Accordion type="multiple" className="space-y-6" defaultValue={["industry-specific"]}>
                 {/* Industry-Specific Metrics */}
                 {filteredIndustryMetrics.length > 0 && (
@@ -665,11 +716,10 @@ export function DisclosureTopics({
                                   key={card.title}
                                   className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
                                     card.title
-                                  )} ${
-                                    card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                  }`}
+                                  )} ${card.clickable
+                                    ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                    : "cursor-default"
+                                    }`}
                                   onClick={() => card.clickable && handleCardClick(card.title)}
                                 >
                                   <CardContent className="p-4">
