@@ -45,8 +45,21 @@ interface FileWithMeta {
   section: string;
 }
 
+// Helper function to format numbers
+const formatNumber = (value: any): string => {
+  if (value === undefined || value === null || value === "") return "";
+  const num = Number(value);
+  if (isNaN(num)) return String(value);
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(num);
+};
+
 const DataField = ({ label, value, unit }: { label: string; value: any; unit?: string }) => {
   const isEmpty = value === undefined || value === null || value === "";
+  const isNumeric = !isEmpty && !isNaN(Number(value));
+
   return (
     <div className="flex flex-col gap-1 py-2 border-b border-gray-50 last:border-0">
       <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">{label}</span>
@@ -55,7 +68,9 @@ const DataField = ({ label, value, unit }: { label: string; value: any; unit?: s
           <span className="text-gray-400 text-xs italic">n/a</span>
         ) : (
           <>
-            <span className="text-sm font-semibold text-gray-800">{value}</span>
+            <span className="text-sm font-semibold text-gray-800">
+              {isNumeric ? formatNumber(value) : value}
+            </span>
             {unit && <span className="text-[10px] text-gray-500 font-normal">{unit}</span>}
           </>
         )}
@@ -92,13 +107,15 @@ const DataList = ({ data, label }: { data: any[]; label: string }) => {
                     displayValue = fuelLabel;
                   }
 
+                  const isNumericValue = !isNaN(Number(displayValue)) && key !== "fuelType";
+
                   return (
                     <div key={key} className="flex flex-col gap-0.5">
                       <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
                         {displayLabel}
                       </span>
                       <span className="text-xs font-semibold text-gray-700 truncate">
-                        {displayValue}
+                        {isNumericValue ? formatNumber(displayValue) : displayValue}
                         {key === "volume" && item.unit ? ` ${item.unit}` : ""}
                       </span>
                     </div>
@@ -349,10 +366,19 @@ export function AssessmentDetailsModal({
               {/* HERO SUMMARY */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className="bg-linear-to-br from-teal-500 to-emerald-600 text-white">
-                  <CardContent className="p-6">
+                  <CardContent className="p-6 overflow-hidden">
                     <p className="text-teal-100 text-sm">Total Emissions</p>
-                    <p className="text-4xl font-bold">
-                      {assessmentData.totalEmission?.toFixed(2) || "0.00"} tCO₂e
+
+                    <p
+                      className={`font-bold whitespace-normal wrap-break-word ${
+                        String(formatNumber(assessmentData.totalEmission) || "0.00").length > 10
+                          ? "text-2xl"
+                          : String(formatNumber(assessmentData.totalEmission) || "0.00").length > 7
+                            ? "text-3xl"
+                            : "text-4xl"
+                      }`}
+                    >
+                      {formatNumber(assessmentData.totalEmission) || "0.00"} tCO₂e
                     </p>
                   </CardContent>
                 </Card>
@@ -413,7 +439,7 @@ export function AssessmentDetailsModal({
                           <Zap className="w-5 h-5 text-yellow-600" />
                           <span className="text-lg font-bold">GHG Emissions</span>
                           <Badge variant="outline" className="ml-2">
-                            {assessmentData.totalEmission?.toFixed(2) || "0.00"} tCO₂e
+                            {formatNumber(assessmentData.totalEmission) || "0.00"} tCO₂e
                           </Badge>
                         </div>
                       </AccordionTrigger>
@@ -979,7 +1005,7 @@ export function AssessmentDetailsModal({
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold">{s.emission.toFixed(2)} tCO₂e</p>
+                            <p className="text-2xl font-bold">{formatNumber(s.emission)} tCO₂e</p>
                             <p className="text-sm text-gray-600">{s.percentage}% of total</p>
                           </div>
                         </div>

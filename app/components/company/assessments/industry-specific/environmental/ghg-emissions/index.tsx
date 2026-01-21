@@ -300,9 +300,19 @@ export function GhgEmissionsAssessment({
     return (
       <MarketBasedForm
         onBack={handleBackToOverview}
-        onContinueToNextAssessment={() => setCurrentView("scope3")}
+        onContinueToNextAssessment={() => setCurrentView("upstream-emissions")}
         initialStep={initialStep as any}
         onBackToDisclosureTopics={onBack}
+      />
+    );
+  }
+
+  if (currentView === "scope3") {
+    return (
+      <UpstreamEmissionHome
+        handleBacktoAssessment={onBackToHub}
+        handleBacktoGHG={handleBackToOverview}
+        backToDisclossureTopic={onBack}
       />
     );
   }

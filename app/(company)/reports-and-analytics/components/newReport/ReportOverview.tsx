@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { CiWavePulse1 } from "react-icons/ci";
-import OilRenderCard, { cardData } from "./overview/OilRenderCard";
+import OilRenderCard from "./overview/OilRenderCard";
 import ProductionVolumesChart from "./overview/oilProductionChart";
 import DonutChart from "./overview/DonoghtChart";
 import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
@@ -46,17 +46,107 @@ export default function ReportOverview() {
     );
   }
 
+  // Extract data from API response
+  const activityMetrics = reportData?.activityMetrics;
+  const environmental = reportData?.environmental;
+  const socialCapital = reportData?.socialCapital;
+  const humanCapital = reportData?.humanCapital;
+  const businessModel = reportData?.businessModel;
+  const leadership = reportData?.leadershipAndGovernance;
+
+  // Production data cards
+  const productionCards = [
+    {
+      title: "Crude Oil",
+      amount: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
+      sub: "kbbl/day",
+      borderColor: "#F28B0D"
+    },
+    {
+      title: "Synthetic Oil",
+      amount: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
+      sub: "kbbl/day",
+      borderColor: "#FCDC8B"
+    },
+    {
+      title: "Natural Gas",
+      amount: activityMetrics?.productionData?.gasProduction?.naturalGas ?? 0,
+      sub: "mmscfd",
+      borderColor: "#3B82F6"
+    },
+    {
+      title: "Synthetic Gas",
+      amount: activityMetrics?.productionData?.gasProduction?.syntheticGas ?? 0,
+      sub: "mmscfd",
+      borderColor: "#BFD7FE"
+    },
+  ];
+
+  // Offshore sites donut data
+  const offshoreSitesData = [
+    {
+      name: "Production Platforms",
+      value: activityMetrics?.assetPortfolio?.offshoreSites?.productionPlatforms ?? 0,
+      color: "#3b82f6"
+    },
+    {
+      name: "FPSOs",
+      value: activityMetrics?.assetPortfolio?.offshoreSites?.FPSOs ?? 0,
+      color: "#22c55e"
+    },
+    {
+      name: "Other Offshore Sites",
+      value: activityMetrics?.assetPortfolio?.offshoreSites?.otherSites ?? 0,
+      color: "#9ca3af"
+    },
+  ];
+
+  // Terrestrial sites donut data
+  const terrestrialSitesData = [
+    {
+      name: "Flow Stations",
+      value: activityMetrics?.assetPortfolio?.terrestrialSites?.flowStations ?? 0,
+      color: "#f64c4c"
+    },
+    {
+      name: "Gas Processing Plants",
+      value: activityMetrics?.assetPortfolio?.terrestrialSites?.gasProcessingPlants ?? 0,
+      color: "#af57db"
+    },
+    {
+      name: "Other Sites",
+      value: activityMetrics?.assetPortfolio?.terrestrialSites?.otherSites ?? 0,
+      color: "#9ca3af"
+    },
+  ];
+
   const environmentalAmount = (
     <p className="font-bold">
-      {formatNumberWithCommas(reportData?.summary?.startMonth?.environment?.totalEmission ?? 0)}{" "}
+      {formatNumberWithCommas(environmental?.total_emission ?? 0)}{" "}
       <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
     </p>
   );
 
   const environmentalScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={` rotate-180`} />
-      23
+      <FaArrowDown className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      {Math.abs(environmental?.changePercentage ?? 0).toFixed(1)}%
+    </small>
+  );
+
+  const socialCapitalScore = socialCapital?.operationalDelaysLevel ?? "N/A";
+
+  const humanCapitalScore = (
+    <small className="flex items-center gap-2">
+      <FaArrowDown className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      {Math.abs(humanCapital?.changePercentage ?? 0).toFixed(1)}%
+    </small>
+  );
+
+  const businessModelScore = (
+    <small className="flex items-center gap-2">
+      <FaArrowDown className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      {Math.abs(businessModel?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
 
@@ -68,7 +158,7 @@ export default function ReportOverview() {
         </span>
         <div className="flex flex-col">
           <h6 className="text-sm"> Activity metrics</h6>
-          <p className="text-xs text-gray-600"> Production Data and Asset Portfolio</p>
+          <p className="text-xs text-gray-600">Production Data and Asset Portfolio</p>
         </div>
       </div>
 
@@ -79,7 +169,7 @@ export default function ReportOverview() {
             <ProductionVolumesChart />
           </div>
           <div className="flex flex-col gap-2 lg:gap-4">
-            {cardData.map((card) => {
+            {productionCards.map((card) => {
               return (
                 <OilRenderCard
                   key={card.title}
@@ -102,7 +192,7 @@ export default function ReportOverview() {
               borderColor={"#0000"}
               title={"Total Number of Offshore Sites"}
               sub={"sites"}
-              amount={-20}
+              amount={activityMetrics?.assetPortfolio?.offshoreSites?.totalNumber ?? 0}
             />
           </span>
           <span className="max-w-sm">
@@ -110,7 +200,7 @@ export default function ReportOverview() {
               borderColor={"#0000"}
               title={"Total Number of Terrestrial Sites"}
               sub={"sites"}
-              amount={-30}
+              amount={activityMetrics?.assetPortfolio?.terrestrialSites?.totalNumber ?? 0}
             />
           </span>
         </div>
@@ -119,21 +209,13 @@ export default function ReportOverview() {
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 w-full">
         <span className="col-span-1">
           <DonutChart
-            data={[
-              { name: "Production Platforms", value: 470, color: "#3b82f6" },
-              { name: "FPSOs", value: 120, color: "#22c55e" },
-              { name: "Other Offshore Sites", value: 80, color: "#9ca3af" },
-            ]}
+            data={offshoreSitesData}
           />
         </span>
         <span className="col-span-1">
           <DonutChart
-            title="Terrestial Sites"
-            data={[
-              { name: "Flow Stations", value: 470, color: "#f64c4c" },
-              { name: "Gas Proseccing Plants", value: 120, color: "#af57db" },
-              { name: "Other Sites", value: 80, color: "#9ca3af" },
-            ]}
+            title="Terrestrial Sites"
+            data={terrestrialSitesData}
           />
         </span>
       </div>
@@ -158,7 +240,7 @@ export default function ReportOverview() {
           score={environmentalScore}
           amount={environmentalAmount}
           footer={
-            "On track to meet 2030 reduction targets. Scope 2 emissions showsignificant improvement."
+            "On track to meet 2030 reduction targets. Scope 2 emissions show significant improvement."
           }
           icon={<FaLeaf />}
           iconBg={"#f1fcf4"}
@@ -168,12 +250,12 @@ export default function ReportOverview() {
           scoreColor="#93c4a1"
         />
         <EsgAssignmrntReportCard
-          title={"Operational  Delays"}
+          title={"Operational Delays"}
           pillar={"Social Capital"}
-          score={"15 indidents"}
-          amount={""}
+          score={socialCapitalScore}
+          amount={`${socialCapital?.totalNumberOfIncidents ?? 0} incidents`}
           footer={
-            "Community engagement efforts increased in conflict zones. Protest remain a key operational risk."
+            "Community engagement efforts increased in conflict zones. Protests remain a key operational risk."
           }
           icon={<PiUsersFill />}
           iconBg={"#eff5ff"}
@@ -184,8 +266,8 @@ export default function ReportOverview() {
         <EsgAssignmrntReportCard
           title={"Total recordable incident rate"}
           pillar={"Human Capital"}
-          score={environmentalScore}
-          amount={""}
+          score={humanCapitalScore}
+          amount={`${humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0} per 200k hrs`}
           footer={
             "Safety performance improved by 10% YoY. Zero fatalities recorded in the reporting period."
           }
@@ -198,8 +280,8 @@ export default function ReportOverview() {
         <EsgAssignmrntReportCard
           title={"Reserves at risk"}
           pillar={"Business Model"}
-          score={environmentalScore}
-          amount={""}
+          score={businessModelScore}
+          amount={`${businessModel?.totalReservesAmountAtRisk ?? 0} bbl`}
           footer={
             "Strategic shift towards renewables accelerating. Carbon pricing impact on reserves modeled"
           }
@@ -212,8 +294,8 @@ export default function ReportOverview() {
         <EsgAssignmrntReportCard
           title={"Process safety"}
           pillar={"Leadership and Governance"}
-          score={environmentalScore}
-          amount={""}
+          score={`${leadership?.processSafetyPercentage ?? 0}%`}
+          amount={leadership?.numberOfTierEventsAndWhatTier ?? "N/A"}
           footer={"Sustainability committee established. Whistleblower system active and verified"}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}
