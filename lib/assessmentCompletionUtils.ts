@@ -143,6 +143,13 @@ const SUB_COMPONENT_MAPPING: Record<string, string[]> = {
 };
 
 /**
+ * Define optional fields that should not be counted in completion calculation
+ */
+const OPTIONAL_FIELDS: Record<string, string[]> = {
+  environmentalManagementPolicies: ["filesAndLinks"],
+};
+
+/**
  * Safely get nested property from object
  */
 function getNestedValue(obj: any, path: string[]): any {
@@ -235,14 +242,18 @@ function hasActualData(data: any): boolean {
 }
 
 /**
- * Count total fields and filled fields in an object
+ * Get the component type from a data path (e.g., "environmentalManagementPolicies")
  */
-function calculateFieldCompletion(data: any): { total: number; filled: number } {
-  if (!data || typeof data !== "object") {
-    return { total: 0, filled: 0 };
-  }
+function getComponentTypeFromPath(dataPath: string[]): string | null {
+  // Return the last part of the path as the component type
+  return dataPath[dataPath.length - 1] || null;
+}
 
-  const excludedKeys = [
+/**
+ * Check if a field should be excluded from completion calculation
+ */
+function shouldExcludeField(componentType: string | null, fieldKey: string): boolean {
+  const defaultExcludedKeys = [
     "status",
     "lastUpdated",
     "id",
@@ -252,11 +263,41 @@ function calculateFieldCompletion(data: any): { total: number; filled: number } 
     "progress",
     "totalEmission",
   ];
+
+  // Always exclude default keys
+  if (defaultExcludedKeys.includes(fieldKey)) {
+    return true;
+  }
+
+  // Check if this field is marked as optional for this component type
+  if (componentType && OPTIONAL_FIELDS[componentType]) {
+    return OPTIONAL_FIELDS[componentType].includes(fieldKey);
+  }
+
+  return false;
+}
+
+/**
+ * Count total fields and filled fields in an object
+ * @param data - The data object to analyze
+ * @param componentType - Optional component type to check for optional fields
+ */
+function calculateFieldCompletion(
+  data: any,
+  componentType: string | null = null
+): { total: number; filled: number } {
+  if (!data || typeof data !== "object") {
+    return { total: 0, filled: 0 };
+  }
+
   let total = 0;
   let filled = 0;
 
   Object.entries(data).forEach(([key, value]) => {
-    if (excludedKeys.includes(key)) return;
+    // Skip excluded fields (including optional ones for this component)
+    if (shouldExcludeField(componentType, key)) {
+      return;
+    }
 
     if (Array.isArray(value)) {
       total += 1;
@@ -265,7 +306,7 @@ function calculateFieldCompletion(data: any): { total: number; filled: number } 
     }
 
     if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      const nested = calculateFieldCompletion(value);
+      const nested = calculateFieldCompletion(value, componentType);
       total += nested.total;
       filled += nested.filled;
       return;
@@ -280,8 +321,10 @@ function calculateFieldCompletion(data: any): { total: number; filled: number } 
 
 /**
  * Check data completion with status-based results
+ * @param data - The data object to check
+ * @param componentType - Optional component type to check for optional fields
  */
-function checkDataCompletion(data: any): CompletionStatus {
+function checkDataCompletion(data: any, componentType: string | null = null): CompletionStatus {
   if (!data || typeof data !== "object") {
     return { status: "not-started", completionPercentage: 0 };
   }
@@ -290,7 +333,7 @@ function checkDataCompletion(data: any): CompletionStatus {
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  const { total, filled } = calculateFieldCompletion(data);
+  const { total, filled } = calculateFieldCompletion(data, componentType);
 
   if (total === 0) {
     return { status: "not-started", completionPercentage: 0 };
@@ -341,7 +384,10 @@ function checkMultiComponentCompletion(
 
     if (componentData && hasActualData(componentData)) {
       componentsWithData += 1;
-      const componentCompletion = checkDataCompletion(componentData);
+
+      // Extract component type from path for optional field handling
+      const componentType = componentPath.split(".").pop() || null;
+      const componentCompletion = checkDataCompletion(componentData, componentType);
 
       if (componentCompletion.status === "completed") {
         completedComponents += 1;
@@ -461,7 +507,9 @@ export function checkSubComponentCompletion(
     return { status: "not-started", completionPercentage: 0 };
   }
 
-  const completion = checkDataCompletion(componentData);
+  // Get component type for optional field handling
+  const componentType = getComponentTypeFromPath(dataPath);
+  const completion = checkDataCompletion(componentData, componentType);
   const componentPath = dataPath.join(".");
 
   const isComponentSubmitted = submittedGroups.some((group: string) =>
