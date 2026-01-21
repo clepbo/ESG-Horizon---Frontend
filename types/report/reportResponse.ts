@@ -1,14 +1,178 @@
 import { GeneralTarget } from "@/app/(company)/reports-and-analytics/components/newReport/environmental/ReductionTarget";
 
 export interface ReportResponse {
-  period: ReportingPeriod;
-  totals: Totals;
-  environment: EnvironmentPillar;
-  social: SocialPillar;
-  humanCapital: HumanCapitalPillar;
-  businessModel: BusinessModelPillar;
-  leadershipAndGovernance: LeadershipAndGovernancePillar;
-  targets: Target | null;
+  report?: {
+    subsidiary: string;
+    startMonth: string;
+    startYear: string;
+    endMonth: string;
+    endYear: string;
+    assessmentId: number;
+  };
+  status?: string;
+  activityMetrics?: ActivityMetrics;
+  environmental?: EnvironmentalPillar;
+  environment?: EnvironmentPillar; // Legacy guy
+  socialCapital?: SocialCapitalPillar;
+  social?: SocialPillar; // Legacy
+  humanCapital?: HumanCapitalPillar;
+  businessModel?: BusinessModelPillar;
+  leadershipAndGovernance?: LeadershipAndGovernancePillar;
+  targets?: Target | null;
+  summary?: any; // Legacy field
+}
+
+export interface ActivityMetrics {
+  productionData?: {
+    oilProduction?: {
+      crudeOil: number;
+      syntheticOil: number;
+    };
+    gasProduction?: {
+      naturalGas: number;
+      syntheticGas: number;
+    };
+  };
+  assetPortfolio?: {
+    offshoreSites?: {
+      totalNumber: number;
+      productionPlatforms: number;
+      FPSOs: number;
+      otherSites: number;
+    };
+    terrestrialSites?: {
+      totalNumber: number;
+      flowStations: number;
+      gasProcessingPlants: number;
+      otherSites: number;
+    };
+  };
+}
+
+export interface EnvironmentalPillar {
+  total_emission?: number;
+  desc?: string;
+  changePercentage?: number;
+  greenhouseGasEmission?: {
+    totalEmissions: number;
+    totalHistory: EmissionHistory[];
+    scope1Emissions: number;
+    scope1History: EmissionHistory[];
+    scope2Emissions: number;
+    scope2History: EmissionHistory[];
+    scope3Emissions: number;
+    scope3History: EmissionHistory[];
+  };
+  ghg?: GHGData;
+  airQuality?: AirQualityData;
+  waterManagement?: WaterManagementData;
+  biodiversityImpact?: BiodiversityImpactsData;
+  biodiversityImpacts?: BiodiversityImpactsData; // Alternative naming
+}
+
+export interface SocialCapitalPillar {
+  operationalDelaysLevel?: string;
+  desc?: string;
+  totalNumberOfIncidents?: number;
+  securityHumanRightsAndIndigenousPeople?: {
+    operationsInConflictZones?: {
+      provedReserves: number;
+      probableReserves: number;
+    };
+    reservesInNearIndigenousLand?: {
+      provedReserves: number;
+      probableReserves: number;
+    };
+  };
+  communityRelations?: {
+    hcdtContribution?: {
+      priorYearOpexAmount: number;
+      annualContribution: number;
+      percentage: number;
+    };
+    communityDisputeResolution?: {
+      resolvedDisputes: number;
+      pending: number;
+      total: number;
+    };
+    operationalDelays?: {
+      protests?: {
+        count: number;
+        delay: number;
+      };
+      otherIssues?: {
+        count: number;
+        delay: number;
+      };
+    };
+  };
+}
+
+export interface HumanCapitalPillar {
+  totalRecordableIncidentRatePer200kHours?: number;
+  desc?: string;
+  changePercentage?: number;
+  recordableIncidents?: number;
+  fatalities?: number;
+  nearMisses?: number;
+  averageSafetyTrainingHoursPerEmployee?: number;
+}
+
+export interface BusinessModelPillar {
+  totalReservesAmountAtRisk?: number;
+  desc?: string;
+  changePercentage?: number;
+  reservesValuationAndCapitalExpenditure?: {
+    climateImpactOnReserves?: {
+      carbonPriceScenario: string;
+      reservesAtRiskPercent: number;
+      totalProvedReserves: number;
+      embeddedCarbon: number;
+    };
+    strategicCapitalAllocation?: {
+      renewableInvestmentAmount: number;
+      renewableRevenueAmount: number;
+      gasProjectsValueCount: number;
+      maintenanceValueCount: number;
+      renewableProjectsValueCount: number;
+    };
+  };
+  businessEthicsAndTransparency?: {
+    geopoliticalAndCorruptionRisk?: {
+      proved: {
+        total: number;
+        risk: number;
+      };
+      probable: {
+        total: number;
+        risk: number;
+      };
+    };
+    antiCorruptionManagement?: string;
+  };
+}
+
+export interface LeadershipAndGovernancePillar {
+  processSafetyPercentage?: number;
+  desc?: string;
+  numberOfTierEventsAndWhatTier?: string;
+  managementOfLegalAndRegulatoryEnvironment?: {
+    publicPolicyAndLobbying?: string;
+    policyPosition?: string;
+    sustainabilityGovernance?: string;
+    sustainabilityPosition?: string;
+  };
+  criticalIncidenceRiskManagement?: {
+    processSafetyEvents?: {
+      tierOneEvents: number;
+      totalHoursWorked: number;
+      rate: number;
+    };
+    catastrophicEvents?: {
+      lastAssetIntegrityAudit: string;
+      description: string;
+    };
+  };
 }
 
 export interface ReportingPeriod {
@@ -54,73 +218,122 @@ export interface EmissionHistory {
 }
 
 export interface AirQualityData {
-  totalEmission: number;
+  totalAirPollutantEmission?: number;
+  totalEmission?: number;
   nox: number;
   sox: number;
   voc: number;
-  pm10: number;
+  pm10?: number;
+  pm?: number;
 }
 
 export interface WaterManagementData {
-  freshwaterWithdrawals: {
+  totalWaterWithdrawal?: number;
+  totalWaterConsumed?: number;
+  totalProducedWaterGenerated?: number;
+  recycledReused?: number;
+  injectedForDisposal?: number;
+  dischargedToSurface?: number;
+  freshwaterWithdrawals?: {
     surfaceWater: number;
     groundwater: number;
     municipal: number;
     total: number;
   };
-  waterConsumed: {
+  freshwaterWithdrawalBySource?: {
+    surfaceWater: number;
+    groundwater: number;
+    municipalWater: number;
+  };
+  waterConsumed?: {
     total: number;
   };
-  producedWater: {
+  producedWater?: {
     totalGenerated: number;
     recycledReused: number;
     injectedForDisposal: number;
     dischargedToSurface: number;
   };
-  hydraulicFracturing: {
-    wells: {
+  hydraulicFracturing?: {
+    totalFracturedWells?: number;
+    volumeRecycledReused?: number;
+    wells?: {
       total: number;
       withPublicDisclosure: number;
       percentageWithDisclosure: number;
     };
-    sites: {
+    sites?: {
       total: number;
       withDeterioratedWaterQuality: number;
     };
-    chemicalDisclosure: {
+    chemicalDisclosure?: {
       volumeRecycled: number;
     };
+  };
+  hydraulicFracturingChemicalDisclosure?: {
+    wells?: {
+      totalFracturedWells: number;
+      numberOfWellsWithPublicDisclosure: number;
+      percentageWithDisclosure: number;
+    };
+  };
+  hydraulicFracturingWaterQualityImpacts?: {
+    sites?: {
+      totalFracturedSitesMonitored: number;
+      withDeterioratedWaterQuality: number;
+      percentageWithDeterioratedWaterQuality: number;
+    };
+  };
+  waterQualityImpacts?: {
+    wellsWithPublicChemicalDisclosure?: number;
+    volumeRecycledReused?: number;
   };
 }
 
 export interface BiodiversityImpactsData {
-  hydrocarbonSpills: {
+  hydrocarbonSpills?: {
     numberOfSpills: number;
     totalVolumeSpilled: number;
     volumeRecovered: number;
-    volumeInArctic: number;
-    volumeImpactingShorelines: number;
+    volumeInArctic?: number;
+    volumeImpactingShorelines?: number;
   };
-  reservesInSensitiveAreas: {
-    proved: number;
-    probable: number;
+  reservesInSensitiveAreas?: {
+    proved?: number;
+    probable?: number;
+    provedReserves?: number;
+    probableReserves?: number;
   };
+  volumeInArctic?: number;
 }
 
-// Placeholder pillar interfaces
-export interface SocialPillar {}
-export interface HumanCapitalPillar {}
-export interface BusinessModelPillar {}
-export interface LeadershipAndGovernancePillar {}
+// Placeholder pillar interfaces (keep for backwards compatibility)
+export interface SocialPillar { }
 
 export interface Target {
+  id?: number;
   name: string;
+  companyId?: number;
   type: string;
+  description?: string;
   baselineYear: number;
   targetYear: number;
-  reductionPercentage: number;
+  createdAt?: string;
+  updatedAt?: string;
+  createdById?: number;
+  scopeTargets?: any[];
+  generalTarget?: GeneralTarget & {
+    id?: number;
+    targetId?: number;
+    reductionPercentage: number;
+    createdAt?: string;
+    updatedAt?: string;
+    baselineYearEmission?: number;
+    targetEmission?: number;
+    currentEmission?: number;
+  };
+  reductionPercentage?: number;
   baselineValue?: number;
-  generalTarget?: GeneralTarget;
   currentValue?: number | null;
   targetValue?: number;
 }
