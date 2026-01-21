@@ -21,7 +21,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { AddSource } from "@/app/components/company/assessments/AddSource";
+import { AddProduct, ProductData } from "@/app/components/company/assessments/AddProduct";
 
 interface EndOfLifeTreatmentProps {
   onBack: () => void;
@@ -38,6 +38,15 @@ interface EndOfLifeTreatmentErrors {
   disposalMethods?: string;
   otherDisposalMethod?: string;
   files?: string;
+  products?: string;
+}
+
+interface EndOfLifeTreatmentData {
+  selectedMethods?: { [key: string]: boolean };
+  otherDisposalMethod?: string;
+  products?: ProductData[];
+  files?: { [key: string]: FileMetadata | null };
+  additionalFields?: FileMetadata[];
 }
 
 const uploadFields = [
@@ -76,7 +85,8 @@ export function EndOfLifeTreatment({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
   const [errors, setErrors] = useState<EndOfLifeTreatmentErrors>({});
 
-  // Checkbox states
+  const [products, setProducts] = useState<ProductData[]>([]);
+
   const [selectedMethods, setSelectedMethods] = useState<{ [key: string]: boolean }>({
     landfill: false,
     recycling: false,
@@ -99,12 +109,10 @@ export function EndOfLifeTreatment({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
   useEffect(() => {
-    const existingData =
+    const existingData: EndOfLifeTreatmentData | undefined =
       state.assessmentData.environment?.ghg?.scope3?.downstream?.endOfLifeTreatment;
     if (existingData) {
-      // Checkbox fields
       setSelectedMethods(
         existingData.selectedMethods || {
           landfill: false,
@@ -115,8 +123,7 @@ export function EndOfLifeTreatment({
         }
       );
       setOtherDisposalMethod(existingData.otherDisposalMethod || "");
-
-      // Files
+      setProducts(existingData.products || []);
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -125,23 +132,23 @@ export function EndOfLifeTreatment({
   }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
   const { filled, total } = useMemo(() => {
-    // Check each required field
     const hasDisposalMethods = Object.values(selectedMethods).some((value) => value === true);
     const hasOtherMethodFilled = selectedMethods.others
       ? otherDisposalMethod.trim().length > 0
       : true;
+    const hasProducts = products.length > 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
     const progressChecks = [
       hasDisposalMethods && hasOtherMethodFilled,
+      hasProducts,
       hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [selectedMethods, otherDisposalMethod, files, additionalFields]);
+  }, [selectedMethods, otherDisposalMethod, products, files, additionalFields]);
 
-  // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
     setErrors({});
     setFieldErrors({
@@ -157,14 +164,11 @@ export function EndOfLifeTreatment({
       otherDisposalMethod: false,
     };
 
-    // Validate at least one disposal method is selected
     const hasSelectedMethod = Object.values(selectedMethods).some((value) => value === true);
     if (!hasSelectedMethod) {
       newErrors.disposalMethods = "Please select at least one disposal method.";
       newFieldErrors.disposalMethods = true;
     }
-
-    // Validate "Others" field if checked
     if (selectedMethods.others && !otherDisposalMethod.trim()) {
       newErrors.otherDisposalMethod = "Please specify the other disposal method.";
       newFieldErrors.otherDisposalMethod = true;
@@ -179,12 +183,10 @@ export function EndOfLifeTreatment({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
-    const payload = {
-      // Checkbox fields
+    const payload: EndOfLifeTreatmentData = {
       selectedMethods,
       otherDisposalMethod,
-
-      // Files
+      products,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -221,17 +223,14 @@ export function EndOfLifeTreatment({
 
   const handleNext = () => {
     if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
 
-    const payload = {
-      // Checkbox fields
+    const payload: EndOfLifeTreatmentData = {
       selectedMethods,
       otherDisposalMethod,
-
-      // Files
+      products,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -254,7 +253,6 @@ export function EndOfLifeTreatment({
     handleNext();
   };
 
-  // Handle checkbox changes
   const handleMethodChange = (methodId: string) => {
     setSelectedMethods((prev) => ({
       ...prev,
@@ -266,14 +264,12 @@ export function EndOfLifeTreatment({
       setFieldErrors((prev) => ({ ...prev, disposalMethods: false }));
     }
 
-    // Clear "others" error if unchecking "others"
     if (methodId === "others" && selectedMethods.others && fieldErrors.otherDisposalMethod) {
       setErrors((prev) => ({ ...prev, otherDisposalMethod: undefined }));
       setFieldErrors((prev) => ({ ...prev, otherDisposalMethod: false }));
     }
   };
 
-  // Handle "others" input field change
   const handleOtherDisposalMethodChange = (value: string) => {
     setOtherDisposalMethod(value);
     if (fieldErrors.otherDisposalMethod) {
@@ -400,15 +396,20 @@ export function EndOfLifeTreatment({
               </p>
             </div>
 
-            <AddSource
-              fuelTypeOptions={[]}
-              unitOptions={[]}
-              sources={[]}
-              onSourcesChange={function (): void {
-                throw new Error("Function not implemented.");
-              }}
-            />
-            {/* 4.1 End-of-Life Treatment of Sold Products */}
+            {/* 4.1 Total mass of products sold */}
+            <div className="space-y-6">
+              <Label className="text-base font-medium">
+                4.1 Total mass of products sold (by material type)
+              </Label>
+
+              <AddProduct
+                products={products}
+                onProductsChange={setProducts}
+                error={errors.products}
+              />
+            </div>
+
+            {/* Disposal Methods */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-base font-medium">Disposal method</Label>
