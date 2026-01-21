@@ -35,10 +35,10 @@ export default function ReportEnvironmental() {
     setReportData(data);
   }, [data]);
 
-  const airQuality = reportData?.environment_details?.airQuality;
-  const waterManagement = reportData?.environment_details?.waterManagement;
-  const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
-  const ghg = reportData?.environment_details?.ghg;
+  const airQuality = reportData?.environment?.airQuality;
+  const waterManagement = reportData?.environment?.waterManagement;
+  const bioDiversity = reportData?.environment?.biodiversityImpacts;
+  const ghg = reportData?.environment?.ghg;
   const target = reportData?.targets;
 
   console.log("Report target Data", target);
@@ -64,10 +64,10 @@ export default function ReportEnvironmental() {
   }
 
   // const emissionScopeData = reportData?.
-  const emissionData = GHGHistoryTransformer(ghg?.ghg_history || []);
-  const emissionDataScope1 = GHGHistoryTransformer(ghg?.ghg_scope_1_history || []);
-  const emissionDataScope2 = GHGHistoryTransformer(ghg?.ghg_scope_2_history || []);
-  const emissionDataScope3 = GHGHistoryTransformer(ghg?.ghg_scope_3_history || []);
+  const emissionData = GHGHistoryTransformer(ghg?.allHistory || []);
+  const emissionDataScope1 = GHGHistoryTransformer(ghg?.scope1?.history || []);
+  const emissionDataScope2 = GHGHistoryTransformer(ghg?.scope2?.history || []);
+  const emissionDataScope3 = GHGHistoryTransformer(ghg?.scope3?.history || []);
   return (
     <div className="flex flex-col gap-4 lg:gap-20">
       <div className="grid gap-3">
@@ -87,14 +87,14 @@ export default function ReportEnvironmental() {
             borderColor="#1e8a3d"
             bgColor="#dff9e6"
             color="#84bb94"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_total_emissions) : "0"}
+            value={ghg ? String(reportData?.environment?.ghg?.totalEmissions) : "0"}
             data={emissionData}
           />
           <EmissionsChart
             borderColor="#2570eb"
             bgColor="#dff9e6"
             title="Scope 1"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_1) : "0"}
+            value={ghg ? String(reportData?.environment?.ghg?.scope1?.emissions) : "0"}
             color="#84bb94"
             data={emissionDataScope1}
           />
@@ -102,7 +102,7 @@ export default function ReportEnvironmental() {
             borderColor="#fac565"
             bgColor="#dff9e6"
             title="Scope 2"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_2) : "0"}
+            value={ghg ? String(reportData?.environment?.ghg?.scope2?.emissions) : "0"}
             color="#84bb94"
             data={emissionDataScope2}
           />
@@ -110,7 +110,7 @@ export default function ReportEnvironmental() {
             borderColor="#af57db"
             bgColor="#dff9e6"
             title="Scope 3"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_3) : "0"}
+            value={ghg ? String(reportData?.environment?.ghg?.scope3?.emissions) : "0"}
             color="#84bb94"
             data={emissionDataScope3}
           />
