@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { CiWavePulse1 } from "react-icons/ci";
 import OilRenderCard from "./overview/OilRenderCard";
 import ProductionVolumesChart from "./overview/oilProductionChart";
@@ -7,46 +7,15 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
-import { useSingleReport } from "../service/useReport";
-import { useParams } from "next/navigation";
 import ReportEmptyState from "../ReportEmptyState";
-import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { formatNumberWithCommas } from "../utils/helpers";
 import { ReportResponse } from "@/types/report/reportResponse";
 
-export default function ReportOverview() {
-  const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+interface ReportOverviewProps {
+  reportData?: ReportResponse;
+}
 
-  const params = useParams();
-  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
-
-  useEffect(() => {
-    setReportData(data);
-  }, [data]);
-
-  if (isError) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-red-500">
-        Failed to load report.
-      </div>
-    );
-  }
-  if (isLoading) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-500">
-        <CardSkeleton />
-      </div>
-    );
-  }
-  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-600">
-        <ReportEmptyState />
-      </div>
-    );
-  }
-
-  // Extract data from API response
+export default function ReportOverview({ reportData }: ReportOverviewProps) {
   const activityMetrics = reportData?.activityMetrics;
   const environmental = reportData?.environmental;
   const socialCapital = reportData?.socialCapital;
@@ -54,7 +23,6 @@ export default function ReportOverview() {
   const businessModel = reportData?.businessModel;
   const leadership = reportData?.leadershipAndGovernance;
 
-  // Production data cards
   const productionCards = [
     {
       title: "Crude Oil",
@@ -82,7 +50,6 @@ export default function ReportOverview() {
     },
   ];
 
-  // Offshore sites donut data
   const offshoreSitesData = [
     {
       name: "Production Platforms",
@@ -101,7 +68,6 @@ export default function ReportOverview() {
     },
   ];
 
-  // Terrestrial sites donut data
   const terrestrialSitesData = [
     {
       name: "Flow Stations",

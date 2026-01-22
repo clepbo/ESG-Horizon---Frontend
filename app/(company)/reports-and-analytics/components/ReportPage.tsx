@@ -27,12 +27,7 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (report.data) {
-      // Add random progress for demonstration
-      const dataWithProgress = report.data.map((item: any) => ({
-        ...item,
-        progress: Math.floor(Math.random() * 101), // Random progress 0-100
-      }));
-      setReportData(dataWithProgress);
+      setReportData(report.data);
     }
   }, [report.data]);
 
@@ -211,8 +206,8 @@ export default function ReportPage() {
             dateRange={`${report.startMonth} ${report.startYear} - ${report.endMonth} ${report.endYear}`}
             status={formatStatus(report.status)}
             progress={report.progress}
-            done={20}
-            overall={100}
+            done={report.completed_sections}
+            overall={report.total_sections}
           />
         ))}
 
