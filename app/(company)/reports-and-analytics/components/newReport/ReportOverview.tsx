@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { CiWavePulse1 } from "react-icons/ci";
 import OilRenderCard from "./overview/OilRenderCard";
 import ProductionVolumesChart from "./overview/oilProductionChart";
@@ -7,46 +7,15 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
-import { useSingleReport } from "../service/useReport";
-import { useParams } from "next/navigation";
 import ReportEmptyState from "../ReportEmptyState";
-import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { formatNumberWithCommas } from "../utils/helpers";
 import { ReportResponse } from "@/types/report/reportResponse";
 
-export default function ReportOverview() {
-  const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+interface ReportOverviewProps {
+  reportData?: ReportResponse;
+}
 
-  const params = useParams();
-  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
-
-  useEffect(() => {
-    setReportData(data);
-  }, [data]);
-
-  if (isError) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-red-500">
-        Failed to load report.
-      </div>
-    );
-  }
-  if (isLoading) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-500">
-        <CardSkeleton />
-      </div>
-    );
-  }
-  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-600">
-        <ReportEmptyState />
-      </div>
-    );
-  }
-
-  // Extract data from API response
+export default function ReportOverview({ reportData }: ReportOverviewProps) {
   const activityMetrics = reportData?.activityMetrics;
   const environmental = reportData?.environmental;
   const socialCapital = reportData?.socialCapital;
@@ -54,69 +23,66 @@ export default function ReportOverview() {
   const businessModel = reportData?.businessModel;
   const leadership = reportData?.leadershipAndGovernance;
 
-  // Production data cards
   const productionCards = [
     {
       title: "Crude Oil",
       amount: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#F28B0D"
+      borderColor: "#F28B0D",
     },
     {
       title: "Synthetic Oil",
       amount: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#FCDC8B"
+      borderColor: "#FCDC8B",
     },
     {
       title: "Natural Gas",
       amount: activityMetrics?.productionData?.gasProduction?.naturalGas ?? 0,
       sub: "mmscfd",
-      borderColor: "#3B82F6"
+      borderColor: "#3B82F6",
     },
     {
       title: "Synthetic Gas",
       amount: activityMetrics?.productionData?.gasProduction?.syntheticGas ?? 0,
       sub: "mmscfd",
-      borderColor: "#BFD7FE"
+      borderColor: "#BFD7FE",
     },
   ];
 
-  // Offshore sites donut data
   const offshoreSitesData = [
     {
       name: "Production Platforms",
       value: activityMetrics?.assetPortfolio?.offshoreSites?.productionPlatforms ?? 0,
-      color: "#3b82f6"
+      color: "#3b82f6",
     },
     {
       name: "FPSOs",
       value: activityMetrics?.assetPortfolio?.offshoreSites?.FPSOs ?? 0,
-      color: "#22c55e"
+      color: "#22c55e",
     },
     {
       name: "Other Offshore Sites",
       value: activityMetrics?.assetPortfolio?.offshoreSites?.otherSites ?? 0,
-      color: "#9ca3af"
+      color: "#9ca3af",
     },
   ];
 
-  // Terrestrial sites donut data
   const terrestrialSitesData = [
     {
       name: "Flow Stations",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.flowStations ?? 0,
-      color: "#f64c4c"
+      color: "#f64c4c",
     },
     {
       name: "Gas Processing Plants",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.gasProcessingPlants ?? 0,
-      color: "#af57db"
+      color: "#af57db",
     },
     {
       name: "Other Sites",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.otherSites ?? 0,
-      color: "#9ca3af"
+      color: "#9ca3af",
     },
   ];
 
@@ -129,7 +95,9 @@ export default function ReportOverview() {
 
   const environmentalScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      <FaArrowDown
+        className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+      />
       {Math.abs(environmental?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
@@ -138,14 +106,18 @@ export default function ReportOverview() {
 
   const humanCapitalScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      <FaArrowDown
+        className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+      />
       {Math.abs(humanCapital?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
 
   const businessModelScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      <FaArrowDown
+        className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+      />
       {Math.abs(businessModel?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
@@ -208,15 +180,10 @@ export default function ReportOverview() {
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 w-full">
         <span className="col-span-1">
-          <DonutChart
-            data={offshoreSitesData}
-          />
+          <DonutChart data={offshoreSitesData} />
         </span>
         <span className="col-span-1">
-          <DonutChart
-            title="Terrestrial Sites"
-            data={terrestrialSitesData}
-          />
+          <DonutChart title="Terrestrial Sites" data={terrestrialSitesData} />
         </span>
       </div>
 
