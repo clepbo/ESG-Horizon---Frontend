@@ -5,13 +5,13 @@ import HeadingAndSubheading from "@/app/components/common/reports/HeadingAndSubh
 import { motion } from "framer-motion";
 import { useReport } from "./components/service/useReport";
 import ReportEmptyState from "./components/ReportEmptyState";
-import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 
 export default function Page() {
   const report = useReport();
 
   if (report.isLoading) {
-    return <LoadingSpinner />;
+    return <CardSkeleton />;
   }
   if (report.error) {
     return <div className="text-center my-20 text-gray-500">Error loading reports.</div>;
