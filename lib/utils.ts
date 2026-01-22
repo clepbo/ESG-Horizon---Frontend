@@ -275,3 +275,13 @@ export function formatStatus(status: any | any[]): string {
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));
   return words.join(" ");
 }
+
+export const formatCurrency = (amount: number) => {
+  if (amount >= 1000000) {
+    return `₦ ${(amount / 1000000).toFixed(1)}M`;
+  } else if (amount >= 1000) {
+    return `₦ ${(amount / 1000).toFixed(1)}K`;
+  } else {
+    return `₦ ${amount.toLocaleString()}`;
+  }
+};
