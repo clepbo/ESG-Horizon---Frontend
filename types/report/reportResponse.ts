@@ -319,8 +319,7 @@ export interface BiodiversityImpactsData {
   volumeInArctic?: number;
 }
 
-// Placeholder pillar - Breaking issue
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// Placeholder pillar interfaces (keep for backwards compatibility)
 export interface SocialPillar {}
 
 export interface Target {
