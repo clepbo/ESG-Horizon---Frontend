@@ -10,6 +10,11 @@ export interface ReportResponse {
     assessmentId: number;
   };
   status?: string;
+  subsidiary?: string;
+  startMonth?: string;
+  startYear?: string;
+  endMonth?: string;
+  endYear?: string;
   activityMetrics?: ActivityMetrics;
   environmental?: EnvironmentalPillar;
   environment?: EnvironmentPillar; // Legacy guy
@@ -19,6 +24,7 @@ export interface ReportResponse {
   businessModel?: BusinessModelPillar;
   leadershipAndGovernance?: LeadershipAndGovernancePillar;
   targets?: Target | null;
+  percentage_emission_summary?: PercentageEmissionSummary;
   summary?: any; // Legacy field
 }
 
@@ -191,6 +197,12 @@ export interface Totals {
   governance_total_emissions: number;
 }
 
+export interface PercentageEmissionSummary {
+  scope1_emission_summary: number;
+  scope2_emission_summary: number;
+  scope3_emission_summary: number;
+}
+
 export interface EnvironmentPillar {
   ghg: GHGData;
   airQuality: AirQualityData;
@@ -307,8 +319,9 @@ export interface BiodiversityImpactsData {
   volumeInArctic?: number;
 }
 
-// Placeholder pillar interfaces (keep for backwards compatibility)
-export interface SocialPillar { }
+// Placeholder pillar - Breaking issue
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface SocialPillar {}
 
 export interface Target {
   id?: number;

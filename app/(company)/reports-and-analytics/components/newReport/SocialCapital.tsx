@@ -4,8 +4,13 @@ import SocialStepOne from "../social/SocialStepOne";
 import SocialStepTwo from "../social/SocialStepTwo";
 import SocialStepThree from "../social/SocialStepThree";
 import SocialStepFour from "../social/SocialStepFour";
+import { ReportResponse } from "@/types/report/reportResponse";
 
-export default function SocialCapital() {
+interface SocialCapitalProps {
+  reportData?: ReportResponse;
+}
+
+export default function SocialCapital({ reportData }: SocialCapitalProps) {
   return (
     <div className="flex flex-col gap-4 lg:gap-20">
       <div className="grid gap-3">
@@ -25,9 +30,9 @@ export default function SocialCapital() {
           <h6 className="py-2 "> Security, Human Rights & Indegenious Peoples </h6>
           <hr className="text-gray-200" />
         </span>
-        <SocialStepOne />
+        <SocialStepOne reportData={reportData} />
         <SocialStepTwo />
-        <SocialStepThree />
+        <SocialStepThree reportData={reportData} />
         <SocialStepFour />
       </div>
     </div>

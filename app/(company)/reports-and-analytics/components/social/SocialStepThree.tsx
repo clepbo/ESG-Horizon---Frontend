@@ -12,33 +12,23 @@ import {
   Cell,
   ResponsiveContainer,
   Legend,
+  Tooltip,
 } from "recharts";
+import { ReportResponse } from "@/types/report/reportResponse";
+import { formatCurrency } from "@/lib/utils";
 
-// Card 1: HCDT Contribution - static values, no chart
-const HCDT_CONTRIBUTION = {
-  priorYearOpex: "₦ 150.0M",
-  priorYearLabel: "Prior Year OPEX",
-  annualContribution: "₦ 4.50M",
-  annualLabel: "Annual Contribution (3%)",
-  badge: "HCDTs Incorporated & Funded",
-};
-
-// Card 2: Community Dispute Resolution - donut (Resolved ~2/3, Pending ~1/3, Total 15)
-const DISPUTE_DATA = [
-  { name: "Resolved", value: 10, color: "#22c55e" },
-  { name: "Pending", value: 5, color: "#F97316" },
-];
-const TOTAL_REFERRED = 15;
-
-// Card 3: Operational Delays - grouped bar (Count: grey, Duration: golden-orange)
-const DELAYS_DATA = [
-  { category: "Protests", count: 5, duration: 13 },
-  { category: "Other Issues", count: 2, duration: 45 },
-];
 const COUNT_COLOR = "#9CA3AF";
 const DURATION_COLOR = "#F97316";
 
-function HCDTContributionCard() {
+interface SocialStepThreeProps {
+  reportData?: ReportResponse;
+}
+
+function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
+  const priorYearOpex = hcdtData?.priorYearOpexAmount || 0;
+  const annualContribution = hcdtData?.annualContribution || 0;
+  const percentage = hcdtData?.percentage || 0;
+
   return (
     <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col">
       <h3 className="text-sm 2xl:text-base font-semibold text-gray-800 mb-3">
@@ -47,15 +37,15 @@ function HCDTContributionCard() {
       <hr className="text-gray-200" />
       <div className="border-b border-gray-200 pb-4 space-y-3 flex-1">
         <div>
-          <p className="text-sm pt-4 text-gray-500">{HCDT_CONTRIBUTION.priorYearLabel}</p>
+          <p className="text-sm pt-4 text-gray-500">Prior Year OPEX</p>
           <p className="text-lg md:text-xl font-bold text-gray-800">
-            {HCDT_CONTRIBUTION.priorYearOpex}
+            {formatCurrency(priorYearOpex)}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">{HCDT_CONTRIBUTION.annualLabel}</p>
+          <p className="text-sm text-gray-500">Annual Contribution ({percentage}%)</p>
           <p className="text-xl md:text-2xl font-bold text-gray-800">
-            {HCDT_CONTRIBUTION.annualContribution}
+            {formatCurrency(annualContribution)}
           </p>
         </div>
       </div>
@@ -64,14 +54,23 @@ function HCDTContributionCard() {
           className="inline-block px-4 py-2 rounded-lg text-sm font-medium"
           style={{ backgroundColor: "#DCFCE7", color: "#166534" }}
         >
-          {HCDT_CONTRIBUTION.badge}
+          HCDTs Incorporated & Funded
         </span>
       </div>
     </div>
   );
 }
 
-function CommunityDisputeCard() {
+function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
+  const resolved = disputeData?.resolvedDisputes || 0;
+  const pending = disputeData?.pending || 0;
+  const total = disputeData?.total || resolved + pending;
+
+  const DISPUTE_DATA = [
+    { name: "Resolved", value: resolved, color: "#22c55e" },
+    { name: "Pending", value: pending, color: "#F97316" },
+  ];
+
   const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: string }> }) => {
     if (!payload) return null;
     return (
@@ -113,16 +112,29 @@ function CommunityDisputeCard() {
                 <Cell key={i} fill={entry.color} />
               ))}
             </Pie>
+            <Tooltip />
             <Legend content={<CustomLegend />} />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {TOTAL_REFERRED}</p>
+      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {total}</p>
     </div>
   );
 }
 
-function OperationalDelaysCard() {
+function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
+  const protestsCount = delaysData?.protests?.count || 0;
+  const protestsDelay = delaysData?.protests?.delay || 0;
+  const otherIssuesCount = delaysData?.otherIssues?.count || 0;
+  const otherIssuesDelay = delaysData?.otherIssues?.delay || 0;
+
+  const DELAYS_DATA = [
+    { category: "Protests", count: protestsCount, duration: protestsDelay },
+    { category: "Other Issues", count: otherIssuesCount, duration: otherIssuesDelay },
+  ];
+
+  const maxDuration = Math.max(protestsDelay, otherIssuesDelay, 60);
+
   const CustomLegend = ({ payload }: { payload?: Array<{ value: string; color: string }> }) => {
     if (!payload) return null;
     return (
@@ -166,12 +178,12 @@ function OperationalDelaysCard() {
               axisLine={{ stroke: "#D1D5DB" }}
             />
             <YAxis
-              domain={[0, 60]}
-              ticks={[0, 15, 30, 45, 60]}
+              domain={[0, maxDuration]}
               tick={{ fill: "#6B7280", fontSize: 12 }}
               axisLine={{ stroke: "#D1D5DB" }}
               width={32}
             />
+            <Tooltip />
             <Legend content={<CustomLegend />} />
             <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} />
             <Bar
@@ -187,7 +199,9 @@ function OperationalDelaysCard() {
   );
 }
 
-export default function SocialStepThree() {
+export default function SocialStepThree({ reportData }: SocialStepThreeProps) {
+  const communityRelations = reportData?.socialCapital?.communityRelations;
+
   return (
     <div className="w-full grid gap-4">
       <span className="">
@@ -195,9 +209,9 @@ export default function SocialStepThree() {
         <hr className="text-gray-200" />
       </span>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <HCDTContributionCard />
-        <CommunityDisputeCard />
-        <OperationalDelaysCard />
+        <HCDTContributionCard hcdtData={communityRelations?.hcdtContribution} />
+        <CommunityDisputeCard disputeData={communityRelations?.communityDisputeResolution} />
+        <OperationalDelaysCard delaysData={communityRelations?.operationalDelays} />
       </div>
     </div>
   );

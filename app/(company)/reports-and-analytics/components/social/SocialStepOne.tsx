@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ReportResponse } from "@/types/report/reportResponse";
 import {
   BarChart,
   Bar,
@@ -27,53 +28,73 @@ interface ChartData {
   data: ReservesData[];
 }
 
-// Dummy data based on the image
-const conflictZonesData: ReservesData[] = [
-  {
-    reserveType: "Proved Reserves",
-    total: 500,
-    specific: 50,
-  },
-  {
-    reserveType: "Probable Reserves",
-    total: 300,
-    specific: 25,
-  },
-];
 
-const indigenousLandData: ReservesData[] = [
-  {
-    reserveType: "Proved Reserves",
-    total: 500,
-    specific: 75,
-  },
-  {
-    reserveType: "Probable Reserves",
-    total: 300,
-    specific: 25,
-  },
-];
+interface SocialStepOneProps {
+  reportData?: ReportResponse;
+}
 
-const chartsConfig: ChartData[] = [
-  {
-    title: "Operations in Conflict Zones",
-    totalLabel: "Total",
-    specificLabel: "In Conflict",
-    totalColor: "#9CA3AF", // grey
-    specificColor: "#EF4444", // red
-    data: conflictZonesData,
-  },
-  {
-    title: "Reserves in/near Indigenous Land",
-    totalLabel: "Total",
-    specificLabel: "In/Near Indigenous",
-    totalColor: "#9CA3AF", // grey
-    specificColor: "#F97316", // orange
-    data: indigenousLandData,
-  },
-];
+export default function SocialStepOne({ reportData }: SocialStepOneProps) {
+  const conflictZonesData: ReservesData[] = [
+    {
+      reserveType: "Proved Reserves",
+      total:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
+          ?.provedReserves || 0,
+      specific:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
+          ?.provedReserves || 0,
+    },
+    {
+      reserveType: "Probable Reserves",
+      total:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
+          ?.probableReserves || 0,
+      specific:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
+          ?.probableReserves || 0,
+    },
+  ];
 
-export default function SocialStepOne() {
+  const indigenousLandData: ReservesData[] = [
+    {
+      reserveType: "Proved Reserves",
+      total:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
+          ?.reservesInNearIndigenousLand?.provedReserves || 0,
+      specific:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
+          ?.reservesInNearIndigenousLand?.provedReserves || 0,
+    },
+    {
+      reserveType: "Probable Reserves",
+      total:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
+          ?.reservesInNearIndigenousLand?.probableReserves || 0,
+      specific:
+        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
+          ?.reservesInNearIndigenousLand?.probableReserves || 0,
+    },
+  ];
+
+  const chartsConfig: ChartData[] = [
+    {
+      title: "Operations in Conflict Zones",
+      totalLabel: "Total",
+      specificLabel: "In Conflict",
+      totalColor: "#9CA3AF", // grey
+      specificColor: "#EF4444", // red
+      data: conflictZonesData,
+    },
+    {
+      title: "Reserves in/near Indigenous Land",
+      totalLabel: "Total",
+      specificLabel: "In/Near Indigenous",
+      totalColor: "#9CA3AF", // grey
+      specificColor: "#F97316", // orange
+      data: indigenousLandData,
+    },
+  ];
+
   const CustomLegend = ({ payload }: any) => {
     if (!payload) return null;
     return (
