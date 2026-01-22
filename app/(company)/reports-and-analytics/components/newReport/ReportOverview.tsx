@@ -60,25 +60,25 @@ export default function ReportOverview() {
       title: "Crude Oil",
       amount: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#F28B0D"
+      borderColor: "#F28B0D",
     },
     {
       title: "Synthetic Oil",
       amount: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#FCDC8B"
+      borderColor: "#FCDC8B",
     },
     {
       title: "Natural Gas",
       amount: activityMetrics?.productionData?.gasProduction?.naturalGas ?? 0,
       sub: "mmscfd",
-      borderColor: "#3B82F6"
+      borderColor: "#3B82F6",
     },
     {
       title: "Synthetic Gas",
       amount: activityMetrics?.productionData?.gasProduction?.syntheticGas ?? 0,
       sub: "mmscfd",
-      borderColor: "#BFD7FE"
+      borderColor: "#BFD7FE",
     },
   ];
 
@@ -87,17 +87,17 @@ export default function ReportOverview() {
     {
       name: "Production Platforms",
       value: activityMetrics?.assetPortfolio?.offshoreSites?.productionPlatforms ?? 0,
-      color: "#3b82f6"
+      color: "#3b82f6",
     },
     {
       name: "FPSOs",
       value: activityMetrics?.assetPortfolio?.offshoreSites?.FPSOs ?? 0,
-      color: "#22c55e"
+      color: "#22c55e",
     },
     {
       name: "Other Offshore Sites",
       value: activityMetrics?.assetPortfolio?.offshoreSites?.otherSites ?? 0,
-      color: "#9ca3af"
+      color: "#9ca3af",
     },
   ];
 
@@ -106,17 +106,17 @@ export default function ReportOverview() {
     {
       name: "Flow Stations",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.flowStations ?? 0,
-      color: "#f64c4c"
+      color: "#f64c4c",
     },
     {
       name: "Gas Processing Plants",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.gasProcessingPlants ?? 0,
-      color: "#af57db"
+      color: "#af57db",
     },
     {
       name: "Other Sites",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.otherSites ?? 0,
-      color: "#9ca3af"
+      color: "#9ca3af",
     },
   ];
 
@@ -129,7 +129,9 @@ export default function ReportOverview() {
 
   const environmentalScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      <FaArrowDown
+        className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+      />
       {Math.abs(environmental?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
@@ -138,14 +140,18 @@ export default function ReportOverview() {
 
   const humanCapitalScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      <FaArrowDown
+        className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+      />
       {Math.abs(humanCapital?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
 
   const businessModelScore = (
     <small className="flex items-center gap-2">
-      <FaArrowDown className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? 'rotate-180 text-red-500' : 'text-green-500'}`} />
+      <FaArrowDown
+        className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+      />
       {Math.abs(businessModel?.changePercentage ?? 0).toFixed(1)}%
     </small>
   );
@@ -208,15 +214,10 @@ export default function ReportOverview() {
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 w-full">
         <span className="col-span-1">
-          <DonutChart
-            data={offshoreSitesData}
-          />
+          <DonutChart data={offshoreSitesData} />
         </span>
         <span className="col-span-1">
-          <DonutChart
-            title="Terrestrial Sites"
-            data={terrestrialSitesData}
-          />
+          <DonutChart title="Terrestrial Sites" data={terrestrialSitesData} />
         </span>
       </div>
 

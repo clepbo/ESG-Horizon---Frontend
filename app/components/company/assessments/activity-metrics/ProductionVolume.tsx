@@ -13,7 +13,7 @@ import { AssessmentProgressBar } from "@/app/components/company/assessments/Asse
 import { calculateProgress } from "@/lib/utils";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
@@ -23,7 +23,7 @@ interface ProductionVolumeProps {
   onContinueToNextAssessment: () => void;
   stepIndex: number;
   totalSteps: number;
-  breadcrumb: BreadcrumbItemType[];
+  backToActivityMetrics: () => void;
 }
 
 export function ProductionVolume({
@@ -31,7 +31,7 @@ export function ProductionVolume({
   onContinueToNextAssessment,
   stepIndex,
   totalSteps,
-  breadcrumb,
+  backToActivityMetrics,
 }: ProductionVolumeProps) {
   const router = useRouter();
   const { saveNow } = useAssessmentFlow("activityMetrics.productionVolume");
@@ -50,6 +50,13 @@ export function ProductionVolume({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  const breadcrumFeature = [
+    { label: "Dashboard", href: "/dashboard-esg" },
+    { label: "Assessments", href: "/assessments/hub" },
+    { label: "Activity Metrics", onClick: backToActivityMetrics },
+    { label: "Production Volume" },
+  ];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -198,9 +205,7 @@ export function ProductionVolume({
             placeholder="Enter volume"
             className="border-gray-300"
           />
-          {errors[errorKey] && (
-            <p className="text-red-600 text-xs">{errors[errorKey]}</p>
-          )}
+          {errors[errorKey] && <p className="text-red-600 text-xs">{errors[errorKey]}</p>}
         </div>
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">Unit</Label>
@@ -217,13 +222,14 @@ export function ProductionVolume({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
-      <CustomBreadcrumbDynamic features={breadcrumb} />
+      <CustomBreadcrumbDynamic features={breadcrumFeature} />
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
             <h3 className="text-2xl font-semibold">Production Volumes</h3>
             <p className="text-muted-foreground text-base">
-            Provide the average daily production volumes for the reporting year. Enter "0" for any products that are not applicable to your operations.
+              Provide the average daily production volumes for the reporting year. Enter &apos0&apos for any
+              products that are not applicable to your operations.
             </p>
           </div>
         </div>
@@ -275,9 +281,7 @@ export function ProductionVolume({
             )}
 
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <h3 className="text-base font-semibold text-gray-900">
-                Document/Evidence Upload
-              </h3>
+              <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
               <p className="text-sm text-gray-600">
                 Upload supporting documents such as production reports, operational statements, or
                 third-party verification of production volumes for the reporting period.

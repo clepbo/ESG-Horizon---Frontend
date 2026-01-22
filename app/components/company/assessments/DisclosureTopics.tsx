@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardTitle } from "@/app/components/ui/card";
+import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
   Accordion,
@@ -410,10 +410,8 @@ export function DisclosureTopics({
   const filteredIndustryMetrics = filterMetrics(industrySpecificMetrics, "Industry-Specific");
   const filteredSupplementaryMetrics = filterMetrics(supplementaryMetrics, "Supplementary");
 
-  if( currentView === "activity-metrics" ){
-    return (
-      <ActivityMetricHome />
-    )
+  if (currentView === "activity-metrics") {
+    return <ActivityMetricHome />;
   }
   if (currentView === "ghg") {
     return (
@@ -616,7 +614,6 @@ export function DisclosureTopics({
                 />
               </div>
               <div className="grid my-6">
-
                 <div className="flex items-center w-full relative">
                   <span className="text-lg font-semibold flex items-center gap-2">
                     Foundational Data
@@ -631,7 +628,13 @@ export function DisclosureTopics({
                       >
                         <h6 className="underline">Foundational Data</h6>
                         <p>
-                          Foundational data refers to the core, baseline information required to accurately calculate metrics and generate ESG assessments. It includes essential inputs such as activity data, operational figures, workforce totals, production volumes, or other primary data points that form the basis of all calculations and analysis. Providing accurate foundational data ensures consistency, reliability, and comparability across reporting periods.
+                          Foundational data refers to the core, baseline information required to
+                          accurately calculate metrics and generate ESG assessments. It includes
+                          essential inputs such as activity data, operational figures, workforce
+                          totals, production volumes, or other primary data points that form the
+                          basis of all calculations and analysis. Providing accurate foundational
+                          data ensures consistency, reliability, and comparability across reporting
+                          periods.
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -645,9 +648,7 @@ export function DisclosureTopics({
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center justify-between">
-                          <h5 className="font-medium text-foreground">
-                            Activity Metrics
-                          </h5>
+                          <h5 className="font-medium text-foreground">Activity Metrics</h5>
                           {/* <CompletionIndicator status={getStatus(card.title)} /> */}
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -716,10 +717,11 @@ export function DisclosureTopics({
                                   key={card.title}
                                   className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
                                     card.title
-                                  )} ${card.clickable
-                                    ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                    : "cursor-default"
-                                    }`}
+                                  )} ${
+                                    card.clickable
+                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                      : "cursor-default"
+                                  }`}
                                   onClick={() => card.clickable && handleCardClick(card.title)}
                                 >
                                   <CardContent className="p-4">
