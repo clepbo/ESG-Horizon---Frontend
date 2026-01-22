@@ -1,7 +1,12 @@
 import ComingSoon from "@/app/components/coming-soon";
 import React from "react";
+import { ReportResponse } from "@/types/report/reportResponse";
 
-export default function BusinessModelPillar() {
+interface BusinessModelPillarProps {
+  reportData?: ReportResponse;
+}
+
+export default function BusinessModelPillar({ reportData }: BusinessModelPillarProps) {
   return (
     <div>
       <ComingSoon />

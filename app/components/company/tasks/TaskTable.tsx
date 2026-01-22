@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { FrontendTask, TaskStatus } from "@/services/assignTask.service";
 import CustomDialog from "../../ui/reusables/CustomDialog";
+import { formatDate } from "@/lib/dateUtils";
 
 interface TaskTableProps {
   tasks: FrontendTask[];
@@ -95,7 +96,7 @@ function ActionDropdown({
           <Button
             variant="outline"
             size="sm"
-            className="w-[110px] justify-between rounded-sm border-teal-600"
+            className="w-27.5 justify-between rounded-sm border-teal-600"
           >
             Action
             {isOpen ? (
@@ -302,14 +303,14 @@ export function TaskTable({
         header: "Date Assigned",
         cell: (info) => {
           const value = info.getValue() as string | undefined;
-          return value ? new Date(value).toLocaleDateString() : "—";
+          return formatDate(value);
         },
       }),
       columnHelper.accessor("dueDate", {
         header: "Due Date",
         cell: (info) => {
           const value = info.getValue() as string | undefined;
-          return value ? new Date(value).toLocaleDateString() : "—";
+          return formatDate(value);
         },
       }),
       columnHelper.accessor("status", {
@@ -376,7 +377,7 @@ export function TaskTable({
           columns={columns}
           filterOptions={filterOptions}
           customFilters={
-            <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[250px]" />
+            <DateRangePicker value={dateRange} onChange={setDateRange} className="w-62.5" />
           }
         />
       )}

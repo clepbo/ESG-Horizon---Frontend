@@ -1,16 +1,40 @@
 "use client";
 
 import { HardHat } from "lucide-react";
+import { ReportResponse } from "@/types/report/reportResponse";
 
-const METRIC_CARDS = [
-  { title: "Total Hours Worked", value: "12,500", unit: "hours" },
-  { title: "Recordable Incidents", value: "3", unit: "incidents" },
-  { title: "Fatalities", value: "0", unit: "fatalities" },
-  { title: "Near Misses", value: "24", unit: "misses" },
-  { title: "Avg Safety Training", value: "45", unit: "hours/employee" },
-] as const;
+interface HumanStepOneProps {
+  reportData?: ReportResponse;
+}
 
-export default function HumanStepOne() {
+export default function HumanStepOne({ reportData }: HumanStepOneProps) {
+  const metrics = [
+    {
+      title: "Total Recordable Incident Rate",
+      value: reportData?.humanCapital?.totalRecordableIncidentRatePer200kHours?.toString() || "0",
+      unit: "per 200k hours",
+    },
+    {
+      title: "Recordable Incidents",
+      value: reportData?.humanCapital?.recordableIncidents?.toString() || "0",
+      unit: "incidents",
+    },
+    {
+      title: "Fatalities",
+      value: reportData?.humanCapital?.fatalities?.toString() || "0",
+      unit: "fatalities",
+    },
+    {
+      title: "Near Misses",
+      value: reportData?.humanCapital?.nearMisses?.toString() || "0",
+      unit: "misses",
+    },
+    {
+      title: "Avg Safety Training",
+      value: reportData?.humanCapital?.averageSafetyTrainingHoursPerEmployee?.toString() || "0",
+      unit: "hours/employee",
+    },
+  ];
   return (
     <div className="flex flex-col gap-4 lg:gap-6">
       {/* Header */}
@@ -32,7 +56,7 @@ export default function HumanStepOne() {
 
       {/* Metrics grid */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        {METRIC_CARDS.map((card) => (
+        {metrics.map((card) => (
           <MetricCard key={card.title} title={card.title} value={card.value} unit={card.unit} />
         ))}
         {/* Empty placeholder card */}

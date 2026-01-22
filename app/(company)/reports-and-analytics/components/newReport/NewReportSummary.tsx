@@ -31,7 +31,7 @@ export default function NewReportSummary() {
 
   const view = searchParams.get("tab") ?? "overview";
 
-  const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+  const [reportData, setReportData] = React.useState<ReportResponse | undefined>(undefined);
   const [selected, setSelected] = useState<string | undefined>(undefined);
 
   const params = useParams();
@@ -71,12 +71,36 @@ export default function NewReportSummary() {
   };
 
   const tabs = [
-    { label: "Overview", value: "overview", content: <ReportOverview /> },
-    { label: "Environmental", value: "environmental", content: <ReportEnvironmental /> },
-    { label: "Social Capital", value: "social-capital", content: <SocialCapital /> },
-    { label: "Human Capital", value: "human-capital", content: <ReportHumanCapital /> },
-    { label: "Business Model", value: "business-model", content: <BusinessModelPillar /> },
-    { label: "Leadership", value: "leadership", content: <ReportLeadershipPillar /> },
+    {
+      label: "Overview",
+      value: "overview",
+      content: <ReportOverview reportData={reportData} />,
+    },
+    {
+      label: "Environmental",
+      value: "environmental",
+      content: <ReportEnvironmental reportData={reportData} />,
+    },
+    {
+      label: "Social Capital",
+      value: "social-capital",
+      content: <SocialCapital reportData={reportData} />,
+    },
+    {
+      label: "Human Capital",
+      value: "human-capital",
+      content: <ReportHumanCapital reportData={reportData} />,
+    },
+    {
+      label: "Business Model",
+      value: "business-model",
+      content: <BusinessModelPillar reportData={reportData} />,
+    },
+    {
+      label: "Leadership",
+      value: "leadership",
+      content: <ReportLeadershipPillar reportData={reportData} />,
+    },
   ];
 
   async function exportfile(value: string) {
@@ -104,13 +128,12 @@ export default function NewReportSummary() {
           </div>
 
           <div className="flex gap-2 lg:gap-4 items-center">
-            <span> {reportData?.report?.subsidiary} </span>
+            <span> {reportData?.subsidiary ?? "Not specified"} </span>
             <span>
               <GoDotFill className="text-gray-500" />
             </span>
             <span>
-              {" "}
-              {` ${reportData?.report?.startMonth} ${reportData?.report?.startYear} - ${reportData?.report?.endMonth} ${reportData?.report?.endYear}`}{" "}
+              {` ${reportData?.startMonth} ${reportData?.startYear} - ${reportData?.endMonth} ${reportData?.endYear}`}
             </span>
           </div>
         </div>
@@ -146,7 +169,7 @@ export default function NewReportSummary() {
 
       {/* Tabs */}
       <div className="flex w-full flex-col gap-6">
-        <Card className="flex justify-between p-2 py-4 rounded w-full overflow-auto">
+        <Card className="flex justify-between gap-4 p-4 rounded w-full overflow-auto">
           {tabs.map((tab) => {
             const active = view === tab.value;
 
@@ -157,11 +180,10 @@ export default function NewReportSummary() {
                   router.push(`?tab=${tab.value}`, { scroll: false });
                 }}
                 className={`
-                  px-4 cursor-pointer border border-t-2 p-2 rounded text-sm font-medium transition
-                  ${
-                    active
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white text-primary border-primary/40 hover:bg-primary/10"
+                  flex-1 text-center whitespace-nowrap px-4 cursor-pointer border border-t-2 p-2 rounded text-sm font-medium transition
+                  ${active
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-primary border-primary/40 hover:bg-primary/10"
                   }
                 `}
               >
