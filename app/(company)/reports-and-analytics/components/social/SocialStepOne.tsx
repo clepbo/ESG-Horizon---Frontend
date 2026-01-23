@@ -28,7 +28,6 @@ interface ChartData {
   data: ReservesData[];
 }
 
-
 interface SocialStepOneProps {
   reportData?: ReportResponse;
 }

@@ -32,10 +32,11 @@ export interface CustomButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof CustomButtonVariants> {
   loading?: boolean;
   icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export const CustomButton = React.forwardRef<HTMLButtonElement, CustomButtonProps>(
-  ({ className, variant, size, loading, icon, children, disabled, ...props }, ref) => {
+  ({ className, variant, size, loading, icon, rightIcon, children, disabled, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -49,6 +50,7 @@ export const CustomButton = React.forwardRef<HTMLButtonElement, CustomButtonProp
           icon && <span className="shrink-0">{icon}</span>
         )}
         <span>{children}</span>
+        {rightIcon && !loading && <span className="shrink-0">{rightIcon}</span>}
       </button>
     );
   }

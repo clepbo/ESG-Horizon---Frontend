@@ -243,7 +243,7 @@ export interface WaterManagementData {
   totalWaterWithdrawal?: number;
   totalWaterConsumed?: number;
   totalProducedWaterGenerated?: number;
-  recycledReused?: number;
+  recycledWater: number;
   injectedForDisposal?: number;
   dischargedToSurface?: number;
   freshwaterWithdrawals?: {
@@ -288,6 +288,11 @@ export interface WaterManagementData {
       numberOfWellsWithPublicDisclosure: number;
       percentageWithDisclosure: number;
     };
+    sites?: {
+      totalFracturedSitesMonitored: number;
+      withDeterioratedWaterQuality: number;
+      percentageWithDeterioratedWaterQuality: number;
+    };
   };
   hydraulicFracturingWaterQualityImpacts?: {
     sites?: {
@@ -308,7 +313,7 @@ export interface BiodiversityImpactsData {
     totalVolumeSpilled: number;
     volumeRecovered: number;
     volumeInArctic?: number;
-    volumeImpactingShorelines?: number;
+    volumeImpactingSensitiveShorelines?: number;
   };
   reservesInSensitiveAreas?: {
     proved?: number;

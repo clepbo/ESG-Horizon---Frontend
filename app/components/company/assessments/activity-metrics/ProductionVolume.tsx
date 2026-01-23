@@ -228,8 +228,8 @@ export function ProductionVolume({
           <div>
             <h3 className="text-2xl font-semibold">Production Volumes</h3>
             <p className="text-muted-foreground text-base">
-              Provide the average daily production volumes for the reporting year. Enter &apos0&apos for any
-              products that are not applicable to your operations.
+              Provide the average daily production volumes for the reporting year. Enter &apos0&apos
+              for any products that are not applicable to your operations.
             </p>
           </div>
         </div>

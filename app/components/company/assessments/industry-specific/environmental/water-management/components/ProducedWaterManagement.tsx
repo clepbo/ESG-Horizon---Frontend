@@ -241,7 +241,7 @@ export default function ProducedWaterManagement({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -265,7 +265,16 @@ export default function ProducedWaterManagement({
     };
 
     dispatch({ type: "UPDATE_WATER_PRODUCED", payload });
-    onContinueToNextAssessment();
+
+    try {
+      await saveNow(
+        "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
+        payload
+      );
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save data.");
+    }
   };
 
   const handlePrevious = () => {
