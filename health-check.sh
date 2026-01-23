@@ -13,8 +13,20 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Configuration
-APP_DIR="/var/www/staging.esghorizon.africa"
-PORT=3001
+# Default to staging, but allow override
+ENV=${1:-staging}
+
+if [ "$ENV" = "production" ]; then
+    APP_DIR="/var/www/esghorizon/main"
+    APP_NAME="esg-frontend-prod"
+    PORT=3001
+else
+    APP_DIR="/var/www/esghorizon/staging"
+    APP_NAME="esg-frontend-staging"
+    PORT=3002
+fi
+
+echo "🌍 Testing Environment: $ENV"
 
 check_service() {
     local service=$1
@@ -55,9 +67,9 @@ echo ""
 # Check PM2 process
 echo "⚙️  PM2 Process Check:"
 if command -v pm2 &> /dev/null; then
-    if pm2 describe esg-frontend-prod > /dev/null 2>&1; then
+    if pm2 describe $APP_NAME > /dev/null 2>&1; then
         echo -e "PM2 process: ${GREEN}Running${NC}"
-        pm2 status esg-frontend-prod
+        pm2 status $APP_NAME
     else
         echo -e "PM2 process: ${RED}Not running${NC}"
     fi
@@ -130,7 +142,7 @@ echo ""
 # Recent logs
 echo "📜 Recent PM2 Logs:"
 if command -v pm2 &> /dev/null; then
-    pm2 logs esg-frontend-prod --lines 5 --nostream 2>/dev/null || echo "No recent logs available"
+    pm2 logs $APP_NAME --lines 5 --nostream 2>/dev/null || echo "No recent logs available"
 else
     echo "PM2 not available"
 fi
