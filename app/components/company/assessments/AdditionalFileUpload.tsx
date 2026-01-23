@@ -34,7 +34,7 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
     if (initialData && JSON.stringify(initialData) !== JSON.stringify(additionalFields)) {
       setAdditionalFields(initialData);
     }
-  }, [initialData]);
+  }, [initialData, additionalFields]);
 
   const handleAddField = () => {
     const newFields = [...additionalFields, { name: "", file: null }];
@@ -64,14 +64,14 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
       const newFields = additionalFields.map((item, i) =>
         i === index
           ? {
-              ...item,
-              name: item.name || file.name,
-              file: file,
-              url: uploaded.url,
-              publicId: uploaded.publicId,
-              size: file.size,
-              lastModified: file.lastModified,
-            }
+            ...item,
+            name: item.name || file.name,
+            file: file,
+            url: uploaded.url,
+            publicId: uploaded.publicId,
+            size: file.size,
+            lastModified: file.lastModified,
+          }
           : item
       );
 
@@ -277,10 +277,12 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
             <div className="flex-1 bg-gray-100 overflow-hidden relative">
               {isImageFile(previewFile) ? (
                 <div className="w-full h-full flex items-center justify-center p-4">
-                  <img
-                    src={previewFile.url}
+                  <Image
+                    src={previewFile.url || ""}
                     alt="Preview"
                     className="max-w-full max-h-full object-contain"
+                    width={800}
+                    height={600}
                   />
                 </div>
               ) : isPDFFile(previewFile) || isDocFile(previewFile) ? (

@@ -349,7 +349,7 @@ class CompletionCalculator {
 
   private calculateMultiComponentCompletion(
     topicData: any,
-    isSubmitted: boolean
+    _isSubmitted: boolean
   ): CompletionStatus {
     if (!this.config.components || this.config.components.length === 0) {
       return { status: "not-started", completionPercentage: 0 };
@@ -405,7 +405,7 @@ class CompletionCalculator {
   private calculateComponentCompletion(
     data: any,
     component: ComponentConfig,
-    componentPath: string
+    _componentPath: string
   ): CompletionStatus {
     if (!data || !this.hasActualData(data)) {
       return { status: "not-started", completionPercentage: 0 };
