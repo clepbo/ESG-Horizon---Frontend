@@ -717,10 +717,11 @@ export function DisclosureTopics({
                                   key={card.title}
                                   className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
                                     card.title
-                                  )} ${card.clickable
+                                  )} ${
+                                    card.clickable
                                       ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                       : "cursor-default"
-                                    }`}
+                                  }`}
                                   onClick={() => card.clickable && handleCardClick(card.title)}
                                 >
                                   <CardContent className="p-4">
