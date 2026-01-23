@@ -18,7 +18,6 @@ import ReserveInSensitiveAreasChart from "./environmental/ReserveInSensitiveArea
 import { ReportResponse } from "@/types/report/reportResponse";
 import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
-import NotAvailablePlaceholder from "./components/NotAvailablePlaceholder";
 import { getYear } from "date-fns";
 import Link from "next/link";
 
