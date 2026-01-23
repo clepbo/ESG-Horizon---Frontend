@@ -17,54 +17,58 @@ interface Company {
 }
 
 export default function RankingTable() {
-  const data: Company[] = [
-    {
-      rank: "#1",
-      company: "GreenTech Solutions",
-      industry: "E-Commerce",
-      sector: "Consumer goods",
-      region: "Nigeria",
-      reductionTarget: "65%",
-      esgScore: "92/100",
-    },
-    {
-      rank: "#2",
-      company: "EcoSoft Inc",
-      industry: "Oil & Gas",
-      sector: "Extractives & Minerals Processing",
-      region: "South Africa",
-      reductionTarget: "58%",
-      esgScore: "79/100",
-    },
-    {
-      rank: "#3",
-      company: "CleanCode Corp",
-      industry: "Airlines",
-      sector: "Transportation",
-      region: "Ghana",
-      reductionTarget: "52%",
-      esgScore: "74/100",
-    },
-    {
-      rank: "#4",
-      company: "ClearWatts Energy",
-      industry: "Oil & Gas",
-      sector: "Extractives & Minerals Processing",
-      region: "Benin",
-      reductionTarget: "48%",
-      esgScore: "70/100",
-      isYou: true,
-    },
-    {
-      rank: "#5",
-      company: "DataGreen Ltd.",
-      industry: "Insurance",
-      sector: "Financials",
-      region: "Togo",
-      reductionTarget: "45%",
-      esgScore: "65/100",
-    },
-  ];
+  // TODO: Replace with actual data from backend
+  const data: Company[] = [];
+
+  // Sample data structure for backend integration:
+  // const data: Company[] = [
+  //   {
+  //     rank: "#1",
+  //     company: "GreenTech Solutions",
+  //     industry: "E-Commerce",
+  //     sector: "Consumer goods",
+  //     region: "Nigeria",
+  //     reductionTarget: "65%",
+  //     esgScore: "92/100",
+  //   },
+  //   {
+  //     rank: "#2",
+  //     company: "EcoSoft Inc",
+  //     industry: "Oil & Gas",
+  //     sector: "Extractives & Minerals Processing",
+  //     region: "South Africa",
+  //     reductionTarget: "58%",
+  //     esgScore: "79/100",
+  //   },
+  //   {
+  //     rank: "#3",
+  //     company: "CleanCode Corp",
+  //     industry: "Airlines",
+  //     sector: "Transportation",
+  //     region: "Ghana",
+  //     reductionTarget: "52%",
+  //     esgScore: "74/100",
+  //   },
+  //   {
+  //     rank: "#4",
+  //     company: "ClearWatts Energy",
+  //     industry: "Oil & Gas",
+  //     sector: "Extractives & Minerals Processing",
+  //     region: "Benin",
+  //     reductionTarget: "48%",
+  //     esgScore: "70/100",
+  //     isYou: true,
+  //   },
+  //   {
+  //     rank: "#5",
+  //     company: "DataGreen Ltd.",
+  //     industry: "Insurance",
+  //     sector: "Financials",
+  //     region: "Togo",
+  //     reductionTarget: "45%",
+  //     esgScore: "65/100",
+  //   },
+  // ];
 
   const columns = useMemo<ColumnDef<Company>[]>(
     () => [
@@ -148,6 +152,40 @@ export default function RankingTable() {
     },
   ];
 
+  // Render coming soon state when no data is available
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-gray-50 p-6 rounded-md">
+        <div className="bg-white p-12 rounded-md shadow-sm">
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-800">Coming Soon</h2>
+
+            <p className="text-gray-500 max-w-md">
+              ESG Performance Rankings and leaderboards will be available soon. Stay tuned for
+              insights into how your organization compares with industry peers.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 p-6 rounded-md space-y-6">
       {/* Filter Leaderboards Section */}
@@ -165,7 +203,7 @@ export default function RankingTable() {
             4/<span className="text-sm text-black">490</span>
           </div>
           <p className="text-gray-500 text-sm mb-6">
-            Your organization’s rank based on your filter
+            Your organization's rank based on your filter
           </p>
         </div>
         <div className="bg-white rounded-md shadow-sm text-center">

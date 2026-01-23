@@ -247,7 +247,7 @@ export default function FreshWaterWithdrawalAndConsumption({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fill the input fields before proceeding.");
       return;
@@ -274,7 +274,16 @@ export default function FreshWaterWithdrawalAndConsumption({
     };
 
     dispatch({ type: "UPDATE_WATER_FRESHWATER", payload });
-    onContinueToNextAssessment();
+
+    try {
+      await saveNow(
+        "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
+        payload
+      );
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save data.");
+    }
   };
 
   const handlePrevious = () => {

@@ -205,7 +205,7 @@ export default function ChemicalDisclosure({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -223,7 +223,16 @@ export default function ChemicalDisclosure({
     };
 
     dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
-    onContinueToNextAssessment();
+
+    try {
+      await saveNow(
+        "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
+        payload
+      );
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save data.");
+    }
   };
 
   const handlePrevious = () => {

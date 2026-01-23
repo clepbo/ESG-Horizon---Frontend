@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Card, CardTitle } from "../../ui/card";
 import { CustomProgressWithoutUnit } from "@/app/(company)/reports-and-analytics/components/charts/ProgressBar";
 import { CustomButton } from "../../ui/reusables/CustomButton";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface ReportcardProps {
@@ -66,7 +66,9 @@ export default function Reportcard({
         variant={"outlined"}
         size={"lg"}
         className="w-full rounded p-2"
-        icon={isLoading ? <Loader2 className="animate-spin" /> : <ArrowRight />}
+        rightIcon={
+          isLoading ? <Loader2 className="animate-spin" /> : <ChevronRight className="h-4 w-4" />
+        }
         onClick={handleRoute}
         disabled={isLoading}
       >
