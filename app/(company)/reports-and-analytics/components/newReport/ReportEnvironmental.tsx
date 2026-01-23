@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FaLeaf } from "react-icons/fa";
 // import EnvironmentalEmissionCard from "./environmental/EnvironmentalEmissionCard";
 import EmissionsChart from "./environmental/EmissionsChart";
@@ -15,59 +15,31 @@ import { buildStyles, CircularProgressbarWithChildren } from "react-circular-pro
 import { CustomProgressWithoutSections } from "../charts/ProgressBar";
 import { FaSeedling } from "react-icons/fa6";
 import ReserveInSensitiveAreasChart from "./environmental/ReserveInSensitiveAreasChart";
-import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
-import { useParams } from "next/navigation";
 import { ReportResponse } from "@/types/report/reportResponse";
-import { useSingleReport } from "../service/useReport";
-import Link from "next/link";
 import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
 import NotAvailablePlaceholder from "./components/NotAvailablePlaceholder";
 import { getYear } from "date-fns";
+import Link from "next/link";
 
-export default function ReportEnvironmental() {
-  const [reportData, setReportData] = React.useState<ReportResponse | null>(null);
+interface ReportEnvironmentalProps {
+  reportData?: ReportResponse;
+}
 
-  const params = useParams();
-  const { data, isError, isLoading } = useSingleReport(Number(params?.id));
-
-  useEffect(() => {
-    setReportData(data);
-  }, [data]);
-
-  const airQuality = reportData?.environment_details?.airQuality;
-  const waterManagement = reportData?.environment_details?.waterManagement;
-  const bioDiversity = reportData?.environment_details?.biodiversityImpacts;
-  const ghg = reportData?.environment_details?.ghg;
+export default function ReportEnvironmental({ reportData }: ReportEnvironmentalProps) {
+  const airQuality = reportData?.environmental?.airQuality;
+  const waterManagement = reportData?.environmental?.waterManagement;
+  const bioDiversity = reportData?.environmental?.biodiversityImpact;
+  const ghg = reportData?.environmental?.greenhouseGasEmission;
   const target = reportData?.targets;
 
   console.log("Report target Data", target);
 
-  if (isError) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-red-500">
-        Failed to load report.
-      </div>
-    );
-  }
-  if (isLoading) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-500">
-        <CardSkeleton />
-      </div>
-    );
-  }
-  if (!data || data === undefined || data === null || Object.keys(data).length === 0) {
-    return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-600">No data</div>
-    );
-  }
-
   // const emissionScopeData = reportData?.
-  const emissionData = GHGHistoryTransformer(ghg?.ghg_history || []);
-  const emissionDataScope1 = GHGHistoryTransformer(ghg?.ghg_scope_1_history || []);
-  const emissionDataScope2 = GHGHistoryTransformer(ghg?.ghg_scope_2_history || []);
-  const emissionDataScope3 = GHGHistoryTransformer(ghg?.ghg_scope_3_history || []);
+  const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);
+  const emissionDataScope1 = GHGHistoryTransformer(ghg?.scope1History || []);
+  const emissionDataScope2 = GHGHistoryTransformer(ghg?.scope2History || []);
+  const emissionDataScope3 = GHGHistoryTransformer(ghg?.scope3History || []);
   return (
     <div className="flex flex-col gap-4 lg:gap-20">
       <div className="grid gap-3">
@@ -78,7 +50,7 @@ export default function ReportEnvironmental() {
           <div className="flex flex-col">
             <h6 className="text-sm"> Greenhouse Gas Emissions </h6>
             <p className="text-xs text-gray-600">
-              Scope 1, 2, and 3 emissions performance against targets{" "}
+              Scope 1, 2, and 3 emissions performance against targets
             </p>
           </div>
         </div>
@@ -87,14 +59,18 @@ export default function ReportEnvironmental() {
             borderColor="#1e8a3d"
             bgColor="#dff9e6"
             color="#84bb94"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_total_emissions) : "0"}
+            value={
+              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.totalEmissions) : "0"
+            }
             data={emissionData}
           />
           <EmissionsChart
             borderColor="#2570eb"
             bgColor="#dff9e6"
             title="Scope 1"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_1) : "0"}
+            value={
+              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope1Emissions) : "0"
+            }
             color="#84bb94"
             data={emissionDataScope1}
           />
@@ -102,7 +78,9 @@ export default function ReportEnvironmental() {
             borderColor="#fac565"
             bgColor="#dff9e6"
             title="Scope 2"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_2) : "0"}
+            value={
+              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope2Emissions) : "0"
+            }
             color="#84bb94"
             data={emissionDataScope2}
           />
@@ -110,48 +88,62 @@ export default function ReportEnvironmental() {
             borderColor="#af57db"
             bgColor="#dff9e6"
             title="Scope 3"
-            value={ghg ? String(reportData?.environment_details?.ghg?.ghg_scope_3) : "0"}
+            value={
+              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope3Emissions) : "0"
+            }
             color="#84bb94"
             data={emissionDataScope3}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-2 rounded-2xl shadow p-2">
-            {/* <EmissionsByScope data={transformGHGData(ghg)} /> */}
-            {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="col-span-1 md:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+            <h6 className="p-4 font-semibold border-b border-gray-300"> Emissions by Scope </h6>
+            <div className="p-4 flex-1 flex items-center justify-center">
+              {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
+            </div>
           </div>
-          <div className="col-span-1 rounded-2xl shadow">
-            {reportData?.targets === undefined || reportData?.targets === null ? (
-              <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
-                <p className="text-gray-700">
-                  You have not set any target yet, click bellow to set a target
-                </p>
-                <Link href={"/kpis"} className="bg-primary text-white p-4 py-1 rounded-md">
-                  {" "}
-                  Set target{" "}
-                </Link>
-              </div>
-            ) : reportData?.targets?.type === "GENERAL" ? (
-              <ReductionTarget
-                percentage={target?.generalTarget?.reductionPercentage || 0}
-                targetValue={target?.generalTarget?.targetEmission || 0}
-                currentYear={getYear(new Date())}
-                targetYear={target?.targetYear || 0}
-                baselineEmission={target?.generalTarget?.baselineYearEmission || 0}
-                baselineYear={target?.baselineYear}
-                currentEmission={target?.generalTarget?.currentEmission || 0}
-              />
-            ) : (
-              // <h2> General</h2>
-              <ReductionTargetByScope
-                scope1percentage={0}
-                scope1value={0}
-                scope2percentage={0}
-                scope2value={0}
-                scope3percentage={0}
-                scope3value={0}
-              />
-            )}
+          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+            <h6 className="p-4 font-semibold border-b border-gray-300">
+              {" "}
+              {target?.targetYear ? `${target.targetYear} ` : ""}Reduction Target{" "}
+            </h6>
+            <div className="p-4 flex-1">
+              {reportData?.targets === undefined || reportData?.targets === null ? (
+                <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
+                  <p className="text-gray-700 text-center">
+                    You have not set any target yet, click below to set a target
+                  </p>
+                  <Link href={"/kpis"} className="bg-primary text-white p-4 py-1 rounded-md">
+                    Set target
+                  </Link>
+                </div>
+              ) : reportData?.targets?.type === "GENERAL" ? (
+                <ReductionTarget
+                  percentage={target?.generalTarget?.reductionPercentage || 0}
+                  targetValue={target?.generalTarget?.targetEmission || 0}
+                  currentYear={getYear(new Date())}
+                  targetYear={target?.targetYear || 0}
+                  baselineEmission={target?.generalTarget?.baselineYearEmission || 0}
+                  baselineYear={target?.baselineYear}
+                  currentEmission={target?.generalTarget?.currentEmission || 0}
+                />
+              ) : (
+                <ReductionTargetByScope
+                  scope1percentage={
+                    reportData?.percentage_emission_summary?.scope1_emission_summary || 0
+                  }
+                  scope1value={ghg?.scope1Emissions || 0}
+                  scope2percentage={
+                    reportData?.percentage_emission_summary?.scope2_emission_summary || 0
+                  }
+                  scope2value={ghg?.scope2Emissions || 0}
+                  scope3percentage={
+                    reportData?.percentage_emission_summary?.scope3_emission_summary || 0
+                  }
+                  scope3value={ghg?.scope3Emissions || 0}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -172,7 +164,7 @@ export default function ReportEnvironmental() {
             borderColor={"#1e8a3d"}
             title={"Total Air Pollutant Emission (t)"}
             sub={"tonnes"}
-            amount={airQuality?.totalAirPollutantEmission || 0}
+            amount={airQuality?.totalEmission || 0}
           />
           <OilRenderCard
             borderColor={"#2570eb"}
@@ -196,24 +188,24 @@ export default function ReportEnvironmental() {
             borderColor={"#f64c4c"}
             title={"Particulate Matter (PM10) "}
             sub={"tonnes"}
-            amount={airQuality?.pm || 0}
+            amount={airQuality?.pm10 || 0}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1 md:col-span-2 rounded-2xl shadow p-3">
+          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <PollutantEmissionChart
               NOx={airQuality?.nox ?? 0}
               SOx={airQuality?.sox ?? 0}
               VOCs={airQuality?.voc ?? 0}
-              PM10={airQuality?.pm ?? 0}
+              PM10={airQuality?.pm10 ?? 0}
             />
           </div>
-          <div className="col-span-1 rounded-2xl shadow p-3">
+          <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <EmissionDistributionChart
               NOx={airQuality?.nox ?? <NotAvailablePlaceholder />}
               SOx={airQuality?.sox ?? <NotAvailablePlaceholder />}
               VOCs={airQuality?.voc ?? <NotAvailablePlaceholder />}
-              PM10={airQuality?.pm ?? <NotAvailablePlaceholder />}
+              PM10={airQuality?.pm10 ?? <NotAvailablePlaceholder />}
             />
           </div>
         </div>
@@ -225,7 +217,7 @@ export default function ReportEnvironmental() {
             <IoWaterSharp className="text-primary rounded-md" />
           </span>
           <div className="flex flex-col">
-            <h6 className="text-sm"> Water && Wastewater Management </h6>
+            <h6 className="text-sm"> Water & Wastewater Management </h6>
             <p className="text-xs text-gray-600">
               {" "}
               Freshwater withdrawal, produced water recycling, and chemical disclosure{" "}
@@ -257,7 +249,7 @@ export default function ReportEnvironmental() {
             borderColor={"#3d9f56"}
             title={"Recycled/Reused"}
             sub={"m²"}
-            amount={waterManagement?.recycledReused || 0}
+            amount={waterManagement?.recycledWater || 0}
           />
           <OilRenderCard
             borderColor={"#f9b232"}
@@ -276,37 +268,50 @@ export default function ReportEnvironmental() {
             borderColor={"#2570eb"}
             title={"Wells with Public Disclosure"}
             sub={"wells"}
-            amount={0}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                ?.numberOfWellsWithPublicDisclosure || 0
+            }
           />
           <OilRenderCard
             borderColor={"#af57db"}
             title={"Percentage with Disclosure"}
             sub={"%"}
-            amount={0}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                ?.percentageWithDisclosure || 0
+            }
           />
           <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={0} />
           <OilRenderCard
             borderColor={"#1e8a3d"}
             title={"Sites with Deteriorated Water Quality"}
             sub={"sites"}
-            amount={0}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.sites
+                ?.withDeterioratedWaterQuality || 0
+            }
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1 md:col-span-2 rounded-2xl shadow p-3">
-            <FreshWaterWithdrawalSource surfaceWater={0} groundwater={0} municipal={0} />
+          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+            <FreshWaterWithdrawalSource
+              surfaceWater={waterManagement?.freshwaterWithdrawalBySource?.surfaceWater || 0}
+              groundwater={waterManagement?.freshwaterWithdrawalBySource?.groundwater || 0}
+              municipal={waterManagement?.freshwaterWithdrawalBySource?.municipalWater || 0}
+            />
           </div>
-          <div className="col-span-1 rounded-2xl shadow p-3">
+          <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <ProducedWaterManagementChart
-              recycled={waterManagement?.recycledReused || 0}
+              recycled={waterManagement?.recycledWater || 0}
               injected={waterManagement?.injectedForDisposal || 0}
               discharged={waterManagement?.dischargedToSurface || 0}
             />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl shadow gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
             <span className="">
               <h6 className="p-4 "> Hydraulic Fracturing - Chemical Disclosure </h6>
               <hr className="text-gray-200" />
@@ -315,23 +320,38 @@ export default function ReportEnvironmental() {
               <div className="flex items-center justify-center gap-4">
                 <div className="flex flex-col items-center">
                   <p className=""> Total Fractured Wells</p>
-                  <p className="font-bold">
-                    {" "}
-                    {waterManagement?.hydraulicFracturing?.totalFracturedWells || 0}{" "}
+                  <p className="font-bold text-3xl">
+                    {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                      ?.totalFracturedWells || 0}{" "}
                   </p>
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
-                  value={0}
+                  value={Number(
+                    (
+                      waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.percentageWithDisclosure || 0
+                    ).toFixed(2)
+                  )}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
                   <div
                     style={{ fontSize: 12, marginTop: -5 }}
                     className="flex text-xs flex-col items-center"
                   >
-                    <strong>{Math.round(0)}%</strong>
+                    <strong>
+                      {Number(
+                        waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                          ?.percentageWithDisclosure || 0
+                      ).toFixed(2)}
+                      %
+                    </strong>
                     <p className="font-thin">Disclosure Rate </p>
-                    <p className="">{0} Wells Disclosed</p>
+                    <p className="">
+                      {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.percentageWithDisclosure || 0}{" "}
+                      Wells Disclosed
+                    </p>
                   </div>
                 </CircularProgressbarWithChildren>
               </div>
@@ -348,7 +368,7 @@ export default function ReportEnvironmental() {
               </div>
             </div>
           </div>
-          <div className="rounded-2xl shadow gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
             <span className="">
               <h6 className="p-4 ">Water Quality Impacts </h6>
               <hr className="text-gray-200" />
@@ -357,14 +377,23 @@ export default function ReportEnvironmental() {
               <WaterQualityCard
                 title={"Wells with public chemical disclosure"}
                 amount={
-                  waterManagement?.waterQualityImpacts?.wellsWithPublicChemicalDisclosure || 0
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                    ?.numberOfWellsWithPublicDisclosure || 0
                 }
-                progress={0}
+                progress={Number(
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
+                    2
+                  ) || 0
+                )}
               />
               <WaterQualityCard
                 title={"Volume Recycled/Reused"}
-                amount={waterManagement?.waterQualityImpacts?.volumeRecycledReused || 0}
-                progress={70}
+                amount={waterManagement?.recycledWater || 0}
+                progress={Number(
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
+                    2
+                  ) || 0
+                )}
                 sub="m³"
               />
             </div>
@@ -386,7 +415,7 @@ export default function ReportEnvironmental() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="rounded-2xl shadow gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
             <span className="">
               <h6 className="p-3 "> Hydraulic Spills </h6>
               <hr className="text-gray-200" />
@@ -421,27 +450,32 @@ export default function ReportEnvironmental() {
             <div className="flex items-center justify-between align-middle h-full p-4">
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Volume in Arctic </span>
-                <span className="font-semibold text-2xl">{bioDiversity?.volumeInArctic} bbl </span>
+                <span className="font-semibold text-2xl">
+                  {bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0} bbl{" "}
+                </span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
-                <span className="font-semibold text-[#d48c3b] text-2xl">{0} bbl </span>
+                <span className="font-semibold text-[#d48c3b] text-2xl">
+                  {bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0}{" "}
+                  bbl{" "}
+                </span>
               </div>
             </div>
           </div>
-          <div className="rounded-2xl shadow gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
             <span className="">
               <h6 className="p-3 "> Reserves in Sensitive Areas </h6>
               <hr className="text-gray-200" />
             </span>
             <div className="p-4 grid grid-cols-1 gap-4 justify-end align-bottom">
               <ReserveInSensitiveAreasChart
-                provedTotal={bioDiversity?.reservesInSensitiveAreas?.proved || 0}
-                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probable || 0}
+                provedTotal={bioDiversity?.reservesInSensitiveAreas?.provedReserves || 0}
+                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probableReserves || 0}
               />
             </div>
           </div>
-          <div className="rounded-2xl shadow gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
             <span className="">
               <h6 className="p-3 "> Management Policies </h6>
               <hr className="text-gray-200" />

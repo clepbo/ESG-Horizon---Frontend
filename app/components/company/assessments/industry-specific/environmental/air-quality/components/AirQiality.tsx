@@ -2,27 +2,39 @@ import React from "react";
 import AirQualityCard from "./AirQualityCard";
 import AirQualityForm from "./AirQualityForm";
 import { SuccessScreen } from "../../../../SuccessScreen";
-// import { useAssessment } from "@/hooks/useAssessment";
+import { useRouter, useParams } from "next/navigation";
 
 interface AirQualityProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
 }
-export default function AirQiality({
+
+export default function AirQuality({
   backToDisclosureTopics,
   backToAssessmentHub,
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
-  // const { dispatch } = useAssessment();
+  const router = useRouter();
+  const params = useParams();
+
+  const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
+  const handleViewReport = () => {
+    if (reportId) {
+      router.push(`/reports-and-analytics/${reportId}?tab=environmental`);
+    } else {
+      router.push("/reports-and-analytics");
+    }
+  };
 
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Air Pollutant Emissions"
-        nextAssessment="Water and Wastewater Management"
-        onContinue={backToDisclosureTopics}
-        onContinueAssessment={backToDisclosureTopics}
+        assessmentName="Air Quality Assessment"
+        nextAssessment="Water WasteWater Management"
+        reportId={reportId}
+        onContinue={handleViewReport}
         onBackToHub={backToAssessmentHub}
       />
     );
@@ -37,6 +49,7 @@ export default function AirQiality({
       />
     );
   }
+
   if (step === 1) {
     return (
       <div>

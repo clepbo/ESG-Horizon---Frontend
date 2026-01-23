@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { FrontendTask, TaskStatus } from "@/services/assignTask.service";
 import CustomDialog from "../../ui/reusables/CustomDialog";
+import { formatDate } from "@/lib/dateUtils";
 
 interface TaskTableProps {
   tasks: FrontendTask[];
@@ -95,7 +96,7 @@ function ActionDropdown({
           <Button
             variant="outline"
             size="sm"
-            className="w-[110px] justify-between rounded-sm border-teal-600"
+            className="w-27.5 justify-between rounded-sm border-teal-600"
           >
             Action
             {isOpen ? (
@@ -279,19 +280,37 @@ export function TaskTable({
   const columns = useMemo(
     () => [
       columnHelper.accessor("taskName", { header: "Task Name" }),
-      columnHelper.accessor("assignedTo", { header: "Assigned To" }),
+      columnHelper.display({
+        id: "assignedTo",
+        header: "Assigned To",
+        cell: ({ row }) => {
+          const name = row.original.assignedTo;
+          const email = row.original.assignedToEmail;
+
+          if (!name || name === "—") {
+            return <span className="text-muted-foreground">—</span>;
+          }
+
+          return (
+            <div className="flex flex-col gap-0.5">
+              <span className="font-medium text-sm">{name}</span>
+              {email && <span className="text-xs text-muted-foreground">{email}</span>}
+            </div>
+          );
+        },
+      }),
       columnHelper.accessor("dateAssigned", {
         header: "Date Assigned",
         cell: (info) => {
           const value = info.getValue() as string | undefined;
-          return value ? new Date(value).toLocaleDateString() : "—";
+          return formatDate(value);
         },
       }),
       columnHelper.accessor("dueDate", {
         header: "Due Date",
         cell: (info) => {
           const value = info.getValue() as string | undefined;
-          return value ? new Date(value).toLocaleDateString() : "—";
+          return formatDate(value);
         },
       }),
       columnHelper.accessor("status", {
@@ -358,7 +377,7 @@ export function TaskTable({
           columns={columns}
           filterOptions={filterOptions}
           customFilters={
-            <DateRangePicker value={dateRange} onChange={setDateRange} className="w-[250px]" />
+            <DateRangePicker value={dateRange} onChange={setDateRange} className="w-62.5" />
           }
         />
       )}

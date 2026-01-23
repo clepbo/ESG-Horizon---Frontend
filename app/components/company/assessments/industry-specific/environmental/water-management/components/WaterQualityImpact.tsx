@@ -347,6 +347,7 @@ export default function WaterQualityImpact({
                   unitError={errors.totalMonitoredSitesUnit}
                   formatNumbers={false}
                   placeholder="e.g., 50"
+                  customUnit="Sites"
                 />
 
                 <ReusableInput
@@ -367,6 +368,7 @@ export default function WaterQualityImpact({
                   unitError={errors.sitesWithDeterioratedQualityUnit}
                   formatNumbers={false}
                   placeholder="e.g., 5"
+                  customUnit="Sites"
                 />
               </div>
             )}

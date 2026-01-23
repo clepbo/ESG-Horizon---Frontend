@@ -14,7 +14,8 @@ import { toast } from "react-toastify";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+// import { useRouter } from "next/router";
 
 interface SafetyManagementSystemProps {
   onBack: () => void;

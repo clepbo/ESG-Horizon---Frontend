@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardTitle } from "../../ui/card";
 import { CustomProgressWithoutUnit } from "@/app/(company)/reports-and-analytics/components/charts/ProgressBar";
 import { CustomButton } from "../../ui/reusables/CustomButton";
-import { ArrowRight } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface ReportcardProps {
@@ -26,9 +26,16 @@ export default function Reportcard({
   overall = 100,
 }: ReportcardProps) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleRoute() {
-    router.push(`/reports-and-analytics/${id}`);
+  async function handleRoute() {
+    setIsLoading(true);
+    try {
+      await router.push(`/reports-and-analytics/${id}`);
+    } catch (error) {
+      console.error("Navigation error:", error);
+      setIsLoading(false);
+    }
   }
 
   console.log("DOne:", done, "Overall:", overall);
@@ -59,10 +66,13 @@ export default function Reportcard({
         variant={"outlined"}
         size={"lg"}
         className="w-full rounded p-2"
-        icon={<ArrowRight />}
+        rightIcon={
+          isLoading ? <Loader2 className="animate-spin" /> : <ChevronRight className="h-4 w-4" />
+        }
         onClick={handleRoute}
+        disabled={isLoading}
       >
-        View Report
+        {isLoading ? "Loading..." : "View Report"}
       </CustomButton>
     </Card>
   );

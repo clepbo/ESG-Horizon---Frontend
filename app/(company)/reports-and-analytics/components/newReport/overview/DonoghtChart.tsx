@@ -15,17 +15,18 @@ interface DonutChartProps {
   title?: string;
   data?: { name: string; value: number; color: string }[];
 }
-const detail = false;
 
 export default function DonutChart({
   title = "Offshore Sites",
   data: chartData = data,
 }: DonutChartProps) {
+  const hasData = chartData?.some((d) => d.value > 0);
+
   return (
     <div className="w-full h-100 bg-white rounded-lg p-4 shadow">
       <h3 className="text-lg font-semibold mb-4 border-b border-b-gray-300 pb-3">{title}</h3>
 
-      {detail && (
+      {hasData && (
         <ResponsiveContainer width="100%" height="90%">
           <PieChart>
             <Pie
@@ -53,7 +54,7 @@ export default function DonutChart({
           </PieChart>
         </ResponsiveContainer>
       )}
-      {!detail && <NotAvailablePlaceholder />}
+      {!hasData && <NotAvailablePlaceholder />}
     </div>
   );
 }

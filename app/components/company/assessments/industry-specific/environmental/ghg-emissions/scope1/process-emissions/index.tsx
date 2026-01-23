@@ -50,6 +50,7 @@ export function ProcessEmissionsForm({
       <SuccessScreen
         assessmentName="Process Emissions"
         sectionKey="processEmissions"
+        totals={_totals ?? undefined}
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onBackToDisclosureTopics}
         onBackToHub={() => router.push("/assessments/new-assessment")}

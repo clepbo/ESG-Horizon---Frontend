@@ -148,7 +148,7 @@ export default function HydrocarbonSpills({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -164,7 +164,16 @@ export default function HydrocarbonSpills({
     };
 
     dispatch({ type: "UPDATE_BIODIVERSITY_SPILLS", payload });
-    onContinueToNextAssessment();
+
+    try {
+      await saveNow(
+        "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
+        payload
+      );
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save data.");
+    }
   };
 
   const handlePrevious = () => {

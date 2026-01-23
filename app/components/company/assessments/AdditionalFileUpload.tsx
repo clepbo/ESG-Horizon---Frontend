@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CloudUpload, X, Plus, Trash2, FileText, Eye, ExternalLink } from "lucide-react";
+import { CloudUpload, X, Plus, Trash2, FileText, Eye } from "lucide-react";
 import { uploadService } from "@/services/upload.service";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { toast } from "react-toastify";
@@ -34,7 +34,7 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
     if (initialData && JSON.stringify(initialData) !== JSON.stringify(additionalFields)) {
       setAdditionalFields(initialData);
     }
-  }, [initialData]);
+  }, [initialData, additionalFields]);
 
   const handleAddField = () => {
     const newFields = [...additionalFields, { name: "", file: null }];
@@ -42,11 +42,11 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
     onFieldsChange?.(newFields);
   };
 
-  const handleRemoveField = (index: number) => {
-    const newFields = additionalFields.filter((_, i) => i !== index);
-    setAdditionalFields(newFields);
-    onFieldsChange?.(newFields);
-  };
+  // const handleRemoveField = (index: number) => {
+  //   const newFields = additionalFields.filter((_, i) => i !== index);
+  //   setAdditionalFields(newFields);
+  //   onFieldsChange?.(newFields);
+  // };
 
   const handleFileChange = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -277,10 +277,12 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
             <div className="flex-1 bg-gray-100 overflow-hidden relative">
               {isImageFile(previewFile) ? (
                 <div className="w-full h-full flex items-center justify-center p-4">
-                  <img
-                    src={previewFile.url}
+                  <Image
+                    src={previewFile.url || ""}
                     alt="Preview"
                     className="max-w-full max-h-full object-contain"
+                    width={800}
+                    height={600}
                   />
                 </div>
               ) : isPDFFile(previewFile) || isDocFile(previewFile) ? (

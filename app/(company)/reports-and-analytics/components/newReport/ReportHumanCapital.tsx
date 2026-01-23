@@ -1,10 +1,16 @@
-import ComingSoon from "@/app/components/coming-soon";
-import React from "react";
+import HumanStepOne from "./humanCapital/HumanStepOne";
+import HumanStepTwo from "./humanCapital/HumanStepTwo";
+import { ReportResponse } from "@/types/report/reportResponse";
 
-export default function ReportHumanCapital() {
+interface ReportHumanCapitalProps {
+  reportData?: ReportResponse;
+}
+
+export default function ReportHumanCapital({ reportData }: ReportHumanCapitalProps) {
   return (
-    <div>
-      <ComingSoon />
+    <div className="w-full grid gap-4">
+      <HumanStepOne reportData={reportData} />
+      <HumanStepTwo />
     </div>
   );
 }

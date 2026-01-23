@@ -40,44 +40,52 @@ export default function ReductionTarget({
       : 0;
 
   return (
-    <div className="p-2">
-      <CircularProgressbarWithChildren
-        value={achievedPercentage}
-        styles={{
-          path: {
-            stroke: "#10b981",
-            strokeLinecap: "round",
-          },
-          trail: {
-            stroke: "#f0f0f0",
-          },
-        }}
-      >
-        <div className="text-2xl font-bold flex flex-col items-center justify-center">
-          <strong>{`${formatNumberFigures(achievedPercentage)}%`}</strong>
-          <span className="text-sm">Reduction achieved</span>
-          <span className="font-normal text-xs">
-            Target: {formatNumberFigures(percentage)}% by {targetYear}
-          </span>
+    <div className="p-2 flex flex-col h-full">
+      <div className="flex-1 flex items-center justify-center min-h-[240px]">
+        <div className="w-48 h-48">
+          <CircularProgressbarWithChildren
+            value={achievedPercentage}
+            strokeWidth={10}
+            styles={{
+              path: {
+                stroke: "#109b95",
+                strokeLinecap: "round",
+                transition: "stroke-dashoffset 0.5s ease 0s",
+              },
+              trail: {
+                stroke: "#f1f1f1",
+              },
+            }}
+          >
+            <div className="flex flex-col items-center justify-center text-center px-4">
+              <span className="text-3xl font-bold text-gray-800">
+                {formatNumberFigures(achievedPercentage)}%
+              </span>
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mt-1">
+                Reduction Achieved
+              </span>
+              <span className="text-[10px] text-gray-400 mt-0.5">
+                Target: {formatNumberFigures(percentage)}% by {targetYear}
+              </span>
+            </div>
+          </CircularProgressbarWithChildren>
         </div>
-      </CircularProgressbarWithChildren>
+      </div>
 
-      <div className="flex flex-col gap-2 mt-4 p-4">
-        <div className="flex justify-between">
-          <span className="text-sm font-thin">
-            Baseline{baselineYear ? ` (${baselineYear})` : ""}:
-          </span>
-          <span className="text-sm font-semibold">{formatNumberFigures(safeBaseline)} tCO₂e</span>
+      <div className="flex flex-col gap-3 mt-auto p-4 border-t border-gray-50">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-500">Baseline{baselineYear ? ` (${baselineYear})` : ""}:</span>
+          <span className="font-bold text-gray-700">{formatNumberFigures(safeBaseline)} tCO₂e</span>
         </div>
 
-        <div className="flex justify-between">
-          <span className="text-sm font-thin">Current ({currentYear}):</span>
-          <span className="text-sm font-semibold">{formatNumberFigures(safeCurrent)} tCO₂e</span>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-500">Current ({currentYear}):</span>
+          <span className="font-bold text-gray-700">{formatNumberFigures(safeCurrent)} tCO₂e</span>
         </div>
 
-        <div className="flex justify-between">
-          <span className="text-sm font-thin">Target ({targetYear}):</span>
-          <span className="text-sm font-semibold">{formatNumberFigures(safeTarget)} tCO₂e</span>
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-500">Target ({targetYear}):</span>
+          <span className="font-bold text-gray-700">{formatNumberFigures(safeTarget)} tCO₂e</span>
         </div>
       </div>
     </div>
