@@ -103,7 +103,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             </div>
           </div>
           <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
-            <h6 className="p-4 font-semibold border-b border-gray-300"> {target?.targetYear ? `${target.targetYear} ` : ""}Reduction Target </h6>
+            <h6 className="p-4 font-semibold border-b border-gray-300">
+              {" "}
+              {target?.targetYear ? `${target.targetYear} ` : ""}Reduction Target{" "}
+            </h6>
             <div className="p-4 flex-1">
               {reportData?.targets === undefined || reportData?.targets === null ? (
                 <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
@@ -161,7 +164,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor={"#1e8a3d"}
             title={"Total Air Pollutant Emission (t)"}
             sub={"tonnes"}
-            amount={airQuality?.totalAirPollutantEmission || 0}
+            amount={airQuality?.totalEmission || 0}
           />
           <OilRenderCard
             borderColor={"#2570eb"}
@@ -185,7 +188,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor={"#f64c4c"}
             title={"Particulate Matter (PM10) "}
             sub={"tonnes"}
-            amount={airQuality?.pm || 0}
+            amount={airQuality?.pm10 || 0}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -194,7 +197,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               NOx={airQuality?.nox ?? 0}
               SOx={airQuality?.sox ?? 0}
               VOCs={airQuality?.voc ?? 0}
-              PM10={airQuality?.pm ?? 0}
+              PM10={airQuality?.pm10 ?? 0}
             />
           </div>
           <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
@@ -202,7 +205,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               NOx={airQuality?.nox ?? <NotAvailablePlaceholder />}
               SOx={airQuality?.sox ?? <NotAvailablePlaceholder />}
               VOCs={airQuality?.voc ?? <NotAvailablePlaceholder />}
-              PM10={airQuality?.pm ?? <NotAvailablePlaceholder />}
+              PM10={airQuality?.pm10 ?? <NotAvailablePlaceholder />}
             />
           </div>
         </div>
@@ -246,7 +249,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor={"#3d9f56"}
             title={"Recycled/Reused"}
             sub={"m²"}
-            amount={waterManagement?.recycledReused || 0}
+            amount={waterManagement?.recycledWater || 0}
           />
           <OilRenderCard
             borderColor={"#f9b232"}
@@ -265,30 +268,43 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor={"#2570eb"}
             title={"Wells with Public Disclosure"}
             sub={"wells"}
-            amount={0}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                ?.numberOfWellsWithPublicDisclosure || 0
+            }
           />
           <OilRenderCard
             borderColor={"#af57db"}
             title={"Percentage with Disclosure"}
             sub={"%"}
-            amount={0}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                ?.percentageWithDisclosure || 0
+            }
           />
           <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={0} />
           <OilRenderCard
             borderColor={"#1e8a3d"}
             title={"Sites with Deteriorated Water Quality"}
             sub={"sites"}
-            amount={0}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.sites
+                ?.withDeterioratedWaterQuality || 0
+            }
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
-            <FreshWaterWithdrawalSource surfaceWater={0} groundwater={0} municipal={0} />
+            <FreshWaterWithdrawalSource
+              surfaceWater={waterManagement?.freshwaterWithdrawalBySource?.surfaceWater || 0}
+              groundwater={waterManagement?.freshwaterWithdrawalBySource?.groundwater || 0}
+              municipal={waterManagement?.freshwaterWithdrawalBySource?.municipalWater || 0}
+            />
           </div>
           <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <ProducedWaterManagementChart
-              recycled={waterManagement?.recycledReused || 0}
+              recycled={waterManagement?.recycledWater || 0}
               injected={waterManagement?.injectedForDisposal || 0}
               discharged={waterManagement?.dischargedToSurface || 0}
             />
@@ -305,22 +321,37 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 <div className="flex flex-col items-center">
                   <p className=""> Total Fractured Wells</p>
                   <p className="font-bold text-3xl">
-                    {" "}
-                    {waterManagement?.hydraulicFracturing?.totalFracturedWells || 0}{" "}
+                    {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                      ?.totalFracturedWells || 0}{" "}
                   </p>
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
-                  value={0}
+                  value={Number(
+                    (
+                      waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.percentageWithDisclosure || 0
+                    ).toFixed(2)
+                  )}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
                   <div
                     style={{ fontSize: 12, marginTop: -5 }}
                     className="flex text-xs flex-col items-center"
                   >
-                    <strong>{Math.round(0)}%</strong>
+                    <strong>
+                      {Number(
+                        waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                          ?.percentageWithDisclosure || 0
+                      ).toFixed(2)}
+                      %
+                    </strong>
                     <p className="font-thin">Disclosure Rate </p>
-                    <p className="">{0} Wells Disclosed</p>
+                    <p className="">
+                      {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.percentageWithDisclosure || 0}{" "}
+                      Wells Disclosed
+                    </p>
                   </div>
                 </CircularProgressbarWithChildren>
               </div>
@@ -346,14 +377,23 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <WaterQualityCard
                 title={"Wells with public chemical disclosure"}
                 amount={
-                  waterManagement?.waterQualityImpacts?.wellsWithPublicChemicalDisclosure || 0
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                    ?.numberOfWellsWithPublicDisclosure || 0
                 }
-                progress={0}
+                progress={Number(
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
+                    2
+                  ) || 0
+                )}
               />
               <WaterQualityCard
                 title={"Volume Recycled/Reused"}
-                amount={waterManagement?.waterQualityImpacts?.volumeRecycledReused || 0}
-                progress={70}
+                amount={waterManagement?.recycledWater || 0}
+                progress={Number(
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
+                    2
+                  ) || 0
+                )}
                 sub="m³"
               />
             </div>
@@ -410,11 +450,16 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <div className="flex items-center justify-between align-middle h-full p-4">
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Volume in Arctic </span>
-                <span className="font-semibold text-2xl">{bioDiversity?.volumeInArctic} bbl </span>
+                <span className="font-semibold text-2xl">
+                  {bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0} bbl{" "}
+                </span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
-                <span className="font-semibold text-[#d48c3b] text-2xl">{0} bbl </span>
+                <span className="font-semibold text-[#d48c3b] text-2xl">
+                  {bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0}{" "}
+                  bbl{" "}
+                </span>
               </div>
             </div>
           </div>
@@ -425,8 +470,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             </span>
             <div className="p-4 grid grid-cols-1 gap-4 justify-end align-bottom">
               <ReserveInSensitiveAreasChart
-                provedTotal={bioDiversity?.reservesInSensitiveAreas?.proved || 0}
-                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probable || 0}
+                provedTotal={bioDiversity?.reservesInSensitiveAreas?.provedReserves || 0}
+                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probableReserves || 0}
               />
             </div>
           </div>

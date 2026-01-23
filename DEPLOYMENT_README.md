@@ -21,7 +21,7 @@ Your GitHub Actions workflow (`.github/workflows/frontend-ci.yml`) is well-struc
 ✅ **Multi-environment deployment** (main → port 3001, staging → port 3002)  
 ✅ **Next.js standalone builds**  
 ✅ **PM2 process management**  
-✅ **Static asset handling**  
+✅ **Static asset handling**
 
 The key fix needed is ensuring your **existing nginx configuration** properly proxies `/_next/static/` requests to the correct ports.
 
@@ -34,11 +34,13 @@ The PM2 config was pointing to `./server.js` but Next.js standalone build create
 ```javascript
 // ecosystem.config.js
 module.exports = {
-  apps: [{
-    name: "esg-frontend-prod",
-    script: "./.next/standalone/server.js", // ← Fixed path
-    // ... rest of config
-  }],
+  apps: [
+    {
+      name: "esg-frontend-prod",
+      script: "./.next/standalone/server.js", // ← Fixed path
+      // ... rest of config
+    },
+  ],
 };
 ```
 
@@ -80,6 +82,7 @@ server {
 ```
 
 Then enable the site:
+
 ```bash
 sudo ln -s /etc/nginx/sites-available/staging.esghorizon.africa /etc/nginx/sites-enabled/
 sudo nginx -t
@@ -91,6 +94,7 @@ sudo systemctl reload nginx
 ### Option 1: Manual Deployment (Recommended)
 
 1. **Build locally and deploy:**
+
    ```bash
    # On your local machine
    npm run build
@@ -102,6 +106,7 @@ sudo systemctl reload nginx
    ```
 
 2. **On the server:**
+
    ```bash
    cd /var/www/staging.esghorizon.africa
 
@@ -126,24 +131,28 @@ sudo systemctl reload nginx
 ## 🔍 Troubleshooting
 
 ### Check PM2 Status
+
 ```bash
 pm2 status
 pm2 logs esg-frontend-prod --lines 50
 ```
 
 ### Verify File Structure
+
 ```bash
 ls -la /var/www/staging.esghorizon.africa/.next/
 # Should contain: server.js, static/, standalone/, etc.
 ```
 
 ### Check Nginx Configuration
+
 ```bash
 sudo nginx -t
 sudo systemctl status nginx
 ```
 
 ### Test Direct Access
+
 ```bash
 # Test if Next.js is running directly
 curl http://localhost:3001
@@ -153,6 +162,7 @@ curl http://localhost:3001/_next/static/chunks/main.js
 ```
 
 ### Browser Network Tab Debugging
+
 1. Open browser dev tools
 2. Go to Network tab
 3. Navigate to a failing page
@@ -162,21 +172,27 @@ curl http://localhost:3001/_next/static/chunks/main.js
 ## 🐛 Common Issues & Solutions
 
 ### Issue: `ChunkLoadError` or 404 on static files
+
 **Solution:** Nginx not configured to serve `/_next/static/` path. Use the nginx config above.
 
 ### Issue: PM2 process crashes immediately
+
 **Solution:** Check logs with `pm2 logs esg-frontend-prod`. Common issues:
+
 - Missing dependencies
 - Port already in use
 - File permission issues
 
 ### Issue: Build fails on server
+
 **Solution:** Build locally and deploy the built files, or ensure the server has sufficient memory for the build process.
 
 ### Issue: Only some pages fail
+
 **Solution:** Code splitting issue. The failing pages likely have dynamic imports that aren't being served correctly.
 
 ### Issue: Your CI/CD is sophisticated but still getting chunk errors
+
 **Solution:** Your nginx config might be missing the `/_next/static/` proxy rule. Check your existing nginx configuration and ensure it includes:
 
 ```nginx
@@ -225,6 +241,7 @@ pm2 start ecosystem.config.js --env production
 ## 📞 Support
 
 If issues persist:
+
 1. Check PM2 logs: `pm2 logs esg-frontend-prod`
 2. Check Nginx error logs: `sudo tail -f /var/log/nginx/error.log`
 3. Verify file permissions: `ls -la /var/www/staging.esghorizon.africa/.next/`

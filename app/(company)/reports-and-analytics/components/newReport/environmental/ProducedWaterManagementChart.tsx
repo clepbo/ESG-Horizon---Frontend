@@ -1,4 +1,6 @@
-import { Pie, PieChart, Legend } from "recharts";
+"use client";
+
+import { Pie, PieChart, Legend, ResponsiveContainer, Cell } from "recharts";
 
 interface ProducedWaterManagementChartProps {
   isAnimationActive?: boolean;
@@ -9,46 +11,41 @@ interface ProducedWaterManagementChartProps {
 
 export default function ProducedWaterManagementChart({
   isAnimationActive = true,
-  recycled = 1400,
-  injected = 1050,
-  discharged = 700,
+  recycled = 0,
+  injected = 0,
+  discharged = 0,
 }: ProducedWaterManagementChartProps) {
   const data = [
-    { name: "Recycled", value: recycled, fill: "#2fb856" },
-    { name: "Injected", value: injected, fill: "#dca54b" },
-    { name: "Discharged", value: discharged, fill: "#eb6f70" },
-  ];
+    { name: "Recycled", value: recycled, color: "#2fb856" },
+    { name: "Injected", value: injected, color: "#dca54b" },
+    { name: "Discharged", value: discharged, color: "#eb6f70" },
+  ].filter((item) => item.value > 0);
+
   return (
     <>
-      <h6 className="border-b pb-2 border-gray-200">Produced Water Management </h6>
+      <h6 className="border-b pb-2 border-gray-200">Produced Water Management</h6>
 
-      <PieChart
-        className="mt-3"
-        style={{
-          width: "100%",
-          maxWidth: "500px",
-          height: "90%",
-          maxHeight: "80vh",
-          aspectRatio: 1,
-        }}
-      >
-        <Pie
-          data={data}
-          innerRadius="80%"
-          outerRadius="100%"
-          cornerRadius="50%"
-          paddingAngle={5}
-          dataKey="value"
-          isAnimationActive={isAnimationActive}
-        />
-        <Legend
-          layout="horizontal"
-          type="circle"
-          verticalAlign="bottom"
-          align="center"
-          className="mt-4"
-        />
-      </PieChart>
+      <div className="mt-3 w-full h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              innerRadius={70}
+              outerRadius={90}
+              cornerRadius={8}
+              paddingAngle={4}
+              isAnimationActive={isAnimationActive}
+            >
+              {data.map((entry, index) => (
+                <Cell key={index} fill={entry.color} />
+              ))}
+            </Pie>
+
+            <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </>
   );
 }

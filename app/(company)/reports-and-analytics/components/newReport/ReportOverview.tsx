@@ -82,7 +82,28 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
     {
       name: "Other Sites",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.otherSites ?? 0,
-      color: "#9ca3af",
+      color: "#f59e0b",
+    },
+  ];
+
+  const productionChartData = [
+    {
+      name: "Oil Production",
+      primary: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
+      secondary: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
+      primaryLabel: "Crude Oil",
+      secondaryLabel: "Synthetic Oil",
+      fillPrimary: "#f7931a",
+      fillSecondary: "#fcd88b",
+    },
+    {
+      name: "Gas Production",
+      primary: activityMetrics?.productionData?.gasProduction?.naturalGas ?? 0,
+      secondary: activityMetrics?.productionData?.gasProduction?.syntheticGas ?? 0,
+      primaryLabel: "Natural Gas",
+      secondaryLabel: "Synthetic Gas",
+      fillPrimary: "#3b82f6",
+      fillSecondary: "#bfdbfe",
     },
   ];
 
@@ -138,7 +159,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
         <h5 className=" border-b w-full border-gray-400 text-gray-700">Production Data</h5>
         <div className="grid gap-3 grid-cols-1 lg:grid-cols-3 mt-3">
           <div className="col-span-2">
-            <ProductionVolumesChart />
+            <ProductionVolumesChart data={productionChartData} />
           </div>
           <div className="flex flex-col gap-2 lg:gap-4">
             {productionCards.map((card) => {
