@@ -203,7 +203,7 @@ export default function RankingTable() {
             4/<span className="text-sm text-black">490</span>
           </div>
           <p className="text-gray-500 text-sm mb-6">
-            Your organization's rank based on your filter
+            Your organization&apos;s rank based on your filter
           </p>
         </div>
         <div className="bg-white rounded-md shadow-sm text-center">
