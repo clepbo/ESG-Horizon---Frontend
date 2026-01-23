@@ -7,7 +7,6 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
-import ReportEmptyState from "../ReportEmptyState";
 import { formatNumberWithCommas } from "../utils/helpers";
 import { ReportResponse } from "@/types/report/reportResponse";
 

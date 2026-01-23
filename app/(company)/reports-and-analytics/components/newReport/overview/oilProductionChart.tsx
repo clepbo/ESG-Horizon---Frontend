@@ -20,7 +20,7 @@ interface ProductionVolumesChartProps {
 export default function ProductionVolumesChart({ data = [] }: ProductionVolumesChartProps) {
   const hasData = data.length > 0 && data.some((d) => d.primary > 0 || d.secondary > 0);
 
-  const renderLegend = (props: any) => {
+  const renderLegend = (_props: any) => {
     const payload = [
       { value: "Crude Oil", color: "#f7931a" },
       { value: "Synthetic Oil", color: "#fcd88b" },

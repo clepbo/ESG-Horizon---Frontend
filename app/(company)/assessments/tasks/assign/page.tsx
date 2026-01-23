@@ -449,13 +449,6 @@ export default function AssignTaskPage() {
     }
   };
 
-  const tomorrow = useMemo(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 1);
-    date.setHours(0, 0, 0, 0);
-    return date;
-  }, []);
-
   return (
     <div className="p-8 space-y-8">
       <div className="flex items-center">
