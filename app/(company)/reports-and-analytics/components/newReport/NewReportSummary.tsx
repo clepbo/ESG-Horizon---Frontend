@@ -6,7 +6,7 @@ import ReportOverview from "./ReportOverview";
 import ReportEnvironmental from "./ReportEnvironmental";
 import SocialCapital from "./SocialCapital";
 import ReportHumanCapital from "./ReportHumanCapital";
-import BusinessModelPillar from "./BusinessModelPillar";
+import BusinessModelPillar from "./business-model/BusinessModelPillar";
 import ReportLeadershipPillar from "./ReportLeadershipPillar";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -181,9 +181,10 @@ export default function NewReportSummary() {
                 }}
                 className={`
                   flex-1 text-center whitespace-nowrap px-4 cursor-pointer border border-t-2 p-2 rounded text-sm font-medium transition
-                  ${active
-                    ? "bg-primary text-white border-primary"
-                    : "bg-white text-primary border-primary/40 hover:bg-primary/10"
+                  ${
+                    active
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white text-primary border-primary/40 hover:bg-primary/10"
                   }
                 `}
               >

@@ -6,7 +6,7 @@ interface ReportLeadershipPillarProps {
   reportData?: ReportResponse;
 }
 
-export default function ReportLeadershipPillar({ reportData }: ReportLeadershipPillarProps) {
+export default function ReportLeadershipPillar({}: ReportLeadershipPillarProps) {
   return (
     <div>
       <ComingSoon />

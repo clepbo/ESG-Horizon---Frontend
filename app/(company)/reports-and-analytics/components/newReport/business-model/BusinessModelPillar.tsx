@@ -1,0 +1,38 @@
+import ComingSoon from "@/app/components/coming-soon";
+import React from "react";
+import { ReportResponse } from "@/types/report/reportResponse";
+import { HardHat } from "lucide-react";
+import { TbBriefcaseFilled } from "react-icons/tb";
+
+
+interface BusinessModelPillarProps {
+  reportData?: ReportResponse;
+}
+
+export default function BusinessModelPillar({ }: BusinessModelPillarProps) {
+  return (
+    <div className="flex flex-col gap-4 lg:gap-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <span
+          className="flex shrink-0 items-center justify-center rounded-lg p-2.5"
+          style={{ backgroundColor: "#f5e2ff" }}
+          aria-hidden
+        >
+          <TbBriefcaseFilled className="h-6 w-6 text-[#af57db] sm:h-7 sm:w-7" />
+        </span>
+        <div className="flex flex-col gap-0.5">
+          <h2 className="text-lg font-bold text-gray-900 sm:text-xl"> Business Model & Innovation</h2>
+          <p className="text-sm text-gray-500 sm:text-base">
+            Reserves resilience, capital allocation, and business ethics
+          </p>
+        </div>
+      </div>
+      <div className="">
+<h3 className="text-lg sm:text-xl"> Reserves Valuation & Capital Expenditures</h3>
+      <hr className="text-gray-300" />
+      </div>
+
+    </div>
+  );
+}

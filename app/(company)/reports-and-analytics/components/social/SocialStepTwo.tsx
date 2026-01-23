@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Users } from "lucide-react";
 import { TiGroup } from "react-icons/ti";
 
 export default function SocialStepTwo() {
