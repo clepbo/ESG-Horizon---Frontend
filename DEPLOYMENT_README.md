@@ -55,7 +55,7 @@ server {
 
     # Critical: Handle Next.js static assets
     location /_next/static/ {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:3002; # ⚠️ USE 3002 FOR STAGING
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -68,7 +68,7 @@ server {
 
     # Handle all other requests
     location / {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:3002; # ⚠️ USE 3002 FOR STAGING
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -173,7 +173,7 @@ curl http://localhost:3001/_next/static/chunks/main.js
 
 ### Issue: `ChunkLoadError` or 404 on static files
 
-**Solution:** Nginx not configured to serve `/_next/static/` path. Use the nginx config above.
+**Solution:** Nginx not configured to serve `/_next/static/` path OR pointing to the wrong port. For staging, ensure your nginx config proxies to **port 3002**. If it proxies to 3001 (production), it will look for chunks that don't exist in the production build, causing 404s.
 
 ### Issue: PM2 process crashes immediately
 
