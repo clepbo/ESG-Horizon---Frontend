@@ -6,7 +6,7 @@ interface BusinessModelPillarProps {
   reportData?: ReportResponse;
 }
 
-export default function BusinessModelPillar({ }: BusinessModelPillarProps) {
+export default function BusinessModelPillar({}: BusinessModelPillarProps) {
   return (
     <div>
       <ComingSoon />

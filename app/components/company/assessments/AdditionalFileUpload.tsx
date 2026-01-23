@@ -64,14 +64,14 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
       const newFields = additionalFields.map((item, i) =>
         i === index
           ? {
-            ...item,
-            name: item.name || file.name,
-            file: file,
-            url: uploaded.url,
-            publicId: uploaded.publicId,
-            size: file.size,
-            lastModified: file.lastModified,
-          }
+              ...item,
+              name: item.name || file.name,
+              file: file,
+              url: uploaded.url,
+              publicId: uploaded.publicId,
+              size: file.size,
+              lastModified: file.lastModified,
+            }
           : item
       );
 
