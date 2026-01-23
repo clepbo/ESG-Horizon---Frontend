@@ -6,7 +6,7 @@ import ReportOverview from "./ReportOverview";
 import ReportEnvironmental from "./ReportEnvironmental";
 import SocialCapital from "./SocialCapital";
 import ReportHumanCapital from "./ReportHumanCapital";
-import BusinessModelPillar from "./BusinessModelPillar";
+import BusinessModelPillar from "./business-model/BusinessModelPillar";
 import ReportLeadershipPillar from "./ReportLeadershipPillar";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
