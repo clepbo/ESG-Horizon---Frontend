@@ -55,7 +55,7 @@ export default function AirQualityForm({
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
     oxidesOfNitrogenUnit: "",
-    oxidesOfSuplphur: 0,
+    oxidesOfSulphur: 0,
     oxidesOfSulphurUnit: "",
     volatileOrganicCompound: 0,
     volatileOrganicCompoundUnit: "",
@@ -70,7 +70,7 @@ export default function AirQualityForm({
       setFormData({
         oxidesOfNitrogen: existingData.oxidesOfNitrogen || 0,
         oxidesOfNitrogenUnit: existingData.oxidesOfNitrogenUnit || "",
-        oxidesOfSuplphur: existingData.oxidesOfSuplphur || 0,
+        oxidesOfSulphur: existingData.oxidesOfSulphur || existingData.oxidesOfSuplphur || 0,
         oxidesOfSulphurUnit: existingData.oxidesOfSulphurUnit || "",
         volatileOrganicCompound: existingData.volatileOrganicCompound || 0,
         volatileOrganicCompoundUnit: existingData.volatileOrganicCompoundUnit || "",
@@ -106,8 +106,8 @@ export default function AirQualityForm({
       newErrors.oxidesOfNitrogen = "Oxides of Nitrogen emissions value is required";
     }
 
-    if (!formData.oxidesOfSuplphur || formData.oxidesOfSuplphur <= 0) {
-      newErrors.oxidesOfSuplphur = "Oxides of Sulphur emissions value is required";
+    if (!formData.oxidesOfSulphur || formData.oxidesOfSulphur <= 0) {
+      newErrors.oxidesOfSulphur = "Oxides of Sulphur emissions value is required";
     }
 
     if (!formData.volatileOrganicCompound || formData.volatileOrganicCompound <= 0) {
@@ -166,7 +166,7 @@ export default function AirQualityForm({
   const isFormValid = () => {
     return (
       formData.oxidesOfNitrogen > 0 &&
-      formData.oxidesOfSuplphur > 0 &&
+      formData.oxidesOfSulphur > 0 &&
       formData.volatileOrganicCompound > 0 &&
       formData.particulateMatter > 0
     );
@@ -205,7 +205,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.oxidesOfNitrogen}
             />
@@ -216,14 +216,14 @@ export default function AirQualityForm({
               tipMessage={
                 "SOx emissions are mainly produced from burning fuels containing sulfur, such as diesel or fuel oil. They include SO₂ and SO₃ and can cause acid rain, corrosion, and air quality degradation near communities."
               }
-              count={formData.oxidesOfSuplphur}
+              count={formData.oxidesOfSulphur}
               countPlaceholder={"Enter volume of Emissions"}
-              setCount={setCount("oxidesOfSuplphur")}
+              setCount={setCount("oxidesOfSulphur")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
-              error={errors.oxidesOfSuplphur}
+              error={errors.oxidesOfSulphur}
             />
 
             <OperationsDelayReusableInput
@@ -237,7 +237,7 @@ export default function AirQualityForm({
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.volatileOrganicCompound}
             />
@@ -253,7 +253,7 @@ export default function AirQualityForm({
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.particulateMatter}
             />

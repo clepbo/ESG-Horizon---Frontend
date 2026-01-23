@@ -155,7 +155,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </span>
           <div className="flex flex-col">
             <h6 className="text-sm"> Air Quality </h6>
-            <p className="text-xs text-gray-600"> NOx, SOx,VOCs and PM10 emissions managememnt </p>
+            <p className="text-xs text-gray-600"> NOx, SOx, VOCs and PM10 emissions management </p>
           </div>
         </div>
 
@@ -202,10 +202,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </div>
           <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <EmissionDistributionChart
-              NOx={airQuality?.nox ?? <NotAvailablePlaceholder />}
-              SOx={airQuality?.sox ?? <NotAvailablePlaceholder />}
-              VOCs={airQuality?.voc ?? <NotAvailablePlaceholder />}
-              PM10={airQuality?.pm10 ?? <NotAvailablePlaceholder />}
+              NOx={airQuality?.nox ?? 0}
+              SOx={airQuality?.sox ?? 0}
+              VOCs={airQuality?.voc ?? 0}
+              PM10={airQuality?.pm10 ?? 0}
             />
           </div>
         </div>
@@ -410,7 +410,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <h6 className="text-sm"> Biodiversity Impacts </h6>
             <p className="text-xs text-gray-600">
               {" "}
-              Spill anagement, ensitive areareserves, and environmental policies{" "}
+              Spill management, sensitive area reserves, and environmental policies{" "}
             </p>
           </div>
         </div>
