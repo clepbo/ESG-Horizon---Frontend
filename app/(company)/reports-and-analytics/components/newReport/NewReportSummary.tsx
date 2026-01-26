@@ -113,24 +113,23 @@ export default function NewReportSummary() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col gap-4" id="section">
-      {/* Header Card */}
+    <div className="min-h-screen flex flex-col gap-4 w-full overflow-auto" id="section">
       <Card
-        className="p-4 no-export rounded flex flex-col lg:flex-row justify-between w-full items-center"
+        className="p-4 no-export rounded flex flex-col md:flex-row justify-between w-full items-center"
         id="hide1"
       >
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 justify-start">
+          <div className="grid items-center gap-2 justify-start">
             <span className="text-start">ESG Performance Report</span>
-            <span className={`rounded-3xl p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}>
+            <span className={`rounded-3xl text-center p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}>
               {formatStatus(reportData?.status ?? "progress")}
             </span>
           </div>
 
-          <div className="flex gap-2 lg:gap-4 items-center">
-            <span> {reportData?.subsidiary ?? "Not specified"} </span>
+          <div className="flex flex-col md:flex-row gap-2 lg:gap-4 items-center">
+            <span className=""> {reportData?.subsidiary ?? "Not specified"} </span>
             <span>
-              <GoDotFill className="text-gray-500" />
+              <GoDotFill className="text-gray-500 hidden md:block" />
             </span>
             <span>
               {` ${reportData?.startMonth} ${reportData?.startYear} - ${reportData?.endMonth} ${reportData?.endYear}`}
@@ -139,16 +138,9 @@ export default function NewReportSummary() {
         </div>
 
         <div>
-          {/* <CustomButton  variant="filled" className="text-white cursor-pointer rounded">
-            <span className="flex items-center gap-3">
-              <GoDownload />
-              Import and Download
-            </span>
-          </CustomButton> */}
           <Select value={selected} onValueChange={exportfile}>
             <SelectTrigger
-              className="
-      min-w-xs rounded p-4 border-primary text-primary cursor-pointer
+              className="rounded min-w-xs p-4 border-primary text-primary cursor-pointer
        hover:shadow-md hover:scale-[1.03]
       active:scale-[0.97]
     "
@@ -193,8 +185,6 @@ export default function NewReportSummary() {
             );
           })}
         </Card>
-
-        {/* Content below */}
         <div className=" rounded">{tabs.find((tab) => tab.value === view)?.content}</div>
       </div>
     </div>
