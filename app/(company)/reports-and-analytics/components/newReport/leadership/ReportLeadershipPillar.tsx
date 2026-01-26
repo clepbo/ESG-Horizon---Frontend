@@ -1,16 +1,14 @@
-import ComingSoon from "@/app/components/coming-soon";
 import React from "react";
 import { ReportResponse } from "@/types/report/reportResponse";
-import { TbBriefcaseFilled } from "react-icons/tb";
 import { VscLaw } from "react-icons/vsc";
-import { ShieldCheck } from "lucide-react";
-
+import ManagementOfLegalRegulatory from "./ManagementOfLegalRegulatory";
+import CriticalIncidentRiskManagement from "./CriticalIncidentRiskManagement";
 
 interface ReportLeadershipPillarProps {
   reportData?: ReportResponse;
 }
 
-export default function ReportLeadershipPillar({ }: ReportLeadershipPillarProps) {
+export default function ReportLeadershipPillar({}: ReportLeadershipPillarProps) {
   return (
     <div className="flex flex-col gap-4 lg:gap-6 my-6`">
       {/* Header */}
@@ -23,10 +21,7 @@ export default function ReportLeadershipPillar({ }: ReportLeadershipPillarProps)
           <VscLaw className="h-6 w-6 sm:h-7 sm:w-7" />
         </span>
         <div className="flex flex-col gap-0.5">
-          <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
-            {" "}
-            Leadership & Governance
-          </h2>
+          <h2 className="text-lg font-bold text-gray-900 sm:text-xl"> Leadership & Governance</h2>
           <p className="text-sm text-gray-500 sm:text-base">
             Regulatory compliance, sustainability oversight, and critical risk management
           </p>
@@ -37,7 +32,14 @@ export default function ReportLeadershipPillar({ }: ReportLeadershipPillarProps)
           <h3 className="text-lg"> Management of Legal & Regulatory Environment </h3>
           <hr className="text-gray-300" />
         </div>
-
+        <ManagementOfLegalRegulatory />
+      </div>
+      <div className="grid gap-4 lg:gap-6">
+        <div className="grid gap-2">
+          <h3 className="text-lg"> Critical Incident Risk Management </h3>
+          <hr className="text-gray-300" />
+        </div>
+        <CriticalIncidentRiskManagement />
       </div>
     </div>
   );
