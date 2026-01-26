@@ -133,7 +133,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden lg:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 w-[64px] md:w-[270px] flex-shrink-0 z-51">
+      <aside className="hidden lg:flex h-screen bg-white border-r border-gray-100 flex-col transition-all duration-300 w-16 md:w-67.5 shrink-0 z-51">
         <div className="p-2 md:p-4 border-b border-gray-100">
           <Link href="/dashboard-esg">
             <div className="mb-4 flex justify-center md:justify-start">
@@ -174,7 +174,7 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <div className="flex-grow p-2 md:p-4 overflow-y-auto mt-0">
+        <div className="grow p-2 md:p-4 overflow-y-auto mt-0">
           <nav className="space-y-1">
             <motion.div
               whileHover={{ opacity: 1, scale: 1.03 }}
@@ -186,12 +186,12 @@ export default function Sidebar() {
                   "flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2",
                   pathname.startsWith("/dashboard-esg")
                     ? "bg-teal-600 text-white"
-                    : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
+                    : "text-primary hover:bg-[#DFFAE5]"
                 )}
               >
                 <LayoutDashboard
                   className={clsx(
-                    "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                    "h-5 w-5 shrink-0 transition-colors duration-300 ease-in-out",
                     pathname.startsWith("/dashboard-esg") ? "text-white" : "text-teal-600"
                   )}
                 />
@@ -216,12 +216,12 @@ export default function Sidebar() {
                   "w-full flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2 cursor-pointer",
                   pathname.startsWith("/assessments")
                     ? "bg-teal-600 text-white"
-                    : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
+                    : "text-primary hover:bg-[#DFFAE5]"
                 )}
               >
                 <ClipboardList
                   className={clsx(
-                    "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                    "h-5 w-5 shrink-0 transition-colors duration-300 ease-in-out",
                     pathname.startsWith("/assessments") ? "text-white" : "text-teal-600"
                   )}
                 />
@@ -254,7 +254,7 @@ export default function Sidebar() {
                             "block text-sm rounded px-2 py-1 transition-all duration-300 ease-in-out",
                             isSubActive
                               ? "bg-teal-600 text-white"
-                              : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
+                              : "text-primary hover:bg-[#DFFAE5]"
                           )}
                         >
                           {sub.name}
@@ -278,14 +278,12 @@ export default function Sidebar() {
                     href={href}
                     className={clsx(
                       "flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2",
-                      isActive
-                        ? "bg-teal-600 text-white"
-                        : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
+                      isActive ? "bg-teal-600 text-white" : "text-primary hover:bg-[#DFFAE5]"
                     )}
                   >
                     <Icon
                       className={clsx(
-                        "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                        "h-5 w-5 shrink-0 transition-colors duration-300 ease-in-out",
                         isActive ? "text-white" : "text-teal-600"
                       )}
                     />
@@ -312,12 +310,12 @@ export default function Sidebar() {
                   "w-full flex items-center justify-center md:justify-start rounded-md transition-all duration-300 ease-in-out px-2 md:px-4 py-2 cursor-pointer",
                   pathname.startsWith("/settings-esg")
                     ? "bg-teal-600 text-white"
-                    : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
+                    : "text-primary hover:bg-[#DFFAE5]"
                 )}
               >
                 <Settings
                   className={clsx(
-                    "h-5 w-5 flex-shrink-0 transition-colors duration-300 ease-in-out",
+                    "h-5 w-5 shrink-0 transition-colors duration-300 ease-in-out",
                     pathname.startsWith("/settings-esg") ? "text-white" : "text-teal-600"
                   )}
                 />
@@ -350,7 +348,7 @@ export default function Sidebar() {
                             "block text-sm rounded px-2 py-1 transition-all duration-300 ease-in-out",
                             isSubActive
                               ? "bg-teal-600 text-white"
-                              : "text-[var(--color-primary)] hover:bg-[#DFFAE5]"
+                              : "text-primary hover:bg-[#DFFAE5]"
                           )}
                         >
                           {sub.name}
@@ -369,7 +367,7 @@ export default function Sidebar() {
             onClick={handleLogout}
             className="flex items-center justify-center md:justify-start text-sm font-medium text-red-600 hover:underline cursor-pointer py-2"
           >
-            <LogOut className="h-5 w-5 flex-shrink-0" />
+            <LogOut className="h-5 w-5 shrink-0" />
             <span className="hidden md:inline ml-2">Logout</span>
           </button>
         </div>
@@ -407,7 +405,7 @@ export default function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-[100]"
+            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-100"
             onClick={() => setAssessmentsOpen(false)}
           >
             <motion.div
@@ -461,7 +459,7 @@ export default function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-[100]"
+            className="lg:hidden fixed inset-0 bg-white/20 backdrop-blur-sm z-100"
             onClick={() => setSettingsOpen(false)}
           >
             <motion.div
@@ -508,7 +506,7 @@ export default function Sidebar() {
                     onClick={handleLogout}
                     className="flex items-center justify-start text-base font-medium text-red-600 hover:bg-red-50 w-full px-4 py-3 rounded-lg transition-all duration-200"
                   >
-                    <LogOut className="h-5 w-5 flex-shrink-0 mr-3" />
+                    <LogOut className="h-5 w-5 shrink-0 mr-3" />
                     <span>Logout</span>
                   </button>
                 </div>
