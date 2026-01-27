@@ -22,7 +22,7 @@ export default function CompanyPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
-  const [ifrsIssb, setIfrsIssb] = useState(true);
+  const [ifrsIssb] = useState(true);
 
   // const [gri, setGri] = useState(false);
   // const [requireAssessmentReview, setRequireAssessmentReview] = useState(
