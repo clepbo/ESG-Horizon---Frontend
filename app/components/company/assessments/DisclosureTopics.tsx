@@ -646,6 +646,24 @@ export function DisclosureTopics({
                     </AccordionContent>
                   </AccordionItem>
                 )}
+
+                {/* No Results Message */}
+                {filteredIndustryMetrics.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      {assignedTask && !debouncedSearchTerm
+                        ? "No topics assigned to you for this task"
+                        : debouncedSearchTerm
+                          ? `No topics found matching "${debouncedSearchTerm}"`
+                          : "No topics available"}
+                    </p>
+                    {debouncedSearchTerm && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Try searching for different keywords or browse all topics
+                      </p>
+                    )}
+                  </div>
+                )}
               </Accordion>
             </CardContent>
           </Card>
