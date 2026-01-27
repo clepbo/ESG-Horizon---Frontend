@@ -249,13 +249,13 @@ export const SignupForm = ({ onSubmitted }: { onSubmitted: () => void }) => {
 
       <div className="mt-4 space-y-4 text-center">
         {/* Separator line */}
-        <div className="relative flex items-center py-2">
+        {/* <div className="relative flex items-center py-2">
           <div className="flex-grow border-t border-gray-300" />
           <span className="mx-4 flex-shrink text-sm text-neutral-600">or continue with</span>
           <div className="flex-grow border-t border-gray-300" />
-        </div>
+        </div> */}
         {/* Social buttons */}
-        <div className="flex gap-3">
+        {/* <div className="flex gap-3">
           <button
             onClick={() => socialLogin("google")}
             className="hover:cursor-pointer flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -278,7 +278,7 @@ export const SignupForm = ({ onSubmitted }: { onSubmitted: () => void }) => {
             <MicrosoftIcon className="h-5 w-5" />
             <span className="hidden sm:inline">Microsoft</span>
           </button>
-        </div>
+        </div> */}
 
         <p className="mt-2 text-center text-sm text-neutral-600">
           Already have an account?{" "}
