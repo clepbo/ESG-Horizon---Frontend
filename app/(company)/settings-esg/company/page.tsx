@@ -24,10 +24,11 @@ export default function CompanyPage() {
   const { user } = useAuth();
   const [ifrsIssb, setIfrsIssb] = useState(true);
 
-  const [gri, setGri] = useState(false);
-  const [requireAssessmentReview, setRequireAssessmentReview] = useState(
-    companyData?.requireAssessmentReview || false
-  );
+  // const [gri, setGri] = useState(false);
+  // const [requireAssessmentReview, setRequireAssessmentReview] = useState(
+  //   companyData?.requireAssessmentReview || false
+  // );
+  const [requireAssessmentReview, setRequireAssessmentReview] = useState(true);
   const isCompanyAdmin = user?.role?.name === "company_esg_admin";
 
   const handleUpdate = () => {
@@ -38,7 +39,8 @@ export default function CompanyPage() {
   // Sync requireAssessmentReview state with company data
   useEffect(() => {
     if (companyData) {
-      setRequireAssessmentReview(companyData.requireAssessmentReview || false);
+      // setRequireAssessmentReview(companyData.requireAssessmentReview || false);
+      setRequireAssessmentReview(companyData.requireAssessmentReview ?? true);
     }
   }, [companyData]);
 
@@ -111,20 +113,16 @@ export default function CompanyPage() {
             </p>
           </div>
           <div className="relative group">
-            <ToggleSwitch
-              checked={ifrsIssb}
-              onChange={() => setIfrsIssb(!ifrsIssb)}
-              disabled={!isCompanyAdmin}
-            />
-            {!isCompanyAdmin && (
-              <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                Only Company Admin can switch this
-              </div>
-            )}
+            <div className="opacity-40 pointer-events-none">
+              <ToggleSwitch checked={ifrsIssb} onChange={() => {}} disabled={true} />
+            </div>
+            <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+              This feature is currently disabled
+            </div>
           </div>
         </div>
 
-        <div className="flex justify-between items-center py-3">
+        {/* <div className="flex justify-between items-center py-3">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <p className="font-medium">GRI Standards</p>
@@ -142,7 +140,7 @@ export default function CompanyPage() {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Assessment Review Settings */}
