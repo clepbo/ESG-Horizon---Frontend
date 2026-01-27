@@ -200,7 +200,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.subsidiary?.name ? (
                         user.subsidiary?.name
                       ) : (
-                        <span className="text-gray-400 text-sm">-</span>
+                        <span className="text-gray-400 text-sm">N/A</span>
                       )}
                     </td>
 

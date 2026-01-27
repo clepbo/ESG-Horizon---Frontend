@@ -28,6 +28,7 @@ import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hoo
 import { FrontendTask } from "@/services/assignTask.service";
 import InviteUserModal from "@/app/(company)/components/InviteUserModal";
 import { useCompanyDepartments } from "@/services/hooks/department.hooks";
+import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 
 interface Topic {
   name: string;
@@ -177,6 +178,7 @@ export default function AssignTaskPage() {
 
   const [taskName, setTaskName] = useState("");
   const [selectedMember, setSelectedMember] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(new Date());
   const [sendEmail, setSendEmail] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -185,6 +187,7 @@ export default function AssignTaskPage() {
   const [isAssigning, setIsAssigning] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isCompanySetupModalOpen, setIsCompanySetupModalOpen] = useState(false);
   const [initialData, setInitialData] = useState<FrontendTask | null>(null);
   const editTaskMutation = useEditTask();
 
@@ -193,7 +196,6 @@ export default function AssignTaskPage() {
     const selectAllParam = searchParams.get("selectAll");
 
     if (selectAllParam === "true" && !editId) {
-      // Select ALL topics
       const allTopics: string[] = [];
       const traverse = (list: Topic[]) => {
         list.forEach((t) => {
@@ -203,26 +205,14 @@ export default function AssignTaskPage() {
       };
       traverse(topicsData);
       setSelectedTopics(allTopics);
-      // Optional: expand all top level?
       setExpandedTopics(topicsData.map((t) => t.name));
       return;
     }
 
     if (topicParam && !editId) {
-      // Find the topic object to match exactly or just add it strings
-      // Using toggleSelectTopic logic requires traversing, but for simply adding we can check existence
-      // However, we want to maintain the "toggle" logic consistency if possible, or just force add it.
-      // Let's force add it to selectedTopics if not already there.
-
       const topicName = decodeURIComponent(topicParam);
       setSelectedTopics((prev) => {
         if (prev.includes(topicName)) return prev;
-
-        // Also simple logic: just add it. The "renderTopics" calculates indeterminate state based on this list.
-        // Ideally we should include descendants if the user expects "Selecting GHG" means "Selecting all GHG",
-        // but "toggleSelectTopic" does that. Let's call it?
-        // We can't call toggleSelectTopic easily in useEffect because it relies on state updater.
-        // We'll mimic the logic: find topic, get descendants, add all.
 
         const findTopic = (list: Topic[]): Topic | undefined => {
           for (const topic of list) {
@@ -244,7 +234,6 @@ export default function AssignTaskPage() {
 
         return prev;
       });
-      // Also expand the tree to show the topic? Optional but nice.
       setExpandedTopics((prev) => [...prev, topicName]);
     }
   }, [searchParams, editId]);
@@ -280,15 +269,20 @@ export default function AssignTaskPage() {
 
           if (member) {
             setSelectedMember(String(member.id));
+            // Set department based on member's department
+            if (member.department && departments) {
+              const dept = departments.find((d) => d.name === member.department?.name);
+              if (dept) {
+                setSelectedDepartment(String(dept.id));
+              }
+            }
           }
         }
-        // Always send email for new tasks, but respect saved setting for edits?
-        // Request says "Remove the checkbox and make notifications automatic."
-        // So we will force it to true always unless we really want to preserve legacy data.
+        // Email notifications are always enabled for tasks
         setSendEmail(true);
       }
     }
-  }, [editId, tasks, teamMembers]);
+  }, [departments, editId, tasks, teamMembers]);
 
   const toggleExpand = (name: string) => {
     setExpandedTopics((prev) =>
@@ -404,7 +398,13 @@ export default function AssignTaskPage() {
   );
 
   const handleSubmit = async () => {
-    if (!taskName || !selectedMember || !dueDate || selectedTopics.length === 0) {
+    if (
+      !taskName ||
+      !selectedMember ||
+      !selectedDepartment ||
+      !dueDate ||
+      selectedTopics.length === 0
+    ) {
       toast.warn("Please fill in all required fields");
       return;
     }
@@ -426,6 +426,7 @@ export default function AssignTaskPage() {
         await toast.success("Task updated successfully");
         setTaskName("");
         setSelectedMember("");
+        setSelectedDepartment("");
         setDueDate(undefined);
         setSendEmail(false);
         setSelectedTopics([]);
@@ -472,13 +473,39 @@ export default function AssignTaskPage() {
 
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-1">
-            <Label>Select Department / Team Member</Label>
+            <Label>Select Department</Label>
+            <select
+              value={selectedDepartment}
+              onChange={(e) => {
+                if (e.target.value === "add_new_department") {
+                  setIsCompanySetupModalOpen(true);
+                  return;
+                }
+                setSelectedDepartment(e.target.value);
+              }}
+              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
+            >
+              <option value="">Select a department</option>
+              {departments &&
+                departments.length > 0 &&
+                departments.map((dept) => (
+                  <option key={dept.id} value={String(dept.id)}>
+                    {dept.name}
+                  </option>
+                ))}
+              <option value="add_new_department" className="font-semibold text-teal-600 bg-teal-50">
+                + Add New Department
+              </option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Select Team Member</Label>
             <select
               value={selectedMember}
               onChange={(e) => {
                 if (e.target.value === "invite_new") {
                   setIsInviteModalOpen(true);
-                  // Don't set selectedMember to 'invite_new'
                   return;
                 }
                 setSelectedMember(e.target.value);
@@ -604,6 +631,7 @@ export default function AssignTaskPage() {
           setIsSuccessModalOpen(false);
           setTaskName("");
           setSelectedMember("");
+          setSelectedDepartment("");
           setDueDate(undefined);
           setSendEmail(false);
           setSelectedTopics([]);
@@ -611,7 +639,11 @@ export default function AssignTaskPage() {
         }}
         taskName={taskName}
         dueDate={dueDate ? format(dueDate, "PPP") : ""}
-        departments={[]}
+        departments={
+          selectedDepartment
+            ? [departments?.find((d) => String(d.id) === selectedDepartment)?.name || ""]
+            : []
+        }
         teamMembers={teamMembers?.filter((m) => String(m.id) === selectedMember) || []}
         topics={selectedTopics}
       />
@@ -619,14 +651,21 @@ export default function AssignTaskPage() {
         <InviteUserModal
           onClose={() => setIsInviteModalOpen(false)}
           onInvite={() => {
-            // Optionally refresh team members here if not handled by hook re-fetch
-            // The useCompanyUsers hook should auto-update if it uses react-query and we invalidate,
-            // but InviteUserModal just calls service.invite.
-            // We'll rely on global state update or manual refresh if needed.
-            // For now just close modal.
             toast.success("Invitation sent. They will appear in the list once they accept.");
           }}
           departments={departments || []}
+        />
+      )}
+
+      {isCompanySetupModalOpen && (
+        <CompanySetupModal
+          isOpen={isCompanySetupModalOpen}
+          onClose={() => setIsCompanySetupModalOpen(false)}
+          initialTab="department"
+          onSubmit={(_data) => {
+            toast.success("Department created successfully");
+            setIsCompanySetupModalOpen(false);
+          }}
         />
       )}
     </div>

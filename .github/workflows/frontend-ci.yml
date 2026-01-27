@@ -57,7 +57,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 60s
+          timeout: 300s
           source: ".next/standalone,.next/static,public,ecosystem.config.js,package.json"
           target: ${{ env.TARGET_DIR }}
           strip_components: 0 # Keep full structure

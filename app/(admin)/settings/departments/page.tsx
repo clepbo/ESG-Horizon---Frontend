@@ -82,8 +82,10 @@ export default function DepartmentsPage() {
         leadId: newDept.lead?.id ? Number(newDept.lead.id) : undefined,
       };
 
-      const createdDepartment = await departmentService.create(yourCompany.id, createPayload);
-      setDepartments((prev) => [createdDepartment, ...prev]);
+      await departmentService.create(yourCompany.id, createPayload);
+
+      // Reload departments from server to get fresh data
+      await loadDepartments();
     } catch (error) {
       console.error("Failed to add department", error);
     } finally {
@@ -155,7 +157,7 @@ export default function DepartmentsPage() {
 
           <div className="flex gap-2">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-45">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>

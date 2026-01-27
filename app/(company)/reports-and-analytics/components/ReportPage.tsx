@@ -127,7 +127,7 @@ export default function ReportPage() {
       );
     });
   };
-  console.log("Report Data:", reportData);
+  // console.log("Report Data:", reportData);
   return (
     <section className="grid">
       {/* Debug button - remove in production */}
