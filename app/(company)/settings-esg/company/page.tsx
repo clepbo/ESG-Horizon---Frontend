@@ -114,6 +114,11 @@ export default function CompanyPage() {
           </div>
           <div className="relative group">
             <div className="opacity-40 pointer-events-none">
+              {/* {!isCompanyAdmin && (
+              <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+                Only Company Admin can switch this
+              </div>
+            )} */}
               <ToggleSwitch checked={ifrsIssb} onChange={() => {}} disabled={true} />
             </div>
             <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
