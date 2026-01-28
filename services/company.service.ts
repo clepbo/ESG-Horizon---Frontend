@@ -41,6 +41,12 @@ export const companyService = {
     return data;
   },
 
+  // Delete an invitation by ID
+  deleteInvitation: async (id: number) => {
+    const data = await api.delete(`/company/esg/invitations/${id}`);
+    return data;
+  },
+
   // Verify invitation token
   verifyInviteToken: async (token: string) => {
     const data = await api.get(`/company/esg/invitations/${token}`);

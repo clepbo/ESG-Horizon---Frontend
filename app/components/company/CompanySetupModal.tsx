@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeft, Edit, Info, X } from "lucide-react";
-import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
-import { useCompanyUsers, useCompanyDetails, useBulkCreate } from "@/services/hooks/company.hooks";
-import { useCompanyDepartments } from "@/services/hooks/department.hooks";
+import { useCompanySubsidiaries, useCreateSubsidiary } from "@/services/hooks/subsidiaries.hooks";
+import { useCompanyUsers, useCompanyDetails, useInviteUser } from "@/services/hooks/company.hooks";
+import { useCompanyDepartments, useCreateDepartment } from "@/services/hooks/department.hooks";
 import { Industry } from "@/services/industries.services";
 import { User } from "@/services/user.service";
 import { Subsidiary } from "@/services/subsidiaries.service";
@@ -13,6 +13,10 @@ import { useIndustries } from "@/services/hooks/industries.hooks";
 import { useAllUserRoles } from "@/services/hooks/user.hooks";
 import { formatRoleName } from "@/lib/utils";
 import { toast } from "react-toastify";
+import Select from "react-select";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface CompanySetupModalProps {
   isOpen: boolean;
@@ -23,6 +27,26 @@ interface CompanySetupModalProps {
 
 type TabType = "subsidiary" | "department" | "user";
 
+const subsidiarySchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  industryId: z.number().min(1, "Industry is required"),
+  managerEmail: z.string().email().optional().or(z.literal("")),
+  address: z.string().optional(),
+});
+
+const departmentSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  subsidiary: z.string().optional(),
+  managerEmail: z.string().email().optional().or(z.literal("")),
+});
+
+const userSchema = z.object({
+  email: z.string().email("Invalid email"),
+  role: z.string().min(1, "Role is required"),
+  subsidiary: z.string().optional(),
+  department: z.string().optional(),
+});
+
 export default function CompanySetupModal({
   isOpen,
   onClose,
@@ -30,6 +54,7 @@ export default function CompanySetupModal({
   initialTab = "subsidiary",
 }: CompanySetupModalProps) {
   const { data: companySubsidiaries, isLoading: isLoadingSubsidiaries } = useCompanySubsidiaries();
+  // Ensure industries are loaded
   const { data: industries, isLoading: isLoadingIndustries } = useIndustries();
   const { data: companyDetails } = useCompanyDetails();
   const companyId = companyDetails?.id;
@@ -42,36 +67,40 @@ export default function CompanySetupModal({
     role.name.startsWith("company_")
   );
 
-  const [loadingIsDone, setLoadingIsDone] = useState(false);
-
-  const { mutateAsync: bulkCreateMutation } = useBulkCreate();
-
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
-  const [formData, setFormData] = useState({
-    // Subsidiary fields
-    subsidiaryId: 0,
-    subsidiaryName: "",
-    industryId: 0,
-    managerEmail: "",
-    address: "",
-    // Department fields
-    departmentId: 0,
-    departmentName: "",
-    subsidiary: "",
-    departmentManagerEmail: "",
-    // User fields
-    userId: 0,
-    email: "",
-    role: "",
-    userSubsidiary: "",
-    department: "",
+  const [industryOptions, setIndustryOptions] = useState<{ value: number; label: string }[]>([]);
+
+  // Mutations
+  const { mutateAsync: createSubsidiary } = useCreateSubsidiary();
+  const { mutateAsync: createDepartment } = useCreateDepartment();
+  const { mutateAsync: inviteUser } = useInviteUser();
+
+  // Forms
+  const subForm = useForm<z.infer<typeof subsidiarySchema>>({
+    resolver: zodResolver(subsidiarySchema),
+    defaultValues: { name: "", industryId: 0, managerEmail: "", address: "" },
   });
 
-  const [editingItem, setEditingItem] = useState<Subsidiary | Department | User | null>(null);
+  const deptForm = useForm<z.infer<typeof departmentSchema>>({
+    resolver: zodResolver(departmentSchema),
+    defaultValues: { name: "", subsidiary: "", managerEmail: "" },
+  });
 
-  const [newSubsidiaries, setNewSubsidiaries] = useState<Subsidiary[]>([]);
-  const [newDepartments, setNewDepartments] = useState<Department[]>([]);
-  const [newUsers, setNewUsers] = useState<User[]>([]);
+  const userForm = useForm<z.infer<typeof userSchema>>({
+    resolver: zodResolver(userSchema),
+    defaultValues: { email: "", role: "", subsidiary: "", department: "" },
+  });
+
+  useEffect(() => {
+    if (industries) {
+      setIndustryOptions(
+        industries.map((i) => ({
+          value: i.id,
+          label: `${i.industry} (${i.sector})`,
+        }))
+      );
+    }
+  }, [industries]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -87,300 +116,70 @@ export default function CompanySetupModal({
     };
   }, [isOpen, onClose]);
 
-  useEffect(() => {
-    if (!editingItem) {
-      setFormData({
-        subsidiaryId: 0,
-        subsidiaryName: "",
-        industryId: 0,
-        managerEmail: "",
-        address: "",
-        departmentId: 0,
-        departmentName: "",
-        subsidiary: "",
-        departmentManagerEmail: "",
-        userId: 0,
-        email: "",
-        role: "",
-        userSubsidiary: "",
-        department: "",
-      });
-    }
-  }, [editingItem]);
-
   if (!isOpen) return null;
 
-  const handleInputChange = (field: string, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddOrUpdate = () => {
-    if (editingItem) {
-      if (activeTab === "subsidiary") {
-        const updatedSub: Subsidiary = {
-          id: formData.subsidiaryId,
-          name: formData.subsidiaryName,
-          industryId: formData.industryId,
-          teamLead: {
-            email: formData.managerEmail,
-          },
-          address: formData.address,
-          status: "active",
-        };
-        setNewSubsidiaries((prev) =>
-          prev.map((sub) => (sub.id === updatedSub.id ? updatedSub : sub))
-        );
-      } else if (activeTab === "department") {
-        const updatedDept: Department = {
-          id: formData.departmentId,
-          name: formData.departmentName,
-          subsidiaryId:
-            companySubsidiaries?.find((sub) => sub.name === formData.subsidiary)?.id || 0,
-          lead: {
-            id: 0,
-            email: formData.departmentManagerEmail,
-            first_name: "",
-            last_name: "",
-          },
-        };
-        setNewDepartments((prev) =>
-          prev.map((dept) => (dept.id === updatedDept.id ? updatedDept : dept))
-        );
-      } else if (activeTab === "user") {
-        const updatedUser: User = {
-          id: formData.userId,
-          email: formData.email,
-          role: { id: 0, name: formData.role },
-          subsidiaryId:
-            companySubsidiaries?.find((sub) => sub.name === formData.userSubsidiary)?.id || 0,
-          department: { id: 0, name: formData.department },
-          first_name: "",
-          last_name: "",
-          status: "pending",
-        };
-        setNewUsers((prev) =>
-          prev.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-        );
-      }
-    } else {
-      if (activeTab === "subsidiary") {
-        const newSub: Subsidiary = {
-          id: Date.now(),
-          name: formData.subsidiaryName,
-          industryId: formData.industryId,
-          teamLead: {
-            email: formData.managerEmail,
-          },
-          address: formData.address,
-          status: "active",
-        };
-        setNewSubsidiaries((prev) => [...prev, newSub]);
-      } else if (activeTab === "department") {
-        const newDept: Department = {
-          id: Date.now(),
-          name: formData.departmentName,
-          subsidiaryId:
-            companySubsidiaries?.find((sub) => sub.name === formData.subsidiary)?.id || 0,
-          lead: {
-            id: 0,
-            email: formData.departmentManagerEmail,
-            first_name: "",
-            last_name: "",
-          },
-        };
-        setNewDepartments((prev) => [...prev, newDept]);
-      } else if (activeTab === "user") {
-        // Check for duplicate email in existing users and new users
-        const emailLower = formData.email.toLowerCase();
-        const isDuplicateInExisting = allUsers.some(
-          (user: User) => user.email.toLowerCase() === emailLower
-        );
-        const isDuplicateInNew = newUsers.some(
-          (user: User) => user.email.toLowerCase() === emailLower
-        );
-
-        if (isDuplicateInExisting || isDuplicateInNew) {
-          toast.error(
-            `User with email ${formData.email} already exists or is already being invited`
-          );
-          return;
-        }
-
-        const newUser: User = {
-          id: Date.now(),
-          email: formData.email,
-          role: { id: 0, name: formData.role },
-          subsidiaryId:
-            companySubsidiaries?.find((sub) => sub.name === formData.userSubsidiary)?.id || 0,
-          department: { id: 0, name: formData.department },
-          first_name: "",
-          last_name: "",
-          status: "pending",
-        };
-        setNewUsers((prev) => [...prev, newUser]);
-      }
-    }
-
-    setEditingItem(null);
-
-    setFormData({
-      subsidiaryName: "",
-      industryId: 0,
-      managerEmail: "",
-      address: "",
-      departmentName: "",
-      subsidiary: "",
-      departmentManagerEmail: "",
-      email: "",
-      role: "",
-      userSubsidiary: "",
-      department: "",
-      subsidiaryId: 0,
-      departmentId: 0,
-      userId: 0,
-    });
-  };
-
-  const handleEdit = <T extends Subsidiary | Department | User>(item: T, type: TabType) => {
-    setActiveTab(type);
-    setEditingItem(item);
-
-    if (type === "subsidiary") {
-      const subsidiaryData = item as Subsidiary;
-      setFormData({
-        ...formData,
-        subsidiaryId: subsidiaryData.id,
-        subsidiaryName: subsidiaryData.name,
-        industryId: subsidiaryData.industryId || 0,
-        managerEmail: subsidiaryData.teamLead?.email || "",
-        address: subsidiaryData.address || "",
+  const handleSubSubmit = async (data: z.infer<typeof subsidiarySchema>) => {
+    try {
+      await createSubsidiary({
+        name: data.name,
+        industryId: data.industryId,
+        teamLead: data.managerEmail ? { email: data.managerEmail } : undefined,
+        address: data.address,
+        status: "active",
       });
-    } else if (type === "department") {
-      const departmentData = item as Department;
-      const selectedSubsidiary = companySubsidiaries?.find(
-        (sub) => sub.id === departmentData.subsidiaryId
-      );
-      setFormData({
-        ...formData,
-        departmentId: departmentData.id,
-        departmentName: departmentData.name,
-        subsidiary: selectedSubsidiary?.name || "",
-        departmentManagerEmail: departmentData.lead?.email || "",
-      });
-    } else if (type === "user") {
-      const userData = item as User;
-      const selectedSubsidiary = companySubsidiaries?.find(
-        (sub) => sub.id === userData.subsidiaryId
-      );
-      setFormData({
-        ...formData,
-        userId: userData.id,
-        email: userData.email || "",
-        role: userData.role?.name || "",
-        userSubsidiary: selectedSubsidiary?.name || "",
-        department: userData.department?.name || "",
-      });
+      toast.success("Subsidiary created successfully");
+      subForm.reset();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create subsidiary");
     }
   };
 
-  const handleDelete = (id: number, type: TabType) => {
-    if (type === "subsidiary") {
-      setNewSubsidiaries((prev) => prev.filter((sub) => sub.id !== id));
-    } else if (type === "department") {
-      setNewDepartments((prev) => prev.filter((dept) => dept.id !== id));
-    } else if (type === "user") {
-      setNewUsers((prev) => prev.filter((user) => user.id !== id));
+  const handleDeptSubmit = async (data: z.infer<typeof departmentSchema>) => {
+    if (!companyId) return;
+    try {
+      const selectedSub = companySubsidiaries?.find((s) => s.name === data.subsidiary);
+      await createDepartment({
+        companyId,
+        payload: {
+          name: data.name,
+          subsidiaryId: selectedSub?.id,
+          leadEmail: data.managerEmail || undefined,
+        },
+      });
+      toast.success("Department created successfully");
+      deptForm.reset();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create department");
     }
   };
 
-  const handleClose = () => {
-    setLoadingIsDone(false);
-    setNewSubsidiaries([]);
-    setNewDepartments([]);
-    setNewUsers([]);
-    onClose();
-  };
+  const handleUserSubmit = async (data: z.infer<typeof userSchema>) => {
+    const selectedSub = companySubsidiaries?.find((s) => s.name === data.subsidiary);
+    const selectedDept = departments?.find((d) => d.name === data.department);
+    const selectedRole = userRoles?.find((r: { name: string }) => r.name === data.role);
 
-  const handleFinalSubmit = async () => {
-    setLoadingIsDone(true);
-    const usersPayload = newUsers
-      .filter((item) => item.id > 9999999999)
-      .map((item) => ({
-        email: item.email,
-        roleName: item?.role?.name,
-        subsidiaryName: allSubsidiaries.find((sub) => sub.id === item.subsidiaryId)?.name,
-        departmentName: item?.department?.name,
-      }));
-
-    const payload = {
-      subsidiaries: newSubsidiaries
-        .filter((item) => item.id > 9999999999)
-        .map((item) => ({
-          ...item,
-          industryId: typeof item.industry === "object" ? item.industry?.id : item.industryId || 0,
-        })),
-      departments: newDepartments
-        .filter((item) => item.id > 9999999999)
-        .map((item) => ({
-          name: item.name,
-          subsidiaryName: allSubsidiaries.find((sub) => sub.id === item.subsidiaryId)?.name,
-          leadId: item.lead?.id,
-          leadEmail: item.lead?.email,
-        })),
-      users: usersPayload,
-    };
+    if (!selectedRole) {
+      toast.error("Please select a valid role");
+      return;
+    }
 
     try {
-      const response = await bulkCreateMutation(payload);
-      onSubmit(response);
-      setLoadingIsDone(false);
-      setNewSubsidiaries([]);
-      setNewDepartments([]);
-      setNewUsers([]);
-    } catch (error) {
-      console.error("Bulk submission failed:", error);
-      setLoadingIsDone(false);
+      await inviteUser({
+        email: data.email,
+        roleId: selectedRole.id,
+        subsidiaryId: selectedSub?.id,
+        departmentId: selectedDept?.id,
+      });
+      toast.success("Invitation sent successfully");
+      userForm.reset();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to invite user");
     }
   };
 
-  const renderList = <T extends Subsidiary | Department | User>(
-    items: T[],
-    title: string,
-    renderValue: (item: T) => string,
-    type: TabType
-  ) => {
-    if (!items || items.length === 0) return null;
-
-    return (
-      <div className="bg-transparent rounded-md p-2 w-full">
-        <h3 className="font-semibold text-sm mb-2">{title}</h3>
-        <div className="flex flex-wrap gap-2">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="inline-flex items-center bg-gray-50 text-xs px-4 py-2 rounded-sm shadow-sm justify-between w-auto"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-gray-800">{renderValue(item)}</span>
-                <button
-                  onClick={() => handleEdit(item, type)}
-                  className="text-gray-500 hover:text-green-600 transition  hover:cursor-pointer"
-                >
-                  <Edit size={14} />
-                </button>
-              </div>
-              <button
-                onClick={() => handleDelete(item.id, type)}
-                className="ml-4 text-red-500 border border-red-500 rounded-full w-4 h-4 flex items-center justify-center transition hover:cursor-pointer"
-              >
-                <X size={10} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   const tabs = [
     { id: "subsidiary" as TabType, label: "Add Subsidiary" },
@@ -388,12 +187,9 @@ export default function CompanySetupModal({
     { id: "user" as TabType, label: "Add New User" },
   ];
 
-  const allSubsidiaries = [...(companySubsidiaries || []), ...newSubsidiaries];
-  const allDepartments = [...(departments || []), ...newDepartments];
-  const allUsers = [...(companyUsers || []), ...newUsers];
-  const allIndustries = industries || [];
-
-  if (!isOpen) return null;
+  const allSubsidiaries = companySubsidiaries || [];
+  const allDepartments = departments || [];
+  const allUsers = companyUsers || [];
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -401,10 +197,7 @@ export default function CompanySetupModal({
 
       <div className="flex-1 relative">
         {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-green-200/20 backdrop-blur-md"
-          // onClick={onClose}
-        ></div>
+        <div className="absolute inset-0 bg-green-200/20 backdrop-blur-md"></div>
 
         <div className="absolute inset-4 bg-green-200/20 rounded-md shadow-lg flex flex-col max-h-[90vh] overflow-hidden">
           <div className="flex items-center p-6">
@@ -447,256 +240,242 @@ export default function CompanySetupModal({
               </section>
             )}
 
-            <div className="flex space-x-4 mb-6">
-              {activeTab === "subsidiary" && (
-                <>
-                  {renderList(
-                    newSubsidiaries,
-                    "Adding Subsidiaries",
-                    (item) => item.name,
-                    "subsidiary"
-                  )}
-                </>
-              )}
-
-              {activeTab === "department" && (
-                <>
-                  {renderList(
-                    newDepartments,
-                    "Adding Departments",
-                    (item) => item.name,
-                    "department"
-                  )}
-                </>
-              )}
-
-              {activeTab === "user" && (
-                <>{renderList(newUsers, "Inviting Users", (item) => item.email, "user")}</>
-              )}
-            </div>
-
             {/* Form Card */}
             <div className="bg-white rounded-md shadow-md p-6">
               <div className="space-y-4">
                 {activeTab === "subsidiary" && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">
-                        Subsidiary Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.subsidiaryName}
-                        onChange={(e) => handleInputChange("subsidiaryName", e.target.value)}
-                        placeholder="Enter subsidiary name"
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
+                  <form onSubmit={subForm.handleSubmit(handleSubSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">
+                          Subsidiary Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...subForm.register("name")}
+                          placeholder="Enter subsidiary name"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        {subForm.formState.errors.name && (
+                          <p className="text-red-500 text-xs mt-1">{subForm.formState.errors.name.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">
+                          Industry <span className="text-red-500">*</span>
+                        </label>
+                        <Controller
+                          name="industryId"
+                          control={subForm.control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={industryOptions}
+                              value={industryOptions.find(op => op.value === field.value)}
+                              onChange={(val) => field.onChange(val?.value)}
+                              placeholder="Select Industry"
+                              className="text-sm"
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  height: '38px',
+                                  minHeight: '38px'
+                                })
+                              }}
+                            />
+                          )}
+                        />
+                        {subForm.formState.errors.industryId && (
+                          <p className="text-red-500 text-xs mt-1">{subForm.formState.errors.industryId.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">
+                          Subsidiary Lead/Manager Email (Optional)
+                        </label>
+                        <select
+                          {...subForm.register("managerEmail")}
+                          disabled={isLoadingUsers}
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="">{isLoadingUsers ? "Loading..." : "Select user"}</option>
+                          {allUsers.map((user: User) => (
+                            <option key={user.email} value={user.email}>
+                              {user.email}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">Address</label>
+                        <input
+                          {...subForm.register("address")}
+                          placeholder="Enter address"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">
-                        Industry <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.industryId}
-                        onChange={(e) => handleInputChange("industryId", Number(e.target.value))}
-                        disabled={isLoadingIndustries}
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">
-                          {isLoadingIndustries ? "Loading..." : "Select industry"}
-                        </option>
-                        {allIndustries.map((industry: Industry) => (
-                          <option key={industry.id} value={industry.id}>
-                            {industry.industry} ({industry.sector})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">
-                        Subsidiary Lead/Manager Email (Optional)
-                      </label>
-                      <select
-                        value={formData.managerEmail}
-                        onChange={(e) => handleInputChange("managerEmail", e.target.value)}
-                        disabled={isLoadingUsers}
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">{isLoadingUsers ? "Loading..." : "Select user"}</option>
-                        {allUsers.map((user: User) => (
-                          <option key={user.email} value={user.email}>
-                            {user.email}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">Address</label>
-                      <input
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => handleInputChange("address", e.target.value)}
-                        placeholder="Enter address"
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                  </div>
+                    <button
+                      type="submit"
+                      disabled={subForm.formState.isSubmitting}
+                      className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] hover:bg-teal-600 text-white cursor-pointer mt-6"
+                    >
+                      {subForm.formState.isSubmitting ? "Creating..." : "Add Subsidiary"}
+                    </button>
+                  </form>
                 )}
 
                 {activeTab === "department" && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">
-                        Department Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.departmentName}
-                        onChange={(e) => handleInputChange("departmentName", e.target.value)}
-                        placeholder="Enter department name"
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">Subsidiary </label>
-                      <select
-                        value={formData.subsidiary}
-                        onChange={(e) => handleInputChange("subsidiary", e.target.value)}
-                        disabled={isLoadingSubsidiaries}
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">
-                          {isLoadingSubsidiaries ? "Loading..." : "Select subsidiary"}
-                        </option>
-                        {allSubsidiaries.map((sub: Subsidiary) => (
-                          <option key={sub.id} value={sub.name}>
-                            {sub.name}
+                  <form onSubmit={deptForm.handleSubmit(handleDeptSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">
+                          Department Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...deptForm.register("name")}
+                          placeholder="Enter department name"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        {deptForm.formState.errors.name && (
+                          <p className="text-red-500 text-xs mt-1">{deptForm.formState.errors.name.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">Subsidiary </label>
+                        <select
+                          {...deptForm.register("subsidiary")}
+                          disabled={isLoadingSubsidiaries}
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="">
+                            {isLoadingSubsidiaries ? "Loading..." : "Select subsidiary"}
                           </option>
-                        ))}
-                      </select>
+                          {allSubsidiaries.map((sub: Subsidiary) => (
+                            <option key={sub.id} value={sub.name}>
+                              {sub.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block mb-1 text-sm font-medium">
+                          Department Lead/Manager Email (Optional)
+                        </label>
+                        <select
+                          {...deptForm.register("managerEmail")}
+                          disabled={isLoadingUsers}
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="">{isLoadingUsers ? "Loading..." : "Select user"}</option>
+                          {allUsers.map((user: User) => (
+                            <option key={user.email} value={user.email}>
+                              {user.email}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    <div className="col-span-2">
-                      <label className="block mb-1 text-sm font-medium">
-                        Department Lead/Manager Email (Optional)
-                      </label>
-                      <select
-                        value={formData.departmentManagerEmail}
-                        onChange={(e) =>
-                          handleInputChange("departmentManagerEmail", e.target.value)
-                        }
-                        disabled={isLoadingUsers}
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">{isLoadingUsers ? "Loading..." : "Select user"}</option>
-                        {allUsers.map((user: User) => (
-                          <option key={user.email} value={user.email}>
-                            {user.email}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
+                    <button
+                      type="submit"
+                      disabled={deptForm.formState.isSubmitting}
+                      className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] hover:bg-teal-600 text-white cursor-pointer mt-6"
+                    >
+                      {deptForm.formState.isSubmitting ? "Creating..." : "Add Department"}
+                    </button>
+                  </form>
                 )}
 
                 {activeTab === "user" && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">
-                        Email <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        placeholder="user@company.com"
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">
-                        Role <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        value={formData.role}
-                        onChange={(e) => handleInputChange("role", e.target.value)}
-                        className="cursor-pointer w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">
-                          {isLoadingUserRoles ? "Loading..." : "Select role"}
-                        </option>
-                        {userRoles.map((role: { id: number; name: string }) => (
-                          <option key={role.id} value={role.name}>
-                            {formatRoleName(role?.name)}
+                  <form onSubmit={userForm.handleSubmit(handleUserSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">
+                          Email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          {...userForm.register("email")}
+                          type="email"
+                          placeholder="user@company.com"
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+                        {userForm.formState.errors.email && (
+                          <p className="text-red-500 text-xs mt-1">{userForm.formState.errors.email.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">
+                          Role <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          {...userForm.register("role")}
+                          className="cursor-pointer w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="">
+                            {isLoadingUserRoles ? "Loading..." : "Select role"}
                           </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">Subsidiary</label>
-                      <select
-                        value={formData.userSubsidiary}
-                        onChange={(e) => handleInputChange("userSubsidiary", e.target.value)}
-                        disabled={isLoadingSubsidiaries}
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">
-                          {isLoadingSubsidiaries ? "Loading..." : "Select subsidiary"}
-                        </option>
-                        {allSubsidiaries.map((sub: Subsidiary) => (
-                          <option key={sub.id} value={sub.name}>
-                            {sub.name}
+                          {userRoles.map((role: { id: number; name: string }) => (
+                            <option key={role.id} value={role.name}>
+                              {formatRoleName(role?.name)}
+                            </option>
+                          ))}
+                        </select>
+                        {userForm.formState.errors.role && (
+                          <p className="text-red-500 text-xs mt-1">{userForm.formState.errors.role.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">Subsidiary</label>
+                        <select
+                          {...userForm.register("subsidiary")}
+                          disabled={isLoadingSubsidiaries}
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="">
+                            {isLoadingSubsidiaries ? "Loading..." : "Select subsidiary"}
                           </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">Department</label>
-                      <select
-                        value={formData.department}
-                        onChange={(e) => handleInputChange("department", e.target.value)}
-                        disabled={isLoadingDepartments || allDepartments.length === 0}
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <option value="">
-                          {isLoadingDepartments ? "Loading..." : "Select department"}
-                        </option>
-                        {allDepartments.map((dept: Department) => (
-                          <option key={dept.id} value={dept.name}>
-                            {dept.name}
+                          {allSubsidiaries.map((sub: Subsidiary) => (
+                            <option key={sub.id} value={sub.name}>
+                              {sub.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block mb-1 text-sm font-medium">Department</label>
+                        <select
+                          {...userForm.register("department")}
+                          disabled={isLoadingDepartments || allDepartments.length === 0}
+                          className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <option value="">
+                            {isLoadingDepartments ? "Loading..." : "Select department"}
                           </option>
-                        ))}
-                      </select>
+                          {allDepartments.map((dept: Department) => (
+                            <option key={dept.id} value={dept.name}>
+                              {dept.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                  </div>
+                    <button
+                      type="submit"
+                      disabled={userForm.formState.isSubmitting}
+                      className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] hover:bg-teal-600 text-white cursor-pointer mt-6"
+                    >
+                      {userForm.formState.isSubmitting ? "Inviting..." : "Invite User"}
+                    </button>
+                  </form>
                 )}
-
-                {/* Submit Button */}
-                <button
-                  onClick={handleAddOrUpdate}
-                  className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)]  hover:bg-teal-600 text-white  cursor-pointer mt-6"
-                >
-                  {editingItem ? "Update " : "Add "}
-                  {activeTab === "subsidiary"
-                    ? "Subsidiary"
-                    : activeTab === "department"
-                      ? "Department"
-                      : "User"}
-                </button>
               </div>
             </div>
+
             <div className="flex justify-end gap-3 p-1">
               <button
-                onClick={handleClose}
-                className="px-5 py-2 text-sm rounded-xs border border-green-500 text-black hover:bg-gray-50 bg-transparent cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleFinalSubmit}
+                onClick={onClose}
                 className="px-5 py-2 text-sm rounded-xs bg-green-500 hover:bg-green-600 text-white cursor-pointer"
-                disabled={loadingIsDone}
               >
-                {loadingIsDone ? "Finalizing..." : "Done"}
+                Done
               </button>
             </div>
           </div>
