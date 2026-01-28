@@ -23,7 +23,7 @@ export function generateAssessmentData(reportData: any) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
       colorClass: "bg-orange-500",
-      percentage: Math.round(percentage_emission_summary.scope1_emission_summary),
+      percentage: parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2)),
       textColorClass: "text-orange-500",
     },
     {
@@ -32,7 +32,7 @@ export function generateAssessmentData(reportData: any) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
       colorClass: "bg-blue-500",
-      percentage: Math.round(percentage_emission_summary.scope2_emission_summary),
+      percentage: parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2)),
       textColorClass: "text-blue-500",
     },
     {
@@ -41,7 +41,7 @@ export function generateAssessmentData(reportData: any) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
       colorClass: "bg-purple-500",
-      percentage: Math.round(percentage_emission_summary.scope3_emission_summary),
+      percentage: parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2)),
       textColorClass: "text-purple-500",
     },
   ];
@@ -105,49 +105,49 @@ interface AssessmentAllProps {
 export default function AssessmentAll({ reportData }: AssessmentAllProps) {
   const displayData = reportData
     ? [
-        {
-          title: "Total Emissions",
-          value: reportData.report.ghg_total_emissions,
-          unit: "tCO₂e",
-          icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
-          percentage: null,
-          colorClass: "",
-          textColorClass: "text-foreground",
-        },
-        {
-          title: "Scope 1",
-          value: reportData.report.ghg_scope_one,
-          unit: "tCO₂e",
-          icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
-          colorClass: "bg-orange-500",
-          percentage: parseFloat(
-            reportData.percentage_emission_summary.scope1_emission_summary.toFixed(2)
-          ),
-          textColorClass: "text-orange-500",
-        },
-        {
-          title: "Scope 2",
-          value: reportData.report.ghg_scope_two,
-          unit: "tCO₂e",
-          icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
-          colorClass: "bg-blue-500",
-          percentage: parseFloat(
-            reportData.percentage_emission_summary.scope2_emission_summary.toFixed(2)
-          ),
-          textColorClass: "text-blue-500",
-        },
-        {
-          title: "Scope 3",
-          value: reportData.report.ghg_scope_three,
-          unit: "tCO₂e",
-          icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
-          colorClass: "bg-purple-500",
-          percentage: parseFloat(
-            reportData.percentage_emission_summary.scope3_emission_summary.toFixed(2)
-          ),
-          textColorClass: "text-purple-500",
-        },
-      ]
+      {
+        title: "Total Emissions",
+        value: reportData.report.ghg_total_emissions,
+        unit: "tCO₂e",
+        icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+        percentage: null,
+        colorClass: "",
+        textColorClass: "text-foreground",
+      },
+      {
+        title: "Scope 1",
+        value: reportData.report.ghg_scope_one,
+        unit: "tCO₂e",
+        icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
+        colorClass: "bg-orange-500",
+        percentage: parseFloat(
+          reportData.percentage_emission_summary.scope1_emission_summary.toFixed(2)
+        ),
+        textColorClass: "text-orange-500",
+      },
+      {
+        title: "Scope 2",
+        value: reportData.report.ghg_scope_two,
+        unit: "tCO₂e",
+        icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
+        colorClass: "bg-blue-500",
+        percentage: parseFloat(
+          reportData.percentage_emission_summary.scope2_emission_summary.toFixed(2)
+        ),
+        textColorClass: "text-blue-500",
+      },
+      {
+        title: "Scope 3",
+        value: reportData.report.ghg_scope_three,
+        unit: "tCO₂e",
+        icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
+        colorClass: "bg-purple-500",
+        percentage: parseFloat(
+          reportData.percentage_emission_summary.scope3_emission_summary.toFixed(2)
+        ),
+        textColorClass: "text-purple-500",
+      },
+    ]
     : data;
 
   return (

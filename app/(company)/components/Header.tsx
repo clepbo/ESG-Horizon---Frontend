@@ -7,7 +7,13 @@ import { AutoBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
 import NotificationDropdown from "./NotificationDropdown";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 
-export default function Header({ showSearchBar = true }: { showSearchBar?: boolean }) {
+export default function Header({
+  showSearchBar = true,
+  customBreadcrumb,
+}: {
+  showSearchBar?: boolean;
+  customBreadcrumb?: React.ReactNode;
+}) {
   const { user } = useAuth();
   const { data: allTasks = [], isLoading } = useMyTasks();
 
@@ -31,7 +37,7 @@ export default function Header({ showSearchBar = true }: { showSearchBar?: boole
         {showSearchBar && (
           // <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} />
           // <CustomBreadcrumb items={[{ label: "Home", href: "/" }, { label: "Report" }]} />
-          <AutoBreadcrumb />
+          customBreadcrumb || <AutoBreadcrumb />
         )}
       </div>
 
@@ -45,9 +51,8 @@ export default function Header({ showSearchBar = true }: { showSearchBar?: boole
             alt={`${user?.first_name || "N/A"}`}
             width={36}
             height={36}
-            className={`rounded-full object-cover ${
-              isFallbackImage ? "opacity-50 blur-[1px]" : ""
-            }`}
+            className={`rounded-full object-cover ${isFallbackImage ? "opacity-50 blur-[1px]" : ""
+              }`}
           />
           <div className="flex flex-col justify-center items-start text-sm">
             <span className="text-gray-900 font-medium ">

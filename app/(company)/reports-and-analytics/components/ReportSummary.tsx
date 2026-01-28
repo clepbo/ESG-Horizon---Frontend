@@ -104,9 +104,12 @@ interface ReportSummaryProps {
 const ReportSummary = (props: ReportSummaryProps) => {
   const [selected, setSelected] = useState<string | undefined>(undefined);
 
-  // Format number with commas
+  // Format number with commas and 2 decimals
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US").format(Math.round(num));
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
   };
 
   // Calculate progress percentage
@@ -190,13 +193,12 @@ const ReportSummary = (props: ReportSummaryProps) => {
                 <h3 className="text-sm font-medium text-foreground">Status</h3>
                 <div className="">
                   <div
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${
-                      getStatus() === "approved" || getStatus() === "submitted-approved"
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full ${getStatus() === "approved" || getStatus() === "submitted-approved"
                         ? "bg-green-500"
                         : getStatus() === "unapproved"
                           ? "bg-orange-500"
                           : "bg-gray-500"
-                    } text-white text-xs font-medium`}
+                      } text-white text-xs font-medium`}
                   >
                     {formatLabel(getStatus())}
                   </div>

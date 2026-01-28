@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { TrendingDown, TrendingUp, Calendar, Building } from "lucide-react";
+import { formatCO2e } from "@/lib/utils";
 
 export function EmissionsSummaryCard() {
   const {
@@ -159,17 +160,17 @@ export function EmissionsSummaryCard() {
       <CardContent>
         <div className="space-y-6">
           <div className="text-center">
-            <div className="text-4xl font-bold text-gray-900">{summary.total.toFixed(1)}</div>
+            <div className="text-4xl font-bold text-gray-900">{formatCO2e(summary.total)}</div>
             <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-3 bg-blue-50 rounded-lg">
-              <div className="text-lg font-bold text-blue-900">{summary.scope1.toFixed(1)}</div>
+              <div className="text-lg font-bold text-blue-900">{formatCO2e(summary.scope1)}</div>
               <div className="text-xs text-blue-600">Scope 1 (tonnes)</div>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
-              <div className="text-lg font-bold text-purple-900">{summary.scope2.toFixed(1)}</div>
+              <div className="text-lg font-bold text-purple-900">{formatCO2e(summary.scope2)}</div>
               <div className="text-xs text-purple-600">Scope 2 (tonnes)</div>
             </div>
           </div>
@@ -184,9 +185,8 @@ export function EmissionsSummaryCard() {
                   <TrendingUp className="w-4 h-4 text-red-600" />
                 )}
                 <span
-                  className={`text-sm font-medium ${
-                    summary.reduction > 0 ? "text-green-600" : "text-red-600"
-                  }`}
+                  className={`text-sm font-medium ${summary.reduction > 0 ? "text-green-600" : "text-red-600"
+                    }`}
                 >
                   {Math.abs(summary.reduction).toFixed(1)}%
                 </span>
@@ -201,7 +201,7 @@ export function EmissionsSummaryCard() {
               ></div>
             </div>
             <div className="text-xs text-gray-500">
-              vs. previous year ({summary.previousYear.toFixed(1)} tonnes)
+              vs. previous year ({formatCO2e(summary.previousYear)} tonnes)
             </div>
           </div>
 

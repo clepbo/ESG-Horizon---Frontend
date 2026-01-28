@@ -107,8 +107,8 @@ export function Scope1EmissionsChart() {
   const trend = totalEmissions < previousTotal ? "down" : "up";
   const trendValue =
     previousTotal > 0
-      ? Math.abs(((totalEmissions - previousTotal) / previousTotal) * 100).toFixed(1)
-      : "0.0";
+      ? Math.abs(((totalEmissions - previousTotal) / previousTotal) * 100).toFixed(2)
+      : "0.00";
 
   if (isLoading) {
     return (
@@ -140,9 +140,8 @@ export function Scope1EmissionsChart() {
               <TrendingUp className="w-4 h-4 text-red-600" />
             )}
             <span
-              className={`text-sm font-medium ${
-                trend === "down" ? "text-green-600" : "text-red-600"
-              }`}
+              className={`text-sm font-medium ${trend === "down" ? "text-green-600" : "text-red-600"
+                }`}
             >
               {trendValue}%
             </span>
@@ -154,7 +153,7 @@ export function Scope1EmissionsChart() {
         {chartData.length > 0 ? (
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900">{totalEmissions.toFixed(1)}</div>
+              <div className="text-3xl font-bold text-gray-900">{totalEmissions.toFixed(2)}</div>
               <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
             </div>
             <ResponsiveContainer width="100%" height={250}>
@@ -176,7 +175,7 @@ export function Scope1EmissionsChart() {
                 />
                 <Tooltip
                   formatter={(value?: number) => [
-                    `${(value ?? 0).toFixed(1)} tonnes CO2e`,
+                    `${(value ?? 0).toFixed(2)} tonnes CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}

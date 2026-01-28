@@ -47,6 +47,7 @@ export default function DepartmentsTable({ departments }: Props) {
               <thead className="bg-gray-50 text-left text-xs font-semibold text-gray-700">
                 <tr>
                   <th className="px-4 py-3">Department Name</th>
+                  <th className="px-4 py-3">Subsidiary</th>
                   <th className="px-4 py-3">Description</th>
                   <th className="px-4 py-3">Lead</th>
                   <th className="px-4 py-3">Email</th>
@@ -59,6 +60,9 @@ export default function DepartmentsTable({ departments }: Props) {
                   return (
                     <tr key={dept.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{dept.name}</td>
+                      <td className="px-4 py-3">
+                        {dept.subsidiary?.name || <span className="text-gray-400 italic">Self</span>}
+                      </td>
                       <td className="px-4 py-3">{dept.description || "-"}</td>
                       <td className="px-4 py-3">
                         {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}

@@ -152,6 +152,46 @@ export default function AddSubsidiaryModal({
                     value={selectedOption}
                     onChange={(option) => field.onChange(option?.value.toString() ?? "")}
                     isClearable
+                    isSearchable
+                    styles={{
+                      control: (provided, state) => ({
+                        ...provided,
+                        marginTop: "0.2rem",
+                        minHeight: "2.4rem",
+                        height: "2.4rem",
+                        padding: "0 0.5rem",
+                        borderColor: errors.industry
+                          ? "#ef4444"
+                          : state.isFocused
+                            ? "#10b981"
+                            : "#d1d5db",
+                        boxShadow: "none",
+                        "&:hover": {
+                          borderColor: "#10b981",
+                        },
+                      }),
+                      input: (provided) => ({
+                        ...provided,
+                        padding: "0",
+                      }),
+                      valueContainer: (provided) => ({
+                        ...provided,
+                        padding: "0",
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        margin: "0",
+                      }),
+                      placeholder: (provided) => ({
+                        ...provided,
+                        margin: "0",
+                      }),
+                      indicatorsContainer: (provided) => ({
+                        ...provided,
+                        height: "100%",
+                        alignItems: "center",
+                      }),
+                    }}
                   />
                 );
               }}

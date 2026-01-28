@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useDebounce } from "use-debounce";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/app/(company)/components/Header";
 import SubsidiaryTable from "@/app/components/company/subsidiaries/SubsidiaryTable";
 import AddSubsidiaryModal from "@/app/components/company/subsidiaries/AddSubsidiaryModal";
@@ -35,6 +35,7 @@ export default function SubsidiariesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"subsidiary" | "department" | "user">("subsidiary");
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const shouldOpenModal = searchParams.get("setup");
@@ -111,34 +112,41 @@ export default function SubsidiariesPage() {
     subsidiaries: Subsidiary[];
   }
 
-  const handleModalSubmit = (submissionData: SubmissionData) => {
-    const updatedSubsidiaries = submissionData.subsidiaries;
+  const handleModalSubmit = (submissionData: any) => {
+    const updatedSubsidiaries = submissionData.subsidiaries || [];
+    const updatedDepartments = submissionData.departments || [];
 
-    setSubsidiaries((prevSubs) => {
-      const hydratedSubs = updatedSubsidiaries.map((newSub) => {
-        const fullIndustry = industryOptions.find(
-          (opt) => opt.industry === newSub?.industry?.industry
-        );
+    if (updatedSubsidiaries.length > 0) {
+      setSubsidiaries((prevSubs) => {
+        const hydratedSubs = updatedSubsidiaries.map((newSub: Subsidiary) => {
+          const fullIndustry = industryOptions.find(
+            (opt) => opt.industry === newSub?.industry?.industry
+          );
 
-        const completeIndustry = fullIndustry
-          ? {
+          const completeIndustry = fullIndustry
+            ? {
               id: Number(crypto.randomUUID()),
               industry: fullIndustry.industry,
               sector: fullIndustry.sector,
             }
-          : newSub.industry;
+            : newSub.industry;
 
-        return {
-          ...newSub,
-          industry: completeIndustry,
-        };
+          return {
+            ...newSub,
+            industry: completeIndustry,
+          };
+        });
+
+        return [...hydratedSubs, ...prevSubs];
       });
-
-      return [...hydratedSubs, ...prevSubs];
-    });
+    }
 
     toast.success("Submitted Successfully");
     setIsModalOpen(false);
+
+    if (updatedDepartments.length > 0 && updatedSubsidiaries.length === 0) {
+      router.push("/settings-esg/departments");
+    }
   };
 
   return (

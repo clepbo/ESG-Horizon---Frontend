@@ -85,19 +85,31 @@ export default function EditDepartmentModal({
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-4 mt-6">
-          <button
-            onClick={() => onDeactivate?.(`${department.id}`)}
-            className="flex-1 bg-yellow-400 text-white py-2 rounded-md text-sm font-medium hover:bg-yellow-500"
-          >
-            Deactivate
-          </button>
-          <button
-            onClick={() => onDelete?.(`${department.id}`)}
-            className="flex-1 bg-red-500 text-white py-2 rounded-md text-sm font-medium hover:bg-red-600"
-          >
-            Delete
-          </button>
+        <div className="mt-8 space-y-4 pt-6 border-t border-gray-100">
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <button
+                onClick={() => onDeactivate?.(`${department.id}`)}
+                className="w-full bg-yellow-400 text-white py-2 rounded-md text-sm font-medium hover:bg-yellow-500"
+              >
+                Deactivate
+              </button>
+              <p className="text-[10px] text-gray-500 mt-1">
+                Temporarily disable this department. It can be reactivated later.
+              </p>
+            </div>
+            <div className="flex-1">
+              <button
+                onClick={() => onDelete?.(`${department.id}`)}
+                className="w-full bg-red-500 text-white py-2 rounded-md text-sm font-medium hover:bg-red-600"
+              >
+                Delete
+              </button>
+              <p className="text-[10px] text-gray-500 mt-1">
+                Permanently remove this department and all its associations. <strong>Irreversible</strong>.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
