@@ -463,7 +463,9 @@ export default function AssignTaskPage() {
 
       <Card className="p-6 border border-gray-200 space-y-6">
         <div className="space-y-2">
-          <Label>Task Name</Label>
+          <Label>
+            Task Name <span className="text-red-500">*</span>
+          </Label>
           <Input
             value={taskName}
             onChange={(e) => setTaskName(e.target.value)}
@@ -473,7 +475,9 @@ export default function AssignTaskPage() {
 
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-1">
-            <Label>Select Department</Label>
+            <Label>
+              Select Department <span className="text-red-500">*</span>
+            </Label>
             <select
               value={selectedDepartment}
               onChange={(e) => {
@@ -500,7 +504,9 @@ export default function AssignTaskPage() {
           </div>
 
           <div className="space-y-1">
-            <Label>Select Team Member</Label>
+            <Label>
+              Select Team Member <span className="text-red-500">*</span>
+            </Label>
             <select
               value={selectedMember}
               onChange={(e) => {
@@ -527,7 +533,9 @@ export default function AssignTaskPage() {
           </div>
 
           <div className="space-y-1">
-            <Label>Due Date</Label>
+            <Label>
+              Due Date <span className="text-red-500">*</span>
+            </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -549,7 +557,10 @@ export default function AssignTaskPage() {
         </div>
 
         <div className="space-y-2">
-          <Label>Select the topic or assessment you would like to assign</Label>
+          <Label>
+            Select the topic or assessment you would like to assign{" "}
+            <span className="text-red-500">*</span>
+          </Label>
 
           <div className="relative mt-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
