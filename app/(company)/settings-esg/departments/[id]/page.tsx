@@ -21,6 +21,7 @@ import { companyService } from "@/services/company.service";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import { CustomBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
 
 export default function DepartmentTeamUsersPage() {
   const { id } = useParams();
@@ -210,7 +211,18 @@ export default function DepartmentTeamUsersPage() {
         duration: 0.5,
       }}
     >
-      <Header />
+      <Header
+        customBreadcrumb={
+          <CustomBreadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Settings", href: "/settings-esg" },
+              { label: "Departments", href: "/settings-esg/departments" },
+              { label: department?.name || "Department" },
+            ]}
+          />
+        }
+      />
       <BackButton />
 
       {/* Department Info Card */}

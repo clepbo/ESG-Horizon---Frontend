@@ -17,6 +17,7 @@ import { TeamMembersTable } from "@/app/components/company/subsidiaries/TeamMemb
 import { DepartmentsTable } from "@/app/components/company/subsidiaries/DepartmentTable";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import Header from "@/app/(company)/components/Header";
+import { CustomBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
 
 interface Params {
   id: string;
@@ -80,7 +81,18 @@ export default function SubsidiaryDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#F2FBF3] p-6 space-y-6">
-      <Header />
+      <Header
+        customBreadcrumb={
+          <CustomBreadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Settings", href: "/settings-esg" },
+              { label: "Subsidiaries", href: "/settings-esg/subsidiaries" },
+              { label: subsidiaryData.name },
+            ]}
+          />
+        }
+      />
       <Button
         variant="outline"
         onClick={() => router.back()}
@@ -100,21 +112,19 @@ export default function SubsidiaryDetailsPage() {
             {/* buttons */}
             <div className="flex space-x-4 p-2 rounded-lg shadow-md border border-gray-200 cursor-pointer">
               <button
-                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${
-                  activeTab === "team"
-                    ? "bg-[#EBF7EB] text-[var(--color-primary)] "
-                    : "bg-transparent text-gray-500 hover:bg-gray-100"
-                }`}
+                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${activeTab === "team"
+                  ? "bg-[#EBF7EB] text-[var(--color-primary)] "
+                  : "bg-transparent text-gray-500 hover:bg-gray-100"
+                  }`}
                 onClick={() => setActiveTab("team")}
               >
                 Team Members
               </button>
               <button
-                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${
-                  activeTab === "departments"
-                    ? "bg-[#EBF7EB] text-[var(--color-primary)] "
-                    : "bg-transparent text-gray-500 hover:bg-gray-100"
-                }`}
+                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${activeTab === "departments"
+                  ? "bg-[#EBF7EB] text-[var(--color-primary)] "
+                  : "bg-transparent text-gray-500 hover:bg-gray-100"
+                  }`}
                 onClick={() => setActiveTab("departments")}
               >
                 Departments

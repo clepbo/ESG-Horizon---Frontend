@@ -200,7 +200,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.subsidiary?.name ? (
                         user.subsidiary?.name
                       ) : (
-                        <span className="text-gray-400 text-sm">-</span>
+                        <span className="text-gray-400 text-sm">N/A</span>
                       )}
                     </td>
 
@@ -216,24 +216,28 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                     <td className="px-4 py-3">{formattedDate(String(user.last_login) || "")}</td>
 
                     <td className="px-4 py-3">
-                      <ActionDropdown
-                        actions={[
-                          {
-                            label: "Edit User",
-                            icon: <SquarePen className="w-4 h-4" />,
-                            onClick: () => handleView(user.id),
-                          },
-                          {
-                            label: statusActions[user.status].title,
-                            icon: statusActions[user.status].icon,
-                            colorClass: statusActions[user.status].color
-                              .replace("border-", "text-")
-                              .replace("hover:bg-", "hover:text-"),
-                            onClick: () =>
-                              openStatusModal(user.id, statusActions[user.status].newStatus),
-                          },
-                        ]}
-                      />
+                      {user.role?.name !== "company_esg_admin" ? (
+                        <ActionDropdown
+                          actions={[
+                            {
+                              label: "Edit User",
+                              icon: <SquarePen className="w-4 h-4" />,
+                              onClick: () => handleView(user.id),
+                            },
+                            {
+                              label: statusActions[user.status]?.title || "Update Status",
+                              icon: statusActions[user.status]?.icon,
+                              colorClass: statusActions[user.status]?.color
+                                .replace("border-", "text-")
+                                .replace("hover:bg-", "hover:text-"),
+                              onClick: () =>
+                                openStatusModal(user.id, statusActions[user.status].newStatus),
+                            },
+                          ]}
+                        />
+                      ) : (
+                        <span className="text-gray-400 italic text-xs">System Admin</span>
+                      )}
                     </td>
                   </tr>
                 ))}

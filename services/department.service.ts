@@ -42,8 +42,11 @@ export interface CreateDepartment {
   name: string;
   description?: string;
   leadId?: number;
+  leadEmail?: string;
+  leadName?: string;
   contact_email?: string;
   subsidiaryId?: number;
+  subsidiaryName?: string;
 }
 
 export const departmentService = {

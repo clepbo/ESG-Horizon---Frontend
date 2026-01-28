@@ -56,7 +56,7 @@ export default function EditUserModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto z-60">
+    <div className="fixed inset-0  bg-white/60 backdrop-blur-md flex items-center justify-center px-4 overflow-y-auto z-60">
       <div className="relative w-full bg-white rounded-2xl shadow-2xl p-6 md:p-10 max-h-[90vh] overflow-y-auto max-w-4xl">
         {/* Close Icon */}
         <button
@@ -163,7 +163,7 @@ export default function EditUserModal({
           <button
             onClick={handleUpdate}
             disabled={loading}
-            className="bg-[var(--color-primary)]  hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm  cursor-pointer disabled:opacity-50"
+            className="bg-primary hover:bg-teal-600 text-white px-6 py-2 rounded-md text-sm  cursor-pointer disabled:opacity-50"
           >
             {loading ? "Please wait..." : "Update"}
           </button>

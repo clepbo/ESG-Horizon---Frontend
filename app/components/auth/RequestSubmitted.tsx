@@ -33,7 +33,7 @@ export const RequestSubmitted = () => {
         <p className="text-gray-700 mb-8 text-sm leading-relaxed">
           Your account is pending approval by ESG Horizon Platform administrator.
           <br />
-          You can expect an email with an update within two business days. If you have any urgent
+          You can expect an email with an update within 2 hours. If you have any urgent
           questions, please feel free to contact our support team (support@esghorizon.com)
         </p>
 

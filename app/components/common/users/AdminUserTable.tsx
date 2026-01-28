@@ -86,20 +86,24 @@ export default function AdminUserTable({ users }: UserTableProps) {
                 >
                   <Eye size={16} />
                 </button>
-                <button
-                  className="text-blue-600 hover:text-blue-900 cursor-pointer"
-                  title="Edit"
-                  onClick={() => router.push(`/users/${user.id}/edit`)}
-                >
-                  <Edit size={16} />
-                </button>
-                <button
-                  className="text-red-600 hover:text-red-900 cursor-pointer"
-                  title="Suspend"
-                  onClick={() => console.log("Open suspend modal for", user)}
-                >
-                  <Ban size={16} />
-                </button>
+                {user.role !== "Company Admin" && (
+                  <>
+                    <button
+                      className="text-blue-600 hover:text-blue-900 cursor-pointer"
+                      title="Edit"
+                      onClick={() => router.push(`/users/${user.id}/edit`)}
+                    >
+                      <Edit size={16} />
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-900 cursor-pointer"
+                      title="Suspend"
+                      onClick={() => console.log("Open suspend modal for", user)}
+                    >
+                      <Ban size={16} />
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
