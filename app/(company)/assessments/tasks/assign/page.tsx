@@ -398,13 +398,7 @@ export default function AssignTaskPage() {
   );
 
   const handleSubmit = async () => {
-    if (
-      !taskName ||
-      !selectedMember ||
-      !selectedDepartment ||
-      !dueDate ||
-      selectedTopics.length === 0
-    ) {
+    if (!taskName || !selectedMember || !dueDate || selectedTopics.length === 0) {
       toast.warn("Please fill in all required fields");
       return;
     }
@@ -475,9 +469,7 @@ export default function AssignTaskPage() {
 
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-1">
-            <Label>
-              Select Department <span className="text-red-500">*</span>
-            </Label>
+            <Label>Select Department</Label>
             <select
               value={selectedDepartment}
               onChange={(e) => {
