@@ -211,108 +211,108 @@ const industrySpecificMetrics: MetricSection[] = [
   },
 ];
 
-const supplementaryMetrics: MetricSection[] = [
-  {
-    title: "Environmental",
-    tooltip: {
-      title: "Environmental",
-      description:
-        "Covers your organization's impact on nature—including energy use, emissions, waste, water, and resource efficiency.",
-    },
-    cards: [
-      {
-        title: "Greenhouse Gas Emissions",
-        subtitle: "Report total CO2-equivalent emissions from Subsidiaries and supply chains",
-        clickable: true,
-      },
-      {
-        title: "Air Quality",
-        subtitle: "Assess pollutant emissions and their impact on local air quality",
-      },
-      {
-        title: "Water and Wastewater Management",
-        subtitle: "Evaluate water use, conservation, and treatment practices",
-        clickable: true,
-      },
-      {
-        title: "Biodiversity Impact",
-        subtitle: "Identify and measure impacts on ecosystems, species, and natural habitats",
-      },
-    ],
-  },
-  {
-    title: "Social Capital",
-    tooltip: {
-      title: "Social Capital",
-      description:
-        "Assesses how your company engages with communities, customers, and society through responsibility, trust, and ethical practices.",
-    },
-    cards: [
-      {
-        title: "Security, Human Rights & Rights of Indigenous Peoples",
-        subtitle:
-          "Assess how rights, safety, and cultural heritage are safeguarded in operational areas",
-      },
-      {
-        title: "Community Relations",
-        subtitle: "Report engagement strategies and impact on local communities",
-      },
-    ],
-  },
-  {
-    title: "Human Capital",
-    tooltip: {
-      title: "Human Capital",
-      description:
-        "Focuses on employee wellbeing—covering health and safety, diversity, training, and fair treatment in the workplace.",
-    },
-    cards: [
-      {
-        title: "Workforce Health & Safety",
-        subtitle:
-          "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
-      },
-    ],
-  },
-  {
-    title: "Business Model and Innovation",
-    tooltip: {
-      title: "Business Model and Innovation",
-      description:
-        "Evaluates how your products, services, and operations integrate sustainability and long-term resilience.",
-    },
-    cards: [
-      {
-        title: "Reserves Valuation & Capital Expenditures",
-        subtitle: "Report on investment strategies and valuation of natural resource reserves",
-      },
-    ],
-  },
-  {
-    title: "Leadership and Governance",
-    tooltip: {
-      title: "Leadership and Governance",
-      description:
-        "Measures accountability - including ethics, transparency, anticorruption practices, and oversight from management.",
-    },
-    cards: [
-      {
-        title: "Business Ethics & Transparency",
-        subtitle: "Assess anti-corruption measures and operational integrity",
-      },
-      {
-        title: "Management of the Legal & Regulatory Environment",
-        subtitle: "Evaluate compliance with applicable laws and regulations",
-      },
-      {
-        title: "Critical Incident Risk Management",
-        subtitle: "Report preparedness plans and response strategies for major incidents",
-      },
-    ],
-  },
-];
+// const supplementaryMetrics: MetricSection[] = [
+//   {
+//     title: "Environmental",
+//     tooltip: {
+//       title: "Environmental",
+//       description:
+//         "Covers your organization's impact on nature—including energy use, emissions, waste, water, and resource efficiency.",
+//     },
+//     cards: [
+//       {
+//         title: "Greenhouse Gas Emissions",
+//         subtitle: "Report total CO2-equivalent emissions from Subsidiaries and supply chains",
+//         clickable: true,
+//       },
+//       {
+//         title: "Air Quality",
+//         subtitle: "Assess pollutant emissions and their impact on local air quality",
+//       },
+//       {
+//         title: "Water and Wastewater Management",
+//         subtitle: "Evaluate water use, conservation, and treatment practices",
+//         clickable: true,
+//       },
+//       {
+//         title: "Biodiversity Impact",
+//         subtitle: "Identify and measure impacts on ecosystems, species, and natural habitats",
+//       },
+//     ],
+//   },
+//   {
+//     title: "Social Capital",
+//     tooltip: {
+//       title: "Social Capital",
+//       description:
+//         "Assesses how your company engages with communities, customers, and society through responsibility, trust, and ethical practices.",
+//     },
+//     cards: [
+//       {
+//         title: "Security, Human Rights & Rights of Indigenous Peoples",
+//         subtitle:
+//           "Assess how rights, safety, and cultural heritage are safeguarded in operational areas",
+//       },
+//       {
+//         title: "Community Relations",
+//         subtitle: "Report engagement strategies and impact on local communities",
+//       },
+//     ],
+//   },
+//   {
+//     title: "Human Capital",
+//     tooltip: {
+//       title: "Human Capital",
+//       description:
+//         "Focuses on employee wellbeing—covering health and safety, diversity, training, and fair treatment in the workplace.",
+//     },
+//     cards: [
+//       {
+//         title: "Workforce Health & Safety",
+//         subtitle:
+//           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
+//       },
+//     ],
+//   },
+//   {
+//     title: "Business Model and Innovation",
+//     tooltip: {
+//       title: "Business Model and Innovation",
+//       description:
+//         "Evaluates how your products, services, and operations integrate sustainability and long-term resilience.",
+//     },
+//     cards: [
+//       {
+//         title: "Reserves Valuation & Capital Expenditures",
+//         subtitle: "Report on investment strategies and valuation of natural resource reserves",
+//       },
+//     ],
+//   },
+//   {
+//     title: "Leadership and Governance",
+//     tooltip: {
+//       title: "Leadership and Governance",
+//       description:
+//         "Measures accountability - including ethics, transparency, anticorruption practices, and oversight from management.",
+//     },
+//     cards: [
+//       {
+//         title: "Business Ethics & Transparency",
+//         subtitle: "Assess anti-corruption measures and operational integrity",
+//       },
+//       {
+//         title: "Management of the Legal & Regulatory Environment",
+//         subtitle: "Evaluate compliance with applicable laws and regulations",
+//       },
+//       {
+//         title: "Critical Incident Risk Management",
+//         subtitle: "Report preparedness plans and response strategies for major incidents",
+//       },
+//     ],
+//   },
+// ];
 
-const allMetrics: MetricSection[] = [...industrySpecificMetrics, ...supplementaryMetrics];
+const allMetrics: MetricSection[] = [...industrySpecificMetrics /*...supplementaryMetrics*/];
 
 export function DisclosureTopics({
   onBack,
@@ -408,7 +408,7 @@ export function DisclosureTopics({
   };
 
   const filteredIndustryMetrics = filterMetrics(industrySpecificMetrics, "Industry-Specific");
-  const filteredSupplementaryMetrics = filterMetrics(supplementaryMetrics, "Supplementary");
+  // const filteredSupplementaryMetrics = filterMetrics(supplementaryMetrics, "Supplementary");
 
   if (currentView === "activity-metrics") {
     return <ActivityMetricHome />;
@@ -750,7 +750,7 @@ export function DisclosureTopics({
                 )}
 
                 {/* Supplementary Metrics */}
-                {filteredSupplementaryMetrics.length > 0 && (
+                {/* {filteredSupplementaryMetrics.length > 0 && (
                   <AccordionItem value="supplementary" className="border-none">
                     <AccordionTrigger className="py-4 px-0 hover:no-underline hover:cursor-pointer bg-transparent">
                       <div className="flex items-center w-full relative">
@@ -827,26 +827,26 @@ export function DisclosureTopics({
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                )}
+                )} */}
 
                 {/* No Results Message */}
-                {filteredIndustryMetrics.length === 0 &&
-                  filteredSupplementaryMetrics.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-muted-foreground text-lg">
-                        {assignedTask && !debouncedSearchTerm
-                          ? "No topics assigned to you for this task"
-                          : debouncedSearchTerm
-                            ? `No topics found matching "${debouncedSearchTerm}"`
-                            : "No topics available"}
+                {filteredIndustryMetrics.length === 0 && (
+                  // filteredSupplementaryMetrics.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      {assignedTask && !debouncedSearchTerm
+                        ? "No topics assigned to you for this task"
+                        : debouncedSearchTerm
+                          ? `No topics found matching "${debouncedSearchTerm}"`
+                          : "No topics available"}
+                    </p>
+                    {debouncedSearchTerm && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Try searching for different keywords or browse all topics
                       </p>
-                      {debouncedSearchTerm && (
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Try searching for different keywords or browse all topics
-                        </p>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
+                )}
               </Accordion>
             </CardContent>
           </Card>
