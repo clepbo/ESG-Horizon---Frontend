@@ -81,11 +81,14 @@ export default function TeamsPage() {
 
   const handleStatusUpdate = async (id: number, newStatus: TeamUserStatus) => {
     try {
+      await companyService.editUser(id, { status: newStatus });
       setUsers((prev) =>
         prev.map((user) => (user.id === Number(id) ? { ...user, status: newStatus } : user))
       );
+      toast.success(`User status updated to ${newStatus}`);
     } catch (err) {
       console.error("Failed to update status", err);
+      toast.error("Failed to update user status");
     }
   };
 

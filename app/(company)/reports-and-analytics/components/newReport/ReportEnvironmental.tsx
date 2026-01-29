@@ -59,7 +59,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             color="#84bb94"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.totalEmissions) : "0"
+              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.totalEmissions || 0).toFixed(2) : "0.00"
             }
             data={emissionData}
           />
@@ -68,7 +68,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 1"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope1Emissions) : "0"
+              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.scope1Emissions || 0).toFixed(2) : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope1}
@@ -78,7 +78,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 2"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope2Emissions) : "0"
+              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.scope2Emissions || 0).toFixed(2) : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope2}
@@ -88,7 +88,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 3"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope3Emissions) : "0"
+              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.scope3Emissions || 0).toFixed(2) : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope3}

@@ -255,11 +255,18 @@ export function calculateTCO2eForSource(data: SourceDataForCalculation): number 
   return parseFloat(tCO2e.toFixed(4)); // Use 4 decimals for precision
 }
 
+export function formatCO2e(value: number | string | null | undefined): string {
+  if (value === null || value === undefined) return "0.00";
+  const num = Number(value);
+  if (isNaN(num)) return "0.00";
+  return num.toFixed(2);
+}
+
 export function formatTCO2eOutput(tCO2eValue: number): string {
-  if (tCO2eValue === 0) {
-    return "0.000 tCO2e";
+  if (tCO2eValue === 0 || isNaN(tCO2eValue)) {
+    return "0.00 tCO2e";
   }
-  return `${tCO2eValue} tCO2e`;
+  return `${tCO2eValue.toFixed(2)} tCO2e`;
 }
 
 export function formatStatus(status: any | any[]): string {
