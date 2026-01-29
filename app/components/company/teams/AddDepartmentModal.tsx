@@ -85,11 +85,15 @@ export default function AddDepartmentModal({
           </div>
 
           <div className="border-t pt-4 mt-4">
-            <label className="block mb-3 text-sm font-semibold text-gray-700">Department Lead</label>
+            <label className="block mb-3 text-sm font-semibold text-gray-700">
+              Department Lead
+            </label>
 
             <div className="space-y-3">
               <div>
-                <label className="block mb-1 text-xs text-gray-500 uppercase font-bold">Select Existing User</label>
+                <label className="block mb-1 text-xs text-gray-500 uppercase font-bold">
+                  Select Existing User
+                </label>
                 <select
                   value={departmentLead?.id ?? ""}
                   onChange={(e) => {
@@ -119,7 +123,9 @@ export default function AddDepartmentModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block mb-1 text-xs text-gray-500 uppercase font-bold">Lead Name</label>
+                  <label className="block mb-1 text-xs text-gray-500 uppercase font-bold">
+                    Lead Name
+                  </label>
                   <input
                     type="text"
                     value={leadName}
@@ -130,7 +136,9 @@ export default function AddDepartmentModal({
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-xs text-gray-500 uppercase font-bold">Lead Email</label>
+                  <label className="block mb-1 text-xs text-gray-500 uppercase font-bold">
+                    Lead Email
+                  </label>
                   <input
                     type="email"
                     value={leadEmail}

@@ -47,7 +47,7 @@ export default function LoginForm() {
 
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [loadingSocialLogin, setLoadingSocialLogin] = useState(false);
+  const [_loadingSocialLogin, setLoadingSocialLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -86,28 +86,28 @@ export default function LoginForm() {
     }
   };
 
-  const onSocialLoginClick = async (provider: "google") => {
-    setLoadingSocialLogin(true);
-    setLoading(true);
-    try {
-      await socialLogin(provider);
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message || error?.message || "Login failed. Please try again.";
+  // const onSocialLoginClick = async (provider: "google") => {
+  //   setLoadingSocialLogin(true);
+  //   setLoading(true);
+  //   try {
+  //     await socialLogin(provider);
+  //   } catch (error: any) {
+  //     const message =
+  //       error?.response?.data?.message || error?.message || "Login failed. Please try again.";
 
-      if (message.includes("awaiting approval")) {
-        toast.info(
-          "To ensure platform security, your account is pending a final review by an ESG Horizon administrator. This is typically completed within one business day. You will be notified via your corporate email as soon as it's approved.",
-          { autoClose: 15000 }
-        );
-      } else {
-        toast.error(message);
-      }
+  //     if (message.includes("awaiting approval")) {
+  //       toast.info(
+  //         "To ensure platform security, your account is pending a final review by an ESG Horizon administrator. This is typically completed within one business day. You will be notified via your corporate email as soon as it's approved.",
+  //         { autoClose: 15000 }
+  //       );
+  //     } else {
+  //       toast.error(message);
+  //     }
 
-      setLoadingSocialLogin(false);
-      setLoading(false);
-    }
-  };
+  //     setLoadingSocialLogin(false);
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="relative mt-36">
@@ -117,9 +117,9 @@ export default function LoginForm() {
           <div className="text-center">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex gap-2">
-                <div className="w-3 h-3 bg-[color:var(--color-primary)] rounded-full animate-bounce" />
-                <div className="w-3 h-3 bg-[color:var(--color-secondary)] rounded-full animate-bounce delay-100" />
-                <div className="w-3 h-3 bg-[color:var(--color-tertiary)] rounded-full animate-bounce delay-200" />
+                <div className="w-3 h-3 bg-primary rounded-full animate-bounce" />
+                <div className="w-3 h-3 bg-secondary rounded-full animate-bounce delay-100" />
+                <div className="w-3 h-3 bg-tertiary rounded-full animate-bounce delay-200" />
               </div>
             </div>
             <p className="text-lg text-gray-600 font-medium animate-pulse">Logging you in...</p>

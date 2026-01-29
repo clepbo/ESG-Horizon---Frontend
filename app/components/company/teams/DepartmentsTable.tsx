@@ -61,7 +61,9 @@ export default function DepartmentsTable({ departments }: Props) {
                     <tr key={dept.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{dept.name}</td>
                       <td className="px-4 py-3">
-                        {dept.subsidiary?.name || <span className="text-gray-400 italic">Self</span>}
+                        {dept.subsidiary?.name || (
+                          <span className="text-gray-400 italic">Self</span>
+                        )}
                       </td>
                       <td className="px-4 py-3">{dept.description || "-"}</td>
                       <td className="px-4 py-3">

@@ -34,11 +34,10 @@ export default function Header({
     <header className="w-full flex items-center justify-between mb-4">
       {/* Search Bar */}
       <div className="flex-1 max-w-xl">
-        {showSearchBar && (
+        {showSearchBar &&
           // <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} />
           // <CustomBreadcrumb items={[{ label: "Home", href: "/" }, { label: "Report" }]} />
-          customBreadcrumb || <AutoBreadcrumb />
-        )}
+          (customBreadcrumb || <AutoBreadcrumb />)}
       </div>
 
       {/* Notifications & User Info */}
@@ -51,8 +50,9 @@ export default function Header({
             alt={`${user?.first_name || "N/A"}`}
             width={36}
             height={36}
-            className={`rounded-full object-cover ${isFallbackImage ? "opacity-50 blur-[1px]" : ""
-              }`}
+            className={`rounded-full object-cover ${
+              isFallbackImage ? "opacity-50 blur-[1px]" : ""
+            }`}
           />
           <div className="flex flex-col justify-center items-start text-sm">
             <span className="text-gray-900 font-medium ">
