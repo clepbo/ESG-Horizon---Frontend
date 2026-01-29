@@ -1,11 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Edit, Info, X, Trash2, Edit2 } from "lucide-react";
-import { useCompanySubsidiaries, useCreateSubsidiary, useDeleteSubsidiary, useEditSubsidiary } from "@/services/hooks/subsidiaries.hooks";
-import { useCompanyUsers, useCompanyDetails, useInviteUser, useDeleteInvitation } from "@/services/hooks/company.hooks";
-import { useCompanyDepartments, useCreateDepartment, useDeleteDepartment, useUpdateDepartment } from "@/services/hooks/department.hooks";
-import { Industry } from "@/services/industries.services";
+import { ArrowLeft, Info, X, Trash2, Edit2 } from "lucide-react";
+import {
+  useCompanySubsidiaries,
+  useCreateSubsidiary,
+  useDeleteSubsidiary,
+  useEditSubsidiary,
+} from "@/services/hooks/subsidiaries.hooks";
+import {
+  useCompanyUsers,
+  useCompanyDetails,
+  useInviteUser,
+  useDeleteInvitation,
+} from "@/services/hooks/company.hooks";
+import {
+  useCompanyDepartments,
+  useCreateDepartment,
+  useDeleteDepartment,
+  useUpdateDepartment,
+} from "@/services/hooks/department.hooks";
 import { User } from "@/services/user.service";
 import { Subsidiary } from "@/services/subsidiaries.service";
 import { Department } from "@/services/department.service";
@@ -54,7 +68,7 @@ export default function CompanySetupModal({
   initialTab = "subsidiary",
 }: CompanySetupModalProps) {
   const { data: companySubsidiaries, isLoading: isLoadingSubsidiaries } = useCompanySubsidiaries();
-  const { data: industries, isLoading: isLoadingIndustries } = useIndustries();
+  const { data: industries, isLoading: _isLoadingIndustries } = useIndustries();
   const { data: companyDetails } = useCompanyDetails();
   const companyId = companyDetails?.id;
   const { data: companyUsers, isLoading: isLoadingUsers } = useCompanyUsers(String(companyId));
@@ -131,7 +145,9 @@ export default function CompanySetupModal({
 
   const handleSubSubmit = async (data: z.infer<typeof subsidiarySchema>) => {
     try {
-      const teamLeadUser = data.managerEmail ? allUsers.find(u => u.email === data.managerEmail) : undefined;
+      const teamLeadUser = data.managerEmail
+        ? allUsers.find((u) => u.email === data.managerEmail)
+        : undefined;
 
       const payload = {
         name: data.name,
@@ -146,10 +162,10 @@ export default function CompanySetupModal({
       if (editingSubId) {
         res = await editSubsidiary({
           id: editingSubId,
-          ...payload
+          ...payload,
         });
         setAddedSubsidiaries((prev) =>
-          prev.map(s => s.id === editingSubId ? { id: editingSubId, name: data.name } : s)
+          prev.map((s) => (s.id === editingSubId ? { id: editingSubId, name: data.name } : s))
         );
         toast.success("Subsidiary updated successfully");
       } else {
@@ -168,7 +184,7 @@ export default function CompanySetupModal({
       if (error?.response?.status === 409) {
         subForm.setError("name", {
           type: "manual",
-          message: error.response?.data?.message || "A subsidiary with this name already exists."
+          message: error.response?.data?.message || "A subsidiary with this name already exists.",
         });
       } else {
         toast.error(`Failed to ${editingSubId ? "update" : "create"} subsidiary`);
@@ -180,7 +196,7 @@ export default function CompanySetupModal({
     if (!companyId) return;
     try {
       const selectedSub = companySubsidiaries?.find((s) => s.name === data.subsidiary);
-      const selectedUser = allUsers.find(u => u.email === data.managerEmail);
+      const selectedUser = allUsers.find((u) => u.email === data.managerEmail);
       const payload = {
         name: data.name,
         subsidiaryId: selectedSub?.id,
@@ -195,11 +211,11 @@ export default function CompanySetupModal({
           id: editingDeptId,
           payload: {
             ...payload,
-            contact_email: data.managerEmail
-          }
+            contact_email: data.managerEmail,
+          },
         });
         setAddedDepartments((prev) =>
-          prev.map(d => d.id === editingDeptId ? { id: editingDeptId, name: data.name } : d)
+          prev.map((d) => (d.id === editingDeptId ? { id: editingDeptId, name: data.name } : d))
         );
         toast.success("Department updated successfully");
       } else {
@@ -222,7 +238,7 @@ export default function CompanySetupModal({
       if (error?.response?.status === 409) {
         deptForm.setError("name", {
           type: "manual",
-          message: error.response?.data?.message || "A department with this name already exists."
+          message: error.response?.data?.message || "A department with this name already exists.",
         });
       } else {
         toast.error("Failed to create department");
@@ -247,14 +263,14 @@ export default function CompanySetupModal({
   };
 
   const handleEditSubsidiary = (id: number) => {
-    const sub = allSubsidiaries.find(s => s.id === id);
+    const sub = allSubsidiaries.find((s) => s.id === id);
     if (sub) {
       setEditingSubId(id);
       subForm.reset({
         name: sub.name,
         industryId: sub.industryId || 0,
         managerEmail: sub.teamLead?.email || "",
-        address: sub.address || ""
+        address: sub.address || "",
       });
     }
   };
@@ -276,13 +292,13 @@ export default function CompanySetupModal({
   };
 
   const handleEditDepartment = (id: number) => {
-    const dept = allDepartments.find(d => d.id === id);
+    const dept = allDepartments.find((d) => d.id === id);
     if (dept) {
       setEditingDeptId(id);
       deptForm.reset({
         name: dept.name,
         subsidiary: dept.subsidiary?.name || "",
-        managerEmail: dept.lead?.email || ""
+        managerEmail: dept.lead?.email || "",
       });
     }
   };
@@ -316,8 +332,6 @@ export default function CompanySetupModal({
     }
   };
 
-
-
   const handleRemoveInvitedUser = async (id: number) => {
     try {
       await deleteInvitationHook(id);
@@ -329,7 +343,6 @@ export default function CompanySetupModal({
       toast.error(message);
     }
   };
-
 
   const tabs = [
     { id: "subsidiary" as TabType, label: "Add Subsidiary" },
@@ -404,7 +417,7 @@ export default function CompanySetupModal({
                       <div className="flex items-center gap-1.5 ml-1">
                         <button
                           onClick={() => handleEditSubsidiary(sub.id)}
-                          className={`p-0.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer ${editingSubId === sub.id ? 'text-blue-600' : 'text-gray-400 hover:text-blue-500'}`}
+                          className={`p-0.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer ${editingSubId === sub.id ? "text-blue-600" : "text-gray-400 hover:text-blue-500"}`}
                           type="button"
                           title="Edit"
                         >
@@ -438,7 +451,7 @@ export default function CompanySetupModal({
                       <div className="flex items-center gap-1.5 ml-1">
                         <button
                           onClick={() => handleEditDepartment(dept.id)}
-                          className={`p-0.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer ${editingDeptId === dept.id ? 'text-blue-600' : 'text-gray-400 hover:text-blue-500'}`}
+                          className={`p-0.5 hover:bg-gray-100 rounded-full transition-colors cursor-pointer ${editingDeptId === dept.id ? "text-blue-600" : "text-gray-400 hover:text-blue-500"}`}
                           type="button"
                           title="Edit"
                         >
@@ -498,7 +511,9 @@ export default function CompanySetupModal({
                           className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                         {subForm.formState.errors.name && (
-                          <p className="text-red-500 text-xs mt-1">{subForm.formState.errors.name.message}</p>
+                          <p className="text-red-500 text-xs mt-1">
+                            {subForm.formState.errors.name.message}
+                          </p>
                         )}
                       </div>
                       <div>
@@ -512,22 +527,24 @@ export default function CompanySetupModal({
                             <Select
                               {...field}
                               options={industryOptions}
-                              value={industryOptions.find(op => op.value === field.value)}
+                              value={industryOptions.find((op) => op.value === field.value)}
                               onChange={(val) => field.onChange(val?.value)}
                               placeholder="Select Industry"
                               className="text-sm"
                               styles={{
                                 control: (base) => ({
                                   ...base,
-                                  height: '38px',
-                                  minHeight: '38px'
-                                })
+                                  height: "38px",
+                                  minHeight: "38px",
+                                }),
                               }}
                             />
                           )}
                         />
                         {subForm.formState.errors.industryId && (
-                          <p className="text-red-500 text-xs mt-1">{subForm.formState.errors.industryId.message}</p>
+                          <p className="text-red-500 text-xs mt-1">
+                            {subForm.formState.errors.industryId.message}
+                          </p>
                         )}
                       </div>
                       <div>
@@ -561,7 +578,13 @@ export default function CompanySetupModal({
                       disabled={subForm.formState.isSubmitting}
                       className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] hover:bg-teal-600 text-white cursor-pointer mt-6"
                     >
-                      {subForm.formState.isSubmitting ? (editingSubId ? "Updating..." : "Creating...") : (editingSubId ? "Update Subsidiary" : "Add Subsidiary")}
+                      {subForm.formState.isSubmitting
+                        ? editingSubId
+                          ? "Updating..."
+                          : "Creating..."
+                        : editingSubId
+                          ? "Update Subsidiary"
+                          : "Add Subsidiary"}
                     </button>
                     {editingSubId && (
                       <button
@@ -591,7 +614,9 @@ export default function CompanySetupModal({
                           className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                         {deptForm.formState.errors.name && (
-                          <p className="text-red-500 text-xs mt-1">{deptForm.formState.errors.name.message}</p>
+                          <p className="text-red-500 text-xs mt-1">
+                            {deptForm.formState.errors.name.message}
+                          </p>
                         )}
                       </div>
                       <div>
@@ -634,7 +659,13 @@ export default function CompanySetupModal({
                       disabled={deptForm.formState.isSubmitting}
                       className="w-full px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] hover:bg-teal-600 text-white cursor-pointer mt-6"
                     >
-                      {deptForm.formState.isSubmitting ? (editingDeptId ? "Updating..." : "Creating...") : (editingDeptId ? "Update Department" : "Add Department")}
+                      {deptForm.formState.isSubmitting
+                        ? editingDeptId
+                          ? "Updating..."
+                          : "Creating..."
+                        : editingDeptId
+                          ? "Update Department"
+                          : "Add Department"}
                     </button>
                     {editingDeptId && (
                       <button
@@ -665,7 +696,9 @@ export default function CompanySetupModal({
                           className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                         {userForm.formState.errors.email && (
-                          <p className="text-red-500 text-xs mt-1">{userForm.formState.errors.email.message}</p>
+                          <p className="text-red-500 text-xs mt-1">
+                            {userForm.formState.errors.email.message}
+                          </p>
                         )}
                       </div>
                       <div>
@@ -686,7 +719,9 @@ export default function CompanySetupModal({
                           ))}
                         </select>
                         {userForm.formState.errors.role && (
-                          <p className="text-red-500 text-xs mt-1">{userForm.formState.errors.role.message}</p>
+                          <p className="text-red-500 text-xs mt-1">
+                            {userForm.formState.errors.role.message}
+                          </p>
                         )}
                       </div>
                       <div>
@@ -750,7 +785,7 @@ export default function CompanySetupModal({
                   onSubmit?.({
                     subsidiaries: addedSubsidiaries,
                     departments: addedDepartments,
-                    users: invitedUsers
+                    users: invitedUsers,
                   });
                   setAddedSubsidiaries([]);
                   setAddedDepartments([]);

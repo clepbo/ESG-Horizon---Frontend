@@ -43,11 +43,11 @@ type FormFields = {
 };
 
 export default function LoginForm() {
-  const { login, socialLogin } = useAuth();
+  const { login } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [_loadingSocialLogin, setLoadingSocialLogin] = useState(false);
+  const [_loadingSocialLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { CircleX, Plus, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { CircleX, UserPlus } from "lucide-react";
 import BackButton from "../reusables/BackButton";
 import { Department } from "@/services/department.service";
 import { useCompanyUsers, useInviteUser } from "@/services/hooks/company.hooks";
@@ -30,7 +30,7 @@ export default function EditDepartmentModal({
   const { data: users = [] } = useCompanyUsers(companyId || 0);
   const { data: subsidiaries = [] } = useCompanySubsidiaries();
   const { mutateAsync: updateDepartment, isPending: isUpdating } = useUpdateDepartment();
-  const { mutateAsync: inviteUser, isPending: isInviting } = useInviteUser();
+  const { mutateAsync: _inviteUser, isPending: isInviting } = useInviteUser();
 
   const [formData, setFormData] = useState({
     name: department.name,
@@ -115,27 +115,29 @@ export default function EditDepartmentModal({
           <InputField
             label="Department Name *"
             value={formData.name}
-            onChange={(v) => setFormData(p => ({ ...p, name: v }))}
+            onChange={(v) => setFormData((p) => ({ ...p, name: v }))}
           />
           <InputField
             label="Description"
             value={formData.description}
-            onChange={(v) => setFormData(p => ({ ...p, description: v }))}
+            onChange={(v) => setFormData((p) => ({ ...p, description: v }))}
           />
 
           <div>
             <label className="text-sm font-medium text-gray-800 mb-1 block">Subsidiary</label>
             <Select
               options={subsidiaryOptions}
-              value={subsidiaryOptions.find(o => o.value === (formData.subsidiaryId || null))}
-              onChange={(val) => setFormData(p => ({ ...p, subsidiaryId: val?.value || undefined }))}
+              value={subsidiaryOptions.find((o) => o.value === (formData.subsidiaryId || null))}
+              onChange={(val) =>
+                setFormData((p) => ({ ...p, subsidiaryId: val?.value || undefined }))
+              }
               className="text-sm"
               styles={{
                 control: (base) => ({
                   ...base,
-                  borderColor: '#d1d5db',
-                  '&:hover': { borderColor: '#10b981' }
-                })
+                  borderColor: "#d1d5db",
+                  "&:hover": { borderColor: "#10b981" },
+                }),
               }}
             />
           </div>
@@ -151,7 +153,9 @@ export default function EditDepartmentModal({
                 {isInvitingNew ? (
                   "Select existing user"
                 ) : (
-                  <><UserPlus size={14} /> Invite new lead</>
+                  <>
+                    <UserPlus size={14} /> Invite new lead
+                  </>
                 )}
               </button>
             </div>
@@ -162,30 +166,30 @@ export default function EditDepartmentModal({
                   <InputField
                     label="First Name *"
                     value={inviteData.firstName}
-                    onChange={(v) => setInviteData(p => ({ ...p, firstName: v }))}
+                    onChange={(v) => setInviteData((p) => ({ ...p, firstName: v }))}
                   />
                   <InputField
                     label="Last Name"
                     value={inviteData.lastName}
-                    onChange={(v) => setInviteData(p => ({ ...p, lastName: v }))}
+                    onChange={(v) => setInviteData((p) => ({ ...p, lastName: v }))}
                   />
                 </div>
                 <InputField
                   label="Email *"
                   value={inviteData.email}
-                  onChange={(v) => setInviteData(p => ({ ...p, email: v }))}
+                  onChange={(v) => setInviteData((p) => ({ ...p, email: v }))}
                 />
               </div>
             ) : (
               <div className="space-y-4">
                 <Select
                   options={userOptions}
-                  value={userOptions.find(o => o.value === formData.leadId)}
+                  value={userOptions.find((o) => o.value === formData.leadId)}
                   onChange={(val) => {
-                    setFormData(p => ({
+                    setFormData((p) => ({
                       ...p,
                       leadId: val?.value || undefined,
-                      contact_email: val?.email || p.contact_email
+                      contact_email: val?.email || p.contact_email,
                     }));
                   }}
                   placeholder="Search and select lead..."
@@ -193,15 +197,15 @@ export default function EditDepartmentModal({
                   styles={{
                     control: (base) => ({
                       ...base,
-                      borderColor: '#d1d5db',
-                      '&:hover': { borderColor: '#10b981' }
-                    })
+                      borderColor: "#d1d5db",
+                      "&:hover": { borderColor: "#10b981" },
+                    }),
                   }}
                 />
                 <InputField
                   label="Contact Email *"
                   value={formData.contact_email}
-                  onChange={(v) => setFormData(p => ({ ...p, contact_email: v }))}
+                  onChange={(v) => setFormData((p) => ({ ...p, contact_email: v }))}
                 />
               </div>
             )}
@@ -233,9 +237,7 @@ export default function EditDepartmentModal({
               >
                 Deactivate
               </button>
-              <p className="text-[10px] text-gray-500 mt-1">
-                Temporarily disable this department.
-              </p>
+              <p className="text-[10px] text-gray-500 mt-1">Temporarily disable this department.</p>
             </div>
             <div className="flex-1">
               <button
@@ -250,7 +252,6 @@ export default function EditDepartmentModal({
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -277,4 +278,3 @@ function InputField({
     </div>
   );
 }
-

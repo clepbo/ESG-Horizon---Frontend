@@ -61,16 +61,28 @@ export default function DepartmentsTable({ departments, onUpdate }: Props) {
                     <tr key={dept.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{dept.name}</td>
                       <td className="px-4 py-3">
-                        {dept.subsidiary?.name || <span className="text-gray-400 font-medium text-sm italic">Main (HQ)</span>}
+                        {dept.subsidiary?.name || (
+                          <span className="text-gray-400 font-medium text-sm italic">
+                            Main (HQ)
+                          </span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">{dept.description || <span className="text-gray-400 font-medium text-sm italic">no desc.</span>}</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {dept.description || (
+                          <span className="text-gray-400 font-medium text-sm italic">no desc.</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">{dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}</span>
+                          <span className="font-medium text-gray-900">
+                            {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}
+                          </span>
                           <span className="text-xs text-gray-500">{dept?.lead?.email || ""}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500">{dept.teamSize || (dept.lead ? 1 : 0)}</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {dept.teamSize || (dept.lead ? 1 : 0)}
+                      </td>
 
                       <td className="px-4 py-3">
                         <ActionDropdown

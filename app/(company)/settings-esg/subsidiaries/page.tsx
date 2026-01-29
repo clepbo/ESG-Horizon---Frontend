@@ -6,9 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/app/(company)/components/Header";
 import SubsidiaryTable from "@/app/components/company/subsidiaries/SubsidiaryTable";
 import AddSubsidiaryModal from "@/app/components/company/subsidiaries/AddSubsidiaryModal";
-import { Subsidiary, subsidiariesService } from "@/services/subsidiaries.service";
+import { Subsidiary } from "@/services/subsidiaries.service";
 import { industriesService } from "@/services/industries.services";
-import { useAuth } from "@/context/AuthContext";
 import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
 import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
@@ -35,7 +34,6 @@ export default function SubsidiariesPage() {
   const [debouncedSearch] = useDebounce(search, 300);
   const [industryOptions, setIndustryOptions] = useState<IndustryOptionsProps[]>([]);
   const [industryFilter, setIndustryFilter] = useState("All Industries");
-  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"subsidiary" | "department" | "user">("subsidiary");
   const searchParams = useSearchParams();

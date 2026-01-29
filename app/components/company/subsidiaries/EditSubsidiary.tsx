@@ -33,7 +33,7 @@ export default function EditSubsidiaryModal({
   const [saving, setSaving] = useState<boolean>(false);
 
   const { data: users = [] } = useCompanyUsers(companyId || 0);
-  const { mutateAsync: inviteUser, isPending: isInviting } = useInviteUser();
+  const { mutateAsync: _inviteUser, isPending: isInviting } = useInviteUser();
 
   const [isInvitingNew, setIsInvitingNew] = useState(false);
   const [inviteData, setInviteData] = useState({
@@ -63,7 +63,7 @@ export default function EditSubsidiaryModal({
     setSaving(true);
     setError(null);
     try {
-      let finalPayload: any = {
+      const finalPayload: any = {
         ...formData,
         industryId: formData.industry?.id,
       };
@@ -204,7 +204,9 @@ export default function EditSubsidiaryModal({
                 {isInvitingNew ? (
                   "Select existing user"
                 ) : (
-                  <><UserPlus size={14} /> Invite new lead</>
+                  <>
+                    <UserPlus size={14} /> Invite new lead
+                  </>
                 )}
               </button>
             </div>
@@ -216,7 +218,7 @@ export default function EditSubsidiaryModal({
                     <Label className="text-xs">First Name *</Label>
                     <Input
                       value={inviteData.firstName}
-                      onChange={(e) => setInviteData(p => ({ ...p, firstName: e.target.value }))}
+                      onChange={(e) => setInviteData((p) => ({ ...p, firstName: e.target.value }))}
                       className="h-8 text-sm"
                     />
                   </div>
@@ -224,7 +226,7 @@ export default function EditSubsidiaryModal({
                     <Label className="text-xs">Last Name</Label>
                     <Input
                       value={inviteData.lastName}
-                      onChange={(e) => setInviteData(p => ({ ...p, lastName: e.target.value }))}
+                      onChange={(e) => setInviteData((p) => ({ ...p, lastName: e.target.value }))}
                       className="h-8 text-sm"
                     />
                   </div>
@@ -233,7 +235,7 @@ export default function EditSubsidiaryModal({
                   <Label className="text-xs">Email *</Label>
                   <Input
                     value={inviteData.email}
-                    onChange={(e) => setInviteData(p => ({ ...p, email: e.target.value }))}
+                    onChange={(e) => setInviteData((p) => ({ ...p, email: e.target.value }))}
                     className="h-8 text-sm"
                   />
                 </div>
@@ -241,18 +243,24 @@ export default function EditSubsidiaryModal({
             ) : (
               <Select
                 options={userOptions}
-                value={userOptions.find(o => o.value === (formData.teamLeadId || formData.leadId))}
+                value={userOptions.find(
+                  (o) => o.value === (formData.teamLeadId || formData.leadId)
+                )}
                 onChange={(val) => {
-                  setFormData(p => ({ ...p, teamLeadId: val?.value || undefined, leadId: val?.value || undefined }));
+                  setFormData((p) => ({
+                    ...p,
+                    teamLeadId: val?.value || undefined,
+                    leadId: val?.value || undefined,
+                  }));
                 }}
                 placeholder="Search and select lead..."
                 className="text-sm"
                 styles={{
                   control: (base) => ({
                     ...base,
-                    borderColor: '#d1d5db',
-                    '&:hover': { borderColor: '#10b981' }
-                  })
+                    borderColor: "#d1d5db",
+                    "&:hover": { borderColor: "#10b981" },
+                  }),
                 }}
               />
             )}
@@ -275,4 +283,3 @@ export default function EditSubsidiaryModal({
     </div>
   );
 }
-

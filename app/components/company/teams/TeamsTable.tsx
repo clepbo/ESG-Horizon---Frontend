@@ -10,7 +10,6 @@ import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
 import { useDeleteInvitation, useDeleteUser } from "@/services/hooks/company.hooks";
 import { toast } from "react-toastify";
-import Link from "next/link";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 
@@ -27,7 +26,9 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);
 
   const [deleteInviteModalOpen, setDeleteInviteModalOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ id: number; isInvitation: boolean } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: number; isInvitation: boolean } | null>(
+    null
+  );
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -79,7 +80,9 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
       setUsers((prev) => prev.filter((u) => u.id !== itemToDelete.id));
     } catch (error: any) {
       console.error(error);
-      const message = error.response?.data?.message || (itemToDelete.isInvitation ? "Failed to delete invitation" : "Failed to delete user");
+      const message =
+        error.response?.data?.message ||
+        (itemToDelete.isInvitation ? "Failed to delete invitation" : "Failed to delete user");
       toast.error(message);
     } finally {
       setDeleteInviteModalOpen(false);
@@ -268,7 +271,11 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                         <div className="flex flex-col">
                           <span>{formattedDate(String(user.last_login), false)}</span>
                           <span className="text-xs text-gray-500">
-                            {new Date(user.last_login).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: true })}
+                            {new Date(user.last_login).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
                           </span>
                         </div>
                       ) : (
@@ -282,35 +289,39 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                           actions={[
                             ...(user.status !== "pending"
                               ? [
-                                {
-                                  label: "Edit User",
-                                  icon: <SquarePen className="w-4 h-4" />,
-                                  onClick: () => handleView(user.id),
-                                },
-                              ]
+                                  {
+                                    label: "Edit User",
+                                    icon: <SquarePen className="w-4 h-4" />,
+                                    onClick: () => handleView(user.id),
+                                  },
+                                ]
                               : []),
                             ...(user.status === "pending"
                               ? [
-                                {
-                                  label: "Delete Invitation",
-                                  icon: <Trash2 className="w-4 h-4" />,
-                                  colorClass: "text-red-500 hover:text-red-600",
-                                  onClick: () => handleDeleteInvitation(user.id, user.is_invitation ?? false),
-                                },
-                              ]
+                                  {
+                                    label: "Delete Invitation",
+                                    icon: <Trash2 className="w-4 h-4" />,
+                                    colorClass: "text-red-500 hover:text-red-600",
+                                    onClick: () =>
+                                      handleDeleteInvitation(user.id, user.is_invitation ?? false),
+                                  },
+                                ]
                               : []),
                             ...(user.status !== "pending" && statusActions[user.status]
                               ? [
-                                {
-                                  label: statusActions[user.status]?.title || "Update Status",
-                                  icon: statusActions[user.status]?.icon,
-                                  colorClass: statusActions[user.status]?.color
-                                    .replace("border-", "text-")
-                                    .replace("hover:bg-", "hover:text-"),
-                                  onClick: () =>
-                                    openStatusModal(user.id, statusActions[user.status].newStatus),
-                                },
-                              ]
+                                  {
+                                    label: statusActions[user.status]?.title || "Update Status",
+                                    icon: statusActions[user.status]?.icon,
+                                    colorClass: statusActions[user.status]?.color
+                                      .replace("border-", "text-")
+                                      .replace("hover:bg-", "hover:text-"),
+                                    onClick: () =>
+                                      openStatusModal(
+                                        user.id,
+                                        statusActions[user.status].newStatus
+                                      ),
+                                  },
+                                ]
                               : []),
                           ]}
                         />

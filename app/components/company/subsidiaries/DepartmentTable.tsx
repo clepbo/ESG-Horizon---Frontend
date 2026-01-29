@@ -85,14 +85,15 @@ export function DepartmentsTable({ departments, onUpdate }: DepartmentTableProps
         return (
           <Badge
             variant={getDepartmentStatusBadgeVariant(status)}
-            className={`capitalize ${status === "active"
-              ? "bg-green-500 text-white"
-              : status === "inactive"
-                ? "bg-yellow-500 text-white"
-                : status === "archived"
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-500 text-white"
-              }`}
+            className={`capitalize ${
+              status === "active"
+                ? "bg-green-500 text-white"
+                : status === "inactive"
+                  ? "bg-yellow-500 text-white"
+                  : status === "archived"
+                    ? "bg-red-500 text-white"
+                    : "bg-gray-500 text-white"
+            }`}
           >
             {status}
           </Badge>

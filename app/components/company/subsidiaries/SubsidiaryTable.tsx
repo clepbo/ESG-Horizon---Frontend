@@ -85,19 +85,28 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
                     <td className="px-4 py-3 font-medium text-gray-900">{subsidiary.name}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col">
-                        <span className="font-medium text-gray-900">{subsidiary.industry?.industry || "-"}</span>
-                        <span className="text-xs text-gray-500">{subsidiary.industry?.sector || "-"}</span>
+                        <span className="font-medium text-gray-900">
+                          {subsidiary.industry?.industry || "-"}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {subsidiary.industry?.sector || "-"}
+                        </span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900">
-                          {subsidiary.teamLead?.first_name || ""} {subsidiary.teamLead?.last_name || ""}
+                          {subsidiary.teamLead?.first_name || ""}{" "}
+                          {subsidiary.teamLead?.last_name || ""}
                         </span>
-                        <span className="text-xs text-gray-500">{subsidiary.teamLead?.email || ""}</span>
+                        <span className="text-xs text-gray-500">
+                          {subsidiary.teamLead?.email || ""}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{subsidiary.teamSize || (subsidiary.teamLead ? 1 : 0)}</td>
+                    <td className="px-4 py-3 text-gray-500">
+                      {subsidiary.teamSize || (subsidiary.teamLead ? 1 : 0)}
+                    </td>
                     <td className="px-4 py-3">{subsidiary.address || "-"}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={subsidiary.status} />

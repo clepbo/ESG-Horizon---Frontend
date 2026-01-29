@@ -46,10 +46,8 @@ export default function SubsidiaryDetailsPage() {
     isLoading: isUsersLoading,
     refetch: refetchUsers,
   } = useSubsidiaryUsers(subsidiaryId);
-  const {
-    data: departmentsData,
-    refetch: refetchDepartments,
-  } = useSubsidiaryDepartments(subsidiaryId);
+  const { data: departmentsData, refetch: refetchDepartments } =
+    useSubsidiaryDepartments(subsidiaryId);
 
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
     setModalTab(tab);
