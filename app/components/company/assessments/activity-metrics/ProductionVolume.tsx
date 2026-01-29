@@ -23,7 +23,7 @@ interface ProductionVolumeProps {
   onContinueToNextAssessment: () => void;
   stepIndex: number;
   totalSteps: number;
-  backToActivityMetrics: () => void;
+  breadcrumb?: Array<{ label: string; href?: string; onClick?: () => void }>;
 }
 
 export function ProductionVolume({
@@ -31,7 +31,7 @@ export function ProductionVolume({
   onContinueToNextAssessment,
   stepIndex,
   totalSteps,
-  backToActivityMetrics,
+  breadcrumb = [],
 }: ProductionVolumeProps) {
   const router = useRouter();
   const { saveNow } = useAssessmentFlow("activityMetrics.productionVolume");
@@ -50,13 +50,6 @@ export function ProductionVolume({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
-
-  const breadcrumFeature = [
-    { label: "Dashboard", href: "/dashboard-esg" },
-    { label: "Assessments", href: "/assessments/hub" },
-    { label: "Activity Metrics", onClick: backToActivityMetrics },
-    { label: "Production Volume" },
-  ];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -222,7 +215,7 @@ export function ProductionVolume({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
-      <CustomBreadcrumbDynamic features={breadcrumFeature} />
+      <CustomBreadcrumbDynamic features={breadcrumb} />
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>

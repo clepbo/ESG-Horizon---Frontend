@@ -34,6 +34,31 @@ interface TopicDefinition {
 // ========================================
 
 const TOPIC_DEFINITIONS: TopicDefinition[] = [
+  // Activity Metrics
+  {
+    id: "activity-metrics",
+    name: "Activity Metrics",
+    type: "multi-component",
+    path: [["activityMetrics"], ["foundationalData", "activityMetrics"]],
+    completionStrategy: "all",
+    components: [
+      {
+        path: ["productionVolume"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks", "notes"],
+      },
+      {
+        path: ["offshoreSites"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks", "notes"],
+      },
+      {
+        path: ["terrestrialSites"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks", "notes"],
+      },
+    ],
+  },
   // Greenhouse Gas Emissions
   {
     id: "ghg-emissions",
@@ -654,6 +679,7 @@ export function useProgressTracking(assessmentData: any) {
 // ========================================
 
 const TOPIC_NAME_TO_ID: Record<string, string> = {
+  "Activity Metrics": "activity-metrics",
   "Greenhouse Gas Emissions": "ghg-emissions",
   "Air Quality": "air-quality",
   "Water and Wastewater Management": "water-management",
@@ -753,6 +779,21 @@ export function checkSubComponentCompletion(
   }
 
   const componentMap: Record<string, { topicId: string; path: string[] }> = {
+    // Activity Metrics sub-components
+    "Production Volumes": {
+      topicId: "activity-metrics",
+      path: ["activityMetrics", "productionVolume"],
+    },
+    "Offshore Sites": {
+      topicId: "activity-metrics",
+      path: ["activityMetrics", "offshoreSites"],
+    },
+    "Terrestrial Sites": {
+      topicId: "activity-metrics",
+      path: ["activityMetrics", "terrestrialSites"],
+    },
+    // Water Management sub-components
+
     "Freshwater Withdrawal & Consumption": {
       topicId: "water-management",
       path: [

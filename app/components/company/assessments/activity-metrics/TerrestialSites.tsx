@@ -26,14 +26,14 @@ interface TerrestialSitesProps {
   onBack: () => void;
   stepIndex: number;
   totalSteps: number;
-  backToActivityMetrics: () => void;
+  breadcrumb?: Array<{ label: string; href?: string; onClick?: () => void }>;
 }
 
 export function TerrestialSites({
   onBack,
   stepIndex,
   totalSteps,
-  backToActivityMetrics,
+  breadcrumb = [],
 }: TerrestialSitesProps) {
   const router = useRouter();
   const { dispatch } = useAssessment();
@@ -54,13 +54,6 @@ export function TerrestialSites({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
-
-  const breadcrumFeature = [
-    { label: "Dashboard", href: "/dashboard-esg" },
-    { label: "Assessments", href: "/assessments/hub" },
-    { label: "Activity Metrics", onClick: backToActivityMetrics },
-    { label: "Terrestial Sites" },
-  ];
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -221,7 +214,7 @@ export function TerrestialSites({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
-      <CustomBreadcrumbDynamic features={breadcrumFeature} />
+      <CustomBreadcrumbDynamic features={breadcrumb} />
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>
