@@ -14,11 +14,12 @@ type DepartmentStatus = "active" | "inactive" | "archived" | "draft";
 
 interface DepartmentTableProps {
   departments: Department[];
+  onUpdate?: () => void;
 }
 
 const columnHelper = createColumnHelper<Department>();
 
-export function DepartmentsTable({ departments }: DepartmentTableProps) {
+export function DepartmentsTable({ departments, onUpdate }: DepartmentTableProps) {
   const router = useRouter();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -84,15 +85,14 @@ export function DepartmentsTable({ departments }: DepartmentTableProps) {
         return (
           <Badge
             variant={getDepartmentStatusBadgeVariant(status)}
-            className={`capitalize ${
-              status === "active"
-                ? "bg-green-500 text-white"
-                : status === "inactive"
-                  ? "bg-yellow-500 text-white"
-                  : status === "archived"
-                    ? "bg-red-500 text-white"
-                    : "bg-gray-500 text-white"
-            }`}
+            className={`capitalize ${status === "active"
+              ? "bg-green-500 text-white"
+              : status === "inactive"
+                ? "bg-yellow-500 text-white"
+                : status === "archived"
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-500 text-white"
+              }`}
           >
             {status}
           </Badge>
@@ -145,7 +145,11 @@ export function DepartmentsTable({ departments }: DepartmentTableProps) {
         searchPlaceholder="Search departments"
       />
       {isEditOpen && selectedDepartment && (
-        <EditDepartmentModal department={selectedDepartment} onClose={() => setIsEditOpen(false)} />
+        <EditDepartmentModal
+          department={selectedDepartment}
+          onClose={() => setIsEditOpen(false)}
+          onUpdate={onUpdate}
+        />
       )}
     </>
   );

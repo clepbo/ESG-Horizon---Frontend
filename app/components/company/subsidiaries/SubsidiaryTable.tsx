@@ -71,8 +71,9 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
               <thead className="bg-gray-100 text-left text-xs font-semibold text-gray-700">
                 <tr>
                   <th className="px-4 py-3">Subsidiary Name</th>
-                  <th className="px-4 py-3">Sector</th>
                   <th className="px-4 py-3">Industry</th>
+                  <th className="px-4 py-3">Lead</th>
+                  <th className="px-4 py-3">Team Size</th>
                   <th className="px-4 py-3">Address</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Quick Actions</th>
@@ -82,9 +83,22 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
                 {paginatedSubsidiaries.map((subsidiary) => (
                   <tr key={subsidiary.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">{subsidiary.name}</td>
-                    <td className="px-4 py-3">{subsidiary.industry?.sector}</td>
-                    <td className="px-4 py-3">{subsidiary.industry?.industry}</td>
-                    <td className="px-4 py-3">{subsidiary.address}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900">{subsidiary.industry?.industry || "-"}</span>
+                        <span className="text-xs text-gray-500">{subsidiary.industry?.sector || "-"}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900">
+                          {subsidiary.teamLead?.first_name || ""} {subsidiary.teamLead?.last_name || ""}
+                        </span>
+                        <span className="text-xs text-gray-500">{subsidiary.teamLead?.email || ""}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">{subsidiary.teamSize || (subsidiary.teamLead ? 1 : 0)}</td>
+                    <td className="px-4 py-3">{subsidiary.address || "-"}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={subsidiary.status} />
                     </td>

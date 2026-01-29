@@ -8,7 +8,7 @@ import EditUserModal from "../../common/users/EditUserModal";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
-import { useDeleteInvitation } from "@/services/hooks/company.hooks";
+import { useDeleteInvitation, useDeleteUser } from "@/services/hooks/company.hooks";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
@@ -27,7 +27,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);
 
   const [deleteInviteModalOpen, setDeleteInviteModalOpen] = useState(false);
-  const [inviteIdToDelete, setInviteIdToDelete] = useState<number | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: number; isInvitation: boolean } | null>(null);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -36,6 +36,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const { mutateAsync: deleteInvitation, isPending: isDeletingInvite } = useDeleteInvitation();
+  const { mutateAsync: deleteUser, isPending: isDeletingUser } = useDeleteUser();
 
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -60,23 +61,29 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
     setStatusModalOpen(true);
   };
 
-  const handleDeleteInvitation = (id: number) => {
-    setInviteIdToDelete(id);
+  const handleDeleteInvitation = (id: number, isInvitation: boolean) => {
+    setItemToDelete({ id, isInvitation });
     setDeleteInviteModalOpen(true);
   };
 
   const confirmDeleteInvitation = async () => {
-    if (!inviteIdToDelete) return;
+    if (!itemToDelete) return;
     try {
-      await deleteInvitation(inviteIdToDelete);
-      toast.success("Invitation deleted successfully");
-      setUsers((prev) => prev.filter((u) => u.id !== inviteIdToDelete));
-    } catch (error) {
+      if (itemToDelete.isInvitation) {
+        await deleteInvitation(itemToDelete.id);
+        toast.success("Invitation deleted successfully");
+      } else {
+        await deleteUser(itemToDelete.id);
+        toast.success("User deleted successfully");
+      }
+      setUsers((prev) => prev.filter((u) => u.id !== itemToDelete.id));
+    } catch (error: any) {
       console.error(error);
-      toast.error("Failed to delete invitation");
+      const message = error.response?.data?.message || (itemToDelete.isInvitation ? "Failed to delete invitation" : "Failed to delete user");
+      toast.error(message);
     } finally {
       setDeleteInviteModalOpen(false);
-      setInviteIdToDelete(null);
+      setItemToDelete(null);
     }
   };
 
@@ -181,28 +188,15 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
   return (
     <div>
       <div className="flex justify-end mb-2">
-        <Link href="#" className="text-teal-600 text-sm hover:underline" onClick={(e) => {
+        {/* <Link href="#" className="text-teal-600 text-sm hover:underline" onClick={(e) => {
           e.preventDefault();
-          // Assuming we still want to open the modal, but via a text link now?
-          // Or if previous modal was trigger-based, we need a way to open it.
-          // The previous implementation used <RoleDefinitionsModal /> at the bottom.
-          // I will attach an ID or state to open it if needed, but for now just placing the link.
-          // For this specific codebase, it seems RoleDefinitionsModal might be self-contained or triggered differently.
           const modalTrigger = document.getElementById("role-definitions-trigger");
           if (modalTrigger) modalTrigger.click();
         }}>
           View Role Definitions
-        </Link>
-        {/* Hidden trigger as a workaround if the modal expects a trigger, 
-             or we can refactor RoleDefinitionsModal to accept an open prop. 
-             Ideally simply rendering the text to trigger the modal if it handles its own trigger. 
-             Since I can't see RoleDefinitionsModal code, I'll assume I can just wrap the Text in the Modal Trigger if I move the component here.
-             Wait, I will render the modal below but change the trigger. 
-          */}
+        </Link> */}
       </div>
-      <RoleDefinitionsModal customTrigger={
-        <span id="role-definitions-trigger" className="text-teal-600 text-sm hover:underline cursor-pointer float-right mb-2">View Role Definitions</span>
-      } />
+      <RoleDefinitionsModal />
 
       <div className="relative overflow-x-auto bg-white rounded-lg mt-2 shadow clear-both">
         {paginatedUsers.length === 0 ? (
@@ -236,7 +230,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       <div>
                         <p className="font-medium">
                           {user.first_name
-                            ? `${user.first_name} ${user.last_name} `
+                            ? `${user.first_name} ${user.last_name || ""}`.trim()
                             : user.status === "pending"
                               ? "(Invited)"
                               : ""}
@@ -256,14 +250,14 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.subsidiary?.name ? (
                         user.subsidiary?.name
                       ) : (
-                        <span className="text-gray-400 text-sm italic">HQ</span>
+                        <span className="text-gray-400 text-sm italic">Main (HQ)</span>
                       )}
                     </td>
 
                     <td className="px-4 py-3">
                       <div className="flex flex-col">
                         {formatRoleName(user.role?.name || "")}
-                        <span className="mt-1">
+                        <span className="mt-1 text-xs">
                           <StatusBadge status={user.status} />
                         </span>
                       </div>
@@ -272,13 +266,13 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                     <td className="px-4 py-3">
                       {user.last_login ? (
                         <div className="flex flex-col">
-                          <span>{formattedDate(String(user.last_login))}</span>
-                          <span className="text-xs text-gray-400">
-                            {new Date(user.last_login).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          <span>{formattedDate(String(user.last_login), false)}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(user.last_login).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', hour12: true })}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-gray-400 text-sm italic">Not logged in</span>
+                        <span className="text-gray-400 text-xs italic">Not logged in</span>
                       )}
                     </td>
 
@@ -301,19 +295,23 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                                   label: "Delete Invitation",
                                   icon: <Trash2 className="w-4 h-4" />,
                                   colorClass: "text-red-500 hover:text-red-600",
-                                  onClick: () => handleDeleteInvitation(user.id),
+                                  onClick: () => handleDeleteInvitation(user.id, user.is_invitation ?? false),
                                 },
                               ]
                               : []),
-                            {
-                              label: statusActions[user.status]?.title || "Update Status",
-                              icon: statusActions[user.status]?.icon,
-                              colorClass: statusActions[user.status]?.color
-                                .replace("border-", "text-")
-                                .replace("hover:bg-", "hover:text-"),
-                              onClick: () =>
-                                openStatusModal(user.id, statusActions[user.status].newStatus),
-                            },
+                            ...(user.status !== "pending" && statusActions[user.status]
+                              ? [
+                                {
+                                  label: statusActions[user.status]?.title || "Update Status",
+                                  icon: statusActions[user.status]?.icon,
+                                  colorClass: statusActions[user.status]?.color
+                                    .replace("border-", "text-")
+                                    .replace("hover:bg-", "hover:text-"),
+                                  onClick: () =>
+                                    openStatusModal(user.id, statusActions[user.status].newStatus),
+                                },
+                              ]
+                              : []),
                           ]}
                         />
                       ) : (
@@ -375,7 +373,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
         }
         onCancel={() => setDeleteInviteModalOpen(false)}
         onConfirm={confirmDeleteInvitation}
-        loading={isDeletingInvite}
+        loading={isDeletingInvite || isDeletingUser}
       />
     </div>
   );

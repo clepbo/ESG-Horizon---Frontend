@@ -48,8 +48,7 @@ export default function SubsidiaryDetailsPage() {
   } = useSubsidiaryUsers(subsidiaryId);
   const {
     data: departmentsData,
-    // isLoading: isDepartmentLoading,
-    // refetch: refetchDepartments,
+    refetch: refetchDepartments,
   } = useSubsidiaryDepartments(subsidiaryId);
 
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
@@ -145,7 +144,7 @@ export default function SubsidiaryDetailsPage() {
           <div className="mt-4">
             {activeTab === "team" && <TeamMembersTable initialUsers={usersData || []} />}
             {activeTab === "departments" && (
-              <DepartmentsTable departments={departmentsData || []} />
+              <DepartmentsTable departments={departmentsData || []} onUpdate={refetchDepartments} />
             )}
           </div>
         </div>

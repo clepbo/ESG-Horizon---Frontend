@@ -34,19 +34,22 @@ const MainContentCard = ({ subsidiary, teamMemberCount, onEdit }: MainContentCar
         <InfoField label="Subsidiary Name" value={subsidiary.name} />
         <InfoField label="Industry" value={subsidiary.industry?.industry || "N/A"} />
         <InfoField
-          label="Subsidiary Lead/Manager's Email"
-          value={subsidiary.teamLead?.email || "N/A"}
+          label="Subsidiary Lead"
+          value={
+            subsidiary.teamLead?.first_name
+              ? `${subsidiary.teamLead.first_name} ${subsidiary.teamLead.last_name} (${subsidiary.teamLead.email || ""})`
+              : subsidiary.teamLead?.email || "N/A"
+          }
         />
         <InfoField label="Address" value={subsidiary.address || "N/A"} />
         <InfoField label="Team Member" value={teamMemberCount.toString()} />
         <div>
           <p className="text-sm text-gray-500 mb-1">Status</p>
           <span
-            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-              subsidiary.status === "active"
-                ? "bg-green-500 text-white"
-                : "bg-yellow-500 text-white"
-            }`}
+            className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${subsidiary.status === "active"
+              ? "bg-green-500 text-white"
+              : "bg-yellow-500 text-white"
+              }`}
           >
             {subsidiary.status}
           </span>
