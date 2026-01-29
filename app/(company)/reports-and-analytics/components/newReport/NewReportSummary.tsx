@@ -41,7 +41,7 @@ export default function NewReportSummary() {
     setReportData(data);
   }, [data]);
 
-  // console.log("ReportOverview Data", reportData);
+  console.log("ReportOverview Data", reportData);
 
   if (isError) {
     return (
