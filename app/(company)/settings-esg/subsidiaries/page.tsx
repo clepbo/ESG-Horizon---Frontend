@@ -108,9 +108,9 @@ export default function SubsidiariesPage() {
     setIsModalOpen(true);
   };
 
-  interface SubmissionData {
-    subsidiaries: Subsidiary[];
-  }
+  // interface SubmissionData {
+  //   subsidiaries: Subsidiary[];
+  // }
 
   const handleModalSubmit = (submissionData: any) => {
     const updatedSubsidiaries = submissionData.subsidiaries || [];
@@ -125,10 +125,10 @@ export default function SubsidiariesPage() {
 
           const completeIndustry = fullIndustry
             ? {
-              id: Number(crypto.randomUUID()),
-              industry: fullIndustry.industry,
-              sector: fullIndustry.sector,
-            }
+                id: Number(crypto.randomUUID()),
+                industry: fullIndustry.industry,
+                sector: fullIndustry.sector,
+              }
             : newSub.industry;
 
           return {

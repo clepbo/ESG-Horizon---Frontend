@@ -87,7 +87,7 @@ export default function EditCompanyModal({
           return phoneNumber.country;
         }
       } catch (error) {
-        console.log("Could not parse phone number for country detection");
+        console.log("Could not parse phone number for country detection", error);
       }
     }
 

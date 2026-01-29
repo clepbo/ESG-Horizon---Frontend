@@ -106,7 +106,8 @@ export default function EditDepartmentModal({
                 Delete
               </button>
               <p className="text-[10px] text-gray-500 mt-1">
-                Permanently remove this department and all its associations. <strong>Irreversible</strong>.
+                Permanently remove this department and all its associations.{" "}
+                <strong>Irreversible</strong>.
               </p>
             </div>
           </div>
