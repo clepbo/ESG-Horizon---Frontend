@@ -154,17 +154,31 @@ export function RoadTransport({
       files?: string;
     } = {};
 
-    const hasValidVehicleFleet = vehicleFleet.some((s) => s.volume && Number(s.volume) > 0);
-    const hasValidCarsBuses = carsBuses.some((s) => s.volume && Number(s.volume) > 0);
+    const hasValidVehicleFleet = vehicleFleet.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
+    const hasValidCarsBuses = carsBuses.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
 
     if (!hasValidVehicleFleet) {
       newErrors.vehicleFleet =
-        "Please add at least one fuel source with a positive volume for the truck fleet.";
+        "Please add at least one fuel source with a volume for the truck fleet.";
     }
 
     if (!hasValidCarsBuses) {
       newErrors.carsBuses =
-        "Please add at least one fuel source with a positive volume for the cars and buses.";
+        "Please add at least one fuel source with a volume for the cars and buses.";
     }
 
     setErrors(newErrors);

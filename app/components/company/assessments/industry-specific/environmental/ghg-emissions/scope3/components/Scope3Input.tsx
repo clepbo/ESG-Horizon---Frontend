@@ -34,15 +34,21 @@ export default function SmartInput({
   const [_hasValue, setHasValue] = useState(!!value);
   const [touched, setTouched] = useState(false); // Track if user has interacted
 
-  // Check if field has valid value - wrapped in useCallback
-  // Check if field has valid value
+  // FIX: Check if field has valid value - accept 0 as valid
   const validateField = useCallback(() => {
     if (!required) return true;
 
     const val = type === "number" ? rawValue : String(value);
-    const isValid = val.trim().length > 0;
 
-    return isValid;
+    // FIX: For numbers, check if it's a valid number >= 0
+    if (type === "number") {
+      return (
+        val !== "" && val !== null && val !== undefined && !isNaN(Number(val)) && Number(val) >= 0
+      );
+    }
+
+    // For text, just check if not empty
+    return val.trim().length > 0;
   }, [required, type, rawValue, value]);
 
   // Update error state based on validation
@@ -58,7 +64,7 @@ export default function SmartInput({
     } else {
       setInternalError(false);
     }
-  }, [errorTrigger, validateField, onErrorStateChange]); // Removed value and rawValue as they're in validateField deps
+  }, [errorTrigger, validateField, onErrorStateChange]);
 
   // Auto-clear error when user starts typing
   useEffect(() => {
@@ -85,11 +91,18 @@ export default function SmartInput({
       onChange?.(input); // normal text
     }
 
-    // Auto-clear error as user types (if field becomes valid)
+    // FIX: Auto-clear error as user types (if field becomes valid)
     const newValue = type === "number" ? input.replace(/,/g, "") : input;
-    setHasValue(newValue.trim().length > 0);
 
-    if (internalError && newValue.trim().length > 0) {
+    // FIX: For numbers, check if valid (including 0)
+    const isValidValue =
+      type === "number"
+        ? newValue !== "" && !isNaN(Number(newValue)) && Number(newValue) >= 0
+        : newValue.trim().length > 0;
+
+    setHasValue(isValidValue);
+
+    if (internalError && isValidValue) {
       setInternalError(false);
       if (onErrorStateChange) {
         onErrorStateChange(false);
@@ -113,7 +126,18 @@ export default function SmartInput({
     if (type === "number") {
       setRawValue(String(value || ""));
     }
-    setHasValue(!!value);
+
+    // FIX: For numbers, check if valid (including 0)
+    const isValidValue =
+      type === "number"
+        ? value !== "" &&
+          value !== null &&
+          value !== undefined &&
+          !isNaN(Number(value)) &&
+          Number(value) >= 0
+        : !!value;
+
+    setHasValue(isValidValue);
   }, [value, setRawValue, type]);
 
   return (

@@ -5,11 +5,17 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -76,11 +82,16 @@ export function PurchasedElectricityForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.electricity;
 
     if (existingData) {
-      electricityConsumed.setRawValue(existingData.electricityConsumed?.toString() ?? "");
+      electricityConsumed.setRawValue(
+        existingData.electricityConsumed !== null && existingData.electricityConsumed !== undefined
+          ? existingData.electricityConsumed.toString()
+          : ""
+      );
       setSupplier(existingData.supplier ?? "");
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -91,12 +102,20 @@ export function PurchasedElectricityForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = useMemo(() => {
-    return calculateProgress([
-      electricityConsumed.rawValue,
-      supplier,
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-    ]);
+    const hasElectricity =
+      electricityConsumed.rawValue !== "" &&
+      electricityConsumed.rawValue !== null &&
+      electricityConsumed.rawValue !== undefined &&
+      !isNaN(Number(electricityConsumed.rawValue)) &&
+      Number(electricityConsumed.rawValue) >= 0;
+
+    const hasSupplier = supplier.trim() !== "";
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+
+    return calculateProgress([hasElectricity, hasSupplier, hasFiles]);
   }, [electricityConsumed.rawValue, supplier, files, additionalFields]);
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,6 +178,7 @@ export function PurchasedElectricityForm({
     }
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: {
       electricityConsumed?: string;
@@ -166,10 +186,15 @@ export function PurchasedElectricityForm({
       files?: string;
     } = {};
 
-    const hasValidElectricity =
-      electricityConsumed.rawValue && Number(electricityConsumed.rawValue) > 0;
-    if (!hasValidElectricity) {
-      newErrors.electricityConsumed = "Please enter a valid electricity consumption value.";
+    if (
+      electricityConsumed.rawValue === "" ||
+      electricityConsumed.rawValue === null ||
+      electricityConsumed.rawValue === undefined ||
+      isNaN(Number(electricityConsumed.rawValue)) ||
+      Number(electricityConsumed.rawValue) < 0
+    ) {
+      newErrors.electricityConsumed =
+        "Please enter a valid electricity consumption value (0 or greater).";
     }
     if (!supplier.trim()) {
       newErrors.supplier = "Please enter your electricity supplier.";
@@ -295,7 +320,7 @@ export function PurchasedElectricityForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="cursor-pointer flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+            className="cursor-pointer flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
@@ -322,35 +347,43 @@ export function PurchasedElectricityForm({
             />
 
             {/* Electricity Consumed */}
-            {/* <div>
-              <Label className="text-md font-semibold mb-2 block">1.1 Purchased Electricity</Label>
-              <div className="space-y-4 ml-6">
-                <Label>
-                  Total Electricity Consumed (kwh) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  placeholder="Enter total electricity consumed in kWh"
-                  value={electricityConsumed.displayValue} // Use displayValue for formatted display
-                  onChange={handleElectricityConsumedChange}
-                  className={`w-full border-gray-400 ${
-                    errors.electricityConsumed ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-              {errors.electricityConsumed && (
-                <p className="text-sm text-red-500 mt-1">{errors.electricityConsumed}</p>
-              )}
-            </div> */}
             <div>
               <Label className="text-md font-semibold mb-2 block">1.1 Purchased Electricity</Label>
               <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label
+                    htmlFor="electricity-consumed"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Total Electricity Consumed (kWh) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Electricity Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total electricity consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no electricity was consumed
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ScopeInput
                   category="electricity"
                   formattedValue={electricityConsumed}
-                  label="Total Electricity Consumed (kWh)"
+                  label=""
                   placeholder="Enter total electricity consumed in kWh"
-                  required
+                  required={false}
                   error={errors.electricityConsumed}
                   showEmissionFactor
                   onErrorClear={() =>
@@ -455,7 +488,7 @@ export function PurchasedElectricityForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="cursor-pointer justify-self-start border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-start border-primary text-primary hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
               </Button>
@@ -465,7 +498,7 @@ export function PurchasedElectricityForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
                 {isSaving ? (
@@ -490,7 +523,7 @@ export function PurchasedElectricityForm({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isSaving}
-                className="cursor-pointer justify-self-end border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-end border-primary text-primary hover:bg-green-50 flex items-center gap-2"
               >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>

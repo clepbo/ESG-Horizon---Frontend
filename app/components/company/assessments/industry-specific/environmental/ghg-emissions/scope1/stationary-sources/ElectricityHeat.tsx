@@ -141,16 +141,30 @@ export function ElectricityHeatForm({
       files?: string;
     } = {};
 
-    const hasValidDiesel = dieselGenerators.some((s) => s.volume && Number(s.volume) > 0);
-    const hasValidGas = gasTurbines.some((s) => s.volume && Number(s.volume) > 0);
+    const hasValidDiesel = dieselGenerators.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
+    const hasValidGas = gasTurbines.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
 
     if (!hasValidDiesel) {
       newErrors.dieselGenerators =
-        "Please enter at least one diesel generator value with a positive volume.";
+        "Please enter at least one diesel generator value with a volume.";
     }
 
     if (!hasValidGas) {
-      newErrors.gasTurbines = "Please enter at least one gas turbine value with a positive volume.";
+      newErrors.gasTurbines = "Please enter at least one gas turbine value with a volume.";
     }
 
     setErrors(newErrors);
@@ -206,6 +220,7 @@ export function ElectricityHeatForm({
 
   const handleNext = () => {
     if (!validateForm()) return;
+
     dispatch({
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",
       payload: {

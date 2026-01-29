@@ -6,11 +6,17 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -90,18 +96,18 @@ export function PurchasedHeatingForm({
 
   const isPending = isLoading;
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.heating;
 
     if (existingData) {
       setHeatingPurchased(existingData.heatingPurchased || "");
 
-      // Initialize with existing data using the formatted number hook
-      if (existingData.heatingConsumed) {
-        setHeatingConsumedRaw(existingData.heatingConsumed);
-      } else {
-        setHeatingConsumedRaw("");
-      }
+      setHeatingConsumedRaw(
+        existingData.heatingConsumed !== null && existingData.heatingConsumed !== undefined
+          ? existingData.heatingConsumed.toString()
+          : ""
+      );
 
       setSupplierName(existingData.supplierName || "");
       setFiles(
@@ -111,10 +117,15 @@ export function PurchasedHeatingForm({
     }
   }, [state.assessmentData, setFiles, setHeatingConsumedRaw]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { total, filled } = calculateProgress([
-    heatingPurchased,
-    heatingConsumedRaw,
-    supplierName,
+    heatingPurchased !== "",
+    heatingConsumedRaw !== "" &&
+      heatingConsumedRaw !== null &&
+      heatingConsumedRaw !== undefined &&
+      !isNaN(Number(heatingConsumedRaw)) &&
+      Number(heatingConsumedRaw) >= 0,
+    supplierName !== "",
     Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
   ]);
 
@@ -371,37 +382,32 @@ export function PurchasedHeatingForm({
               )}
             </div>
 
-            {/* <div className="ml-6">
-              <div className="space-y-2">
-                <Label htmlFor="heating-consumed">
+            <div className="ml-6">
+              <div className="flex items-center gap-1 mb-2">
+                <Label htmlFor="heating-consumed" className="text-sm font-medium text-gray-700">
                   If yes, what was the total heating energy consumed in Gigajoules (GJ)
                 </Label>
-                <Input
-                  id="heating-consumed"
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  placeholder="Enter heating energy in GJ"
-                  value={heatingConsumedDisplay} // Use the formatted display value
-                  onChange={(e) => {
-                    handleHeatingConsumedChange(e.target.value); // Use the hook's handler
-                    if (errors.heatingConsumed) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        heatingConsumed: undefined,
-                      }));
-                    }
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.heatingConsumed ? "border-red-500" : ""
-                  }`}
-                />
-                {errors.heatingConsumed && (
-                  <p className="text-sm text-red-500 mt-1">{errors.heatingConsumed}</p>
-                )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p className="font-semibold mb-1">Heating Energy Input Guide</p>
+                      <p className="text-xs">
+                        Enter the total heating energy consumed during the reporting period.
+                      </p>
+                      <p className="text-xs mt-1">
+                        • You can enter 0 if no heating energy was consumed
+                      </p>
+                      <p className="text-xs">• Negative values are not allowed</p>
+                      <p className="text-xs">
+                        • Use decimals for precise measurements (e.g., 1250.5)
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-
-             
-            </div> */}
-            <div className="ml-6">
               <ScopeInput
                 category="heating"
                 formattedValue={{
@@ -410,14 +416,14 @@ export function PurchasedHeatingForm({
                   handleChange: handleHeatingConsumedChange,
                   setRawValue: setHeatingConsumedRaw,
                 }}
-                label="If yes, what was the total heating energy consumed in Gigajoules (GJ)"
+                label=""
                 placeholder="Enter heating energy in GJ"
                 required={heatingPurchased === "yes"}
                 error={errors.heatingConsumed}
                 showEmissionFactor={heatingPurchased === "yes"}
                 onErrorClear={() => setErrors((prev) => ({ ...prev, heatingConsumed: undefined }))}
               />
-              <div className="space-y-2">
+              <div className="space-y-2 mt-4">
                 <Label htmlFor="supplier">Supplier</Label>
                 <Input
                   id="supplier"
@@ -513,7 +519,7 @@ export function PurchasedHeatingForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="cursor-pointer justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Previous
@@ -524,7 +530,7 @@ export function PurchasedHeatingForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isLoading}
-                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
                 {isLoading ? (
@@ -549,25 +555,13 @@ export function PurchasedHeatingForm({
                 variant="outline"
                 onClick={() => handleSubmit()}
                 disabled={isPending}
-                className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 {isPending ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>
         </Card>
-        {/* <SubmitConfirmationDialog
-          isOpen={showConfirmDialog}
-          onClose={() => setShowConfirmDialog(false)}
-          onSave={() => {
-            setShowConfirmDialog(false);
-            handleSaveAndContinue();
-          }}
-          onSubmit={() => {
-            setShowConfirmDialog(false);
-            handleSubmit();
-          }}
-        /> */}
       </div>
     </div>
   );

@@ -130,11 +130,19 @@ export function IndustrialProcessesForm({
       files?: string;
     } = {};
 
-    const hasValidBoilers = boilerFurnaces.some((s) => s.volume && Number(s.volume) > 0);
+    const hasValidBoilers = boilerFurnaces.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
 
     if (!hasValidBoilers) {
       newErrors.boilerFurnaces = "Please add at least one fuel source with a positive volume.";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

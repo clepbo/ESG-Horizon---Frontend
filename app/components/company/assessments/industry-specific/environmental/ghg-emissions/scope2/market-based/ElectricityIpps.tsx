@@ -5,11 +5,17 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -50,19 +56,8 @@ export function ElectricityIppsForm({
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Use the formatted number hook for electricity consumed
-  const {
-    rawValue: electricityConsumedRaw,
-    displayValue: electricityConsumedDisplay,
-    handleChange: handleElectricityConsumedChange,
-    setRawValue: setElectricityConsumedRaw,
-  } = useFormattedNumber("");
-
-  const {
-    rawValue: emissionFactorRaw,
-    displayValue: emissionFactorDisplay,
-    handleChange: handleEmissionFactorChange,
-    setRawValue: setEmissionFactorRaw,
-  } = useFormattedNumber("");
+  const electricityConsumed = useFormattedNumber("");
+  const emissionFactor = useFormattedNumber("");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -91,31 +86,51 @@ export function ElectricityIppsForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.ipps;
     if (existingData) {
-      // Initialize with existing data using the formatted number hook
-      if (existingData.electricityConsumed) {
-        setElectricityConsumedRaw(existingData.electricityConsumed);
-      }
-      if (existingData.emissionFactor) {
-        setEmissionFactorRaw(existingData.emissionFactor);
-      }
+      electricityConsumed.setRawValue(
+        existingData.electricityConsumed !== null && existingData.electricityConsumed !== undefined
+          ? existingData.electricityConsumed.toString()
+          : ""
+      );
+      emissionFactor.setRawValue(
+        existingData.emissionFactor !== null && existingData.emissionFactor !== undefined
+          ? existingData.emissionFactor.toString()
+          : ""
+      );
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, setElectricityConsumedRaw, setEmissionFactorRaw]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = useMemo(() => {
-    return calculateProgress([
-      electricityConsumedRaw,
-      emissionFactorRaw,
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-    ]);
-  }, [electricityConsumedRaw, emissionFactorRaw, files, additionalFields]);
+    const hasElectricity =
+      electricityConsumed.rawValue !== "" &&
+      electricityConsumed.rawValue !== null &&
+      electricityConsumed.rawValue !== undefined &&
+      !isNaN(Number(electricityConsumed.rawValue)) &&
+      Number(electricityConsumed.rawValue) >= 0;
 
+    const hasFactor =
+      emissionFactor.rawValue !== "" &&
+      emissionFactor.rawValue !== null &&
+      emissionFactor.rawValue !== undefined &&
+      !isNaN(Number(emissionFactor.rawValue)) &&
+      Number(emissionFactor.rawValue) >= 0;
+
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+
+    return calculateProgress([hasElectricity, hasFactor, hasFiles]);
+  }, [electricityConsumed.rawValue, emissionFactor.rawValue, files, additionalFields]);
+
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: {
       electricityConsumed?: string;
@@ -123,11 +138,24 @@ export function ElectricityIppsForm({
       files?: string;
     } = {};
 
-    if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
-      newErrors.electricityConsumed = "Please enter a valid positive number.";
+    if (
+      electricityConsumed.rawValue === "" ||
+      electricityConsumed.rawValue === null ||
+      electricityConsumed.rawValue === undefined ||
+      isNaN(Number(electricityConsumed.rawValue)) ||
+      Number(electricityConsumed.rawValue) < 0
+    ) {
+      newErrors.electricityConsumed =
+        "Please enter a valid electricity consumption value (0 or greater).";
     }
-    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0) {
-      newErrors.emissionFactor = "Please enter a valid positive emission factor.";
+    if (
+      emissionFactor.rawValue === "" ||
+      emissionFactor.rawValue === null ||
+      emissionFactor.rawValue === undefined ||
+      isNaN(Number(emissionFactor.rawValue)) ||
+      Number(emissionFactor.rawValue) < 0
+    ) {
+      newErrors.emissionFactor = "Please enter a valid emission factor (0 or greater).";
     }
 
     setErrors(newErrors);
@@ -181,8 +209,8 @@ export function ElectricityIppsForm({
     const { showToast = true, redirect = true } = options;
 
     const payload = {
-      electricityConsumed: electricityConsumedRaw,
-      emissionFactor: emissionFactorRaw,
+      electricityConsumed: electricityConsumed.rawValue,
+      emissionFactor: emissionFactor.rawValue,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -228,8 +256,8 @@ export function ElectricityIppsForm({
     dispatch({
       type: "UPDATE_MARKET_IPPS",
       payload: {
-        electricityConsumed: electricityConsumedRaw,
-        emissionFactor: emissionFactorRaw,
+        electricityConsumed: electricityConsumed.rawValue,
+        emissionFactor: emissionFactor.rawValue,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -324,54 +352,46 @@ export function ElectricityIppsForm({
             />
 
             {/* Electricity Consumed */}
-            {/* <div>
-              <Label className="text-base font-medium text-gray-900 mb-2 block">
-                1.1 Purchased Electricity (from Independent Power Producers – IPPs)
-              </Label>
-              <div className="space-y-4 ml-6">
-                <Label>
-                  Amount of Energy Cooling Energy Consumed (kWh){" "}
-                  <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="Enter total electricity consumed in kWh"
-                  value={electricityConsumedDisplay}
-                  onChange={(e) => {
-                    handleElectricityConsumedChange(e.target.value);
-                    if (errors.electricityConsumed) {
-                      setErrors((prev) => ({ ...prev, electricityConsumed: undefined }));
-                    }
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.electricityConsumed ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-              {errors.electricityConsumed && (
-                <p className="text-sm text-red-500 mt-1">{errors.electricityConsumed}</p>
-              )}
-            </div> */}
             <div>
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 1.1 Purchased Electricity (from Independent Power Producers – IPPs)
               </Label>
               <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Amount of Electricity Consumed (kWh) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Electricity Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total electricity consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no electricity was consumed
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ScopeInput
                   category="electricity"
-                  formattedValue={{
-                    rawValue: electricityConsumedRaw,
-                    displayValue: electricityConsumedDisplay,
-                    handleChange: handleElectricityConsumedChange,
-                    setRawValue: setElectricityConsumedRaw,
-                  }}
-                  label="Amount of Electricity Consumed (kWh)"
+                  formattedValue={electricityConsumed}
+                  label=""
                   placeholder="Enter total electricity consumed in kWh"
-                  required
+                  required={false}
                   error={errors.electricityConsumed}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(emissionFactorRaw) || null}
+                  customEmissionFactor={Number(emissionFactor.rawValue) || null}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
                   }
@@ -385,11 +405,11 @@ export function ElectricityIppsForm({
                 Supplier-specific Emission Factor <span className="text-red-500">*</span>
               </Label>
               <Input
-                type="text" // Change from "number" to "text"
+                type="text"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactorDisplay}
+                value={emissionFactor.displayValue}
                 onChange={(e) => {
-                  handleEmissionFactorChange(e.target.value);
+                  emissionFactor.handleChange(e.target.value);
                   if (errors.emissionFactor)
                     setErrors((prev) => ({
                       ...prev,

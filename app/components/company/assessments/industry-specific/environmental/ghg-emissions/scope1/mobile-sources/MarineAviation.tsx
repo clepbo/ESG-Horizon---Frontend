@@ -137,14 +137,67 @@ export function MarineAviation({
   ]);
 
   const { filled, total } = useMemo(() => {
-    const hasAirData = air.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);
-    const hasMarineData = marine.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);
+    // FIX: Check for valid numbers >= 0 instead of just truthy values
+    // This allows 0 to be considered valid
+    const hasAirData = air.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
+    const hasMarineData = marine.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
     const progressChecks = [hasAirData, hasMarineData, hasFileUploaded || hasAdditionalFields];
 
     return calculateProgress(progressChecks);
   }, [air, marine, files, additionalFields]);
+
+  const validateForm = () => {
+    const newErrors: {
+      air?: string;
+      marine?: string;
+      files?: string;
+    } = {};
+
+    const hasValidAir = air.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
+
+    const hasValidMarine = marine.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
+
+    if (!hasValidAir) {
+      newErrors.air = "Please enter at least one air fuel value with a volume.";
+    }
+
+    if (!hasValidMarine) {
+      newErrors.marine = "Please enter at least one marine fuel value with a volume.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -238,6 +291,12 @@ export function MarineAviation({
   };
 
   const handleSubmit = async () => {
+    // Validate form before submitting
+    if (!validateForm()) {
+      toast.error("Please fill in all required fields before submitting");
+      return;
+    }
+
     const assessmentId = state.assessmentId;
 
     // Get previous steps data from state to ensure it's saved on submission

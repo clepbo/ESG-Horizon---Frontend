@@ -7,11 +7,17 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { Textarea } from "@/app/components/ui/textarea";
-import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -93,16 +99,16 @@ export function PurchasedSteamForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.steam;
 
     if (existingData) {
-      // Initialize with existing data using the formatted number hook
-      if (existingData.volume) {
-        setSteamConsumedRaw(existingData.volume);
-      } else {
-        setSteamConsumedRaw("");
-      }
+      setSteamConsumedRaw(
+        existingData.volume !== null && existingData.volume !== undefined
+          ? existingData.volume.toString()
+          : ""
+      );
 
       setSelectedSources(existingData.selectedSources || []);
       setOtherComments(existingData.otherComments || "");
@@ -113,37 +119,16 @@ export function PurchasedSteamForm({
     }
   }, [state.assessmentData, setSteamConsumedRaw]);
 
-  // const { total, filled } = calculateProgress([
-  //   steamConsumedRaw,
-  //   Array.isArray(selectedSources) && selectedSources.length > 0,
-  //   Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-  // ]);
-
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = calculateProgress([
-    steamConsumedRaw,
+    steamConsumedRaw !== "" &&
+      steamConsumedRaw !== null &&
+      steamConsumedRaw !== undefined &&
+      !isNaN(Number(steamConsumedRaw)) &&
+      Number(steamConsumedRaw) >= 0,
     Array.isArray(selectedSources) && selectedSources.length > 0,
     Object.values(files).some(Boolean) || additionalFields.some((f) => f.file),
   ]);
-
-  // const validateForm = () => {
-  //     const newErrors: {
-  //         steamConsumed?: string;
-  //         selectedSources?: string;
-  //         files?: string;
-  //     } = {};
-
-  //     if (!steamConsumedRaw || Number(steamConsumedRaw) <= 0) {
-  //         newErrors.steamConsumed = "Please enter a valid positive number";
-  //     }
-
-  //     if (selectedSources.length === 0) {
-  //         newErrors.selectedSources =
-  //             "Please select at least one steam source";
-  //     }
-
-  //     setErrors(newErrors);
-  //     return Object.keys(newErrors).length === 0;
-  // };
 
   const handleSourceChange = (sourceId: string, checked: boolean) => {
     setSelectedSources((prev) =>
@@ -201,6 +186,7 @@ export function PurchasedSteamForm({
     setAdditionalFields(fields);
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: {
       steamConsumed?: string;
@@ -208,9 +194,15 @@ export function PurchasedSteamForm({
       files?: string;
     } = {};
 
-    const hasValidSteam = steamConsumedRaw && Number(steamConsumedRaw) > 0;
-    if (!hasValidSteam) {
-      newErrors.steamConsumed = "Please enter a valid positive number for steam consumed.";
+    if (
+      steamConsumedRaw === "" ||
+      steamConsumedRaw === null ||
+      steamConsumedRaw === undefined ||
+      isNaN(Number(steamConsumedRaw)) ||
+      Number(steamConsumedRaw) < 0
+    ) {
+      newErrors.steamConsumed =
+        "Please enter a valid positive number (0 or greater) for steam consumed.";
     }
 
     if (selectedSources.length === 0) {
@@ -339,7 +331,7 @@ export function PurchasedSteamForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="cursor-pointer flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+            className="cursor-pointer flex items-center gap-2 bg-white border-primary text-green-700 hover:bg-green-50"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
@@ -362,35 +354,32 @@ export function PurchasedSteamForm({
               isSubmitted={false}
             />
             {/* Steam Consumed */}
-            {/* <div>
-              <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
-              <div className="space-y-4 ml-6">
-                <Label htmlFor="steam-consumed">
-                  Steam Consumed (tonnes) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="steam-consumed"
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  placeholder="Enter amount in tonnes"
-                  value={steamConsumedDisplay} // Use the formatted display value
-                  onChange={(e) => {
-                    handleSteamConsumedChange(e.target.value); // Use the hook's handler
-                    if (errors.steamConsumed) {
-                      setErrors((prev) => ({ ...prev, steamConsumed: undefined }));
-                    }
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.steamConsumed ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-              {errors.steamConsumed && (
-                <p className="text-sm text-red-500 mt-1">{errors.steamConsumed}</p>
-              )}
-            </div> */}
             <div>
               <Label className="text-md font-semibold mb-2 block">3.1 Purchased Steam</Label>
               <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label htmlFor="steam-consumed" className="text-sm font-medium text-gray-700">
+                    Steam Consumed (tonnes) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Steam Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total steam consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no steam was consumed</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ScopeInput
                   category="steam"
                   formattedValue={{
@@ -399,9 +388,9 @@ export function PurchasedSteamForm({
                     handleChange: handleSteamConsumedChange,
                     setRawValue: setSteamConsumedRaw,
                   }}
-                  label="Steam Consumed (tonnes)"
+                  label=""
                   placeholder="Enter amount in tonnes"
-                  required
+                  required={false}
                   error={errors.steamConsumed}
                   showEmissionFactor={true}
                   onErrorClear={() => setErrors((prev) => ({ ...prev, steamConsumed: undefined }))}
@@ -516,7 +505,7 @@ export function PurchasedSteamForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="cursor-pointer justify-self-start border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-start border-primary text-primary hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
               </Button>
@@ -525,7 +514,7 @@ export function PurchasedSteamForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-green-500 text-white hover:bg-green-300 cursor-pointer"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary cursor-pointer"
               >
                 {isSaving ? (
                   <>
@@ -546,7 +535,7 @@ export function PurchasedSteamForm({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isSaving}
-                className="cursor-pointer justify-self-end border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-end border-primary text-primary hover:bg-green-50 flex items-center gap-2"
               >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>

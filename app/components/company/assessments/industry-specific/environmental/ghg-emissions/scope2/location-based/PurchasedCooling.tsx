@@ -7,7 +7,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -15,6 +15,12 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -90,12 +96,16 @@ export function PurchasedCoolingForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.locationBased?.cooling;
 
     if (existingData) {
-      // setCoolingConsumed(existingData.coolingConsumed || "");
-      coolingConsumed.setRawValue(existingData.coolingConsumed?.toString() || "");
+      coolingConsumed.setRawValue(
+        existingData.coolingConsumed !== null && existingData.coolingConsumed !== undefined
+          ? existingData.coolingConsumed.toString()
+          : ""
+      );
       setSelectedSystems(existingData.selectedSystems || []);
       setOtherComments(existingData.otherComments || "");
       setFiles(
@@ -106,11 +116,19 @@ export function PurchasedCoolingForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = useMemo(() => {
-    return calculateProgress([
-      coolingConsumed.rawValue,
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-    ]);
+    const hasCooling =
+      coolingConsumed.rawValue !== "" &&
+      coolingConsumed.rawValue !== null &&
+      coolingConsumed.rawValue !== undefined &&
+      !isNaN(Number(coolingConsumed.rawValue)) &&
+      Number(coolingConsumed.rawValue) >= 0;
+
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+
+    return calculateProgress([hasCooling, hasFiles]);
   }, [coolingConsumed.rawValue, files, additionalFields]);
 
   const handleSystemChange = (systemId: string, checked: boolean) => {
@@ -168,17 +186,22 @@ export function PurchasedCoolingForm({
     setAdditionalFields(fields);
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: {
       coolingConsumed?: string;
       selectedSystems?: string;
       files?: string;
     } = {};
-    const hasValidCooling =
-      coolingConsumed.rawValue.trim() !== "" && Number(coolingConsumed.rawValue) > 0;
-    if (!hasValidCooling) {
-      newErrors.coolingConsumed =
-        "Please enter a valid cooling consumption value (greater than 0).";
+
+    if (
+      coolingConsumed.rawValue === "" ||
+      coolingConsumed.rawValue === null ||
+      coolingConsumed.rawValue === undefined ||
+      isNaN(Number(coolingConsumed.rawValue)) ||
+      Number(coolingConsumed.rawValue) < 0
+    ) {
+      newErrors.coolingConsumed = "Please enter a valid cooling consumption value (0 or greater).";
     }
     if (selectedSystems.length === 0) {
       newErrors.selectedSystems = "Please select at least one cooling system type.";
@@ -306,7 +329,7 @@ export function PurchasedCoolingForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="cursor-pointer flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+            className="cursor-pointer flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
@@ -332,50 +355,45 @@ export function PurchasedCoolingForm({
             {/* Cooling Consumed */}
             <div>
               <Label className="text-md font-semibold mb-2 block">2.1 Purchased Cooling</Label>
-              <div className="space-y-4 ml-6">
-                {/* <Label>
-                  Amount of Energy Cooling Energy Consumed (kWh){" "}
-                  <span className="text-red-500">*</span>
-                </Label> */}
-                {/* <Input
-                  id="cooling-consumed"
-                  type="number"
+              <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label htmlFor="cooling-consumed" className="text-sm font-medium text-gray-700">
+                    Amount of Cooling Energy Consumed (kWh) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Cooling Energy Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total cooling energy consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no cooling energy was consumed
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <ScopeInput
+                  category="cooling"
+                  formattedValue={coolingConsumed}
+                  label=""
                   placeholder="Enter amount in kWh"
-                  value={coolingConsumed}
-                  onChange={(e) => setCoolingConsumed(e.target.value)}
-                  className={`w-full border-gray-400 ${
-                    errors.coolingConsumed ? "border-red-500" : ""
-                  }`}
-                /> */}
-                {/* <Input
-                  id="cooling-consumed"
-                  type="text" // Changed from "number" to "text"
-                  placeholder="Enter amount in kWh"
-                  value={coolingConsumed.displayValue}
-                  onChange={(e) => {
-                    coolingConsumed.handleChange(e.target.value);
-                    if (errors.coolingConsumed) {
-                      setErrors((prev) => ({ ...prev, coolingConsumed: undefined }));
-                    }
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.coolingConsumed ? "border-red-500" : ""
-                  }`}
-                /> */}
+                  required={false}
+                  error={errors.coolingConsumed}
+                  showEmissionFactor={true}
+                  onErrorClear={() =>
+                    setErrors((prev) => ({ ...prev, coolingConsumed: undefined }))
+                  }
+                />
               </div>
-              {/* {errors.coolingConsumed && (
-                <p className="text-sm text-red-500 mt-1">{errors.coolingConsumed}</p>
-              )} */}
-              <ScopeInput
-                category="cooling"
-                formattedValue={coolingConsumed}
-                label="Amount of Cooling Energy Consumed (kWh)"
-                placeholder="Enter amount in kWh"
-                required
-                error={errors.coolingConsumed}
-                showEmissionFactor={true}
-                onErrorClear={() => setErrors((prev) => ({ ...prev, coolingConsumed: undefined }))}
-              />
             </div>
 
             {/* Cooling System Types */}
@@ -488,7 +506,7 @@ export function PurchasedCoolingForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="cursor-pointer justify-self-start border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-start border-primary text-primary hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
               </Button>
@@ -498,7 +516,7 @@ export function PurchasedCoolingForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
                 {isSaving ? (
@@ -523,7 +541,7 @@ export function PurchasedCoolingForm({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isSaving}
-                className="cursor-pointer justify-self-end border-green-600 text-green-700 hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-end border-primary text-primary hover:bg-green-50 flex items-center gap-2"
               >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
