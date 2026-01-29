@@ -1,21 +1,39 @@
 // import * as htmlToImage from 'html-to-image';
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export async function generatePDF(id: string, fileName = "esg-report.pdf") {
   const element = document.getElementById(id);
   if (!element) return;
-
   const dataUrl = await toPng(element, {
     cacheBust: true,
     filter: (domNode) => !domNode.classList?.contains("no-export"),
   });
 
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = pdf.internal.pageSize.getWidth(); // 210
-  const pageHeight = pdf.internal.pageSize.getHeight(); // 297
+  //   const dataUrl = await toPng(element, {
+  //   cacheBust: true,
+  //   filter: (domNode) => !domNode.closest(".no-export"),
+  // });
 
-  pdf.addImage(dataUrl, "PNG", 5, 5, pageWidth - 10, pageHeight - 10);
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const imgProps = pdf.getImageProperties(dataUrl);
+  const imgWidth = pageWidth;
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+  pdf.addImage(dataUrl, "PNG", 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(dataUrl, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
   pdf.save(fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`);
 }
 
@@ -36,6 +54,34 @@ export async function exportPNG(id: string, fileName = "esg-report.png") {
     link.click();
   } catch (err) {
     console.error("PNG export failed", err);
+  }
+}
+
+export async function exportPNGs(id: string, fileName = "esg-report") {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  const canvas = await html2canvas(element, { scale: 2 });
+  const pageHeight = 1000; // pixels per "page"
+  let y = 0;
+  let page = 1;
+
+  while (y < canvas.height) {
+    const slice = document.createElement("canvas");
+    slice.width = canvas.width;
+    slice.height = Math.min(pageHeight, canvas.height - y);
+
+    const ctx = slice.getContext("2d");
+    ctx?.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
+
+    const dataUrl = slice.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `${fileName}-page${page}.png`;
+    link.href = dataUrl;
+    link.click();
+
+    y += pageHeight;
+    page++;
   }
 }
 

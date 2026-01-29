@@ -114,14 +114,13 @@ export default function NewReportSummary() {
 
   return (
     <div className="min-h-screen flex flex-col gap-4 w-full overflow-auto" id="section">
-      <Card
-        className="p-4 no-export rounded flex flex-col md:flex-row justify-between w-full items-center"
-        id="hide1"
-      >
+      <Card className="p-4 rounded flex flex-col md:flex-row justify-between w-full items-center">
         <div className="flex flex-col gap-4">
           <div className="grid items-center gap-2 justify-start">
             <span className="text-start">ESG Performance Report</span>
-            <span className={`rounded-3xl text-center p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}>
+            <span
+              className={`rounded-3xl text-center p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}
+            >
               {formatStatus(reportData?.status ?? "progress")}
             </span>
           </div>
@@ -137,7 +136,7 @@ export default function NewReportSummary() {
           </div>
         </div>
 
-        <div>
+        <div className="no-export">
           <Select value={selected} onValueChange={exportfile}>
             <SelectTrigger
               className="rounded min-w-xs p-4 border-primary text-primary cursor-pointer
