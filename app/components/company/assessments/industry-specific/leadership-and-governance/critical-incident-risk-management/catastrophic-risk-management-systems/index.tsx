@@ -58,10 +58,6 @@ export default function CatastrophicRiskManagement({
       newErrors.systemDescription = "Description is required";
     }
 
-    if (filesAndLinks.length === 0) {
-      newErrors.filesAndLinks = "At least one document or evidence is required";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
