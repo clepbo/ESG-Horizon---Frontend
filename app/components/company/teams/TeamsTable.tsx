@@ -1,15 +1,17 @@
 import { useState, ReactNode, useMemo } from "react";
-import { Ban, CircleCheckBig, RotateCcw, SquarePen } from "lucide-react";
+import { Ban, CircleCheckBig, RotateCcw, SquarePen, Trash2 } from "lucide-react";
 import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
 import Image from "next/image";
-import ConfirmModal from "../../ui/modals/ConfirmModal";
+import RoleDefinitionsModal from "../../settings/RoleDefinitionsModal";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import EditUserModal from "../../common/users/EditUserModal";
 import { TeamUserStatus, User } from "@/services/user.service";
 import { formatRoleName, formattedDate } from "@/lib/utils";
 import { Card } from "../../ui/card";
-import RoleDefinitionsModal from "../../settings/RoleDefinitionsModal";
+import { useDeleteInvitation, useDeleteUser } from "@/services/hooks/company.hooks";
+import { toast } from "react-toastify";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
+import ConfirmModal from "../../ui/modals/ConfirmModal";
 
 type Props = {
   users: User[];
@@ -23,11 +25,19 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);
 
+  const [deleteInviteModalOpen, setDeleteInviteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ id: number; isInvitation: boolean } | null>(
+    null
+  );
+
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const { mutateAsync: deleteInvitation, isPending: isDeletingInvite } = useDeleteInvitation();
+  const { mutateAsync: deleteUser, isPending: isDeletingUser } = useDeleteUser();
 
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -37,6 +47,10 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
   const handleView = (id: number) => {
     const user = users.find((u) => Number(u.id) === Number(id));
     if (user) {
+      // Prevent editing if user is pending (invited)
+      if (user.status === "pending") {
+        return;
+      }
       setSelectedUser(user);
       setEditModalOpen(true);
     }
@@ -46,6 +60,34 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
     setSelectedUserId(id);
     setTargetStatus(newStatus);
     setStatusModalOpen(true);
+  };
+
+  const handleDeleteInvitation = (id: number, isInvitation: boolean) => {
+    setItemToDelete({ id, isInvitation });
+    setDeleteInviteModalOpen(true);
+  };
+
+  const confirmDeleteInvitation = async () => {
+    if (!itemToDelete) return;
+    try {
+      if (itemToDelete.isInvitation) {
+        await deleteInvitation(itemToDelete.id);
+        toast.success("Invitation deleted successfully");
+      } else {
+        await deleteUser(itemToDelete.id);
+        toast.success("User deleted successfully");
+      }
+      setUsers((prev) => prev.filter((u) => u.id !== itemToDelete.id));
+    } catch (error: any) {
+      console.error(error);
+      const message =
+        error.response?.data?.message ||
+        (itemToDelete.isInvitation ? "Failed to delete invitation" : "Failed to delete user");
+      toast.error(message);
+    } finally {
+      setDeleteInviteModalOpen(false);
+      setItemToDelete(null);
+    }
   };
 
   const statusActions: Record<
@@ -148,7 +190,18 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
 
   return (
     <div>
-      <div className="relative overflow-x-auto bg-white rounded-lg mt-2 shadow">
+      <div className="flex justify-end mb-2">
+        {/* <Link href="#" className="text-teal-600 text-sm hover:underline" onClick={(e) => {
+          e.preventDefault();
+          const modalTrigger = document.getElementById("role-definitions-trigger");
+          if (modalTrigger) modalTrigger.click();
+        }}>
+          View Role Definitions
+        </Link> */}
+      </div>
+      <RoleDefinitionsModal />
+
+      <div className="relative overflow-x-auto bg-white rounded-lg mt-2 shadow clear-both">
         {paginatedUsers.length === 0 ? (
           <Card>
             <div className="px-4 py-6 text-center text-gray-500 text-sm">No users found.</div>
@@ -180,7 +233,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       <div>
                         <p className="font-medium">
                           {user.first_name
-                            ? `${user.first_name} ${user.last_name}`
+                            ? `${user.first_name} ${user.last_name || ""}`.trim()
                             : user.status === "pending"
                               ? "(Invited)"
                               : ""}
@@ -192,7 +245,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.department?.name ? (
                         user.department?.name
                       ) : (
-                        <span className="text-gray-400 text-sm">N/A</span>
+                        <span className="text-gray-400 text-sm italic">Unassigned</span>
                       )}
                     </td>
 
@@ -200,39 +253,76 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.subsidiary?.name ? (
                         user.subsidiary?.name
                       ) : (
-                        <span className="text-gray-400 text-sm">N/A</span>
+                        <span className="text-gray-400 text-sm italic">Main (HQ)</span>
                       )}
                     </td>
 
                     <td className="px-4 py-3">
                       <div className="flex flex-col">
                         {formatRoleName(user.role?.name || "")}
-                        <span className="mt-1">
+                        <span className="mt-1 text-xs">
                           <StatusBadge status={user.status} />
                         </span>
                       </div>
                     </td>
 
-                    <td className="px-4 py-3">{formattedDate(String(user.last_login) || "")}</td>
+                    <td className="px-4 py-3">
+                      {user.last_login ? (
+                        <div className="flex flex-col">
+                          <span>{formattedDate(String(user.last_login), false)}</span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(user.last_login).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs italic">Not logged in</span>
+                      )}
+                    </td>
 
                     <td className="px-4 py-3">
                       {user.role?.name !== "company_esg_admin" ? (
                         <ActionDropdown
                           actions={[
-                            {
-                              label: "Edit User",
-                              icon: <SquarePen className="w-4 h-4" />,
-                              onClick: () => handleView(user.id),
-                            },
-                            {
-                              label: statusActions[user.status]?.title || "Update Status",
-                              icon: statusActions[user.status]?.icon,
-                              colorClass: statusActions[user.status]?.color
-                                .replace("border-", "text-")
-                                .replace("hover:bg-", "hover:text-"),
-                              onClick: () =>
-                                openStatusModal(user.id, statusActions[user.status].newStatus),
-                            },
+                            ...(user.status !== "pending"
+                              ? [
+                                  {
+                                    label: "Edit User",
+                                    icon: <SquarePen className="w-4 h-4" />,
+                                    onClick: () => handleView(user.id),
+                                  },
+                                ]
+                              : []),
+                            ...(user.status === "pending"
+                              ? [
+                                  {
+                                    label: "Delete Invitation",
+                                    icon: <Trash2 className="w-4 h-4" />,
+                                    colorClass: "text-red-500 hover:text-red-600",
+                                    onClick: () =>
+                                      handleDeleteInvitation(user.id, user.is_invitation ?? false),
+                                  },
+                                ]
+                              : []),
+                            ...(user.status !== "pending" && statusActions[user.status]
+                              ? [
+                                  {
+                                    label: statusActions[user.status]?.title || "Update Status",
+                                    icon: statusActions[user.status]?.icon,
+                                    colorClass: statusActions[user.status]?.color
+                                      .replace("border-", "text-")
+                                      .replace("hover:bg-", "hover:text-"),
+                                    onClick: () =>
+                                      openStatusModal(
+                                        user.id,
+                                        statusActions[user.status].newStatus
+                                      ),
+                                  },
+                                ]
+                              : []),
                           ]}
                         />
                       ) : (
@@ -284,8 +374,18 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
           />
         )}
       </div>
-
-      <RoleDefinitionsModal />
+      <ConfirmModal
+        open={deleteInviteModalOpen}
+        title="Delete Invitation"
+        message={
+          <span>
+            Are you sure you want to delete this invitation? This action cannot be undone.
+          </span>
+        }
+        onCancel={() => setDeleteInviteModalOpen(false)}
+        onConfirm={confirmDeleteInvitation}
+        loading={isDeletingInvite || isDeletingUser}
+      />
     </div>
   );
 }

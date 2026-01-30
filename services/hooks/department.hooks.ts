@@ -52,7 +52,7 @@ export const useCreateDepartment = () => {
     }) => departmentService.create(companyId, payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["departments", variables.companyId],
+        queryKey: ["departments", Number(variables.companyId)],
       });
     },
   });

@@ -241,7 +241,8 @@ export default function DepartmentTeamUsersPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 text-sm">
           <InfoRow label="Department Name" value={department.name} />
-          <InfoRow label="Description" value={department.description || "-"} />
+          <InfoRow label="Subsidiary" value={department.subsidiary?.name || "Main (HQ)"} />
+          <InfoRow label="Description" value={department.description || "no desc."} />
           <InfoRow
             label="Department Lead"
             value={

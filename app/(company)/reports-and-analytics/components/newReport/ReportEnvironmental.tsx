@@ -32,7 +32,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   const ghg = reportData?.environmental?.greenhouseGasEmission;
   const target = reportData?.targets;
 
-  console.log("Report target Data", target);
+  let scopeTarget = null;
+  if (reportData?.targets && reportData?.targets?.scopeTargets !== undefined) {
+    scopeTarget = reportData?.targets?.scopeTargets;
+  }
+  // console.log("Report target Data", scopeTarget);
 
   // const emissionScopeData = reportData?.
   const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);
@@ -59,7 +63,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             color="#84bb94"
             value={
-              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.totalEmissions || 0).toFixed(2) : "0.00"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.totalEmissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             data={emissionData}
           />
@@ -68,7 +76,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 1"
             value={
-              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.scope1Emissions || 0).toFixed(2) : "0.00"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.scope1Emissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope1}
@@ -78,7 +90,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 2"
             value={
-              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.scope2Emissions || 0).toFixed(2) : "0.00"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.scope2Emissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope2}
@@ -88,7 +104,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 3"
             value={
-              ghg ? Number(reportData?.environmental?.greenhouseGasEmission?.scope3Emissions || 0).toFixed(2) : "0.00"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.scope3Emissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope3}
@@ -129,15 +149,18 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               ) : (
                 <ReductionTargetByScope
                   scope1percentage={
-                    reportData?.percentage_emission_summary?.scope1_emission_summary || 0
+                    // reportData?.percentage_emission_summary?.scope1_emission_summary || 0
+                    (scopeTarget && scopeTarget[0]?.reductionPercentage) || 0
                   }
                   scope1value={ghg?.scope1Emissions || 0}
                   scope2percentage={
-                    reportData?.percentage_emission_summary?.scope2_emission_summary || 0
+                    // reportData?.percentage_emission_summary?.scope2_emission_summary || 0
+                    (scopeTarget && scopeTarget[1]?.reductionPercentage) || 0
                   }
                   scope2value={ghg?.scope2Emissions || 0}
                   scope3percentage={
-                    reportData?.percentage_emission_summary?.scope3_emission_summary || 0
+                    // reportData?.percentage_emission_summary?.scope3_emission_summary || 0
+                    (scopeTarget && scopeTarget[2]?.reductionPercentage) || 0
                   }
                   scope3value={ghg?.scope3Emissions || 0}
                 />

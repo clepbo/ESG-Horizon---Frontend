@@ -185,8 +185,9 @@ export function EmissionsSummaryCard() {
                   <TrendingUp className="w-4 h-4 text-red-600" />
                 )}
                 <span
-                  className={`text-sm font-medium ${summary.reduction > 0 ? "text-green-600" : "text-red-600"
-                    }`}
+                  className={`text-sm font-medium ${
+                    summary.reduction > 0 ? "text-green-600" : "text-red-600"
+                  }`}
                 >
                   {Math.abs(summary.reduction).toFixed(1)}%
                 </span>

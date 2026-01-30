@@ -55,6 +55,20 @@ export const useInviteUser = () => {
 };
 
 /**
+ * Custom hook for deleting an invitation.
+ * @returns A mutation object with mutate function and status.
+ */
+export const useDeleteInvitation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: companyService.deleteInvitation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+    },
+  });
+};
+
+/**
  * Custom hook for editing a company user.
  * @returns A mutation object with mutate function and status.
  */

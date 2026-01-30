@@ -12,10 +12,13 @@ export type Subsidiary = {
   address: string;
   status: string;
   teamLead?: {
-    name?: string;
+    first_name?: string;
+    last_name?: string;
     email?: string;
   };
   teamLeadId?: number;
+  leadId?: number;
+  teamSize?: number;
 };
 
 export const subsidiariesService = {

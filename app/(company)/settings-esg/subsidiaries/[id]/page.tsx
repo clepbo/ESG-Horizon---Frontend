@@ -46,11 +46,8 @@ export default function SubsidiaryDetailsPage() {
     isLoading: isUsersLoading,
     refetch: refetchUsers,
   } = useSubsidiaryUsers(subsidiaryId);
-  const {
-    data: departmentsData,
-    // isLoading: isDepartmentLoading,
-    // refetch: refetchDepartments,
-  } = useSubsidiaryDepartments(subsidiaryId);
+  const { data: departmentsData, refetch: refetchDepartments } =
+    useSubsidiaryDepartments(subsidiaryId);
 
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
     setModalTab(tab);
@@ -112,19 +109,21 @@ export default function SubsidiaryDetailsPage() {
             {/* buttons */}
             <div className="flex space-x-4 p-2 rounded-lg shadow-md border border-gray-200 cursor-pointer">
               <button
-                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${activeTab === "team"
-                  ? "bg-[#EBF7EB] text-[var(--color-primary)] "
-                  : "bg-transparent text-gray-500 hover:bg-gray-100"
-                  }`}
+                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${
+                  activeTab === "team"
+                    ? "bg-[#EBF7EB] text-[var(--color-primary)] "
+                    : "bg-transparent text-gray-500 hover:bg-gray-100"
+                }`}
                 onClick={() => setActiveTab("team")}
               >
                 Team Members
               </button>
               <button
-                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${activeTab === "departments"
-                  ? "bg-[#EBF7EB] text-[var(--color-primary)] "
-                  : "bg-transparent text-gray-500 hover:bg-gray-100"
-                  }`}
+                className={`py-2 px-4 font-medium text-sm rounded-md transition-colors cursor-pointer ${
+                  activeTab === "departments"
+                    ? "bg-[#EBF7EB] text-[var(--color-primary)] "
+                    : "bg-transparent text-gray-500 hover:bg-gray-100"
+                }`}
                 onClick={() => setActiveTab("departments")}
               >
                 Departments
@@ -143,7 +142,7 @@ export default function SubsidiaryDetailsPage() {
           <div className="mt-4">
             {activeTab === "team" && <TeamMembersTable initialUsers={usersData || []} />}
             {activeTab === "departments" && (
-              <DepartmentsTable departments={departmentsData || []} />
+              <DepartmentsTable departments={departmentsData || []} onUpdate={refetchDepartments} />
             )}
           </div>
         </div>

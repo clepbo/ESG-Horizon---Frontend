@@ -31,6 +31,7 @@ export interface User {
   subsidiaryId: number;
   departmentId?: number;
   roleId?: number;
+  is_invitation?: boolean;
 }
 
 export const userService = {

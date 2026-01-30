@@ -14,11 +14,12 @@ type DepartmentStatus = "active" | "inactive" | "archived" | "draft";
 
 interface DepartmentTableProps {
   departments: Department[];
+  onUpdate?: () => void;
 }
 
 const columnHelper = createColumnHelper<Department>();
 
-export function DepartmentsTable({ departments }: DepartmentTableProps) {
+export function DepartmentsTable({ departments, onUpdate }: DepartmentTableProps) {
   const router = useRouter();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -145,7 +146,11 @@ export function DepartmentsTable({ departments }: DepartmentTableProps) {
         searchPlaceholder="Search departments"
       />
       {isEditOpen && selectedDepartment && (
-        <EditDepartmentModal department={selectedDepartment} onClose={() => setIsEditOpen(false)} />
+        <EditDepartmentModal
+          department={selectedDepartment}
+          onClose={() => setIsEditOpen(false)}
+          onUpdate={onUpdate}
+        />
       )}
     </>
   );

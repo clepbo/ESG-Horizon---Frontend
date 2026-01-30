@@ -89,14 +89,14 @@ export function Scope2EmissionsChart() {
   const locationTrendValue =
     previousLocationBased > 0
       ? Math.abs(
-        ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
-      ).toFixed(2)
+          ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
+        ).toFixed(2)
       : "0.00";
   const marketTrendValue =
     previousMarketBased > 0
       ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(
-        1
-      )
+          1
+        )
       : "0.00";
 
   const hasData = currentLocationBased > 0 || currentMarketBased > 0;
