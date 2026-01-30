@@ -557,6 +557,15 @@ export function DisclosureTopics({
                 </div>
                 <Card
                   className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
+                  style={{
+                    borderLeftWidth: "4px",
+                    borderLeftColor:
+                      getActivityMetricsStatus().status === "completed"
+                        ? "#22c55e"
+                        : getActivityMetricsStatus().status === "in-progress"
+                          ? "#eab308"
+                          : "#d1d5db",
+                  }}
                   onClick={() => setCurrentView("activity-metrics")}
                 >
                   <CardContent className="p-4 flex justify-between items-center">
@@ -627,35 +636,57 @@ export function DisclosureTopics({
                               </h4>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {section.cards.map((card) => (
-                                <Card
-                                  key={card.title}
-                                  className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
-                                    card.title
-                                  )} ${
-                                    card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                  }`}
-                                  onClick={() => card.clickable && handleCardClick(card.title)}
-                                >
-                                  <CardContent className="p-4">
-                                    <div className="flex items-start justify-between gap-3">
-                                      <div className="space-y-2 flex-1">
-                                        <div className="flex items-center justify-between">
-                                          <h5 className="font-medium text-foreground">
-                                            {card.title}
-                                          </h5>
-                                          <CompletionIndicator status={getStatus(card.title)} />
+                              {section.cards.map((card) => {
+                                const status = getStatus(card.title);
+                                const borderClass = getCardBorderClass(card.title);
+
+                                // Get border color based on status - handle undefined case
+                                const getBorderColor = () => {
+                                  if (!status) return "#d1d5db"; // gray-300 for undefined
+
+                                  switch (status.status) {
+                                    case "completed":
+                                      return "#22c55e"; // green-500
+                                    case "in-progress":
+                                      return "#eab308"; // yellow-500
+                                    default:
+                                      return "#d1d5db"; // gray-300
+                                  }
+                                };
+
+                                return (
+                                  <Card
+                                    key={card.title}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${
+                                      card.clickable
+                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                        : "cursor-default"
+                                    }`}
+                                    style={{
+                                      borderLeftWidth: "4px",
+                                      borderLeftColor: getBorderColor(),
+                                    }}
+                                    onClick={() => card.clickable && handleCardClick(card.title)}
+                                  >
+                                    <CardContent className="p-4 flex justify-between items-center">
+                                      <div className="flex items-start justify-between gap-3 flex-1">
+                                        <div className="space-y-2 flex-1">
+                                          <div className="flex items-center justify-between">
+                                            <h5 className="font-medium text-foreground">
+                                              {card.title}
+                                            </h5>
+                                            <CompletionIndicator status={status} />
+                                          </div>
+                                          <p className="text-sm text-muted-foreground">
+                                            {card.subtitle}
+                                          </p>
                                         </div>
-                                        <p className="text-sm text-muted-foreground">
-                                          {card.subtitle}
-                                        </p>
                                       </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
+                                      <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0" />
+                                    </CardContent>
+                                  </Card>
+                                );
+                              })}
                             </div>
                           </div>
                         ))}

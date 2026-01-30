@@ -980,7 +980,7 @@ export function getCompletionBadgeVariant(status: CompletionStatus): {
       return {
         variant: "success",
         text: "Completed",
-        className: "bg-green-100 text-green-800 border-green-300",
+        className: "bg-green-600 text-white border-green-300",
       };
     case "in-progress":
       return {

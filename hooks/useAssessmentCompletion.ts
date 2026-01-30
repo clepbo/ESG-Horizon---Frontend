@@ -54,18 +54,20 @@ export function useAssessmentCompletion(
 
   /**
    * Get border class based on completion status
+   * Updated to match the Activity Metrics card styling
    */
   const getCardBorderClass = (cardTitle: string): string => {
     const status = scopeCompletionStatus[cardTitle];
-    if (!status) return "border-gray-200";
+    if (!status) return "border-l-4 border-l-gray-300";
 
     switch (status.status) {
       case "completed":
-        return "border-l-4 border-l-green-500 border-t border-r border-b border-gray-200";
+        return "border-l-4 border-l-green-500";
       case "in-progress":
-        return "border-l-4 border-l-yellow-500 border-t border-r border-b border-gray-200";
+        return "border-l-4 border-l-yellow-500";
+      case "not-started":
       default:
-        return "border-gray-200";
+        return "border-l-4 border-l-gray-300";
     }
   };
 
