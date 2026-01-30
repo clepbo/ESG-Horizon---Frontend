@@ -16,6 +16,7 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
@@ -45,9 +46,30 @@ export default function CapitalExpenditureStrategy({
 
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { state, dispatch } = useAssessment();
   const current =
-    "businessModelAndInnovation.reserveValuation.strategicCapitalAllocation.capitalExpenditureStrategy";
+    "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy";
   const { saveNow, submitGroup } = useAssessmentFlow(current);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+        ?.capitalExpenditureStrategy;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.capexPercentage !== undefined) {
+        capexPercentage.handleChange(String(existingData.capexPercentage));
+      }
+      if (existingData.capexDiscussion !== undefined) {
+        setCapexDiscussion(existingData.capexDiscussion);
+      }
+
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+  }, [
+    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      ?.capitalExpenditureStrategy,
+  ]);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -99,11 +121,16 @@ export default function CapitalExpenditureStrategy({
 
     try {
       await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "capitalExpenditureStrategy",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 1000);
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
@@ -121,6 +148,14 @@ export default function CapitalExpenditureStrategy({
     try {
       // Save data first
       await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "capitalExpenditureStrategy",
+          data: payload,
+        },
+      });
       // Then submit the group
       await submitGroup();
       toast.success("Assessment completed successfully!");
@@ -177,7 +212,7 @@ export default function CapitalExpenditureStrategy({
                 capexPercentage.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, capexPercentage: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="%"
               error={errors.capexPercentage}
               formatNumbers={false}
@@ -216,9 +251,8 @@ export default function CapitalExpenditureStrategy({
                 }}
                 placeholder="e.g., Our CAPEX strategy prioritizes low-cost, low-carbon intensity barrels. The FIA's gas flaring penalties have accelerated investment in gas utilization projects, shifting capital from pure exploration to development of gas infrastructure..."
                 rows={8}
-                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                  errors.capexDiscussion ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.capexDiscussion ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.capexDiscussion && (
                 <p className="text-sm text-red-500">{errors.capexDiscussion}</p>

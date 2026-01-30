@@ -83,6 +83,7 @@ function SourceRow({
   const tCO2e = calculateTCO2eForSource({
     volume: source.volume,
     emissionFactor: source.emissionFactor,
+    unit: source.unit,
   });
   const formattedTCO2e = formatTCO2eOutput(tCO2e);
 

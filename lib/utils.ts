@@ -237,11 +237,12 @@ export const formattedDate = (date: string, includeTime: boolean = true): string
 export interface SourceDataForCalculation {
   volume: string | number;
   emissionFactor: number;
+  unit?: string;
   isInTonnes?: boolean;
 }
 
 export function calculateTCO2eForSource(data: SourceDataForCalculation): number {
-  const { volume, emissionFactor, isInTonnes = false } = data;
+  const { volume, emissionFactor, unit, isInTonnes = false } = data;
 
   const numericalVolume = Number(volume);
   if (isNaN(numericalVolume) || numericalVolume <= 0 || emissionFactor < 0) {
@@ -250,9 +251,12 @@ export function calculateTCO2eForSource(data: SourceDataForCalculation): number 
 
   let tCO2e: number;
 
-  if (isInTonnes) {
+  const lowerUnit = unit?.toLowerCase();
+
+  if (isInTonnes || lowerUnit === "tonne" || lowerUnit === "tonnes" || lowerUnit === "ton") {
     tCO2e = numericalVolume * emissionFactor;
   } else {
+    // Default for kg, litre, scm, etc.
     const kgCO2e = numericalVolume * emissionFactor;
     tCO2e = kgCO2e / 1000;
   }

@@ -36,7 +36,7 @@ export function TerrestialSites({
   breadcrumb = [],
 }: TerrestialSitesProps) {
   const router = useRouter();
-  const { dispatch } = useAssessment();
+  const { state, dispatch } = useAssessment();
 
   const {
     saveNow,
@@ -58,6 +58,24 @@ export function TerrestialSites({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.activityMetrics?.assetPortfolio?.terrestrialSites;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.flowStations !== undefined) {
+        flowStations.handleChange(String(existingData.flowStations));
+      }
+      if (existingData.gasProcessingPlants !== undefined) {
+        gasProcessingPlants.handleChange(String(existingData.gasProcessingPlants));
+      }
+      if (existingData.otherSites !== undefined) {
+        otherTerrestrialSites.handleChange(String(existingData.otherSites));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.terrestrialSites]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -107,6 +125,10 @@ export function TerrestialSites({
     const payload = getPayload();
     try {
       await saveNow("activityMetrics.assetPortfolio.terrestrialSites", payload);
+      dispatch({
+        type: "UPDATE_ASSET_PORTFOLIO",
+        payload: { section: "terrestrialSites", data: payload },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => router.push("/assessments/new-assessment"), 1000);
@@ -125,6 +147,10 @@ export function TerrestialSites({
     const payload = getPayload();
     try {
       await saveNow("activityMetrics.assetPortfolio.terrestrialSites", payload);
+      dispatch({
+        type: "UPDATE_ASSET_PORTFOLIO",
+        payload: { section: "terrestrialSites", data: payload },
+      });
       await submitGroup();
       toast.success("Activity metrics submitted successfully");
       setShowSuccess(true);

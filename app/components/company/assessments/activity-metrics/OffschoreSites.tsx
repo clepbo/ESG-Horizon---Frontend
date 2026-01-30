@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
+import { useAssessment } from "@/hooks/useAssessment";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
@@ -34,6 +35,7 @@ export function OffshoreSites({
   breadcrumb = [],
 }: OffshoreSitesProps) {
   const router = useRouter();
+  const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites");
 
   const productionPlatforms = useFormattedNumber("");
@@ -49,6 +51,24 @@ export function OffshoreSites({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.productionPlatforms !== undefined) {
+        productionPlatforms.handleChange(String(existingData.productionPlatforms));
+      }
+      if (existingData.FPSOs !== undefined) {
+        fpsos.handleChange(String(existingData.FPSOs));
+      }
+      if (existingData.otherSites !== undefined) {
+        otherOffshoreSites.handleChange(String(existingData.otherSites));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -95,6 +115,10 @@ export function OffshoreSites({
 
     try {
       await saveNow("activityMetrics.assetPortfolio.offshoreSites", payload);
+      dispatch({
+        type: "UPDATE_ASSET_PORTFOLIO",
+        payload: { section: "offshoreSites", data: payload },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
@@ -118,6 +142,10 @@ export function OffshoreSites({
 
     try {
       await saveNow("activityMetrics.assetPortfolio.offshoreSites", payload);
+      dispatch({
+        type: "UPDATE_ASSET_PORTFOLIO",
+        payload: { section: "offshoreSites", data: payload },
+      });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {

@@ -11,6 +11,8 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
@@ -35,6 +37,10 @@ export default function AntiCorruptionManagement({
   breadcrumb,
   onSubmit,
 }: AntiCorruptionManagementProps) {
+  const { state, dispatch } = useAssessment();
+  const { saveNow } = useAssessmentFlow(
+    "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"
+  );
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -48,6 +54,27 @@ export default function AntiCorruptionManagement({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+        ?.antiCorruptionManagementSystem;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.hasWhistleblowerHotline !== undefined) {
+        setHasWhistleblowerHotline(existingData.hasWhistleblowerHotline);
+      }
+      if (existingData.systemDescription !== undefined) {
+        setSystemDescription(existingData.systemDescription);
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [
+    state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+      ?.antiCorruptionManagementSystem,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -101,9 +128,18 @@ export default function AntiCorruptionManagement({
     };
 
     try {
-      console.log("ANTI-CORRUPTION MANAGEMENT DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(
+        "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
+        payload
+      );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "businessEthicsAndTransparency",
+          section: "antiCorruptionManagementSystem",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
@@ -113,7 +149,7 @@ export default function AntiCorruptionManagement({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting.");
       return;
@@ -127,13 +163,28 @@ export default function AntiCorruptionManagement({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("SUBMITTING ANTI-CORRUPTION MANAGEMENT DATA:", payload);
+    try {
+      await saveNow(
+        "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
+        payload
+      );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "businessEthicsAndTransparency",
+          section: "antiCorruptionManagementSystem",
+          data: payload,
+        },
+      });
 
-    // Call onSubmit with null or actual totals response if you have one
-    onSubmit(null);
+      // Call onSubmit with null or actual totals response if you have one
+      onSubmit(null);
 
-    toast.success("Form submitted successfully!");
-    onContinueToNextAssessment();
+      toast.success("Form submitted successfully!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      toast.error("Failed to submit form");
+    }
   };
 
   const handlePrevious = () => {
@@ -252,9 +303,8 @@ export default function AntiCorruptionManagement({
                     setErrors((prev) => ({ ...prev, systemDescription: "" }));
                   }}
                   placeholder="e.g., We have a zero-tolerance policy for bribery and corruption, embedded in our Corporate Code of Conduct. Mandatory annual anti-corruption training is required for all staff. We are a signatory to the Nigerian Extractive Industries Transparency Initiative (NEITI) principles and publish all payments to government..."
-                  className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                    errors.systemDescription ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`min-h-[150px] resize-none w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.systemDescription ? "border-red-500" : "border-gray-300"
+                    }`}
                 />
 
                 {errors.systemDescription && (

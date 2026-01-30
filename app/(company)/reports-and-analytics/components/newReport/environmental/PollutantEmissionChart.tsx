@@ -73,9 +73,21 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
               tick={{ fill: "#374151", fontSize: 14, fontWeight: 500 }}
             />
             <YAxis axisLine={false} tickLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} />
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+              }}
+            />
             <Legend content={renderLegend} />
-            <Bar dataKey="value" fill="#8884d8" radius={[10, 10, 0, 0]}>
+            <Bar
+              dataKey="value"
+              fill="#8884d8"
+              radius={[10, 10, 0, 0]}
+              isAnimationActive={false}
+            >
               <Cell fill="#3b82f6" />
               <Cell fill="#f9b232" />
               <Cell fill="#af57db" />

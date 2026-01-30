@@ -62,6 +62,7 @@ export function ScopeInput({
     return calculateTCO2eForSource({
       volume: formattedValue.rawValue,
       emissionFactor: emissionFactor.factor,
+      unit: emissionFactor.unit,
     });
   }, [formattedValue.rawValue, emissionFactor]);
 

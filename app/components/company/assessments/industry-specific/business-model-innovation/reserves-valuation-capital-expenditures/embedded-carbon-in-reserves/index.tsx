@@ -13,6 +13,7 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
@@ -42,9 +43,37 @@ export default function EmbeddedCarbonInReserves({
   const formRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
+  const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow(
-    "businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve"
+    "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"
   );
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+        ?.embeddedCarbonInReserves;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.totalProvedReserves !== undefined) {
+        totalProvedReserves.handleChange(String(existingData.totalProvedReserves));
+      }
+      if (existingData.estimatedEmbeddedEmissions !== undefined) {
+        estimatedEmbeddedEmissions.handleChange(String(existingData.estimatedEmbeddedEmissions));
+      }
+
+      _setFormData({
+        totalProvedReservesUnit: existingData.totalProvedReservesUnit || "",
+        estimatedEmbeddedEmissionsUnit: existingData.estimatedEmbeddedEmissionsUnit || "",
+      });
+
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [
+    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      ?.embeddedCarbonInReserves,
+  ]);
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -113,14 +142,19 @@ export default function EmbeddedCarbonInReserves({
 
     try {
       await saveNow(
-        "businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve",
+        "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves",
         payload
       );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "embeddedCarbonInReserves",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 1000);
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
@@ -136,14 +170,22 @@ export default function EmbeddedCarbonInReserves({
     }
     try {
       await saveNow(
-        "businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve",
+        "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves",
         payload
       );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "embeddedCarbonInReserves",
+          data: payload,
+        },
+      });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
       console.log(error);
-      toast.error("Failed to save data");
+      toast.error("Failed to save progress");
     }
   };
 
@@ -196,7 +238,7 @@ export default function EmbeddedCarbonInReserves({
                 totalProvedReserves.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, totalProvedReserves: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="Billion BOE"
               error={errors.totalProvedReserves}
               unitError={errors.totalProvedReservesUnit}
@@ -215,7 +257,7 @@ export default function EmbeddedCarbonInReserves({
                 estimatedEmbeddedEmissions.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, estimatedEmbeddedEmissions: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="Million t CO₂-e"
               error={errors.estimatedEmbeddedEmissions}
               unitError={errors.estimatedEmbeddedEmissionsUnit}

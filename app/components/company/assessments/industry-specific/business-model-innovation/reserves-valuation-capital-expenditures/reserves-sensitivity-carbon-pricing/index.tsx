@@ -13,7 +13,7 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-// import { useRouter } from "next/router";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
@@ -44,9 +44,41 @@ export default function ReservesSensitivityForm({
   const formRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
+  const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow(
-    "businessModelAndInnovation.reserveValuation.climateImpact.reserveSensitivity"
+    "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"
   );
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+        ?.reservesSensitivityToCarbonPricing;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.carbonPriceScenario !== undefined) {
+        carbonPriceScenario.handleChange(String(existingData.carbonPriceScenario));
+      }
+      if (existingData.percentageDecrease !== undefined) {
+        percentageDecrease.handleChange(String(existingData.percentageDecrease));
+      }
+      if (existingData.estimatedDecrease !== undefined) {
+        estimatedDecrease.handleChange(String(existingData.estimatedDecrease));
+      }
+
+      setFormData({
+        carbonPriceScenarioUnit: existingData.carbonPriceScenarioUnit || "$/tonne CO₂-e",
+        percentageDecreaseUnit: existingData.percentageDecreaseUnit || "%",
+        estimatedDecreaseUnit: existingData.estimatedDecreaseUnit || "",
+      });
+
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [
+    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      ?.reservesSensitivityToCarbonPricing,
+  ]);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -128,17 +160,22 @@ export default function ReservesSensitivityForm({
 
     try {
       await saveNow(
-        "businessModelAndInnovation.reserveValuation.climateImpact.reserveSensitivity",
+        "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing",
         payload
       );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "reservesSensitivityToCarbonPricing",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 1000);
     } catch (_error: any) {
       console.error(_error);
-      toast.error("Failed to save data", _error.message);
+      toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
     }
@@ -146,20 +183,28 @@ export default function ReservesSensitivityForm({
 
   const handleNext = async () => {
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
+      toast.error("Please fix the errors before continuing.");
       return;
     }
 
     try {
       await saveNow(
-        "businessModelAndInnovation.reserveValuation.climateImpact.reserveSensitivity",
+        "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing",
         payload
       );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "reservesSensitivityToCarbonPricing",
+          data: payload,
+        },
+      });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
       console.log(error);
-      toast.error("Failed to save data");
+      toast.error("Failed to save progress");
     }
   };
 
@@ -212,7 +257,7 @@ export default function ReservesSensitivityForm({
                 carbonPriceScenario.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, carbonPriceScenario: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="$/tonne CO₂-e"
               error={errors.carbonPriceScenario}
               formatNumbers={false}
@@ -230,7 +275,7 @@ export default function ReservesSensitivityForm({
                 percentageDecrease.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, percentageDecrease: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="%"
               error={errors.percentageDecrease}
               formatNumbers={false}

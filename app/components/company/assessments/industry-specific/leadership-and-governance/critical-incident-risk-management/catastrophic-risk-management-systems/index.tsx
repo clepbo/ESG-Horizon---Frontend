@@ -11,6 +11,8 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { TotalsResponse } from "@/services/assessment.service";
@@ -33,6 +35,10 @@ export default function CatastrophicRiskManagement({
   totalSteps,
   breadcrumb,
 }: CatastrophicRiskManagementProps) {
+  const { state, dispatch } = useAssessment();
+  const current =
+    "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems";
+  const { saveNow } = useAssessmentFlow(current);
   const [auditDate, setAuditDate] = useState("");
   const [systemDescription, setSystemDescription] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -46,6 +52,27 @@ export default function CatastrophicRiskManagement({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+        ?.catastrophicRiskManagementSystems;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.auditDate !== undefined) {
+        setAuditDate(existingData.auditDate);
+      }
+      if (existingData.systemDescription !== undefined) {
+        setSystemDescription(existingData.systemDescription);
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [
+    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      ?.catastrophicRiskManagementSystems,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -86,9 +113,15 @@ export default function CatastrophicRiskManagement({
     };
 
     try {
-      console.log("CATASTROPHIC RISK MANAGEMENT DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "criticalIncidentRiskManagement",
+          section: "catastrophicRiskManagementSystems",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
@@ -98,7 +131,7 @@ export default function CatastrophicRiskManagement({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting.");
       return;
@@ -110,9 +143,21 @@ export default function CatastrophicRiskManagement({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("SUBMITTING CATASTROPHIC RISK MANAGEMENT DATA:", payload);
-
-    onContinueToNextAssessment();
+    try {
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "criticalIncidentRiskManagement",
+          section: "catastrophicRiskManagementSystems",
+          data: payload,
+        },
+      });
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch (error) {
+      toast.error("Failed to save progress");
+    }
   };
 
   const handlePrevious = () => {
@@ -199,9 +244,8 @@ export default function CatastrophicRiskManagement({
                   setErrors((prev) => ({ ...prev, systemDescription: "" }));
                 }}
                 placeholder="e.g., Our Safety Case methodology for offshore assets identifies and mitigates major accident hazards (MAHs). For onshore assets, we conduct regular pipeline integrity checks and security audits to mitigate risks from sabotage and theft..."
-                className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                  errors.systemDescription ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.systemDescription ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.systemDescription && (
                 <p className="text-sm text-red-600 mt-1">{errors.systemDescription}</p>
