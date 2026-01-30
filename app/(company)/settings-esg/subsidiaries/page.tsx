@@ -6,10 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/app/(company)/components/Header";
 import SubsidiaryTable from "@/app/components/company/subsidiaries/SubsidiaryTable";
 import AddSubsidiaryModal from "@/app/components/company/subsidiaries/AddSubsidiaryModal";
-import { Subsidiary, subsidiariesService } from "@/services/subsidiaries.service";
+import { Subsidiary } from "@/services/subsidiaries.service";
 import { industriesService } from "@/services/industries.services";
-import { useAuth } from "@/context/AuthContext";
 import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
+import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -24,18 +24,26 @@ interface IndustryOptionsProps {
 }
 
 export default function SubsidiariesPage() {
+  const { data: subsidiariesData, isLoading: subsidiariesLoading } = useCompanySubsidiaries();
+  // Restore local state to support legacy manual updates while syncing with the hook
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
+  const loading = subsidiariesLoading;
+
   const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 300);
   const [industryOptions, setIndustryOptions] = useState<IndustryOptionsProps[]>([]);
   const [industryFilter, setIndustryFilter] = useState("All Industries");
-  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"subsidiary" | "department" | "user">("subsidiary");
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    if (subsidiariesData) {
+      setSubsidiaries(subsidiariesData);
+    }
+  }, [subsidiariesData]);
 
   useEffect(() => {
     const shouldOpenModal = searchParams.get("setup");
@@ -43,26 +51,6 @@ export default function SubsidiariesPage() {
       setIsModalOpen(true);
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    const fetchSubsidiaries = async () => {
-      if (!user || !user.id) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await subsidiariesService.getCompanySubsidiaries();
-        setSubsidiaries(response);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSubsidiaries();
-  }, [user]);
 
   const deleteSubsidiary = useDeleteSubsidiary((id: number) => {
     setSubsidiaries((prev: any[]) => prev.filter((s) => s.id !== id));
@@ -117,28 +105,8 @@ export default function SubsidiariesPage() {
     const updatedDepartments = submissionData.departments || [];
 
     if (updatedSubsidiaries.length > 0) {
-      setSubsidiaries((prevSubs) => {
-        const hydratedSubs = updatedSubsidiaries.map((newSub: Subsidiary) => {
-          const fullIndustry = industryOptions.find(
-            (opt) => opt.industry === newSub?.industry?.industry
-          );
-
-          const completeIndustry = fullIndustry
-            ? {
-                id: Number(crypto.randomUUID()),
-                industry: fullIndustry.industry,
-                sector: fullIndustry.sector,
-              }
-            : newSub.industry;
-
-          return {
-            ...newSub,
-            industry: completeIndustry,
-          };
-        });
-
-        return [...hydratedSubs, ...prevSubs];
-      });
+      // Manual state update removed to prevent duplicate rows.
+      // TanStack Query's useCompanySubsidiaries will automatically sync after mutation invalidation.
     }
 
     toast.success("Submitted Successfully");

@@ -170,7 +170,7 @@ export default function AddDepartmentModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-100 cursor-pointer"
+              className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-100 cursor-pointer shadow-md"
             >
               Cancel
             </button>

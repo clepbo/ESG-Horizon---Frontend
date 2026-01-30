@@ -187,20 +187,25 @@ export const formatNumberToTwoDecimals = (value: string | number | null | undefi
   });
 };
 
-export const formattedDate = (date: string): string => {
+export const formattedDate = (date: string, includeTime: boolean = true): string => {
   const dateObj = new Date(date);
 
   if (isNaN(dateObj.getTime())) {
     return "n/a";
   }
 
-  return dateObj.toLocaleString("en-US", {
+  const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "short",
     day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  };
+
+  if (includeTime) {
+    options.hour = "2-digit";
+    options.minute = "2-digit";
+  }
+
+  return dateObj.toLocaleString("en-US", options);
 };
 
 // interface SourceDataForCalculation {
