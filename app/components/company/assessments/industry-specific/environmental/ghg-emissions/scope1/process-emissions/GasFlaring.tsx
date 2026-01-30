@@ -286,9 +286,8 @@ export function GasFlaring({
   };
 
   const handleSubmit = async () => {
-    // Validate before submission
     if (!validateForm()) {
-      toast.error("Please fill in all required fields before submitting");
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
 

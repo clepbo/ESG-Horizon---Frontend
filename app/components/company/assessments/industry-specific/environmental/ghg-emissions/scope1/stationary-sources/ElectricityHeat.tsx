@@ -219,7 +219,10 @@ export function ElectricityHeatForm({
   };
 
   const handleNext = () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
 
     dispatch({
       type: "UPDATE_STATIONARY_ELECTRICITY_HEAT",

@@ -260,7 +260,10 @@ export function CoolingSteamForm({
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
 
     // Get previous steps data from state to ensure it's saved on submission
     const ipps = state.assessmentData.environment?.ghg?.scope2?.marketBased?.ipps;
