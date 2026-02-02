@@ -72,11 +72,23 @@ export function ScopeInput({
     if (error && onErrorClear) onErrorClear();
   };
 
+  // FIX: Check if we should show the emission badge
+  // Show badge when there's a valid number (including 0) and an emission factor
+  const shouldShowEmission =
+    formattedValue.rawValue !== "" &&
+    formattedValue.rawValue !== null &&
+    formattedValue.rawValue !== undefined &&
+    !isNaN(Number(formattedValue.rawValue)) &&
+    Number(formattedValue.rawValue) >= 0 &&
+    emissionFactor;
+
   return (
     <div className={`space-y-2 ${className}`}>
-      <Label htmlFor={`scope-${category}`}>
-        {label} {required && <span className="text-red-500">*</span>}
-      </Label>
+      {label && (
+        <Label htmlFor={`scope-${category}`}>
+          {label} {required && <span className="text-red-500">*</span>}
+        </Label>
+      )}
 
       {/* ▶ Emission Factor Display Box */}
       {showEmissionFactor && (
@@ -116,8 +128,8 @@ export function ScopeInput({
           className={`w-full ${error ? "border-red-500" : "border-gray-400"}`}
         />
 
-        {/* ▶ tCO2e Badge */}
-        {tCO2e > 0 && emissionFactor && (
+        {/* ▶ tCO2e Badge - FIX: Show even when value is 0 */}
+        {shouldShowEmission && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -132,7 +144,10 @@ export function ScopeInput({
                 </div>
               </TooltipTrigger>
               <TooltipContent className="bg-white border border-teal-600 text-teal-800 shadow-lg">
-                This is the tCO₂e emission calculated from the volume and emission factor.
+                <p className="font-semibold text-center">Volume Emission</p>
+                <p className="text-xs">
+                  This is the tCO₂e emission calculated from the volume and emission factor.
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

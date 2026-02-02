@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -14,6 +14,12 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
@@ -86,7 +92,12 @@ export function CementManufacturing({
     const existingData =
       state.assessmentData.environment?.ghg?.scope1?.processEmissions?.cementManufacturing;
     if (existingData) {
-      setCementRaw(existingData.cementQuantity ? existingData.cementQuantity.toString() : "");
+      // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
+      setCementRaw(
+        existingData.cementQuantity !== null && existingData.cementQuantity !== undefined
+          ? existingData.cementQuantity.toString()
+          : ""
+      );
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -98,8 +109,16 @@ export function CementManufacturing({
   ]);
 
   const { filled, total } = useMemo(() => {
+    // FIX: Check for valid numbers >= 0 instead of just > 0
+    // This allows 0 to be considered valid
+    const hasCementData =
+      cementQuantity !== "" &&
+      cementQuantity !== null &&
+      cementQuantity !== undefined &&
+      !isNaN(Number(cementQuantity)) &&
+      Number(cementQuantity) >= 0;
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
-    return calculateProgress([cementQuantity !== "" && Number(cementQuantity) > 0, hasFiles]);
+    return calculateProgress([hasCementData, hasFiles]);
   }, [cementQuantity, files, additionalFields]);
 
   const validateForm = () => {
@@ -108,9 +127,15 @@ export function CementManufacturing({
       files?: string;
     } = {};
 
-    if (!cementQuantity || Number(cementQuantity) <= 0) {
-      // Added !cementQuantity check
-      newErrors.cementQuantity = "Please enter a positive quantity of cement produced";
+    // FIX: Accept 0 and any valid number >= 0
+    if (
+      cementQuantity === "" ||
+      cementQuantity === null ||
+      cementQuantity === undefined ||
+      isNaN(Number(cementQuantity)) ||
+      Number(cementQuantity) < 0
+    ) {
+      newErrors.cementQuantity = "Please enter a valid quantity (0 or greater)";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -190,7 +215,10 @@ export function CementManufacturing({
   };
 
   const handleNext = () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
     dispatch({
       type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
       payload: {
@@ -279,20 +307,31 @@ export function CementManufacturing({
               </Label>
               <div className="space-y-6 ml-6">
                 <div className="space-y-4">
-                  {/* <Label htmlFor="cement-quantity" className="text-sm font-medium text-gray-700">
-                    Quantity of Cement Produced (Tonnes)
-                  </Label> */}
-                  {/* <Input
-                    id="cement-quantity"
-                    type="text"
-                    placeholder="Enter quantity of cement produced"
-                    value={cementQuantityDisplay}
-                    onChange={(e) => handleCementChange(e.target.value)}
-                    className={`w-full border-gray-400 ${
-                      errors.cementQuantity ? "border-red-500 focus:border-red-500" : ""
-                    }`}
-                    aria-describedby={errors.cementQuantity ? "cement-quantity-error" : undefined}
-                  /> */}
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label htmlFor="cement-quantity" className="text-sm font-medium text-gray-700">
+                      Quantity of Cement Produced (Tonnes)
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Cement Quantity Input Guide</p>
+                          <p className="text-xs">
+                            Enter the total quantity of cement produced during the reporting period.
+                          </p>
+                          <p className="text-xs mt-1">
+                            • You can enter 0 if no cement was produced
+                          </p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 1250.5)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <ScopeInput
                     category="cement"
                     formattedValue={{
@@ -301,9 +340,9 @@ export function CementManufacturing({
                       handleChange: handleCementChange,
                       setRawValue: setCementRaw,
                     }}
-                    label="Quantity of Cement Produced (Tonnes)"
+                    label=""
                     placeholder="Enter quantity of cement produced"
-                    required
+                    required={false}
                     error={errors.cementQuantity}
                     showEmissionFactor={true}
                     onErrorClear={() =>

@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -104,11 +110,18 @@ export function UseOfSoldProducts({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
-    const hasUnitsSold = unitsSold.trim().length > 0;
-    const hasProductLifetime = productLifetime.trim().length > 0;
-    const hasAverageAnnualConsumption = averageAnnualConsumption.trim().length > 0;
+    const hasUnitsSold =
+      unitsSold.trim() !== "" && !isNaN(Number(unitsSold)) && Number(unitsSold) >= 0;
+    const hasProductLifetime =
+      productLifetime.trim() !== "" &&
+      !isNaN(Number(productLifetime)) &&
+      Number(productLifetime) >= 0;
+    const hasAverageAnnualConsumption =
+      averageAnnualConsumption.trim() !== "" &&
+      !isNaN(Number(averageAnnualConsumption)) &&
+      Number(averageAnnualConsumption) >= 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -140,20 +153,25 @@ export function UseOfSoldProducts({
       averageAnnualConsumption: false,
     };
 
-    // Validate input fields
-    if (!unitsSold.trim()) {
-      newErrors.unitsSold = "Please enter the number of units sold.";
+    // Validate input fields - accept 0 and any valid number >= 0
+    if (!unitsSold.trim() || isNaN(Number(unitsSold)) || Number(unitsSold) < 0) {
+      newErrors.unitsSold = "Please enter the number of units sold (0 or greater).";
       newFieldErrors.unitsSold = true;
     }
 
-    if (!productLifetime.trim()) {
-      newErrors.productLifetime = "Please enter the expected lifetime of the product.";
+    if (!productLifetime.trim() || isNaN(Number(productLifetime)) || Number(productLifetime) < 0) {
+      newErrors.productLifetime =
+        "Please enter the expected lifetime of the product (0 or greater).";
       newFieldErrors.productLifetime = true;
     }
 
-    if (!averageAnnualConsumption.trim()) {
+    if (
+      !averageAnnualConsumption.trim() ||
+      isNaN(Number(averageAnnualConsumption)) ||
+      Number(averageAnnualConsumption) < 0
+    ) {
       newErrors.averageAnnualConsumption =
-        "Please enter the average annual fuel/energy consumption.";
+        "Please enter the average annual fuel/energy consumption (0 or greater).";
       newFieldErrors.averageAnnualConsumption = true;
     }
 
@@ -209,6 +227,8 @@ export function UseOfSoldProducts({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -388,53 +408,137 @@ export function UseOfSoldProducts({
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
-                  <SmartInput
-                    label="Number of units sold"
-                    placeholder="Enter total units sold"
-                    type="number"
-                    required
-                    value={unitsSold}
-                    onChange={handleUnitsSoldChange}
-                    errorTrigger={fieldErrors.unitsSold}
-                    errorMessage="Please enter the number of units sold."
-                  />
-                  {errors.unitsSold && (
-                    <p className="text-sm text-red-500 animate-pulse col-span-full">
-                      {errors.unitsSold}
-                    </p>
-                  )}
+                  {/* Number of units sold */}
+                  <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Number of units sold <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Units Sold Input Guide</p>
+                            <p className="text-xs">
+                              Enter the total number of units sold during the reporting period.
+                            </p>
+                            <p className="text-xs mt-1">• You can enter 0 if no units were sold</p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use whole numbers for product counts (e.g., 1000)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <SmartInput
+                      label=""
+                      placeholder="Enter total units sold"
+                      type="number"
+                      required={false}
+                      value={unitsSold}
+                      onChange={handleUnitsSoldChange}
+                      errorTrigger={fieldErrors.unitsSold}
+                      errorMessage="Please enter the number of units sold (0 or greater)."
+                    />
+                    {errors.unitsSold && (
+                      <p className="text-sm text-red-500 animate-pulse col-span-full">
+                        {errors.unitsSold}
+                      </p>
+                    )}
+                  </div>
 
-                  <SmartInput
-                    label="Expected lifetime of the product"
-                    type="number"
-                    required
-                    placeholder="Enter lifespan in years"
-                    value={productLifetime}
-                    onChange={handleProductLifetimeChange}
-                    errorTrigger={fieldErrors.productLifetime}
-                    errorMessage="Please enter the expected lifetime of the product."
-                  />
-                  {errors.productLifetime && (
-                    <p className="text-sm text-red-500 animate-pulse col-span-full">
-                      {errors.productLifetime}
-                    </p>
-                  )}
+                  {/* Expected lifetime */}
+                  <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Expected lifetime of the product <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Product Lifetime Input Guide</p>
+                            <p className="text-xs">
+                              Enter the expected lifetime of the product in years.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 for single-use products
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for partial years (e.g., 2.5 years)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <SmartInput
+                      label=""
+                      type="number"
+                      required={false}
+                      placeholder="Enter lifespan in years"
+                      value={productLifetime}
+                      onChange={handleProductLifetimeChange}
+                      errorTrigger={fieldErrors.productLifetime}
+                      errorMessage="Please enter the expected lifetime of the product (0 or greater)."
+                    />
+                    {errors.productLifetime && (
+                      <p className="text-sm text-red-500 animate-pulse col-span-full">
+                        {errors.productLifetime}
+                      </p>
+                    )}
+                  </div>
 
-                  <SmartInput
-                    label="Average annual fuel/energy consumption of product (if applicable)"
-                    type="number"
-                    required
-                    placeholder="Enter consumption amount"
-                    value={averageAnnualConsumption}
-                    onChange={handleAverageAnnualConsumptionChange}
-                    errorTrigger={fieldErrors.averageAnnualConsumption}
-                    errorMessage="Please enter the average annual fuel/energy consumption."
-                  />
-                  {errors.averageAnnualConsumption && (
-                    <p className="text-sm text-red-500 animate-pulse col-span-full">
-                      {errors.averageAnnualConsumption}
-                    </p>
-                  )}
+                  {/* Average annual consumption */}
+                  <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Average annual fuel/energy consumption of product (if applicable){" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Annual Consumption Input Guide</p>
+                            <p className="text-xs">
+                              Enter the average annual fuel/energy consumption of the product during
+                              use.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if product doesn't consume fuel/energy
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 150.5)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <SmartInput
+                      label=""
+                      type="number"
+                      required={false}
+                      placeholder="Enter consumption amount"
+                      value={averageAnnualConsumption}
+                      onChange={handleAverageAnnualConsumptionChange}
+                      errorTrigger={fieldErrors.averageAnnualConsumption}
+                      errorMessage="Please enter the average annual fuel/energy consumption (0 or greater)."
+                    />
+                    {errors.averageAnnualConsumption && (
+                      <p className="text-sm text-red-500 animate-pulse col-span-full">
+                        {errors.averageAnnualConsumption}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

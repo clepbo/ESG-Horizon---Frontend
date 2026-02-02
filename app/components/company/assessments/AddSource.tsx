@@ -51,8 +51,8 @@ function SourceRow({
   unitOptions,
   updateSource,
   removeSource,
-  validateSource,
   errors,
+  setErrors,
   isEditing,
   tempEmissionFactor,
   setTempEmissionFactor,
@@ -66,8 +66,8 @@ function SourceRow({
   unitOptions: UnitOption[];
   updateSource: (id: string, field: keyof Omit<SourceData, "id">, value: string) => void;
   removeSource: (id: string) => void;
-  validateSource: (source: SourceData) => void;
   errors: { [key: string]: string };
+  setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string }>>;
   isEditing: boolean;
   editingFactorId: string | null;
   tempEmissionFactor: number | null;
@@ -87,7 +87,11 @@ function SourceRow({
   const formattedTCO2e = formatTCO2eOutput(tCO2e);
 
   const shouldShowEmission =
-    source.volume && !isNaN(Number(source.volume)) && Number(source.volume) > 0;
+    source.volume !== "" &&
+    source.volume !== null &&
+    source.volume !== undefined &&
+    !isNaN(Number(source.volume)) &&
+    Number(source.volume) >= 0;
 
   return (
     <Card key={source.id} className="p-4 relative">
@@ -132,7 +136,7 @@ function SourceRow({
 
                   {isEditing ? (
                     <>
-                      <div className="relative flex-grow">
+                      <div className="relative grow">
                         <Input
                           type="number"
                           value={tempEmissionFactor ?? ""}
@@ -176,7 +180,7 @@ function SourceRow({
                 {isEditing && (
                   <>
                     <div className="flex items-start text-yellow-600 bg-yellow-500/10 p-2 rounded-md border border-yellow-600">
-                      <AlertTriangle className="h-4 w-4 mt-1 mr-2 flex-shrink-0" />
+                      <AlertTriangle className="h-4 w-4 mt-1 mr-2 shrink-0" />
                       <p className="text-xs">
                         Editing emission factors will change your total emissions calculations. Only
                         update with verified data to ensure accurate reporting.
@@ -208,7 +212,27 @@ function SourceRow({
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label htmlFor={`volume-${source.id}`}>Volume of Fuel Consumed</Label>
+            <span className="flex items-center space-x-1">
+              <Label htmlFor={`volume-${source.id}`}>Volume of Fuel Consumed</Label>{" "}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="font-semibold mb-1">Volume Input Guide</p>
+                    <p className="text-xs">
+                      Enter the total fuel consumed during the reporting period.
+                    </p>
+                    <p className="text-xs mt-1">• You can enter 0 if no fuel was used</p>
+                    <p className="text-xs">• Negative values are not allowed</p>
+                    <p className="text-xs">
+                      • Use decimals for precise measurements (e.g., 1250.5)
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </span>
             <div className="relative pb-5">
               <Input
                 id={`volume-${source.id}`}
@@ -216,11 +240,33 @@ function SourceRow({
                 placeholder="Enter total volume consumed"
                 value={formatted.displayValue}
                 onChange={(e) => {
-                  formatted.handleChange(e.target.value);
-                  // Save raw to the parent source state
-                  updateSource(source.id, "volume", formatted.rawValue);
+                  const inputValue = e.target.value;
+                  const stripped = inputValue.replace(/,/g, "");
+
+                  formatted.handleChange(inputValue);
+
+                  // Use stripped value directly to avoid stale state
+                  if (/^\d*\.?\d*$/.test(stripped)) {
+                    updateSource(source.id, "volume", stripped);
+                  }
                 }}
-                onBlur={() => validateSource(source)}
+                onBlur={() => {
+                  const newErrors = { ...errors };
+                  const currentValue = formatted.rawValue;
+
+                  if (
+                    currentValue === "" ||
+                    currentValue === null ||
+                    currentValue === undefined ||
+                    isNaN(Number(currentValue)) ||
+                    Number(currentValue) < 0
+                  ) {
+                    newErrors[`${source.id}-volume`] = "Please enter a valid number (0 or greater)";
+                  } else {
+                    delete newErrors[`${source.id}-volume`];
+                  }
+                  setErrors(newErrors);
+                }}
                 className={errors[`${source.id}-volume`] ? "border-destructive" : ""}
               />
 
@@ -251,7 +297,6 @@ function SourceRow({
                 </TooltipProvider>
               )}
             </div>
-
             {errors[`${source.id}-volume`] && (
               <p className="text-sm text-destructive mt-1">{errors[`${source.id}-volume`]}</p>
             )}
@@ -416,14 +461,6 @@ export function AddSource({
     setTempEmissionFactor(defaultFactor);
   };
 
-  const validateSource = (source: SourceData) => {
-    const newErrors = { ...errors };
-    if (!source.volume || isNaN(Number(source.volume)) || Number(source.volume) <= 0) {
-      newErrors[`${source.id}-volume`] = "Please enter a valid positive number";
-    }
-    setErrors(newErrors);
-  };
-
   return (
     <div className="space-y-6">
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -444,8 +481,8 @@ export function AddSource({
                 unitOptions={unitOptions}
                 updateSource={updateSource}
                 removeSource={removeSource}
-                validateSource={validateSource}
                 errors={errors}
+                setErrors={setErrors}
                 isEditing={isEditing}
                 editingFactorId={editingFactorId}
                 tempEmissionFactor={tempEmissionFactor}

@@ -20,6 +20,13 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { TbCurrencyNaira } from "react-icons/tb";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface CapitalGoodsProps {
   onBack: () => void;
@@ -81,12 +88,21 @@ export function CapitalGoods({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
+  // FIX: Load existing data with proper null/undefined handling
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.capitalGoods;
     if (existingData) {
-      setTotalCost(existingData.totalCost || "");
-      setMaterialWeight(existingData.materialWeight || "");
+      // FIX: Handle null/undefined properly for numeric values
+      setTotalCost(
+        existingData.totalCost !== null && existingData.totalCost !== undefined
+          ? existingData.totalCost.toString()
+          : ""
+      );
+      setMaterialWeight(
+        existingData.materialWeight !== null && existingData.materialWeight !== undefined
+          ? existingData.materialWeight.toString()
+          : ""
+      );
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -94,9 +110,22 @@ export function CapitalGoods({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    const hasTotalCost = totalCost.trim().length > 0;
-    const hasMaterialWeight = materialWeight.trim().length > 0;
+    const hasTotalCost =
+      totalCost !== "" &&
+      totalCost !== null &&
+      totalCost !== undefined &&
+      !isNaN(Number(totalCost)) &&
+      Number(totalCost) >= 0;
+
+    const hasMaterialWeight =
+      materialWeight !== "" &&
+      materialWeight !== null &&
+      materialWeight !== undefined &&
+      !isNaN(Number(materialWeight)) &&
+      Number(materialWeight) >= 0;
+
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -118,6 +147,7 @@ export function CapitalGoods({
     });
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: CapitalGoodsErrors = {};
     const newFieldErrors = {
@@ -125,15 +155,27 @@ export function CapitalGoods({
       materialWeight: false,
     };
 
-    // Validate total cost field
-    if (!totalCost.trim()) {
-      newErrors.totalCost = "Please enter the total cost of capital goods purchased.";
+    // FIX: Validate total cost field - accept 0 or greater
+    if (
+      totalCost === "" ||
+      totalCost === null ||
+      totalCost === undefined ||
+      isNaN(Number(totalCost)) ||
+      Number(totalCost) < 0
+    ) {
+      newErrors.totalCost = "Please enter a valid total cost (0 or greater).";
       newFieldErrors.totalCost = true;
     }
 
-    // Validate material weight field
-    if (!materialWeight.trim()) {
-      newErrors.materialWeight = "Please enter the weight of primary materials used.";
+    // FIX: Validate material weight field - accept 0 or greater
+    if (
+      materialWeight === "" ||
+      materialWeight === null ||
+      materialWeight === undefined ||
+      isNaN(Number(materialWeight)) ||
+      Number(materialWeight) < 0
+    ) {
+      newErrors.materialWeight = "Please enter a valid weight (0 or greater).";
       newFieldErrors.materialWeight = true;
     }
 
@@ -185,6 +227,8 @@ export function CapitalGoods({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -353,37 +397,97 @@ export function CapitalGoods({
             <div className="flex flex-col gap-4">
               <Label className="text-md font-medium mb-2 block">2.1 Capital Goods</Label>
 
-              <div className="relative">
-                <SmartInput
-                  label="Total cost of capital goods purchased"
-                  type="number"
-                  required
-                  value={totalCost}
-                  onChange={handleTotalCostChange}
-                  errorTrigger={fieldErrors.totalCost}
-                  errorMessage="Please enter the total cost of capital goods purchased."
-                />
-                <div className="absolute right-3 top-9">
-                  <TbCurrencyNaira className="h-5 w-5 text-gray-600" />
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Total cost of capital goods purchased <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Total Cost Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total cost of capital goods purchased during the reporting
+                          period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no capital goods were purchased
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise amounts (e.g., 1250.50)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.totalCost && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.totalCost}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={totalCost}
+                    onChange={(value) => {
+                      handleTotalCostChange(value);
+                      if (fieldErrors.totalCost && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, totalCost: false }));
+                        setErrors((prev) => ({ ...prev, totalCost: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.totalCost}
+                    errorMessage="Please enter the total cost of capital goods purchased."
+                  />
+                  <div className="absolute right-3 top-2">
+                    <TbCurrencyNaira className="h-5 w-5 text-gray-600" />
+                  </div>
+                </div>
               </div>
 
-              <SmartInput
-                label="Weight of primary materials used"
-                type="number"
-                unit="tonnes"
-                required
-                value={materialWeight}
-                onChange={handleMaterialWeightChange}
-                errorTrigger={fieldErrors.materialWeight}
-                errorMessage="Please enter the weight of primary materials used."
-              />
-              {errors.materialWeight && (
-                <p className="text-sm text-red-500 animate-pulse">{errors.materialWeight}</p>
-              )}
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Weight of primary materials used <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Material Weight Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total weight of primary materials used in capital goods during
+                          the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no materials were used</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 500.75)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <SmartInput
+                  label=""
+                  type="number"
+                  unit="tonnes"
+                  required
+                  value={materialWeight}
+                  onChange={(value) => {
+                    handleMaterialWeightChange(value);
+                    if (fieldErrors.materialWeight && value.trim()) {
+                      setFieldErrors((prev) => ({ ...prev, materialWeight: false }));
+                      setErrors((prev) => ({ ...prev, materialWeight: undefined }));
+                    }
+                  }}
+                  errorTrigger={fieldErrors.materialWeight}
+                  errorMessage="Please enter the weight of primary materials used."
+                />
+              </div>
             </div>
 
             <div>

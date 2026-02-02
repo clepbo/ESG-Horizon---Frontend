@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CloudUpload, ArrowLeft, Save, CheckCircle2, X } from "lucide-react";
+import { CloudUpload, ArrowLeft, Save, CheckCircle2, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
@@ -15,6 +15,12 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { TotalsResponse } from "@/services/assessment.service";
@@ -92,28 +98,46 @@ export function HFCLeaks({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
+  useEffect(() => {
+    if (hfcLeaks) {
+      others.setRawValue(
+        hfcLeaks.others !== null && hfcLeaks.others !== undefined ? hfcLeaks.others.toString() : ""
+      );
+      refrigerantAdded.setRawValue(
+        hfcLeaks.refrigerantAdded !== null && hfcLeaks.refrigerantAdded !== undefined
+          ? hfcLeaks.refrigerantAdded.toString()
+          : ""
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hfcLeaks]);
+
   const labelClass = "text-gray-700 text-sm font-medium";
+
+  // FIX: Check for valid numbers >= 0 instead of just > 0
+  // This allows 0 to be considered valid
   const { filled, total } = useMemo(() => {
-    const numericFields = [
-      others.rawValue,
-      refrigerantAdded.rawValue,
-      formState.R134a,
-      formState.R410A,
-      formState.R404A,
-      formState.R407C,
-      formState.R507A,
-    ];
+    const hasOthers =
+      others.rawValue !== "" &&
+      others.rawValue !== null &&
+      others.rawValue !== undefined &&
+      !isNaN(Number(others.rawValue)) &&
+      Number(others.rawValue) >= 0;
+
+    const hasRefrigerantAdded =
+      refrigerantAdded.rawValue !== "" &&
+      refrigerantAdded.rawValue !== null &&
+      refrigerantAdded.rawValue !== undefined &&
+      !isNaN(Number(refrigerantAdded.rawValue)) &&
+      Number(refrigerantAdded.rawValue) >= 0;
+
+    const hasCheckboxes = Object.values(formState).some((value) => value === true);
+
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-    const numericProgress = numericFields.map((value) => {
-      if (typeof value === "boolean") {
-        return value;
-      }
-      return value !== "" && value !== "0";
-    });
-    const progressStatus = [...numericProgress, hasFiles];
 
-    return calculateProgress(progressStatus);
+    return calculateProgress([hasOthers, hasRefrigerantAdded, hasCheckboxes, hasFiles]);
   }, [formState, files, additionalFields, others.rawValue, refrigerantAdded.rawValue]);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,20 +161,6 @@ export function HFCLeaks({
       });
     }
   };
-
-  // const handleRefrigerantAddedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value } = e.target;
-  //   refrigerantAdded.handleChange(value);
-
-  //   // Clear error if present
-  //   if (errors.refrigerantAdded) {
-  //     setErrors((prev) => {
-  //       const copy = { ...prev };
-  //       delete copy.refrigerantAdded;
-  //       return copy;
-  //     });
-  //   }
-  // };
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -198,11 +208,18 @@ export function HFCLeaks({
     }
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!refrigerantAdded.rawValue || Number(refrigerantAdded.rawValue) < 0) {
-      newErrors.refrigerantAdded = "Quantity cannot be empty or negative";
+    if (
+      refrigerantAdded.rawValue === "" ||
+      refrigerantAdded.rawValue === null ||
+      refrigerantAdded.rawValue === undefined ||
+      isNaN(Number(refrigerantAdded.rawValue)) ||
+      Number(refrigerantAdded.rawValue) < 0
+    ) {
+      newErrors.refrigerantAdded = "Please enter a valid quantity (0 or greater)";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -253,6 +270,11 @@ export function HFCLeaks({
   };
 
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
+
     const assessmentId = state.assessmentId;
 
     // Get previous steps data from state to ensure it's saved on submission
@@ -433,14 +455,32 @@ export function HFCLeaks({
 
               <div className="space-y-4">
                 <div className="flex flex-col w-full max-w-md">
-                  <Label htmlFor="others" className={labelClass}>
-                    Others
-                  </Label>
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label htmlFor="others" className={labelClass}>
+                      Others
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Others Input Guide</p>
+                          <p className="text-xs">Enter any other HFC types not listed above.</p>
+                          <p className="text-xs mt-1">• You can enter 0 if none</p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 1250.5)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <Input
                     id="others"
                     name="others"
-                    type="text" // Changed from "number" to "text" to display formatted value
-                    value={others.displayValue} // Use displayValue for formatted display
+                    type="text"
+                    value={others.displayValue}
                     onChange={handleOthersChange}
                     className="w-full max-w-lg"
                     placeholder="Enter amount"
@@ -448,22 +488,32 @@ export function HFCLeaks({
                 </div>
 
                 <div className="flex flex-col w-full">
-                  {/* <Label htmlFor="refrigerantAdded" className={labelClass}>
-                    Quantity/Total mass of refrigerant leak in kg{" "}
-                    <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="refrigerantAdded"
-                    name="refrigerantAdded"
-                    type="text" // Changed from "number" to "text" to display formatted value
-                    value={refrigerantAdded.displayValue} // Use displayValue for formatted display
-                    onChange={handleRefrigerantAddedChange}
-                    className={`w-full ${errors.refrigerantAdded ? "border-red-500" : ""}`}
-                    placeholder="Enter quantity in kg"
-                  />
-                  {errors.refrigerantAdded && (
-                    <p className="text-red-600 text-xs mt-1">{errors.refrigerantAdded}</p>
-                  )} */}
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label htmlFor="refrigerantAdded" className={labelClass}>
+                      Quantity/Total mass of refrigerant leak in kg{" "}
+                      <span className="text-red-500">*</span>
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Refrigerant Quantity Input Guide</p>
+                          <p className="text-xs">
+                            Enter the total mass of refrigerant leaked during the reporting period.
+                          </p>
+                          <p className="text-xs mt-1">
+                            • You can enter 0 if no refrigerant was leaked
+                          </p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 25.5)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <ScopeInput
                     category="refrigerant-added"
                     formattedValue={{
@@ -472,9 +522,9 @@ export function HFCLeaks({
                       handleChange: refrigerantAdded.handleChange,
                       setRawValue: refrigerantAdded.setRawValue,
                     }}
-                    label=" Quantity/Total mass of refrigerant leak in kg"
+                    label=""
                     placeholder="Enter quantity in kg"
-                    required
+                    required={false}
                     error={errors.refrigerantAdded}
                     showEmissionFactor={true}
                     onErrorClear={() => setErrors((prev) => ({ ...prev, refrigerantAdded: "" }))}
@@ -489,7 +539,7 @@ export function HFCLeaks({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-2">
                   {uploadFields.map((field) => (
                     <div key={field} className="flex flex-col h-full">
-                      <Label className="text-sm font-medium mb-2 text-gray-700 min-h-[3rem] flex items-center">
+                      <Label className="text-sm font-medium mb-2 text-gray-700 min-h-12flex items-center">
                         {field}
                       </Label>
                       <Card className="p-4 flex flex-col items-center justify-center border-2 border-gray-300 hover:border-green-500 transition-all h-full">
@@ -601,18 +651,6 @@ export function HFCLeaks({
             </form>
           </CardContent>
         </Card>
-        {/* <SubmitConfirmationDialog
-          isOpen={showConfirmDialog}
-          onClose={() => setShowConfirmDialog(false)}
-          onSave={() => {
-            setShowConfirmDialog(false);
-            handleSaveAndContinue();
-          }}
-          onSubmit={() => {
-            setShowConfirmDialog(false);
-            handleSubmit();
-          }}
-        /> */}
       </div>
     </div>
   );

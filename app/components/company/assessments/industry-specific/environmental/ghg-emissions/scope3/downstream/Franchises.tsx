@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -99,10 +105,17 @@ export function Franchise({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
-    const hasFuelConsumption = fuelConsumption.trim().length > 0;
-    const hasElectricityConsumption = electricityConsumption.trim().length > 0;
+    // Check each required field - accept valid numbers including 0
+    const hasFuelConsumption =
+      fuelConsumption.trim() !== "" &&
+      !isNaN(Number(fuelConsumption)) &&
+      Number(fuelConsumption) >= 0;
+    const hasElectricityConsumption =
+      electricityConsumption.trim() !== "" &&
+      !isNaN(Number(electricityConsumption)) &&
+      Number(electricityConsumption) >= 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -131,15 +144,20 @@ export function Franchise({
       electricityConsumption: false,
     };
 
-    // Validate input fields
-    if (!fuelConsumption.trim()) {
-      newErrors.fuelConsumption = "Please enter the total fuel consumption by franchisees.";
+    // Validate input fields - accept 0 and any valid number >= 0
+    if (!fuelConsumption.trim() || isNaN(Number(fuelConsumption)) || Number(fuelConsumption) < 0) {
+      newErrors.fuelConsumption =
+        "Please enter the total fuel consumption by franchisees (0 or greater).";
       newFieldErrors.fuelConsumption = true;
     }
 
-    if (!electricityConsumption.trim()) {
+    if (
+      !electricityConsumption.trim() ||
+      isNaN(Number(electricityConsumption)) ||
+      Number(electricityConsumption) < 0
+    ) {
       newErrors.electricityConsumption =
-        "Please enter the total electricity consumption by franchisees.";
+        "Please enter the total electricity consumption by franchisees (0 or greater).";
       newFieldErrors.electricityConsumption = true;
     }
 
@@ -194,6 +212,8 @@ export function Franchise({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -362,15 +382,42 @@ export function Franchise({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Total fuel consumption by franchisees{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Fuel Consumption Input Guide</p>
+                            <p className="text-xs">
+                              Enter the total fuel consumed by all franchisees during the reporting
+                              period.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no fuel was consumed
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 500.75)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Total fuel consumption by franchisees"
+                      label=""
                       placeholder="Enter fuel consumption in litres"
                       type="number"
-                      required
+                      required={false}
                       value={fuelConsumption}
                       onChange={handleFuelConsumptionChange}
                       errorTrigger={fieldErrors.fuelConsumption}
-                      errorMessage="Please enter the total fuel consumption by franchisees."
+                      errorMessage="Please enter the total fuel consumption by franchisees (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
@@ -385,15 +432,44 @@ export function Franchise({
                   </div>
 
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Total electricity consumption by franchisees{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">
+                              Electricity Consumption Input Guide
+                            </p>
+                            <p className="text-xs">
+                              Enter the total electricity consumed by all franchisees during the
+                              reporting period.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no electricity was consumed
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 1250.5)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Total electricity consumption by franchisees"
+                      label=""
                       type="number"
-                      required
+                      required={false}
                       placeholder="Enter electricity consumption in kWh"
                       value={electricityConsumption}
                       onChange={handleElectricityConsumptionChange}
                       errorTrigger={fieldErrors.electricityConsumption}
-                      errorMessage="Please enter the total electricity consumption by franchisees."
+                      errorMessage="Please enter the total electricity consumption by franchisees (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">

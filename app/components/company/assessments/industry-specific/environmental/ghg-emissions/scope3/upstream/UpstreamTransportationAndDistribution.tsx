@@ -20,6 +20,13 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { TbCurrencyNaira } from "react-icons/tb";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface UpstreamTransportationProps {
   onBack: () => void;
@@ -84,14 +91,27 @@ export function UpstreamTransportationAndDistribution({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
+  // FIX: Load existing data with proper null/undefined handling
   useEffect(() => {
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamTransportationDistribution;
     if (existingData) {
-      setMassTransported(existingData.massTransported || "");
-      setDistanceTravelled(existingData.distanceTravelled || "");
-      setLogisticsSpend(existingData.logisticsSpend || "");
+      // FIX: Handle null/undefined properly for numeric values
+      setMassTransported(
+        existingData.massTransported !== null && existingData.massTransported !== undefined
+          ? existingData.massTransported.toString()
+          : ""
+      );
+      setDistanceTravelled(
+        existingData.distanceTravelled !== null && existingData.distanceTravelled !== undefined
+          ? existingData.distanceTravelled.toString()
+          : ""
+      );
+      setLogisticsSpend(
+        existingData.logisticsSpend !== null && existingData.logisticsSpend !== undefined
+          ? existingData.logisticsSpend.toString()
+          : ""
+      );
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -99,10 +119,29 @@ export function UpstreamTransportationAndDistribution({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    const hasMassTransported = massTransported.trim().length > 0;
-    const hasDistanceTravelled = distanceTravelled.trim().length > 0;
-    const hasLogisticsSpend = logisticsSpend.trim().length > 0;
+    const hasMassTransported =
+      massTransported !== "" &&
+      massTransported !== null &&
+      massTransported !== undefined &&
+      !isNaN(Number(massTransported)) &&
+      Number(massTransported) >= 0;
+
+    const hasDistanceTravelled =
+      distanceTravelled !== "" &&
+      distanceTravelled !== null &&
+      distanceTravelled !== undefined &&
+      !isNaN(Number(distanceTravelled)) &&
+      Number(distanceTravelled) >= 0;
+
+    const hasLogisticsSpend =
+      logisticsSpend !== "" &&
+      logisticsSpend !== null &&
+      logisticsSpend !== undefined &&
+      !isNaN(Number(logisticsSpend)) &&
+      Number(logisticsSpend) >= 0;
+
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -126,6 +165,7 @@ export function UpstreamTransportationAndDistribution({
     });
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: TransportationErrors = {};
     const newFieldErrors = {
@@ -134,21 +174,39 @@ export function UpstreamTransportationAndDistribution({
       logisticsSpend: false,
     };
 
-    // Validate mass transported field
-    if (!massTransported.trim()) {
-      newErrors.massTransported = "Please enter the mass of goods transported.";
+    // FIX: Validate mass transported field - accept 0 or greater
+    if (
+      massTransported === "" ||
+      massTransported === null ||
+      massTransported === undefined ||
+      isNaN(Number(massTransported)) ||
+      Number(massTransported) < 0
+    ) {
+      newErrors.massTransported = "Please enter a valid mass of goods transported (0 or greater).";
       newFieldErrors.massTransported = true;
     }
 
-    // Validate distance travelled field
-    if (!distanceTravelled.trim()) {
-      newErrors.distanceTravelled = "Please enter the distance travelled.";
+    // FIX: Validate distance travelled field - accept 0 or greater
+    if (
+      distanceTravelled === "" ||
+      distanceTravelled === null ||
+      distanceTravelled === undefined ||
+      isNaN(Number(distanceTravelled)) ||
+      Number(distanceTravelled) < 0
+    ) {
+      newErrors.distanceTravelled = "Please enter a valid distance travelled (0 or greater).";
       newFieldErrors.distanceTravelled = true;
     }
 
-    // Validate logistics spend field
-    if (!logisticsSpend.trim()) {
-      newErrors.logisticsSpend = "Please enter the total spend on logistics/transportation.";
+    // FIX: Validate logistics spend field - accept 0 or greater
+    if (
+      logisticsSpend === "" ||
+      logisticsSpend === null ||
+      logisticsSpend === undefined ||
+      isNaN(Number(logisticsSpend)) ||
+      Number(logisticsSpend) < 0
+    ) {
+      newErrors.logisticsSpend = "Please enter a valid logistics spend (0 or greater).";
       newFieldErrors.logisticsSpend = true;
     }
 
@@ -201,6 +259,8 @@ export function UpstreamTransportationAndDistribution({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -382,61 +442,150 @@ export function UpstreamTransportationAndDistribution({
                 4.1 Upstream Transportation & Distribution
               </Label>
 
-              <div className="relative">
-                <SmartInput
-                  label="Mass of goods transported"
-                  type="number"
-                  required
-                  value={massTransported}
-                  onChange={handleMassTransportedChange}
-                  errorTrigger={fieldErrors.massTransported}
-                  errorMessage="Please enter the mass of goods transported."
-                />
-                <div className="absolute right-3 top-9 flex items-center gap-2">
-                  {/* <Package className="h-5 w-5 text-gray-600" /> */}
-                  <span className="text-sm text-gray-600">tonnes</span>
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Mass of goods transported <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Mass Transported Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total mass of goods transported during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no goods were transported
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 500.75)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.massTransported && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.massTransported}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={massTransported}
+                    onChange={(value) => {
+                      handleMassTransportedChange(value);
+                      if (fieldErrors.massTransported && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, massTransported: false }));
+                        setErrors((prev) => ({ ...prev, massTransported: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.massTransported}
+                    errorMessage="Please enter the mass of goods transported."
+                  />
+                  <div className="absolute right-3 top-2 flex items-center gap-2">
+                    <span className="text-sm text-gray-600">tonnes</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="relative">
-                <SmartInput
-                  label="Distance travelled"
-                  type="number"
-                  required
-                  value={distanceTravelled}
-                  onChange={handleDistanceTravelledChange}
-                  errorTrigger={fieldErrors.distanceTravelled}
-                  errorMessage="Please enter the distance travelled."
-                />
-                <div className="absolute right-3 top-9 flex items-center gap-2">
-                  {/* <MapPin className="h-5 w-5 text-gray-600" /> */}
-                  <span className="text-sm text-gray-600">t-km</span>
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Distance travelled <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Distance Travelled Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total distance travelled during transportation in the reporting
+                          period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no transportation occurred
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1500.25)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.distanceTravelled && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.distanceTravelled}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={distanceTravelled}
+                    onChange={(value) => {
+                      handleDistanceTravelledChange(value);
+                      if (fieldErrors.distanceTravelled && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, distanceTravelled: false }));
+                        setErrors((prev) => ({ ...prev, distanceTravelled: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.distanceTravelled}
+                    errorMessage="Please enter the distance travelled."
+                  />
+                  <div className="absolute right-3 top-2 flex items-center gap-2">
+                    <span className="text-sm text-gray-600">t-km</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="relative">
-                <SmartInput
-                  label="Total spend on logistics/transportation"
-                  type="number"
-                  required
-                  value={logisticsSpend}
-                  onChange={handleLogisticsSpendChange}
-                  errorTrigger={fieldErrors.logisticsSpend}
-                  errorMessage="Please enter the total spend on logistics/transportation."
-                />
-                <div className="absolute right-3 top-9 flex items-center gap-2">
-                  {/* <Truck className="h-5 w-5 text-gray-600" /> */}
-                  <TbCurrencyNaira className="h-5 w-5 text-gray-600" />
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Total spend on logistics/transportation <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Logistics Spend Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total amount spent on logistics and transportation during the
+                          reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no logistics expenses occurred
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise amounts (e.g., 25000.50)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.logisticsSpend && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.logisticsSpend}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={logisticsSpend}
+                    onChange={(value) => {
+                      handleLogisticsSpendChange(value);
+                      if (fieldErrors.logisticsSpend && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, logisticsSpend: false }));
+                        setErrors((prev) => ({ ...prev, logisticsSpend: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.logisticsSpend}
+                    errorMessage="Please enter the total spend on logistics/transportation."
+                  />
+                  <div className="absolute right-3 top-2 flex items-center gap-2">
+                    <TbCurrencyNaira className="h-5 w-5 text-gray-600" />
+                  </div>
+                </div>
               </div>
             </div>
 

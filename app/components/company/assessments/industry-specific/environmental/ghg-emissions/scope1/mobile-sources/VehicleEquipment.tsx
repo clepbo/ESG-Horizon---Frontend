@@ -189,11 +189,30 @@ export function VehicleEquipment({
       files?: string;
     } = {};
 
-    const hasValidForkliftFuelType = forkliftFuelType.some((s) => s.volume && Number(s.volume) > 0);
-    const hasValidHeavyDutyFuelType = heavyDutyFuelType.some(
-      (s) => s.volume && Number(s.volume) > 0
+    const hasValidForkliftFuelType = forkliftFuelType.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
     );
-    const hasValidTractorFuelType = tractorFuelType.some((s) => s.volume && Number(s.volume) > 0);
+    const hasValidHeavyDutyFuelType = heavyDutyFuelType.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
+    const hasValidTractorFuelType = tractorFuelType.some(
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
+    );
 
     if (!hasValidForkliftFuelType) {
       newErrors.forkliftFuelType =
@@ -304,7 +323,10 @@ export function VehicleEquipment({
   };
 
   const handleNext = () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
 
     dispatch({
       type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT",
