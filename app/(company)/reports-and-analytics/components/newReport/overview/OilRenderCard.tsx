@@ -3,6 +3,8 @@ import React from "react";
 import { buildStyles, CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
+import { formatNumberWithCommas } from "../../utils/helpers";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface Props {
   borderColor: string;
@@ -22,7 +24,7 @@ export default function OilRenderCard({ borderColor, title, sub, amount }: Props
       <p className="text-gray-800">{title}</p>
       {typeof amount === "number" && amount >= 0 && (
         <p className="font-bold text-3xl">
-          {amount.toLocaleString()} <sub className="text-gray-400 text-xs">{sub}</sub>
+          {formatNumberFigures(amount)} <sub className="text-gray-400 text-xs">{sub}</sub>
         </p>
       )}
 
