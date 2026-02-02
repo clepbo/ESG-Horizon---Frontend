@@ -3,7 +3,6 @@ import React from "react";
 import { buildStyles, CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
-import { formatNumberWithCommas } from "../../utils/helpers";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface Props {
