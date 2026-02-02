@@ -31,10 +31,11 @@ interface CapitalExpenditureStrategyProps {
 
 export default function CapitalExpenditureStrategy({
   onBack,
-  // onContinueToNextAssessment,
+  onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
+  onSubmit,
 }: CapitalExpenditureStrategyProps) {
   const capexPercentage = useFormattedNumber("");
 
@@ -159,7 +160,7 @@ export default function CapitalExpenditureStrategy({
       // Then submit the group
       await submitGroup();
       toast.success("Assessment completed successfully!");
-      // onSubmit(null);
+      if (onSubmit) onSubmit(null); // trigger parent success screen
     } catch (error: any) {
       toast.error("Failed to submit assessment", error.message);
     } finally {

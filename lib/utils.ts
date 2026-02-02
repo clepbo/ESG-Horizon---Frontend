@@ -77,12 +77,13 @@ export function computeProgressPercent({
 }
 
 export function getAssessmentProgressForTable(assessment: any): number {
-  const { assessmentData, status } = assessment || {};
+  const { assessmentData, progress } = assessment || {};
+  if (typeof progress === "number" && progress > 0) return Math.round(progress);
+  if (assessmentData?.overallProgress && assessmentData.overallProgress > 0)
+    return Math.round(assessmentData.overallProgress);
+
+  // fallback to legacy logic for GHG forms
   if (!assessmentData) return 0;
-
-  // if (status?.startsWith("submitted") || status === "approved") return 100;
-  console.info(status);
-
   const lastSavedForm: string = assessmentData.lastSavedForm || "";
   if (!lastSavedForm) return 0;
 
