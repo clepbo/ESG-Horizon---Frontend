@@ -90,7 +90,7 @@ export default function ReservesValuationAssessment({
   onBack,
   onBackToHub,
   initialForm,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
 }: ReservesValuationAssessmentProps) {
   const router = useRouter();
   const params = useParams();

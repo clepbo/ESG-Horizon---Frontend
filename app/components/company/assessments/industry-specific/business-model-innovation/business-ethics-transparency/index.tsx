@@ -58,9 +58,9 @@ const scopeData = [
 
 export default function BusinessEthicsAssessment({
   onBack,
-  onBackToHub,
+  // onBackToHub,
   initialForm,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
 }: BusinessEthicsAssessmentProps) {
   const router = useRouter();
   const params = useParams();

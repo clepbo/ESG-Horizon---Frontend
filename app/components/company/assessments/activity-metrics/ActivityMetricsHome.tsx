@@ -60,7 +60,7 @@ export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
   const { state } = useAssessment();
   const params = useParams();
 
-  const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  // const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   // Use the reusable hook with checkSubComponentCompletion
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
