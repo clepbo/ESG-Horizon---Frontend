@@ -80,7 +80,16 @@ export default function ProductionVolumesChart({ data = [] }: ProductionVolumesC
           <BarChart data={data} barGap={4} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="name" />
-            <YAxis />
+            <YAxis
+              width={70}
+              tickFormatter={(value) => {
+                if (value >= 1_000_000) return `${value / 1_000_000}M`;
+                if (value >= 1_000) return `${value / 1_000}K`;
+                return value;
+              }}
+              axisLine={false}
+              tickLine={false}
+            />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "transparent" }} />
             <Legend content={renderLegend} />
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
@@ -58,7 +58,7 @@ export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<ActivityMetricView>("overview");
   const { state } = useAssessment();
-  const params = useParams();
+  // const params = useParams();
 
   // const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
