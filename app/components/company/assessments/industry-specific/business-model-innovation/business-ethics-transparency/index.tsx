@@ -229,10 +229,11 @@ export default function BusinessEthicsAssessment({
                         key={card.title}
                         className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
                           card.title
-                        )} ${card.clickable
-                          ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                          : "cursor-default"
-                          }`}
+                        )} ${
+                          card.clickable
+                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                            : "cursor-default"
+                        }`}
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">
