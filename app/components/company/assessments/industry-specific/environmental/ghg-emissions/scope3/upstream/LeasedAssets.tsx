@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -102,11 +108,17 @@ export function LeasedAssets({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
-    const hasElectricityConsumed = electricityConsumed.trim().length > 0;
-    const hasFuelConsumed = fuelConsumed.trim().length > 0;
-    const hasFloorArea = floorArea.trim().length > 0;
+    // Check each required field - accept valid numbers including 0
+    const hasElectricityConsumed =
+      electricityConsumed.trim() !== "" &&
+      !isNaN(Number(electricityConsumed)) &&
+      Number(electricityConsumed) >= 0;
+    const hasFuelConsumed =
+      fuelConsumed.trim() !== "" && !isNaN(Number(fuelConsumed)) && Number(fuelConsumed) >= 0;
+    const hasFloorArea =
+      floorArea.trim() !== "" && !isNaN(Number(floorArea)) && Number(floorArea) >= 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -138,20 +150,25 @@ export function LeasedAssets({
       floorArea: false,
     };
 
-    // Validate input fields
-    if (!electricityConsumed.trim()) {
+    // Validate input fields - accept 0 and any valid number >= 0
+    if (
+      !electricityConsumed.trim() ||
+      isNaN(Number(electricityConsumed)) ||
+      Number(electricityConsumed) < 0
+    ) {
       newErrors.electricityConsumed =
-        "Please enter the total electricity consumed by leased assets.";
+        "Please enter the total electricity consumed by leased assets (0 or greater).";
       newFieldErrors.electricityConsumed = true;
     }
 
-    if (!fuelConsumed.trim()) {
-      newErrors.fuelConsumed = "Please enter the total fuel consumed by leased assets.";
+    if (!fuelConsumed.trim() || isNaN(Number(fuelConsumed)) || Number(fuelConsumed) < 0) {
+      newErrors.fuelConsumed =
+        "Please enter the total fuel consumed by leased assets (0 or greater).";
       newFieldErrors.fuelConsumed = true;
     }
 
-    if (!floorArea.trim()) {
-      newErrors.floorArea = "Please enter the total leasable floor area occupied.";
+    if (!floorArea.trim() || isNaN(Number(floorArea)) || Number(floorArea) < 0) {
+      newErrors.floorArea = "Please enter the total leasable floor area occupied (0 or greater).";
       newFieldErrors.floorArea = true;
     }
 
@@ -207,6 +224,8 @@ export function LeasedAssets({
 
   const handleSubmit = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -389,14 +408,43 @@ export function LeasedAssets({
                 <div className="grid grid-cols-1  gap-4">
                   {/* Electricity Consumed */}
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Total electricity consumed by leased assets{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">
+                              Electricity Consumption Input Guide
+                            </p>
+                            <p className="text-xs">
+                              Enter the total electricity consumed by leased assets during the
+                              reporting period.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no electricity was used
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 1250.5)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Total electricity consumed by leased assets"
+                      label=""
                       type="number"
-                      required
+                      required={false}
                       value={electricityConsumed}
                       onChange={handleElectricityConsumedChange}
                       errorTrigger={fieldErrors.electricityConsumed}
-                      errorMessage="Please enter the total electricity consumed by leased assets."
+                      errorMessage="Please enter the total electricity consumed by leased assets (0 or greater)."
                     />
                     <div className="absolute right-3 top-9 flex items-center gap-1">
                       {/* <Zap className="h-4 w-4 text-gray-600" /> */}
@@ -411,14 +459,38 @@ export function LeasedAssets({
 
                   {/* Fuel Consumed */}
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Total fuel consumed by leased assets <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Fuel Consumption Input Guide</p>
+                            <p className="text-xs">
+                              Enter the total fuel consumed by leased assets during the reporting
+                              period.
+                            </p>
+                            <p className="text-xs mt-1">• You can enter 0 if no fuel was used</p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 500.75)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Total fuel consumed by leased assets"
+                      label=""
                       type="number"
-                      required
+                      required={false}
                       value={fuelConsumed}
                       onChange={handleFuelConsumedChange}
                       errorTrigger={fieldErrors.fuelConsumed}
-                      errorMessage="Please enter the total fuel consumed by leased assets."
+                      errorMessage="Please enter the total fuel consumed by leased assets (0 or greater)."
                     />
                     <div className="absolute right-3 top-9 flex items-center gap-1">
                       {/* <Fuel className="h-4 w-4 text-gray-600" /> */}
@@ -431,14 +503,40 @@ export function LeasedAssets({
 
                   {/* Floor Area - Full width on mobile, half width on desktop */}
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Total leasable floor area occupied <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Floor Area Input Guide</p>
+                            <p className="text-xs">
+                              Enter the total leasable floor area occupied during the reporting
+                              period.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no area was occupied
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 2500.5)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Total leasable floor area occupied"
+                      label=""
                       type="number"
-                      required
+                      required={false}
                       value={floorArea}
                       onChange={handleFloorAreaChange}
                       errorTrigger={fieldErrors.floorArea}
-                      errorMessage="Please enter the total leasable floor area occupied."
+                      errorMessage="Please enter the total leasable floor area occupied (0 or greater)."
                     />
                     <div className="absolute right-3 top-9 flex items-center gap-1">
                       {/* <Square className="h-4 w-4 text-gray-600" /> */}

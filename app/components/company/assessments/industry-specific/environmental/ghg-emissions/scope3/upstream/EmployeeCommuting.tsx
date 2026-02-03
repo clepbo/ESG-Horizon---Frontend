@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -133,12 +139,22 @@ export function EmployeeCommuting({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
-    const hasNumberOfEmployees = numberOfEmployees.trim().length > 0;
-    const hasAverageDistance = averageDistance.trim().length > 0;
+    // Check each required field - accept valid numbers including 0
+    const hasNumberOfEmployees =
+      numberOfEmployees.trim() !== "" &&
+      !isNaN(Number(numberOfEmployees)) &&
+      Number(numberOfEmployees) >= 0;
+    const hasAverageDistance =
+      averageDistance.trim() !== "" &&
+      !isNaN(Number(averageDistance)) &&
+      Number(averageDistance) >= 0;
     const hasSelectedMethods = selectedMethods.length > 0;
-    const hasWorkdaysPerYear = workdaysPerYear.trim().length > 0;
+    const hasWorkdaysPerYear =
+      workdaysPerYear.trim() !== "" &&
+      !isNaN(Number(workdaysPerYear)) &&
+      Number(workdaysPerYear) >= 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -201,31 +217,38 @@ export function EmployeeCommuting({
       workdaysPerYear: false,
     };
 
-    // Validate input fields
-    if (!numberOfEmployees.trim()) {
-      newErrors.numberOfEmployees = "Please enter the number of employees commuting.";
+    // Validate input fields - accept 0 and any valid number >= 0
+    if (
+      !numberOfEmployees.trim() ||
+      isNaN(Number(numberOfEmployees)) ||
+      Number(numberOfEmployees) < 0
+    ) {
+      newErrors.numberOfEmployees =
+        "Please enter the number of employees commuting (0 or greater).";
       newFieldErrors.numberOfEmployees = true;
     }
 
-    if (!averageDistance.trim()) {
-      newErrors.averageDistance = "Please enter the average one-way commuting distance.";
+    if (!averageDistance.trim() || isNaN(Number(averageDistance)) || Number(averageDistance) < 0) {
+      newErrors.averageDistance =
+        "Please enter the average one-way commuting distance (0 or greater).";
       newFieldErrors.averageDistance = true;
     }
 
-    if (!workdaysPerYear.trim()) {
-      newErrors.workdaysPerYear = "Please enter the average number of workdays per year.";
+    if (!workdaysPerYear.trim() || isNaN(Number(workdaysPerYear)) || Number(workdaysPerYear) < 0) {
+      newErrors.workdaysPerYear =
+        "Please enter the average number of workdays per year (0 or greater).";
       newFieldErrors.workdaysPerYear = true;
     }
 
     // Validate checkbox field - only error if NO checkboxes are selected
-    if (selectedMethods.length === 0) {
-      newErrors.commutingMethods = "Please select at least one commuting method.";
-      newFieldErrors.commutingMethods = true;
-    } else if (selectedMethods.includes("others") && !otherMethodInput.trim()) {
-      // Only check "others" input if "others" checkbox is selected
-      newErrors.commutingMethods = "Please specify the 'Others' commuting method.";
-      newFieldErrors.commutingMethods = true;
-    }
+    // if (selectedMethods.length === 0) {
+    //   newErrors.commutingMethods = "Please select at least one commuting method.";
+    //   newFieldErrors.commutingMethods = true;
+    // } else if (selectedMethods.includes("others") && !otherMethodInput.trim()) {
+    //   // Only check "others" input if "others" checkbox is selected
+    //   newErrors.commutingMethods = "Please specify the 'Others' commuting method.";
+    //   newFieldErrors.commutingMethods = true;
+    // }
 
     setErrors(newErrors);
     setFieldErrors(newFieldErrors);
@@ -283,6 +306,8 @@ export function EmployeeCommuting({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -480,15 +505,37 @@ export function EmployeeCommuting({
                 <div className="flex items-center gap-2 mb-3"></div>
 
                 <div className="grid grid-cols-1  gap-4">
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Number of employees commuting <span className="text-red-500">*</span>
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Employee Count Input Guide</p>
+                          <p className="text-xs">
+                            Enter the total number of employees commuting during the reporting
+                            period.
+                          </p>
+                          <p className="text-xs mt-1">• You can enter 0 if no employees commuted</p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">• Enter whole numbers only (e.g., 150)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <SmartInput
-                    label="Number of employees commuting"
+                    label=""
                     placeholder="Enter total number"
                     type="number"
-                    required
+                    required={false}
                     value={numberOfEmployees}
                     onChange={handleNumberOfEmployeesChange}
                     errorTrigger={fieldErrors.numberOfEmployees}
-                    errorMessage="Please enter the number of employees commuting."
+                    errorMessage="Please enter the number of employees commuting (0 or greater)."
                   />
                   {errors.numberOfEmployees && (
                     <p className="text-sm text-red-500 animate-pulse col-span-full">
@@ -497,15 +544,40 @@ export function EmployeeCommuting({
                   )}
 
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Average one-way commuting distance <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Distance Input Guide</p>
+                            <p className="text-xs">
+                              Enter the average one-way commuting distance for employees.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if employees work on-site
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 15.5)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Average one-way commuting distance"
+                      label=""
                       type="number"
-                      required
+                      required={false}
                       placeholder="Enter distance in km"
                       value={averageDistance}
                       onChange={handleAverageDistanceChange}
                       errorTrigger={fieldErrors.averageDistance}
-                      errorMessage="Please enter the average one-way commuting distance."
+                      errorMessage="Please enter the average one-way commuting distance (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="text-sm text-gray-600">km</span>
@@ -517,15 +589,36 @@ export function EmployeeCommuting({
                     )}
                   </div>
 
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Average number of workdays per year <span className="text-red-500">*</span>
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Workdays Input Guide</p>
+                          <p className="text-xs">
+                            Enter the average number of workdays per year for commuting employees.
+                          </p>
+                          <p className="text-xs mt-1">• You can enter 0 for remote-only work</p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">• Typical values range from 200-260 days</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <SmartInput
-                    label="Average number of workdays per year"
+                    label=""
                     type="number"
-                    required
+                    required={false}
                     placeholder="Enter number"
                     value={workdaysPerYear}
                     onChange={handleWorkdaysPerYearChange}
                     errorTrigger={fieldErrors.workdaysPerYear}
-                    errorMessage="Please enter the average number of workdays per year."
+                    errorMessage="Please enter the average number of workdays per year (0 or greater)."
                   />
                   {errors.workdaysPerYear && (
                     <p className="text-sm text-red-500 animate-pulse col-span-full">

@@ -35,7 +35,6 @@ interface EndOfLifeTreatmentProps {
 }
 
 interface EndOfLifeTreatmentErrors {
-  disposalMethods?: string;
   otherDisposalMethod?: string;
   files?: string;
   products?: string;
@@ -97,7 +96,6 @@ export function EndOfLifeTreatment({
   const [otherDisposalMethod, setOtherDisposalMethod] = useState("");
 
   const [fieldErrors, setFieldErrors] = useState({
-    disposalMethods: false,
     otherDisposalMethod: false,
   });
 
@@ -152,7 +150,6 @@ export function EndOfLifeTreatment({
   const clearAllErrors = () => {
     setErrors({});
     setFieldErrors({
-      disposalMethods: false,
       otherDisposalMethod: false,
     });
   };
@@ -160,15 +157,10 @@ export function EndOfLifeTreatment({
   const validateForm = () => {
     const newErrors: EndOfLifeTreatmentErrors = {};
     const newFieldErrors = {
-      disposalMethods: false,
       otherDisposalMethod: false,
     };
 
-    const hasSelectedMethod = Object.values(selectedMethods).some((value) => value === true);
-    if (!hasSelectedMethod) {
-      newErrors.disposalMethods = "Please select at least one disposal method.";
-      newFieldErrors.disposalMethods = true;
-    }
+    // Only validate the text input if "Others" is selected
     if (selectedMethods.others && !otherDisposalMethod.trim()) {
       newErrors.otherDisposalMethod = "Please specify the other disposal method.";
       newFieldErrors.otherDisposalMethod = true;
@@ -223,6 +215,9 @@ export function EndOfLifeTreatment({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Please specify the other disposal method if 'Others' is selected.");
+      // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
     }
@@ -259,11 +254,7 @@ export function EndOfLifeTreatment({
       [methodId]: !prev[methodId],
     }));
 
-    if (fieldErrors.disposalMethods) {
-      setErrors((prev) => ({ ...prev, disposalMethods: undefined }));
-      setFieldErrors((prev) => ({ ...prev, disposalMethods: false }));
-    }
-
+    // Clear error when unchecking "Others"
     if (methodId === "others" && selectedMethods.others && fieldErrors.otherDisposalMethod) {
       setErrors((prev) => ({ ...prev, otherDisposalMethod: undefined }));
       setFieldErrors((prev) => ({ ...prev, otherDisposalMethod: false }));
@@ -413,9 +404,6 @@ export function EndOfLifeTreatment({
             <div className="space-y-6">
               <div className="space-y-4">
                 <Label className="text-base font-medium">Disposal method</Label>
-                {errors.disposalMethods && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.disposalMethods}</p>
-                )}
 
                 <div className="grid grid-cols-1 gap-4 ml-4">
                   {disposalOptions.map((option) => (
@@ -424,7 +412,6 @@ export function EndOfLifeTreatment({
                         id={`disposal-${option.id}`}
                         checked={selectedMethods[option.id]}
                         onCheckedChange={() => handleMethodChange(option.id)}
-                        className={`${fieldErrors.disposalMethods ? "border-red-500" : ""}`}
                       />
                       <Label
                         htmlFor={`disposal-${option.id}`}

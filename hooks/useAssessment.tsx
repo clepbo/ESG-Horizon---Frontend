@@ -337,6 +337,74 @@ export interface AssessmentData {
         };
       };
     };
+    activityMetrics?: {
+      productionVolume?: {
+        progress?: number;
+        [key: string]: any;
+      };
+      assetPortfolio?: {
+        offshoreSites?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        terrestrialSites?: {
+          progress?: number;
+          [key: string]: any;
+        };
+      };
+    };
+    businessInnovation?: {
+      businessEthicsAndTransparency?: {
+        reservesInCountriesWithHighCorruptionRisk?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        antiCorruptionManagementSystem?: {
+          progress?: number;
+          [key: string]: any;
+        };
+      };
+      reservesValuationAndCapitalExpenditures?: {
+        reservesSensitivityToCarbonPricing?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        embeddedCarbonInReserves?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        renewableEnergyInvestment?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        capitalExpenditureStrategy?: {
+          progress?: number;
+          [key: string]: any;
+        };
+      };
+    };
+    leadershipGovernance?: {
+      criticalIncidentRiskManagement?: {
+        catastrophicRiskManagementSystems?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        processSafetyEvents?: {
+          progress?: number;
+          [key: string]: any;
+        };
+      };
+      managementOfTheLegalAndRegulatoryEnvironment?: {
+        boardAndManagementOversight?: {
+          progress?: number;
+          [key: string]: any;
+        };
+        publicPolicyEngagement?: {
+          progress?: number;
+          [key: string]: any;
+        };
+      };
+    };
   };
 }
 
@@ -647,6 +715,16 @@ type AssessmentAction =
   | { type: "UPDATE_BIODIVERSITY_POLICIES"; payload: any }
   | { type: "UPDATE_BIODIVERSITY_SPILLS"; payload: any }
   | { type: "UPDATE_BIODIVERSITY_RESERVES"; payload: any }
+  | { type: "UPDATE_ACTIVITY_METRICS"; payload: { section: string; data: any } }
+  | { type: "UPDATE_ASSET_PORTFOLIO"; payload: { section: string; data: any } }
+  | {
+      type: "UPDATE_BUSINESS_INNOVATION";
+      payload: { category: string; section: string; data: any };
+    }
+  | {
+      type: "UPDATE_LEADERSHIP_GOVERNANCE";
+      payload: { category: string; section: string; data: any };
+    }
   | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
   | { type: "RESET_ASSESSMENT" }
   | { type: "SET_LOADING"; payload: boolean }
@@ -945,6 +1023,35 @@ const initialState: AssessmentState = {
           environmentalManagementPolicies: {},
           hydrocarbonSpills: {},
           reservesInSensitiveAreas: {},
+        },
+      },
+      activityMetrics: {
+        productionVolume: {},
+        assetPortfolio: {
+          offshoreSites: {},
+          terrestrialSites: {},
+        },
+      },
+      businessInnovation: {
+        businessEthicsAndTransparency: {
+          reservesInCountriesWithHighCorruptionRisk: {},
+          antiCorruptionManagementSystem: {},
+        },
+        reservesValuationAndCapitalExpenditures: {
+          reservesSensitivityToCarbonPricing: {},
+          embeddedCarbonInReserves: {},
+          renewableEnergyInvestment: {},
+          capitalExpenditureStrategy: {},
+        },
+      },
+      leadershipGovernance: {
+        criticalIncidentRiskManagement: {
+          catastrophicRiskManagementSystems: {},
+          processSafetyEvents: {},
+        },
+        managementOfTheLegalAndRegulatoryEnvironment: {
+          boardAndManagementOversight: {},
+          publicPolicyEngagement: {},
         },
       },
     },
@@ -1830,6 +1937,82 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
               environmentalManagement: {
                 ...state.assessmentData.environment?.biodiversityImpact?.environmentalManagement,
                 reservesInSensitiveAreas: action.payload,
+              },
+            },
+          },
+        },
+      };
+    case "UPDATE_ACTIVITY_METRICS":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          environment: {
+            ...state.assessmentData.environment,
+            activityMetrics: {
+              ...state.assessmentData.environment?.activityMetrics,
+              [action.payload.section]: action.payload.data,
+            },
+          },
+        },
+      };
+
+    case "UPDATE_ASSET_PORTFOLIO":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          environment: {
+            ...state.assessmentData.environment,
+            activityMetrics: {
+              ...state.assessmentData.environment?.activityMetrics,
+              assetPortfolio: {
+                ...state.assessmentData.environment?.activityMetrics?.assetPortfolio,
+                [action.payload.section]: action.payload.data,
+              },
+            },
+          },
+        },
+      };
+
+    case "UPDATE_BUSINESS_INNOVATION":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          environment: {
+            ...state.assessmentData.environment,
+            businessInnovation: {
+              ...state.assessmentData.environment?.businessInnovation,
+              [action.payload.category]: {
+                ...state.assessmentData.environment?.businessInnovation?.[
+                  action.payload.category as keyof NonNullable<
+                    NonNullable<AssessmentData["environment"]>["businessInnovation"]
+                  >
+                ],
+                [action.payload.section]: action.payload.data,
+              },
+            },
+          },
+        },
+      };
+
+    case "UPDATE_LEADERSHIP_GOVERNANCE":
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          environment: {
+            ...state.assessmentData.environment,
+            leadershipGovernance: {
+              ...state.assessmentData.environment?.leadershipGovernance,
+              [action.payload.category]: {
+                ...state.assessmentData.environment?.leadershipGovernance?.[
+                  action.payload.category as keyof NonNullable<
+                    NonNullable<AssessmentData["environment"]>["leadershipGovernance"]
+                  >
+                ],
+                [action.payload.section]: action.payload.data,
               },
             },
           },

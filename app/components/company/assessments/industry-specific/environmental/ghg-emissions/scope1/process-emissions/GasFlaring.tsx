@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import type { FileMetadata } from "@/hooks/useAssessment";
@@ -15,12 +15,17 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
-// import { SubmitConfirmationDialog } from "@/app/components/company/assessments/SubmitConfirmationModal";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
@@ -98,17 +103,18 @@ export function GasFlaring({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData =
       state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
     if (existingData) {
       setGasVolumeRaw(
-        existingData.gasVolume && existingData.gasVolume > 0
+        existingData.gasVolume !== null && existingData.gasVolume !== undefined
           ? existingData.gasVolume.toString()
           : ""
       );
       setCarbonContentRaw(
-        existingData.carbonContent && existingData.carbonContent > 0
+        existingData.carbonContent !== null && existingData.carbonContent !== undefined
           ? existingData.carbonContent.toString()
           : ""
       );
@@ -123,19 +129,54 @@ export function GasFlaring({
     state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring,
   ]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
+  // This allows 0 to be considered valid
   const { filled, total } = useMemo(() => {
+    const hasGasVolume =
+      gasVolume !== "" &&
+      gasVolume !== null &&
+      gasVolume !== undefined &&
+      !isNaN(Number(gasVolume)) &&
+      Number(gasVolume) >= 0;
+
+    const hasCarbonContent =
+      carbonContent !== "" &&
+      carbonContent !== null &&
+      carbonContent !== undefined &&
+      !isNaN(Number(carbonContent)) &&
+      Number(carbonContent) >= 0 &&
+      Number(carbonContent) <= 100;
+
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-    return calculateProgress([Number(gasVolume) > 0, Number(carbonContent) > 0, hasFiles]);
+
+    return calculateProgress([hasGasVolume, hasCarbonContent, hasFiles]);
   }, [gasVolume, carbonContent, files, additionalFields]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: { gasVolume?: string; carbonContent?: string; files?: string } = {};
-    if (!gasVolume || Number(gasVolume) <= 0)
-      newErrors.gasVolume = "Please enter a positive volume of gas flared";
-    if (!carbonContent || Number(carbonContent) <= 0 || Number(carbonContent) > 100)
+    if (
+      gasVolume === "" ||
+      gasVolume === null ||
+      gasVolume === undefined ||
+      isNaN(Number(gasVolume)) ||
+      Number(gasVolume) < 0
+    ) {
+      newErrors.gasVolume = "Please enter a valid volume (0 or greater)";
+    }
+
+    if (
+      carbonContent === "" ||
+      carbonContent === null ||
+      carbonContent === undefined ||
+      isNaN(Number(carbonContent)) ||
+      Number(carbonContent) < 0 ||
+      Number(carbonContent) > 100
+    ) {
       newErrors.carbonContent = "Please enter a valid percentage (0-100)";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -245,6 +286,11 @@ export function GasFlaring({
   };
 
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
+
     const assessmentId = state.assessmentId;
 
     const progressPercent = computeProgressPercent({
@@ -317,21 +363,34 @@ export function GasFlaring({
 
             {/* Gas Volume & Carbon Content */}
             <div>
-              <Label className="text-md font-semibold mb-2 block">1.1 Gas Flaring </Label>
+              <Label className="text-md font-semibold mb-2 block">
+                1.1 Gas Flaring <span className="text-red-500">*</span>
+              </Label>
               <div className="space-y-4 ml-6">
                 <div className="space-y-2">
-                  {/* <Label htmlFor="gas-volume">
-                    Volume of Gas Flared (m³) <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="gas-volume"
-                    type="text"
-                    placeholder="Enter volume of gas flared"
-                    value={gasVolumeDisplay}
-                    onChange={(e) => handleGasVolumeChange(e.target.value)}
-                    className={`w-full border-gray-400 ${errors.gasVolume ? "border-red-500 focus:border-red-500" : ""}`}
-                  />
-                  {errors.gasVolume && <p className="text-sm text-red-500">{errors.gasVolume}</p>} */}
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label htmlFor="gas-volume" className="text-sm font-medium text-gray-700">
+                      Volume of Gas Flared (m³)
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Gas Volume Input Guide</p>
+                          <p className="text-xs">
+                            Enter the total volume of gas flared during the reporting period.
+                          </p>
+                          <p className="text-xs mt-1">• You can enter 0 if no gas was flared</p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 1250.5)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <ScopeInput
                     category="gas-volume"
                     formattedValue={{
@@ -340,9 +399,9 @@ export function GasFlaring({
                       handleChange: handleGasVolumeChange,
                       setRawValue: setGasVolumeRaw,
                     }}
-                    label="Volume of Gas Flared (m³)"
-                    placeholder="Enter quantity of Volume of Gas Flared "
-                    required
+                    label=""
+                    placeholder="Enter volume of gas flared"
+                    required={false}
                     error={errors.gasVolume}
                     showEmissionFactor={true}
                     onErrorClear={() => setErrors((prev) => ({ ...prev, gasVolume: undefined }))}
@@ -350,20 +409,29 @@ export function GasFlaring({
                 </div>
 
                 <div className="space-y-2">
-                  {/* <Label htmlFor="carbon-content">
-                    Carbon Content/Composition (% by volume) <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="carbon-content"
-                    type="text"
-                    placeholder="Enter carbon content percentage"
-                    value={carbonContentDisplay}
-                    onChange={(e) => handleCarbonContentChange(e.target.value)}
-                    className={`w-full border-gray-400 ${errors.carbonContent ? "border-red-500 focus:border-red-500" : ""}`}
-                  />
-                  {errors.carbonContent && (
-                    <p className="text-sm text-red-500">{errors.carbonContent}</p>
-                  )} */}
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label htmlFor="carbon-content" className="text-sm font-medium text-gray-700">
+                      Carbon Content/Composition (% by volume)
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Carbon Content Input Guide</p>
+                          <p className="text-xs">
+                            Enter the carbon content as a percentage (0-100).
+                          </p>
+                          <p className="text-xs mt-1">• Valid range: 0% to 100%</p>
+                          <p className="text-xs">• You can enter 0 if no carbon content</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 45.5)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <ScopeInput
                     category="carbon-content"
                     formattedValue={{
@@ -372,9 +440,9 @@ export function GasFlaring({
                       handleChange: handleCarbonContentChange,
                       setRawValue: setCarbonContentRaw,
                     }}
-                    label="Carbon Content/Composition (% by volume)"
-                    placeholder="Enter quantity of Carbon Content/Composition"
-                    required
+                    label=""
+                    placeholder="Enter carbon content percentage"
+                    required={false}
                     error={errors.carbonContent}
                     showEmissionFactor={true}
                     onErrorClear={() =>
@@ -497,18 +565,6 @@ export function GasFlaring({
             </div>
           </CardContent>
         </Card>
-        {/* <SubmitConfirmationDialog
-          isOpen={showConfirmDialog}
-          onClose={() => setShowConfirmDialog(false)}
-          onSave={() => {
-            setShowConfirmDialog(false);
-            handleSaveAndContinue();
-          }}
-          onSubmit={() => {
-            setShowConfirmDialog(false);
-            handleSubmit();
-          }}
-        /> */}
       </div>
     </div>
   );

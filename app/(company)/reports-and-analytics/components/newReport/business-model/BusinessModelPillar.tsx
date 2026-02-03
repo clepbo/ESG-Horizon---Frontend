@@ -8,7 +8,9 @@ interface BusinessModelPillarProps {
   reportData?: ReportResponse;
 }
 
-export default function BusinessModelPillar({}: BusinessModelPillarProps) {
+export default function BusinessModelPillar({ reportData }: BusinessModelPillarProps) {
+  const businessModel = reportData?.businessModel;
+
   return (
     <div className="flex flex-col gap-4 lg:gap-6 my-6`">
       {/* Header */}
@@ -35,14 +37,14 @@ export default function BusinessModelPillar({}: BusinessModelPillarProps) {
           <h3 className="text-lg"> Reserves Valuation & Capital Expenditures</h3>
           <hr className="text-gray-300" />
         </div>
-        <BusinessEthicAndTransparency />
+        <BusinessEthicAndTransparency businessModel={businessModel} />
       </div>
       <div className="grid gap-4 lg:gap-6">
         <div className="grid gap-2">
           <h3 className="text-lg"> Business Ethics & Transparency </h3>
           <hr className="text-gray-300" />
         </div>
-        <ClimaticImpactOnReserves />
+        <ClimaticImpactOnReserves businessModel={businessModel} />
       </div>
     </div>
   );

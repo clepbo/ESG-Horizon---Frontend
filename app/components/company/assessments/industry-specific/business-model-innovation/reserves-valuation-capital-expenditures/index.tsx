@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -20,6 +20,9 @@ import ReservesSensitivityForm from "./reserves-sensitivity-carbon-pricing";
 import EmbeddedCarbonInReserves from "./embedded-carbon-in-reserves";
 import RenewableEnergyInvestment from "./renewable-energy-investment";
 import CapitalExpenditureStrategy from "./capital-expenditure-strategy";
+import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
+import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type RVView =
   | "overview"
@@ -87,13 +90,31 @@ export default function ReservesValuationAssessment({
   onBack,
   onBackToHub,
   initialForm,
-  onContinueToNextAssessment,
+  // onContinueToNextAssessment,
 }: ReservesValuationAssessmentProps) {
   const router = useRouter();
+  const params = useParams();
   const [currentView, setCurrentView] = useState<RVView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { dispatch } = useAssessment();
+  const { state, dispatch } = useAssessment();
+
+  const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
+  const handleViewReport = () => {
+    if (reportId) {
+      router.push(`/reports-and-analytics/${reportId}?tab=business-model`);
+    } else {
+      router.push("/reports-and-analytics");
+    }
+  };
+
+  // Use the reusable hook with checkSubComponentCompletion
+  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+    scopeData,
+    state.assessmentData,
+    checkSubComponentCompletion
+  );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -124,10 +145,11 @@ export default function ReservesValuationAssessment({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Capital Expenditure Strategy"
+        assessmentName="Reserves Valuation & Capital Expenditures"
         totals={totals ?? undefined}
         nextAssessment="Next Assessment"
-        onContinue={onContinueToNextAssessment}
+        reportId={reportId}
+        onContinue={handleViewReport}
         onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBackToHub}
       />
@@ -278,18 +300,25 @@ export default function ReservesValuationAssessment({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-colors bg-white shadow-sm rounded-lg ${
-                            card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
+                          className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
+                            card.title
+                          )} ${
+                            card.clickable
+                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                              : "cursor-default"
                           }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="space-y-1 flex-1">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-2 flex-1">
+                                <div className="flex items-center justify-between">
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
+                                  <CompletionIndicator status={getStatus(card.title)} />
+                                </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
+                              <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
                             </div>
                           </CardContent>
                         </Card>

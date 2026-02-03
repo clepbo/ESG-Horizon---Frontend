@@ -11,6 +11,8 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { TotalsResponse } from "@/services/assessment.service";
@@ -33,6 +35,10 @@ export default function BoardManagementOversight({
   totalSteps,
   breadcrumb,
 }: BoardManagementOversightProps) {
+  const { state, dispatch } = useAssessment();
+  const current =
+    "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight";
+  const { saveNow } = useAssessmentFlow(current);
   const [hasBoardCommittee, setHasBoardCommittee] = useState("");
   const [oversightDiscussion, setOversightDiscussion] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -46,6 +52,27 @@ export default function BoardManagementOversight({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.leadershipGovernance
+        ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.hasBoardCommittee !== undefined) {
+        setHasBoardCommittee(existingData.hasBoardCommittee);
+      }
+      if (existingData.oversightDiscussion !== undefined) {
+        setOversightDiscussion(existingData.oversightDiscussion);
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [
+    state.assessmentData.environment?.leadershipGovernance
+      ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -86,9 +113,15 @@ export default function BoardManagementOversight({
     };
 
     try {
-      console.log("BOARD MANAGEMENT OVERSIGHT DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "managementOfTheLegalAndRegulatoryEnvironment",
+          section: "boardAndManagementOversight",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
@@ -98,7 +131,7 @@ export default function BoardManagementOversight({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before submitting.");
       return;
@@ -110,9 +143,21 @@ export default function BoardManagementOversight({
       filesAndLinks: filesAndLinks,
     };
 
-    console.log("SUBMITTING BOARD MANAGEMENT OVERSIGHT DATA:", payload);
-
-    onContinueToNextAssessment();
+    try {
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "managementOfTheLegalAndRegulatoryEnvironment",
+          section: "boardAndManagementOversight",
+          data: payload,
+        },
+      });
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save progress");
+    }
   };
 
   const handlePrevious = () => {

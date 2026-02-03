@@ -20,6 +20,13 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface WasteGeneratedProps {
   onBack: () => void;
@@ -92,7 +99,7 @@ export function WasteGeneratedInOperations({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
+  // FIX: Load existing data with proper null/undefined handling
   useEffect(() => {
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.upstream?.wasteGeneratedInOperations;
@@ -109,7 +116,12 @@ export function WasteGeneratedInOperations({
         }
       }
 
-      setWasteWeight(existingData.wasteWeight || "");
+      // FIX: Handle null/undefined properly for numeric values
+      setWasteWeight(
+        existingData.wasteWeight !== null && existingData.wasteWeight !== undefined
+          ? existingData.wasteWeight.toString()
+          : ""
+      );
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -117,8 +129,15 @@ export function WasteGeneratedInOperations({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    const hasWasteWeight = wasteWeight.trim().length > 0;
+    const hasWasteWeight =
+      wasteWeight !== "" &&
+      wasteWeight !== null &&
+      wasteWeight !== undefined &&
+      !isNaN(Number(wasteWeight)) &&
+      Number(wasteWeight) >= 0;
+
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
     const hasSelectedMethods = selectedMethods.length > 0;
@@ -162,6 +181,7 @@ export function WasteGeneratedInOperations({
     }
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: WasteGeneratedErrors = {};
     const newFieldErrors = {
@@ -169,21 +189,27 @@ export function WasteGeneratedInOperations({
       wasteManagementMethod: false,
     };
 
-    // Validate waste weight field
-    if (!wasteWeight.trim()) {
-      newErrors.wasteWeight = "Please enter the total weight of waste generated.";
+    // FIX: Validate waste weight field - accept 0 or greater
+    if (
+      wasteWeight === "" ||
+      wasteWeight === null ||
+      wasteWeight === undefined ||
+      isNaN(Number(wasteWeight)) ||
+      Number(wasteWeight) < 0
+    ) {
+      newErrors.wasteWeight = "Please enter a valid weight of waste generated (0 or greater).";
       newFieldErrors.wasteWeight = true;
     }
 
-    // Validate checkbox field - only error if NO checkboxes are selected
-    if (selectedMethods.length === 0) {
-      newErrors.wasteManagementMethod = "Please select at least one waste management method.";
-      newFieldErrors.wasteManagementMethod = true;
-    } else if (selectedMethods.includes("others") && !otherMethodInput.trim()) {
-      // Only check "others" input if "others" checkbox is selected
-      newErrors.wasteManagementMethod = "Please specify the 'Others' waste management method.";
-      newFieldErrors.wasteManagementMethod = true;
-    }
+    // // Validate checkbox field - only error if NO checkboxes are selected
+    // if (selectedMethods.length === 0) {
+    //   newErrors.wasteManagementMethod = "Please select at least one waste management method.";
+    //   newFieldErrors.wasteManagementMethod = true;
+    // } else if (selectedMethods.includes("others") && !otherMethodInput.trim()) {
+    //   // Only check "others" input if "others" checkbox is selected
+    //   newErrors.wasteManagementMethod = "Please specify the 'Others' waste management method.";
+    //   newFieldErrors.wasteManagementMethod = true;
+    // }
 
     setErrors(newErrors);
     setFieldErrors(newFieldErrors);
@@ -234,6 +260,8 @@ export function WasteGeneratedInOperations({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -405,23 +433,50 @@ export function WasteGeneratedInOperations({
                 5.1 Waste Generated in Operations
               </Label>
 
-              <div className="relative">
-                <SmartInput
-                  label="Total weight of waste generated"
-                  type="number"
-                  required
-                  value={wasteWeight}
-                  onChange={handleWasteWeightChange}
-                  errorTrigger={fieldErrors.wasteWeight}
-                  errorMessage="Please enter the total weight of waste generated."
-                />
-                <div className="absolute right-3 top-9 flex items-center gap-2">
-                  {/* <Trash2 className="h-5 w-5 text-gray-600" /> */}
-                  <span className="text-sm text-gray-600">tonnes</span>
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Total weight of waste generated <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Waste Weight Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total weight of waste generated during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no waste was generated</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 250.75)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.wasteWeight && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.wasteWeight}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={wasteWeight}
+                    onChange={(value) => {
+                      handleWasteWeightChange(value);
+                      if (fieldErrors.wasteWeight && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, wasteWeight: false }));
+                        setErrors((prev) => ({ ...prev, wasteWeight: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.wasteWeight}
+                    errorMessage="Please enter the total weight of waste generated."
+                  />
+                  <div className="absolute right-3 top-2 flex items-center gap-2">
+                    <span className="text-sm text-gray-600">tonnes</span>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -77,16 +77,34 @@ export function computeProgressPercent({
 }
 
 export function getAssessmentProgressForTable(assessment: any): number {
-  const { assessmentData, status } = assessment || {};
+  const { assessmentData, progress } = assessment || {};
+  if (typeof progress === "number" && progress > 0) return Math.round(progress);
+  if (assessmentData?.overallProgress && assessmentData.overallProgress > 0)
+    return Math.round(assessmentData.overallProgress);
+
+  // Use ProgressTrackingService to calculate actual progress from all topics
+  if (assessmentData) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ProgressTrackingService } = require("@/lib/assessmentCompletionUtils");
+      const service = new ProgressTrackingService();
+      const overall = service.getOverallCompletion(assessmentData);
+      if (overall.completionPercentage > 0) {
+        return Math.round(overall.completionPercentage);
+      }
+    } catch {
+      // Fallback to legacy logic if import fails
+      console.warn("ProgressTrackingService not available, using legacy logic");
+    }
+  }
+
+  // fallback to legacy logic for GHG forms
   if (!assessmentData) return 0;
-
-  // if (status?.startsWith("submitted") || status === "approved") return 100;
-  console.info(status);
-
   const lastSavedForm: string = assessmentData.lastSavedForm || "";
   if (!lastSavedForm) return 0;
 
   const cleaned = lastSavedForm.replace(/^ghg-/, "");
+
   const parts = cleaned.split("-");
 
   const groupMap: Record<string, string> = {
@@ -237,11 +255,12 @@ export const formattedDate = (date: string, includeTime: boolean = true): string
 export interface SourceDataForCalculation {
   volume: string | number;
   emissionFactor: number;
+  unit?: string;
   isInTonnes?: boolean;
 }
 
 export function calculateTCO2eForSource(data: SourceDataForCalculation): number {
-  const { volume, emissionFactor, isInTonnes = false } = data;
+  const { volume, emissionFactor, unit, isInTonnes = false } = data;
 
   const numericalVolume = Number(volume);
   if (isNaN(numericalVolume) || numericalVolume <= 0 || emissionFactor < 0) {
@@ -250,9 +269,12 @@ export function calculateTCO2eForSource(data: SourceDataForCalculation): number 
 
   let tCO2e: number;
 
-  if (isInTonnes) {
+  const lowerUnit = unit?.toLowerCase();
+
+  if (isInTonnes || lowerUnit === "tonne" || lowerUnit === "tonnes" || lowerUnit === "ton") {
     tCO2e = numericalVolume * emissionFactor;
   } else {
+    // Default for kg, litre, scm, etc.
     const kgCO2e = numericalVolume * emissionFactor;
     tCO2e = kgCO2e / 1000;
   }

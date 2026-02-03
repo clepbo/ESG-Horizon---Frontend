@@ -175,7 +175,12 @@ export function OilGasOperations({
       files?: string;
     } = {};
     const hasValidOnShoreProduction = onShoreProduction.some(
-      (s) => s.volume && Number(s.volume) > 0
+      (s) =>
+        s.volume !== "" &&
+        s.volume !== null &&
+        s.volume !== undefined &&
+        !isNaN(Number(s.volume)) &&
+        Number(s.volume) >= 0
     );
 
     if (!hasValidOnShoreProduction) {
@@ -222,7 +227,10 @@ export function OilGasOperations({
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
 
     // Get previous steps data from state to ensure it's saved on submission
     const electricityHeat =
@@ -365,7 +373,7 @@ export function OilGasOperations({
 
             {/* 3.3 Document/Evidence Upload */}
             <div>
-              <Label className="text-md font-medium mb-2 block">3.3 Document/Evidence Upload</Label>
+              <Label className="text-md font-medium mb-2 block">3.2 Document/Evidence Upload</Label>
               <div className="ml-6">
                 {errors.files && <p className="text-sm text-red-500">{errors.files}</p>}
                 {/* Layout Fix: Added items-stretch to container */}

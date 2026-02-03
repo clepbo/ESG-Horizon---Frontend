@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
+import { useAssessment } from "@/hooks/useAssessment";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
@@ -23,7 +24,7 @@ interface OffshoreSitesProps {
   onContinueToNextAssessment: () => void;
   stepIndex: number;
   totalSteps: number;
-  backToActivityMetrics: () => void;
+  breadcrumb?: Array<{ label: string; href?: string; onClick?: () => void }>;
 }
 
 export function OffshoreSites({
@@ -31,9 +32,10 @@ export function OffshoreSites({
   onContinueToNextAssessment,
   stepIndex,
   totalSteps,
-  backToActivityMetrics,
+  breadcrumb = [],
 }: OffshoreSitesProps) {
   const router = useRouter();
+  const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites");
 
   const productionPlatforms = useFormattedNumber("");
@@ -46,16 +48,29 @@ export function OffshoreSites({
 
   const formRef = useRef<HTMLDivElement>(null);
 
-  const breadcrumFeature = [
-    { label: "Dashboard", href: "/dashboard-esg" },
-    { label: "Assessments", href: "/assessments/hub" },
-    { label: "Activity Metrics", onClick: backToActivityMetrics },
-    { label: "Offshore Sites" },
-  ];
-
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.productionPlatforms !== undefined) {
+        productionPlatforms.handleChange(String(existingData.productionPlatforms));
+      }
+      if (existingData.FPSOs !== undefined) {
+        fpsos.handleChange(String(existingData.FPSOs));
+      }
+      if (existingData.otherSites !== undefined) {
+        otherOffshoreSites.handleChange(String(existingData.otherSites));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -102,6 +117,10 @@ export function OffshoreSites({
 
     try {
       await saveNow("activityMetrics.assetPortfolio.offshoreSites", payload);
+      dispatch({
+        type: "UPDATE_ASSET_PORTFOLIO",
+        payload: { section: "offshoreSites", data: payload },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
@@ -125,6 +144,10 @@ export function OffshoreSites({
 
     try {
       await saveNow("activityMetrics.assetPortfolio.offshoreSites", payload);
+      dispatch({
+        type: "UPDATE_ASSET_PORTFOLIO",
+        payload: { section: "offshoreSites", data: payload },
+      });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
@@ -197,7 +220,7 @@ export function OffshoreSites({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
-      <CustomBreadcrumbDynamic features={breadcrumFeature} />
+      <CustomBreadcrumbDynamic features={breadcrumb} />
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>

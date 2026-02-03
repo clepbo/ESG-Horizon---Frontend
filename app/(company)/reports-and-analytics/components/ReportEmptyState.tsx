@@ -10,7 +10,7 @@ export default function ReportEmptyState() {
       <div className="text-center">
         {/* Your content here */}
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          You have&apos;nt generated any report yet!
+          You haven&apos;t generated any report yet!
         </h2>
         <div className="flex flex-col items-center  justify-center mx-auto">
           <p className="text-gray-600 mb-6  mx-auto max-w-md">

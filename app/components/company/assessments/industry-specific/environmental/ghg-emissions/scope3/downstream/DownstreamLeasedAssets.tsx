@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -96,10 +102,17 @@ export function DownstreamLeasedAsset({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
-    const hasElectricityConsumed = electricityConsumed.trim().length > 0;
-    const hasOtherEnergyConsumed = otherEnergyConsumed.trim().length > 0;
+    // Check each required field - accept valid numbers including 0
+    const hasElectricityConsumed =
+      electricityConsumed.trim() !== "" &&
+      !isNaN(Number(electricityConsumed)) &&
+      Number(electricityConsumed) >= 0;
+    const hasOtherEnergyConsumed =
+      otherEnergyConsumed.trim() !== "" &&
+      !isNaN(Number(otherEnergyConsumed)) &&
+      Number(otherEnergyConsumed) >= 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -128,14 +141,24 @@ export function DownstreamLeasedAsset({
       otherEnergyConsumed: false,
     };
 
-    // Validate input fields
-    if (!electricityConsumed.trim()) {
-      newErrors.electricityConsumed = "Please enter the total electricity consumed by tenants.";
+    // Validate input fields - accept 0 and any valid number >= 0
+    if (
+      !electricityConsumed.trim() ||
+      isNaN(Number(electricityConsumed)) ||
+      Number(electricityConsumed) < 0
+    ) {
+      newErrors.electricityConsumed =
+        "Please enter the total electricity consumed by tenants (0 or greater).";
       newFieldErrors.electricityConsumed = true;
     }
 
-    if (!otherEnergyConsumed.trim()) {
-      newErrors.otherEnergyConsumed = "Please enter other energy consumed by tenants.";
+    if (
+      !otherEnergyConsumed.trim() ||
+      isNaN(Number(otherEnergyConsumed)) ||
+      Number(otherEnergyConsumed) < 0
+    ) {
+      newErrors.otherEnergyConsumed =
+        "Please enter other energy consumed by tenants (0 or greater).";
       newFieldErrors.otherEnergyConsumed = true;
     }
 
@@ -190,6 +213,8 @@ export function DownstreamLeasedAsset({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -361,15 +386,44 @@ export function DownstreamLeasedAsset({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Total electricity consumed by tenants{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">
+                              Electricity Consumption Input Guide
+                            </p>
+                            <p className="text-xs">
+                              Enter the total electricity consumed by tenants during the reporting
+                              period.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no electricity was consumed
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 1250.5)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Total electricity consumed by tenants"
+                      label=""
                       placeholder="Enter electricity consumption in kWh"
                       type="number"
-                      required
+                      required={false}
                       value={electricityConsumed}
                       onChange={handleElectricityConsumedChange}
                       errorTrigger={fieldErrors.electricityConsumed}
-                      errorMessage="Please enter the total electricity consumed by tenants."
+                      errorMessage="Please enter the total electricity consumed by tenants (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
@@ -384,15 +438,42 @@ export function DownstreamLeasedAsset({
                   </div>
 
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Other energy consumed (if applicable){" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Other Energy Input Guide</p>
+                            <p className="text-xs">
+                              Enter other energy (fuel) consumed by tenants during the reporting
+                              period.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no other energy was consumed
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise measurements (e.g., 500.75)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Other energy consumed (if applicable)"
+                      label=""
                       type="number"
-                      required
+                      required={false}
                       placeholder="Enter fuel consumption in litres"
                       value={otherEnergyConsumed}
                       onChange={handleOtherEnergyConsumedChange}
                       errorTrigger={fieldErrors.otherEnergyConsumed}
-                      errorMessage="Please enter other energy consumed by tenants."
+                      errorMessage="Please enter other energy consumed by tenants (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">

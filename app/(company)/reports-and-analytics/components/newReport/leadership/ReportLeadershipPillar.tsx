@@ -8,7 +8,9 @@ interface ReportLeadershipPillarProps {
   reportData?: ReportResponse;
 }
 
-export default function ReportLeadershipPillar({}: ReportLeadershipPillarProps) {
+export default function ReportLeadershipPillar({ reportData }: ReportLeadershipPillarProps) {
+  const leadershipData = reportData?.leadershipAndGovernance;
+
   return (
     <div className="flex flex-col gap-4 lg:gap-6 my-6`">
       {/* Header */}
@@ -32,14 +34,14 @@ export default function ReportLeadershipPillar({}: ReportLeadershipPillarProps) 
           <h3 className="text-lg"> Management of Legal & Regulatory Environment </h3>
           <hr className="text-gray-300" />
         </div>
-        <ManagementOfLegalRegulatory />
+        <ManagementOfLegalRegulatory leadershipData={leadershipData} />
       </div>
       <div className="grid gap-4 lg:gap-6">
         <div className="grid gap-2">
           <h3 className="text-lg"> Critical Incident Risk Management </h3>
           <hr className="text-gray-300" />
         </div>
-        <CriticalIncidentRiskManagement />
+        <CriticalIncidentRiskManagement leadershipData={leadershipData} />
       </div>
     </div>
   );

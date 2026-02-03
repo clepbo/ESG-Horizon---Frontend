@@ -35,6 +35,7 @@ import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionInd
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
+import { checkTopicCompletion } from "@/lib/assessmentCompletionUtils";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -211,108 +212,7 @@ const industrySpecificMetrics: MetricSection[] = [
   },
 ];
 
-// const supplementaryMetrics: MetricSection[] = [
-//   {
-//     title: "Environmental",
-//     tooltip: {
-//       title: "Environmental",
-//       description:
-//         "Covers your organization's impact on nature—including energy use, emissions, waste, water, and resource efficiency.",
-//     },
-//     cards: [
-//       {
-//         title: "Greenhouse Gas Emissions",
-//         subtitle: "Report total CO2-equivalent emissions from Subsidiaries and supply chains",
-//         clickable: true,
-//       },
-//       {
-//         title: "Air Quality",
-//         subtitle: "Assess pollutant emissions and their impact on local air quality",
-//       },
-//       {
-//         title: "Water and Wastewater Management",
-//         subtitle: "Evaluate water use, conservation, and treatment practices",
-//         clickable: true,
-//       },
-//       {
-//         title: "Biodiversity Impact",
-//         subtitle: "Identify and measure impacts on ecosystems, species, and natural habitats",
-//       },
-//     ],
-//   },
-//   {
-//     title: "Social Capital",
-//     tooltip: {
-//       title: "Social Capital",
-//       description:
-//         "Assesses how your company engages with communities, customers, and society through responsibility, trust, and ethical practices.",
-//     },
-//     cards: [
-//       {
-//         title: "Security, Human Rights & Rights of Indigenous Peoples",
-//         subtitle:
-//           "Assess how rights, safety, and cultural heritage are safeguarded in operational areas",
-//       },
-//       {
-//         title: "Community Relations",
-//         subtitle: "Report engagement strategies and impact on local communities",
-//       },
-//     ],
-//   },
-//   {
-//     title: "Human Capital",
-//     tooltip: {
-//       title: "Human Capital",
-//       description:
-//         "Focuses on employee wellbeing—covering health and safety, diversity, training, and fair treatment in the workplace.",
-//     },
-//     cards: [
-//       {
-//         title: "Workforce Health & Safety",
-//         subtitle:
-//           "Evaluate measures taken to protect employee well-being and prevent workplace accidents",
-//       },
-//     ],
-//   },
-//   {
-//     title: "Business Model and Innovation",
-//     tooltip: {
-//       title: "Business Model and Innovation",
-//       description:
-//         "Evaluates how your products, services, and operations integrate sustainability and long-term resilience.",
-//     },
-//     cards: [
-//       {
-//         title: "Reserves Valuation & Capital Expenditures",
-//         subtitle: "Report on investment strategies and valuation of natural resource reserves",
-//       },
-//     ],
-//   },
-//   {
-//     title: "Leadership and Governance",
-//     tooltip: {
-//       title: "Leadership and Governance",
-//       description:
-//         "Measures accountability - including ethics, transparency, anticorruption practices, and oversight from management.",
-//     },
-//     cards: [
-//       {
-//         title: "Business Ethics & Transparency",
-//         subtitle: "Assess anti-corruption measures and operational integrity",
-//       },
-//       {
-//         title: "Management of the Legal & Regulatory Environment",
-//         subtitle: "Evaluate compliance with applicable laws and regulations",
-//       },
-//       {
-//         title: "Critical Incident Risk Management",
-//         subtitle: "Report preparedness plans and response strategies for major incidents",
-//       },
-//     ],
-//   },
-// ];
-
-const allMetrics: MetricSection[] = [...industrySpecificMetrics /*...supplementaryMetrics*/];
+const allMetrics: MetricSection[] = [...industrySpecificMetrics];
 
 export function DisclosureTopics({
   onBack,
@@ -324,17 +224,33 @@ export function DisclosureTopics({
 }: DisclosureTopicsProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState(initialView);
-  // const [currentView, setCurrentView] = useState("activity-metrics");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
 
   // Use the custom hook for topic completion status
   const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
+
+  // Activity Metrics completion helpers
+  const getActivityMetricsStatus = () => {
+    return checkTopicCompletion("Activity Metrics", state.assessmentData);
+  };
+
+  const getActivityMetricsBorderClass = () => {
+    const status = getActivityMetricsStatus();
+    switch (status.status) {
+      case "completed":
+        return "border-l-4 border-l-green-500";
+      case "in-progress":
+        return "border-l-4 border-l-yellow-500";
+      case "not-started":
+      default:
+        return "border-l-4 border-l-gray-300";
+    }
+  };
+
   const handleCardClick = (cardTitle: string) => {
     switch (cardTitle) {
-      // case "Activity Metrics":
-      //   setCurrentView("activity-metrics")
       case "Greenhouse Gas Emissions":
         setCurrentView("ghg");
         break;
@@ -408,10 +324,9 @@ export function DisclosureTopics({
   };
 
   const filteredIndustryMetrics = filterMetrics(industrySpecificMetrics, "Industry-Specific");
-  // const filteredSupplementaryMetrics = filterMetrics(supplementaryMetrics, "Supplementary");
 
   if (currentView === "activity-metrics") {
-    return <ActivityMetricHome />;
+    return <ActivityMetricHome onBack={() => setCurrentView("topics")} />;
   }
   if (currentView === "ghg") {
     return (
@@ -641,7 +556,16 @@ export function DisclosureTopics({
                   </span>
                 </div>
                 <Card
-                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
+                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
+                  style={{
+                    borderLeftWidth: "4px",
+                    borderLeftColor:
+                      getActivityMetricsStatus().status === "completed"
+                        ? "#22c55e"
+                        : getActivityMetricsStatus().status === "in-progress"
+                          ? "#eab308"
+                          : "#d1d5db",
+                  }}
                   onClick={() => setCurrentView("activity-metrics")}
                 >
                   <CardContent className="p-4 flex justify-between items-center">
@@ -649,7 +573,7 @@ export function DisclosureTopics({
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center justify-between">
                           <h5 className="font-medium text-foreground">Activity Metrics</h5>
-                          {/* <CompletionIndicator status={getStatus(card.title)} /> */}
+                          <CompletionIndicator status={getActivityMetricsStatus()} />
                         </div>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
@@ -712,35 +636,57 @@ export function DisclosureTopics({
                               </h4>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {section.cards.map((card) => (
-                                <Card
-                                  key={card.title}
-                                  className={`transition-all shadow-sm bg-white rounded-lg ${getCardBorderClass(
-                                    card.title
-                                  )} ${
-                                    card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                  }`}
-                                  onClick={() => card.clickable && handleCardClick(card.title)}
-                                >
-                                  <CardContent className="p-4">
-                                    <div className="flex items-start justify-between gap-3">
-                                      <div className="space-y-2 flex-1">
-                                        <div className="flex items-center justify-between">
-                                          <h5 className="font-medium text-foreground">
-                                            {card.title}
-                                          </h5>
-                                          <CompletionIndicator status={getStatus(card.title)} />
+                              {section.cards.map((card) => {
+                                const status = getStatus(card.title);
+                                const borderClass = getCardBorderClass(card.title);
+
+                                // Get border color based on status - handle undefined case
+                                const getBorderColor = () => {
+                                  if (!status) return "#d1d5db"; // gray-300 for undefined
+
+                                  switch (status.status) {
+                                    case "completed":
+                                      return "#22c55e"; // green-500
+                                    case "in-progress":
+                                      return "#eab308"; // yellow-500
+                                    default:
+                                      return "#d1d5db"; // gray-300
+                                  }
+                                };
+
+                                return (
+                                  <Card
+                                    key={card.title}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${
+                                      card.clickable
+                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                        : "cursor-default"
+                                    }`}
+                                    style={{
+                                      borderLeftWidth: "4px",
+                                      borderLeftColor: getBorderColor(),
+                                    }}
+                                    onClick={() => card.clickable && handleCardClick(card.title)}
+                                  >
+                                    <CardContent className="p-4 flex justify-between items-center">
+                                      <div className="flex items-start justify-between gap-3 flex-1">
+                                        <div className="space-y-2 flex-1">
+                                          <div className="flex items-center justify-between">
+                                            <h5 className="font-medium text-foreground">
+                                              {card.title}
+                                            </h5>
+                                            <CompletionIndicator status={status} />
+                                          </div>
+                                          <p className="text-sm text-muted-foreground">
+                                            {card.subtitle}
+                                          </p>
                                         </div>
-                                        <p className="text-sm text-muted-foreground">
-                                          {card.subtitle}
-                                        </p>
                                       </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
+                                      <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0" />
+                                    </CardContent>
+                                  </Card>
+                                );
+                              })}
                             </div>
                           </div>
                         ))}
@@ -749,89 +695,8 @@ export function DisclosureTopics({
                   </AccordionItem>
                 )}
 
-                {/* Supplementary Metrics */}
-                {/* {filteredSupplementaryMetrics.length > 0 && (
-                  <AccordionItem value="supplementary" className="border-none">
-                    <AccordionTrigger className="py-4 px-0 hover:no-underline hover:cursor-pointer bg-transparent">
-                      <div className="flex items-center w-full relative">
-                        <span className="text-lg font-semibold flex items-center gap-2">
-                          Supplementary Metrics
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="h-4 w-4 text-muted-foreground" />
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              align="center"
-                              className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                            >
-                              <h6>Supplementary Metrics</h6>
-                              <p>
-                                These are optional metrics that provide additional insight into your
-                                sustainability performance.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </span>
-                        <span className="flex-1 h-0.5 bg-gray-300 mx-3 self-center" />
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-6 px-0">
-                      <div className="space-y-8">
-                        {filteredSupplementaryMetrics.map((section) => (
-                          <div key={section.title} className="space-y-4">
-                            <div className="flex items-center gap-2 mb-2 relative">
-                              <h3 className="text-lg font-medium text-foreground flex items-center gap-2">
-                                {section.title}
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-muted-foreground" />
-                                  </TooltipTrigger>
-                                  <TooltipContent
-                                    side="top"
-                                    align="start"
-                                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                                  >
-                                    <h6 className="font-semibold mb-1">{section.tooltip.title}</h6>
-                                    <p>{section.tooltip.description}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </h3>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              {section.cards.map((card) => (
-                                <Card
-                                  key={card.title}
-                                  className={`shadow-sm bg-white rounded-lg ${getCardBorderClass(
-                                    card.title
-                                  )} cursor-default`}
-                                >
-                                  <CardContent className="p-4">
-                                    <div className="flex items-start justify-between gap-3">
-                                      <div className="space-y-2 flex-1">
-                                        <h4 className="font-medium text-foreground">
-                                          {card.title}
-                                        </h4>
-                                        <p className="text-sm text-muted-foreground">
-                                          {card.subtitle}
-                                        </p>
-                                      </div>
-                                      <ChevronRight className="h-7 w-7 text-muted-foreground shrink-0" />
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                )} */}
-
                 {/* No Results Message */}
                 {filteredIndustryMetrics.length === 0 && (
-                  // filteredSupplementaryMetrics.length === 0 && (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg">
                       {assignedTask && !debouncedSearchTerm

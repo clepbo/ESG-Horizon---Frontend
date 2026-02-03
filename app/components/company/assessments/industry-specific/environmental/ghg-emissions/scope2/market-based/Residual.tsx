@@ -5,11 +5,17 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -49,19 +55,9 @@ export function ResidualForm({
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Use the formatted number hook for electricity consumed
-  const {
-    rawValue: electricityConsumedRaw,
-    displayValue: electricityConsumedDisplay,
-    handleChange: handleElectricityConsumedChange,
-    setRawValue: setElectricityConsumedRaw,
-  } = useFormattedNumber("");
+  const electricityConsumed = useFormattedNumber("");
+  const residualMixFactor = useFormattedNumber("");
 
-  const {
-    rawValue: residualMixFactorRaw,
-    displayValue: residualMixFactorDisplay,
-    handleChange: handleResidualMixFactorChange,
-    setRawValue: setResidualMixFactorRaw,
-  } = useFormattedNumber("");
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -89,43 +85,72 @@ export function ResidualForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.residual;
     if (existingData) {
-      // Initialize with existing data using the formatted number hook
-      if (existingData.electricityConsumed) {
-        setElectricityConsumedRaw(existingData.electricityConsumed);
-      } else {
-        setElectricityConsumedRaw("");
-      }
-      if (existingData.residualMixFactor) {
-        setResidualMixFactorRaw(existingData.residualMixFactor);
-      } else {
-        setResidualMixFactorRaw("");
-      }
+      electricityConsumed.setRawValue(
+        existingData.electricityConsumed !== null && existingData.electricityConsumed !== undefined
+          ? existingData.electricityConsumed.toString()
+          : ""
+      );
+      residualMixFactor.setRawValue(
+        existingData.residualMixFactor !== null && existingData.residualMixFactor !== undefined
+          ? existingData.residualMixFactor.toString()
+          : ""
+      );
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, setElectricityConsumedRaw, setResidualMixFactorRaw]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = useMemo(() => {
-    return calculateProgress([
-      electricityConsumedRaw,
-      residualMixFactorRaw,
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-    ]);
-  }, [electricityConsumedRaw, residualMixFactorRaw, files, additionalFields]);
+    const hasElectricity =
+      electricityConsumed.rawValue !== "" &&
+      electricityConsumed.rawValue !== null &&
+      electricityConsumed.rawValue !== undefined &&
+      !isNaN(Number(electricityConsumed.rawValue)) &&
+      Number(electricityConsumed.rawValue) >= 0;
 
+    const hasFactor =
+      residualMixFactor.rawValue !== "" &&
+      residualMixFactor.rawValue !== null &&
+      residualMixFactor.rawValue !== undefined &&
+      !isNaN(Number(residualMixFactor.rawValue)) &&
+      Number(residualMixFactor.rawValue) >= 0;
+
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+
+    return calculateProgress([hasElectricity, hasFactor, hasFiles]);
+  }, [electricityConsumed.rawValue, residualMixFactor.rawValue, files, additionalFields]);
+
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (!electricityConsumedRaw || Number(electricityConsumedRaw) <= 0) {
-      newErrors.electricityConsumed = "Please enter a valid positive number.";
+    if (
+      electricityConsumed.rawValue === "" ||
+      electricityConsumed.rawValue === null ||
+      electricityConsumed.rawValue === undefined ||
+      isNaN(Number(electricityConsumed.rawValue)) ||
+      Number(electricityConsumed.rawValue) < 0
+    ) {
+      newErrors.electricityConsumed =
+        "Please enter a valid electricity consumption value (0 or greater).";
     }
-    if (!residualMixFactorRaw || Number(residualMixFactorRaw) <= 0) {
-      newErrors.residualMixFactor = "Please enter a valid positive emission factor.";
+    if (
+      residualMixFactor.rawValue === "" ||
+      residualMixFactor.rawValue === null ||
+      residualMixFactor.rawValue === undefined ||
+      isNaN(Number(residualMixFactor.rawValue)) ||
+      Number(residualMixFactor.rawValue) < 0
+    ) {
+      newErrors.residualMixFactor = "Please enter a valid emission factor (0 or greater).";
     }
 
     setErrors(newErrors);
@@ -179,8 +204,8 @@ export function ResidualForm({
     const { showToast = true, redirect = true } = options;
 
     const payload = {
-      electricityConsumed: electricityConsumedRaw,
-      residualMixFactor: residualMixFactorRaw,
+      electricityConsumed: electricityConsumed.rawValue,
+      residualMixFactor: residualMixFactor.rawValue,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -212,7 +237,6 @@ export function ResidualForm({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) return;
     if (isAssignedTask || handleAssignedTaskRedirect()) {
       await saveForm({ showToast: true, redirect: false });
       onBackToHub();
@@ -223,12 +247,15 @@ export function ResidualForm({
   };
 
   const handleNext = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
     dispatch({
       type: "UPDATE_MARKET_RESIDUAL",
       payload: {
-        electricityConsumed: electricityConsumedRaw,
-        residualMixFactor: residualMixFactorRaw,
+        electricityConsumed: electricityConsumed.rawValue,
+        residualMixFactor: residualMixFactor.rawValue,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -254,7 +281,6 @@ export function ResidualForm({
     const file = files[key];
     if (file?.publicId) {
       try {
-        // Start the deleting state for this specific file
         setDeleting((prev) => ({ ...prev, [key]: true }));
 
         await uploadService.deleteImage(file.publicId);
@@ -263,10 +289,8 @@ export function ResidualForm({
         toast.error("Failed to delete file");
         console.error(err);
       } finally {
-        // Stop the deleting state regardless of success or failure
         setDeleting((prev) => ({ ...prev, [key]: false }));
 
-        // Always remove the file from local state and clear the input field
         setFiles((prev) => ({
           ...prev,
           [key]: null,
@@ -281,7 +305,6 @@ export function ResidualForm({
         }
       }
     } else {
-      // If there is no publicId, just remove the file from the local state
       setFiles((prev) => ({
         ...prev,
         [key]: null,
@@ -331,49 +354,47 @@ export function ResidualForm({
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 3.1 Purchased Electricity
               </Label>
-              <div className="space-y-4 ml-6">
-                <Label className="text-base font-medium text-gray-900 mb-2 block">
-                  Total electricity consumed (kWh) <span className="text-red-500">*</span>
-                </Label>
-                {/* <Input
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  placeholder="Enter total electricity consumed"
-                  value={electricityConsumedDisplay} // Use the formatted display value
-                  onChange={(e) => {
-                    handleElectricityConsumedChange(e.target.value); // Use the hook's handler
-                    if (errors.electricityConsumed)
-                      setErrors((prev) => ({
-                        ...prev,
-                        electricityConsumed: undefined,
-                      }));
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.electricityConsumed ? "border-red-500" : ""
-                  }`}
-                /> */}
+              <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-base font-medium text-gray-900">
+                    Total electricity consumed (kWh) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Electricity Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total electricity consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no electricity was consumed
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ScopeInput
                   category="residual"
-                  formattedValue={{
-                    rawValue: electricityConsumedRaw,
-                    displayValue: electricityConsumedDisplay,
-                    handleChange: handleElectricityConsumedChange,
-                    setRawValue: setElectricityConsumedRaw,
-                  }}
-                  label="Total electricity consumed (kWh)"
+                  formattedValue={electricityConsumed}
+                  label=""
                   placeholder="Enter total electricity consumed"
-                  required
+                  required={false}
                   error={errors.electricityConsumed}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(residualMixFactorRaw) || null}
+                  customEmissionFactor={Number(residualMixFactor.rawValue) || null}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
                   }
                 />
               </div>
-              {errors.electricityConsumed && (
-                <p className="text-sm text-red-500 mt-1">{errors.electricityConsumed}</p>
-              )}
             </div>
 
             {/* Residual Mix Factor */}
@@ -385,9 +406,9 @@ export function ResidualForm({
                 type="text"
                 step="0.0001"
                 placeholder="Enter factor (kg CO₂e/kWh) based on Nigerian grid residual mix"
-                value={residualMixFactorDisplay}
+                value={residualMixFactor.displayValue}
                 onChange={(e) => {
-                  handleResidualMixFactorChange(e.target.value);
+                  residualMixFactor.handleChange(e.target.value);
                   if (errors.residualMixFactor)
                     setErrors((prev) => ({
                       ...prev,
@@ -451,7 +472,7 @@ export function ResidualForm({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
