@@ -66,6 +66,7 @@ export default function ProcessSafetyEvents({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
       ?.processSafetyEvents,
@@ -162,7 +163,7 @@ export default function ProcessSafetyEvents({
       });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save progress");
     }
   };

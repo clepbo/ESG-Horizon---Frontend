@@ -513,7 +513,7 @@ export function UseOfSoldProducts({
                               use.
                             </p>
                             <p className="text-xs mt-1">
-                              • You can enter 0 if product doesn't consume fuel/energy
+                              • You can enter 0 if product doesn&apos;t consume fuel/energy
                             </p>
                             <p className="text-xs">• Negative values are not allowed</p>
                             <p className="text-xs">

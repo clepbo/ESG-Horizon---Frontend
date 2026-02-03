@@ -89,6 +89,7 @@ export default function ReservesCountriesCorruptionRisk({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
       ?.reservesInCountriesWithHighCorruptionRisk,
@@ -243,7 +244,7 @@ export default function ReservesCountriesCorruptionRisk({
       });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save progress");
     }
   };

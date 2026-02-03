@@ -173,9 +173,9 @@ export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
                           <>
                             <h6 className="font-semibold mb-1">Production Data</h6>
                             <p>
-                              This section captures your company's production output across various
-                              hydrocarbon streams. Enter accurate volumes for the reporting period
-                              to support emissions calculation and operational benchmarking.
+                              This section captures your company&apos;s production output across
+                              various hydrocarbon streams. Enter accurate volumes for the reporting
+                              period to support emissions calculation and operational benchmarking.
                             </p>
                           </>
                         )}
@@ -221,11 +221,10 @@ export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
                       return (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${
-                            card.clickable
+                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
-                          }`}
+                            }`}
                           style={{
                             borderLeftWidth: "4px",
                             borderLeftColor: getBorderColor(),

@@ -93,7 +93,10 @@ export default function FreshWaterWithdrawalAndConsumption({
       if (existingData.withdrawalfromSurfaceWater !== undefined) {
         withdrawalfromSurfaceWater.handleChange(String(existingData.withdrawalfromSurfaceWater));
       }
-      if (existingData.withdrawalvalues !== undefined || existingData.withdrawalfromGroundwater !== undefined) {
+      if (
+        existingData.withdrawalvalues !== undefined ||
+        existingData.withdrawalfromGroundwater !== undefined
+      ) {
         withdrawalfromGroundwater.handleChange(
           String(existingData.withdrawalvalues ?? existingData.withdrawalfromGroundwater ?? "")
         );
@@ -126,6 +129,7 @@ export default function FreshWaterWithdrawalAndConsumption({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.freshwaterWithdrawals,

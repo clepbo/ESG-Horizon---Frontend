@@ -50,8 +50,8 @@ export default function PublicPolicyEngagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
-        ?.publicPolicyEngagement;
+      state.assessmentData.environment?.leadershipGovernance
+        ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement;
 
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.disclosesContributions !== undefined) {
@@ -65,8 +65,8 @@ export default function PublicPolicyEngagement({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
-      ?.publicPolicyEngagement,
+    state.assessmentData.environment?.leadershipGovernance
+      ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement,
   ]);
 
   // Calculate progress
@@ -160,7 +160,7 @@ export default function PublicPolicyEngagement({
       });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save progress");
     }
   };

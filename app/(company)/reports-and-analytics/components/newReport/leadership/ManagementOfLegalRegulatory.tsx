@@ -2,8 +2,23 @@ import { Card } from "@/app/components/ui/card";
 import React from "react";
 import { VscLaw } from "react-icons/vsc";
 import { IoMdCheckboxOutline } from "react-icons/io";
+import { LeadershipAndGovernancePillar } from "@/types/report/reportResponse";
 
-export default function ManagementOfLegalRegulatory() {
+interface ManagementOfLegalRegulatoryProps {
+  leadershipData?: LeadershipAndGovernancePillar;
+}
+
+export default function ManagementOfLegalRegulatory({
+  leadershipData,
+}: ManagementOfLegalRegulatoryProps) {
+  const legalData = leadershipData?.managementOfLegalAndRegulatoryEnvironment;
+
+  const publicPolicyDescription =
+    legalData?.publicPolicyAndLobbying || "No public policy disclosure available.";
+  const policyPosition = legalData?.policyPosition || "No policy position disclosed.";
+  const sustainabilityDescription =
+    legalData?.sustainabilityGovernance || "No sustainability governance description available.";
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="rounded-lg shadow-sm border-0 grid gap-3">
@@ -20,13 +35,9 @@ export default function ManagementOfLegalRegulatory() {
         </div>
         <Card className="p-4 m-4">
           <p className="text-sm">
-            <span className="font-semibold"> Policy Position: </span>  Supports carbon pricing and
-            methane regulation.
+            <span className="font-semibold">Policy Position: </span> {policyPosition}
           </p>
-          <p className="text-sm">
-            Full monetary value of trade association contributions is publicly available in the
-            Annual Report.
-          </p>
+          <p className="text-sm mt-2">{publicPolicyDescription}</p>
         </Card>
       </Card>
       <Card className="rounded-lg shadow-sm border-0 grid gap-3">
@@ -42,10 +53,7 @@ export default function ManagementOfLegalRegulatory() {
           <span className="rounded-2xl bg-success-200 text-[#388e4e] px-2 py-1"> Established </span>
         </div>
         <Card className="p-4 m-4">
-          <p className="text-sm">
-            Dedicated Sustainability Committee meets quarterly to review ESG strategy, climate risk,
-            and safety performance. Chaired by an independent director.
-          </p>
+          <p className="text-sm">{sustainabilityDescription}</p>
         </Card>
       </Card>
     </div>

@@ -42,11 +42,16 @@ export default function EmbeddedCarbonInReserves({
 
   const formRef = useRef<HTMLDivElement>(null);
 
-  const router = useRouter();
+  const _router = useRouter();
   const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow(
     "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"
   );
+
+  const [formData, _setFormData] = useState({
+    totalProvedReservesUnit: "",
+    estimatedEmbeddedEmissionsUnit: "",
+  });
 
   useEffect(() => {
     const existingData =
@@ -70,6 +75,7 @@ export default function EmbeddedCarbonInReserves({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.embeddedCarbonInReserves,
@@ -78,11 +84,6 @@ export default function EmbeddedCarbonInReserves({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
-
-  const [formData, _setFormData] = useState({
-    totalProvedReservesUnit: "",
-    estimatedEmbeddedEmissionsUnit: "",
-  });
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -238,7 +239,7 @@ export default function EmbeddedCarbonInReserves({
                 totalProvedReserves.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, totalProvedReserves: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="Billion BOE"
               error={errors.totalProvedReserves}
               unitError={errors.totalProvedReservesUnit}
@@ -257,7 +258,7 @@ export default function EmbeddedCarbonInReserves({
                 estimatedEmbeddedEmissions.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, estimatedEmbeddedEmissions: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="Million t CO₂-e"
               error={errors.estimatedEmbeddedEmissions}
               unitError={errors.estimatedEmbeddedEmissionsUnit}

@@ -82,12 +82,7 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
               }}
             />
             <Legend content={renderLegend} />
-            <Bar
-              dataKey="value"
-              fill="#8884d8"
-              radius={[10, 10, 0, 0]}
-              isAnimationActive={false}
-            >
+            <Bar dataKey="value" fill="#8884d8" radius={[10, 10, 0, 0]} isAnimationActive={false}>
               <Cell fill="#3b82f6" />
               <Cell fill="#f9b232" />
               <Cell fill="#af57db" />

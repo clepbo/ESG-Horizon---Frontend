@@ -2,48 +2,63 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { ShieldCheck } from "lucide-react";
+import { BusinessModelPillar } from "@/types/report/reportResponse";
 
-type RiskData = {
-  name: string;
-  total: number;
-  highRisk: number;
-};
+interface ClimaticImpactOnReservesProps {
+  businessModel?: BusinessModelPillar;
+}
 
-const riskData: RiskData[] = [
-  {
-    name: "Proved",
-    total: 1200,
-    highRisk: 300,
-  },
-  {
-    name: "Probable",
-    total: 800,
-    highRisk: 400,
-  },
-];
+export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpactOnReservesProps) {
+  const geopoliticalRisk =
+    businessModel?.businessEthicsAndTransparency?.geopoliticalAndCorruptionRisk;
+  const antiCorruptionManagement =
+    businessModel?.businessEthicsAndTransparency?.antiCorruptionManagement;
 
-export default function ClimaticImpactOnReserves() {
+  // Use actual data if available, otherwise show placeholder
+  const riskData = [
+    {
+      name: "Proved",
+      total: geopoliticalRisk?.proved?.total ?? 0,
+      highRisk: geopoliticalRisk?.proved?.risk ?? 0,
+    },
+    {
+      name: "Probable",
+      total: geopoliticalRisk?.probable?.total ?? 0,
+      highRisk: geopoliticalRisk?.probable?.risk ?? 0,
+    },
+  ];
+
+  const hasRiskData = riskData.some((d) => d.total > 0 || d.highRisk > 0);
+  const hasAntiCorruptionData =
+    antiCorruptionManagement && antiCorruptionManagement.trim().length > 0;
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* LEFT CARD */}
+      {/* LEFT CARD - Geopolitical & Corruption Risk */}
       <div className="rounded-xl bg-white p-6 shadow-sm">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Geopolitical & Corruption Risk</h3>
 
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={riskData} barGap={12} barCategoryGap={32}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-              <XAxis
-                dataKey="name"
-                tick={{ fill: "#6B7280", fontSize: 12 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} axisLine={false} tickLine={false} />
-              <Bar dataKey="total" fill="#BDBDBD" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="highRisk" fill="#EF4444" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          {hasRiskData ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={riskData} barGap={12} barCategoryGap={32}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: "#6B7280", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Bar dataKey="total" fill="#BDBDBD" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="highRisk" fill="#EF4444" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center text-gray-400">
+              No corruption risk data available
+            </div>
+          )}
         </div>
 
         <div className="mt-4 flex justify-center gap-6 text-sm">
@@ -58,7 +73,7 @@ export default function ClimaticImpactOnReserves() {
         </div>
       </div>
 
-      {/* RIGHT CARD */}
+      {/* RIGHT CARD - Anti-Corruption Management */}
       <div className="rounded-xl bg-white p-6 shadow-sm">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Anti-Corruption Management</h3>
 
@@ -77,8 +92,9 @@ export default function ClimaticImpactOnReserves() {
         <div className="rounded-lg shadow-md border border-gray-200 p-5">
           <h4 className="mb-2 text-sm font-semibold text-gray-900">System Description</h4>
           <p className="text-sm leading-relaxed text-gray-600">
-            Independent third-party managed hotline available 24/7 in all operating languages.
-            Zero-retaliation policy strictly enforced and audited annually.
+            {hasAntiCorruptionData
+              ? antiCorruptionManagement
+              : "No anti-corruption management system description available."}
           </p>
         </div>
       </div>

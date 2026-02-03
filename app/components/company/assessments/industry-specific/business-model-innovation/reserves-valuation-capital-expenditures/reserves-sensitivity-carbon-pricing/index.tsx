@@ -43,7 +43,7 @@ export default function ReservesSensitivityForm({
 
   const formRef = useRef<HTMLDivElement>(null);
 
-  const router = useRouter();
+  const _router = useRouter();
   const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow(
     "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"
@@ -75,6 +75,7 @@ export default function ReservesSensitivityForm({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.reservesSensitivityToCarbonPricing,
@@ -257,7 +258,7 @@ export default function ReservesSensitivityForm({
                 carbonPriceScenario.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, carbonPriceScenario: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="$/tonne CO₂-e"
               error={errors.carbonPriceScenario}
               formatNumbers={false}
@@ -275,7 +276,7 @@ export default function ReservesSensitivityForm({
                 percentageDecrease.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, percentageDecrease: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="%"
               error={errors.percentageDecrease}
               formatNumbers={false}

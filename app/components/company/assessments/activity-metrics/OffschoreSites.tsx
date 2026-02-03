@@ -53,7 +53,8 @@ export function OffshoreSites({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites;
+    const existingData =
+      state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.productionPlatforms !== undefined) {
         productionPlatforms.handleChange(String(existingData.productionPlatforms));
@@ -68,6 +69,7 @@ export function OffshoreSites({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites]);
 
   const validateForm = () => {

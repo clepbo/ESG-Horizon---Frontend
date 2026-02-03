@@ -302,11 +302,10 @@ export default function ReservesValuationAssessment({
                           key={card.title}
                           className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
                             card.title
-                          )} ${
-                            card.clickable
+                          )} ${card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
-                          }`}
+                            }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

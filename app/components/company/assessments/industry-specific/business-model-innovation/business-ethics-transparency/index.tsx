@@ -58,9 +58,7 @@ const scopeData = [
 
 export default function BusinessEthicsAssessment({
   onBack,
-  // onBackToHub,
   initialForm,
-  // onContinueToNextAssessment,
 }: BusinessEthicsAssessmentProps) {
   const router = useRouter();
   const params = useParams();
@@ -214,7 +212,7 @@ export default function BusinessEthicsAssessment({
                           <>
                             <h6 className="font-semibold mb-1">Anti-Corruption Management</h6>
                             <p>
-                              Describe your company's policies, controls, and training programs
+                              Describe your company&apos;s policies, controls, and training programs
                               aimed at preventing bribery, fraud, and other corrupt practices. Use
                               details from compliance frameworks, audit findings, or ethics program
                               documentation.
@@ -231,11 +229,10 @@ export default function BusinessEthicsAssessment({
                         key={card.title}
                         className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
                           card.title
-                        )} ${
-                          card.clickable
-                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                            : "cursor-default"
-                        }`}
+                        )} ${card.clickable
+                          ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                          : "cursor-default"
+                          }`}
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">
