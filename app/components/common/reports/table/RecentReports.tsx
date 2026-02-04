@@ -64,6 +64,7 @@ export function RecentReportsWidget() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const data: any[] = report.data || [];
 
+  // console.log("Table Data:", data);
   const recentReports = useMemo(() => {
     const filtered = data.filter((item: any) => {
       return (

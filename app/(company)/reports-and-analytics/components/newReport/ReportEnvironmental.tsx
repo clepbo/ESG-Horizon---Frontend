@@ -36,7 +36,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   if (reportData?.targets && reportData?.targets?.scopeTargets !== undefined) {
     scopeTarget = reportData?.targets?.scopeTargets;
   }
-  // console.log("Report target Data", scopeTarget);
+  console.log("Report target Data", scopeTarget);
 
   // const emissionScopeData = reportData?.
   const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);

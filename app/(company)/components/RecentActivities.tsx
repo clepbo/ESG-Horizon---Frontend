@@ -84,7 +84,7 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
   );
 
   const ActivityList = ({ items }: { items: Activity[] }) => (
-    <ul className=" pr-1">
+    <ul className="pr-1 min-w-0">
       {items.map((activity, i) => {
         const statusKey = activity.status || activity.type || "";
         const mappedIcon = iconMap[statusKey];
@@ -93,32 +93,34 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
           <li
             key={activity.id ?? i}
             className={clsx(
-              "flex items-center justify-between p-3  transition-colors",
-              "hover:bg-gray-50  border-b border-t border-gray-100 hover:border-gray-100 "
+              "flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 sm:p-3 gap-2 sm:gap-3 lg:gap-6 transition-colors",
+              "hover:bg-gray-50 border-b border-t border-gray-100 hover:border-gray-100"
             )}
           >
-            <div className="flex items-start gap-3">
-              <div className="">
+            <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="flex-shrink-0">
                 {mappedIcon ? (
                   <ActivityIcon Icon={mappedIcon.Icon} color={mappedIcon.color} />
                 ) : (
                   <DefaultIcon />
                 )}
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                <p className="text-xs text-gray-500">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900 truncate sm:line-clamp-2">
+                  {activity.title}
+                </p>
+                <p className="text-xs text-gray-500 line-clamp-2 sm:line-clamp-1 mt-0.5">
                   {activity.description || "No description available."}
                 </p>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1 text-right">
+            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1 sm:text-right flex-shrink-0 pl-10 sm:pl-0">
               <span className="text-xs text-gray-400">
                 {activity.date ? new Date(activity.date).toLocaleDateString() : ""}
               </span>
               <span
                 className={clsx(
-                  "px-2 py-0.5 text-xs font-medium rounded-full",
+                  "px-2 py-0.5 text-xs font-medium rounded-full whitespace-nowrap",
                   badgeMap[activity.status || ""] || "bg-gray-100 text-gray-600"
                 )}
               >
@@ -134,15 +136,17 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
   );
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-100 flex-1">
-        <div className="flex items-center justify-between mb-2 px-2">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Activities</h2>
+    <div className="h-full flex flex-col min-h-0 min-w-0">
+      <div className="bg-white p-2 sm:p-3 rounded-xl shadow-sm border border-gray-100 flex-1 min-w-0 overflow-hidden">
+        <div className="flex items-center justify-between gap-2 mb-2 px-1 sm:px-2 min-w-0">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate min-w-0">
+            Recent Activities
+          </h2>
           {activities.length > previewCount && (
             <Button
               variant="ghost"
               size="sm"
-              className="text-sm text-[var(--color-primary)]"
+              className="text-sm text-[var(--color-primary)] flex-shrink-0"
               onClick={() => setDialogOpen(true)}
             >
               View all
@@ -150,14 +154,16 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
           )}
         </div>
         {activities.length > 0 ? (
-          <ActivityList items={activities.slice(0, previewCount)} />
+          <div className="min-w-0 overflow-hidden">
+            <ActivityList items={activities.slice(0, previewCount)} />
+          </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center text-gray-500">
-            <div className="p-4 rounded-full bg-gray-100 mb-3">
-              <FileText className="w-10 h-10 text-gray-400" />
+          <div className="flex flex-col items-center justify-center py-8 sm:py-16 text-center text-gray-500 px-2">
+            <div className="p-3 sm:p-4 rounded-full bg-gray-100 mb-2 sm:mb-3">
+              <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
             </div>
-            <p className="font-medium text-gray-700">No recent activities yet</p>
-            <p className="text-sm text-gray-500 max-w-xs mt-1">
+            <p className="font-medium text-gray-700 text-sm sm:text-base">No recent activities yet</p>
+            <p className="text-xs sm:text-sm text-gray-500 max-w-xs mt-1">
               Your latest actions — like logins, approvals, or submissions — will appear here.
             </p>
           </div>
@@ -168,9 +174,9 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="All Recent Activities"
-        className="max-w-2xl"
+        className="max-w-[min(100vw-2rem,42rem)]"
       >
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           <ActivityList items={paginated} />
 
           {totalPages > 1 && (

@@ -49,6 +49,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
   }, [esgJourney]);
 
   const hasData = processed.data && processed.data.length > 0;
+  console.log("ESG Journey Data", processed.data);
 
   return (
     <Card className="bg-white border-none rounded-xl h-auto">
@@ -57,7 +58,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
           <CardTitle className="text-sm font-medium text-gray-900">Your ESG Journey</CardTitle>
 
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[100px] h-8 text-sm border-none shadow-none p-0">
+            <SelectTrigger className="w-25 h-8 text-sm border-none shadow-none p-0">
               <SelectValue placeholder="Monthly" />
             </SelectTrigger>
             <SelectContent>
@@ -69,7 +70,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-grow pt-8">
+      <CardContent className="grow pt-8">
         {hasData ? (
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={processed.data} barCategoryGap={10}>
