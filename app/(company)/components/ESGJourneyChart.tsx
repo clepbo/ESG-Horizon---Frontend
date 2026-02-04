@@ -49,7 +49,6 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
   }, [esgJourney]);
 
   const hasData = processed.data && processed.data.length > 0;
-  console.log("ESG Journey Data", processed.data);
 
   return (
     <Card className="bg-white border-none rounded-xl h-auto">
