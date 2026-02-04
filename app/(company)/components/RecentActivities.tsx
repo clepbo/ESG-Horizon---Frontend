@@ -162,7 +162,9 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
             <div className="p-3 sm:p-4 rounded-full bg-gray-100 mb-2 sm:mb-3">
               <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
             </div>
-            <p className="font-medium text-gray-700 text-sm sm:text-base">No recent activities yet</p>
+            <p className="font-medium text-gray-700 text-sm sm:text-base">
+              No recent activities yet
+            </p>
             <p className="text-xs sm:text-sm text-gray-500 max-w-xs mt-1">
               Your latest actions — like logins, approvals, or submissions — will appear here.
             </p>
