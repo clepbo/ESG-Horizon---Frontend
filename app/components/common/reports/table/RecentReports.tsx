@@ -44,6 +44,16 @@ function normalizeStatus(s: string) {
     .replace(/[_\s]+/g, "-");
 }
 
+/** Abbreviated range of start and end period, e.g. "Feb 25 - Mar 26". */
+function formatPeriod(row: TableRowType): string {
+  const abbr = (month: string) => {
+    const s = (month || "").slice(0, 3);
+    return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+  };
+  const shortYear = (y: string) => (String(y || "").length >= 2 ? String(y).slice(-2) : String(y));
+  return `${abbr(row.startMonth)} ${shortYear(row.startYear)} - ${abbr(row.endMonth)} ${shortYear(row.endYear)}`;
+}
+
 const STATUS_OPTIONS = [
   { value: "all", label: "All Status" },
   { value: "submitted_approved", label: "Submitted Approved" },
@@ -59,9 +69,9 @@ const columns = [
     header: "Report Title",
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor((row) => `${row.startMonth} ${row.startYear}`, {
-    id: "submissionDate",
-    header: "Submission Date",
+  columnHelper.accessor(formatPeriod, {
+    id: "period",
+    header: "Period",
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("status", {
@@ -112,6 +122,7 @@ export function RecentReportsWidget() {
   const report = useReport();
   const data: TableRowType[] = Array.isArray(report.data) ? report.data : [];
 
+  // console.log("Table data", data);
   const recentReports = useMemo(() => {
     return data.filter((item) => {
       return (
@@ -199,7 +210,7 @@ export function RecentReportsWidget() {
           />
           <Button
             type="button"
-            className="rounded-md bg-[var(--color-primary)] hover:bg-teal-600 text-white font-medium shrink-0 h-10 px-4 inline-flex items-center gap-2"
+            className="rounded-md bg-primary hover:bg-teal-600 text-white font-medium shrink-0 h-10 px-4 inline-flex items-center gap-2"
             aria-label="Search"
           >
             <Search className="h-4 w-4" />
