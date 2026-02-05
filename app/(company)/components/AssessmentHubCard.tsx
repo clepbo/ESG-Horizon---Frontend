@@ -64,16 +64,16 @@ export default function AssessmentHubCard({
 
         <Button
           className={
-            "w-full bg-transparent border border-esg-green text-teal-500 transform hover:scale-[1.02] hover:text-white transition-colors" +
-            (progress <= 0
-              ? " !border-gray-400 !text-gray-600 hover:bg-transparent hover:text-gray-600"
-              : "")
+            "w-full bg-transparent border border-esg-green text-teal-500 transform hover:scale-[1.02] hover:text-white transition-colors"
           }
-          onClick={() => router.push("/assessments")}
-          disabled={progress <= 0}
+          onClick={() => {
+            if (type === "Environmental") router.push("/assessments/new-assessment?tab=environmental");
+            if (type === "Social") router.push("/assessments/new-assessment?tab=social");
+            if (type === "Governance") router.push("/assessments/new-assessment?tab=governance");
+          }}
         >
-          {progress <= 0 ? "Not started" : "Continue Assessment"}
-          {progress > 0 && <ArrowRight className="w-4 h-4 ml-2" />}
+          {progress <= 0 ? "Start Assessment" : "Continue Assessment"}
+          <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </CardContent>
     </Card>
