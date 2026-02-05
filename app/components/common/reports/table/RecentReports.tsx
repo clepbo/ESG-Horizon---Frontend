@@ -35,7 +35,7 @@ import { Search, Eye, Pencil } from "lucide-react";
 const columnHelper = createColumnHelper<TableRowType>();
 
 function getReportTitle(row: TableRowType) {
-  return `${row.subsidiary} - ${row.startMonth} ${row.startYear} to ${row.endMonth} ${row.endYear}`;
+  return `${row.subsidiary}`;
 }
 
 function normalizeStatus(s: string) {
@@ -65,8 +65,8 @@ const STATUS_OPTIONS = [
 
 const columns = [
   columnHelper.accessor(getReportTitle, {
-    id: "reportTitle",
-    header: "Report Title",
+    id: "subsidiary",
+    header: "Subsidiary",
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor(formatPeriod, {
