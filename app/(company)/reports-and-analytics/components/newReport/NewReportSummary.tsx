@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useBreadcrumb } from "../../context/ReportBreadcrumbContext";
+import { shortenMonth, useBreadcrumb } from "../../context/ReportBreadcrumbContext";
 
 export default function NewReportSummary() {
   // const [view, setView] = useState("overview");
@@ -47,7 +47,7 @@ export default function NewReportSummary() {
   useEffect(() => {
     if (reportData?.subsidiary) {
       setLastLabelOverride(
-        `${reportData.subsidiary}: ${reportData.startMonth} ${reportData.startYear} - ${reportData.endMonth} ${reportData.endYear} Report`
+        `${reportData.subsidiary}: ${shortenMonth(reportData?.startMonth ?? "")} ${reportData.startYear} - ${shortenMonth(reportData?.endMonth ?? "")} ${reportData.endYear} Report`
       );
     }
   }, [reportData, setLastLabelOverride]);
