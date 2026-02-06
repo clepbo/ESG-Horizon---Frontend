@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, Info, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
@@ -42,7 +42,7 @@ export default function ReservesAreaConflict({
   const provedReservesInConflictVolume = useFormattedNumber("");
   const probableReservesInConflictVolume = useFormattedNumber("");
 
-  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [_showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -65,8 +65,7 @@ export default function ReservesAreaConflict({
 
     if (!totalProvedReservesVolume.rawValue)
       newErrors.totalProvedReservesVolume = "Volume is required";
-    if (!formData.totalProvedReservesUnit)
-      newErrors.totalProvedReservesUnit = "Unit is required";
+    if (!formData.totalProvedReservesUnit) newErrors.totalProvedReservesUnit = "Unit is required";
 
     if (!totalProbableReservesVolume.rawValue)
       newErrors.totalProbableReservesVolume = "Volume is required";
