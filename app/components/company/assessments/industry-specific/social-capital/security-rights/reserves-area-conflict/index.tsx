@@ -38,8 +38,10 @@ export default function ReservesAreaConflict({
   const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesAreaConflict");
 
   const totalProvedReservesVolume = useFormattedNumber("");
+  const totalProbableReservesVolume = useFormattedNumber("");
   const provedReservesInConflictVolume = useFormattedNumber("");
   const probableReservesInConflictVolume = useFormattedNumber("");
+
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -52,69 +54,53 @@ export default function ReservesAreaConflict({
   }, [stepIndex]);
 
   const [formData, setFormData] = useState({
-    totalProvedReservesVolume: "",
     totalProvedReservesUnit: "",
-    provedReservesInConflictVolume: "",
+    totalProbableReservesUnit: "",
     provedReservesInConflictUnit: "",
-    probableReservesInConflictVolume: "",
     probableReservesInConflictUnit: "",
   });
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!totalProvedReservesVolume.rawValue) {
+    if (!totalProvedReservesVolume.rawValue)
       newErrors.totalProvedReservesVolume = "Volume is required";
-    }
-    if (!formData.totalProvedReservesUnit) {
+    if (!formData.totalProvedReservesUnit)
       newErrors.totalProvedReservesUnit = "Unit is required";
-    }
 
-    if (!provedReservesInConflictVolume.rawValue) {
+    if (!totalProbableReservesVolume.rawValue)
+      newErrors.totalProbableReservesVolume = "Volume is required";
+    if (!formData.totalProbableReservesUnit)
+      newErrors.totalProbableReservesUnit = "Unit is required";
+
+    if (!provedReservesInConflictVolume.rawValue)
       newErrors.provedReservesInConflictVolume = "Volume is required";
-    }
-    if (!formData.provedReservesInConflictUnit) {
+    if (!formData.provedReservesInConflictUnit)
       newErrors.provedReservesInConflictUnit = "Unit is required";
-    }
 
-    if (!probableReservesInConflictVolume.rawValue) {
+    if (!probableReservesInConflictVolume.rawValue)
       newErrors.probableReservesInConflictVolume = "Volume is required";
-    }
-    if (!formData.probableReservesInConflictUnit) {
+    if (!formData.probableReservesInConflictUnit)
       newErrors.probableReservesInConflictUnit = "Unit is required";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const { filled, total } = useMemo(() => {
-    const hasTotalProvedReserves =
-      totalProvedReservesVolume.rawValue !== "" && formData.totalProvedReservesUnit !== "";
-
-    const hasProvedConflict =
-      provedReservesInConflictVolume.rawValue !== "" &&
-      formData.provedReservesInConflictUnit !== "";
-
-    const hasProbableConflict =
-      probableReservesInConflictVolume.rawValue !== "" &&
-      formData.probableReservesInConflictUnit !== "";
-
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
-      hasTotalProvedReserves,
-      hasProvedConflict,
-      hasProbableConflict,
-      hasEvidence,
+      totalProvedReservesVolume.rawValue && formData.totalProvedReservesUnit,
+      totalProbableReservesVolume.rawValue && formData.totalProbableReservesUnit,
+      provedReservesInConflictVolume.rawValue && formData.provedReservesInConflictUnit,
+      probableReservesInConflictVolume.rawValue && formData.probableReservesInConflictUnit,
+      filesAndLinks.length > 0,
     ]);
   }, [
     totalProvedReservesVolume.rawValue,
+    totalProbableReservesVolume.rawValue,
     provedReservesInConflictVolume.rawValue,
     probableReservesInConflictVolume.rawValue,
-    formData.totalProvedReservesUnit,
-    formData.provedReservesInConflictUnit,
-    formData.probableReservesInConflictUnit,
+    formData,
     filesAndLinks,
   ]);
 
@@ -122,28 +108,30 @@ export default function ReservesAreaConflict({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const buildPayload = () => ({
+    totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
+    totalProvedReservesUnit: formData.totalProvedReservesUnit,
+
+    totalProbableReservesVolume: Number(totalProbableReservesVolume.rawValue),
+    totalProbableReservesUnit: formData.totalProbableReservesUnit,
+
+    provedReservesInConflictVolume: Number(provedReservesInConflictVolume.rawValue),
+    provedReservesInConflictUnit: formData.provedReservesInConflictUnit,
+
+    probableReservesInConflictVolume: Number(probableReservesInConflictVolume.rawValue),
+    probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
+
+    filesAndLinks,
+  });
+
   const handleSaveAndContinue = async () => {
     setIsSaving(true);
-
-    const payload = {
-      totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
-      totalProvedReservesUnit: formData.totalProvedReservesUnit,
-      provedReservesInConflictVolume: Number(provedReservesInConflictVolume.rawValue),
-      provedReservesInConflictUnit: formData.provedReservesInConflictUnit,
-      probableReservesInConflictVolume: Number(probableReservesInConflictVolume.rawValue),
-      probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
-      filesAndLinks: filesAndLinks,
-    };
-
     try {
-      await saveNow("socialCapital.securityRights.reservesAreaConflict", payload);
+      await saveNow("socialCapital.securityRights.reservesAreaConflict", buildPayload());
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 1000);
-    } catch (_error) {
-      console.log(_error);
+      setTimeout(() => router.push("/assessments/new-assessment"), 1000);
+    } catch {
       toast.error("Failed to save data");
     } finally {
       setIsSaving(false);
@@ -156,53 +144,76 @@ export default function ReservesAreaConflict({
       return;
     }
 
-    const payload = {
-      totalProvedReservesVolume: Number(totalProvedReservesVolume.rawValue),
-      totalProvedReservesUnit: formData.totalProvedReservesUnit,
-      provedReservesInConflictVolume: Number(provedReservesInConflictVolume.rawValue),
-      provedReservesInConflictUnit: formData.provedReservesInConflictUnit,
-      probableReservesInConflictVolume: Number(probableReservesInConflictVolume.rawValue),
-      probableReservesInConflictUnit: formData.probableReservesInConflictUnit,
-      filesAndLinks: filesAndLinks,
-    };
-
     try {
-      await saveNow("socialCapital.securityRights.reservesAreaConflict", payload);
+      await saveNow("socialCapital.securityRights.reservesAreaConflict", buildPayload());
       toast.success("Progress saved!");
       onContinueToNextAssessment();
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("Failed to save data");
     }
   };
 
-  const handlePrevious = () => {
-    toast.info("Returning to previous section");
-    onBack();
-  };
+  const renderInputCard = (
+    label: string,
+    tooltip: string,
+    volumeHook: ReturnType<typeof useFormattedNumber>,
+    unitField: string,
+    volumeErrorKey: string,
+    unitErrorKey: string
+  ) => (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Label className="text-base font-semibold text-gray-900">{label}</Label>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none">
+            {tooltip}
+          </TooltipContent>
+        </Tooltip>
+      </div>
 
-  const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
-    setFilesAndLinks(fields);
-  };
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Volume</Label>
+          <Input
+            type="text"
+            value={volumeHook.displayValue}
+            onChange={(e) => {
+              volumeHook.handleChange(e.target.value);
+              setErrors((prev) => ({ ...prev, [volumeErrorKey]: "" }));
+            }}
+            placeholder="Enter volume"
+            className="border-gray-300"
+          />
+          {errors[volumeErrorKey] && (
+            <p className="text-red-600 text-xs">{errors[volumeErrorKey]}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Unit</Label>
+          <UnitSelect
+            value={(formData as any)[unitField]}
+            onValueChange={(value) => {
+              handleInputChange(unitField, value);
+              setErrors((prev) => ({ ...prev, [unitErrorKey]: "" }));
+            }}
+            error={errors[unitErrorKey]}
+          />
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={breadcrumb} />
-      <div className="max-w-5xl mx-auto space-y-6 ">
-        <div className="flex items-center gap-6 mb-4  mt-4">
-          <div>
-            <h3 className="text-2xl font-semibold"> Reserves in or near Areas of Conflict</h3>
-            <p className="text-muted-foreground text-base">
-              Report the percentage of your proved and probable reserves that are located in or near
-              areas of active conflict, as defined by the Uppsala Conflict Data Program (UCDP).
-            </p>
-          </div>
-        </div>
 
-        {/* Main Card */}
+      <div className="max-w-5xl mx-auto space-y-6">
         <Card className="shadow-sm border border-gray-200">
           <CardContent className="p-8 space-y-8">
-            {/* Progress Bar */}
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
@@ -211,259 +222,75 @@ export default function ReservesAreaConflict({
               isSubmitted={false}
             />
 
-            {/* Total Proved Reserves */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold text-gray-900">
-                  Total Proved Reserves
-                </Label>
-                <div className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer">
-                  <span className="text-xs text-gray-600 cursor-pointer">
-                    {" "}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="top"
-                        align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                      >
-                        <h6>Total Proved Reserves </h6>
-                        <p>
-                          The total quantity of oil and gas reserves that geological and engineering
-                          data confirm can be commercially recovered under existing economic and
-                          operating conditions. Report the total proved reserves for the reporting
-                          period, typically in barrels of oil equivalent (BOE) or cubic feet.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Volume</Label>
-                  <Input
-                    type="text"
-                    value={totalProvedReservesVolume.displayValue}
-                    onChange={(e) => {
-                      totalProvedReservesVolume.handleChange(e.target.value);
-                      setErrors((prev) => ({ ...prev, totalProvedReservesVolume: "" }));
-                    }}
-                    placeholder="Enter volume"
-                    className="border-gray-300"
-                  />
+            {renderInputCard(
+              "Total Proved Reserves",
+              "Total quantity of reserves proven by geological and engineering data to be commercially recoverable.",
+              totalProvedReservesVolume,
+              "totalProvedReservesUnit",
+              "totalProvedReservesVolume",
+              "totalProvedReservesUnit"
+            )}
 
-                  {errors.totalProvedReservesVolume && (
-                    <p className="text-red-600 text-xs">{errors.totalProvedReservesVolume}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Unit</Label>
+            {renderInputCard(
+              "Total Probable Reserves by Volume",
+              "Total Probable Reserves (by volume, e.g., MMbbls)",
+              totalProbableReservesVolume,
+              "totalProbableReservesUnit",
+              "totalProbableReservesVolume",
+              "totalProbableReservesUnit"
+            )}
 
-                  <UnitSelect
-                    value={formData.totalProvedReservesUnit}
-                    onValueChange={(value) => {
-                      handleInputChange("totalProvedReservesUnit", value);
-                      setErrors((prev) => ({ ...prev, totalProvedReservesUnit: "" }));
-                    }}
-                    error={errors.totalProvedReservesUnit}
-                  />
-                </div>
-              </div>
-            </div>
+            {renderInputCard(
+              "Proved Reserves in Conflict Areas",
+              "Portion of proved reserves located in conflict-affected or high-risk geopolitical regions.",
+              provedReservesInConflictVolume,
+              "provedReservesInConflictUnit",
+              "provedReservesInConflictVolume",
+              "provedReservesInConflictUnit"
+            )}
 
-            {/* Proved Reserves in Conflict Areas */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold text-gray-900">
-                  Proved Reserves in Conflict Areas
-                </Label>
-                <div className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer">
-                  <span className="text-xs text-gray-600 cursor-pointer">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="top"
-                        align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                      >
-                        <h6>Proved Reserves in Conflict Areas </h6>
-                        <p>
-                          The portion of total proved reserves that are located in regions affected
-                          by conflict, political instability, or social unrest. Disclosing this
-                          helps assess operational, security, and human rights risks associated with
-                          extraction activities in those areas.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Volume</Label>
+            {renderInputCard(
+              "Probable Reserves in Conflict Areas",
+              "Estimated probable reserves located in regions affected by conflict, indicating elevated operational and human rights risk.",
+              probableReservesInConflictVolume,
+              "probableReservesInConflictUnit",
+              "probableReservesInConflictVolume",
+              "probableReservesInConflictUnit"
+            )}
 
-                  <Input
-                    type="text"
-                    value={provedReservesInConflictVolume.displayValue}
-                    onChange={(e) => {
-                      provedReservesInConflictVolume.handleChange(e.target.value);
-                      setErrors((prev) => ({ ...prev, provedReservesInConflictVolume: "" }));
-                    }}
-                    placeholder="Enter volume"
-                    className="border-gray-300"
-                  />
-
-                  {errors.provedReservesInConflictVolume && (
-                    <p className="text-red-600 text-xs">{errors.provedReservesInConflictVolume}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Unit</Label>
-
-                  <UnitSelect
-                    value={formData.provedReservesInConflictUnit}
-                    onValueChange={(value) => {
-                      handleInputChange("provedReservesInConflictUnit", value);
-                      setErrors((prev) => ({ ...prev, provedReservesInConflictUnit: "" }));
-                    }}
-                    error={errors.provedReservesInConflictUnit}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Probable Reserves in Conflict Areas */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Label className="text-base font-semibold text-gray-900">
-                  Probable Reserves in Conflict Areas
-                </Label>
-                <div className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center cursor-pointer">
-                  <span className="text-xs text-gray-600 cursor-pointer">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent
-                        side="top"
-                        align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
-                      >
-                        <h6>Probable Reserves in Conflict Areas </h6>
-                        <p>
-                          The estimated quantity of reserves with a lower level of certainty than
-                          proved reserves, but which are still likely to be recoverable. Report the
-                          amount of probable reserves specifically located in conflict or high-risk
-                          zones, helping investors understand exposure to geopolitical and human
-                          rights risks.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Volume</Label>
-
-                  <Input
-                    type="text"
-                    value={probableReservesInConflictVolume.displayValue}
-                    onChange={(e) => {
-                      probableReservesInConflictVolume.handleChange(e.target.value);
-                      setErrors((prev) => ({ ...prev, probableReservesInConflictVolume: "" }));
-                    }}
-                    placeholder="Enter volume"
-                    className="border-gray-300"
-                  />
-
-                  {errors.probableReservesInConflictVolume && (
-                    <p className="text-red-600 text-xs">
-                      {errors.probableReservesInConflictVolume}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Unit</Label>
-
-                  <UnitSelect
-                    value={formData.probableReservesInConflictUnit}
-                    onValueChange={(value) => {
-                      handleInputChange("probableReservesInConflictUnit", value);
-                      setErrors((prev) => ({ ...prev, probableReservesInConflictUnit: "" }));
-                    }}
-                    error={errors.probableReservesInConflictUnit}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
-              <p className="text-sm text-gray-600">
-                Upload supporting documents like your reserves statement, internal security risk
-                assessments for relevant regions, and citations for the UCDP data used.
-              </p>
-
-              <div className="mt-6">
-                <AddMoreFilesLinks
-                  onFieldsChange={handleFilesAndLinksChange}
-                  initialData={filesAndLinks}
-                  uploadService={uploadService}
-                />
-              </div>
+              <h3 className="text-base font-semibold">Document / Evidence Upload</h3>
+              <AddMoreFilesLinks
+                onFieldsChange={setFilesAndLinks}
+                initialData={filesAndLinks}
+                uploadService={uploadService}
+              />
             </div>
 
-            {/* Navigation buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handlePrevious}
-                className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Go Back
+              <Button variant="outline" onClick={onBack} className="justify-self-start">
+                <ArrowLeft className="h-4 w-4" /> Go Back
               </Button>
+
               <Button
-                type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
+                className="justify-self-center bg-primary text-white"
               >
                 {isSaving ? (
                   <>
-                    <LoadingSpinner size="sm" className="mr-2" />
-                    Saving...
-                  </>
-                ) : showSaveSuccess ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Saved!
+                    <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save & Continue Later
+                    <Save className="h-4 w-4 mr-2" /> Save & Continue Later
                   </>
                 )}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleNext}
-                disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
-              >
-                Next
-                <ArrowRight className="h-4 w-4" />
+
+              <Button variant="outline" onClick={handleNext} className="justify-self-end">
+                Next <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>
