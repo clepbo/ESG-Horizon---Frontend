@@ -39,6 +39,7 @@ export default function DonutChart({
               outerRadius={100}
               paddingAngle={4} // spacing between arcs
               cornerRadius={5} // rounded edges
+              label={({ value }) => `${value}`}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
