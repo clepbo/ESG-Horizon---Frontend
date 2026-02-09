@@ -10,7 +10,7 @@ interface BreadcrumbContextValue {
 
 const BreadcrumbContext = createContext<BreadcrumbContextValue | null>(null);
 
-export const BreadcrumbProvider = ({ children }: { children: React.ReactNode }) => {
+export const ReportBreadcrumbProvider = ({ children }: { children: React.ReactNode }) => {
   const [lastLabelOverride, setLastLabelOverride] = useState<string | undefined>();
   const pathname = usePathname();
 
@@ -32,12 +32,14 @@ export const BreadcrumbProvider = ({ children }: { children: React.ReactNode }) 
   );
 };
 
+const defaultBreadcrumbValue: BreadcrumbContextValue = {
+  lastLabelOverride: undefined,
+  setLastLabelOverride: () => {},
+};
+
 export const useBreadcrumb = () => {
   const ctx = useContext(BreadcrumbContext);
-  if (!ctx) {
-    throw new Error("useBreadcrumb must be used inside ReportBreadcrumbProvider");
-  }
-  return ctx;
+  return ctx ?? defaultBreadcrumbValue;
 };
 
 /** Shorten month to 3 letters (e.g. "January" -> "Jan") */
