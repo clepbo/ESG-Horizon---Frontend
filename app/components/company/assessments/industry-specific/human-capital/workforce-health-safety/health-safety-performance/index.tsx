@@ -6,6 +6,7 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
+import { defaultEmployeeFormData, type EmployeeFormData } from "./types";
 
 interface HealthSafetyPerformanceProps {
   onBack: () => void;
@@ -24,6 +25,13 @@ export default function HealthSafetyPerformance({
 }: HealthSafetyPerformanceProps) {
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
+
+  const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
+    ...defaultEmployeeFormData,
+  }));
+  const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
+    ...defaultEmployeeFormData,
+  }));
 
   const [directProgress, setDirectProgress] = useState({ filled: 0, total: 6 });
   const [contractProgress, setContractProgress] = useState({ filled: 0, total: 6 });
@@ -81,6 +89,8 @@ export default function HealthSafetyPerformance({
                   <TabsContent value="direct" activeTab={activeTab}>
                     <EmployeeForm
                       employeeType="direct"
+                      data={directFormData}
+                      onChange={setDirectFormData}
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setDirectProgress}
@@ -90,6 +100,8 @@ export default function HealthSafetyPerformance({
                   <TabsContent value="contract" activeTab={activeTab}>
                     <EmployeeForm
                       employeeType="contract"
+                      data={contractFormData}
+                      onChange={setContractFormData}
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setContractProgress}
