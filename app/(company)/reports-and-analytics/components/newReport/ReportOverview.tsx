@@ -85,7 +85,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
     },
   ];
 
-  const productionChartData = [
+  const oilChartData = [
     {
       name: "Oil Production",
       primary: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
@@ -95,6 +95,9 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       fillPrimary: "#f7931a",
       fillSecondary: "#fcd88b",
     },
+  ];
+
+  const gasChartData = [
     {
       name: "Gas Production",
       primary: activityMetrics?.productionData?.gasProduction?.naturalGas ?? 0,
@@ -104,6 +107,16 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       fillPrimary: "#3b82f6",
       fillSecondary: "#bfdbfe",
     },
+  ];
+
+  const oilLegendItems = [
+    { value: "Crude Oil", color: "#f7931a" },
+    { value: "Synthetic Oil", color: "#fcd88b" },
+  ];
+
+  const gasLegendItems = [
+    { value: "Natural Gas", color: "#3b82f6" },
+    { value: "Synthetic Gas", color: "#bfdbfe" },
   ];
 
   const environmentalAmount = (
@@ -157,8 +170,17 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <div className="">
         <h5 className=" border-b w-full border-gray-400 text-gray-700">Production Data</h5>
         <div className="grid gap-3 grid-cols-1 lg:grid-cols-3 mt-3">
-          <div className="col-span-2">
-            <ProductionVolumesChart data={productionChartData} />
+          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ProductionVolumesChart
+              data={oilChartData}
+              title="Oil Production"
+              legendItems={oilLegendItems}
+            />
+            <ProductionVolumesChart
+              data={gasChartData}
+              title="Gas Production"
+              legendItems={gasLegendItems}
+            />
           </div>
           <div className="flex flex-col gap-2 lg:gap-4">
             {productionCards.map((card) => {
