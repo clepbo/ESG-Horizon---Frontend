@@ -107,6 +107,8 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               outerRadius={75}
               paddingAngle={0}
               stroke="none"
+              label={({ value }) => `${value}`}
+              // labelLine={false}
             >
               {DISPUTE_DATA.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />

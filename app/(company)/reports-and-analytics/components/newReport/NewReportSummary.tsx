@@ -1,3 +1,4 @@
+"use client";
 import { Card } from "@/app/components/ui/card";
 import { GoDotFill } from "react-icons/go";
 import React, { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { shortenMonth, useBreadcrumb } from "../../context/ReportBreadcrumbContext";
 
 export default function NewReportSummary() {
   // const [view, setView] = useState("overview");
@@ -36,24 +38,30 @@ export default function NewReportSummary() {
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+  const { setLastLabelOverride } = useBreadcrumb();
 
   useEffect(() => {
     setReportData(data);
   }, [data]);
 
-  // console.log("ReportOverview Data", reportData);
-
-  if (isError) {
+  useEffect(() => {
+    if (reportData?.subsidiary) {
+      setLastLabelOverride(
+        `${reportData.subsidiary}: ${shortenMonth(reportData?.startMonth ?? "")} ${reportData.startYear} - ${shortenMonth(reportData?.endMonth ?? "")} ${reportData.endYear} Report`
+      );
+    }
+  }, [reportData, setLastLabelOverride]);
+  if (isLoading) {
     return (
-      <div className="w-full flex justify-center items-center py-12 text-red-500">
-        Failed to load report.
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">
+        <CardSkeleton />
       </div>
     );
   }
-  if (isLoading) {
+  if (isError) {
     return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-500">
-        <CardSkeleton />
+      <div className="w-full flex justify-center items-center py-12 text-red-600">
+        Failed to load report.
       </div>
     );
   }

@@ -32,6 +32,11 @@ const ActivityIcon = ({ color, Icon }: ActivityIconProps) => (
   </div>
 );
 
+interface CreatedBy {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
 interface Activity {
   id: string | number;
   title: string;
@@ -40,6 +45,7 @@ interface Activity {
   type?: string;
   status?: string;
   iconSrc?: string;
+  user?: CreatedBy;
 }
 
 interface RecentActivitiesProps {
@@ -98,7 +104,7 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
             )}
           >
             <div className="flex items-start gap-2 sm:gap-3 min-w-0 flex-1">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {mappedIcon ? (
                   <ActivityIcon Icon={mappedIcon.Icon} color={mappedIcon.color} />
                 ) : (
@@ -106,11 +112,29 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900 truncate sm:line-clamp-2">
+                <p
+                  className="text-sm font-medium text-gray-900 truncate sm:line-clamp-2"
+                  title={activity.title}
+                >
                   {activity.title}
                 </p>
-                <p className="text-xs text-gray-500 line-clamp-2 sm:line-clamp-1 mt-0.5">
-                  {activity.description || "No description available."}
+                <p
+                  className="text-sm font-medium text-gray-700 sm:line-clamp-2"
+                  title={`${activity.user?.firstName} ${activity.user?.lastName}`}
+                >
+                  User:{" "}
+                  <span className="font-normal text-gray-500">
+                    {activity.user?.firstName} {activity.user?.lastName}
+                  </span>
+                </p>
+                <p
+                  className="text-sm font-medium text-gray-700 truncate sm:line-clamp-2"
+                  title={activity.description || "No description available."}
+                >
+                  Description:{" "}
+                  <span className="font-normal text-gray-500 truncate">
+                    {activity.description || "No description available."}
+                  </span>
                 </p>
               </div>
             </div>
@@ -146,7 +170,7 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
             <Button
               variant="ghost"
               size="sm"
-              className="text-sm text-[var(--color-primary)] flex-shrink-0"
+              className="text-sm text-primary shrink-0"
               onClick={() => setDialogOpen(true)}
             >
               View all

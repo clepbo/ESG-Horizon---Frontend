@@ -25,20 +25,30 @@ function formatLabel(segment: string) {
   return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
 }
 
-export function AutoBreadcrumb() {
-  const pathname = usePathname(); // ex: "/reports-and-analysis/employee-performance/details"
+interface AutoBreadcrumbProps {
+  lastLabelOverride?: string;
+}
+
+export function AutoBreadcrumb({ lastLabelOverride }: AutoBreadcrumbProps) {
+  const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
 
   const paths = segments.map((segment, index) => {
-    const href = "/" + segments.slice(0, index + 1).join("/"); // full path up to this segment
-    const label = formatLabel(segment);
+    const href = "/" + segments.slice(0, index + 1).join("/");
+
+    let label = formatLabel(segment);
+
+    // 🔥 Override last breadcrumb label if provided
+    if (index === segments.length - 1 && lastLabelOverride) {
+      label = lastLabelOverride;
+    }
+
     return { label, href };
   });
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {/* Home */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link href="/">Home</Link>

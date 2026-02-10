@@ -13,38 +13,56 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 // import { useRouter } from "next/router";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
+import type { EmployeeFormData } from "./types";
 
 interface EmployeeFormProps {
   employeeType: "direct" | "contract";
+  data: EmployeeFormData;
+  onChange: (data: EmployeeFormData) => void;
   onBack: () => void;
   onContinueToNextAssessment: () => void;
   onProgressChange: (progress: { filled: number; total: number }) => void;
 }
 
+function stripNumberInput(input: string): string {
+  return String(input).replace(/,/g, "");
+}
+
 export default function EmployeeForm({
   employeeType,
+  data,
+  onChange,
   onBack,
   onContinueToNextAssessment,
   onProgressChange,
 }: EmployeeFormProps) {
-  const totalHoursWorked = useFormattedNumber("");
-  const recordableIncidents = useFormattedNumber("");
-  const fatalities = useFormattedNumber("");
-  const nearMisses = useFormattedNumber("");
-  const safetyTrainingHours = useFormattedNumber("");
+  const totalHoursWorked = useFormattedNumber(data.totalHoursWorked);
+  const recordableIncidents = useFormattedNumber(data.recordableIncidents);
+  const fatalities = useFormattedNumber(data.fatalities);
+  const nearMisses = useFormattedNumber(data.nearMisses);
+  const safetyTrainingHours = useFormattedNumber(data.safetyTrainingHours);
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const [formData, setFormData] = useState({
-    totalHoursWorkedUnit: "Hours",
-    recordableIncidentsUnit: "Incidents",
-    fatalitiesUnit: "Fatalities",
-    nearMissesUnit: "Near Misses",
-    safetyTrainingHoursUnit: "Hours",
-  });
+  const filesAndLinks = data.filesAndLinks;
+
+  useEffect(() => {
+    totalHoursWorked.setRawValue(data.totalHoursWorked);
+  }, [data.totalHoursWorked, totalHoursWorked]);
+  useEffect(() => {
+    recordableIncidents.setRawValue(data.recordableIncidents);
+  }, [data.recordableIncidents, recordableIncidents]);
+  useEffect(() => {
+    fatalities.setRawValue(data.fatalities);
+  }, [data.fatalities, fatalities]);
+  useEffect(() => {
+    nearMisses.setRawValue(data.nearMisses);
+  }, [data.nearMisses]);
+  useEffect(() => {
+    safetyTrainingHours.setRawValue(data.safetyTrainingHours);
+  }, [data.safetyTrainingHours, safetyTrainingHours]);
 
   const router = useRouter();
   const { saveNow } = useAssessmentFlow(
@@ -54,19 +72,19 @@ export default function EmployeeForm({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!totalHoursWorked.rawValue) {
+    if (!data.totalHoursWorked?.trim()) {
       newErrors.totalHoursWorked = "Count is required";
     }
-    if (!recordableIncidents.rawValue) {
+    if (!data.recordableIncidents?.trim()) {
       newErrors.recordableIncidents = "Count is required";
     }
-    if (!fatalities.rawValue) {
+    if (!data.fatalities?.trim()) {
       newErrors.fatalities = "Count is required";
     }
-    if (!nearMisses.rawValue) {
+    if (!data.nearMisses?.trim()) {
       newErrors.nearMisses = "Count is required";
     }
-    if (!safetyTrainingHours.rawValue) {
+    if (!data.safetyTrainingHours?.trim()) {
       newErrors.safetyTrainingHours = "Count is required";
     }
 
@@ -75,12 +93,12 @@ export default function EmployeeForm({
   };
 
   const { filled, total } = useMemo(() => {
-    const hasTotalHoursWorked = totalHoursWorked.rawValue !== "";
-    const hasRecordableIncidents = recordableIncidents.rawValue !== "";
-    const hasFatalities = fatalities.rawValue !== "";
-    const hasNearMisses = nearMisses.rawValue !== "";
-    const hasSafetyTrainingHours = safetyTrainingHours.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
+    const hasTotalHoursWorked = (data.totalHoursWorked ?? "").trim() !== "";
+    const hasRecordableIncidents = (data.recordableIncidents ?? "").trim() !== "";
+    const hasFatalities = (data.fatalities ?? "").trim() !== "";
+    const hasNearMisses = (data.nearMisses ?? "").trim() !== "";
+    const hasSafetyTrainingHours = (data.safetyTrainingHours ?? "").trim() !== "";
+    const hasEvidence = data.filesAndLinks.length > 0;
 
     return calculateProgress([
       hasTotalHoursWorked,
@@ -91,35 +109,35 @@ export default function EmployeeForm({
       hasEvidence,
     ]);
   }, [
-    totalHoursWorked.rawValue,
-    recordableIncidents.rawValue,
-    fatalities.rawValue,
-    nearMisses.rawValue,
-    safetyTrainingHours.rawValue,
-    filesAndLinks,
+    data.totalHoursWorked,
+    data.recordableIncidents,
+    data.fatalities,
+    data.nearMisses,
+    data.safetyTrainingHours,
+    data.filesAndLinks,
   ]);
 
   useEffect(() => {
     onProgressChange({ filled, total });
   }, [filled, total, onProgressChange]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleUnitChange = (field: keyof EmployeeFormData, value: string) => {
+    onChange({ ...data, [field]: value });
   };
 
   const payload = {
     employeeType,
-    totalHoursWorked: Number(totalHoursWorked.rawValue),
-    totalHoursWorkedUnit: formData.totalHoursWorkedUnit,
-    recordableIncidents: Number(recordableIncidents.rawValue),
-    recordableIncidentsUnit: formData.recordableIncidentsUnit,
-    fatalities: Number(fatalities.rawValue),
-    fatalitiesUnit: formData.fatalitiesUnit,
-    nearMisses: Number(nearMisses.rawValue),
-    nearMissesUnit: formData.nearMissesUnit,
-    safetyTrainingHours: Number(safetyTrainingHours.rawValue),
-    safetyTrainingHoursUnit: formData.safetyTrainingHoursUnit,
-    filesAndLinks: filesAndLinks,
+    totalHoursWorked: Number(data.totalHoursWorked) || 0,
+    totalHoursWorkedUnit: data.totalHoursWorkedUnit,
+    recordableIncidents: Number(data.recordableIncidents) || 0,
+    recordableIncidentsUnit: data.recordableIncidentsUnit,
+    fatalities: Number(data.fatalities) || 0,
+    fatalitiesUnit: data.fatalitiesUnit,
+    nearMisses: Number(data.nearMisses) || 0,
+    nearMissesUnit: data.nearMissesUnit,
+    safetyTrainingHours: Number(data.safetyTrainingHours) || 0,
+    safetyTrainingHoursUnit: data.safetyTrainingHoursUnit,
+    filesAndLinks: data.filesAndLinks,
   };
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
@@ -160,6 +178,7 @@ export default function EmployeeForm({
       toast.error("Please fix the errors before continuing.");
       return;
     }
+    setIsSaving(true);
     try {
       await saveNow(
         "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
@@ -170,13 +189,13 @@ export default function EmployeeForm({
     } catch (error) {
       console.log(error);
       toast.error("Failed to save data");
+    } finally {
+      setIsSaving(false);
     }
-    // toast.success("Moved to next section");
-    // onContinueToNextAssessment();
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {
-    setFilesAndLinks(fields);
+    onChange({ ...data, filesAndLinks: fields });
   };
 
   const handlePrevious = () => {
@@ -192,18 +211,18 @@ export default function EmployeeForm({
         tooltipTitle="Total Hours Worked"
         tooltipBody="Enter the total number of hours worked by all employees and contractors during the reporting period. This figure is used to calculate safety performance indicators, such as incident and injury rates."
         inputValue={totalHoursWorked.displayValue}
-        unitValue={formData.totalHoursWorkedUnit}
+        unitValue={data.totalHoursWorkedUnit}
         onInputChange={(num) => {
+          const raw = stripNumberInput(String(num));
           totalHoursWorked.handleChange(String(num));
+          onChange({ ...data, totalHoursWorked: raw });
           setErrors((prev) => ({ ...prev, totalHoursWorked: "" }));
         }}
-        onUnitChange={(unit) => {
-          handleInputChange("totalHoursWorkedUnit", unit);
-        }}
+        onUnitChange={(unit) => handleUnitChange("totalHoursWorkedUnit", unit)}
         error={errors.totalHoursWorked}
         formatNumbers={false}
         placeholder="e.g., 8,900,000"
-        customUnit={formData.totalHoursWorkedUnit}
+        customUnit={data.totalHoursWorkedUnit}
       />
 
       {/* Number of Recordable Incidents */}
@@ -212,18 +231,18 @@ export default function EmployeeForm({
         tooltipTitle="Number of Recordable Incidents"
         tooltipBody="Report the total number of work-related injuries or illnesses that meet the criteria for recordable incidents under applicable occupational health and safety standards. This helps track safety performance and identify high-risk areas."
         inputValue={recordableIncidents.displayValue}
-        unitValue={formData.recordableIncidentsUnit}
+        unitValue={data.recordableIncidentsUnit}
         onInputChange={(num) => {
+          const raw = stripNumberInput(String(num));
           recordableIncidents.handleChange(String(num));
+          onChange({ ...data, recordableIncidents: raw });
           setErrors((prev) => ({ ...prev, recordableIncidents: "" }));
         }}
-        onUnitChange={(unit) => {
-          handleInputChange("recordableIncidentsUnit", unit);
-        }}
+        onUnitChange={(unit) => handleUnitChange("recordableIncidentsUnit", unit)}
         error={errors.recordableIncidents}
         formatNumbers={false}
         placeholder="e.g., 20"
-        customUnit={formData.recordableIncidentsUnit}
+        customUnit={data.recordableIncidentsUnit}
       />
 
       {/* Number of Fatalities */}
@@ -232,18 +251,18 @@ export default function EmployeeForm({
         tooltipTitle="Number of Fatalities"
         tooltipBody="Disclose the total number of work-related fatalities that occurred during the reporting period. Include both employees and contractors. This metric indicates the severity of workplace safety risks."
         inputValue={fatalities.displayValue}
-        unitValue={formData.fatalitiesUnit}
+        unitValue={data.fatalitiesUnit}
         onInputChange={(num) => {
+          const raw = stripNumberInput(String(num));
           fatalities.handleChange(String(num));
+          onChange({ ...data, fatalities: raw });
           setErrors((prev) => ({ ...prev, fatalities: "" }));
         }}
-        onUnitChange={(unit) => {
-          handleInputChange("fatalitiesUnit", unit);
-        }}
+        onUnitChange={(unit) => handleUnitChange("fatalitiesUnit", unit)}
         error={errors.fatalities}
         formatNumbers={false}
         placeholder="e.g., 1"
-        customUnit={formData.fatalitiesUnit}
+        customUnit={data.fatalitiesUnit}
       />
 
       {/* Number of Near Misses */}
@@ -252,18 +271,18 @@ export default function EmployeeForm({
         tooltipTitle="Number of Near Misses"
         tooltipBody="Enter the number of incidents that did not result in injury, illness, or damage but had the potential to do so. Tracking near misses helps identify hazards before they lead to serious incidents."
         inputValue={nearMisses.displayValue}
-        unitValue={formData.nearMissesUnit}
+        unitValue={data.nearMissesUnit}
         onInputChange={(num) => {
+          const raw = stripNumberInput(String(num));
           nearMisses.handleChange(String(num));
+          onChange({ ...data, nearMisses: raw });
           setErrors((prev) => ({ ...prev, nearMisses: "" }));
         }}
-        onUnitChange={(unit) => {
-          handleInputChange("nearMissesUnit", unit);
-        }}
+        onUnitChange={(unit) => handleUnitChange("nearMissesUnit", unit)}
         error={errors.nearMisses}
         formatNumbers={false}
         placeholder="e.g., 1"
-        customUnit={formData.nearMissesUnit}
+        customUnit={data.nearMissesUnit}
       />
 
       {/* Average Hours of Safety Training per Employee */}
@@ -272,18 +291,18 @@ export default function EmployeeForm({
         tooltipTitle="Average Hours of Safety Training per Employee"
         tooltipBody="Report the average number of hours each employee spent on health and safety training during the reporting period. This metric reflects your company's investment in preventive safety practices and workforce competence."
         inputValue={safetyTrainingHours.displayValue}
-        unitValue={formData.safetyTrainingHoursUnit}
+        unitValue={data.safetyTrainingHoursUnit}
         onInputChange={(num) => {
+          const raw = stripNumberInput(String(num));
           safetyTrainingHours.handleChange(String(num));
+          onChange({ ...data, safetyTrainingHours: raw });
           setErrors((prev) => ({ ...prev, safetyTrainingHours: "" }));
         }}
-        onUnitChange={(unit) => {
-          handleInputChange("safetyTrainingHoursUnit", unit);
-        }}
+        onUnitChange={(unit) => handleUnitChange("safetyTrainingHoursUnit", unit)}
         error={errors.safetyTrainingHours}
         formatNumbers={false}
         placeholder="e.g., 1"
-        customUnit={formData.safetyTrainingHoursUnit}
+        customUnit={data.safetyTrainingHoursUnit}
       />
 
       {/* Document/Evidence Upload */}
@@ -345,8 +364,17 @@ export default function EmployeeForm({
           disabled={isSaving}
           className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
         >
-          Next
-          <ArrowRight className="h-4 w-4" />
+          {isSaving ? (
+            <>
+              <LoadingSpinner size="sm" className="mr-2" />
+              Saving...
+            </>
+          ) : (
+            <>
+              Next
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
     </div>
