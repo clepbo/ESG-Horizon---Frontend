@@ -67,7 +67,8 @@ export default function AssessmentHubCard({
             "w-full bg-transparent border border-esg-green text-teal-500 transform hover:scale-[1.02] hover:text-white transition-colors"
           }
           onClick={() => {
-            if (type === "Environmental") router.push("/assessments/new-assessment?tab=environmental");
+            if (type === "Environmental")
+              router.push("/assessments/new-assessment?tab=environmental");
             if (type === "Social") router.push("/assessments/new-assessment?tab=social");
             if (type === "Governance") router.push("/assessments/new-assessment?tab=governance");
           }}
