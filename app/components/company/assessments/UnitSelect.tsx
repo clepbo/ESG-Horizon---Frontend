@@ -18,6 +18,7 @@ const UNIT_OPTIONS_BY_CONTEXT: Record<UnitContext, Array<{ value: string; label:
     { value: "m³", label: "m³ (Cubic Meters)" },
     { value: "Liters", label: "Liters" },
     { value: "Gallons", label: "Gallons" },
+    { value: "MMboe", label: "MMboe" },
   ],
   emissions: [
     { value: "tCO₂e", label: "tCO₂e (Tonnes CO₂ Equivalent)" },

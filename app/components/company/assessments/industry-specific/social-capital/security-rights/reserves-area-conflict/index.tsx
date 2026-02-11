@@ -211,6 +211,15 @@ export default function ReservesAreaConflict({
       <CustomBreadcrumbDynamic features={breadcrumb} />
 
       <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex items-center gap-6 mb-4 mt-4">
+          <div>
+            <h3 className="text-2xl font-semibold">Reserves in or near Areas of Conflict</h3>
+            <p className="text-muted-foreground text-base">
+              Report the percentage of your proved and probable reserves that are located in or near
+              areas of active conflict, as defined by the Uppsala Conflict Data Program (UCDP).
+            </p>
+          </div>
+        </div>
         <Card className="shadow-sm border border-gray-200">
           <CardContent className="p-8 space-y-8">
             <AssessmentProgressBar
