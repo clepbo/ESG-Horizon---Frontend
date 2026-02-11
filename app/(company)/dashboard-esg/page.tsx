@@ -74,6 +74,7 @@ export default function DashboardPage() {
       </div>
     );
   }
+  // console.log("Dashboard overall", data);
 
   return (
     <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">

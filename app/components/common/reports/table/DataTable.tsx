@@ -108,10 +108,10 @@ export function DataTable() {
     globalFilterFn: (row, columnId, filterValue) => {
       const search = filterValue.toLowerCase();
       return (
-        row.original.startingPeriod.toLowerCase().includes(search) ||
-        row.original.endingPeriod.toLowerCase().includes(search) ||
-        row.original.subsidiary.toLowerCase().includes(search) ||
-        row.original.status.toLowerCase().includes(search)
+        (row.original?.startingPeriod?.toLowerCase().includes(search) ?? false) ||
+        (row.original?.endingPeriod?.toLowerCase().includes(search) ?? false) ||
+        (row.original?.subsidiary?.toLowerCase().includes(search) ?? false) ||
+        (row.original?.status?.toLowerCase().includes(search) ?? false)
       );
     },
     state: {

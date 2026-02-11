@@ -13,23 +13,28 @@ import {
 import { Cell } from "recharts";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 
-interface ProductionVolumesChartProps {
-  data?: any[];
+interface LegendItem {
+  value: string;
+  color: string;
 }
 
-export default function ProductionVolumesChart({ data = [] }: ProductionVolumesChartProps) {
+interface ProductionVolumesChartProps {
+  data?: any[];
+  title?: string;
+  legendItems?: LegendItem[];
+}
+
+export default function ProductionVolumesChart({
+  data = [],
+  title = "Production Volumes",
+  legendItems = [],
+}: ProductionVolumesChartProps) {
   const hasData = data.length > 0 && data.some((d) => d.primary > 0 || d.secondary > 0);
 
   const renderLegend = (_props: any) => {
-    const payload = [
-      { value: "Crude Oil", color: "#f7931a" },
-      { value: "Synthetic Oil", color: "#fcd88b" },
-      { value: "Natural Gas", color: "#3b82f6" },
-      { value: "Synthetic Gas", color: "#bfdbfe" },
-    ];
     return (
       <ul className="flex justify-center gap-4 mt-4 text-xs lg:text-sm text-gray-600">
-        {payload.map((entry, index) => (
+        {legendItems.map((entry, index) => (
           <li key={`item-${index}`} className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
             {entry.value}
@@ -73,14 +78,23 @@ export default function ProductionVolumesChart({ data = [] }: ProductionVolumesC
 
   return (
     <div className="w-full h-full bg-white rounded-lg p-6 shadow">
-      <h3 className="text-lg font-semibold mb-4">Production Volumes</h3>
+      <h3 className="text-lg font-semibold mb-4">{title}</h3>
 
       {hasData ? (
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} barGap={4} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey="name" />
-            <YAxis />
+            <YAxis
+              width={70}
+              tickFormatter={(value) => {
+                if (value >= 1_000_000) return `${value / 1_000_000}M`;
+                if (value >= 1_000) return `${value / 1_000}K`;
+                return value;
+              }}
+              axisLine={false}
+              tickLine={false}
+            />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "transparent" }} />
             <Legend content={renderLegend} />
 
