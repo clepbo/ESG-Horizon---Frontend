@@ -13,7 +13,9 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { formatCurrency } from "@/lib/utils";
 
@@ -187,13 +189,25 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
             />
             <Tooltip />
             <Legend content={<CustomLegend />} />
-            <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]}>
+              <LabelList
+                dataKey="count"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
+            </Bar>
             <Bar
               dataKey="duration"
               name="Duration (Days)"
               fill={DURATION_COLOR}
               radius={[4, 4, 0, 0]}
-            />
+            >
+              <LabelList
+                dataKey="duration"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

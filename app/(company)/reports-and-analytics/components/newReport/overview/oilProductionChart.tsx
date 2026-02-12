@@ -9,8 +9,10 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
 import { Cell } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 
 interface LegendItem {
@@ -99,11 +101,21 @@ export default function ProductionVolumesChart({
             <Legend content={renderLegend} />
 
             <Bar dataKey="primary" radius={[6, 6, 0, 0]} maxBarSize={60}>
+              <LabelList
+                dataKey="primary"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
               {data.map((entry, index) => (
                 <Cell key={`cell-primary-${index}`} fill={entry.fillPrimary} />
               ))}
             </Bar>
             <Bar dataKey="secondary" radius={[6, 6, 0, 0]} maxBarSize={60}>
+              <LabelList
+                dataKey="secondary"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
               {data.map((entry, index) => (
                 <Cell key={`cell-secondary-${index}`} fill={entry.fillSecondary} />
               ))}

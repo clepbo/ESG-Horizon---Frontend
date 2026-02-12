@@ -8,7 +8,9 @@ import {
   Legend,
   Cell,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 export interface PollutantData {
   NOx: number;
@@ -83,6 +85,11 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
             />
             <Legend content={renderLegend} />
             <Bar dataKey="value" fill="#8884d8" radius={[10, 10, 0, 0]} isAnimationActive={false}>
+              <LabelList
+                dataKey="value"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
               <Cell fill="#3b82f6" />
               <Cell fill="#f9b232" />
               <Cell fill="#af57db" />

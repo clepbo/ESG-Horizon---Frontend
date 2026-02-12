@@ -7,7 +7,9 @@ import {
   Legend,
   ResponsiveContainer,
   CartesianGrid,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { shortenPeriod } from "./GHGHistoryTransformer";
 
 // #region Sample data
@@ -99,9 +101,27 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             iconType="circle"
             wrapperStyle={{ paddingTop: "20px" }}
           />
-          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1" />
-          <Bar dataKey="scope2" stackId="a" fill="#f9b232" radius={[0, 0, 0, 0]} name="Scope 2" />
-          <Bar dataKey="scope3" stackId="a" fill="#af57db" radius={[4, 4, 0, 0]} name="Scope 3" />
+          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1">
+            <LabelList
+              dataKey="scope1"
+              position="center"
+              formatter={(value) => formatNumberFigures(Number(value) || 0)}
+            />
+          </Bar>
+          <Bar dataKey="scope2" stackId="a" fill="#f9b232" radius={[0, 0, 0, 0]} name="Scope 2">
+            <LabelList
+              dataKey="scope2"
+              position="center"
+              formatter={(value) => formatNumberFigures(Number(value) || 0)}
+            />
+          </Bar>
+          <Bar dataKey="scope3" stackId="a" fill="#af57db" radius={[4, 4, 0, 0]} name="Scope 3">
+            <LabelList
+              dataKey="scope3"
+              position="top"
+              formatter={(value) => formatNumberFigures(Number(value) || 0)}
+            />
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

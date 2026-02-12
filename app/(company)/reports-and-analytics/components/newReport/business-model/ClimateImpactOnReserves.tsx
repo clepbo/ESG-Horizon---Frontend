@@ -1,6 +1,15 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  LabelList,
+} from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ShieldCheck } from "lucide-react";
 import { BusinessModelPillar } from "@/types/report/reportResponse";
 
@@ -50,8 +59,20 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   tickLine={false}
                 />
                 <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Bar dataKey="total" fill="#BDBDBD" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="highRisk" fill="#EF4444" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="total" fill="#BDBDBD" radius={[6, 6, 0, 0]}>
+                  <LabelList
+                    dataKey="total"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
+                <Bar dataKey="highRisk" fill="#EF4444" radius={[6, 6, 0, 0]}>
+                  <LabelList
+                    dataKey="highRisk"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (
