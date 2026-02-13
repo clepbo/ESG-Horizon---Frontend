@@ -81,7 +81,7 @@ export default function PerformanceOverview() {
 
       {!target && (
         <div className="text-center py-8">
-          <p className="text-gray-500">No target data available</p>
+          <p className="text-gray-500">No target data available </p>
         </div>
       )}
     </KpiCard>

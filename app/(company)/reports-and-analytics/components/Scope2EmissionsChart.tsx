@@ -1,7 +1,17 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
+import {
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  CartesianGrid,
+  BarChart,
+  Bar,
+  LabelList,
+} from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { useAssessment } from "@/hooks/useAssessment";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -188,7 +198,13 @@ export function Scope2EmissionsChart() {
                   ]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6" />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6">
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

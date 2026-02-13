@@ -1,4 +1,5 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, LabelList } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface FreshWaterWithdrawalSourceProps {
   surfaceWater?: number;
@@ -24,11 +25,17 @@ export function FreshWaterWithdrawalSource({
       margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
     >
       {/* <CartesianGrid strokeDasharray="3 3" /> */}
-      <XAxis type="number" />
+      <XAxis type="number" tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
       <YAxis dataKey="source" type="category" />
       <Tooltip />
       {/* <Legend /> */}
-      <Bar dataKey="quantity" fill="#3b82f6" radius={[0, 10, 10, 0]} />
+      <Bar dataKey="quantity" fill="#3b82f6" radius={[0, 10, 10, 0]}>
+        <LabelList
+          dataKey="quantity"
+          position="right"
+          formatter={(value) => formatNumberFigures(Number(value) || 0)}
+        />
+      </Bar>
     </BarChart>
   );
 }

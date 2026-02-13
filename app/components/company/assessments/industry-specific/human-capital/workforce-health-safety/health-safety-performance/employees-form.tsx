@@ -59,7 +59,7 @@ export default function EmployeeForm({
   }, [data.fatalities, fatalities]);
   useEffect(() => {
     nearMisses.setRawValue(data.nearMisses);
-  }, [data.nearMisses]);
+  }, [data.nearMisses, nearMisses]);
   useEffect(() => {
     safetyTrainingHours.setRawValue(data.safetyTrainingHours);
   }, [data.safetyTrainingHours, safetyTrainingHours]);

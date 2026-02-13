@@ -11,7 +11,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface ReservesData {
   reserveType: string;
@@ -160,13 +162,25 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   name={chart.totalLabel}
                   fill={chart.totalColor}
                   radius={[4, 4, 0, 0]}
-                />
+                >
+                  <LabelList
+                    dataKey="specific"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
                 <Bar
                   dataKey="specific"
                   name={chart.specificLabel}
                   fill={chart.specificColor}
                   radius={[4, 4, 0, 0]}
-                />
+                >
+                  <LabelList
+                    dataKey="specific"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
