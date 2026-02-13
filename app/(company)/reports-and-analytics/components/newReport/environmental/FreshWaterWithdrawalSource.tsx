@@ -25,7 +25,7 @@ export function FreshWaterWithdrawalSource({
       margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
     >
       {/* <CartesianGrid strokeDasharray="3 3" /> */}
-      <XAxis type="number" />
+      <XAxis type="number" tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
       <YAxis dataKey="source" type="category" />
       <Tooltip />
       {/* <Legend /> */}

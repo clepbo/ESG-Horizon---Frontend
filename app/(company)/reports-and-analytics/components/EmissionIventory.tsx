@@ -89,7 +89,7 @@ export default function GHGEmissionsInventory({
               <Bar key={key} dataKey={key} stackId="a" fill={fuelColors[index] || "#000"}>
                 <LabelList
                   dataKey={key}
-                  position="center"
+                  position="top"
                   formatter={(value) => formatNumberFigures(Number(value) || 0)}
                 />
               </Bar>

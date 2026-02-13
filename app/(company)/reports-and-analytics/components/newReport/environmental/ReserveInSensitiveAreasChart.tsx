@@ -43,10 +43,10 @@ function ReserveInSensitiveAreasChart({
     >
       {/* <CartesianGrid strokeDasharray="3 3" /> */}
       <XAxis dataKey="name" />
-      <YAxis width="auto" />
+      <YAxis width="auto" tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
       <Tooltip />
       <Legend type="circle" />
-      <Bar dataKey="total" fill="#bbbbbb" radius={[10, 10, 0, 0]}>
+      <Bar dataKey="total" fill="#0000FF" radius={[10, 10, 0, 0]}>
         <LabelList
           dataKey="total"
           position="top"

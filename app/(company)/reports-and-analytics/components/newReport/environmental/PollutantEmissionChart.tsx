@@ -74,7 +74,12 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
               tickLine={false}
               tick={{ fill: "#374151", fontSize: 14, fontWeight: 500 }}
             />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#6b7280", fontSize: 12 }}
+              tickFormatter={(value) => formatNumberFigures(Number(value))}
+            />{" "}
             <Tooltip
               contentStyle={{
                 backgroundColor: "rgba(255, 255, 255, 0.95)",

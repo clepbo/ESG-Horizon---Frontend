@@ -12,10 +12,8 @@ import {
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { shortenPeriod } from "./GHGHistoryTransformer";
 
-// #region Sample data
-
 type ChartData = {
-  name: string; // usually a year or period label
+  name: string;
   scope1: number;
   scope2: number;
   scope3: number;
@@ -65,15 +63,20 @@ export interface EmissionData {
 interface EmissionByScopeProps {
   data: EmissionData[];
 }
-// #endregion
+
 const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
+  const enrichedData = data.map((d) => ({
+    ...d,
+    total: d.scope1 + d.scope2 + d.scope3,
+  }));
+
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={data}
+          data={enrichedData}
           margin={{
-            top: 20,
+            top: 30, // Increased top margin for labels
             right: 30,
             left: 20,
             bottom: 5,
@@ -86,14 +89,24 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             tickLine={false}
             tick={{ fill: "#666", fontSize: 12 }}
           />
-          <YAxis axisLine={false} tickLine={false} tick={{ fill: "#666", fontSize: 12 }} />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#666", fontSize: 12 }}
+            tickFormatter={(value) => formatNumberFigures(Number(value))}
+          />
           <Tooltip
-            cursor={{ fill: "transparent" }}
+            cursor={{ fill: "rgba(0,0,0,0.05)" }}
             contentStyle={{
               borderRadius: "8px",
               border: "none",
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+              padding: "10px",
             }}
+            formatter={(value?: number, name?: string) => [
+              formatNumberFigures(Number(value)),
+              name ?? "",
+            ]}
           />
           <Legend
             verticalAlign="bottom"
@@ -101,24 +114,16 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             iconType="circle"
             wrapperStyle={{ paddingTop: "20px" }}
           />
-          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1">
-            <LabelList
-              dataKey="scope1"
-              position="center"
-              formatter={(value) => formatNumberFigures(Number(value) || 0)}
-            />
-          </Bar>
-          <Bar dataKey="scope2" stackId="a" fill="#f9b232" radius={[0, 0, 0, 0]} name="Scope 2">
-            <LabelList
-              dataKey="scope2"
-              position="center"
-              formatter={(value) => formatNumberFigures(Number(value) || 0)}
-            />
-          </Bar>
+          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1" />
+          <Bar dataKey="scope2" stackId="a" fill="#f9b232" radius={[0, 0, 0, 0]} name="Scope 2" />
           <Bar dataKey="scope3" stackId="a" fill="#af57db" radius={[4, 4, 0, 0]} name="Scope 3">
             <LabelList
-              dataKey="scope3"
+              dataKey="total"
               position="top"
+              fill="#333"
+              fontSize={12}
+              fontWeight="bold"
+              offset={10}
               formatter={(value) => formatNumberFigures(Number(value) || 0)}
             />
           </Bar>
