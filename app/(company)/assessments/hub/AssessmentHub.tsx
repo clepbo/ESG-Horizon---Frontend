@@ -42,13 +42,13 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
-  const [targetStep, setTargetStep] = useState<string | null>(null);
+  // const [targetStep, setTargetStep] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state.targetStep) {
-      setTargetStep(state.targetStep);
-    }
-  }, [state.targetStep]);
+  // useEffect(() => {
+  //   if (state.targetStep) {
+  //     setTargetStep(state.targetStep);
+  //   }
+  // }, [state.targetStep]);
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -159,7 +159,7 @@ export default function AssessmentHub() {
           onBack={handleBack}
           initialView="ghg"
           initialForm={currentForm as any}
-          initialStep={targetStep as any}
+          initialStep={state.targetStep as any}
         />
       );
     }
@@ -195,7 +195,7 @@ export default function AssessmentHub() {
       <DisclosureTopics
         onBack={handleBack}
         initialView="activity-metrics"
-        initialStep={targetStep as any}
+        initialStep={state.targetStep as any}
       />
     );
   }

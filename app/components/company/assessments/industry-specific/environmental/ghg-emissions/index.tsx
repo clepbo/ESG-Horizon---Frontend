@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -166,6 +166,12 @@ export function GhgEmissionsAssessment({
 }: GhgEmissionsAssessmentProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
+
+  useEffect(() => {
+    if (initialForm) {
+      setCurrentView(initialForm);
+    }
+  }, [initialForm]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
@@ -458,11 +464,10 @@ export function GhgEmissionsAssessment({
                             key={card.title}
                             className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
                               card.title
-                            )} ${
-                              card.clickable
+                            )} ${card.clickable
                                 ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
-                            }`}
+                              }`}
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >
                             <CardContent className="p-4">

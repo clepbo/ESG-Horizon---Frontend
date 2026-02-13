@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -58,6 +58,12 @@ const activityMetricData = [
 export function ActivityMetricHome({ onBack, initialView = "overview" }: ActivityMetricHomeProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<ActivityMetricView>(initialView);
+
+  useEffect(() => {
+    if (initialView) {
+      setCurrentView(initialView);
+    }
+  }, [initialView]);
   const { state } = useAssessment();
   // const params = useParams();
 
@@ -223,8 +229,8 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                         <Card
                           key={card.title}
                           className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${card.clickable
-                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                              : "cursor-default"
+                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                            : "cursor-default"
                             }`}
                           style={{
                             borderLeftWidth: "4px",
