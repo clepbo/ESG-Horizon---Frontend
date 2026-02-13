@@ -370,13 +370,12 @@ export function AssessmentDetailsModal({
                     <p className="text-teal-100 text-sm">Total Emissions</p>
 
                     <p
-                      className={`font-bold whitespace-normal wrap-break-word ${
-                        String(formatNumber(assessmentData.totalEmission) || "0.00").length > 10
+                      className={`font-bold whitespace-normal wrap-break-word ${String(formatNumber(assessmentData.totalEmission) || "0.00").length > 10
                           ? "text-2xl"
                           : String(formatNumber(assessmentData.totalEmission) || "0.00").length > 7
                             ? "text-3xl"
                             : "text-4xl"
-                      }`}
+                        }`}
                     >
                       {formatNumber(assessmentData.totalEmission) || "0.00"} tCO₂e
                     </p>
@@ -884,6 +883,52 @@ export function AssessmentDetailsModal({
                                 env.waterManagement?.waterAndProducedWaterManagement
                                   ?.producedWaterManagement?.volumeRecycledReusedUnit || "m³"
                               }
+                            />
+                          </div>
+                        </MetricCard>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* ACTIVITY METRICS */}
+                    <AccordionItem
+                      value="activity-metrics"
+                      className="border rounded-lg px-4 bg-gray-50/30"
+                    >
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-5 h-5 text-indigo-600" />
+                          <span className="text-lg font-bold">Activity Metrics</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-4 pb-6">
+                        <MetricCard>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <DataField
+                              label="Production Volumes"
+                              value={
+                                assessmentData.foundationalData?.activityMetrics?.productionVolumes
+                                  ?.volume
+                              }
+                              unit={
+                                assessmentData.foundationalData?.activityMetrics?.productionVolumes
+                                  ?.unit
+                              }
+                            />
+                            <DataField
+                              label="Offshore Sites"
+                              value={
+                                assessmentData.foundationalData?.activityMetrics?.offshoreSites
+                                  ?.numberOfSites
+                              }
+                              unit="sites"
+                            />
+                            <DataField
+                              label="Terrestrial Sites"
+                              value={
+                                assessmentData.foundationalData?.activityMetrics?.terrestrialSites
+                                  ?.numberOfSites
+                              }
+                              unit="sites"
                             />
                           </div>
                         </MetricCard>

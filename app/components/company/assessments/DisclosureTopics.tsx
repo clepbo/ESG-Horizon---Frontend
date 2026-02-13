@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -224,6 +225,13 @@ export function DisclosureTopics({
 }: DisclosureTopicsProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState(initialView);
+
+  useEffect(() => {
+    if (initialView) {
+      setCurrentView(initialView);
+    }
+  }, [initialView]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
@@ -326,7 +334,18 @@ export function DisclosureTopics({
   const filteredIndustryMetrics = filterMetrics(industrySpecificMetrics, "Industry-Specific");
 
   if (currentView === "activity-metrics") {
-    return <ActivityMetricHome onBack={() => setCurrentView("topics")} />;
+    return (
+      <ActivityMetricHome
+        onBack={() => setCurrentView("topics")}
+        initialView={(initialStep && typeof initialStep === 'string')
+          ? (initialStep.includes('production') ? 'production-volume'
+            : initialStep.includes('offshore') ? 'offshore-sites'
+              : initialStep.includes('terrestrial') ? 'terrestrial-sites'
+                : 'overview') as any
+          : 'overview'
+        }
+      />
+    );
   }
   if (currentView === "ghg") {
     return (
@@ -657,11 +676,10 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${
-                                      card.clickable
-                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                        : "cursor-default"
-                                    }`}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${card.clickable
+                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                      : "cursor-default"
+                                      }`}
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: getBorderColor(),

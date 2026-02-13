@@ -64,9 +64,10 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
 }
 
 function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
-  const resolved = disputeData?.resolvedDisputes || 0;
-  const pending = disputeData?.pending || 0;
-  const total = disputeData?.total || resolved + pending;
+  const referred = disputeData?.disputesReferred || 0;
+  const resolved = disputeData?.disputesResolved || 0;
+  const pending = Math.max(0, referred - resolved);
+  const total = referred;
 
   const DISPUTE_DATA = [
     { name: "Resolved", value: resolved, color: "#22c55e" },
@@ -110,7 +111,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               paddingAngle={0}
               stroke="none"
               label={({ value }) => `${value}`}
-              // labelLine={false}
+            // labelLine={false}
             >
               {DISPUTE_DATA.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />
