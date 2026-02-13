@@ -98,7 +98,7 @@ export default function ProductionVolumesChart({
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "transparent" }} />
             <Legend content={renderLegend} />
 
-            <Bar dataKey="primary" radius={[6, 6, 0, 0]} maxBarSize={60}>
+            <Bar dataKey="primary" radius={[6, 6, 0, 0]} maxBarSize={60} >
               {data.map((entry, index) => (
                 <Cell key={`cell-primary-${index}`} fill={entry.fillPrimary} />
               ))}

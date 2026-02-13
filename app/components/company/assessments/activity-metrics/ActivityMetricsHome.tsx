@@ -19,6 +19,7 @@ type ActivityMetricView = "overview" | "production-volume" | "offshore-sites" | 
 
 interface ActivityMetricHomeProps {
   onBack?: () => void;
+  initialView?: ActivityMetricView;
 }
 
 const activityMetricData = [
@@ -54,9 +55,9 @@ const activityMetricData = [
   },
 ];
 
-export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
+export function ActivityMetricHome({ onBack, initialView = "overview" }: ActivityMetricHomeProps) {
   const router = useRouter();
-  const [currentView, setCurrentView] = useState<ActivityMetricView>("overview");
+  const [currentView, setCurrentView] = useState<ActivityMetricView>(initialView);
   const { state } = useAssessment();
   // const params = useParams();
 
@@ -221,11 +222,10 @@ export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
                       return (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${
-                            card.clickable
+                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
-                          }`}
+                            }`}
                           style={{
                             borderLeftWidth: "4px",
                             borderLeftColor: getBorderColor(),
