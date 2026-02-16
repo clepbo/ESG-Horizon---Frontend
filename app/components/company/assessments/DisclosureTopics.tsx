@@ -575,15 +575,16 @@ export function DisclosureTopics({
                   </span>
                 </div>
                 <Card
-                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
+                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
+                  // className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
                   style={{
                     borderLeftWidth: "4px",
-                    borderLeftColor:
-                      getActivityMetricsStatus().status === "completed"
-                        ? "#22c55e"
-                        : getActivityMetricsStatus().status === "in-progress"
-                          ? "#eab308"
-                          : "#d1d5db",
+                    // borderLeftColor:
+                    //   getActivityMetricsStatus().status === "completed"
+                    //     ? "#22c55e"
+                    //     : getActivityMetricsStatus().status === "in-progress"
+                    //       ? "#eab308"
+                    //       : "#d1d5db",
                   }}
                   onClick={() => setCurrentView("activity-metrics")}
                 >
@@ -592,7 +593,7 @@ export function DisclosureTopics({
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center justify-between">
                           <h5 className="font-medium text-foreground">Activity Metrics</h5>
-                          <CompletionIndicator status={getActivityMetricsStatus()} />
+                          {/* <CompletionIndicator status={getActivityMetricsStatus()} /> */}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
@@ -663,20 +664,20 @@ export function DisclosureTopics({
                                 const getBorderColor = () => {
                                   if (!status) return "#d1d5db"; // gray-300 for undefined
 
-                                  switch (status.status) {
-                                    case "completed":
-                                      return "#22c55e"; // green-500
-                                    case "in-progress":
-                                      return "#eab308"; // yellow-500
-                                    default:
-                                      return "#d1d5db"; // gray-300
-                                  }
+                                  // switch (status.status) {
+                                  //   case "completed":
+                                  //     return "#22c55e"; // green-500
+                                  //   case "in-progress":
+                                  //     return "#eab308"; // yellow-500
+                                  //   default:
+                                  //     return "#d1d5db"; // gray-300
+                                  // }
                                 };
 
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${card.clickable
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
                                       ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                       : "cursor-default"
                                       }`}
@@ -693,7 +694,7 @@ export function DisclosureTopics({
                                             <h5 className="font-medium text-foreground">
                                               {card.title}
                                             </h5>
-                                            <CompletionIndicator status={status} />
+                                            {/* <CompletionIndicator status={status} /> */}
                                           </div>
                                           <p className="text-sm text-muted-foreground">
                                             {card.subtitle}
