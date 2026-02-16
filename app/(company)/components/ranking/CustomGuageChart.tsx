@@ -2,6 +2,7 @@ import React from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "highcharts/highcharts-more";
+import { formatNumberFigures } from "./FormatNumberFigures";
 
 interface GuageProps {
   score: number;
@@ -10,12 +11,20 @@ interface GuageProps {
   targetEmission: number | string;
 }
 
+function toEmissionFigure(value: number | string): string {
+  const num = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
+  return formatNumberFigures(Number.isNaN(num) ? 0 : num);
+}
+
 const SpeedometerGauge: React.FC<GuageProps> = ({
   score,
   initialEmission,
   currentEmission,
   targetEmission,
 }) => {
+  const initial = toEmissionFigure(initialEmission);
+  const current = toEmissionFigure(currentEmission);
+  const target = toEmissionFigure(targetEmission);
   const options: Highcharts.Options = {
     chart: {
       type: "gauge",
@@ -23,17 +32,18 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       plotBackgroundImage: "",
       plotBorderWidth: 0,
       plotShadow: false,
-      height: "80%",
+      height: "85%",
     },
     title: {
       text: "Overall ESG Performance",
+      style: { fontSize: "18px" },
     },
     pane: {
       startAngle: -90,
       endAngle: 89.9,
       background: undefined,
       center: ["50%", "75%"],
-      size: "110%",
+      size: "125%",
     },
     credits: {
       enabled: false,
@@ -44,14 +54,14 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       tickPixelInterval: 72,
       tickPosition: "inside",
       tickColor: "#FFFFFF",
-      tickLength: 20,
+      tickLength: 26,
       tickWidth: 2,
       minorTickInterval: undefined,
       labels: {
         enabled: false,
         distance: 20,
         style: {
-          fontSize: "14px",
+          fontSize: "16px",
         },
       },
       lineWidth: 0,
@@ -60,13 +70,13 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           from: 0,
           to: score,
           color: "#119B95",
-          thickness: 20,
+          thickness: 26,
         },
         {
           from: score,
           to: 200,
           color: "#CDFAF3",
-          thickness: 20,
+          thickness: 26,
         },
       ],
     },
@@ -84,19 +94,19 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           borderWidth: 0,
           color: "#333333",
           style: {
-            fontSize: "16px",
+            fontSize: "20px",
           },
         },
         dial: {
-          radius: "80%",
+          radius: "85%",
           backgroundColor: "#119B95",
-          baseWidth: 12,
+          baseWidth: 16,
           baseLength: "0%",
           rearLength: "0%",
         },
         pivot: {
           backgroundColor: "#119B95",
-          radius: 6,
+          radius: 8,
         },
       },
     ],
@@ -105,15 +115,20 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
   return (
     <div
       className="highcharts-figure"
-      style={{ minWidth: "310px", maxWidth: "800px", margin: "1em auto" }}
+      style={{
+        minWidth: "380px",
+        maxWidth: "900px",
+        minHeight: "320px",
+        margin: "1em auto",
+      }}
     >
       <HighchartsReact highcharts={Highcharts} options={options} />
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginTop: "3px",
-          padding: "0 5px",
+          marginTop: "8px",
+          padding: "0 8px",
           position: "relative",
         }}
       >
@@ -121,24 +136,24 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         <div
           style={{
             textAlign: "center",
-            fontSize: "8px",
+            flex: 1,
             transform: "translateX(-10px)",
           }}
         >
           <div
             style={{
-              fontWeight: "",
               color: "red",
-              fontSize: "8px",
+              fontSize: "14px",
+              fontWeight: 600,
             }}
           >
-            {initialEmission}
+            {initial}
           </div>
           <div
             style={{
               color: "#666",
-              fontSize: "8px",
-              marginTop: "4px",
+              fontSize: "12px",
+              marginTop: "6px",
               fontWeight: "bold",
             }}
           >
@@ -150,24 +165,24 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         <div
           style={{
             textAlign: "center",
-            fontSize: "8px",
+            flex: 1,
             transform: "translateX(-10px)",
           }}
         >
           <div
             style={{
-              fontWeight: "",
               color: "red",
-              fontSize: "8px",
+              fontSize: "14px",
+              fontWeight: 600,
             }}
           >
-            {currentEmission}
+            {current}
           </div>
           <div
             style={{
               color: "#666",
-              fontSize: "8px",
-              marginTop: "4px",
+              fontSize: "12px",
+              marginTop: "6px",
               fontWeight: "bold",
             }}
           >
@@ -179,24 +194,24 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         <div
           style={{
             textAlign: "center",
-            fontSize: "8px",
+            flex: 1,
             transform: "translateX(-10px)",
           }}
         >
           <div
             style={{
-              fontWeight: "",
               color: "red",
-              fontSize: "8px",
+              fontSize: "14px",
+              fontWeight: 600,
             }}
           >
-            {targetEmission}
+            {target}
           </div>
           <div
             style={{
               color: "#666",
-              fontSize: "8px",
-              marginTop: "4px",
+              fontSize: "12px",
+              marginTop: "6px",
               fontWeight: "bold",
             }}
           >

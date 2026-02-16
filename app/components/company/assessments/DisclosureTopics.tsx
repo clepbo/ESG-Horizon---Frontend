@@ -337,12 +337,16 @@ export function DisclosureTopics({
     return (
       <ActivityMetricHome
         onBack={() => setCurrentView("topics")}
-        initialView={(initialStep && typeof initialStep === 'string')
-          ? (initialStep.includes('production') ? 'production-volume'
-            : initialStep.includes('offshore') ? 'offshore-sites'
-              : initialStep.includes('terrestrial') ? 'terrestrial-sites'
-                : 'overview') as any
-          : 'overview'
+        initialView={
+          initialStep && typeof initialStep === "string"
+            ? ((initialStep.includes("production")
+                ? "production-volume"
+                : initialStep.includes("offshore")
+                  ? "offshore-sites"
+                  : initialStep.includes("terrestrial")
+                    ? "terrestrial-sites"
+                    : "overview") as any)
+            : "overview"
         }
       />
     );
@@ -676,10 +680,11 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                      }`}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${borderClass} ${
+                                      card.clickable
+                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                        : "cursor-default"
+                                    }`}
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: getBorderColor(),

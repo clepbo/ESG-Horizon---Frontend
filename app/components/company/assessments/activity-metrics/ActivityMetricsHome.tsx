@@ -228,10 +228,11 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                       return (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${card.clickable
-                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                            : "cursor-default"
-                            }`}
+                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${
+                            card.clickable
+                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                              : "cursor-default"
+                          }`}
                           style={{
                             borderLeftWidth: "4px",
                             borderLeftColor: getBorderColor(),
