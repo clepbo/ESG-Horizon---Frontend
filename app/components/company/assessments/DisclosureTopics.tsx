@@ -580,7 +580,17 @@ export function DisclosureTopics({
                 </div>
                 {/* Status indication commented out - revisit later (was getActivityMetricsBorderClass()) */}
                 <Card
-                  className="transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md"
+                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
+                  // className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
+                  style={{
+                    borderLeftWidth: "4px",
+                    // borderLeftColor:
+                    //   getActivityMetricsStatus().status === "completed"
+                    //     ? "#22c55e"
+                    //     : getActivityMetricsStatus().status === "in-progress"
+                    //       ? "#eab308"
+                    //       : "#d1d5db",
+                  }}
                   onClick={() => setCurrentView("activity-metrics")}
                 >
                   <CardContent className="p-4 flex justify-between items-center">
