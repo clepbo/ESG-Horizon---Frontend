@@ -14,7 +14,7 @@ import { SuccessScreen } from "../../../../SuccessScreen";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import { useRouter, useParams } from "next/navigation";
 
 const cards1 = [
@@ -102,12 +102,12 @@ export default function WaterAndWastemanagementCards({
     }
   }, [state.assessmentData]);
 
-  // Use the reusable hook with checkSubComponentCompletion
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  // Status indication commented out - revisit later
+  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+  //   scopeData,
+  //   state.assessmentData,
+  //   checkSubComponentCompletion
+  // );
 
   function backToWasteWaterManagement() {
     setStep(0);
@@ -209,16 +209,14 @@ export default function WaterAndWastemanagementCards({
                   <Card
                     key={i}
                     onClick={() => handleCardClick(card.title)}
-                    className={`cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow ${getCardBorderClass(
-                      card.title
-                    )}`}
+                    className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center justify-between">
                             <h5 className="font-medium text-foreground">{card.title}</h5>
-                            <CompletionIndicator status={getStatus(card.title)} />
+                            {/* <CompletionIndicator status={getStatus(card.title)} /> */}
                           </div>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
@@ -248,16 +246,14 @@ export default function WaterAndWastemanagementCards({
                   <Card
                     key={i}
                     onClick={() => handleCardClick(card.title)}
-                    className={`cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow ${getCardBorderClass(
-                      card.title
-                    )}`}
+                    className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center justify-between">
                             <h5 className="font-medium text-foreground">{card.title}</h5>
-                            <CompletionIndicator status={getStatus(card.title)} />
+                            {/* <CompletionIndicator status={getStatus(card.title)} /> */}
                           </div>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>

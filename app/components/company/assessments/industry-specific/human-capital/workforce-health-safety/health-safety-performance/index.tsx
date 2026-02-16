@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import EmployeeForm from "./employees-form";
-import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
+// import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 import type { EmployeeFormData } from "./types";
 
@@ -65,14 +65,14 @@ export default function HealthSafetyPerformance({
         {/* Main Card */}
         <Card className="shadow-sm border border-gray-200">
           <CardContent className="p-8 space-y-8">
-            {/* Progress Bar - Shows combined progress from both tabs */}
-            <AssessmentProgressBar
+            {/* Progress/status indication commented out - revisit later */}
+            {/* <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
               fieldsCompleted={combinedProgress.filled}
               totalFields={combinedProgress.total}
               isSubmitted={false}
-            />
+            /> */}
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="direct">
