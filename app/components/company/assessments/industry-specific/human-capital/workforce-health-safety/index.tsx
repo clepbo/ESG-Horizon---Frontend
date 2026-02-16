@@ -15,6 +15,7 @@ import SafetyManagementSystems from "./safety-management-systems";
 import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
 import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { defaultEmployeeFormData, type EmployeeFormData } from "./health-safety-performance/types";
 
 type WHSView = "overview" | "health-safety-performance" | "safety-management-systems";
 
@@ -61,6 +62,14 @@ export default function WorkforceHealthSafety({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
+  // Persist Health & Safety Performance form data across next/back until after submission
+  const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
+    ...defaultEmployeeFormData,
+  }));
+  const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
+    ...defaultEmployeeFormData,
+  }));
+
   const { getStatus, getCardBorderClass } = useAssessmentCompletion(
     scopeData,
     state.assessmentData,
@@ -93,8 +102,16 @@ export default function WorkforceHealthSafety({
         assessmentName="Safety Management Systems"
         totals={totals ?? undefined}
         nextAssessment="Reserves Valuation and Capital Expenditures"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinue={() => {
+          setDirectFormData({ ...defaultEmployeeFormData });
+          setContractFormData({ ...defaultEmployeeFormData });
+          onContinueToNextAssessment();
+        }}
+        onContinueAssessment={() => {
+          setDirectFormData({ ...defaultEmployeeFormData });
+          setContractFormData({ ...defaultEmployeeFormData });
+          dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+        }}
         onBackToHub={onBackToHub}
       />
     );
@@ -116,6 +133,10 @@ export default function WorkforceHealthSafety({
         stepIndex={1}
         totalSteps={steps.length}
         breadcrumb={healthSafetyBreadcrumb}
+        directFormData={directFormData}
+        onDirectFormChange={setDirectFormData}
+        contractFormData={contractFormData}
+        onContractFormChange={setContractFormData}
       />
     );
   }

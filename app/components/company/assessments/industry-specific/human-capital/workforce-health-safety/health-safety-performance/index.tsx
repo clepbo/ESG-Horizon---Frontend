@@ -6,7 +6,7 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
-import { defaultEmployeeFormData, type EmployeeFormData } from "./types";
+import type { EmployeeFormData } from "./types";
 
 interface HealthSafetyPerformanceProps {
   onBack: () => void;
@@ -14,6 +14,10 @@ interface HealthSafetyPerformanceProps {
   stepIndex?: number;
   totalSteps?: number;
   breadcrumb: BreadcrumbItemType[];
+  directFormData: EmployeeFormData;
+  onDirectFormChange: (data: EmployeeFormData) => void;
+  contractFormData: EmployeeFormData;
+  onContractFormChange: (data: EmployeeFormData) => void;
 }
 
 export default function HealthSafetyPerformance({
@@ -22,16 +26,13 @@ export default function HealthSafetyPerformance({
   stepIndex = 1,
   totalSteps = 2,
   breadcrumb,
+  directFormData,
+  onDirectFormChange,
+  contractFormData,
+  onContractFormChange,
 }: HealthSafetyPerformanceProps) {
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
-
-  const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
-    ...defaultEmployeeFormData,
-  }));
-  const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
-    ...defaultEmployeeFormData,
-  }));
 
   const [directProgress, setDirectProgress] = useState({ filled: 0, total: 6 });
   const [contractProgress, setContractProgress] = useState({ filled: 0, total: 6 });
@@ -90,7 +91,7 @@ export default function HealthSafetyPerformance({
                     <EmployeeForm
                       employeeType="direct"
                       data={directFormData}
-                      onChange={setDirectFormData}
+                      onChange={onDirectFormChange}
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setDirectProgress}
@@ -101,7 +102,7 @@ export default function HealthSafetyPerformance({
                     <EmployeeForm
                       employeeType="contract"
                       data={contractFormData}
-                      onChange={setContractFormData}
+                      onChange={onContractFormChange}
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setContractProgress}
