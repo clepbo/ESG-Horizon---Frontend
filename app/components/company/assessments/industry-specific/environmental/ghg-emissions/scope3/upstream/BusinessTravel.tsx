@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -139,21 +145,45 @@ export function BusinessTravel({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
+    // Check each required field - accept valid numbers including 0
     const hasAirTravelData =
-      totalFlights.trim().length > 0 &&
-      airDistance.trim().length > 0 &&
-      airEmployees.trim().length > 0;
+      totalFlights.trim() !== "" &&
+      !isNaN(Number(totalFlights)) &&
+      Number(totalFlights) >= 0 &&
+      airDistance.trim() !== "" &&
+      !isNaN(Number(airDistance)) &&
+      Number(airDistance) >= 0 &&
+      airEmployees.trim() !== "" &&
+      !isNaN(Number(airEmployees)) &&
+      Number(airEmployees) >= 0;
+
     const hasClassDistribution =
-      economyPercent.trim().length > 0 &&
-      businessPercent.trim().length > 0 &&
-      firstClassPercent.trim().length > 0;
+      economyPercent.trim() !== "" &&
+      !isNaN(Number(economyPercent)) &&
+      Number(economyPercent) >= 0 &&
+      businessPercent.trim() !== "" &&
+      !isNaN(Number(businessPercent)) &&
+      Number(businessPercent) >= 0 &&
+      firstClassPercent.trim() !== "" &&
+      !isNaN(Number(firstClassPercent)) &&
+      Number(firstClassPercent) >= 0;
+
     const hasGroundTravelData =
-      groundDistance.trim().length > 0 &&
-      groundEmployees.trim().length > 0 &&
-      fuelConsumed.trim().length > 0;
-    const hasAccommodationData = hotelNights.trim().length > 0;
+      groundDistance.trim() !== "" &&
+      !isNaN(Number(groundDistance)) &&
+      Number(groundDistance) >= 0 &&
+      groundEmployees.trim() !== "" &&
+      !isNaN(Number(groundEmployees)) &&
+      Number(groundEmployees) >= 0 &&
+      fuelConsumed.trim() !== "" &&
+      !isNaN(Number(fuelConsumed)) &&
+      Number(fuelConsumed) >= 0;
+
+    const hasAccommodationData =
+      hotelNights.trim() !== "" && !isNaN(Number(hotelNights)) && Number(hotelNights) >= 0;
+
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -213,56 +243,62 @@ export function BusinessTravel({
       hotelNights: false,
     };
 
-    // Validate Air Travel
-    if (!totalFlights.trim()) {
-      newErrors.totalFlights = "Please enter the total number of flights taken.";
+    // Validate Air Travel - accept 0 and any valid number >= 0
+    if (!totalFlights.trim() || isNaN(Number(totalFlights)) || Number(totalFlights) < 0) {
+      newErrors.totalFlights = "Please enter the total number of flights taken (0 or greater).";
       newFieldErrors.totalFlights = true;
     }
 
-    if (!airDistance.trim()) {
-      newErrors.airDistance = "Please enter the total air distance travelled.";
+    if (!airDistance.trim() || isNaN(Number(airDistance)) || Number(airDistance) < 0) {
+      newErrors.airDistance = "Please enter the total air distance travelled (0 or greater).";
       newFieldErrors.airDistance = true;
     }
 
-    if (!airEmployees.trim()) {
-      newErrors.airEmployees = "Please enter the total number of employees for air trips.";
+    if (!airEmployees.trim() || isNaN(Number(airEmployees)) || Number(airEmployees) < 0) {
+      newErrors.airEmployees =
+        "Please enter the total number of employees for air trips (0 or greater).";
       newFieldErrors.airEmployees = true;
     }
 
-    if (!economyPercent.trim()) {
-      newErrors.economyPercent = "Please enter the economy class percentage.";
+    if (!economyPercent.trim() || isNaN(Number(economyPercent)) || Number(economyPercent) < 0) {
+      newErrors.economyPercent = "Please enter the economy class percentage (0 or greater).";
       newFieldErrors.economyPercent = true;
     }
 
-    if (!businessPercent.trim()) {
-      newErrors.businessPercent = "Please enter the business class percentage.";
+    if (!businessPercent.trim() || isNaN(Number(businessPercent)) || Number(businessPercent) < 0) {
+      newErrors.businessPercent = "Please enter the business class percentage (0 or greater).";
       newFieldErrors.businessPercent = true;
     }
 
-    if (!firstClassPercent.trim()) {
-      newErrors.firstClassPercent = "Please enter the first class percentage.";
+    if (
+      !firstClassPercent.trim() ||
+      isNaN(Number(firstClassPercent)) ||
+      Number(firstClassPercent) < 0
+    ) {
+      newErrors.firstClassPercent = "Please enter the first class percentage (0 or greater).";
       newFieldErrors.firstClassPercent = true;
     }
 
     // Validate Ground Travel
-    if (!groundDistance.trim()) {
-      newErrors.groundDistance = "Please enter the total ground distance travelled.";
+    if (!groundDistance.trim() || isNaN(Number(groundDistance)) || Number(groundDistance) < 0) {
+      newErrors.groundDistance = "Please enter the total ground distance travelled (0 or greater).";
       newFieldErrors.groundDistance = true;
     }
 
-    if (!groundEmployees.trim()) {
-      newErrors.groundEmployees = "Please enter the total number of employees for ground trips.";
+    if (!groundEmployees.trim() || isNaN(Number(groundEmployees)) || Number(groundEmployees) < 0) {
+      newErrors.groundEmployees =
+        "Please enter the total number of employees for ground trips (0 or greater).";
       newFieldErrors.groundEmployees = true;
     }
 
-    if (!fuelConsumed.trim()) {
-      newErrors.fuelConsumed = "Please enter the total fuel consumed.";
+    if (!fuelConsumed.trim() || isNaN(Number(fuelConsumed)) || Number(fuelConsumed) < 0) {
+      newErrors.fuelConsumed = "Please enter the total fuel consumed (0 or greater).";
       newFieldErrors.fuelConsumed = true;
     }
 
     // Validate Accommodation
-    if (!hotelNights.trim()) {
-      newErrors.hotelNights = "Please enter the total number of hotel nights.";
+    if (!hotelNights.trim() || isNaN(Number(hotelNights)) || Number(hotelNights) < 0) {
+      newErrors.hotelNights = "Please enter the total number of hotel nights (0 or greater).";
       newFieldErrors.hotelNights = true;
     }
 
@@ -329,6 +365,8 @@ export function BusinessTravel({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -560,14 +598,38 @@ export function BusinessTravel({
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Total number of flights taken <span className="text-red-500">*</span>
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Flight Count Input Guide</p>
+                          <p className="text-xs">
+                            Enter the total number of business flights taken during the reporting
+                            period.
+                          </p>
+                          <p className="text-xs mt-1">• You can enter 0 if no flights were taken</p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Count each flight leg separately (e.g., round trip = 2 flights)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <SmartInput
-                    label="Total number of flights taken"
+                    label=""
                     type="number"
-                    required
+                    required={false}
                     value={totalFlights}
                     onChange={(value) => handleAirTravelChange("totalFlights", value)}
                     errorTrigger={fieldErrors.totalFlights}
-                    errorMessage="Please enter the total number of flights taken."
+                    errorMessage="Please enter the total number of flights taken (0 or greater)."
                   />
                   {errors.totalFlights && (
                     <p className="text-sm text-red-500 animate-pulse col-span-full">
@@ -583,7 +645,7 @@ export function BusinessTravel({
                       value={airDistance}
                       onChange={(value) => handleAirTravelChange("airDistance", value)}
                       errorTrigger={fieldErrors.airDistance}
-                      errorMessage="Please enter the total air distance travelled."
+                      errorMessage="Please enter the total air distance travelled (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="text-sm text-gray-600">km</span>
@@ -602,7 +664,7 @@ export function BusinessTravel({
                     value={airEmployees}
                     onChange={(value) => handleAirTravelChange("airEmployees", value)}
                     errorTrigger={fieldErrors.airEmployees}
-                    errorMessage="Please enter the total number of employees for air trips."
+                    errorMessage="Please enter the total number of employees for air trips (0 or greater)."
                   />
                   {errors.airEmployees && (
                     <p className="text-sm text-red-500 animate-pulse col-span-full">
@@ -625,7 +687,7 @@ export function BusinessTravel({
                         value={economyPercent}
                         onChange={(value) => handleAirTravelChange("economyPercent", value)}
                         errorTrigger={fieldErrors.economyPercent}
-                        errorMessage="Please enter economy class percentage."
+                        errorMessage="Please enter economy class percentage (0 or greater)."
                       />
                       <div className="absolute right-3 top-9">
                         <span className="text-sm text-gray-600">%</span>
@@ -645,7 +707,7 @@ export function BusinessTravel({
                         value={businessPercent}
                         onChange={(value) => handleAirTravelChange("businessPercent", value)}
                         errorTrigger={fieldErrors.businessPercent}
-                        errorMessage="Please enter business class percentage."
+                        errorMessage="Please enter business class percentage (0 or greater)."
                       />
                       <div className="absolute right-3 top-9">
                         <span className="text-sm text-gray-600">%</span>
@@ -665,7 +727,7 @@ export function BusinessTravel({
                         value={firstClassPercent}
                         onChange={(value) => handleAirTravelChange("firstClassPercent", value)}
                         errorTrigger={fieldErrors.firstClassPercent}
-                        errorMessage="Please enter first class percentage."
+                        errorMessage="Please enter first class percentage (0 or greater)."
                       />
                       <div className="absolute right-3 top-9">
                         <span className="text-sm text-gray-600">%</span>
@@ -698,7 +760,7 @@ export function BusinessTravel({
                       value={groundDistance}
                       onChange={(value) => handleGroundTravelChange("groundDistance", value)}
                       errorTrigger={fieldErrors.groundDistance}
-                      errorMessage="Please enter the total ground distance travelled."
+                      errorMessage="Please enter the total ground distance travelled (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="text-sm text-gray-600">km</span>
@@ -717,7 +779,7 @@ export function BusinessTravel({
                     value={groundEmployees}
                     onChange={(value) => handleGroundTravelChange("groundEmployees", value)}
                     errorTrigger={fieldErrors.groundEmployees}
-                    errorMessage="Please enter the total number of employees for ground trips."
+                    errorMessage="Please enter the total number of employees for ground trips (0 or greater)."
                   />
                   {errors.groundEmployees && (
                     <p className="text-sm text-red-500 animate-pulse col-span-full">
@@ -733,7 +795,7 @@ export function BusinessTravel({
                       value={fuelConsumed}
                       onChange={(value) => handleGroundTravelChange("fuelConsumed", value)}
                       errorTrigger={fieldErrors.fuelConsumed}
-                      errorMessage="Please enter the total fuel consumed."
+                      errorMessage="Please enter the total fuel consumed (0 or greater)."
                     />
                     <div className="absolute right-3 top-9 flex items-center gap-1">
                       {/* <Fuel className="h-4 w-4 text-gray-600" /> */}
@@ -756,15 +818,41 @@ export function BusinessTravel({
                 </div>
 
                 <div className="w-full">
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Total number of hotel nights <span className="text-red-500">*</span>
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Hotel Nights Input Guide</p>
+                          <p className="text-xs">
+                            Enter the cumulative total number of hotel nights for all business
+                            travel.
+                          </p>
+                          <p className="text-xs mt-1">
+                            • You can enter 0 if no overnight stays occurred
+                          </p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Count each night per person (e.g., 2 people × 3 nights = 6 nights)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <SmartInput
-                    label="Total number of hotel nights"
+                    label=""
                     type="number"
-                    required
+                    required={false}
                     value={hotelNights}
                     placeholder="Enter cummulative number of nights stayed"
                     onChange={handleAccommodationChange}
                     errorTrigger={fieldErrors.hotelNights}
-                    errorMessage="Please enter the total number of hotel nights."
+                    errorMessage="Please enter the total number of hotel nights (0 or greater)."
                   />
                   {errors.hotelNights && (
                     <p className="text-sm text-red-500 animate-pulse">{errors.hotelNights}</p>

@@ -21,6 +21,13 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Fuel } from "lucide-react";
 import { Zap } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface EnergyRelatedActivitiesProps {
   onBack: () => void;
@@ -82,17 +89,22 @@ export function EnergyRelatedActivities({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
+  // FIX: Load existing data with proper null/undefined handling
   useEffect(() => {
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.upstream?.fuelEnergyRelatedActivities;
     if (existingData) {
-      setFuelVolume(existingData.fuelVolume || "");
-      setElectricityConsumed(existingData.energyType || ""); // Wait, looking at state...
-      // Looking at useAssessment.tsx: fuelEnergyRelatedActivities has fuelVolume and energyType.
-      // But the component uses electricityConsumed as the second field.
-      // I should update the state hook to be more descriptive, but for now I'll match the component labels.
-      setElectricityConsumed(existingData.energyType || "");
+      // FIX: Handle null/undefined properly for numeric values
+      setFuelVolume(
+        existingData.fuelVolume !== null && existingData.fuelVolume !== undefined
+          ? existingData.fuelVolume.toString()
+          : ""
+      );
+      setElectricityConsumed(
+        existingData.energyType !== null && existingData.energyType !== undefined
+          ? existingData.energyType.toString()
+          : ""
+      );
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -100,9 +112,22 @@ export function EnergyRelatedActivities({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    const hasFuelVolume = fuelVolume.trim().length > 0;
-    const hasElectricityConsumed = electricityConsumed.trim().length > 0;
+    const hasFuelVolume =
+      fuelVolume !== "" &&
+      fuelVolume !== null &&
+      fuelVolume !== undefined &&
+      !isNaN(Number(fuelVolume)) &&
+      Number(fuelVolume) >= 0;
+
+    const hasElectricityConsumed =
+      electricityConsumed !== "" &&
+      electricityConsumed !== null &&
+      electricityConsumed !== undefined &&
+      !isNaN(Number(electricityConsumed)) &&
+      Number(electricityConsumed) >= 0;
+
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -124,6 +149,7 @@ export function EnergyRelatedActivities({
     });
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: EnergyRelatedErrors = {};
     const newFieldErrors = {
@@ -131,15 +157,28 @@ export function EnergyRelatedActivities({
       electricityConsumed: false,
     };
 
-    // Validate fuel volume field
-    if (!fuelVolume.trim()) {
-      newErrors.fuelVolume = "Please enter the volume of fuel consumed.";
+    // FIX: Validate fuel volume field - accept 0 or greater
+    if (
+      fuelVolume === "" ||
+      fuelVolume === null ||
+      fuelVolume === undefined ||
+      isNaN(Number(fuelVolume)) ||
+      Number(fuelVolume) < 0
+    ) {
+      newErrors.fuelVolume = "Please enter a valid volume of fuel consumed (0 or greater).";
       newFieldErrors.fuelVolume = true;
     }
 
-    // Validate electricity consumed field
-    if (!electricityConsumed.trim()) {
-      newErrors.electricityConsumed = "Please enter the amount of electricity consumed.";
+    // FIX: Validate electricity consumed field - accept 0 or greater
+    if (
+      electricityConsumed === "" ||
+      electricityConsumed === null ||
+      electricityConsumed === undefined ||
+      isNaN(Number(electricityConsumed)) ||
+      Number(electricityConsumed) < 0
+    ) {
+      newErrors.electricityConsumed =
+        "Please enter a valid amount of electricity consumed (0 or greater).";
       newFieldErrors.electricityConsumed = true;
     }
 
@@ -201,6 +240,8 @@ export function EnergyRelatedActivities({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -373,42 +414,102 @@ export function EnergyRelatedActivities({
                 3.1 Fuel & Energy-Related Activities
               </Label>
 
-              <div className="relative">
-                <SmartInput
-                  label="Volume of fuel consumed (diesel, petrol, etc.)"
-                  type="number"
-                  required
-                  value={fuelVolume}
-                  onChange={handleFuelVolumeChange}
-                  errorTrigger={fieldErrors.fuelVolume}
-                  errorMessage="Please enter the volume of fuel consumed."
-                />
-                <div className="absolute right-3 top-9 flex items-center gap-2">
-                  <Fuel className="h-5 w-5 text-gray-600" />
-                  <span className="text-sm text-gray-600">litres</span>
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Volume of fuel consumed (diesel, petrol, etc.){" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Fuel Volume Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total volume of fuel consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no fuel was consumed</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 500.75)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.fuelVolume && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.fuelVolume}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={fuelVolume}
+                    onChange={(value) => {
+                      handleFuelVolumeChange(value);
+                      if (fieldErrors.fuelVolume && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, fuelVolume: false }));
+                        setErrors((prev) => ({ ...prev, fuelVolume: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.fuelVolume}
+                    errorMessage="Please enter the volume of fuel consumed."
+                  />
+                  <div className="absolute right-3 top-2 flex items-center gap-2">
+                    <Fuel className="h-5 w-5 text-gray-600" />
+                    <span className="text-sm text-gray-600">litres</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="relative">
-                <SmartInput
-                  label="Electricity consumed"
-                  type="number"
-                  required
-                  value={electricityConsumed}
-                  onChange={handleElectricityConsumedChange}
-                  errorTrigger={fieldErrors.electricityConsumed}
-                  errorMessage="Please enter the amount of electricity consumed."
-                />
-                <div className="absolute right-3 top-9 flex items-center gap-2">
-                  <Zap className="h-5 w-5 text-gray-600" />
-                  <span className="text-sm text-gray-600">kWh</span>
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Electricity consumed <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Electricity Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total amount of electricity consumed during the reporting
+                          period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no electricity was consumed
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.50)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-                {errors.electricityConsumed && (
-                  <p className="text-sm text-red-500 animate-pulse">{errors.electricityConsumed}</p>
-                )}
+                <div className="relative">
+                  <SmartInput
+                    label=""
+                    type="number"
+                    required
+                    value={electricityConsumed}
+                    onChange={(value) => {
+                      handleElectricityConsumedChange(value);
+                      if (fieldErrors.electricityConsumed && value.trim()) {
+                        setFieldErrors((prev) => ({ ...prev, electricityConsumed: false }));
+                        setErrors((prev) => ({ ...prev, electricityConsumed: undefined }));
+                      }
+                    }}
+                    errorTrigger={fieldErrors.electricityConsumed}
+                    errorMessage="Please enter the amount of electricity consumed."
+                  />
+                  <div className="absolute right-3 top-2 flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-gray-600" />
+                    <span className="text-sm text-gray-600">kWh</span>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -133,6 +133,7 @@ export interface BusinessModelPillar {
       carbonPriceScenario: string;
       reservesAtRiskPercent: number;
       totalProvedReserves: number;
+      totalProbableReserves: number;
       embeddedCarbon: number;
     };
     strategicCapitalAllocation?: {
@@ -325,7 +326,7 @@ export interface BiodiversityImpactsData {
 }
 
 // Placeholder pillar interfaces (keep for backwards compatibility)
-export interface SocialPillar {}
+export interface SocialPillar { }
 
 export interface Target {
   id?: number;

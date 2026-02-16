@@ -18,9 +18,9 @@ import ReserveInSensitiveAreasChart from "./environmental/ReserveInSensitiveArea
 import { ReportResponse } from "@/types/report/reportResponse";
 import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
-import NotAvailablePlaceholder from "./components/NotAvailablePlaceholder";
 import { getYear } from "date-fns";
 import Link from "next/link";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface ReportEnvironmentalProps {
   reportData?: ReportResponse;
@@ -33,7 +33,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   const ghg = reportData?.environmental?.greenhouseGasEmission;
   const target = reportData?.targets;
 
-  console.log("Report target Data", target);
+  let scopeTarget = null;
+  if (reportData?.targets && reportData?.targets?.scopeTargets !== undefined) {
+    scopeTarget = reportData?.targets?.scopeTargets;
+  }
+  console.log("Report target Data", scopeTarget);
 
   // const emissionScopeData = reportData?.
   const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);
@@ -60,7 +64,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             color="#84bb94"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.totalEmissions) : "0"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.totalEmissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             data={emissionData}
           />
@@ -69,7 +77,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 1"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope1Emissions) : "0"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.scope1Emissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope1}
@@ -79,7 +91,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 2"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope2Emissions) : "0"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.scope2Emissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope2}
@@ -89,7 +105,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             bgColor="#dff9e6"
             title="Scope 3"
             value={
-              ghg ? String(reportData?.environmental?.greenhouseGasEmission?.scope3Emissions) : "0"
+              ghg
+                ? Number(
+                    reportData?.environmental?.greenhouseGasEmission?.scope3Emissions || 0
+                  ).toFixed(2)
+                : "0.00"
             }
             color="#84bb94"
             data={emissionDataScope3}
@@ -130,15 +150,18 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               ) : (
                 <ReductionTargetByScope
                   scope1percentage={
-                    reportData?.percentage_emission_summary?.scope1_emission_summary || 0
+                    // reportData?.percentage_emission_summary?.scope1_emission_summary || 0
+                    (scopeTarget && scopeTarget[0]?.reductionPercentage) || 0
                   }
                   scope1value={ghg?.scope1Emissions || 0}
                   scope2percentage={
-                    reportData?.percentage_emission_summary?.scope2_emission_summary || 0
+                    // reportData?.percentage_emission_summary?.scope2_emission_summary || 0
+                    (scopeTarget && scopeTarget[1]?.reductionPercentage) || 0
                   }
                   scope2value={ghg?.scope2Emissions || 0}
                   scope3percentage={
-                    reportData?.percentage_emission_summary?.scope3_emission_summary || 0
+                    // reportData?.percentage_emission_summary?.scope3_emission_summary || 0
+                    (scopeTarget && scopeTarget[2]?.reductionPercentage) || 0
                   }
                   scope3value={ghg?.scope3Emissions || 0}
                 />
@@ -155,7 +178,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </span>
           <div className="flex flex-col">
             <h6 className="text-sm"> Air Quality </h6>
-            <p className="text-xs text-gray-600"> NOx, SOx,VOCs and PM10 emissions managememnt </p>
+            <p className="text-xs text-gray-600"> NOx, SOx, VOCs and PM10 emissions management </p>
           </div>
         </div>
 
@@ -202,10 +225,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </div>
           <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <EmissionDistributionChart
-              NOx={airQuality?.nox ?? <NotAvailablePlaceholder />}
-              SOx={airQuality?.sox ?? <NotAvailablePlaceholder />}
-              VOCs={airQuality?.voc ?? <NotAvailablePlaceholder />}
-              PM10={airQuality?.pm10 ?? <NotAvailablePlaceholder />}
+              NOx={airQuality?.nox ?? 0}
+              SOx={airQuality?.sox ?? 0}
+              VOCs={airQuality?.voc ?? 0}
+              PM10={airQuality?.pm10 ?? 0}
             />
           </div>
         </div>
@@ -321,17 +344,27 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 <div className="flex flex-col items-center">
                   <p className=""> Total Fractured Wells</p>
                   <p className="font-bold text-3xl">
-                    {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                      ?.totalFracturedWells || 0}{" "}
+                    {formatNumberFigures(
+                      waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.totalFracturedWells || 0
+                    )}
+                    {/* {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                      ?.totalFracturedWells || 0}{" "} */}
                   </p>
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
-                  value={Number(
-                    (
+                  // value={Number(
+                  //   (
+                  //     waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                  //       ?.percentageWithDisclosure || 0
+                  //   ).toFixed(1) || 0
+                  // )}
+                  value={parseFloat(
+                    Number(
                       waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                         ?.percentageWithDisclosure || 0
-                    ).toFixed(2)
+                    ).toFixed(1)
                   )}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
@@ -348,8 +381,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     </strong>
                     <p className="font-thin">Disclosure Rate </p>
                     <p className="">
-                      {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                        ?.percentageWithDisclosure || 0}{" "}
+                      {(
+                        waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                          ?.percentageWithDisclosure || 0
+                      ).toFixed(2)}{" "}
                       Wells Disclosed
                     </p>
                   </div>
@@ -410,7 +445,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <h6 className="text-sm"> Biodiversity Impacts </h6>
             <p className="text-xs text-gray-600">
               {" "}
-              Spill anagement, ensitive areareserves, and environmental policies{" "}
+              Spill management, sensitive area reserves, and environmental policies{" "}
             </p>
           </div>
         </div>

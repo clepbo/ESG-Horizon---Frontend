@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -13,6 +13,12 @@ import {
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
 import { Input } from "@/app/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -99,10 +105,17 @@ export function Investments({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.downstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    // Check each required field
-    const hasInvestmentAmount = investmentAmount.trim().length > 0;
-    const hasPortfolioEmissions = portfolioEmissions.trim().length > 0;
+    // Check each required field - accept valid numbers including 0
+    const hasInvestmentAmount =
+      investmentAmount.trim() !== "" &&
+      !isNaN(Number(investmentAmount)) &&
+      Number(investmentAmount) >= 0;
+    const hasPortfolioEmissions =
+      portfolioEmissions.trim() !== "" &&
+      !isNaN(Number(portfolioEmissions)) &&
+      Number(portfolioEmissions) >= 0;
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
 
@@ -131,15 +144,24 @@ export function Investments({
       portfolioEmissions: false,
     };
 
-    // Validate input fields
-    if (!investmentAmount.trim()) {
-      newErrors.investmentAmount = "Please enter the loan/equity share in invested companies.";
+    // Validate input fields - accept 0 and any valid number >= 0
+    if (
+      !investmentAmount.trim() ||
+      isNaN(Number(investmentAmount)) ||
+      Number(investmentAmount) < 0
+    ) {
+      newErrors.investmentAmount =
+        "Please enter the loan/equity share in invested companies (0 or greater).";
       newFieldErrors.investmentAmount = true;
     }
 
-    if (!portfolioEmissions.trim()) {
+    if (
+      !portfolioEmissions.trim() ||
+      isNaN(Number(portfolioEmissions)) ||
+      Number(portfolioEmissions) < 0
+    ) {
       newErrors.portfolioEmissions =
-        "Please enter the reported Scope 1 & 2 emissions of portfolio companies.";
+        "Please enter the reported Scope 1 & 2 emissions of portfolio companies (0 or greater).";
       newFieldErrors.portfolioEmissions = true;
     }
 
@@ -192,18 +214,10 @@ export function Investments({
     await saveForm({ showToast: true, redirect: true });
   };
 
-  // const handleNext = async () => {
-  //   if (!validateForm()) {
-  //     // Auto-clear errors after 5 seconds
-  //     setTimeout(clearAllErrors, 5000);
-  //     return;
-  //   }
-  //   await saveForm({ showToast: false, redirect: false });
-  //   onNext();
-  // };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -372,15 +386,41 @@ export function Investments({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="relative">
+                    <div className="flex items-center gap-1 mb-2">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Loan/equity share in invested companies{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p className="font-semibold mb-1">Investment Amount Input Guide</p>
+                            <p className="text-xs">
+                              Enter the total loan/equity share in invested companies.
+                            </p>
+                            <p className="text-xs mt-1">
+                              • You can enter 0 if no investments exist
+                            </p>
+                            <p className="text-xs">• Negative values are not allowed</p>
+                            <p className="text-xs">
+                              • Use decimals for precise amounts (e.g., 1500000.50)
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                     <SmartInput
-                      label="Loan/equity share in invested companies"
+                      label=""
                       placeholder="Enter amount invested in ₦"
                       type="number"
-                      required
+                      required={false}
                       value={investmentAmount}
                       onChange={handleInvestmentAmountChange}
                       errorTrigger={fieldErrors.investmentAmount}
-                      errorMessage="Please enter the loan/equity share in invested companies."
+                      errorMessage="Please enter the loan/equity share in invested companies (0 or greater)."
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
@@ -394,15 +434,41 @@ export function Investments({
                     )}
                   </div>
 
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Reported Scope 1 & 2 emissions of portfolio companies{" "}
+                      <span className="text-red-500">*</span>
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Portfolio Emissions Input Guide</p>
+                          <p className="text-xs">
+                            Enter the reported Scope 1 & 2 emissions of portfolio companies.
+                          </p>
+                          <p className="text-xs mt-1">
+                            • You can enter 0 if no emissions are reported
+                          </p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 2500.75)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <SmartInput
-                    label="Reported Scope 1 & 2 emissions of portfolio companies"
+                    label=""
                     type="number"
-                    required
+                    required={false}
                     placeholder="Enter emissions data (tCO₂e)"
                     value={portfolioEmissions}
                     onChange={handlePortfolioEmissionsChange}
                     errorTrigger={fieldErrors.portfolioEmissions}
-                    errorMessage="Please enter the reported Scope 1 & 2 emissions of portfolio companies."
+                    errorMessage="Please enter the reported Scope 1 & 2 emissions of portfolio companies (0 or greater)."
                   />
                   {errors.portfolioEmissions && (
                     <p className="text-sm text-red-500 animate-pulse col-span-full">

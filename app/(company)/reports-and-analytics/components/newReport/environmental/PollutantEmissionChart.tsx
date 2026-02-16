@@ -1,4 +1,16 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+  ResponsiveContainer,
+  LabelList,
+} from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 export interface PollutantData {
   NOx: number;
@@ -43,37 +55,54 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
 
   return (
     <>
-      <h6 className="border-b pb-2 border-gray-200"> Polutant Emission</h6>
-      <BarChart
-        width={600}
-        className="mt-3"
-        height={400}
-        data={transformedData} // Use transformed data
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis
-          dataKey="name" // Shows NOx, SOx, VOCs, PM10 under each bar
-          axisLine={false}
-          tickLine={false}
-          tick={{ fill: "#374151", fontSize: 14, fontWeight: 500 }}
-        />
-        <YAxis axisLine={false} tickLine={false} tick={{ fill: "#6b7280", fontSize: 12 }} />
-        <Tooltip />
-        <Legend content={renderLegend} />
-        <Bar dataKey="value" fill="#8884d8" radius={[10, 10, 0, 0]}>
-          {/* Custom colors */}
-          <Cell fill="#3b82f6" />
-          <Cell fill="#f9b232" />
-          <Cell fill="#af57db" />
-          <Cell fill="#eb6f70" />
-        </Bar>
-      </BarChart>
+      <h6 className="border-b pb-2 border-gray-200"> Pollutant Emission</h6>
+      <div className="w-full h-[400px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={transformedData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#374151", fontSize: 14, fontWeight: 500 }}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#6b7280", fontSize: 12 }}
+              tickFormatter={(value) => formatNumberFigures(Number(value))}
+            />{" "}
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+              }}
+            />
+            <Legend content={renderLegend} />
+            <Bar dataKey="value" fill="#8884d8" radius={[10, 10, 0, 0]} isAnimationActive={false}>
+              <LabelList
+                dataKey="value"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
+              <Cell fill="#3b82f6" />
+              <Cell fill="#f9b232" />
+              <Cell fill="#af57db" />
+              <Cell fill="#eb6f70" />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </>
   );
 };

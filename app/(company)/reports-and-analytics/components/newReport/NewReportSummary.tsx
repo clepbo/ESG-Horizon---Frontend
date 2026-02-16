@@ -1,3 +1,4 @@
+"use client";
 import { Card } from "@/app/components/ui/card";
 import { GoDotFill } from "react-icons/go";
 import React, { useEffect, useState } from "react";
@@ -6,8 +7,8 @@ import ReportOverview from "./ReportOverview";
 import ReportEnvironmental from "./ReportEnvironmental";
 import SocialCapital from "./SocialCapital";
 import ReportHumanCapital from "./ReportHumanCapital";
-import BusinessModelPillar from "./BusinessModelPillar";
-import ReportLeadershipPillar from "./ReportLeadershipPillar";
+import BusinessModelPillar from "./business-model/BusinessModelPillar";
+import ReportLeadershipPillar from "./leadership/ReportLeadershipPillar";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSingleReport } from "../service/useReport";
@@ -22,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { shortenMonth, useBreadcrumb } from "../../context/ReportBreadcrumbContext";
 
 export default function NewReportSummary() {
   // const [view, setView] = useState("overview");
@@ -36,24 +38,30 @@ export default function NewReportSummary() {
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+  const { setLastLabelOverride } = useBreadcrumb();
 
   useEffect(() => {
     setReportData(data);
   }, [data]);
 
-  // console.log("ReportOverview Data", reportData);
-
-  if (isError) {
+  useEffect(() => {
+    if (reportData?.subsidiary) {
+      setLastLabelOverride(
+        `${reportData.subsidiary}: ${shortenMonth(reportData?.startMonth ?? "")} ${reportData.startYear} - ${shortenMonth(reportData?.endMonth ?? "")} ${reportData.endYear} Report`
+      );
+    }
+  }, [reportData, setLastLabelOverride]);
+  if (isLoading) {
     return (
-      <div className="w-full flex justify-center items-center py-12 text-red-500">
-        Failed to load report.
+      <div className="w-full flex justify-center items-center py-12 text-gray-600">
+        <CardSkeleton />
       </div>
     );
   }
-  if (isLoading) {
+  if (isError) {
     return (
-      <div className="w-full flex justify-center items-center py-12 text-gray-500">
-        <CardSkeleton />
+      <div className="w-full flex justify-center items-center py-12 text-red-600">
+        Failed to load report.
       </div>
     );
   }
@@ -113,24 +121,22 @@ export default function NewReportSummary() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col gap-4" id="section">
-      {/* Header Card */}
-      <Card
-        className="p-4 no-export rounded flex flex-col lg:flex-row justify-between w-full items-center"
-        id="hide1"
-      >
+    <div className="min-h-screen flex flex-col gap-4 w-full overflow-auto" id="section">
+      <Card className="p-4 rounded flex flex-col md:flex-row justify-between w-full items-center">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 justify-start">
+          <div className="grid items-center gap-2 justify-start">
             <span className="text-start">ESG Performance Report</span>
-            <span className={`rounded-3xl p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}>
+            <span
+              className={`rounded-3xl text-center p-1 py-0.5 text-white font-light text-xs ${bg.progress}`}
+            >
               {formatStatus(reportData?.status ?? "progress")}
             </span>
           </div>
 
-          <div className="flex gap-2 lg:gap-4 items-center">
-            <span> {reportData?.subsidiary ?? "Not specified"} </span>
+          <div className="flex flex-col md:flex-row gap-2 lg:gap-4 items-center">
+            <span className=""> {reportData?.subsidiary ?? "Not specified"} </span>
             <span>
-              <GoDotFill className="text-gray-500" />
+              <GoDotFill className="text-gray-500 hidden md:block" />
             </span>
             <span>
               {` ${reportData?.startMonth} ${reportData?.startYear} - ${reportData?.endMonth} ${reportData?.endYear}`}
@@ -138,17 +144,10 @@ export default function NewReportSummary() {
           </div>
         </div>
 
-        <div>
-          {/* <CustomButton  variant="filled" className="text-white cursor-pointer rounded">
-            <span className="flex items-center gap-3">
-              <GoDownload />
-              Import and Download
-            </span>
-          </CustomButton> */}
+        <div className="no-export">
           <Select value={selected} onValueChange={exportfile}>
             <SelectTrigger
-              className="
-      min-w-xs rounded p-4 border-primary text-primary cursor-pointer
+              className="rounded min-w-xs p-4 border-primary text-primary cursor-pointer
        hover:shadow-md hover:scale-[1.03]
       active:scale-[0.97]
     "
@@ -193,8 +192,6 @@ export default function NewReportSummary() {
             );
           })}
         </Card>
-
-        {/* Content below */}
         <div className=" rounded">{tabs.find((tab) => tab.value === view)?.content}</div>
       </div>
     </div>

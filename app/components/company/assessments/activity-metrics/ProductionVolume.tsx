@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
 import { calculateProgress } from "@/lib/utils";
+import { useAssessment } from "@/hooks/useAssessment";
 import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
@@ -23,7 +24,7 @@ interface ProductionVolumeProps {
   onContinueToNextAssessment: () => void;
   stepIndex: number;
   totalSteps: number;
-  backToActivityMetrics: () => void;
+  breadcrumb?: Array<{ label: string; href?: string; onClick?: () => void }>;
 }
 
 export function ProductionVolume({
@@ -31,9 +32,14 @@ export function ProductionVolume({
   onContinueToNextAssessment,
   stepIndex,
   totalSteps,
-  backToActivityMetrics,
+  breadcrumb = [],
 }: ProductionVolumeProps) {
   const router = useRouter();
+
+  const backToActivityMetrics = () => {
+    router.push("/assessments/activity-metrics");
+  };
+  const { state, dispatch } = useAssessment();
   const { saveNow } = useAssessmentFlow("activityMetrics.productionVolume");
 
   const crudeOilProduction = useFormattedNumber("");
@@ -51,7 +57,29 @@ export function ProductionVolume({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  const breadcrumFeature = [
+  useEffect(() => {
+    const existingData = state.assessmentData.environment?.activityMetrics?.productionVolume;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.crudeOilProductionVolume !== undefined) {
+        crudeOilProduction.handleChange(String(existingData.crudeOilProductionVolume));
+      }
+      if (existingData.naturalGasProductionVolume !== undefined) {
+        naturalGasProduction.handleChange(String(existingData.naturalGasProductionVolume));
+      }
+      if (existingData.syntheticOilProductionVolume !== undefined) {
+        syntheticOilProduction.handleChange(String(existingData.syntheticOilProductionVolume));
+      }
+      if (existingData.syntheticGasProductionVolume !== undefined) {
+        syntheticGasProduction.handleChange(String(existingData.syntheticGasProductionVolume));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData.environment?.activityMetrics?.productionVolume]);
+
+  const _breadcrumFeature = [
     { label: "Dashboard", href: "/dashboard-esg" },
     { label: "Assessments", href: "/assessments/hub" },
     { label: "Activity Metrics", onClick: backToActivityMetrics },
@@ -117,6 +145,10 @@ export function ProductionVolume({
 
     try {
       await saveNow("activityMetrics.productionVolume", payload);
+      dispatch({
+        type: "UPDATE_ACTIVITY_METRICS",
+        payload: { section: "productionVolume", data: payload },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
       setTimeout(() => {
@@ -150,6 +182,10 @@ export function ProductionVolume({
 
     try {
       await saveNow("activityMetrics.productionVolume", payload);
+      dispatch({
+        type: "UPDATE_ACTIVITY_METRICS",
+        payload: { section: "productionVolume", data: payload },
+      });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
@@ -222,7 +258,7 @@ export function ProductionVolume({
 
   return (
     <div className="min-h-screen bg-gray-50 p-6" ref={formRef}>
-      <CustomBreadcrumbDynamic features={breadcrumFeature} />
+      <CustomBreadcrumbDynamic features={breadcrumb} />
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center gap-6 mb-4 mt-4">
           <div>

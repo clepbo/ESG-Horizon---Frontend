@@ -15,8 +15,9 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
-import { useRouter } from "next/navigation";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useRouter } from "next/navigation";
 
 interface RenewableEnergyInvestmentProps {
   onBack: () => void;
@@ -43,10 +44,35 @@ export default function RenewableEnergyInvestment({
   const [projectDescription, setProjectDescription] = useState("");
 
   const formRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const _router = useRouter();
+  const { state, dispatch } = useAssessment();
   const current =
-    "businessModelAndInnovation.reserveValuation.strategicCapitalAllocation.renewableEnergyInvestment";
+    "businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment";
   const { saveNow } = useAssessmentFlow(current);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+        ?.renewableEnergyInvestment;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.investmentAmount !== undefined) {
+        investmentAmount.handleChange(String(existingData.investmentAmount));
+      }
+      if (existingData.revenueAmount !== undefined) {
+        revenueAmount.handleChange(String(existingData.revenueAmount));
+      }
+      if (existingData.projectDescription !== undefined) {
+        setProjectDescription(existingData.projectDescription);
+      }
+
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      ?.renewableEnergyInvestment,
+  ]);
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -112,11 +138,16 @@ export default function RenewableEnergyInvestment({
 
     try {
       await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "renewableEnergyInvestment",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 1000);
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
@@ -133,11 +164,19 @@ export default function RenewableEnergyInvestment({
 
     try {
       await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "renewableEnergyInvestment",
+          data: payload,
+        },
+      });
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
       console.log(error);
-      toast.error("Failed to save data");
+      toast.error("Failed to save progress");
     }
   };
 

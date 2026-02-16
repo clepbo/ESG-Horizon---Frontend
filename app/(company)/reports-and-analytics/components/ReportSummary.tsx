@@ -104,9 +104,12 @@ interface ReportSummaryProps {
 const ReportSummary = (props: ReportSummaryProps) => {
   const [selected, setSelected] = useState<string | undefined>(undefined);
 
-  // Format number with commas
+  // Format number with commas and 2 decimals
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US").format(Math.round(num));
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
   };
 
   // Calculate progress percentage

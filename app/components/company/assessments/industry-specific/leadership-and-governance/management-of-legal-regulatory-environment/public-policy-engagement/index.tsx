@@ -10,6 +10,8 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 
@@ -28,6 +30,10 @@ export default function PublicPolicyEngagement({
   totalSteps,
   breadcrumb,
 }: PublicPolicyEngagementFormProps) {
+  const { state, dispatch } = useAssessment();
+  const current =
+    "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.publicPolicyEngagement";
+  const { saveNow } = useAssessmentFlow(current);
   const [disclosesContributions, setDisclosesContributions] = useState("");
   const [policyPositions, setPolicyPositions] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -41,6 +47,27 @@ export default function PublicPolicyEngagement({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.leadershipGovernance
+        ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.disclosesContributions !== undefined) {
+        setDisclosesContributions(existingData.disclosesContributions);
+      }
+      if (existingData.policyPositions !== undefined) {
+        setPolicyPositions(existingData.policyPositions);
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [
+    state.assessmentData.environment?.leadershipGovernance
+      ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement,
+  ]);
 
   // Calculate progress
   const { filled, total } = useMemo(() => {
@@ -91,8 +118,16 @@ export default function PublicPolicyEngagement({
     };
 
     try {
-      console.log("PUBLIC POLICY ENGAGEMENT DATA:", payload);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "managementOfTheLegalAndRegulatoryEnvironment",
+          section: "publicPolicyEngagement",
+          data: payload,
+        },
+      });
+      setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
       toast.error(`Failed to save data. ${error}`);
@@ -101,12 +136,33 @@ export default function PublicPolicyEngagement({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
-    onContinueToNextAssessment();
+
+    const payload = {
+      disclosesContributions,
+      policyPositions,
+      filesAndLinks: filesAndLinks.filter((item) => item.name || item.link || item.file),
+    };
+
+    try {
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "managementOfTheLegalAndRegulatoryEnvironment",
+          section: "publicPolicyEngagement",
+          data: payload,
+        },
+      });
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save progress");
+    }
   };
 
   const handlePrevious = () => {

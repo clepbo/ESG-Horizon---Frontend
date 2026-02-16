@@ -32,7 +32,7 @@ export default function DepartmentsPage() {
   }
 
   const handleModalSubmit = (data: SubmissionData) => {
-    toast.success("Submitted Successfully");
+    toast.info("Setup Done!");
     setIsModalOpen(false);
     console.log("Modal submitted data:", data);
     loadDepartments();
@@ -162,7 +162,7 @@ export default function DepartmentsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">
-            <DepartmentsTable departments={filteredDepartments} />
+            <DepartmentsTable departments={filteredDepartments} onUpdate={loadDepartments} />
           </div>
         )}
       </motion.main>

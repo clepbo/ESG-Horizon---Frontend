@@ -13,6 +13,8 @@ import ReusableInput from "../../../environmental/water-management/components/Re
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 
 interface ReservesCorruptionRiskFormProps {
   onBack: () => void;
@@ -29,6 +31,10 @@ export default function ReservesCountriesCorruptionRisk({
   totalSteps,
   breadcrumb,
 }: ReservesCorruptionRiskFormProps) {
+  const { state, dispatch } = useAssessment();
+  const { saveNow } = useAssessmentFlow(
+    "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk"
+  );
   const totalProvedReserves = useFormattedNumber("");
   const provedReservesHighRisk = useFormattedNumber("");
   const totalProbableReserves = useFormattedNumber("");
@@ -52,6 +58,42 @@ export default function ReservesCountriesCorruptionRisk({
     totalProbableReservesUnit: "",
     probableReservesHighRiskUnit: "",
   });
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+        ?.reservesInCountriesWithHighCorruptionRisk;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.totalProvedReserves !== undefined) {
+        totalProvedReserves.handleChange(String(existingData.totalProvedReserves));
+      }
+      if (existingData.provedReservesHighRisk !== undefined) {
+        provedReservesHighRisk.handleChange(String(existingData.provedReservesHighRisk));
+      }
+      if (existingData.totalProbableReserves !== undefined) {
+        totalProbableReserves.handleChange(String(existingData.totalProbableReserves));
+      }
+      if (existingData.probableReservesHighRisk !== undefined) {
+        probableReservesHighRisk.handleChange(String(existingData.probableReservesHighRisk));
+      }
+
+      setFormData({
+        totalProvedReservesUnit: existingData.totalProvedReservesUnit || "",
+        provedReservesHighRiskUnit: existingData.provedReservesHighRiskUnit || "",
+        totalProbableReservesUnit: existingData.totalProbableReservesUnit || "",
+        probableReservesHighRiskUnit: existingData.probableReservesHighRiskUnit || "",
+      });
+
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+      ?.reservesInCountriesWithHighCorruptionRisk,
+  ]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -148,9 +190,18 @@ export default function ReservesCountriesCorruptionRisk({
     };
 
     try {
-      console.log("RESERVES CORRUPTION RISK DATA:", payload);
-      // Add your save API call here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(
+        "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk",
+        payload
+      );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "businessEthicsAndTransparency",
+          section: "reservesInCountriesWithHighCorruptionRisk",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
@@ -160,14 +211,42 @@ export default function ReservesCountriesCorruptionRisk({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
 
-    toast.success("Moved to next section");
-    onContinueToNextAssessment();
+    const payload = {
+      totalProvedReserves: Number(totalProvedReserves.rawValue),
+      totalProvedReservesUnit: formData.totalProvedReservesUnit,
+      provedReservesHighRisk: Number(provedReservesHighRisk.rawValue),
+      provedReservesHighRiskUnit: formData.provedReservesHighRiskUnit,
+      totalProbableReserves: Number(totalProbableReserves.rawValue),
+      totalProbableReservesUnit: formData.totalProbableReservesUnit,
+      probableReservesHighRisk: Number(probableReservesHighRisk.rawValue),
+      probableReservesHighRiskUnit: formData.probableReservesHighRiskUnit,
+      filesAndLinks: filesAndLinks,
+    };
+
+    try {
+      await saveNow(
+        "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk",
+        payload
+      );
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "businessEthicsAndTransparency",
+          section: "reservesInCountriesWithHighCorruptionRisk",
+          data: payload,
+        },
+      });
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save progress");
+    }
   };
 
   const handleFilesAndLinksChange = (fields: FileOrLinkData[]) => {

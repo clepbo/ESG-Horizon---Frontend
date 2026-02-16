@@ -34,8 +34,12 @@ const MainContentCard = ({ subsidiary, teamMemberCount, onEdit }: MainContentCar
         <InfoField label="Subsidiary Name" value={subsidiary.name} />
         <InfoField label="Industry" value={subsidiary.industry?.industry || "N/A"} />
         <InfoField
-          label="Subsidiary Lead/Manager's Email"
-          value={subsidiary.teamLead?.email || "N/A"}
+          label="Subsidiary Lead"
+          value={
+            subsidiary.teamLead?.first_name
+              ? `${subsidiary.teamLead.first_name} ${subsidiary.teamLead.last_name} (${subsidiary.teamLead.email || ""})`
+              : subsidiary.teamLead?.email || "N/A"
+          }
         />
         <InfoField label="Address" value={subsidiary.address || "N/A"} />
         <InfoField label="Team Member" value={teamMemberCount.toString()} />

@@ -17,6 +17,7 @@ import { TeamMembersTable } from "@/app/components/company/subsidiaries/TeamMemb
 import { DepartmentsTable } from "@/app/components/company/subsidiaries/DepartmentTable";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import Header from "@/app/(company)/components/Header";
+import { CustomBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
 
 interface Params {
   id: string;
@@ -45,11 +46,8 @@ export default function SubsidiaryDetailsPage() {
     isLoading: isUsersLoading,
     refetch: refetchUsers,
   } = useSubsidiaryUsers(subsidiaryId);
-  const {
-    data: departmentsData,
-    // isLoading: isDepartmentLoading,
-    // refetch: refetchDepartments,
-  } = useSubsidiaryDepartments(subsidiaryId);
+  const { data: departmentsData, refetch: refetchDepartments } =
+    useSubsidiaryDepartments(subsidiaryId);
 
   const openModalWithTab = (tab: "subsidiary" | "department" | "user") => {
     setModalTab(tab);
@@ -80,7 +78,18 @@ export default function SubsidiaryDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#F2FBF3] p-6 space-y-6">
-      <Header />
+      <Header
+        customBreadcrumb={
+          <CustomBreadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Settings", href: "/settings-esg" },
+              { label: "Subsidiaries", href: "/settings-esg/subsidiaries" },
+              { label: subsidiaryData.name },
+            ]}
+          />
+        }
+      />
       <Button
         variant="outline"
         onClick={() => router.back()}
@@ -133,7 +142,7 @@ export default function SubsidiaryDetailsPage() {
           <div className="mt-4">
             {activeTab === "team" && <TeamMembersTable initialUsers={usersData || []} />}
             {activeTab === "departments" && (
-              <DepartmentsTable departments={departmentsData || []} />
+              <DepartmentsTable departments={departmentsData || []} onUpdate={refetchDepartments} />
             )}
           </div>
         </div>

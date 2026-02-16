@@ -11,7 +11,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface ReservesData {
   reserveType: string;
@@ -33,21 +35,23 @@ interface SocialStepOneProps {
 }
 
 export default function SocialStepOne({ reportData }: SocialStepOneProps) {
+  const totalProvedReserves =
+    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves?.totalProvedReserves || 0;
+
+  const totalProbableReserves =
+    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves?.totalProbableReserves || 0;
+
   const conflictZonesData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
-          ?.provedReserves || 0,
+      total: totalProvedReserves,
       specific:
         reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
           ?.provedReserves || 0,
     },
     {
       reserveType: "Probable Reserves",
-      total:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
-          ?.probableReserves || 0,
+      total: totalProbableReserves,
       specific:
         reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
           ?.probableReserves || 0,
@@ -57,18 +61,14 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const indigenousLandData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
-          ?.reservesInNearIndigenousLand?.provedReserves || 0,
+      total: totalProvedReserves,
       specific:
         reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
           ?.reservesInNearIndigenousLand?.provedReserves || 0,
     },
     {
       reserveType: "Probable Reserves",
-      total:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
-          ?.reservesInNearIndigenousLand?.probableReserves || 0,
+      total: totalProbableReserves,
       specific:
         reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
           ?.reservesInNearIndigenousLand?.probableReserves || 0,
@@ -162,13 +162,25 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   name={chart.totalLabel}
                   fill={chart.totalColor}
                   radius={[4, 4, 0, 0]}
-                />
+                >
+                  <LabelList
+                    dataKey="specific"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
                 <Bar
                   dataKey="specific"
                   name={chart.specificLabel}
                   fill={chart.specificColor}
                   radius={[4, 4, 0, 0]}
-                />
+                >
+                  <LabelList
+                    dataKey="specific"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

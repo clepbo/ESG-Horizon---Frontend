@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
+import { useDebounce } from "use-debounce";
 import {
   useReactTable,
   getCoreRowModel,
@@ -8,6 +9,14 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 import {
   Table,
   TableBody,
@@ -21,51 +30,101 @@ import { StatusButton, StatusVariant } from "../StatusButton";
 import Link from "next/link";
 import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
 import { Card, CardContent } from "@/app/components/ui/card";
+import { Search, Eye, Pencil } from "lucide-react";
 
 const columnHelper = createColumnHelper<TableRowType>();
 
-const columns = [
-  columnHelper.accessor((row) => `${row.startMonth} ${row.startYear}`, {
-    id: "startingPeriod",
-    header: "Starting Period",
-    cell: (info) => info.getValue(),
-  }),
+function getReportTitle(row: TableRowType) {
+  return `${row.subsidiary}`;
+}
 
-  columnHelper.accessor((row) => `${row.endMonth} ${row.endYear}`, {
-    id: "endingPeriod",
-    header: "Ending Period",
+function normalizeStatus(s: string) {
+  return String(s)
+    .toLowerCase()
+    .replace(/[_\s]+/g, "-");
+}
+
+/** Abbreviated range of start and end period, e.g. "Feb 25 - Mar 26". */
+function formatPeriod(row: TableRowType): string {
+  const abbr = (month: string) => {
+    const s = (month || "").slice(0, 3);
+    return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+  };
+  const shortYear = (y: string) => (String(y || "").length >= 2 ? String(y).slice(-2) : String(y));
+  return `${abbr(row.startMonth)} ${shortYear(row.startYear)} - ${abbr(row.endMonth)} ${shortYear(row.endYear)}`;
+}
+
+const STATUS_OPTIONS = [
+  { value: "all", label: "All Status" },
+  { value: "submitted_approved", label: "Submitted Approved" },
+  { value: "approved", label: "Approved" },
+  { value: "unapproved", label: "Unapproved" },
+  { value: "awaiting-review", label: "Awaiting Review" },
+  { value: "in-progress", label: "In Progress" },
+] as const;
+
+const columns = [
+  columnHelper.accessor(getReportTitle, {
+    id: "subsidiary",
+    header: "Subsidiary",
     cell: (info) => info.getValue(),
   }),
-  columnHelper.accessor("subsidiary", {
-    header: "Subsidiaries",
+  columnHelper.accessor(formatPeriod, {
+    id: "period",
+    header: "Period",
     cell: (info) => info.getValue(),
   }),
   columnHelper.accessor("status", {
+    id: "status",
     header: "Status",
-    cell: (info) => <StatusButton progress={90} status={info.getValue() as StatusVariant} />,
+    cell: (info) => (
+      <StatusButton
+        progress={Number(info.row.original.progress) ?? 0}
+        status={info.getValue() as StatusVariant}
+      />
+    ),
   }),
   columnHelper.display({
     id: "actions",
-    header: "Quick Actions",
+    header: "Actions",
     cell: (info) => (
-      <Button
-        variant="default"
-        size="sm"
-        className="rounded-sm font-semibold text-white bg-primary hover:bg-green-600"
-      >
-        <Link href={`/reports-and-analytics/${info.row.original.id}`}>View Report</Link>
-      </Button>
+      <div className="flex items-center justify-end gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-9 w-9 rounded-md border-gray-300"
+          asChild
+        >
+          <Link href={`/reports-and-analytics/${info.row.original.id}`} aria-label="View report">
+            <Eye className="h-4 w-4 text-gray-600" />
+          </Link>
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-9 w-9 rounded-md border-gray-300"
+          asChild
+        >
+          <Link href={`/assessments/${info.row.original.id}`} aria-label="Edit report">
+            <Pencil className="h-4 w-4 text-gray-600" />
+          </Link>
+        </Button>
+      </div>
     ),
   }),
 ];
 
 export function RecentReportsWidget() {
-  const report = useReport();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const data: any[] = report.data || [];
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch] = useDebounce(searchInput, 300);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  const report = useReport();
+  const data: TableRowType[] = Array.isArray(report.data) ? report.data : [];
+
+  // console.log("Table data", data);
   const recentReports = useMemo(() => {
-    const filtered = data.filter((item: any) => {
+    return data.filter((item) => {
       return (
         item.subsidiary != null &&
         item.subsidiary !== "" &&
@@ -75,15 +134,37 @@ export function RecentReportsWidget() {
         item.endMonth != null
       );
     });
-
-    return filtered.slice(0, 3);
   }, [data]);
 
+  const filteredReports = useMemo(() => {
+    const q = debouncedSearch.trim().toLowerCase();
+    const statusNorm = statusFilter === "all" ? null : normalizeStatus(statusFilter);
+
+    return recentReports.filter((item) => {
+      if (statusNorm) {
+        const itemStatus = normalizeStatus(item.status ?? "");
+        if (itemStatus !== statusNorm) return false;
+      }
+      if (!q) return true;
+      const title = getReportTitle(item).toLowerCase();
+      const subsidiary = (item.subsidiary ?? "").toLowerCase();
+      const start = `${item.startMonth} ${item.startYear}`.toLowerCase();
+      const end = `${item.endMonth} ${item.endYear}`.toLowerCase();
+      return title.includes(q) || subsidiary.includes(q) || start.includes(q) || end.includes(q);
+    });
+  }, [recentReports, debouncedSearch, statusFilter]);
+
   const table = useReactTable({
-    data: recentReports,
+    data: filteredReports,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const handleStatusChange = useCallback((value: string) => {
+    setStatusFilter(value);
+  }, []);
+
+  const rows = table.getRowModel().rows;
 
   if (data.length === 0) {
     return (
@@ -99,13 +180,13 @@ export function RecentReportsWidget() {
 
           <div className="flex justify-center gap-4">
             <Link href="/assessments/new-assessment">
-              <Button className="bg-white text--[var(--color-primary)] border border-[var(--color-primary)] transform hover:scale-[1.02] hover:text-white">
+              <Button className="bg-white text--[var(--color-primary)] border border-primary transform hover:scale-[1.02] hover:text-white">
                 Start an Assessment
               </Button>
             </Link>
             <Button
               disabled
-              className="bg-[var(--color-primary)] transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm cursor-not-allowed"
+              className="bg-primary transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm cursor-not-allowed"
             >
               Generate Report
             </Button>
@@ -117,7 +198,40 @@ export function RecentReportsWidget() {
 
   return (
     <div className="w-full space-y-4 rounded-md px-4 bg-white py-4">
-      <div className="">
+      {/* Filter bar: Search + Status only (no Type), responsive */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
+        <div className="flex flex-1 flex-col sm:flex-row gap-2 min-w-0">
+          <Input
+            type="search"
+            placeholder="Search by name or company"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="flex-1 min-w-0 rounded-md border border-gray-300 h-10"
+          />
+          <Button
+            type="button"
+            className="rounded-md bg-primary hover:bg-teal-600 text-white font-medium shrink-0 h-10 px-4 inline-flex items-center gap-2"
+            aria-label="Search"
+          >
+            <Search className="h-4 w-4" />
+            Search
+          </Button>
+        </div>
+        <Select value={statusFilter} onValueChange={handleStatusChange}>
+          <SelectTrigger className="w-full sm:w-[140px] rounded-md border border-gray-300 h-10">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -125,7 +239,9 @@ export function RecentReportsWidget() {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="border-b border-gray-300 font-semibold text-gray-700"
+                    className={`border-b border-gray-300 font-semibold text-gray-700 ${
+                      header.id === "actions" ? "text-right" : ""
+                    }`}
                   >
                     {header.isPlaceholder
                       ? null
@@ -136,15 +252,18 @@ export function RecentReportsWidget() {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {rows.length > 0 ? (
+              rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="hover:bg-gray-50"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className={`py-4 border-b border-gray-300`}>
+                    <TableCell
+                      key={cell.id}
+                      className={`py-4 border-b border-gray-300 ${cell.column.id === "actions" ? "text-right" : ""}`}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -152,20 +271,20 @@ export function RecentReportsWidget() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center ">
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-        <div className="text-center mt-2">
-          <Link href="/reports-and-analytics">
-            <Button variant="outline" size="sm" className="font-semibold">
-              View All Reports
-            </Button>
-          </Link>
-        </div>
+      </div>
+      <div className="text-center mt-2">
+        <Link href="/reports-and-analytics">
+          <Button variant="outline" size="sm" className="font-semibold">
+            View All Reports
+          </Button>
+        </Link>
       </div>
     </div>
   );

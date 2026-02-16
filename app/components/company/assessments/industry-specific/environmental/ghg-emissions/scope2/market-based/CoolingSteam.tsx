@@ -5,11 +5,17 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -52,19 +58,8 @@ export function CoolingSteamForm({
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Use the formatted number hook for energy consumed
-  const {
-    rawValue: energyConsumedRaw,
-    displayValue: energyConsumedDisplay,
-    handleChange: handleEnergyConsumedChange,
-    setRawValue: setEnergyConsumedRaw,
-  } = useFormattedNumber("");
-
-  const {
-    rawValue: emissionFactorRaw,
-    displayValue: emissionFactorDisplay,
-    handleChange: handleEmissionFactorChange,
-    setRawValue: setEmissionFactorRaw,
-  } = useFormattedNumber("");
+  const energyConsumed = useFormattedNumber("");
+  const emissionFactor = useFormattedNumber("");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -90,42 +85,73 @@ export function CoolingSteamForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
     if (existingData) {
-      // Initialize with existing data using the formatted number hook
-      if (existingData.energyConsumed) {
-        setEnergyConsumedRaw(existingData.energyConsumed);
-      } else {
-        setEnergyConsumedRaw("");
-      }
-      if (existingData.emissionFactor) {
-        setEmissionFactorRaw(existingData.emissionFactor);
-      } else {
-        setEmissionFactorRaw("");
-      }
+      energyConsumed.setRawValue(
+        existingData.energyConsumed !== null && existingData.energyConsumed !== undefined
+          ? existingData.energyConsumed.toString()
+          : ""
+      );
+      emissionFactor.setRawValue(
+        existingData.emissionFactor !== null && existingData.emissionFactor !== undefined
+          ? existingData.emissionFactor.toString()
+          : ""
+      );
 
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, setEmissionFactorRaw, setEnergyConsumedRaw]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = useMemo(() => {
-    return calculateProgress([
-      energyConsumedRaw,
-      emissionFactorRaw,
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-    ]);
-  }, [energyConsumedRaw, emissionFactorRaw, files, additionalFields]);
+    const hasEnergy =
+      energyConsumed.rawValue !== "" &&
+      energyConsumed.rawValue !== null &&
+      energyConsumed.rawValue !== undefined &&
+      !isNaN(Number(energyConsumed.rawValue)) &&
+      Number(energyConsumed.rawValue) >= 0;
 
+    const hasFactor =
+      emissionFactor.rawValue !== "" &&
+      emissionFactor.rawValue !== null &&
+      emissionFactor.rawValue !== undefined &&
+      !isNaN(Number(emissionFactor.rawValue)) &&
+      Number(emissionFactor.rawValue) >= 0;
+
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+
+    return calculateProgress([hasEnergy, hasFactor, hasFiles]);
+  }, [energyConsumed.rawValue, emissionFactor.rawValue, files, additionalFields]);
+
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: typeof errors = {};
-    if (!energyConsumedRaw || Number(energyConsumedRaw) <= 0)
-      newErrors.energyConsumed = "Energy consumed is required";
-    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0)
-      newErrors.emissionFactor = "Emission factor is required";
+
+    if (
+      energyConsumed.rawValue === "" ||
+      energyConsumed.rawValue === null ||
+      energyConsumed.rawValue === undefined ||
+      isNaN(Number(energyConsumed.rawValue)) ||
+      Number(energyConsumed.rawValue) < 0
+    ) {
+      newErrors.energyConsumed = "Please enter a valid energy consumption value (0 or greater).";
+    }
+    if (
+      emissionFactor.rawValue === "" ||
+      emissionFactor.rawValue === null ||
+      emissionFactor.rawValue === undefined ||
+      isNaN(Number(emissionFactor.rawValue)) ||
+      Number(emissionFactor.rawValue) < 0
+    ) {
+      newErrors.emissionFactor = "Please enter a valid emission factor (0 or greater).";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -168,15 +194,15 @@ export function CoolingSteamForm({
       console.error(err);
       toast.error("Error uploading file");
     } finally {
-      setUploading((prev) => ({ ...prev, [field]: false })); // stop spinner
+      setUploading((prev) => ({ ...prev, [field]: false }));
     }
 
     if (errors.files) setErrors((prev) => ({ ...prev, files: undefined }));
   };
 
   const resetForm = () => {
-    setEnergyConsumedRaw("");
-    setEmissionFactorRaw("");
+    energyConsumed.setRawValue("");
+    emissionFactor.setRawValue("");
     setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
     setAdditionalFields([]);
     setErrors({});
@@ -191,8 +217,8 @@ export function CoolingSteamForm({
     const { showToast = true, redirect = true } = options;
 
     const payload = {
-      energyConsumed: energyConsumedRaw,
-      emissionFactor: emissionFactorRaw,
+      energyConsumed: energyConsumed.rawValue,
+      emissionFactor: emissionFactor.rawValue,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -224,7 +250,6 @@ export function CoolingSteamForm({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) return;
     if (isAssignedTask || handleAssignedTaskRedirect()) {
       await saveForm({ showToast: true, redirect: false });
       onBackToHub();
@@ -235,7 +260,10 @@ export function CoolingSteamForm({
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
 
     // Get previous steps data from state to ensure it's saved on submission
     const ipps = state.assessmentData.environment?.ghg?.scope2?.marketBased?.ipps;
@@ -243,8 +271,8 @@ export function CoolingSteamForm({
     const residual = state.assessmentData.environment?.ghg?.scope2?.marketBased?.residual;
 
     const payload = {
-      energyConsumed: energyConsumedRaw,
-      emissionFactor: emissionFactorRaw,
+      energyConsumed: energyConsumed.rawValue,
+      emissionFactor: emissionFactor.rawValue,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -325,6 +353,7 @@ export function CoolingSteamForm({
       }
     }
   };
+
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={breadcrumb} />
@@ -334,7 +363,7 @@ export function CoolingSteamForm({
           <Button
             variant="outline"
             onClick={onBack}
-            className="flex items-center gap-2 bg-white border-green-600 text-green-700 hover:bg-green-50"
+            className="flex items-center gap-2 bg-white border-primary text-primary hover:bg-green-50"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
@@ -356,53 +385,46 @@ export function CoolingSteamForm({
               totalFields={total}
               isSubmitted={isSubmitted}
             />
+
             {/* Energy Consumed */}
-            {/* <div>
-              <Label className="text-md font-medium mb-2 block">
-                4.1 Purchased Cooling / Steam
-              </Label>
-              <div className="space-y-4 ml-6">
-                <Label className="text-base font-medium text-gray-900 mb-2 block">
-                  Quantity consumed <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  placeholder="Enter cooling/steam energy consumed (kWh)"
-                  value={energyConsumedDisplay} // Use the formatted display value
-                  onChange={(e) => {
-                    handleEnergyConsumedChange(e.target.value); // Use the hook's handler
-                    if (errors.energyConsumed)
-                      setErrors({
-                        ...errors,
-                        energyConsumed: undefined,
-                      });
-                  }}
-                />
-              </div>
-              {errors.energyConsumed && (
-                <p className="text-sm text-red-500 mt-1">{errors.energyConsumed}</p>
-              )}
-            </div> */}
             <div>
               <Label className="text-md font-medium mb-2 block">
                 4.1 Purchased Cooling / Steam
               </Label>
               <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-base font-medium text-gray-900">
+                    Quantity consumed (kWh) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Energy Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total cooling/steam energy consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no energy was consumed</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ScopeInput
                   category="cooling"
-                  formattedValue={{
-                    rawValue: energyConsumedRaw,
-                    displayValue: energyConsumedDisplay,
-                    handleChange: handleEnergyConsumedChange,
-                    setRawValue: setEnergyConsumedRaw,
-                  }}
-                  label="Quantity consumed (kWh)"
+                  formattedValue={energyConsumed}
+                  label=""
                   placeholder="Enter cooling/steam energy consumed (kWh)"
-                  required
+                  required={false}
                   error={errors.energyConsumed}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(emissionFactorRaw) || null}
+                  customEmissionFactor={Number(emissionFactor.rawValue) || null}
                   onErrorClear={() => setErrors((prev) => ({ ...prev, energyConsumed: undefined }))}
                 />
               </div>
@@ -417,9 +439,9 @@ export function CoolingSteamForm({
                 type="text"
                 step="0.0001"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactorDisplay}
+                value={emissionFactor.displayValue}
                 onChange={(e) => {
-                  handleEmissionFactorChange(e.target.value);
+                  emissionFactor.handleChange(e.target.value);
                   setErrors((prev) => ({
                     ...prev,
                     emissionFactor: undefined,
@@ -479,7 +501,7 @@ export function CoolingSteamForm({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >
@@ -505,7 +527,7 @@ export function CoolingSteamForm({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="cursor-pointer justify-self-start border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Previous
@@ -516,7 +538,7 @@ export function CoolingSteamForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isLoading}
-                className="justify-self-center bg-green-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
                 {isLoading ? (
@@ -540,25 +562,13 @@ export function CoolingSteamForm({
                 variant="outline"
                 onClick={() => handleSubmit()}
                 disabled={isLoading}
-                className="cursor-pointer justify-self-end border-green-600 text-green-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardContent>
         </Card>
-        {/* <SubmitConfirmationDialog
-          isOpen={showConfirmDialog}
-          onClose={() => setShowConfirmDialog(false)}
-          onSave={() => {
-            setShowConfirmDialog(false);
-            handleSaveAndContinue();
-          }}
-          onSubmit={() => {
-            setShowConfirmDialog(false);
-            handleSubmit();
-          }}
-        /> */}
       </div>
     </div>
   );

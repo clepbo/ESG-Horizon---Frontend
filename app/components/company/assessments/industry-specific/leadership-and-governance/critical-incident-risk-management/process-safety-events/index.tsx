@@ -10,6 +10,9 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+import { useAssessment } from "@/hooks/useAssessment";
+import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 
@@ -28,8 +31,12 @@ export default function ProcessSafetyEvents({
   totalSteps,
   breadcrumb,
 }: ProcessSafetyEventsFormProps) {
-  const [totalHoursWorked, setTotalHoursWorked] = useState("");
-  const [numberOfEvents, setNumberOfEvents] = useState("");
+  const { state, dispatch } = useAssessment();
+  const current = "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents";
+  const { saveNow } = useAssessmentFlow(current);
+
+  const totalHoursWorked = useFormattedNumber("");
+  const numberOfEvents = useFormattedNumber("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -43,25 +50,47 @@ export default function ProcessSafetyEvents({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+        ?.processSafetyEvents;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.totalHoursWorked !== undefined) {
+        totalHoursWorked.handleChange(String(existingData.totalHoursWorked));
+      }
+      if (existingData.numberOfEvents !== undefined) {
+        numberOfEvents.handleChange(String(existingData.numberOfEvents));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      ?.processSafetyEvents,
+  ]);
+
   // Calculate progress
   const { filled, total } = useMemo(() => {
     const fields = [
-      totalHoursWorked !== "",
-      numberOfEvents !== "",
+      totalHoursWorked.rawValue !== "",
+      numberOfEvents.rawValue !== "",
       filesAndLinks.some((item) => item.name || item.link || item.file),
     ];
     const completed = fields.filter(Boolean).length;
     return { filled: completed, total: fields.length };
-  }, [totalHoursWorked, numberOfEvents, filesAndLinks]);
+  }, [totalHoursWorked.rawValue, numberOfEvents.rawValue, filesAndLinks]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!totalHoursWorked) {
+    if (!totalHoursWorked.rawValue) {
       newErrors.totalHoursWorked = "Total hours worked is required";
     }
 
-    if (!numberOfEvents) {
+    if (!numberOfEvents.rawValue) {
       newErrors.numberOfEvents = "Number of events is required";
     }
 
@@ -86,14 +115,22 @@ export default function ProcessSafetyEvents({
     setShowSaveSuccess(false);
 
     const payload = {
-      totalHoursWorked: Number(totalHoursWorked),
-      numberOfEvents: Number(numberOfEvents),
+      totalHoursWorked: Number(totalHoursWorked.rawValue),
+      numberOfEvents: Number(numberOfEvents.rawValue),
       filesAndLinks: filesAndLinks.filter((item) => item.name || item.link || item.file),
     };
 
     try {
-      console.log("PROCESS SAFETY EVENTS DATA:", payload);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "criticalIncidentRiskManagement",
+          section: "processSafetyEvents",
+          data: payload,
+        },
+      });
+      setShowSaveSuccess(true);
       toast.success("Data saved successfully.");
     } catch (error) {
       toast.error(`Failed to save data. ${error}`);
@@ -102,12 +139,33 @@ export default function ProcessSafetyEvents({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
     }
-    onContinueToNextAssessment();
+
+    const payload = {
+      totalHoursWorked: Number(totalHoursWorked.rawValue),
+      numberOfEvents: Number(numberOfEvents.rawValue),
+      filesAndLinks: filesAndLinks.filter((item) => item.name || item.link || item.file),
+    };
+
+    try {
+      await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_LEADERSHIP_GOVERNANCE",
+        payload: {
+          category: "criticalIncidentRiskManagement",
+          section: "processSafetyEvents",
+          data: payload,
+        },
+      });
+      toast.success("Progress saved!");
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save progress");
+    }
   };
 
   const handlePrevious = () => {
@@ -165,9 +223,9 @@ export default function ProcessSafetyEvents({
                   <input
                     type="text"
                     placeholder="e.g., 13,450,000"
-                    value={totalHoursWorked}
+                    value={totalHoursWorked.displayValue}
                     onChange={(e) => {
-                      setTotalHoursWorked(e.target.value);
+                      totalHoursWorked.handleChange(e.target.value);
                       setErrors((prev) => ({ ...prev, totalHoursWorked: "" }));
                     }}
                     className={`w-full px-4 py-2 border ${errors.totalHoursWorked ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500`}
@@ -212,9 +270,9 @@ export default function ProcessSafetyEvents({
                   <input
                     type="text"
                     placeholder="e.g., 2"
-                    value={numberOfEvents}
+                    value={numberOfEvents.displayValue}
                     onChange={(e) => {
-                      setNumberOfEvents(e.target.value);
+                      numberOfEvents.handleChange(e.target.value);
                       setErrors((prev) => ({ ...prev, numberOfEvents: "" }));
                     }}
                     className={`w-full px-4 py-2 border ${errors.numberOfEvents ? "border-red-500" : "border-gray-300"} rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500`}

@@ -97,7 +97,25 @@ function ProductRow({
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label htmlFor={`weight-${product.id}`}>Weight/Quantity Sold</Label>
+            <Label htmlFor={`weight-${product.id}`} className="flex items-center gap-1">
+              Weight/Quantity Sold
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="font-semibold mb-1">Weight/Quantity Input Guide</p>
+                    <p className="text-xs">Enter the total weight or quantity of products sold.</p>
+                    <p className="text-xs mt-1">• You can enter 0 if no products were sold</p>
+                    <p className="text-xs">• Negative values are not allowed</p>
+                    <p className="text-xs">
+                      • Use decimals for precise measurements (e.g., 1250.5)
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Label>
             <Input
               id={`weight-${product.id}`}
               type="text"
@@ -189,8 +207,9 @@ export function AddProduct({ products, onProductsChange, error }: AddProductProp
 
   const validateProduct = (product: ProductData) => {
     const newErrors = { ...errors };
-    if (!product.weight || isNaN(Number(product.weight)) || Number(product.weight) <= 0) {
-      newErrors[`${product.id}-weight`] = "Please enter a valid positive number";
+    // FIX: Accept 0 and any valid number >= 0
+    if (!product.weight || isNaN(Number(product.weight)) || Number(product.weight) < 0) {
+      newErrors[`${product.id}-weight`] = "Please enter a valid number (0 or greater)";
     }
     setErrors(newErrors);
   };

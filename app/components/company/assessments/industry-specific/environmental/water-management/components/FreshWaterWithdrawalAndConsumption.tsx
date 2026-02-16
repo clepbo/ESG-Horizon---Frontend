@@ -88,20 +88,33 @@ export default function FreshWaterWithdrawalAndConsumption({
     const existingData =
       state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
         ?.freshwaterWithdrawals;
-    if (existingData && Object.keys(existingData).length > 0) {
-      withdrawalfromSurfaceWater.handleChange(
-        String(existingData.withdrawalfromSurfaceWater || "")
-      );
-      withdrawalfromGroundwater.handleChange(
-        String(existingData.withdrawalvalues || existingData.withdrawalfromGroundwater || "")
-      );
-      withdrawalfromMunicipalotherOtherSources.handleChange(
-        String(existingData.withdrawalfromMunicipalotherOtherSources || "")
-      );
-      totalWaterConsumed.handleChange(String(existingData.totalWaterConsumed || ""));
-      volumeWithdrawnfromWaterStressedRegions.handleChange(
-        String(existingData.volumeWithdrawnfromWaterStressedRegions || "")
-      );
+
+    if (existingData && typeof existingData === "object") {
+      if (existingData.withdrawalfromSurfaceWater !== undefined) {
+        withdrawalfromSurfaceWater.handleChange(String(existingData.withdrawalfromSurfaceWater));
+      }
+      if (
+        existingData.withdrawalvalues !== undefined ||
+        existingData.withdrawalfromGroundwater !== undefined
+      ) {
+        withdrawalfromGroundwater.handleChange(
+          String(existingData.withdrawalvalues ?? existingData.withdrawalfromGroundwater ?? "")
+        );
+      }
+      if (existingData.withdrawalfromMunicipalotherOtherSources !== undefined) {
+        withdrawalfromMunicipalotherOtherSources.handleChange(
+          String(existingData.withdrawalfromMunicipalotherOtherSources)
+        );
+      }
+      if (existingData.totalWaterConsumed !== undefined) {
+        totalWaterConsumed.handleChange(String(existingData.totalWaterConsumed));
+      }
+      if (existingData.volumeWithdrawnfromWaterStressedRegions !== undefined) {
+        volumeWithdrawnfromWaterStressedRegions.handleChange(
+          String(existingData.volumeWithdrawnfromWaterStressedRegions)
+        );
+      }
+
       setFormData({
         withdrawalfromSurfaceWaterUnit: existingData.withdrawalfromSurfaceWaterUnit || "m³",
         withdrawalfromGroundwaterUnit: existingData.withdrawalfromGroundwaterUnit || "m³",
@@ -111,16 +124,15 @@ export default function FreshWaterWithdrawalAndConsumption({
         volumeWithdrawnfromWaterStressedRegionsUnit:
           existingData.volumeWithdrawnfromWaterStressedRegionsUnit || "m³",
       });
-      setFilesAndLinks(existingData.filesAndLinks || []);
+
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.freshwaterWithdrawals,
-    totalWaterConsumed,
-    volumeWithdrawnfromWaterStressedRegions,
-    withdrawalfromGroundwater,
-    withdrawalfromMunicipalotherOtherSources,
-    withdrawalfromSurfaceWater,
   ]);
 
   const { filled, total } = useMemo(() => {

@@ -23,7 +23,7 @@ export function generateAssessmentData(reportData: any) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-orange-500 rounded-full text-orange-500" />,
       colorClass: "bg-orange-500",
-      percentage: Math.round(percentage_emission_summary.scope1_emission_summary),
+      percentage: parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2)),
       textColorClass: "text-orange-500",
     },
     {
@@ -32,7 +32,7 @@ export function generateAssessmentData(reportData: any) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-blue-500 rounded-full text-blue-500" />,
       colorClass: "bg-blue-500",
-      percentage: Math.round(percentage_emission_summary.scope2_emission_summary),
+      percentage: parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2)),
       textColorClass: "text-blue-500",
     },
     {
@@ -41,7 +41,7 @@ export function generateAssessmentData(reportData: any) {
       unit: "tCO₂e",
       icon: <GoDotFill className="h-4 w-4 bg-purple-500 rounded-full text-purple-500" />,
       colorClass: "bg-purple-500",
-      percentage: Math.round(percentage_emission_summary.scope3_emission_summary),
+      percentage: parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2)),
       textColorClass: "text-purple-500",
     },
   ];

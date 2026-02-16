@@ -1,13 +1,16 @@
 export type TableRowType = {
-  startingPeriod: string;
-  endingPeriod: string;
+  startingPeriod?: string;
+  endingPeriod?: string;
   subsidiary: string;
   startMonth: string;
   startYear: string;
   endMonth: string;
   endYear: string;
-  id: string;
+  id: string | number;
   status: "submitted" | "Awaiting Review" | "In Progress" | string;
+  progress?: number;
+  completed_sections?: number;
+  total_sections?: number;
 };
 
 export type TableFilters = {

@@ -5,11 +5,17 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import {
@@ -49,19 +55,8 @@ export function ElectricityEACForm({
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // Use the formatted number hook for grid electricity
-  const {
-    rawValue: gridElectricityRaw,
-    displayValue: gridElectricityDisplay,
-    handleChange: handleGridElectricityChange,
-    setRawValue: setGridElectricityRaw,
-  } = useFormattedNumber("");
-
-  const {
-    rawValue: emissionFactorRaw,
-    displayValue: emissionFactorDisplay,
-    handleChange: handleEmissionFactorChange,
-    setRawValue: setEmissionFactorRaw,
-  } = useFormattedNumber("");
+  const gridElectricity = useFormattedNumber("");
+  const emissionFactor = useFormattedNumber("");
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -92,43 +87,72 @@ export function ElectricityEACForm({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope2?.marketBased?.eac;
     if (existingData) {
-      // Initialize with existing data using the formatted number hook
-      if (existingData.gridElectricity) {
-        setGridElectricityRaw(existingData.gridElectricity);
-      } else {
-        setGridElectricityRaw("");
-      }
-      if (existingData.emissionFactor) {
-        setEmissionFactorRaw(existingData.emissionFactor);
-      } else {
-        setEmissionFactorRaw("");
-      }
+      gridElectricity.setRawValue(
+        existingData.gridElectricity !== null && existingData.gridElectricity !== undefined
+          ? existingData.gridElectricity.toString()
+          : ""
+      );
+      emissionFactor.setRawValue(
+        existingData.emissionFactor !== null && existingData.emissionFactor !== undefined
+          ? existingData.emissionFactor.toString()
+          : ""
+      );
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
       setAdditionalFields(existingData.additionalFields || []);
     }
-  }, [state.assessmentData, setEmissionFactorRaw, setGridElectricityRaw]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.assessmentData]);
 
+  // FIX: Check for valid numbers >= 0 instead of just > 0
   const { filled, total } = useMemo(() => {
-    return calculateProgress([
-      gridElectricityRaw,
-      emissionFactorRaw,
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
-    ]);
-  }, [gridElectricityRaw, emissionFactorRaw, files, additionalFields]);
+    const hasElectricity =
+      gridElectricity.rawValue !== "" &&
+      gridElectricity.rawValue !== null &&
+      gridElectricity.rawValue !== undefined &&
+      !isNaN(Number(gridElectricity.rawValue)) &&
+      Number(gridElectricity.rawValue) >= 0;
 
+    const hasFactor =
+      emissionFactor.rawValue !== "" &&
+      emissionFactor.rawValue !== null &&
+      emissionFactor.rawValue !== undefined &&
+      !isNaN(Number(emissionFactor.rawValue)) &&
+      Number(emissionFactor.rawValue) >= 0;
+
+    const hasFiles =
+      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+
+    return calculateProgress([hasElectricity, hasFactor, hasFiles]);
+  }, [gridElectricity.rawValue, emissionFactor.rawValue, files, additionalFields]);
+
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (!gridElectricityRaw || Number(gridElectricityRaw) <= 0) {
-      newErrors.gridElectricity = "Please enter a valid positive number.";
+    if (
+      gridElectricity.rawValue === "" ||
+      gridElectricity.rawValue === null ||
+      gridElectricity.rawValue === undefined ||
+      isNaN(Number(gridElectricity.rawValue)) ||
+      Number(gridElectricity.rawValue) < 0
+    ) {
+      newErrors.gridElectricity =
+        "Please enter a valid electricity consumption value (0 or greater).";
     }
-    if (!emissionFactorRaw || Number(emissionFactorRaw) <= 0) {
-      newErrors.emissionFactor = "Please enter a valid positive emission factor.";
+    if (
+      emissionFactor.rawValue === "" ||
+      emissionFactor.rawValue === null ||
+      emissionFactor.rawValue === undefined ||
+      isNaN(Number(emissionFactor.rawValue)) ||
+      Number(emissionFactor.rawValue) < 0
+    ) {
+      newErrors.emissionFactor = "Please enter a valid emission factor (0 or greater).";
     }
 
     setErrors(newErrors);
@@ -182,8 +206,8 @@ export function ElectricityEACForm({
     const { showToast = true, redirect = true } = options;
 
     const payload = {
-      gridElectricity: gridElectricityRaw,
-      emissionFactor: emissionFactorRaw,
+      gridElectricity: gridElectricity.rawValue,
+      emissionFactor: emissionFactor.rawValue,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -215,7 +239,6 @@ export function ElectricityEACForm({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) return;
     if (isAssignedTask || handleAssignedTaskRedirect()) {
       await saveForm({ showToast: true, redirect: false });
       onBackToHub();
@@ -226,12 +249,15 @@ export function ElectricityEACForm({
   };
 
   const handleNext = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
+      return;
+    }
     dispatch({
       type: "UPDATE_MARKET_EAC",
       payload: {
-        gridElectricity: gridElectricityRaw,
-        emissionFactor: emissionFactorRaw,
+        gridElectricity: gridElectricity.rawValue,
+        emissionFactor: emissionFactor.rawValue,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -252,6 +278,7 @@ export function ElectricityEACForm({
   const handleAdditionalFieldsChange = (fields: FileData[]) => {
     setAdditionalFields(fields);
   };
+
   const handleRemoveFile = async (key: string) => {
     const file = files[key];
     if (file?.publicId) {
@@ -289,6 +316,7 @@ export function ElectricityEACForm({
       }
     }
   };
+
   return (
     <div className="min-h-screen bg-green-50 p-6" ref={formRef}>
       <CustomBreadcrumbDynamic features={breadcrumb} />
@@ -325,55 +353,46 @@ export function ElectricityEACForm({
             />
 
             {/* Grid Electricity */}
-            {/* <div>
-              <Label className="text-base font-medium text-gray-900 mb-2 block">
-                2.1 Purchased Electricity (with Energy Attribute Certificates – EACs / RECs)
-              </Label>
-              <div className="space-y-4 ml-6">
-                <Label className="text-base font-medium text-gray-900 mb-2 block">
-                  Total grid electricity consumed (kWh) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="text" // Changed from "number" to "text" to display formatted value
-                  placeholder="Enter total grid electricity consumed"
-                  value={gridElectricityDisplay} // Use the formatted display value
-                  onChange={(e) => {
-                    handleGridElectricityChange(e.target.value); // Use the hook's handler
-                    if (errors.gridElectricity)
-                      setErrors((prev) => ({
-                        ...prev,
-                        gridElectricity: undefined,
-                      }));
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.gridElectricity ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-              {errors.gridElectricity && (
-                <p className="text-sm text-red-500 mt-1">{errors.gridElectricity}</p>
-              )}
-            </div> */}
             <div>
               <Label className="text-base font-medium text-gray-900 mb-2 block">
                 2.1 Purchased Electricity (with Energy Attribute Certificates – EACs / RECs)
               </Label>
               <div className="ml-6">
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-base font-medium text-gray-900">
+                    Total grid electricity consumed (kWh) <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Electricity Consumption Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total electricity consumed during the reporting period.
+                        </p>
+                        <p className="text-xs mt-1">
+                          • You can enter 0 if no electricity was consumed
+                        </p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 1250.5)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 <ScopeInput
                   category="electricity"
-                  formattedValue={{
-                    rawValue: gridElectricityRaw,
-                    displayValue: gridElectricityDisplay,
-                    handleChange: handleGridElectricityChange,
-                    setRawValue: setGridElectricityRaw,
-                  }}
-                  label="Total grid electricity consumed (kWh)"
+                  formattedValue={gridElectricity}
+                  label=""
                   placeholder="Enter total grid electricity consumed"
-                  required
+                  required={false}
                   error={errors.gridElectricity}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(emissionFactorRaw) || null}
+                  customEmissionFactor={Number(emissionFactor.rawValue) || null}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, gridElectricity: undefined }))
                   }
@@ -442,9 +461,9 @@ export function ElectricityEACForm({
                 type="text"
                 step="0.0001"
                 placeholder="Enter supplier-specific emission factor"
-                value={emissionFactorDisplay}
+                value={emissionFactor.displayValue}
                 onChange={(e) => {
-                  handleEmissionFactorChange(e.target.value);
+                  emissionFactor.handleChange(e.target.value);
                   setErrors((prev) => ({
                     ...prev,
                     emissionFactor: undefined,
@@ -507,7 +526,7 @@ export function ElectricityEACForm({
                             <button
                               type="button"
                               onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
+                              disabled={deleting[field]}
                               className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
                               aria-label={`Remove ${field}`}
                             >

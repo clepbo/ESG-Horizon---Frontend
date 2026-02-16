@@ -1,7 +1,17 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, BarChart, Bar } from "recharts";
+import {
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  CartesianGrid,
+  BarChart,
+  Bar,
+  LabelList,
+} from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { useAssessment } from "@/hooks/useAssessment";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -74,8 +84,8 @@ export function Scope2EmissionsChart() {
   const totals = computeScope2Totals();
 
   const chartData = [
-    { label: "Location-based", value: Math.round(totals.locationBased) },
-    { label: "Market-based", value: Math.round(totals.marketBased) },
+    { label: "Location-based", value: totals.locationBased },
+    { label: "Market-based", value: totals.marketBased },
   ];
 
   const currentLocationBased = chartData[0].value;
@@ -90,14 +100,14 @@ export function Scope2EmissionsChart() {
     previousLocationBased > 0
       ? Math.abs(
           ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
-        ).toFixed(1)
-      : "0.0";
+        ).toFixed(2)
+      : "0.00";
   const marketTrendValue =
     previousMarketBased > 0
       ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(
           1
         )
-      : "0.0";
+      : "0.00";
 
   const hasData = currentLocationBased > 0 || currentMarketBased > 0;
 
@@ -159,13 +169,13 @@ export function Scope2EmissionsChart() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-lg font-bold text-blue-900">
-                  {currentLocationBased.toLocaleString()}
+                  {currentLocationBased.toFixed(2)}
                 </div>
                 <div className="text-xs text-blue-600">Location-based</div>
               </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-lg font-bold text-purple-900">
-                  {currentMarketBased.toLocaleString()}
+                  {currentMarketBased.toFixed(2)}
                 </div>
                 <div className="text-xs text-purple-600">Market-based</div>
               </div>
@@ -183,12 +193,18 @@ export function Scope2EmissionsChart() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
                 <Tooltip
                   formatter={(value?: number) => [
-                    `${(value ?? 0).toLocaleString()} kg CO2e`,
+                    `${(value ?? 0).toFixed(2)} kg CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6" />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6">
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

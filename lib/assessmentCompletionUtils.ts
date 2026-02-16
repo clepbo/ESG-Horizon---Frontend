@@ -34,6 +34,31 @@ interface TopicDefinition {
 // ========================================
 
 const TOPIC_DEFINITIONS: TopicDefinition[] = [
+  // Activity Metrics
+  {
+    id: "activity-metrics",
+    name: "Activity Metrics",
+    type: "multi-component",
+    path: [["activityMetrics"], ["foundationalData", "activityMetrics"]],
+    completionStrategy: "all",
+    components: [
+      {
+        path: ["productionVolume"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks", "notes"],
+      },
+      {
+        path: ["assetPortfolio", "offshoreSites"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks", "notes"],
+      },
+      {
+        path: ["assetPortfolio", "terrestrialSites"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks", "notes"],
+      },
+    ],
+  },
   // Greenhouse Gas Emissions
   {
     id: "ghg-emissions",
@@ -203,7 +228,10 @@ const TOPIC_DEFINITIONS: TopicDefinition[] = [
     id: "workforce-health",
     name: "Workforce Health & Safety",
     type: "simple",
-    path: [["humanCapital", "workforceHealth"]],
+    path: [
+      ["humanCapital", "workforceHealth"],
+      ["humanCapital", "riskAndOpportunityManagement"],
+    ],
     completionStrategy: "threshold",
     threshold: 80,
     components: [
@@ -220,16 +248,33 @@ const TOPIC_DEFINITIONS: TopicDefinition[] = [
   {
     id: "reserves-valuation",
     name: "Reserves Valuation & Capital Expenditures",
-    type: "simple",
-    path: [["businessModel", "reservesValuation"]],
+    type: "multi-component",
+    path: [
+      ["businessModelAndInnovation", "reserveValuation"],
+      ["businessModel", "reservesValuation"],
+    ],
     completionStrategy: "threshold",
-    threshold: 80,
+    threshold: 75,
     components: [
       {
-        path: [],
+        path: ["climateImpact", "reserveSensitivity"],
         requiredFields: [],
         optionalFields: ["filesAndLinks"],
-        minCompletionThreshold: 80,
+      },
+      {
+        path: ["climateImpact", "embeddedCarbonInReserve"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks"],
+      },
+      {
+        path: ["strategicCapitalAllocation", "renewableEnergyInvestment"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks"],
+      },
+      {
+        path: ["strategicCapitalAllocation", "capitalExpenditureStrategy"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks"],
       },
     ],
   },
@@ -238,16 +283,23 @@ const TOPIC_DEFINITIONS: TopicDefinition[] = [
   {
     id: "business-ethics",
     name: "Business Ethics & Transparency",
-    type: "simple",
-    path: [["businessModel", "businessEthics"]],
+    type: "multi-component",
+    path: [
+      ["businessModelAndInnovation", "businessEthics"],
+      ["businessModel", "businessEthics"],
+    ],
     completionStrategy: "threshold",
-    threshold: 80,
+    threshold: 75,
     components: [
       {
-        path: [],
+        path: ["geopoliticalCorruptionRisk", "reservesInCountries"],
         requiredFields: [],
         optionalFields: ["filesAndLinks"],
-        minCompletionThreshold: 80,
+      },
+      {
+        path: ["antiCorruptionManagement", "managementSystem"],
+        requiredFields: [],
+        optionalFields: ["filesAndLinks"],
       },
     ],
   },
@@ -518,14 +570,23 @@ class CompletionCalculator {
   }
 
   private isFilled(value: any): boolean {
-    if (value === null || value === undefined || value === "") return false;
-    if (typeof value === "number") return value !== 0;
-    if (typeof value === "boolean") return value === true;
+    if (value === null || value === undefined) return false;
+
+    if (typeof value === "string") {
+      const trimmed = value.trim().toLowerCase();
+      if (trimmed === "") return false;
+      if (trimmed === "yes" || trimmed === "no") return true; // ✅ Both valid!
+      return trimmed.length > 0;
+    }
+
+    if (typeof value === "number") return true; // ✅ 0 is valid!
+    if (typeof value === "boolean") return true; // ✅ false is valid!
+
     if (Array.isArray(value)) return value.length > 0;
     if (typeof value === "object") {
       return Object.keys(value).some((key) => this.isFilled(value[key]));
     }
-    if (typeof value === "string") return value.trim().length > 0;
+
     return true;
   }
 
@@ -654,6 +715,7 @@ export function useProgressTracking(assessmentData: any) {
 // ========================================
 
 const TOPIC_NAME_TO_ID: Record<string, string> = {
+  "Activity Metrics": "activity-metrics",
   "Greenhouse Gas Emissions": "ghg-emissions",
   "Air Quality": "air-quality",
   "Water and Wastewater Management": "water-management",
@@ -753,6 +815,20 @@ export function checkSubComponentCompletion(
   }
 
   const componentMap: Record<string, { topicId: string; path: string[] }> = {
+    // Activity Metrics sub-components
+    "Production Volumes": {
+      topicId: "activity-metrics",
+      path: ["activityMetrics", "productionVolume"],
+    },
+    "Offshore Sites": {
+      topicId: "activity-metrics",
+      path: ["activityMetrics", "assetPortfolio", "offshoreSites"],
+    },
+    "Terrestrial Sites": {
+      topicId: "activity-metrics",
+      path: ["activityMetrics", "assetPortfolio", "terrestrialSites"],
+    },
+    // Water Management sub-components
     "Freshwater Withdrawal & Consumption": {
       topicId: "water-management",
       path: [
@@ -779,6 +855,7 @@ export function checkSubComponentCompletion(
       topicId: "water-management",
       path: ["environment", "waterManagement", "hydraulicFracturingImpacts", "waterQualityImpacts"],
     },
+    // Biodiversity Impact sub-components
     "Environmental Management Policies": {
       topicId: "biodiversity-impact",
       path: [
@@ -799,6 +876,76 @@ export function checkSubComponentCompletion(
         "biodiversityImpact",
         "environmentalManagement",
         "reservesInSensitiveAreas",
+      ],
+    },
+    // Reserves Valuation sub-components
+    "Reserves Sensitivity to Carbon Pricing": {
+      topicId: "reserves-valuation",
+      path: [
+        "businessModelAndInnovation",
+        "reserveValuation",
+        "climateImpact",
+        "reserveSensitivity",
+      ],
+    },
+    "Embedded Carbon in Reserves": {
+      topicId: "reserves-valuation",
+      path: [
+        "businessModelAndInnovation",
+        "reserveValuation",
+        "climateImpact",
+        "embeddedCarbonInReserve",
+      ],
+    },
+    "Renewable Energy Investment": {
+      topicId: "reserves-valuation",
+      path: [
+        "businessModelAndInnovation",
+        "reserveValuation",
+        "strategicCapitalAllocation",
+        "renewableEnergyInvestment",
+      ],
+    },
+    "Capital Expenditure Strategy": {
+      topicId: "reserves-valuation",
+      path: [
+        "businessModelAndInnovation",
+        "reserveValuation",
+        "strategicCapitalAllocation",
+        "capitalExpenditureStrategy",
+      ],
+    },
+    // Business Ethics sub-components
+    "Reserves in Countries with High Corruption Risk": {
+      topicId: "business-ethics",
+      path: [
+        "businessModelAndInnovation",
+        "businessEthics",
+        "geopoliticalCorruptionRisk",
+        "reservesInCountries",
+      ],
+    },
+    "Anti-Corruption Management System": {
+      topicId: "business-ethics",
+      path: [
+        "businessModelAndInnovation",
+        "businessEthics",
+        "antiCorruptionManagement",
+        "managementSystem",
+      ],
+    },
+    // Workforce Health & Safety sub-components
+    "Health & Safety Performance": {
+      topicId: "workforce-health",
+      path: ["humanCapital", "riskAndOpportunityManagement", "healthAndSafetyPerformance"],
+    },
+    "Safety Management Systems": {
+      topicId: "workforce-health",
+      path: [
+        "humanCapital",
+        "workforceHealthAndSafety",
+        "riskAndOpportunityManagement",
+        "safetyManagementSystems",
       ],
     },
   };
@@ -898,6 +1045,7 @@ export function validateAssessmentData(assessmentData: any): {
     "socialCapital",
     "humanCapital",
     "businessModel",
+    "businessModelAndInnovation",
     "status",
   ];
   const hasAnyExpectedKey = expectedRootKeys.some((key) => key in assessmentData);
@@ -939,7 +1087,7 @@ export function getCompletionBadgeVariant(status: CompletionStatus): {
       return {
         variant: "success",
         text: "Completed",
-        className: "bg-green-100 text-green-800 border-green-300",
+        className: "bg-green-600 text-white border-green-300",
       };
     case "in-progress":
       return {

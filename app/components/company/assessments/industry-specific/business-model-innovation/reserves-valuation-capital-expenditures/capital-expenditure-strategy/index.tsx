@@ -16,6 +16,7 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { TotalsResponse } from "@/services/assessment.service";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 
@@ -30,10 +31,11 @@ interface CapitalExpenditureStrategyProps {
 
 export default function CapitalExpenditureStrategy({
   onBack,
-  // onContinueToNextAssessment,
+  onContinueToNextAssessment: _onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
+  onSubmit,
 }: CapitalExpenditureStrategyProps) {
   const capexPercentage = useFormattedNumber("");
 
@@ -44,10 +46,32 @@ export default function CapitalExpenditureStrategy({
   const [capexDiscussion, setCapexDiscussion] = useState("");
 
   const formRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const _router = useRouter();
+  const { state, dispatch } = useAssessment();
   const current =
-    "businessModelAndInnovation.reserveValuation.strategicCapitalAllocation.capitalExpenditureStrategy";
+    "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy";
   const { saveNow, submitGroup } = useAssessmentFlow(current);
+
+  useEffect(() => {
+    const existingData =
+      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+        ?.capitalExpenditureStrategy;
+
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.capexPercentage !== undefined) {
+        capexPercentage.handleChange(String(existingData.capexPercentage));
+      }
+      if (existingData.capexDiscussion !== undefined) {
+        setCapexDiscussion(existingData.capexDiscussion);
+      }
+
+      setFilesAndLinks(existingData.filesAndLinks || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      ?.capitalExpenditureStrategy,
+  ]);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -99,11 +123,16 @@ export default function CapitalExpenditureStrategy({
 
     try {
       await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "capitalExpenditureStrategy",
+          data: payload,
+        },
+      });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
-      setTimeout(() => {
-        router.push("/assessments/new-assessment");
-      }, 1000);
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
@@ -121,10 +150,18 @@ export default function CapitalExpenditureStrategy({
     try {
       // Save data first
       await saveNow(current, payload);
+      dispatch({
+        type: "UPDATE_BUSINESS_INNOVATION",
+        payload: {
+          category: "reservesValuationAndCapitalExpenditures",
+          section: "capitalExpenditureStrategy",
+          data: payload,
+        },
+      });
       // Then submit the group
       await submitGroup();
       toast.success("Assessment completed successfully!");
-      // onSubmit(null);
+      if (onSubmit) onSubmit(null); // trigger parent success screen
     } catch (error: any) {
       toast.error("Failed to submit assessment", error.message);
     } finally {

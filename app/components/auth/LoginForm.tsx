@@ -5,38 +5,37 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
-import { FaApple } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 
-const GoogleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      fill="#4285F4"
-    />
-    <path
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      fill="#34A853"
-    />
-    <path
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      fill="#FBBC05"
-    />
-    <path
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-      fill="#EA4335"
-    />
-  </svg>
-);
+// const GoogleIcon = ({ className }: { className?: string }) => (
+//   <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+//     <path
+//       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+//       fill="#4285F4"
+//     />
+//     <path
+//       d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+//       fill="#34A853"
+//     />
+//     <path
+//       d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+//       fill="#FBBC05"
+//     />
+//     <path
+//       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+//       fill="#EA4335"
+//     />
+//   </svg>
+// );
 
-const MicrosoftIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M11 2h-9v9h9v-9z" fill="#F25022" />
-    <path d="M22 2h-9v9h9v-9z" fill="#00A4EF" />
-    <path d="M11 13h-9v9h9v-9z" fill="#FFB900" />
-    <path d="M22 13h-9v9h9v-9z" fill="#7FBA00" />
-  </svg>
-);
+// const MicrosoftIcon = ({ className }: { className?: string }) => (
+//   <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+//     <path d="M11 2h-9v9h9v-9z" fill="#F25022" />
+//     <path d="M22 2h-9v9h9v-9z" fill="#00A4EF" />
+//     <path d="M11 13h-9v9h9v-9z" fill="#FFB900" />
+//     <path d="M22 13h-9v9h9v-9z" fill="#7FBA00" />
+//   </svg>
+// );
 
 type FormFields = {
   email: string;
@@ -44,11 +43,11 @@ type FormFields = {
 };
 
 export default function LoginForm() {
-  const { login, socialLogin } = useAuth();
+  const { login } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [loadingSocialLogin, setLoadingSocialLogin] = useState(false);
+  const [_loadingSocialLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -87,28 +86,28 @@ export default function LoginForm() {
     }
   };
 
-  const onSocialLoginClick = async (provider: "google") => {
-    setLoadingSocialLogin(true);
-    setLoading(true);
-    try {
-      await socialLogin(provider);
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message || error?.message || "Login failed. Please try again.";
+  // const onSocialLoginClick = async (provider: "google") => {
+  //   setLoadingSocialLogin(true);
+  //   setLoading(true);
+  //   try {
+  //     await socialLogin(provider);
+  //   } catch (error: any) {
+  //     const message =
+  //       error?.response?.data?.message || error?.message || "Login failed. Please try again.";
 
-      if (message.includes("awaiting approval")) {
-        toast.info(
-          "To ensure platform security, your account is pending a final review by an ESG Horizon administrator. This is typically completed within one business day. You will be notified via your corporate email as soon as it's approved.",
-          { autoClose: 15000 }
-        );
-      } else {
-        toast.error(message);
-      }
+  //     if (message.includes("awaiting approval")) {
+  //       toast.info(
+  //         "To ensure platform security, your account is pending a final review by an ESG Horizon administrator. This is typically completed within one business day. You will be notified via your corporate email as soon as it's approved.",
+  //         { autoClose: 15000 }
+  //       );
+  //     } else {
+  //       toast.error(message);
+  //     }
 
-      setLoadingSocialLogin(false);
-      setLoading(false);
-    }
-  };
+  //     setLoadingSocialLogin(false);
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="relative mt-36">
@@ -118,9 +117,9 @@ export default function LoginForm() {
           <div className="text-center">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex gap-2">
-                <div className="w-3 h-3 bg-[color:var(--color-primary)] rounded-full animate-bounce" />
-                <div className="w-3 h-3 bg-[color:var(--color-secondary)] rounded-full animate-bounce delay-100" />
-                <div className="w-3 h-3 bg-[color:var(--color-tertiary)] rounded-full animate-bounce delay-200" />
+                <div className="w-3 h-3 bg-primary rounded-full animate-bounce" />
+                <div className="w-3 h-3 bg-secondary rounded-full animate-bounce delay-100" />
+                <div className="w-3 h-3 bg-tertiary rounded-full animate-bounce delay-200" />
               </div>
             </div>
             <p className="text-lg text-gray-600 font-medium animate-pulse">Logging you in...</p>
@@ -236,14 +235,13 @@ export default function LoginForm() {
           </form>
 
           <div className="mt-4 space-y-4 text-center">
-            {/* Separator line */}
             <div className="relative flex items-center py-2">
               <div className="flex-grow border-t border-gray-300" />
-              <span className="mx-4 flex-shrink text-sm text-neutral-600">or continue with</span>
+              {/* <span className="mx-4 flex-shrink text-sm text-neutral-600">or continue with</span> */}
               <div className="flex-grow border-t border-gray-300" />
             </div>
-            {/* Social buttons */}
-            <div className="flex gap-3">
+
+            {/* <div className="flex gap-3">
               <button
                 onClick={() => onSocialLoginClick("google")}
                 className="hover:cursor-pointer flex flex-1 items-center justify-center space-x-2 rounded border border-gray-300 bg-white py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -272,7 +270,7 @@ export default function LoginForm() {
                 <MicrosoftIcon className="h-5 w-5" />
                 <span className="hidden sm:inline">Microsoft</span>
               </button>
-            </div>
+            </div> */}
 
             <p className="mt-2 text-center text-sm text-neutral-600">
               Don&apos;t have an account?{" "}

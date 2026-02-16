@@ -19,6 +19,7 @@ export interface Department {
     last_name: string;
     email: string;
   };
+  teamSize?: number;
 }
 
 export interface DepartmentUser {
@@ -36,14 +37,19 @@ export interface UpdateDepartment {
   description?: string;
   leadId?: number;
   contact_email?: string;
+  subsidiaryId?: number;
+  subsidiaryName?: string;
 }
 
 export interface CreateDepartment {
   name: string;
   description?: string;
   leadId?: number;
+  leadEmail?: string;
+  leadName?: string;
   contact_email?: string;
   subsidiaryId?: number;
+  subsidiaryName?: string;
 }
 
 export const departmentService = {

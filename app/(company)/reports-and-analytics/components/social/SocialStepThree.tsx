@@ -13,7 +13,9 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { formatCurrency } from "@/lib/utils";
 
@@ -62,9 +64,10 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
 }
 
 function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
-  const resolved = disputeData?.resolvedDisputes || 0;
-  const pending = disputeData?.pending || 0;
-  const total = disputeData?.total || resolved + pending;
+  const referred = disputeData?.disputesReferred || 0;
+  const resolved = disputeData?.disputesResolved || 0;
+  const pending = Math.max(0, referred - resolved);
+  const total = referred;
 
   const DISPUTE_DATA = [
     { name: "Resolved", value: resolved, color: "#22c55e" },
@@ -107,6 +110,8 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               outerRadius={75}
               paddingAngle={0}
               stroke="none"
+              label={({ value }) => `${value}`}
+            // labelLine={false}
             >
               {DISPUTE_DATA.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />
@@ -185,13 +190,25 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
             />
             <Tooltip />
             <Legend content={<CustomLegend />} />
-            <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]}>
+              <LabelList
+                dataKey="count"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
+            </Bar>
             <Bar
               dataKey="duration"
               name="Duration (Days)"
               fill={DURATION_COLOR}
               radius={[4, 4, 0, 0]}
-            />
+            >
+              <LabelList
+                dataKey="duration"
+                position="top"
+                formatter={(value) => formatNumberFigures(Number(value) || 0)}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

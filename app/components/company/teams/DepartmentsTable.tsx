@@ -12,9 +12,10 @@ import ActionDropdown from "../../ui/reusables/ActionDropdown";
 
 type Props = {
   departments: Department[];
+  onUpdate?: () => void;
 };
 
-export default function DepartmentsTable({ departments }: Props) {
+export default function DepartmentsTable({ departments, onUpdate }: Props) {
   const router = useRouter();
 
   // Pagination
@@ -47,9 +48,9 @@ export default function DepartmentsTable({ departments }: Props) {
               <thead className="bg-gray-50 text-left text-xs font-semibold text-gray-700">
                 <tr>
                   <th className="px-4 py-3">Department Name</th>
+                  <th className="px-4 py-3">Subsidiary</th>
                   <th className="px-4 py-3">Description</th>
                   <th className="px-4 py-3">Lead</th>
-                  <th className="px-4 py-3">Email</th>
                   <th className="px-4 py-3">Team Size</th>
                   <th className="px-4 py-3">Actions</th>
                 </tr>
@@ -59,12 +60,29 @@ export default function DepartmentsTable({ departments }: Props) {
                   return (
                     <tr key={dept.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">{dept.name}</td>
-                      <td className="px-4 py-3">{dept.description || "-"}</td>
                       <td className="px-4 py-3">
-                        {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}
+                        {dept.subsidiary?.name || (
+                          <span className="text-gray-400 font-medium text-sm italic">
+                            Main (HQ)
+                          </span>
+                        )}
                       </td>
-                      <td className="px-4 py-3">{dept.contact_email || ""}</td>
-                      <td className="px-4 py-3">-</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {dept.description || (
+                          <span className="text-gray-400 font-medium text-sm italic">no desc.</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-900">
+                            {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}
+                          </span>
+                          <span className="text-xs text-gray-500">{dept?.lead?.email || ""}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {dept.teamSize || (dept.lead ? 1 : 0)}
+                      </td>
 
                       <td className="px-4 py-3">
                         <ActionDropdown
@@ -104,7 +122,11 @@ export default function DepartmentsTable({ departments }: Props) {
 
       {/* Edit Department Modal */}
       {isEditOpen && selectedDepartment && (
-        <EditDepartmentModal department={selectedDepartment} onClose={() => setIsEditOpen(false)} />
+        <EditDepartmentModal
+          department={selectedDepartment}
+          onClose={() => setIsEditOpen(false)}
+          onUpdate={onUpdate}
+        />
       )}
     </>
   );

@@ -20,6 +20,13 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface UpstreamProps {
   onBack: () => void;
@@ -96,13 +103,22 @@ export function PurchasedGoodsAndServices({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
-  // Load existing data
+  // FIX: Load existing data with proper null/undefined handling
   useEffect(() => {
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.upstream?.purchasedGoodsAndServices;
     if (existingData) {
-      setElectricity(existingData.totalAmountSpent || "");
-      setPurchasedGoods(existingData.massOfGoods || "");
+      // FIX: Handle null/undefined properly for numeric values
+      setElectricity(
+        existingData.totalAmountSpent !== null && existingData.totalAmountSpent !== undefined
+          ? existingData.totalAmountSpent.toString()
+          : ""
+      );
+      setPurchasedGoods(
+        existingData.massOfGoods !== null && existingData.massOfGoods !== undefined
+          ? existingData.massOfGoods.toString()
+          : ""
+      );
 
       const savedCategories = existingData.selectedCategories;
       const savedOtherValue = existingData.otherCategoryValue;
@@ -123,9 +139,21 @@ export function PurchasedGoodsAndServices({
     }
   }, [state.assessmentData.environment?.ghg?.scope3?.upstream]);
 
+  // FIX: Check for valid numbers >= 0 instead of just checking length
   const { filled, total } = useMemo(() => {
-    const hasSpendingData = electricity.trim().length > 0;
-    const hasMassData = purchasedGoods.trim().length > 0;
+    const hasSpendingData =
+      electricity !== "" &&
+      electricity !== null &&
+      electricity !== undefined &&
+      !isNaN(Number(electricity)) &&
+      Number(electricity) >= 0;
+
+    const hasMassData =
+      purchasedGoods !== "" &&
+      purchasedGoods !== null &&
+      purchasedGoods !== undefined &&
+      !isNaN(Number(purchasedGoods)) &&
+      Number(purchasedGoods) >= 0;
 
     const hasAdditionalFields = additionalFields.length > 0;
     const hasFileUploaded = Object.values(files).some(Boolean);
@@ -172,6 +200,7 @@ export function PurchasedGoodsAndServices({
     }
   };
 
+  // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
     const newErrors: ElectricityHeatErrors = {};
     const newFieldErrors = {
@@ -180,39 +209,38 @@ export function PurchasedGoodsAndServices({
       goodsCategories: false,
     };
 
-    // Validate electricity field
-    if (!electricity.trim()) {
-      newErrors.electricity = "Please enter the total amount spent on purchased goods/services.";
+    // FIX: Validate electricity field - accept 0 or greater
+    if (
+      electricity === "" ||
+      electricity === null ||
+      electricity === undefined ||
+      isNaN(Number(electricity)) ||
+      Number(electricity) < 0
+    ) {
+      newErrors.electricity = "Please enter a valid amount spent (0 or greater).";
       newFieldErrors.electricity = true;
     }
 
-    // Validate purchased goods field
-    if (!purchasedGoods.trim()) {
-      newErrors.purchasedGoods = "Please enter the mass of goods purchased.";
+    // FIX: Validate purchased goods field - accept 0 or greater
+    if (
+      purchasedGoods === "" ||
+      purchasedGoods === null ||
+      purchasedGoods === undefined ||
+      isNaN(Number(purchasedGoods)) ||
+      Number(purchasedGoods) < 0
+    ) {
+      newErrors.purchasedGoods = "Please enter a valid mass of goods (0 or greater).";
       newFieldErrors.purchasedGoods = true;
     }
 
-    // Validate checkbox field - only error if NO checkboxes are selected
-    if (selectedCategories.length === 0) {
-      newErrors.goodsCategories = "Please select at least one category of goods/services.";
-      newFieldErrors.goodsCategories = true;
-    } else if (selectedCategories.includes("others") && !otherCategoryInput.trim()) {
-      // Only check "others" input if "others" checkbox is selected
-      newErrors.goodsCategories = "Please specify the 'Others' category.";
-      newFieldErrors.goodsCategories = true;
-    }
-
-    // Validate other fields (diesel/gas generators)
-    // const hasValidDiesel = dieselGenerators.some((s) => s.volume && Number(s.volume) > 0);
-    // const hasValidGas = gasTurbines.some((s) => s.volume && Number(s.volume) > 0);
-
-    // if (!hasValidDiesel) {
-    //     newErrors.dieselGenerators =
-    //         "Please enter at least one diesel generator value with a positive volume.";
-    // }
-
-    // if (!hasValidGas) {
-    //     newErrors.gasTurbines = "Please enter at least one gas turbine value with a positive volume.";
+    // // Validate checkbox field - only error if NO checkboxes are selected
+    // if (selectedCategories.length === 0) {
+    //   newErrors.goodsCategories = "Please select at least one category of goods/services.";
+    //   newFieldErrors.goodsCategories = true;
+    // } else if (selectedCategories.includes("others") && !otherCategoryInput.trim()) {
+    //   // Only check "others" input if "others" checkbox is selected
+    //   newErrors.goodsCategories = "Please specify the 'Others' category.";
+    //   newFieldErrors.goodsCategories = true;
     // }
 
     setErrors(newErrors);
@@ -265,6 +293,8 @@ export function PurchasedGoodsAndServices({
 
   const handleNext = () => {
     if (!validateForm()) {
+      // Show toast notification for validation failure
+      toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       // Auto-clear errors after 5 seconds
       setTimeout(clearAllErrors, 5000);
       return;
@@ -448,40 +478,93 @@ export function PurchasedGoodsAndServices({
               <Label className="text-md font-medium mb-2 block">
                 1.1 Purchased Goods & Services
               </Label>
-              <SmartInput
-                label="Total amount spent on purchased goods/services"
-                type="number"
-                unit="kWh"
-                required
-                value={electricity}
-                onChange={(value) => {
-                  handleElectricityChange(value);
-                  // Notify parent that this specific field's error state may have changed
-                  if (fieldErrors.electricity && value.trim()) {
-                    setFieldErrors((prev) => ({ ...prev, electricity: false }));
-                    setErrors((prev) => ({ ...prev, electricity: undefined }));
-                  }
-                }}
-                errorTrigger={fieldErrors.electricity}
-                errorMessage="Please enter the total amount spent on purchased goods/services."
-              />
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Total amount spent on purchased goods/services{" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Amount Spent Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total amount spent on purchased goods/services during the
+                          reporting period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no purchases were made</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise amounts (e.g., 1250.50)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <SmartInput
+                  label=""
+                  type="number"
+                  unit="kWh"
+                  required
+                  value={electricity}
+                  onChange={(value) => {
+                    handleElectricityChange(value);
+                    // Notify parent that this specific field's error state may have changed
+                    if (fieldErrors.electricity && value.trim()) {
+                      setFieldErrors((prev) => ({ ...prev, electricity: false }));
+                      setErrors((prev) => ({ ...prev, electricity: undefined }));
+                    }
+                  }}
+                  errorTrigger={fieldErrors.electricity}
+                  errorMessage="Please enter the total amount spent on purchased goods/services."
+                />
+              </div>
 
-              <SmartInput
-                label="Mass of goods purchased"
-                type="number"
-                unit="kg"
-                required
-                value={purchasedGoods}
-                onChange={(value) => {
-                  handlePurchasedGoodsChange(value);
-                  if (fieldErrors.purchasedGoods && value.trim()) {
-                    setFieldErrors((prev) => ({ ...prev, purchasedGoods: false }));
-                    setErrors((prev) => ({ ...prev, purchasedGoods: undefined }));
-                  }
-                }}
-                errorTrigger={fieldErrors.purchasedGoods}
-                errorMessage="Please enter the mass of goods purchased."
-              />
+              <div>
+                <div className="flex items-center gap-1 mb-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Mass of goods purchased <span className="text-red-500">*</span>
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">Mass of Goods Input Guide</p>
+                        <p className="text-xs">
+                          Enter the total mass (weight) of goods purchased during the reporting
+                          period.
+                        </p>
+                        <p className="text-xs mt-1">• You can enter 0 if no goods were purchased</p>
+                        <p className="text-xs">• Negative values are not allowed</p>
+                        <p className="text-xs">
+                          • Use decimals for precise measurements (e.g., 500.75)
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <SmartInput
+                  label=""
+                  type="number"
+                  unit="kg"
+                  required
+                  value={purchasedGoods}
+                  onChange={(value) => {
+                    handlePurchasedGoodsChange(value);
+                    if (fieldErrors.purchasedGoods && value.trim()) {
+                      setFieldErrors((prev) => ({ ...prev, purchasedGoods: false }));
+                      setErrors((prev) => ({ ...prev, purchasedGoods: undefined }));
+                    }
+                  }}
+                  errorTrigger={fieldErrors.purchasedGoods}
+                  errorMessage="Please enter the mass of goods purchased."
+                />
+              </div>
             </div>
 
             {/* CHECKBOX FIELD */}
