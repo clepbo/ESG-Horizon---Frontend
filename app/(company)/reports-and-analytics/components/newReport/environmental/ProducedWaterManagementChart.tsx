@@ -1,6 +1,7 @@
 "use client";
 
-import { Pie, PieChart, Legend, ResponsiveContainer, Cell } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { Pie, PieChart, Legend, ResponsiveContainer, Cell, Tooltip } from "recharts";
 
 interface ProducedWaterManagementChartProps {
   isAnimationActive?: boolean;
@@ -21,6 +22,9 @@ export default function ProducedWaterManagementChart({
     { name: "Discharged", value: discharged, color: "#eb6f70" },
   ].filter((item) => item.value > 0);
 
+  const renderCustomLabel = (entry: any) => {
+    return formatNumberFigures(entry.value);
+  };
   return (
     <>
       <h6 className="border-b pb-2 border-gray-200">Produced Water Management</h6>
@@ -31,11 +35,13 @@ export default function ProducedWaterManagementChart({
             <Pie
               data={data}
               dataKey="value"
-              innerRadius={70}
-              outerRadius={90}
+              innerRadius={50}
+              outerRadius={60}
               cornerRadius={8}
               paddingAngle={4}
               isAnimationActive={isAnimationActive}
+              label={renderCustomLabel}
+              labelLine={false}
             >
               {data.map((entry, index) => (
                 <Cell key={index} fill={entry.color} />
@@ -43,6 +49,7 @@ export default function ProducedWaterManagementChart({
             </Pie>
 
             <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" />
+            <Tooltip />
           </PieChart>
         </ResponsiveContainer>
       </div>

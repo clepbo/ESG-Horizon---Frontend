@@ -132,4 +132,16 @@ export const LAST_SAVED_FORM_MAP: Record<string, { view: string; form?: string; 
     view: "ghg-downstream-emissions",
     step: "6",
   },
+  "activityMetrics.productionVolume": {
+    view: "activity-metrics",
+    step: "production-volume",
+  },
+  "activityMetrics.offshoreSites": {
+    view: "activity-metrics",
+    step: "offshore-sites",
+  },
+  "activityMetrics.terrestrialSites": {
+    view: "activity-metrics",
+    step: "terrestrial-sites",
+  },
 };

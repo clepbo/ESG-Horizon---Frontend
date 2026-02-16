@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem("lastVisitedPage_name");
       localStorage.removeItem("lastVisitedPage_role");
       localStorage.removeItem("lastVisitedPage_page");
-      localStorage.setItem("esg-tour-completed", "false");
+      // localStorage.setItem("esg-tour-completed", "false");
     }
 
     toast.dark("Logged out", { autoClose: 1000 });

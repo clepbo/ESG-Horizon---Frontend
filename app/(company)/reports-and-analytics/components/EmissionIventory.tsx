@@ -13,7 +13,9 @@ import {
   XAxis,
   YAxis,
   Bar,
+  LabelList,
 } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface ScopeData {
   name: string;
@@ -84,7 +86,13 @@ export default function GHGEmissionsInventory({
             <Tooltip />
             <Legend />
             {fuelKeys.map((key, index) => (
-              <Bar key={key} dataKey={key} stackId="a" fill={fuelColors[index] || "#000"} />
+              <Bar key={key} dataKey={key} stackId="a" fill={fuelColors[index] || "#000"}>
+                <LabelList
+                  dataKey={key}
+                  position="top"
+                  formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                />
+              </Bar>
             ))}
           </BarChart>
         </ResponsiveContainer>

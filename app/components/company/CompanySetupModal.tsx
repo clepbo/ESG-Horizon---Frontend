@@ -584,7 +584,7 @@ export default function CompanySetupModal({
                           : "Creating..."
                         : editingSubId
                           ? "Update Subsidiary"
-                          : "Add Subsidiary"}
+                          : "Save Subsidiary"}
                     </button>
                     {editingSubId && (
                       <button
@@ -665,7 +665,7 @@ export default function CompanySetupModal({
                           : "Creating..."
                         : editingDeptId
                           ? "Update Department"
-                          : "Add Department"}
+                          : "Save Department"}
                     </button>
                     {editingDeptId && (
                       <button

@@ -1,4 +1,5 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 // #region Sample data
 
@@ -42,11 +43,23 @@ function ReserveInSensitiveAreasChart({
     >
       {/* <CartesianGrid strokeDasharray="3 3" /> */}
       <XAxis dataKey="name" />
-      <YAxis width="auto" />
+      <YAxis width="auto" tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
       <Tooltip />
       <Legend type="circle" />
-      <Bar dataKey="total" fill="#bbbbbb" radius={[10, 10, 0, 0]} />
-      <Bar dataKey="sensitive" fill="#f9b232" radius={[10, 10, 0, 0]} />
+      <Bar dataKey="total" fill="#0000FF" radius={[10, 10, 0, 0]}>
+        <LabelList
+          dataKey="total"
+          position="top"
+          formatter={(value) => formatNumberFigures(Number(value) || 0)}
+        />
+      </Bar>
+      <Bar dataKey="sensitive" fill="#f9b232" radius={[10, 10, 0, 0]}>
+        <LabelList
+          dataKey="sensitive"
+          position="top"
+          formatter={(value) => formatNumberFigures(Number(value) || 0)}
+        />
+      </Bar>
     </BarChart>
   );
 }

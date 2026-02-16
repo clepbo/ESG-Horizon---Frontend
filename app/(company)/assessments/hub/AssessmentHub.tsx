@@ -42,13 +42,13 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
-  const [targetStep, setTargetStep] = useState<string | null>(null);
+  // const [targetStep, setTargetStep] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state.targetStep) {
-      setTargetStep(state.targetStep);
-    }
-  }, [state.targetStep]);
+  // useEffect(() => {
+  //   if (state.targetStep) {
+  //     setTargetStep(state.targetStep);
+  //   }
+  // }, [state.targetStep]);
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -159,7 +159,7 @@ export default function AssessmentHub() {
           onBack={handleBack}
           initialView="ghg"
           initialForm={currentForm as any}
-          initialStep={targetStep as any}
+          initialStep={state.targetStep as any}
         />
       );
     }
@@ -187,6 +187,17 @@ export default function AssessmentHub() {
         />
       );
     }
+  }
+
+  // NEW: Handle activity-metrics view
+  if (state.currentView === "activity-metrics") {
+    return (
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView="activity-metrics"
+        initialStep={state.targetStep as any}
+      />
+    );
   }
 
   const isFormValid =
@@ -313,11 +324,9 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endMonth", value)}
                       >
                         <SelectTrigger
-                          className={`w-32 border ${
-                            dateError ? "border-red-500" : "border-slate-300"
-                          } hover:cursor-pointer focus:ring-2 ${
-                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                          }`}
+                          className={`w-32 border ${dateError ? "border-red-500" : "border-slate-300"
+                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                            }`}
                         >
                           <SelectValue placeholder="Month" />
                         </SelectTrigger>
@@ -335,11 +344,9 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endYear", value)}
                       >
                         <SelectTrigger
-                          className={`w-24 border ${
-                            dateError ? "border-red-500" : "border-slate-300"
-                          } hover:cursor-pointer focus:ring-2 ${
-                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                          }`}
+                          className={`w-24 border ${dateError ? "border-red-500" : "border-slate-300"
+                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                            }`}
                         >
                           <SelectValue placeholder="Year" />
                         </SelectTrigger>

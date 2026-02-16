@@ -20,6 +20,7 @@ import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
 import { getYear } from "date-fns";
 import Link from "next/link";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface ReportEnvironmentalProps {
   reportData?: ReportResponse;
@@ -343,17 +344,27 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 <div className="flex flex-col items-center">
                   <p className=""> Total Fractured Wells</p>
                   <p className="font-bold text-3xl">
-                    {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                      ?.totalFracturedWells || 0}{" "}
+                    {formatNumberFigures(
+                      waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.totalFracturedWells || 0
+                    )}
+                    {/* {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                      ?.totalFracturedWells || 0}{" "} */}
                   </p>
                 </div>
                 <CircularProgressbarWithChildren
                   className=" h-40 w-40"
-                  value={Number(
-                    (
+                  // value={Number(
+                  //   (
+                  //     waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                  //       ?.percentageWithDisclosure || 0
+                  //   ).toFixed(1) || 0
+                  // )}
+                  value={parseFloat(
+                    Number(
                       waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                         ?.percentageWithDisclosure || 0
-                    ).toFixed(2)
+                    ).toFixed(1)
                   )}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
@@ -370,8 +381,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     </strong>
                     <p className="font-thin">Disclosure Rate </p>
                     <p className="">
-                      {waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                        ?.percentageWithDisclosure || 0}{" "}
+                      {(
+                        waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                          ?.percentageWithDisclosure || 0
+                      ).toFixed(2)}{" "}
                       Wells Disclosed
                     </p>
                   </div>

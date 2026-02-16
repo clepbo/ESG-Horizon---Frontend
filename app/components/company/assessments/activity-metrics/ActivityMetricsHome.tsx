@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -19,6 +19,7 @@ type ActivityMetricView = "overview" | "production-volume" | "offshore-sites" | 
 
 interface ActivityMetricHomeProps {
   onBack?: () => void;
+  initialView?: ActivityMetricView;
 }
 
 const activityMetricData = [
@@ -54,9 +55,15 @@ const activityMetricData = [
   },
 ];
 
-export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
+export function ActivityMetricHome({ onBack, initialView = "overview" }: ActivityMetricHomeProps) {
   const router = useRouter();
-  const [currentView, setCurrentView] = useState<ActivityMetricView>("overview");
+  const [currentView, setCurrentView] = useState<ActivityMetricView>(initialView);
+
+  useEffect(() => {
+    if (initialView) {
+      setCurrentView(initialView);
+    }
+  }, [initialView]);
   const { state } = useAssessment();
   // const params = useParams();
 
@@ -221,11 +228,10 @@ export function ActivityMetricHome({ onBack }: ActivityMetricHomeProps) {
                       return (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${
-                            card.clickable
-                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                              : "cursor-default"
-                          }`}
+                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${card.clickable
+                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                            : "cursor-default"
+                            }`}
                           style={{
                             borderLeftWidth: "4px",
                             borderLeftColor: getBorderColor(),
