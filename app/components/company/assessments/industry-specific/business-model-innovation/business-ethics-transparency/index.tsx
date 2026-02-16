@@ -12,9 +12,9 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import ReservesCountriesCorruptionRisk from "./reserves-countries-corruption-risk";
 import AntiCorruptionManagement from "./anti-corruption-management";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+// import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type BEView = "overview" | "reserves-countries-corruption-risk" | "anti-corruption-management";
 
@@ -78,11 +78,11 @@ export default function BusinessEthicsAssessment({
   };
 
   // Use the reusable hook with checkSubComponentCompletion
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+  //   scopeData,
+  //   state.assessmentData,
+  //   checkSubComponentCompletion
+  // );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -227,13 +227,12 @@ export default function BusinessEthicsAssessment({
                     {scope.cards.map((card) => (
                       <Card
                         key={card.title}
-                        className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
-                          card.title
-                        )} ${
+                        className={`transition-all bg-white shadow-sm rounded-lg ${
                           card.clickable
                             ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                             : "cursor-default"
                         }`}
+                        // Status indication commented out - revisit later: getCardBorderClass(card.title)
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">
@@ -241,7 +240,7 @@ export default function BusinessEthicsAssessment({
                             <div className="space-y-2 flex-1">
                               <div className="flex items-center justify-between">
                                 <h5 className="font-medium text-foreground">{card.title}</h5>
-                                <CompletionIndicator status={getStatus(card.title)} />
+                                {/* <CompletionIndicator status={getStatus(card.title)} /> */}
                               </div>
                               <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                             </div>

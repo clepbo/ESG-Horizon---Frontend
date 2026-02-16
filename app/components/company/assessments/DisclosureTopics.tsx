@@ -32,7 +32,7 @@ import BusinessEthicsAndTransparency from "./industry-specific/business-model-in
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useTopicCompletion } from "@/hooks/useAssessmentCompletion";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
@@ -237,25 +237,25 @@ export function DisclosureTopics({
   const { state } = useAssessment();
 
   // Use the custom hook for topic completion status
-  const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
+  // const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
   // Activity Metrics completion helpers
   const getActivityMetricsStatus = () => {
     return checkTopicCompletion("Activity Metrics", state.assessmentData);
   };
 
-  const getActivityMetricsBorderClass = () => {
-    const status = getActivityMetricsStatus();
-    switch (status.status) {
-      case "completed":
-        return "border-l-4 border-l-green-500";
-      case "in-progress":
-        return "border-l-4 border-l-yellow-500";
-      case "not-started":
-      default:
-        return "border-l-4 border-l-gray-300";
-    }
-  };
+  // const getActivityMetricsBorderClass = () => {
+  //   const status = getActivityMetricsStatus();
+  //   switch (status.status) {
+  //     case "completed":
+  //       return "border-l-4 border-l-green-500";
+  //     case "in-progress":
+  //       return "border-l-4 border-l-yellow-500";
+  //     case "not-started":
+  //     default:
+  //       return "border-l-4 border-l-gray-300";
+  //   }
+  // };
 
   const handleCardClick = (cardTitle: string) => {
     switch (cardTitle) {
@@ -337,12 +337,16 @@ export function DisclosureTopics({
     return (
       <ActivityMetricHome
         onBack={() => setCurrentView("topics")}
-        initialView={(initialStep && typeof initialStep === 'string')
-          ? (initialStep.includes('production') ? 'production-volume'
-            : initialStep.includes('offshore') ? 'offshore-sites'
-              : initialStep.includes('terrestrial') ? 'terrestrial-sites'
-                : 'overview') as any
-          : 'overview'
+        initialView={
+          initialStep && typeof initialStep === "string"
+            ? ((initialStep.includes("production")
+                ? "production-volume"
+                : initialStep.includes("offshore")
+                  ? "offshore-sites"
+                  : initialStep.includes("terrestrial")
+                    ? "terrestrial-sites"
+                    : "overview") as any)
+            : "overview"
         }
       />
     );
@@ -574,6 +578,7 @@ export function DisclosureTopics({
                     </Tooltip>
                   </span>
                 </div>
+                {/* Status indication commented out - revisit later (was getActivityMetricsBorderClass()) */}
                 <Card
                   className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
                   // className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
@@ -657,34 +662,20 @@ export function DisclosureTopics({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {section.cards.map((card) => {
-                                const status = getStatus(card.title);
-                                const borderClass = getCardBorderClass(card.title);
-
-                                // Get border color based on status - handle undefined case
-                                const getBorderColor = () => {
-                                  if (!status) return "#d1d5db"; // gray-300 for undefined
-
-                                  // switch (status.status) {
-                                  //   case "completed":
-                                  //     return "#22c55e"; // green-500
-                                  //   case "in-progress":
-                                  //     return "#eab308"; // yellow-500
-                                  //   default:
-                                  //     return "#d1d5db"; // gray-300
-                                  // }
-                                };
+                                // Status indication commented out - revisit later
+                                // const status = getStatus(card.title);
+                                // const borderClass = getCardBorderClass(card.title);
+                                // const getBorderColor = () => { ... };
 
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                      }`}
-                                    style={{
-                                      borderLeftWidth: "4px",
-                                      borderLeftColor: getBorderColor(),
-                                    }}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${
+                                      card.clickable
+                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                        : "cursor-default"
+                                    }`}
+                                    // style={{ borderLeftWidth, borderLeftColor: getBorderColor() }}
                                     onClick={() => card.clickable && handleCardClick(card.title)}
                                   >
                                     <CardContent className="p-4 flex justify-between items-center">

@@ -48,8 +48,17 @@ export function GeneralTargetSummary({
               {reductionPercentage}% Reduction Target
             </h6>
             <p className="text-gray-600">
-              From {baselineEmission?.toLocaleString()} to {targetEmission?.toLocaleString()} tCO₂e
-              by {targetYear}
+              From{" "}
+              <span className="font-semibold text-red-500">
+                {" "}
+                {baselineEmission?.toLocaleString()}{" "}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-green-500">
+                {" "}
+                {targetEmission?.toLocaleString()}{" "}
+              </span>{" "}
+              tCO₂e by {targetYear}
             </p>
           </div>
 

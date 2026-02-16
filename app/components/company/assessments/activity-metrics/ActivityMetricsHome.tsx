@@ -10,10 +10,10 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { ProductionVolume } from "./ProductionVolume";
 import { OffshoreSites } from "./OffschoreSites";
 import { TerrestialSites } from "./TerrestialSites";
-import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { useAssessment } from "@/hooks/useAssessment";
+// import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+// import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type ActivityMetricView = "overview" | "production-volume" | "offshore-sites" | "terrestrial-sites";
 
@@ -64,17 +64,17 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
       setCurrentView(initialView);
     }
   }, [initialView]);
-  const { state } = useAssessment();
+  // const { state } = useAssessment();
   // const params = useParams();
 
   // const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   // Use the reusable hook with checkSubComponentCompletion
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    activityMetricData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+  //   activityMetricData,
+  //   state.assessmentData,
+  //   checkSubComponentCompletion
+  // );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -208,34 +208,20 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                     }
                   >
                     {section.cards.map((card) => {
-                      const status = getStatus(card.title);
-                      const borderClass = getCardBorderClass(card.title);
-
-                      // Get border color based on status - handle undefined case
-                      const getBorderColor = () => {
-                        if (!status) return "#d1d5db"; // gray-300 for undefined
-
-                        switch (status.status) {
-                          case "completed":
-                            return "#22c55e"; // green-500
-                          case "in-progress":
-                            return "#eab308"; // yellow-500
-                          default:
-                            return "#d1d5db"; // gray-300
-                        }
-                      };
+                      // Status indication commented out - revisit later
+                      // const status = getStatus(card.title);
+                      // const borderClass = getCardBorderClass(card.title);
+                      // const getBorderColor = () => { ... };
 
                       return (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${borderClass} ${card.clickable
-                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                            : "cursor-default"
-                            }`}
-                          style={{
-                            borderLeftWidth: "4px",
-                            borderLeftColor: getBorderColor(),
-                          }}
+                          className={`transition-all bg-white shadow-sm rounded-lg ${
+                            card.clickable
+                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                              : "cursor-default"
+                          }`}
+                          // style={{ borderLeftWidth, borderLeftColor: getBorderColor() }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
@@ -243,7 +229,7 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                               <div className="space-y-2 flex-1">
                                 <div className="flex items-center justify-between">
                                   <h5 className="font-medium text-foreground">{card.title}</h5>
-                                  <CompletionIndicator status={status} />
+                                  {/* <CompletionIndicator status={status} /> */}
                                 </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>

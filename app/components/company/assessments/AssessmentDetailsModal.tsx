@@ -370,12 +370,13 @@ export function AssessmentDetailsModal({
                     <p className="text-teal-100 text-sm">Total Emissions</p>
 
                     <p
-                      className={`font-bold whitespace-normal wrap-break-word ${String(formatNumber(assessmentData.totalEmission) || "0.00").length > 10
+                      className={`font-bold whitespace-normal wrap-break-word ${
+                        String(formatNumber(assessmentData.totalEmission) || "0.00").length > 10
                           ? "text-2xl"
                           : String(formatNumber(assessmentData.totalEmission) || "0.00").length > 7
                             ? "text-3xl"
                             : "text-4xl"
-                        }`}
+                      }`}
                     >
                       {formatNumber(assessmentData.totalEmission) || "0.00"} tCO₂e
                     </p>

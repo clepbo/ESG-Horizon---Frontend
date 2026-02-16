@@ -25,8 +25,8 @@ import { FrontendTask } from "@/services/assignTask.service";
 import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
 import DownstreamEmission from "./scope3/DownstreamEmission";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type GHGView =
   | "overview"
@@ -176,10 +176,10 @@ export function GhgEmissionsAssessment({
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
 
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData
-  );
+  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+  //   scopeData,
+  //   state.assessmentData
+  // );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -462,12 +462,12 @@ export function GhgEmissionsAssessment({
                         {scope.cards.map((card) => (
                           <Card
                             key={card.title}
-                            className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
-                              card.title
-                            )} ${card.clickable
+                            className={`transition-all bg-white shadow-sm rounded-lg ${
+                              card.clickable
                                 ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
-                              }`}
+                            }`}
+                            // Status indication commented out - revisit later: getCardBorderClass(card.title)
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >
                             <CardContent className="p-4">
@@ -475,7 +475,7 @@ export function GhgEmissionsAssessment({
                                 <div className="space-y-2 flex-1">
                                   <div className="flex items-center justify-between">
                                     <h5 className="font-medium text-foreground">{card.title}</h5>
-                                    <CompletionIndicator status={getStatus(card.title)} />
+                                    {/* <CompletionIndicator status={getStatus(card.title)} /> */}
                                   </div>
                                   <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                                 </div>

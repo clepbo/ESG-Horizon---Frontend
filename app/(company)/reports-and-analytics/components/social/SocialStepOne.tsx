@@ -36,10 +36,12 @@ interface SocialStepOneProps {
 
 export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const totalProvedReserves =
-    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves?.totalProvedReserves || 0;
+    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves
+      ?.totalProvedReserves || 0;
 
   const totalProbableReserves =
-    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves?.totalProbableReserves || 0;
+    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves
+      ?.totalProbableReserves || 0;
 
   const conflictZonesData: ReservesData[] = [
     {
