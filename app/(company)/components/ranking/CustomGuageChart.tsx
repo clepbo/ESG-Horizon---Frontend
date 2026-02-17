@@ -32,18 +32,21 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       plotBackgroundImage: "",
       plotBorderWidth: 0,
       plotShadow: false,
-      height: "85%",
+      // Give the gauge a bit more vertical space so the half donut feels larger
+      height: "100%",
     },
     title: {
       text: "Overall ESG Performance",
-      style: { fontSize: "18px" },
+      // Make the title more prominent for readability
+      style: { fontSize: "22px" },
     },
     pane: {
       startAngle: -90,
       endAngle: 89.9,
       background: undefined,
       center: ["50%", "75%"],
-      size: "125%",
+      // Slightly increase the gauge size within the pane
+      size: "135%",
     },
     credits: {
       enabled: false,
@@ -61,7 +64,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         enabled: false,
         distance: 20,
         style: {
-          fontSize: "16px",
+          fontSize: "18px",
         },
       },
       lineWidth: 0,
@@ -94,7 +97,8 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           borderWidth: 0,
           color: "#333333",
           style: {
-            fontSize: "20px",
+            // Increase central gauge value text
+            fontSize: "26px",
           },
         },
         dial: {
@@ -116,10 +120,12 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
     <div
       className="highcharts-figure"
       style={{
+        // Make the half donut itself visually larger while staying responsive
+        width: "100%",
         minWidth: "380px",
         maxWidth: "900px",
-        minHeight: "320px",
-        margin: "1em auto",
+        minHeight: "380px",
+        margin: "1.5em auto",
       }}
     >
       <HighchartsReact highcharts={Highcharts} options={options} />
@@ -143,7 +149,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div
             style={{
               color: "red",
-              fontSize: "14px",
+              fontSize: "18px",
               fontWeight: 600,
             }}
           >
@@ -152,7 +158,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div
             style={{
               color: "#666",
-              fontSize: "12px",
+              fontSize: "14px",
               marginTop: "6px",
               fontWeight: "bold",
             }}
@@ -172,7 +178,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div
             style={{
               color: "red",
-              fontSize: "14px",
+              fontSize: "18px",
               fontWeight: 600,
             }}
           >
@@ -181,7 +187,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div
             style={{
               color: "#666",
-              fontSize: "12px",
+              fontSize: "14px",
               marginTop: "6px",
               fontWeight: "bold",
             }}
@@ -201,7 +207,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div
             style={{
               color: "red",
-              fontSize: "14px",
+              fontSize: "18px",
               fontWeight: 600,
             }}
           >
@@ -210,7 +216,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div
             style={{
               color: "#666",
-              fontSize: "12px",
+              fontSize: "14px",
               marginTop: "6px",
               fontWeight: "bold",
             }}
