@@ -16,6 +16,7 @@ interface TargetSummaryProps {
   onSetTarget: () => void;
   isLoading?: boolean;
   annualRate: number;
+  baselinePeriodLabel?: string;
 }
 
 export function GeneralTargetSummary({
@@ -28,6 +29,7 @@ export function GeneralTargetSummary({
   annualRate,
   onSetTarget,
   isLoading = false,
+  baselinePeriodLabel,
 }: TargetSummaryProps) {
   // Fix: Calculate total reduction correctly
   const totalReduction = baselineEmission - targetEmission;
@@ -59,6 +61,11 @@ export function GeneralTargetSummary({
             <h6 className="text-2xl md:text-3xl font-semibold text-gray-900">
               {reductionPercentage}% Reduction Target
             </h6>
+            {baselinePeriodLabel && (
+              <p className="text-xs text-gray-500">
+                Baseline period: <span className="font-semibold">{baselinePeriodLabel}</span>
+              </p>
+            )}
             <div className="text-sm md:text-base text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">From</span>

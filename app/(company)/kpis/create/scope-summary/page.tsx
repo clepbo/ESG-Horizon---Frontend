@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/lib/api/axios";
-import { useAuth } from "@/context/AuthContext";
-import { TargetPayload } from "@/types/target/index";
-import { useBaseline } from "@/app/(company)/components/ranking/services";
-import { ScopeSummaryData } from "../type";
-import { SuccessModal } from "../components/SuccessModal";
 import { ScopeSummary } from "@/app/(company)/assessments/target/components/scope/ScopeTargetSummary";
+import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api/axios";
+import { ScopeTargetPayload } from "@/types/target/index";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { AlertCircle } from "lucide-react";
+import { SuccessModal } from "../components/SuccessModal";
+import { ScopeSummaryData } from "../type";
 
 interface ScopeData {
   scope: string;
@@ -32,8 +34,9 @@ export default function ScopeSummaryPage() {
   const companyId = user?.company?.id;
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [summaryData, setSummaryData] = useState<ScopeSummaryData | null>(null);
-
-  const baseline = useBaseline(companyId);
+  const [loadError, setLoadError] = useState(false);
+  const [showBaselineModal, setShowBaselineModal] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     // Get data from localStorage
@@ -45,24 +48,38 @@ export default function ScopeSummaryPage() {
         setSummaryData(parsedData);
       } catch (error) {
         console.error("Error parsing stored data:", error);
-        router.push("/kpis/create");
+        setLoadError(true);
       }
     } else {
-      // If no data in localStorage, redirect back to form
-      router.push("/kpis/create");
+      // If no data in localStorage, show an inline error state instead of redirecting
+      setLoadError(true);
     }
   }, [router]);
 
   const createTarget = useMutation({
-    mutationFn: async (targetData: TargetPayload) => {
+    mutationFn: async (targetData: ScopeTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
       return await api.post(`/target`, targetData);
     },
     onSuccess: () => {
+      setCreateError(null);
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
       queryClient.invalidateQueries({ queryKey: ["targets"] });
-      // Clear localStorage after successful creation
       localStorage.removeItem("scopeTargetSummary");
+    },
+    onError: (error: unknown) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      const serverMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as Error)?.message ||
+        "Something went wrong.";
+      const isOverlapError =
+        status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
+      if (serverMessage && isOverlapError) {
+        setCreateError(serverMessage);
+        return;
+      }
+      toast.error(serverMessage);
     },
   });
 
@@ -72,15 +89,27 @@ export default function ScopeSummaryPage() {
   };
 
   const handleSetTarget = async () => {
-    if (!summaryData || !baseline.data) {
-      console.error("Missing summary data or baseline data");
+    setCreateError(null);
+    if (!summaryData) {
+      toast.error("Missing summary data. Please go back and complete the form.");
       return;
     }
 
     const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}-${summaryData.scopeTargetData.scope1.targetYear}-${Date.now()}`;
 
+    const scopes = summaryData.scopeTargetData;
+    const invalidScopes = ["scope1", "scope2", "scope3"].filter((key) => {
+      const k = key as "scope1" | "scope2" | "scope3";
+      const s = scopes[k];
+      return !!s.baselineYear && !!s.targetYear && s.targetYear <= s.baselineYear;
+    });
+    if (invalidScopes.length > 0) {
+      toast.error("Each scope's target year must be after its baseline year");
+      return;
+    }
+
     try {
-      const targetPayload: any = {
+      const targetPayload: ScopeTargetPayload = {
         name: uniqueName,
         type: "SCOPE",
         description: "Scope-based emissions reduction target",
@@ -103,16 +132,15 @@ export default function ScopeSummaryPage() {
             baselineYearEmission: summaryData.emissionData?.totals?.scope3,
           },
         },
+        ...(typeof summaryData.baselineSelection?.baselineAssessmentId === "number" && {
+          baselineAssessmentId: summaryData.baselineSelection.baselineAssessmentId,
+        }),
       };
 
-      console.log("Submitting scope target:", targetPayload);
       await createTarget.mutateAsync(targetPayload);
-
-      // Open success modal
       setIsSuccessModalOpen(true);
-    } catch (error) {
-      console.error("Failed to create scope target:", error);
-      throw new Error(`Error: ${error}`);
+    } catch {
+      // Error shown via mutation onError (inline Alert for 400, toast for others)
     }
   };
 
@@ -170,6 +198,29 @@ export default function ScopeSummaryPage() {
       ]
     : [];
 
+  if (loadError) {
+    return (
+      <div className="flex justify-center items-center min-h-64 px-4">
+        <div className="max-w-md rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
+          <h2 className="mb-2 text-lg font-semibold text-gray-900">
+            Scope target summary not found
+          </h2>
+          <p className="mb-4 text-sm text-gray-600">
+            We couldn&apos;t load your scope target details. Please go back to the target setup page
+            and try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/kpis/create")}
+            className="inline-flex items-center rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+          >
+            Back to Target Setup
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!summaryData) {
     return (
       <div className="flex justify-center items-center min-h-64">
@@ -179,9 +230,51 @@ export default function ScopeSummaryPage() {
   }
 
   return (
-    <div className="mx-auto mt-8 lg:mt-20">
+    <div className="mx-auto mt-8 lg:mt-20 max-w-3xl px-4 space-y-6">
+      {createError && (
+        <Alert variant="destructive" className="border-amber-200 bg-amber-50 text-amber-900">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Cannot create this target</AlertTitle>
+          <AlertDescription className="mt-1">
+            <p className="mb-3">{createError}</p>
+            <p className="text-sm text-amber-800 mb-3">
+              Choose a different baseline or target year, or manage your existing targets.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateError(null);
+                  router.push("/kpis/create");
+                }}
+                className="inline-flex items-center rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700"
+              >
+                Change years
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateError(null);
+                  router.push("/kpis");
+                }}
+                className="inline-flex items-center rounded-md border border-amber-600 px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
+              >
+                View existing targets
+              </button>
+              <button
+                type="button"
+                onClick={() => setCreateError(null)}
+                className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Dismiss
+              </button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
       <ScopeSummary
         scopes={scopesData}
+        baselinePeriodLabel={summaryData.baselineSelection?.baselinePeriodLabel}
         onPrevious={handlePrevious}
         onSetTarget={handleSetTarget}
         isLoading={createTarget.isPending}
@@ -192,6 +285,36 @@ export default function ScopeSummaryPage() {
         onClose={handleModalClose}
         onContinue={handleModalContinue}
       />
+
+      {showBaselineModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="max-w-md rounded-lg border border-gray-200 bg-white p-6 text-center shadow-lg">
+            <h2 className="mb-2 text-lg font-semibold text-gray-900">
+              You need a baseline assessment first
+            </h2>
+            <p className="mb-4 text-sm text-gray-600">
+              Scope-based targets depend on your baseline emissions by scope. Please complete an ESG
+              assessment to generate this data before setting scope targets.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={() => setShowBaselineModal(false)}
+                className="inline-flex items-center justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/assessments/new-assessment")}
+                className="inline-flex items-center justify-center rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+              >
+                Go to Assessments
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

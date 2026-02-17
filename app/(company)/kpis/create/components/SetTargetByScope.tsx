@@ -1,22 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Link from "next/link";
+import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import {
+  useBaselineByScope,
+  useBaselineOptions,
+  useCompanyTargets,
+} from "@/app/(company)/components/ranking/services";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Textarea } from "@/app/components/ui/textarea";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { GeneralTargetData } from "@/types/target";
-import { useEffect, useState } from "react";
-import { FaCaretRight } from "react-icons/fa";
-import { years } from "./GeneralSetTarget";
-import { useQueryClient } from "@tanstack/react-query";
+import { Textarea } from "@/app/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import { GeneralTargetData } from "@/types/target";
+import { BaselineOption, CompanyTargetSummary, targetRangesOverlap } from "@/types/target/index";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaCaretRight } from "react-icons/fa";
 import { EmissionDataResponse, ScopeTargetData } from "../type";
+import { calculateTimelineYear, toShortMonth } from "../utils";
 import CustomTooltip from "./CustomTooltip";
+import { years } from "./GeneralSetTarget";
 import { TooltipMessage } from "./TooltipMessage";
-import { calculateTimelineYear } from "../utils";
-import { useBaseline, useBaselineByScope } from "@/app/(company)/components/ranking/services";
-import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 export default function SetTargetByScope() {
   const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
@@ -46,6 +51,7 @@ export default function SetTargetByScope() {
     },
   });
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [selectedBaselineId, setSelectedBaselineId] = useState<number | null>(null);
   const [emissionData, setEmissionData] = useState<EmissionDataResponse>({
     startYear: 0,
     endYear: 0,
@@ -59,15 +65,61 @@ export default function SetTargetByScope() {
   const { user } = useAuth();
   const companyId = user?.company?.id;
 
-  const baseline = useBaselineByScope(companyId);
-  const base: EmissionDataResponse = baseline?.data;
-  console.log("Baseline by scope data:", baseline?.data);
+  const baselineOptionsQuery = useBaselineOptions(companyId);
+  const baselineByScope = useBaselineByScope(companyId, selectedBaselineId ?? undefined);
+  const companyTargetsQuery = useCompanyTargets(companyId);
+  const base: EmissionDataResponse | undefined = baselineByScope?.data;
+  const existingTargets = useMemo(() => companyTargetsQuery.data ?? [], [companyTargetsQuery.data]);
+
+  const scope1TargetYear = scopeTargetData.scope1.targetYear ?? null;
+  const isOptionDisabled = useCallback(
+    (option: BaselineOption): boolean => {
+      if (scope1TargetYear == null || typeof scope1TargetYear !== "number") return false;
+      const baselineYear = Number(option.startYear) || 0;
+      return existingTargets.some((t: CompanyTargetSummary) =>
+        targetRangesOverlap(baselineYear, scope1TargetYear, t.baselineYear, t.targetYear)
+      );
+    },
+    [scope1TargetYear, existingTargets]
+  );
+  const getOverlapLabel = useCallback(
+    (option: BaselineOption): string => {
+      if (scope1TargetYear == null || typeof scope1TargetYear !== "number") return "";
+      const baselineYear = Number(option.startYear) || 0;
+      const overlapping = existingTargets.find((t: CompanyTargetSummary) =>
+        targetRangesOverlap(baselineYear, scope1TargetYear, t.baselineYear, t.targetYear)
+      );
+      return overlapping ? ` (overlaps ${overlapping.baselineYear}–${overlapping.targetYear})` : "";
+    },
+    [scope1TargetYear, existingTargets]
+  );
 
   useEffect(() => {
-    if (baseline.isSuccess) {
+    if (!baselineOptionsQuery.isSuccess || !baselineOptionsQuery.data?.length) return;
+    const options = baselineOptionsQuery.data;
+    const firstEnabled = options.find((o) => !isOptionDisabled(o));
+    setSelectedBaselineId((current) => {
+      if (current !== null) {
+        const selected = options.find((o) => o.assessmentId === current);
+        if (selected && isOptionDisabled(selected)) return firstEnabled?.assessmentId ?? null;
+        return current;
+      }
+      return firstEnabled?.assessmentId ?? options[0]?.assessmentId ?? null;
+    });
+  }, [
+    baselineOptionsQuery.isSuccess,
+    baselineOptionsQuery.data,
+    scope1TargetYear,
+    companyTargetsQuery.data,
+    isOptionDisabled,
+  ]);
+
+  // Update scoped emissions when the selected baseline changes
+  useEffect(() => {
+    if (baselineByScope.isSuccess && base) {
       setEmissionData(base);
     }
-  }, [baseline.isSuccess, base]);
+  }, [baselineByScope.isSuccess, base]);
 
   // Set default baseline year from API if available for all scopes
   useEffect(() => {
@@ -163,7 +215,28 @@ export default function SetTargetByScope() {
       // Calculate all scope data for storage
       const scopeSummaryData = {
         scopeTargetData,
-        emissionData,
+        emissionData: {
+          startYear: emissionData?.startYear,
+          endYear: emissionData?.endYear,
+          totals: {
+            total: emissionData?.ghg_total_emissions || 0,
+            scope1: emissionData?.ghg_scope_one || 0,
+            scope2: emissionData?.ghg_scope_two || 0,
+            scope3: emissionData?.ghg_scope_three || 0,
+          },
+        },
+        baselineSelection: (() => {
+          const selected =
+            baselineOptionsQuery.data?.find(
+              (option: BaselineOption) => option.assessmentId === selectedBaselineId
+            ) ?? null;
+          if (!selected) return null;
+          return {
+            baselineAssessmentId: selected.assessmentId,
+            baselineYear: Number(selected.startYear) || emissionData?.startYear,
+            baselinePeriodLabel: `${toShortMonth(selected.startMonth)} ${selected.startYear} – ${toShortMonth(selected.endMonth)} ${selected.endYear}`,
+          };
+        })(),
         calculations: {
           scope1: {
             targetEmission: calculateScopeTargetEmission("scope1"),
@@ -272,32 +345,59 @@ export default function SetTargetByScope() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`${scope}-baselineYear`}>
-                Baseline Year{" "}
+              <Label htmlFor="baselineAssessment">
+                Baseline Assessment{" "}
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title={"Baseline Year"}
+                      title={"Baseline Assessment"}
                       message={
-                        "The reference year used to measure progress — typically the year you first started tracking emissions."
+                        "Choose which completed assessment period to use as your baseline for these scope targets."
                       }
                     />
                   }
                 />{" "}
               </Label>
-              <select
-                id={`${scope}-baselineYear`}
-                value={emissionData?.startYear || ""}
-                disabled
-                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select year</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+              {baselineOptionsQuery.isLoading ? (
+                <div className="flex h-10 items-center text-sm text-gray-500">
+                  Loading baseline options...
+                </div>
+              ) : !baselineOptionsQuery.data || baselineOptionsQuery.data.length === 0 ? (
+                <div className="text-xs text-red-600 space-y-1">
+                  <p>No completed assessments with emissions data were found.</p>
+                  <Link
+                    href="/assessments/new-assessment"
+                    className="text-teal-600 underline font-medium hover:text-teal-700"
+                  >
+                    Go to Assessments
+                  </Link>
+                </div>
+              ) : (
+                <select
+                  id="baselineAssessment"
+                  value={selectedBaselineId ?? ""}
+                  onChange={(e) =>
+                    setSelectedBaselineId(e.target.value ? Number(e.target.value) : null)
+                  }
+                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {baselineOptionsQuery.data.map((option: BaselineOption) => {
+                    const disabled = isOptionDisabled(option);
+                    const overlapLabel = getOverlapLabel(option);
+                    const periodLabel = `${toShortMonth(option.startMonth)} ${option.startYear} – ${toShortMonth(option.endMonth)} ${option.endYear}`;
+                    return (
+                      <option
+                        key={option.assessmentId}
+                        value={option.assessmentId}
+                        disabled={disabled}
+                      >
+                        {periodLabel}
+                        {overlapLabel}
+                      </option>
+                    );
+                  })}
+                </select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -402,8 +502,10 @@ export default function SetTargetByScope() {
 
   return (
     <div className="space-y-6 text-left">
-      {baseline.isLoading && <div className="text-center py-4">Loading baseline data...</div>}
-      {baseline.isError && (
+      {baselineByScope.isLoading && (
+        <div className="text-center py-4">Loading baseline data...</div>
+      )}
+      {baselineByScope.isError && (
         <div className="text-center py-4 text-red-500">Error loading baseline data</div>
       )}
 
@@ -427,10 +529,11 @@ export default function SetTargetByScope() {
             !scopeTargetData.scope2.reductionPercentage ||
             !scopeTargetData.scope2.baselineYear ||
             !scopeTargetData.scope2.targetYear ||
-            baseline.isLoading
+            !selectedBaselineId ||
+            baselineByScope.isLoading
           }
         >
-          {baseline.isLoading ? "Loading Baseline..." : "Continue"}
+          {baselineByScope.isLoading ? "Loading Baseline..." : "Continue"}
         </CustomButton>
       </div>
     </div>
