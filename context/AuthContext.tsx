@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import api, { setLoginState } from "../lib/api/axios";
 import { registerLogout } from "@/lib/utils";
@@ -43,6 +43,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const isLoggingOutRef = useRef(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -110,20 +111,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = useCallback(async () => {
-    await supabase.auth.signOut();
-    await api.post("/auth/logout");
-    setUser(null);
+    // Prevent duplicate logout flows (e.g. manual click + interceptor-triggered logout)
+    if (isLoggingOutRef.current) return;
+    isLoggingOutRef.current = true;
 
-    setLoginState(false);
+    try {
+      await supabase.auth.signOut();
+      await api.post("/auth/logout");
+      setUser(null);
+      setLoginState(false);
 
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("lastVisitedPage_name");
-      localStorage.removeItem("lastVisitedPage_role");
-      localStorage.removeItem("lastVisitedPage_page");
-      // localStorage.setItem("esg-tour-completed", "false");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("lastVisitedPage_name");
+        localStorage.removeItem("lastVisitedPage_role");
+        localStorage.removeItem("lastVisitedPage_page");
+        // localStorage.setItem("esg-tour-completed", "false");
+      }
+
+      toast.dark("Logged out", { autoClose: 1000 });
+    } finally {
+      isLoggingOutRef.current = false;
     }
-
-    toast.dark("Logged out", { autoClose: 1000 });
   }, []);
 
   // const socialLogin = async (provider: "google") => {
