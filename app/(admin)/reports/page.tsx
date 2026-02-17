@@ -6,7 +6,6 @@ import ExportAllButton from "@/app/components/common/reports/ExportAllButton";
 import LineChartCard from "@/app/components/common/reports/LineChartCard";
 import ReportActivityTable from "@/app/components/common/reports/ReportActivityTable";
 import { ReportSummaryCard } from "@/app/components/common/reports/ReportSummaryCard";
-import { ReportTabs } from "@/app/components/common/reports/ReportTab";
 import { motion } from "framer-motion";
 
 export default function ReportsAnalyticsPage() {
@@ -79,10 +78,9 @@ export default function ReportsAnalyticsPage() {
           <ReportSubmittedChart />
         </div>
 
-        {/* Activity Table */}
+        {/* Recent Reports Table */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
-          <ReportTabs />
+          <h2 className="text-xl font-semibold text-gray-900">Recent Reports</h2>
           <ReportActivityTable />
         </div>
       </motion.main>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Eye, Search } from "lucide-react";
+import { Eye, SquarePen, Search } from "lucide-react";
 
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import Spinner from "../../ui/reusables/Spinner";
@@ -31,15 +31,12 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`${baseStyle} ${statusStyles[status] || "bg-gray-100"}`}>{status}</span>;
 }
 
-const typeOptions = ["Type", "Annual", "Quarterly", "Bi-Annual", "Sustainability", "Compliance"];
-
 const statusOptions = ["Status", "Published", "Rejected", "Under Review", "Approved", "Draft"];
 
 export default function ReportActivityTable() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("Type");
   const [statusFilter, setStatusFilter] = useState("Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -67,11 +64,10 @@ export default function ReportActivityTable() {
       const matchesSearch =
         report.title.toLowerCase().includes(search.toLowerCase()) ||
         report.company.toLowerCase().includes(search.toLowerCase());
-      const matchesType = typeFilter === "Type" || report.type === typeFilter;
       const matchesStatus = statusFilter === "Status" || report.status === statusFilter;
-      return matchesSearch && matchesType && matchesStatus;
+      return matchesSearch && matchesStatus;
     });
-  }, [reports, search, typeFilter, statusFilter]);
+  }, [reports, search, statusFilter]);
 
   // Pagination
   const totalItems = filteredReports.length;
@@ -106,19 +102,6 @@ export default function ReportActivityTable() {
         </div>
 
         <div className="flex gap-2">
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select Type" />
-            </SelectTrigger>
-            <SelectContent>
-              {typeOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Status" />
@@ -147,10 +130,10 @@ export default function ReportActivityTable() {
               <tr>
                 <th className="px-4 py-3">Report Title</th>
                 <th className="px-4 py-3">Company</th>
-                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Period</th>
                 <th className="px-4 py-3">Submission Date</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -158,16 +141,26 @@ export default function ReportActivityTable() {
                 <tr key={report.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">{report.title}</td>
                   <td className="px-4 py-3">{report.company}</td>
-                  <td className="px-4 py-3">{report.type}</td>
+                  <td className="px-4 py-3">{report.period}</td>
                   <td className="px-4 py-3">{report.submissionDate}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={report.status} />
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 text-white text-sm  transition-colors cursor-pointer">
-                      <Eye className="w-4 h-4" />
-                      View
-                    </button>
+                    <div className="inline-flex items-center gap-2">
+                      <button
+                        aria-label="View report"
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        aria-label="Edit report"
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                      >
+                        <SquarePen className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
