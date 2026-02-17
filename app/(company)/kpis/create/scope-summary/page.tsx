@@ -85,25 +85,22 @@ export default function ScopeSummaryPage() {
         type: "SCOPE",
         description: "Scope-based emissions reduction target",
         baselineYear: Number(summaryData.scopeTargetData.scope1.baselineYear!),
-        targetYear: summaryData.scopeTargetData.scope1.targetYear!,
+        targetYear: Number(summaryData.scopeTargetData.scope1.targetYear!),
         scopes: {
           scope1: {
             reductionPercentage: summaryData.scopeTargetData.scope1.reductionPercentage || 0,
             targetEmission: summaryData.calculations.scope1.targetEmission,
             baselineYearEmission: summaryData.emissionData?.totals?.scope1,
-            currentEmission: null,
           },
           scope2: {
             reductionPercentage: summaryData.scopeTargetData.scope2.reductionPercentage || 0,
             targetEmission: summaryData.calculations.scope2.targetEmission,
             baselineYearEmission: summaryData.emissionData?.totals?.scope2,
-            currentEmission: null,
           },
           scope3: {
             reductionPercentage: summaryData.scopeTargetData.scope3.reductionPercentage || 0,
             targetEmission: summaryData.calculations.scope3.targetEmission,
             baselineYearEmission: summaryData.emissionData?.totals?.scope3,
-            currentEmission: null,
           },
         },
       };

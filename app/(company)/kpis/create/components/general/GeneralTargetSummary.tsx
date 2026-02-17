@@ -31,61 +31,82 @@ export function GeneralTargetSummary({
 }: TargetSummaryProps) {
   // Fix: Calculate total reduction correctly
   const totalReduction = baselineEmission - targetEmission;
-  const yearsDifference = calculateTimelineYear(baselineYear, targetYear);
+  const yearsDifferenceRaw = calculateTimelineYear(baselineYear, targetYear);
+  const yearsDifference =
+    typeof yearsDifferenceRaw === "number"
+      ? yearsDifferenceRaw
+      : Number.parseInt(String(yearsDifferenceRaw), 10) || 0;
+
+  const formattedAnnualRate = Number.isFinite(annualRate)
+    ? annualRate.toLocaleString(undefined, {
+        maximumFractionDigits: 2,
+      })
+    : annualRate;
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-3xl mx-auto px-4">
       {/* Target Summary Card */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <div className="text-lg font-semibold">Target Summary</div>
+      <Card className="shadow-md border border-gray-100">
+        <CardHeader className="pb-2 border-b border-gray-100">
+          <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            Target Summary
+          </p>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-8 pt-6">
           {/* Main Reduction Target */}
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-4">
             <TrendingDown className={`justify-self-auto mx-auto text-green-600 font-semibold`} />
-            <h6 className="text-2xl font-semibold text-gray-900">
+            <h6 className="text-2xl md:text-3xl font-semibold text-gray-900">
               {reductionPercentage}% Reduction Target
             </h6>
-            <p className="text-gray-600">
-              From{" "}
-              <span className="font-semibold text-red-500">
-                {" "}
-                {baselineEmission?.toLocaleString()}{" "}
-              </span>{" "}
-              to{" "}
-              <span className="font-semibold text-green-500">
-                {" "}
-                {targetEmission?.toLocaleString()}{" "}
-              </span>{" "}
-              tCO₂e by {targetYear}
-            </p>
+            <div className="text-sm md:text-base text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="font-medium text-gray-700">From</span>
+                <span className="font-semibold text-red-500 text-right">
+                  {baselineEmission?.toLocaleString()} tCO₂e
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="font-medium text-gray-700">To</span>
+                <span className="font-semibold text-green-500 text-right">
+                  {targetEmission?.toLocaleString()} tCO₂e
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="font-medium text-gray-700">By</span>
+                <span className="font-semibold text-gray-900 text-right">{targetYear}</span>
+              </div>
+            </div>
           </div>
 
           {/* Target Details */}
-          <div className="space-y-4 mx-2 lg:mx-14">
-            <h6 className="font-semibold text-gray-900">Target Details</h6>
+          <div className="space-y-4 mx-1 sm:mx-4 md:mx-10">
+            <h6 className="text-base font-semibold text-gray-900">Target Details</h6>
 
-            <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col divide-y divide-gray-100 w-full">
               {/* Timeline */}
-              <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600">Timeline:</div>
-                <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
+              <div className="py-3 flex items-baseline justify-between gap-4 w-full">
+                <div className="text-sm md:text-base font-medium text-gray-600">Timeline</div>
+                <div className="text-sm md:text-base font-semibold text-gray-900">
+                  {yearsDifference} {yearsDifference === 1 ? "year" : "years"}
+                </div>
               </div>
 
               {/* Total Reduction - FIXED */}
-              <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
-                <div className="text-sm font-semibold text-red-600">
+              <div className="py-3 flex items-baseline justify-between gap-4 w-full">
+                <div className="text-sm md:text-base font-medium text-gray-600">
+                  Total Reduction
+                </div>
+                <div className="text-sm md:text-base font-semibold text-red-600 text-right">
                   -{totalReduction?.toLocaleString()} tCO₂e
                 </div>
               </div>
 
               {/* Annual Rate */}
-              <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
-                <div className={`text-sm font-semibold text-green-600`}>
-                  {annualRate} tCO₂e/year
+              <div className="py-3 flex items-baseline justify-between gap-4 w-full">
+                <div className="text-sm md:text-base font-medium text-gray-600">Annual Rate</div>
+                <div className="text-sm md:text-base font-semibold text-green-600 text-right">
+                  {formattedAnnualRate} tCO₂e/year
                 </div>
               </div>
             </div>
