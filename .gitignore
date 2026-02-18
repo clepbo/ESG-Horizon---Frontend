@@ -36,8 +36,9 @@ tsconfig.tsbuildinfo
 .netlify
 .vercel
 
-<<<<<<< HEAD
+# Lock files (use one package manager per project; avoid committing)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
 sas-notes.txt
-=======
-sas-notes.txt
->>>>>>> fcd85f1625eb3259c0402fd0e9d9bd4ca56d04bf
