@@ -3,6 +3,8 @@ export type Report = {
   id: number;
   title: string;
   company: string;
+  /** Reporting period label shown in the table, e.g. \"Q3 2024\" */
+  period: string;
   type: string;
   submissionDate: string;
   status: string;
@@ -35,7 +37,7 @@ export const mockReports: Report[] = [
     id: 1,
     title: "Q3 2024 ESG Performance Report",
     company: "GreenTech Solutions",
-    subsidiary: "GreenTech Solutions",
+    period: "Q3 2024",
     type: "Quarterly",
     submissionDate: "2021-01-01",
     status: "Published",
@@ -48,7 +50,7 @@ export const mockReports: Report[] = [
     id: 2,
     title: "2024 Sustainability Snapshot",
     company: "EcoBuild Limited",
-    subsidiary: "EcoBuild Limited",
+    period: "2024",
     type: "Annual",
     submissionDate: "2020-08-08",
     status: "Rejected",
@@ -61,7 +63,7 @@ export const mockReports: Report[] = [
     id: 3,
     title: "H1 2024 Social Impact Report",
     company: "BlueEarth Corp",
-    subsidiary: "BlueEarth Corp",
+    period: "H1 2024",
     type: "Bi-Annual",
     submissionDate: "2025-12-12",
     status: "Under Review",
@@ -74,7 +76,7 @@ export const mockReports: Report[] = [
     id: 4,
     title: "Q2 2024 Environmental Data Submission",
     company: "ClearWater Technologies",
-    subsidiary: "ClearWater Technologies",
+    period: "Q2 2024",
     type: "Sustainability",
     submissionDate: "2020-08-08",
     status: "Approved",
@@ -87,7 +89,7 @@ export const mockReports: Report[] = [
     id: 5,
     title: "2023 Governance and Compliance Summary",
     company: "SafeGrid Partners",
-    subsidiary: "SafeGrid Partners",
+    period: "2023",
     type: "Compliance",
     submissionDate: "2022-10-10",
     status: "Draft",

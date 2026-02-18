@@ -78,9 +78,9 @@ export default function ReportsAnalyticsPage() {
           <ReportSubmittedChart />
         </div>
 
-        {/* Activity Table (tabs and filters are inside the table component) */}
+        {/* Recent Reports Table */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Recent Reports</h2>
           <ReportActivityTable />
         </div>
       </motion.main>

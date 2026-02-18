@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Eye, Pencil, Search } from "lucide-react";
+import { Eye, SquarePen, Search } from "lucide-react";
 
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import Spinner from "../../ui/reusables/Spinner";
@@ -25,19 +25,13 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`${baseStyle} ${statusStyles[status] || "bg-gray-100"}`}>{status}</span>;
 }
 
-const TABS = [
-  { id: "all", label: "All Reports", status: null },
-  { id: "published", label: "Published", status: "Published" },
-  { id: "approved", label: "Approved", status: "Approved" },
-  { id: "under-review", label: "Under Review", status: "Under Review" },
-  { id: "drafts", label: "Drafts", status: "Draft" },
-] as const;
+const statusOptions = ["Status", "Published", "Rejected", "Under Review", "Approved", "Draft"];
 
 export default function ReportActivityTable() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState("Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -64,10 +58,10 @@ export default function ReportActivityTable() {
       const matchesSearch =
         (report.subsidiary ?? report.company).toLowerCase().includes(search.toLowerCase()) ||
         report.company.toLowerCase().includes(search.toLowerCase());
-      const matchesTab = tabStatus === null || report.status === tabStatus;
-      return matchesSearch && matchesTab;
+      const matchesStatus = statusFilter === "Status" || report.status === statusFilter;
+      return matchesSearch && matchesStatus;
     });
-  }, [reports, search, tabStatus]);
+  }, [reports, search, statusFilter]);
 
   const totalItems = filteredReports.length;
   const paginatedReports = useMemo(() => {
@@ -123,6 +117,21 @@ export default function ReportActivityTable() {
             Search
           </button>
         </div>
+
+        <div className="flex gap-2">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
@@ -136,7 +145,8 @@ export default function ReportActivityTable() {
           <table className="min-w-full text-sm">
             <thead className="bg-gray-100 text-left text-xs font-semibold text-gray-700">
               <tr>
-                <th className="px-4 py-3">Subsidiary</th>
+                <th className="px-4 py-3">Report Title</th>
+                <th className="px-4 py-3">Company</th>
                 <th className="px-4 py-3">Period</th>
                 <th className="px-4 py-3">Submission Date</th>
                 <th className="px-4 py-3">Status</th>
@@ -146,32 +156,27 @@ export default function ReportActivityTable() {
             <tbody className="divide-y divide-gray-100">
               {paginatedReports.map((report) => (
                 <tr key={report.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">{report.subsidiary ?? report.company}</td>
-                  <td className="px-4 py-3">{formatReportPeriod(report)}</td>
+                  <td className="px-4 py-3">{report.title}</td>
+                  <td className="px-4 py-3">{report.company}</td>
+                  <td className="px-4 py-3">{report.period}</td>
                   <td className="px-4 py-3">{report.submissionDate}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={report.status} />
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-9 w-9 rounded-md border-gray-300"
-                        disabled
+                    <div className="inline-flex items-center gap-2">
+                      <button
                         aria-label="View report"
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                       >
-                        <Eye className="h-4 w-4 text-gray-600" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-9 w-9 rounded-md border-gray-300"
-                        disabled
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
                         aria-label="Edit report"
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                       >
-                        <Pencil className="h-4 w-4 text-gray-600" />
-                      </Button>
+                        <SquarePen className="w-4 h-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
