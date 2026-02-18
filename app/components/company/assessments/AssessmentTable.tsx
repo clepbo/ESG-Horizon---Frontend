@@ -28,9 +28,8 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
-import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
-import { useDeleteAssessment, useGenerateReport } from "@/services/hooks/assessment.hooks";
+import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -49,6 +48,8 @@ export interface Assessment {
   rejection_reason?: string;
   progress?: number;
   lastUpdated?: string | Date;
+  /** High-level ESG pillars that have data for this assessment (E, S, G). */
+  pillars?: ("E" | "S" | "G")[];
 }
 
 interface AssessmentTableProps {
@@ -85,9 +86,8 @@ function DeclineReasonModal({
 interface ActionDropdownProps {
   status: AssessmentStatus;
   getActionIcon: (label: string) => ReactNode;
-  onView: () => void;
   onContinue: () => void;
-  onReview?: () => void;
+  onReview: () => void;
   onGenerateReport?: () => void;
   onDelete?: () => void;
   deletePending?: boolean;
@@ -96,7 +96,6 @@ interface ActionDropdownProps {
 function ActionDropdown({
   status,
   getActionIcon,
-  onView,
   onContinue,
   onReview,
   onGenerateReport,
@@ -123,13 +122,11 @@ function ActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        {/* Show View unless it's awaiting_review — Review doubles as the view in that case */}
-        {status !== "awaiting_review" && (
-          <DropdownMenuItem onClick={onView}>
-            {getActionIcon("View")}
-            View
-          </DropdownMenuItem>
-        )}
+        {/* Review is the primary entry point to open assessment details */}
+        <DropdownMenuItem onClick={onReview}>
+          {getActionIcon("Review")}
+          Review
+        </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={onContinue}
@@ -139,17 +136,9 @@ function ActionDropdown({
           Continue
         </DropdownMenuItem>
 
-        {/* Show Review when awaiting_review */}
-        {status === "awaiting_review" && (
-          <DropdownMenuItem onClick={onReview}>
-            {getActionIcon("Review")}
-            Review
-          </DropdownMenuItem>
-        )}
-
         <DropdownMenuItem onClick={onGenerateReport}>
           <FileText className="mr-2 h-4 w-4" />
-          Generate Report
+          View Report
         </DropdownMenuItem>
 
         {status !== "awaiting_review" &&
@@ -178,13 +167,11 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
-  const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [dateRange, setDateRange] = useState<
     { startMonth: string; endMonth: string } | undefined
   >();
 
   const deleteMutation = useDeleteAssessment();
-  const generateReportMutation = useGenerateReport();
 
   const filteredData = dateRange
     ? data.filter((a) => {
@@ -239,17 +226,8 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   };
 
   const handleGenerateReport = (id: number) => {
-    generateReportMutation.mutate(id, {
-      onSuccess: () => {
-        const assessment = data.find((a) => a.id === id);
-        if (assessment) {
-          setSelectedAssessment(assessment);
-        }
-        setTimeout(() => {
-          setShowReportSuccess(true);
-        }, 500);
-      },
-    });
+    if (!id) return;
+    router.push(`/reports-and-analytics/${id}`);
   };
 
   const handleContinue = (assessment: Assessment) => {
@@ -263,14 +241,69 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
     router.push(`/assessments/${assessment.id}?forceDisclosure=1`);
   };
 
-  const handleView = (assessment: Assessment) => {
-    setSelectedAssessment(assessment);
+  const formatShortMonthYear = (value: string | undefined) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      const month = date.toLocaleString("en-US", { month: "short" });
+      const year = date.getFullYear();
+      return `${month}, ${year}`;
+    } catch {
+      return value;
+    }
   };
 
   const columns = [
-    columnHelper.accessor("startPeriod", { header: "Starting Period" }),
-    columnHelper.accessor("endPeriod", { header: "Ending Period" }),
+    columnHelper.display({
+      id: "period",
+      header: "Period",
+      cell: (info) => {
+        const { startPeriod, endPeriod } = info.row.original;
+        const startLabel = formatShortMonthYear(startPeriod);
+        const endLabel = formatShortMonthYear(endPeriod);
+        if (startLabel && endLabel) return `${startLabel} - ${endLabel}`;
+        return startLabel || endLabel || "—";
+      },
+    }),
     columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
+    columnHelper.display({
+      id: "pillars",
+      header: "Pillar(s)",
+      cell: (info) => {
+        const pillars = info.row.original.pillars ?? [];
+        if (!pillars.length) {
+          return <span className="text-xs text-gray-400">—</span>;
+        }
+
+        const labelMap: Record<"E" | "S" | "G", string> = {
+          E: "Environmental",
+          S: "Social",
+          G: "Governance",
+        };
+
+        const colorMap: Record<"E" | "S" | "G", string> = {
+          E: "border-emerald-200 bg-emerald-50 text-emerald-700",
+          S: "border-sky-200 bg-sky-50 text-sky-700",
+          G: "border-amber-200 bg-amber-50 text-amber-700",
+        };
+
+        return (
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 max-w-[180px]">
+            {pillars.map((p) => (
+              <Badge
+                key={p}
+                variant="outline"
+                className={`px-2 py-0.5 text-xs font-semibold rounded-md ${colorMap[p]}`}
+                title={labelMap[p]}
+              >
+                {p}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    }),
     columnHelper.accessor("lastUpdated", {
       header: "Last Updated",
       cell: (info) => {
@@ -402,7 +435,6 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
             <ActionDropdown
               status={assessment.status}
               getActionIcon={getActionIcon}
-              onView={() => handleOpenDetails(assessment)}
               onContinue={() => handleContinue(assessment)}
               onReview={() => handleOpenDetails(assessment)}
               onGenerateReport={() => handleGenerateReport(assessment.id)}
@@ -462,25 +494,6 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
         onClose={() => setReasonOpen(false)}
         reason={selectedReason}
       />
-
-      {showReportSuccess && selectedAssessment && (
-        <SuccessScreen
-          assessmentName="report"
-          type="report"
-          reportId={selectedAssessment.id}
-          onContinue={() => {
-            setShowReportSuccess(false);
-            router.push(`/reports-and-analytics/${selectedAssessment.id}`);
-          }}
-          onBackToHub={() => {
-            setShowReportSuccess(false);
-            router.push("/assessments");
-          }}
-          totals={undefined}
-          sectionKey={undefined}
-          nextAssessment={null}
-        />
-      )}
     </div>
   );
 }

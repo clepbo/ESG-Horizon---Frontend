@@ -47,7 +47,10 @@ export default function DonutChart({
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              formatter={(value) => formatNumberWithCommas(Number(value ?? 0))}
+              labelStyle={{ color: "#374151" }}
+            />
             <Legend
               verticalAlign="bottom"
               height={36}

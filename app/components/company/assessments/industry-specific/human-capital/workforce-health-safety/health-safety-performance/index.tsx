@@ -7,6 +7,7 @@ import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 import { defaultEmployeeFormData, type EmployeeFormData } from "./types";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface HealthSafetyPerformanceProps {
   onBack: () => void;
@@ -23,14 +24,73 @@ export default function HealthSafetyPerformance({
   totalSteps = 2,
   breadcrumb,
 }: HealthSafetyPerformanceProps) {
+  const { state } = useAssessment();
+
+  const savedHealthSafety: any = (state.assessmentData as any)?.humanCapital
+    ?.riskAndOpportunityManagement?.healthAndSafetyPerformance;
+
+  const getInitialFormData = (employeeType: "direct" | "contract"): EmployeeFormData => {
+    if (!savedHealthSafety) {
+      return { ...defaultEmployeeFormData };
+    }
+
+    let source: any | undefined;
+
+    if (Array.isArray(savedHealthSafety)) {
+      source = savedHealthSafety.find((entry) => entry?.employeeType === employeeType);
+    } else if (savedHealthSafety[employeeType]) {
+      source = savedHealthSafety[employeeType];
+    } else if (savedHealthSafety.employeeType === employeeType) {
+      source = savedHealthSafety;
+    }
+
+    if (!source) {
+      return { ...defaultEmployeeFormData };
+    }
+
+    return {
+      ...defaultEmployeeFormData,
+      totalHoursWorked:
+        source.totalHoursWorked !== undefined && source.totalHoursWorked !== null
+          ? String(source.totalHoursWorked)
+          : "",
+      recordableIncidents:
+        source.recordableIncidents !== undefined && source.recordableIncidents !== null
+          ? String(source.recordableIncidents)
+          : "",
+      fatalities:
+        source.fatalities !== undefined && source.fatalities !== null
+          ? String(source.fatalities)
+          : "",
+      nearMisses:
+        source.nearMisses !== undefined && source.nearMisses !== null
+          ? String(source.nearMisses)
+          : "",
+      safetyTrainingHours:
+        source.safetyTrainingHours !== undefined && source.safetyTrainingHours !== null
+          ? String(source.safetyTrainingHours)
+          : "",
+      totalHoursWorkedUnit:
+        source.totalHoursWorkedUnit ?? defaultEmployeeFormData.totalHoursWorkedUnit,
+      recordableIncidentsUnit:
+        source.recordableIncidentsUnit ?? defaultEmployeeFormData.recordableIncidentsUnit,
+      fatalitiesUnit: source.fatalitiesUnit ?? defaultEmployeeFormData.fatalitiesUnit,
+      nearMissesUnit: source.nearMissesUnit ?? defaultEmployeeFormData.nearMissesUnit,
+      safetyTrainingHoursUnit:
+        source.safetyTrainingHoursUnit ?? defaultEmployeeFormData.safetyTrainingHoursUnit,
+      filesAndLinks: Array.isArray(source.filesAndLinks) ? source.filesAndLinks : [],
+    };
+  };
+
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
 
   const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
-    ...defaultEmployeeFormData,
+    ...getInitialFormData("direct"),
   }));
+
   const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
-    ...defaultEmployeeFormData,
+    ...getInitialFormData("contract"),
   }));
 
   const [directProgress, setDirectProgress] = useState({ filled: 0, total: 6 });
