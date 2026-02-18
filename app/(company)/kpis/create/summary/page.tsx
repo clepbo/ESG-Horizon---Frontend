@@ -1,18 +1,31 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { GeneralTargetData } from "@/types/target";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/lib/api/axios";
-import { useAuth } from "@/context/AuthContext";
-import { TargetPayload } from "@/types/target/index";
 import { useBaseline } from "@/app/(company)/components/ranking/services";
-import { EmissionDataResponseGeneral } from "../type";
-import { CalculateEmissionPercentage, calculateTotal } from "../utils";
+import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api/axios";
+import { GeneralTargetData } from "@/types/target";
+import { GeneralTargetPayload } from "@/types/target/index";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { AlertCircle } from "lucide-react";
 import { GeneralTargetSummary } from "../components/general/GeneralTargetSummary";
 import { SuccessModal } from "../components/SuccessModal";
-import { toast } from "react-toastify";
+import { EmissionDataResponseGeneral } from "../type";
+import { CalculateEmissionPercentage, calculateTotal } from "../utils";
+
+function getHasLocalBaseline(): boolean {
+  try {
+    const s = typeof window !== "undefined" ? localStorage.getItem("generalTargetSummary") : null;
+    if (!s) return false;
+    const p = JSON.parse(s);
+    return !!p?.baselineEmission;
+  } catch {
+    return false;
+  }
+}
 
 export default function SummaryPage() {
   const router = useRouter();
@@ -20,6 +33,10 @@ export default function SummaryPage() {
   const queryClient = useQueryClient();
   const companyId = user?.company?.id;
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [showBaselineModal, setShowBaselineModal] = useState(false);
+  const [hasLocalBaseline, setHasLocalBaseline] = useState(getHasLocalBaseline);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // State for data
   const [targetData, setTargetData] = useState<GeneralTargetData | null>(null);
@@ -29,13 +46,10 @@ export default function SummaryPage() {
     totals: 0,
   });
 
-  const base = useBaseline(companyId);
-
-  useEffect(() => {
-    if (base.isSuccess && base.data) {
-      setEmissionData(base.data);
-    }
-  }, [base.isSuccess, base.data]);
+  const base = useBaseline(companyId, {
+    enabled: !hasLocalBaseline,
+    staleTime: 2 * 60 * 1000,
+  });
 
   useEffect(() => {
     // Get data from localStorage
@@ -45,15 +59,34 @@ export default function SummaryPage() {
         const parsedData = JSON.parse(storedData);
         console.log("Loaded target data:", parsedData); // Debug log
         setTargetData(parsedData);
+
+        // Use the baselineEmission saved by the form page as the primary source
+        // (the form already fetched and validated this from useBaseline)
+        if (parsedData.baselineEmission) {
+          setEmissionData((prev) => ({
+            ...prev,
+            startYear: parsedData.baselineYear || prev.startYear,
+            totals: parsedData.baselineEmission,
+          }));
+          setHasLocalBaseline(true);
+        }
       } catch (error) {
         console.error("Error parsing stored data:", error);
-        router.push("/kpis/create");
+        setLoadError(true);
       }
     } else {
-      // If no data in localStorage, redirect back to form
-      router.push("/kpis/create");
+      // If no data in localStorage, show an inline error state instead of redirecting
+      setLoadError(true);
     }
   }, [router]);
+
+  // Also update from useBaseline if it returns valid data (as a fallback ONLY
+  // for older localStorage entries that didn't include baselineEmission).
+  useEffect(() => {
+    if (!hasLocalBaseline && base.isSuccess && base.data && base.data.totals) {
+      setEmissionData(base.data);
+    }
+  }, [hasLocalBaseline, base.isSuccess, base.data]);
 
   console.log("TDATA", targetData);
   // Use useMemo for calculations to ensure they update when dependencies change
@@ -72,11 +105,10 @@ export default function SummaryPage() {
       ? emissionData?.totals * (1 - targetData?.reductionPercentage / 100)
       : 0;
 
-    // Calculate year difference
+    // Calculate year difference (use emissionData.startYear which comes from localStorage or useBaseline)
+    const baseStartYear = emissionData?.startYear || base.data?.startYear || 0;
     const yearDiff =
-      targetData && base.data?.startYear
-        ? Math.abs((targetData.targetYear ?? 0) - (base.data.startYear ?? 0))
-        : 0;
+      targetData && baseStartYear ? Math.abs((targetData.targetYear ?? 0) - baseStartYear) : 0;
 
     // Calculate reduction and annual rate
     const reduction = calculateTotal(
@@ -102,18 +134,28 @@ export default function SummaryPage() {
   }, [targetData, emissionData, base.data]);
 
   const createTarget = useMutation({
-    mutationFn: async (targetDataPayload: TargetPayload) => {
+    mutationFn: async (targetDataPayload: GeneralTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
       return await api.post(`/target`, targetDataPayload);
     },
     onSuccess: () => {
+      setCreateError(null);
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
       queryClient.invalidateQueries({ queryKey: ["targets"] });
-      // Clear localStorage after successful creation
       localStorage.removeItem("generalTargetSummary");
     },
-    onError: (error: any) => {
-      const serverMessage = error?.response?.data?.message || error.message || "Unknown error";
+    onError: (error: unknown) => {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+      const serverMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as Error)?.message ||
+        "Something went wrong.";
+      const isOverlapError =
+        status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
+      if (serverMessage && isOverlapError) {
+        setCreateError(serverMessage);
+        return;
+      }
       toast.error(serverMessage);
     },
   });
@@ -124,37 +166,44 @@ export default function SummaryPage() {
   };
 
   const handleSetTarget = async () => {
-    if (!targetData || !base.data) {
-      console.error("Missing target data or baseline data");
-      toast.error("Missing target data or baseline data");
+    setCreateError(null);
+    if (!targetData) {
+      toast.error("Missing target data. Please go back and review your inputs.");
       return;
     }
 
-    const uniqueName = `Carbon Target ${base.data.startYear}-${targetData.targetYear} - ${Date.now()}`;
+    if (!emissionData?.totals) {
+      setShowBaselineModal(true);
+      return;
+    }
+
+    const baselineYear = emissionData?.startYear || base.data?.startYear || 0;
+    if (targetData.targetYear && baselineYear && targetData.targetYear <= baselineYear) {
+      toast.error("Target year must be after baseline year");
+      return;
+    }
+    const uniqueName = `Carbon Target ${baselineYear}-${targetData.targetYear} - ${Date.now()}`;
 
     try {
-      console.log("Submitting with target emission:", calculatedTargetEmission);
-
-      const targetPayload: TargetPayload = {
+      const targetPayload: GeneralTargetPayload = {
         name: targetData.name || uniqueName,
         type: "GENERAL",
         description: targetData.description || "General emissions reduction target",
-        baselineYear: Number(base.data.startYear),
-        targetYear: targetData.targetYear!,
+        baselineYear: Number(baselineYear),
+        targetYear: Number(targetData.targetYear!),
         targetEmission: calculatedTargetEmission,
         baselineYearEmission: emissionData?.totals,
-        currentEmission: null,
+        currentEmission: emissionData?.totals,
         reductionPercentage: targetData.reductionPercentage || 0,
+        ...(typeof targetData.baselineAssessmentId === "number" && {
+          baselineAssessmentId: targetData.baselineAssessmentId,
+        }),
       };
 
       await createTarget.mutateAsync(targetPayload);
-
-      // Open success modal instead of immediate redirect
       setIsSuccessModalOpen(true);
-    } catch (error) {
-      console.error("Failed to create target:", error);
-      toast.error("Failed to create target. Please try again.");
-      throw new Error(`Error: ${error}`);
+    } catch {
+      // Error is shown via onError (inline Alert for 400, toast for others)
     }
   };
 
@@ -167,6 +216,27 @@ export default function SummaryPage() {
     setIsSuccessModalOpen(false);
   };
 
+  if (loadError) {
+    return (
+      <div className="flex justify-center items-center min-h-64 px-4">
+        <div className="max-w-md rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm">
+          <h2 className="mb-2 text-lg font-semibold text-gray-900">Target summary not found</h2>
+          <p className="mb-4 text-sm text-gray-600">
+            We couldn&apos;t load your target details. Please go back to the target setup page and
+            try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/kpis/create")}
+            className="inline-flex items-center rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+          >
+            Back to Target Setup
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Show loading state while data is being loaded
   if (!targetData) {
     return (
@@ -176,8 +246,8 @@ export default function SummaryPage() {
     );
   }
 
-  // Show loading state while baseline data is loading
-  if (base.isLoading) {
+  // Show loading state while baseline data is loading (only when we don't have stored baseline)
+  if (!hasLocalBaseline && base.isLoading) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <div className="text-lg text-gray-600">Loading baseline data...</div>
@@ -186,7 +256,48 @@ export default function SummaryPage() {
   }
 
   return (
-    <div className="mx-auto mt-8 lg:mt-20">
+    <div className="mx-auto mt-8 lg:mt-20 max-w-3xl px-4 space-y-6">
+      {createError && (
+        <Alert variant="destructive" className="border-amber-200 bg-amber-50 text-amber-900">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Cannot create this target</AlertTitle>
+          <AlertDescription className="mt-1">
+            <p className="mb-3">{createError}</p>
+            <p className="text-sm text-amber-800 mb-3">
+              Choose a different baseline or target year, or manage your existing targets.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateError(null);
+                  router.push("/kpis/create");
+                }}
+                className="inline-flex items-center rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700"
+              >
+                Change years
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateError(null);
+                  router.push("/kpis");
+                }}
+                className="inline-flex items-center rounded-md border border-amber-600 px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100"
+              >
+                View existing targets
+              </button>
+              <button
+                type="button"
+                onClick={() => setCreateError(null)}
+                className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Dismiss
+              </button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
       <GeneralTargetSummary
         annualRate={Number(annualRate)}
         reductionPercentage={targetData.reductionPercentage || 0}
@@ -194,6 +305,7 @@ export default function SummaryPage() {
         targetEmission={calculatedTargetEmission}
         targetYear={targetData.targetYear ?? 0}
         baselineYear={emissionData?.startYear || 0}
+        baselinePeriodLabel={(targetData as any)?.baselinePeriodLabel}
         onPrevious={handlePrevious}
         onSetTarget={handleSetTarget}
         isLoading={createTarget.isPending}
@@ -204,6 +316,36 @@ export default function SummaryPage() {
         onClose={handleModalClose}
         onContinue={handleModalContinue}
       />
+
+      {showBaselineModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="max-w-md rounded-lg border border-gray-200 bg-white p-6 text-center shadow-lg">
+            <h2 className="mb-2 text-lg font-semibold text-gray-900">
+              You need a baseline assessment first
+            </h2>
+            <p className="mb-4 text-sm text-gray-600">
+              To set a reduction target, we first need your company&apos;s baseline emissions from a
+              completed ESG assessment.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <button
+                type="button"
+                onClick={() => setShowBaselineModal(false)}
+                className="inline-flex items-center justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/assessments/new-assessment")}
+                className="inline-flex items-center justify-center rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
+              >
+                Go to Assessments
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

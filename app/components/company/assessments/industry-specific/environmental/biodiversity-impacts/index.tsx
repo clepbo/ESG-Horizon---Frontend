@@ -21,7 +21,7 @@ import ReservesInSensitiveAreas from "./reserves-in-sensitive-areas";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type SHRView =
   | "overview"
@@ -89,12 +89,12 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
     }
   };
 
-  // Use the reusable hook with checkSubComponentCompletion
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  // Status indication commented out - revisit later
+  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
+  //   scopeData,
+  //   state.assessmentData,
+  //   checkSubComponentCompletion
+  // );
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -247,9 +247,7 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
-                            card.title
-                          )} ${
+                          className={`transition-all bg-white shadow-sm rounded-lg ${
                             card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
@@ -261,7 +259,7 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
                               <div className="space-y-2 flex-1">
                                 <div className="flex items-center justify-between">
                                   <h5 className="font-medium text-foreground">{card.title}</h5>
-                                  <CompletionIndicator status={getStatus(card.title)} />
+                                  {/* <CompletionIndicator status={getStatus(card.title)} /> */}
                                 </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>

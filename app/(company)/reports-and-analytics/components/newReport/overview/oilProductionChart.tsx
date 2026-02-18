@@ -89,11 +89,7 @@ export default function ProductionVolumesChart({
             <XAxis dataKey="name" />
             <YAxis
               width={70}
-              tickFormatter={(value) => {
-                if (value >= 1_000_000) return `${value / 1_000_000}M`;
-                if (value >= 1_000) return `${value / 1_000}K`;
-                return value;
-              }}
+              tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}
               axisLine={false}
               tickLine={false}
             />
