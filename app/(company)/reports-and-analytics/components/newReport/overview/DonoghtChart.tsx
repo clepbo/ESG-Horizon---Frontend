@@ -3,6 +3,7 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
+import { formatNumberWithCommas } from "../../utils/helpers";
 
 // Sample data (replace with your real data or props)
 const data = [
@@ -39,7 +40,8 @@ export default function DonutChart({
               outerRadius={100}
               paddingAngle={4} // spacing between arcs
               cornerRadius={5} // rounded edges
-              label={({ value }) => `${value}`}
+              label={({ value }) => formatNumberWithCommas(Number(value ?? 0))}
+              labelLine={false}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
