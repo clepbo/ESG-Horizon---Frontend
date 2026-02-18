@@ -1,5 +1,7 @@
 import { Pie, PieChart, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface EmissionDistributionChartProps {
   isAnimationActive?: boolean;
@@ -36,7 +38,7 @@ function renderCustomLabel(props: PieLabelRenderProps) {
       fontSize={12}
       fontWeight={500}
     >
-      {typeof value === "number" ? value.toLocaleString() : String(value)}
+      {typeof value === "number" ? formatNumberFigures(value) : String(value)}
     </text>
   );
 }
@@ -74,7 +76,9 @@ export default function EmissionDistributionChart({
           />
 
           <Tooltip
-            formatter={(value: number | undefined) => (value != null ? value.toLocaleString() : "")}
+            formatter={(value: number | undefined) =>
+              value != null ? formatNumberFull(value, { maximumFractionDigits: 2 }) : ""
+            }
           />
 
           <Legend

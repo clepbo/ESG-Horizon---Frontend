@@ -1,7 +1,6 @@
-"use client";
-
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { BusinessModelPillar } from "@/types/report/reportResponse";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface BusinessEthicAndTransparencyProps {
   businessModel?: BusinessModelPillar;
@@ -71,13 +70,19 @@ export default function BusinessEthicAndTransparency({
           <div className="flex justify-between text-gray-600">
             <span>Total Proved Reserves</span>
             <span className="font-medium text-gray-900">
-              {(climateImpact?.totalProvedReserves ?? 0).toLocaleString()} MMboe
+              {formatNumberFull(climateImpact?.totalProvedReserves ?? 0, {
+                maximumFractionDigits: 2,
+              })}{" "}
+              MMboe
             </span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>Embedded Carbon</span>
             <span className="font-medium text-gray-900">
-              {(climateImpact?.embeddedCarbon ?? 0).toLocaleString()} MtCO₂e
+              {formatNumberFull(climateImpact?.embeddedCarbon ?? 0, {
+                maximumFractionDigits: 2,
+              })}{" "}
+              MtCO₂e
             </span>
           </div>
         </div>
