@@ -43,35 +43,9 @@ export default function AirQualityCard({
     },
   ];
 
-  // Render completion indicator
-  const renderCompletionIndicator = () => {
-    if (!shouldShowBadge(completionStatus)) return null;
-
-    const badge = getCompletionBadgeVariant(completionStatus);
-
-    return (
-      <div className="flex items-center gap-1.5">
-        {completionStatus.status === "completed" && (
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-        )}
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${badge.className}`}>
-          {badge.text}
-        </span>
-      </div>
-    );
-  };
-
-  // Get border color based on completion status
-  const getCardBorderClass = (): string => {
-    switch (completionStatus.status) {
-      case "completed":
-        return "border-l-4 border-l-green-500 border-t border-r border-b border-gray-200";
-      case "in-progress":
-        return "border-l-4 border-l-yellow-500 border-t border-r border-b border-gray-200";
-      default:
-        return "border-gray-200";
-    }
-  };
+  // Status indication commented out - revisit later
+  // const renderCompletionIndicator = () => { ... };
+  // const getCardBorderClass = (): string => { ... };
 
   const features = [
     {
@@ -115,14 +89,14 @@ export default function AirQualityCard({
               <Card
                 key={i}
                 onClick={handleCardClick}
-                className={`cursor-pointer hover:bg-gray-100 max-w-lg shadow ${getCardBorderClass()}`}
+                className="cursor-pointer hover:bg-gray-100 max-w-lg shadow border-gray-200"
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center justify-between">
                         <h5 className="font-medium text-foreground">{card.title}</h5>
-                        {renderCompletionIndicator()}
+                        {/* {renderCompletionIndicator()} */}
                       </div>
                       <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                     </div>
