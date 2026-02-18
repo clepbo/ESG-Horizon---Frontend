@@ -12,7 +12,7 @@ import { SuccessModal } from "./SuccessModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
-import { TargetPayload } from "@/types/target/index";
+import { ScopeTargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
 
 interface ScopeData {
@@ -79,7 +79,7 @@ export default function SetTargetByScope() {
   });
 
   const createTarget = useMutation({
-    mutationFn: async (targetData: TargetPayload) => {
+    mutationFn: async (targetData: ScopeTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
       return await apiUtil.post(`/target`, targetData);
     },
@@ -105,44 +105,33 @@ export default function SetTargetByScope() {
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
-      // Auto-calculate target emission when percentage changes using actual baseline
-      if (
-        processedValue !== null &&
-        scopeTargetData[scope].baselineYear &&
-        scopeTargetData[scope].targetYear
-      ) {
-        const targetEmission = baselineEmission * (1 - processedValue / 100);
-        const totalReduction = baselineEmission - targetEmission;
-
-        setScopeTargetData((prev) => ({
-          ...prev,
-          [scope]: {
-            ...prev[scope],
-            reductionPercentage: processedValue,
-            targetEmission: Math.round(targetEmission),
-            totalReduction: Math.round(totalReduction),
-          },
-        }));
-        return;
-      }
     }
 
     if (field === "baselineYear" || field === "targetYear") {
-      processedValue = value === 0 ? null : Number(value);
+      processedValue = value === "" ? null : Number(value);
     }
 
-    // Handle targetEmission changes from formatted input
     if (field === "targetEmission") {
       processedValue = value === "" ? null : Number(value);
     }
 
-    setScopeTargetData((prev) => ({
-      ...prev,
-      [scope]: {
+    // Update the field first, then recalculate if we have enough data
+    setScopeTargetData((prev) => {
+      const updated = {
         ...prev[scope],
         [field]: processedValue,
-      },
-    }));
+      };
+
+      const reduction = updated.reductionPercentage;
+      if (reduction !== null && reduction !== undefined) {
+        const targetEmission = baselineEmission * (1 - reduction / 100);
+        const totalReduction = baselineEmission - targetEmission;
+        updated.targetEmission = Math.round(targetEmission);
+        updated.totalReduction = Math.round(totalReduction);
+      }
+
+      return { ...prev, [scope]: updated };
+    });
   };
 
   // Set default baseline year from API if available for all scopes
@@ -186,21 +175,27 @@ export default function SetTargetByScope() {
     try {
       // Prepare the target payload with unique name and individual scope percentages
       const uniqueName = `Scope Target ${scopeTargetData.scope1.baselineYear}-${scopeTargetData.scope1.targetYear}-${Date.now()}`;
-      const targetPayload: any = {
+      const targetPayload: ScopeTargetPayload = {
         name: uniqueName,
         type: "SCOPE",
         description: "Scope-based emissions reduction target",
         baselineYear: Number(scopeTargetData.scope1.baselineYear!),
-        targetYear: scopeTargetData.scope1.targetYear!,
+        targetYear: Number(scopeTargetData.scope1.targetYear!),
         scopes: {
           scope1: {
             reductionPercentage: scopeTargetData.scope1.reductionPercentage || 0,
+            targetEmission: scopeTargetData.scope1.targetEmission || 0,
+            baselineYearEmission: baselineEmission,
           },
           scope2: {
             reductionPercentage: scopeTargetData.scope2.reductionPercentage || 0,
+            targetEmission: scopeTargetData.scope2.targetEmission || 0,
+            baselineYearEmission: baselineEmission,
           },
           scope3: {
             reductionPercentage: scopeTargetData.scope3.reductionPercentage || 0,
+            targetEmission: scopeTargetData.scope3.targetEmission || 0,
+            baselineYearEmission: baselineEmission,
           },
         },
       };

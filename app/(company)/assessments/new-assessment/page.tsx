@@ -181,7 +181,7 @@ function NewAssessmentPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="max-w-6xl w-full">
+          <div className="w-full">
             <div className="flex justify-between items-center mb-6">
               <h4 className="font-semibold text-neutral-1000">Recent Assessments</h4>
               <Button

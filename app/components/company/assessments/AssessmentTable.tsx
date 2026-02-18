@@ -304,22 +304,22 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
       header: "Progress",
       cell: (info) => {
         const percentage = info.row.original.progress ?? 0;
-        const radius = 16;
+        const radius = 22;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - (percentage / 100) * circumference;
         const index = info.row.index;
 
         return (
-          <div className="relative flex items-center justify-center w-10 h-10">
+          <div className="relative flex items-center justify-center w-14 h-14">
             <svg
-              width="40"
-              height="40"
+              width="56"
+              height="56"
               className="-rotate-90deg"
               style={{ position: "absolute", top: 0, left: 0 }}
             >
               <circle
-                cx="20"
-                cy="20"
+                cx="28"
+                cy="28"
                 r={radius}
                 stroke="#e5e7eb"
                 strokeWidth="4"
@@ -334,8 +334,8 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
                 </linearGradient>
               </defs>
               <circle
-                cx="20"
-                cy="20"
+                cx="28"
+                cy="28"
                 r={radius}
                 stroke={`url(#grad-${index})`}
                 strokeWidth="4"
@@ -346,7 +346,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
                 className="transition-all duration-700 ease-in-out"
               />
             </svg>
-            <span className="absolute text-xs font-semibold text-gray-800">
+            <span className="absolute text-[11px] font-semibold text-gray-800">
               {percentage > 0 ? `${percentage}%` : "N/A"}
             </span>
           </div>
