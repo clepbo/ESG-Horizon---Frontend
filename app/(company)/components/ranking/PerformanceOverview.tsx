@@ -45,7 +45,7 @@ export default function PerformanceOverview() {
     <KpiCard title="Targets and Performance" isTarget={isTargt} className="space-y-6 w-full">
       {/* General Target Display */}
       {isGeneralTarget && general && (
-        <div className="flex items-center justify-center">
+        <div className="mt-4 flex items-center justify-center">
           <SpeedometerGauge
             score={120}
             initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}

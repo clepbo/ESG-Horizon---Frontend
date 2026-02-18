@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { CustomButton } from "../reusables/CustomButton";
 import { Edit, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
 
 interface MiniDonutChartProps {
   label: string;
@@ -47,7 +48,7 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
       </PieChart>
       <div className="text-sm">
         <p className="font-semibold">{label}</p>
-        <p className="text-gray-600">{value.toLocaleString()} tCO₂e</p>
+        <p className="text-gray-600">{formatNumberWithCommas(value)} tCO₂e</p>
       </div>
     </div>
   );
@@ -86,7 +87,7 @@ export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniD
       </PieChart>
       <div className="text-sm">
         <p className="font-semibold">{label}</p>
-        <p className="text-gray-600">{value.toLocaleString()} tCO₂e</p>
+        <p className="text-gray-600">{formatNumberWithCommas(value)} tCO₂e</p>
       </div>
     </div>
   );

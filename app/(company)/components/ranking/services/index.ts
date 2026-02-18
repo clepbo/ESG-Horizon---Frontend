@@ -1,14 +1,44 @@
 import api from "@/lib/api/axios";
-import { ScopeTargetPayload, TargetPayload } from "@/types/target/index";
-import { useQuery } from "@tanstack/react-query";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  BaselineOption,
+  CompanyTargetSummary,
+  ScopeTargetPayload,
+  TargetPayload,
+} from "@/types/target/index";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-// Custom hook that accepts companyId
-export const useBaseline = (companyId?: number) => {
+const BASELINE_STALE_MS = 2 * 60 * 1000; // 2 minutes – avoid refetch when navigating back
+
+export type UseBaselineOptions = {
+  /** When false, the baseline request is not sent (e.g. when summary already has local baseline). */
+  enabled?: boolean;
+  /** How long the result is considered fresh; reduces slow refetches. */
+  staleTime?: number;
+};
+
+// Custom hook that accepts companyId and optional query options
+export const useBaseline = (companyId?: number, options?: UseBaselineOptions) => {
+  const enabled = options?.enabled !== undefined ? options.enabled && !!companyId : !!companyId;
   return useQuery({
     queryKey: ["baseline", companyId],
     queryFn: async () => {
       const response = await api.get(`/target/baseline/${companyId}`);
+      return response;
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+    staleTime: options?.staleTime ?? BASELINE_STALE_MS,
+  });
+};
+export const useBaselineByScope = (companyId?: number, assessmentId?: number) => {
+  return useQuery({
+    queryKey: ["baseline-scope", companyId, assessmentId],
+    queryFn: async () => {
+      if (!companyId) throw new Error("Company ID not available");
+      const url = assessmentId
+        ? `/target/baseline-scope/${companyId}?assessmentId=${assessmentId}`
+        : `/target/baseline-scope/${companyId}`;
+      const response = await api.get(url);
 
       return response;
     },
@@ -16,14 +46,17 @@ export const useBaseline = (companyId?: number) => {
     refetchOnWindowFocus: false,
   });
 };
-export const useBaselineByScope = (companyId?: number) => {
-  return useQuery({
-    queryKey: ["baseline", companyId],
-    queryFn: async () => {
-      if (!companyId) throw new Error("Company ID not available");
-      const response = await api.get(`/target/baseline-scope/${companyId}`);
 
-      return response;
+export const useBaselineOptions = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["baseline-options", companyId],
+    queryFn: async () => {
+      if (!companyId) {
+        throw new Error("Company ID not available");
+      }
+
+      const data = await api.get<BaselineOption[]>(`/target/baseline-options`);
+      return data as unknown as BaselineOption[];
     },
     enabled: !!companyId,
     refetchOnWindowFocus: false,
@@ -54,8 +87,21 @@ export const useGetLatestTarget = (companyId?: number) => {
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
       const response = await api.get(`/target/latest`);
-
       return response;
+    },
+    enabled: !!companyId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/** Fetch all company targets (for overlap checks when creating a new target). */
+export const useCompanyTargets = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["targets", companyId],
+    queryFn: async () => {
+      if (!companyId) throw new Error("Company ID not available");
+      const data = await api.get<CompanyTargetSummary[]>(`/target`);
+      return Array.isArray(data) ? data : [];
     },
     enabled: !!companyId,
     refetchOnWindowFocus: false,

@@ -2,6 +2,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/app/components/ui/ca
 import { cn } from "@/lib/utils";
 import { Progress } from "@radix-ui/react-progress";
 import React from "react";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 // interface EmissionSource {
 //   id: number;
@@ -145,7 +146,9 @@ export default function FullReportSummary({ data }: any) {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-sm">{source.volume.toLocaleString()}</p>
+                  <p className="font-medium text-sm">
+                    {formatNumberFull(source.volume, { maximumFractionDigits: 2 })}
+                  </p>
                   <p className="text-xs text-muted-foreground border rounded-3xl px-1 whitespace-nowrap">
                     {source.scope}
                   </p>

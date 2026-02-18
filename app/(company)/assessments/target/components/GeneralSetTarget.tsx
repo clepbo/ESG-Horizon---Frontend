@@ -12,7 +12,7 @@ import { SuccessModal } from "./SuccessModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
-import { TargetPayload } from "@/types/target/index";
+import { GeneralTargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
 
 export interface GeneralTargetFormProps {
@@ -44,7 +44,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const router = useRouter();
 
   const createTarget = useMutation({
-    mutationFn: async (targetData: TargetPayload) => {
+    mutationFn: async (targetData: GeneralTargetPayload) => {
       return apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {
@@ -61,35 +61,28 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
-      // Auto-calculate target emission when percentage changes using actual baseline
-      if (processedValue !== null && data.baselineYear && data.targetYear) {
-        const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
-        const targetEmission = baselineEmission * (1 - processedValue / 100);
-        const totalReduction = baselineEmission * (processedValue / 100);
-
-        onChange({
-          ...data,
-          reductionPercentage: processedValue,
-          targetEmission: Math.round(targetEmission),
-          totalReduction: Math.round(totalReduction),
-        });
-        return;
-      }
     }
 
     if (field === "baselineYear" || field === "targetYear") {
       processedValue = value === "" ? null : Number(value);
     }
 
-    // Handle targetEmission changes from formatted input
     if (field === "targetEmission") {
       processedValue = value === "" ? null : Number(value);
     }
 
-    onChange({
-      ...data,
-      [field]: processedValue,
-    });
+    // Update the field, then recalculate if reduction percentage is available
+    const updated = { ...data, [field]: processedValue };
+    const reduction = updated.reductionPercentage;
+    if (reduction !== null && reduction !== undefined) {
+      const baseEmission = baseline?.data?.totalSum || 0;
+      const targetEmission = baseEmission * (1 - reduction / 100);
+      const totalReduction = baseEmission * (reduction / 100);
+      updated.targetEmission = Math.round(targetEmission);
+      updated.totalReduction = Math.round(totalReduction);
+    }
+
+    onChange(updated);
   };
 
   const handleContinue = () => {
@@ -109,16 +102,16 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
     try {
       // Prepare the target payload
-      const targetPayload: TargetPayload = {
+      const targetPayload: GeneralTargetPayload = {
         name: data.name || uniqueName,
         type: "GENERAL",
         description: data.description || "General emissions reduction target",
-        baselineYear: data.baselineYear!,
-        targetYear: data.targetYear!,
+        baselineYear: Number(data.baselineYear!),
+        targetYear: Number(data.targetYear!),
         reductionPercentage: data.reductionPercentage || 0,
-        targetEmission: data.targetEmission || null,
+        targetEmission: calculatedTargetEmission,
         baselineYearEmission: baseline?.data?.totalSum,
-        currentEmission: null,
+        currentEmission: baseline?.data?.totalSum,
       };
 
       // Call the mutation
@@ -150,9 +143,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   };
 
   // Calculate dynamic values for display
-  const baselineEmission = 26830; // Fixed baseline from image
+  const baselineEmission = baseline?.data?.totalSum || 0;
   const calculatedTargetEmission = data?.reductionPercentage
-    ? baseline?.data?.totalSum * (1 - data?.reductionPercentage / 100)
+    ? baselineEmission * (1 - data?.reductionPercentage / 100)
     : 0;
   const calculatedTotalReduction = data?.reductionPercentage
     ? baselineEmission * (data?.reductionPercentage / 100)

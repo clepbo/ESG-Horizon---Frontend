@@ -9,6 +9,7 @@ import {
 } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface EmissionPoint {
   period: string; // label for X-axis
@@ -171,7 +172,10 @@ const EmissionsChart = ({
               domain={["dataMin - 1000", "dataMax + 1000"]} // Add some padding
             />
             <Tooltip
-              formatter={(value) => [`${value?.toLocaleString()} tCO₂e`, "Emissions"]}
+              formatter={(value) => [
+                `${formatNumberFull(value as number, { maximumFractionDigits: 2 })} tCO₂e`,
+                "Emissions",
+              ]}
               labelFormatter={(label) => `Month: ${label}`}
               contentStyle={{
                 borderRadius: "8px",
