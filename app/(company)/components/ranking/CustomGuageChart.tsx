@@ -32,21 +32,22 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       plotBackgroundImage: "",
       plotBorderWidth: 0,
       plotShadow: false,
-      // Give the gauge a bit more vertical space so the half donut feels larger
-      height: "100%",
+      // Larger fixed height so the semicircle is visually dominant
+      height: 380,
     },
     title: {
       text: "Overall ESG Performance",
-      // Make the title more prominent for readability
+      // Make the title more prominent and give space below it
+      margin: 30,
       style: { fontSize: "22px" },
     },
     pane: {
       startAngle: -90,
       endAngle: 89.9,
       background: undefined,
-      center: ["50%", "75%"],
-      // Slightly increase the gauge size within the pane
-      size: "135%",
+      center: ["50%", "80%"],
+      // Increase overall gauge size for a bolder half-circle
+      size: "170%",
     },
     credits: {
       enabled: false,
@@ -120,12 +121,11 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
     <div
       className="highcharts-figure"
       style={{
-        // Make the half donut itself visually larger while staying responsive
+        // Let the gauge use available width while keeping a predictable height
         width: "100%",
-        minWidth: "380px",
         maxWidth: "900px",
-        minHeight: "380px",
-        margin: "1.5em auto",
+        minHeight: "420px",
+        margin: "1.25em auto",
       }}
     >
       <HighchartsReact highcharts={Highcharts} options={options} />

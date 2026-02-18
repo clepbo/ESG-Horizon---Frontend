@@ -42,6 +42,11 @@ export interface ScopeSummaryData {
       scope3: number;
     };
   };
+  baselineSelection?: {
+    baselineAssessmentId: number | null;
+    baselineYear: number;
+    baselinePeriodLabel?: string;
+  } | null;
   calculations: {
     scope1: {
       targetEmission: number;

@@ -1,15 +1,17 @@
 "use client";
 import { Card } from "@/app/components/ui/card";
 import { GoDotFill } from "react-icons/go";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 
 import ReportOverview from "./ReportOverview";
-import ReportEnvironmental from "./ReportEnvironmental";
-import SocialCapital from "./SocialCapital";
-import ReportHumanCapital from "./ReportHumanCapital";
-import BusinessModelPillar from "./business-model/BusinessModelPillar";
-import ReportLeadershipPillar from "./leadership/ReportLeadershipPillar";
 import { ReportResponse } from "@/types/report/reportResponse";
+
+// Lazy-load heavy tab content so only the active tab is fetched and mounted (faster initial load).
+const ReportEnvironmental = lazy(() => import("./ReportEnvironmental"));
+const SocialCapital = lazy(() => import("./SocialCapital"));
+const ReportHumanCapital = lazy(() => import("./ReportHumanCapital"));
+const BusinessModelPillar = lazy(() => import("./business-model/BusinessModelPillar"));
+const ReportLeadershipPillar = lazy(() => import("./leadership/ReportLeadershipPillar"));
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSingleReport } from "../service/useReport";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
@@ -78,38 +80,36 @@ export default function NewReportSummary() {
     completed: "bg-green-500",
   };
 
+  // Tab config only – content is rendered below so only the active tab mounts (faster load).
   const tabs = [
-    {
-      label: "Overview",
-      value: "overview",
-      content: <ReportOverview reportData={reportData} />,
-    },
-    {
-      label: "Environmental",
-      value: "environmental",
-      content: <ReportEnvironmental reportData={reportData} />,
-    },
-    {
-      label: "Social Capital",
-      value: "social-capital",
-      content: <SocialCapital reportData={reportData} />,
-    },
-    {
-      label: "Human Capital",
-      value: "human-capital",
-      content: <ReportHumanCapital reportData={reportData} />,
-    },
-    {
-      label: "Business Model",
-      value: "business-model",
-      content: <BusinessModelPillar reportData={reportData} />,
-    },
-    {
-      label: "Leadership",
-      value: "leadership",
-      content: <ReportLeadershipPillar reportData={reportData} />,
-    },
+    { label: "Overview", value: "overview" },
+    { label: "Environmental", value: "environmental" },
+    { label: "Social Capital", value: "social-capital" },
+    { label: "Human Capital", value: "human-capital" },
+    { label: "Business Model", value: "business-model" },
+    { label: "Leadership", value: "leadership" },
   ];
+
+  function renderActiveTabContent() {
+    const tabContent = (() => {
+      switch (view) {
+        case "environmental":
+          return <ReportEnvironmental reportData={reportData} />;
+        case "social-capital":
+          return <SocialCapital reportData={reportData} />;
+        case "human-capital":
+          return <ReportHumanCapital reportData={reportData} />;
+        case "business-model":
+          return <BusinessModelPillar reportData={reportData} />;
+        case "leadership":
+          return <ReportLeadershipPillar reportData={reportData} />;
+        case "overview":
+        default:
+          return <ReportOverview reportData={reportData} />;
+      }
+    })();
+    return <Suspense fallback={<CardSkeleton />}>{tabContent}</Suspense>;
+  }
 
   async function exportfile(value: string) {
     if (value === "pdf") {
@@ -192,7 +192,7 @@ export default function NewReportSummary() {
             );
           })}
         </Card>
-        <div className=" rounded">{tabs.find((tab) => tab.value === view)?.content}</div>
+        <div className=" rounded">{renderActiveTabContent()}</div>
       </div>
     </div>
   );

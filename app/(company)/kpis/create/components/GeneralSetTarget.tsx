@@ -1,21 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import { useBaselineOptions, useCompanyTargets } from "@/app/(company)/components/ranking/services";
+import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { Textarea } from "@/app/components/ui/textarea";
+import { useAuth } from "@/context/AuthContext";
 import { GeneralTargetData } from "@/types/target";
-import { FaCaretRight } from "react-icons/fa";
+import { BaselineOption, CompanyTargetSummary, targetRangesOverlap } from "@/types/target/index";
 import { useRouter } from "next/navigation";
-import { useBaseline } from "@/app/(company)/components/ranking/services";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaCaretRight } from "react-icons/fa";
+import { EmissionDataResponseGeneral } from "../type";
+import { CalculateEmissionPercentage, calculateTotal, toShortMonth } from "../utils";
 import CustomTooltip from "./CustomTooltip";
 import { TooltipMessage } from "./TooltipMessage";
-import { CalculateEmissionPercentage, calculateTotal } from "../utils";
-import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
-import { EmissionDataResponse, EmissionDataResponseGeneral } from "../type";
-import { useAuth } from "@/context/AuthContext";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
@@ -31,40 +34,95 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const { user } = useAuth();
   const companyId = user?.company?.id;
 
+  const [selectedBaselineId, setSelectedBaselineId] = useState<number | null>(null);
   const [emissionData, setEmissionData] = useState<EmissionDataResponseGeneral>({
     startYear: 0,
     endYear: 0,
     totals: 0,
   });
 
-  const base = useBaseline(companyId);
+  const baselineOptionsQuery = useBaselineOptions(companyId);
+  const companyTargetsQuery = useCompanyTargets(companyId);
+  const existingTargets = useMemo(() => companyTargetsQuery.data ?? [], [companyTargetsQuery.data]);
+
+  const targetYear = data?.targetYear ?? null;
+  const isOptionDisabled = useCallback(
+    (option: BaselineOption): boolean => {
+      if (!targetYear || typeof targetYear !== "number") return false;
+      const baselineYear = Number(option.startYear) || 0;
+      return existingTargets.some((t: CompanyTargetSummary) =>
+        targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear)
+      );
+    },
+    [targetYear, existingTargets]
+  );
+  const getOverlapLabel = useCallback(
+    (option: BaselineOption): string => {
+      if (!targetYear || typeof targetYear !== "number") return "";
+      const baselineYear = Number(option.startYear) || 0;
+      const overlapping = existingTargets.find((t: CompanyTargetSummary) =>
+        targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear)
+      );
+      return overlapping ? ` (overlaps ${overlapping.baselineYear}–${overlapping.targetYear})` : "";
+    },
+    [targetYear, existingTargets]
+  );
 
   useEffect(() => {
-    if (base.isSuccess) {
-      setEmissionData(base?.data);
-    }
-  }, [base.isSuccess, base.data]);
+    if (!baselineOptionsQuery.isSuccess || !baselineOptionsQuery.data?.length) return;
+    const options = baselineOptionsQuery.data;
+    const firstEnabled = options.find((o) => !isOptionDisabled(o));
+    setSelectedBaselineId((current) => {
+      if (current !== null) {
+        const selected = options.find((o) => o.assessmentId === current);
+        if (selected && isOptionDisabled(selected)) return firstEnabled?.assessmentId ?? null;
+        return current;
+      }
+      return firstEnabled?.assessmentId ?? options[0]?.assessmentId ?? null;
+    });
+  }, [
+    baselineOptionsQuery.isSuccess,
+    baselineOptionsQuery.data,
+    targetYear,
+    companyTargetsQuery.data,
+    isOptionDisabled,
+  ]);
 
-  console.log("Emission Data in GeneralTargetForm:", base?.data);
+  useEffect(() => {
+    if (!baselineOptionsQuery.data || !baselineOptionsQuery.data.length || !selectedBaselineId) {
+      return;
+    }
+
+    const selected = baselineOptionsQuery.data.find(
+      (option: BaselineOption) => option.assessmentId === selectedBaselineId
+    );
+
+    if (!selected) return;
+
+    const startYearNumber = Number(selected.startYear) || 0;
+
+    setEmissionData({
+      startYear: startYearNumber,
+      endYear: Number(selected.endYear) || 0,
+      totals: selected.totalEmission ?? 0,
+    });
+
+    // Keep the form's baselineYear in sync with the selected baseline assessment
+    if (data.baselineYear !== startYearNumber) {
+      onChange({
+        ...data,
+        baselineYear: startYearNumber,
+      });
+    }
+  }, [baselineOptionsQuery.data, selectedBaselineId, data, onChange]);
+
+  console.log("Emission Data in GeneralTargetForm:", emissionData);
 
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
-      if (processedValue !== null && data.baselineYear && data.targetYear) {
-        const baselineEmission = emissionData?.totals || 0;
-        const targetEmission = baselineEmission * (1 - processedValue / 100);
-        const totalReduction = baselineEmission * (processedValue / 100);
-
-        onChange({
-          ...data,
-          reductionPercentage: processedValue,
-          targetEmission: Math.round(targetEmission),
-          totalReduction: Math.round(totalReduction),
-        });
-        return;
-      }
     }
 
     if (field === "baselineYear" || field === "targetYear") {
@@ -75,15 +133,23 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
       processedValue = value === "" ? null : Number(value);
     }
 
-    onChange({
-      ...data,
-      [field]: processedValue,
-    });
+    // Update the field, then recalculate if reduction percentage is available
+    const updated = { ...data, [field]: processedValue };
+    const reduction = updated.reductionPercentage;
+    if (reduction !== null && reduction !== undefined) {
+      const baseEmission = emissionData?.totals || 0;
+      const targetEmission = baseEmission * (1 - reduction / 100);
+      const totalReduction = baseEmission * (reduction / 100);
+      updated.targetEmission = Math.round(targetEmission);
+      updated.totalReduction = Math.round(totalReduction);
+    }
+
+    onChange(updated);
   };
 
   // In your form component's handleContinue function:
   const handleContinue = () => {
-    if (data.reductionPercentage && base?.data?.startYear && data.targetYear) {
+    if (data.reductionPercentage && selectedBaselineId && emissionData?.totals && data.targetYear) {
       // Calculate target emission (same calculation)
       const calculatedTargetEmission = data?.reductionPercentage
         ? emissionData?.totals * (1 - data?.reductionPercentage / 100)
@@ -96,12 +162,25 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         calculatedTargetEmission: calculatedTargetEmission,
       });
 
-      // Save to localStorage
+      const selected =
+        baselineOptionsQuery.data?.find(
+          (option: BaselineOption) => option.assessmentId === selectedBaselineId
+        ) ?? null;
+
+      const baselineYear = selected ? Number(selected.startYear) || 0 : emissionData?.startYear;
+      const baselineEmission = selected ? selected.totalEmission : (emissionData?.totals ?? 0);
+      const baselinePeriodLabel = selected
+        ? `${toShortMonth(selected.startMonth)} ${selected.startYear} – ${toShortMonth(selected.endMonth)} ${selected.endYear}`
+        : undefined;
+
+      // Save to localStorage, including the chosen baseline assessment metadata
       const storageData = {
         ...data,
         targetEmission: calculatedTargetEmission, // Make sure this is included
-        baselineEmission: emissionData?.totals ?? 0,
-        baselineYear: base.data.startYear || 0,
+        baselineEmission,
+        baselineYear: baselineYear || 0,
+        baselineAssessmentId: selected?.assessmentId ?? null,
+        baselinePeriodLabel,
       };
 
       localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
@@ -120,10 +199,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     CalculateEmissionPercentage(data.reductionPercentage ?? 0, emissionData?.totals)
   );
 
+  const baselineYearForDiff = emissionData?.startYear || 0;
   const yearDifference =
-    data && base?.data?.startYear
-      ? Math.abs((base.data.startYear ?? 0) - (data.targetYear ?? 0))
-      : 0;
+    data && baselineYearForDiff ? Math.abs(baselineYearForDiff - (data.targetYear ?? 0)) : 0;
 
   const reduction = calculateTotal(
     emissionData?.totals,
@@ -169,32 +247,59 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="baselineYear">
-                Baseline Year{" "}
+              <Label htmlFor="baselineAssessment">
+                Baseline Assessment{" "}
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title={"Baseline Year"}
+                      title={"Baseline Assessment"}
                       message={
-                        "The reference year used to measure progress — typically the year you first started tracking emissions."
+                        "Choose which completed assessment period to use as your baseline for this target."
                       }
                     />
                   }
                 />{" "}
               </Label>
-              <select
-                id="baselineYear"
-                disabled
-                value={base?.data?.startYear ?? ""}
-                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select year</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+              {baselineOptionsQuery.isLoading ? (
+                <div className="flex h-10 items-center text-sm text-gray-500">
+                  Loading baseline options...
+                </div>
+              ) : !baselineOptionsQuery.data || baselineOptionsQuery.data.length === 0 ? (
+                <div className="text-xs text-red-600 space-y-1">
+                  <p>No completed assessments with emissions data were found.</p>
+                  <Link
+                    href="/assessments/new-assessment"
+                    className="text-teal-600 underline font-medium hover:text-teal-700"
+                  >
+                    Go to Assessments
+                  </Link>
+                </div>
+              ) : (
+                <select
+                  id="baselineAssessment"
+                  value={selectedBaselineId ?? ""}
+                  onChange={(e) =>
+                    setSelectedBaselineId(e.target.value ? Number(e.target.value) : null)
+                  }
+                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {baselineOptionsQuery.data.map((option: BaselineOption) => {
+                    const disabled = isOptionDisabled(option);
+                    const overlapLabel = getOverlapLabel(option);
+                    const periodLabel = `${toShortMonth(option.startMonth)} ${option.startYear} – ${toShortMonth(option.endMonth)} ${option.endYear}`;
+                    return (
+                      <option
+                        key={option.assessmentId}
+                        value={option.assessmentId}
+                        disabled={disabled}
+                      >
+                        {periodLabel}
+                        {overlapLabel}
+                      </option>
+                    );
+                  })}
+                </select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -219,7 +324,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
               >
                 <option value="">Select year</option>
                 {years
-                  .filter((year) => year >= (base?.data?.startYear ?? currentYear))
+                  .filter((year) => year >= (emissionData?.startYear || currentYear))
                   .map((year) => (
                     <option key={year} value={year}>
                       {year}
@@ -250,7 +355,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
           <div className="flex flex-col w-full gap-2">
             <div className="space-y-2 flex items-center justify-between w-full">
               <Label className="flex items-center gap-1">
-                Baseline ({emissionData?.startYear})
+                Baseline ({emissionData?.startYear || "—"})
               </Label>
               <div className="text-sm text-gray-900 font-semibold">
                 {formatNumberWithCommas(emissionData?.totals)} tCO₂e
@@ -304,7 +409,12 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
           icon={<FaCaretRight />}
           onClick={handleContinue}
           className="text-white px-6 py-2"
-          disabled={!data?.reductionPercentage || !base?.data?.startYear || !data?.targetYear}
+          disabled={
+            !data?.reductionPercentage ||
+            !selectedBaselineId ||
+            !emissionData?.totals ||
+            !data?.targetYear
+          }
         >
           Continue
         </CustomButton>
