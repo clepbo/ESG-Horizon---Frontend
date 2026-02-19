@@ -6,10 +6,17 @@ import { Eye, SquarePen, Search } from "lucide-react";
 import Pagination from "@/app/components/ui/reusables/Pagination";
 import Spinner from "../../ui/reusables/Spinner";
 import { fetchReports } from "@/lib/api/reportsApi";
-import { Report, formatReportPeriod } from "@/lib/mockData/mockReports";
+import { Report } from "@/lib/mockData/mockReports";
 
-import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+
 
 // Status badge styles
 const statusStyles: Record<string, string> = {
@@ -51,7 +58,7 @@ export default function ReportActivityTable() {
     loadReports();
   }, [loadReports]);
 
-  const tabStatus = TABS.find((t) => t.id === activeTab)?.status ?? null;
+  // const tabStatus = TABS.find((t) => t.id === activeTab)?.status ?? null;
 
   const filteredReports = useMemo(() => {
     return reports.filter((report) => {
@@ -79,26 +86,7 @@ export default function ReportActivityTable() {
 
   return (
     <div className="space-y-4">
-      {/* Tabs – filter displayed reports */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 w-full">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => {
-              setActiveTab(tab.id);
-              setCurrentPage(1);
-            }}
-            className={`w-full px-4 py-2 text-sm rounded-md shadow text-center transition-colors ${
-              activeTab === tab.id
-                ? "bg-teal-600 text-white border border-teal-600"
-                : "bg-white text-gray-800 border border-teal-600 hover:bg-gray-50"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Tabs removed */}
 
       {/* Search only (no Type or Status filters) */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
