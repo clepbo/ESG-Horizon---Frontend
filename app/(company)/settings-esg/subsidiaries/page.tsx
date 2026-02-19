@@ -11,6 +11,7 @@ import { industriesService } from "@/services/industries.services";
 import { useDeleteSubsidiary } from "@/hooks/UseSubsidiary";
 import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import CompanySetupModal from "@/app/components/company/CompanySetupModal";
+import { companyService } from "@/services/company.service";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
@@ -27,6 +28,7 @@ export default function SubsidiariesPage() {
   const { data: subsidiariesData, isLoading: subsidiariesLoading } = useCompanySubsidiaries();
   // Restore local state to support legacy manual updates while syncing with the hook
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
+  const [company, setCompany] = useState<{ id: number; name: string; status?: string } | undefined>();
   const loading = subsidiariesLoading;
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -44,6 +46,12 @@ export default function SubsidiariesPage() {
       setSubsidiaries(subsidiariesData);
     }
   }, [subsidiariesData]);
+
+  useEffect(() => {
+    companyService.getDetails().then((c) => {
+      if (c) setCompany({ id: c.id, name: c.name });
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const shouldOpenModal = searchParams.get("setup");
@@ -161,6 +169,7 @@ export default function SubsidiariesPage() {
           <div>
             <SubsidiaryTable
               subsidiaries={filteredSubsidiaries}
+              company={company}
               onDelete={(id) => {
                 deleteSubsidiary.mutate(+id);
                 setSubsidiaries((prev) => prev.filter((s) => s.id !== id));

@@ -9,13 +9,15 @@ import { useRouter } from "next/navigation";
 import { Department } from "@/services/department.service";
 import { Card } from "../../ui/card";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
+import ParentCompanyBadge from "../../ui/reusables/ParentCompanyBadge";
 
 type Props = {
   departments: Department[];
   onUpdate?: () => void;
+  companyName?: string;
 };
 
-export default function DepartmentsTable({ departments, onUpdate }: Props) {
+export default function DepartmentsTable({ departments, onUpdate, companyName }: Props) {
   const router = useRouter();
 
   // Pagination
@@ -62,9 +64,10 @@ export default function DepartmentsTable({ departments, onUpdate }: Props) {
                       <td className="px-4 py-3">{dept.name}</td>
                       <td className="px-4 py-3">
                         {dept.subsidiary?.name || (
-                          <span className="text-gray-400 font-medium text-sm italic">
-                            Main (HQ)
-                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-medium text-gray-900">{companyName || "—"}</span>
+                            <ParentCompanyBadge />
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-3 text-gray-500">
