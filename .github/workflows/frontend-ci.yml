@@ -89,10 +89,10 @@ jobs:
             mkdir -p .next/static
             if [ -d ".next/static" ]; then
                 # This ensures the global .next/static is populated
-                : 
+                :
             fi
 
-            # 3. CLEANUP 
+            # 3. CLEANUP
             # We can remove the build-time standalone folder now that it's copied
             rm -rf .next/standalone
 
