@@ -11,6 +11,7 @@ interface AssessmentHubCardProps {
   description: string;
   progress: number;
   completed: string;
+  assessmentId?: number | null;
 }
 
 export default function AssessmentHubCard({
@@ -20,6 +21,7 @@ export default function AssessmentHubCard({
   description,
   progress,
   completed,
+  assessmentId,
 }: AssessmentHubCardProps) {
   const FallbackIcon = Icon || Zap;
 
@@ -67,6 +69,12 @@ export default function AssessmentHubCard({
             "w-full bg-transparent border border-esg-green text-teal-500 transform hover:scale-[1.02] hover:text-white transition-colors"
           }
           onClick={() => {
+            // "Continue" → go directly to the in-progress assessment
+            if (progress > 0 && assessmentId) {
+              router.push(`/assessments/${assessmentId}`);
+              return;
+            }
+            // "Start" → go to the assessment hub for this pillar
             if (type === "Environmental")
               router.push("/assessments/new-assessment?tab=environmental");
             if (type === "Social") router.push("/assessments/new-assessment?tab=social");

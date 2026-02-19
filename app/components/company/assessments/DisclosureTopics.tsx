@@ -430,7 +430,12 @@ export function DisclosureTopics({
     );
   }
   if (currentView === "crs") {
-    return <CommunityRelationsHome onBack={() => setCurrentView("topics")} />;
+    return (
+      <CommunityRelationsHome
+        onBack={() => setCurrentView("topics")}
+        initialForm={initialForm as any}
+      />
+    );
   }
   if (currentView === "air-quality") {
     return (

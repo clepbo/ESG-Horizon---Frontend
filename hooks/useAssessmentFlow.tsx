@@ -23,6 +23,12 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assessment", state.assessmentId] });
     },
+    onError: (err: any) => {
+      const msg = err.response?.data?.message || "";
+      if (msg.includes("submitted group")) {
+        dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: msg });
+      }
+    },
   });
 
   const autoSave = useDebouncedCallback((path: string, data: any) => {
@@ -55,7 +61,11 @@ export const useAssessmentFlow = (currentFormKey: string) => {
       await ensureIdAndSave(path, data);
     } catch (err: any) {
       const msg = err.response?.data?.message || "Failed to save data. Please try again.";
-      toast.error(msg);
+      if (msg.includes("submitted group")) {
+        dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: msg });
+      } else {
+        toast.error(msg);
+      }
       throw err;
     }
   };

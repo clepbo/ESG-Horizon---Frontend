@@ -19,6 +19,7 @@ export interface CompanyDashboardData {
     social: { progress: number; completed: string };
     governance: { progress: number; completed: string };
   } | null;
+  latestAssessmentId?: number | null;
 }
 
 export interface CompanyDashboardApiResponse {

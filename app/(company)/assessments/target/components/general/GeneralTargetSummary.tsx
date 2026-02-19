@@ -45,10 +45,24 @@ export function GeneralTargetSummary({
             <h6 className="text-2xl font-semibold text-gray-900">
               {reductionPercentage}% Reduction Target
             </h6>
-            <p className="text-gray-600">
-              From {baselineEmission?.toLocaleString()} to {targetEmission?.toLocaleString()} tCO₂e
-              by {targetYear}
-            </p>
+            <div className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="font-medium text-gray-700">From</span>
+                <span className="font-semibold text-red-500 text-right">
+                  {baselineEmission?.toLocaleString()} tCO₂e
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="font-medium text-gray-700">To</span>
+                <span className="font-semibold text-green-600 text-right">
+                  {targetEmission?.toLocaleString()} tCO₂e
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between gap-6">
+                <span className="font-medium text-gray-700">By</span>
+                <span className="font-semibold text-gray-900 text-right">{targetYear}</span>
+              </div>
+            </div>
           </div>
 
           {/* Target Details */}

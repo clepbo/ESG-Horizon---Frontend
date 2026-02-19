@@ -61,12 +61,16 @@ export interface EnvironmentalPillar {
   changePercentage?: number;
   greenhouseGasEmission?: {
     totalEmissions: number;
+    totalChange: number | null;
     totalHistory: EmissionHistory[];
     scope1Emissions: number;
+    scope1Change: number | null;
     scope1History: EmissionHistory[];
     scope2Emissions: number;
+    scope2Change: number | null;
     scope2History: EmissionHistory[];
     scope3Emissions: number;
+    scope3Change: number | null;
     scope3History: EmissionHistory[];
   };
   ghg?: GHGData;
@@ -82,7 +86,9 @@ export interface SocialCapitalPillar {
   totalNumberOfIncidents?: number;
   securityHumanRightsAndIndigenousPeople?: {
     operationsInConflictZones?: {
+      totalProvedReserves: number;
       provedReserves: number;
+      totalProbableReserves: number;
       probableReserves: number;
     };
     reservesInNearIndigenousLand?: {
@@ -99,9 +105,8 @@ export interface SocialCapitalPillar {
       percentage: number;
     };
     communityDisputeResolution?: {
-      resolvedDisputes: number;
-      pending: number;
-      total: number;
+      disputesReferred: number;
+      disputesResolved: number;
     };
     operationalDelays?: {
       protests?: {

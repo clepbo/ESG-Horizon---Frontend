@@ -87,7 +87,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
     series: [
       {
         type: "gauge",
-        name: "Speed",
+        name: "ESG Score",
         data: [score],
         tooltip: {
           valueSuffix: "",

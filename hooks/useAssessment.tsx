@@ -2,6 +2,10 @@
 
 import { TotalsResponse, ScopeTotals, AssessmentProgress } from "@/services/assessment.service";
 import React, { createContext, useContext, useReducer, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import CustomDialog from "@/app/components/ui/reusables/CustomDialog";
+import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
+import { AlertTriangle } from "lucide-react";
 
 export interface FileData {
   id?: string;
@@ -436,6 +440,7 @@ export interface AssessmentState {
   scopeTotals: ScopeTotals;
   lastSubmittedAt?: string;
   targetStep?: string;
+  lockedGroupError: string | null;
 }
 
 type AssessmentAction =
@@ -444,6 +449,7 @@ type AssessmentAction =
   | { type: "SET_TARGET_STEP"; payload: string }
   | { type: "SET_CONTINUE_MODE"; payload: boolean }
   | { type: "SET_ASSIGNED_TASK"; payload: boolean }
+  | { type: "SET_LOCKED_GROUP_ERROR"; payload: string | null }
   | {
     type: "UPDATE_ASSESSMENT_METADATA";
     payload: {
@@ -1081,6 +1087,7 @@ const initialState: AssessmentState = {
     scope3: 0,
     total: 0,
   },
+  lockedGroupError: null,
 };
 
 function assessmentReducer(state: AssessmentState, action: AssessmentAction): AssessmentState {
@@ -2091,6 +2098,8 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         error: action.payload,
         isLoading: false,
       };
+    case "SET_LOCKED_GROUP_ERROR":
+      return { ...state, lockedGroupError: action.payload };
     default:
       return state;
   }
@@ -2103,6 +2112,7 @@ export const AssessmentContext = createContext<{
 
 export function AssessmentProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(assessmentReducer, initialState);
+  const router = useRouter();
 
   React.useEffect(() => {
     dispatch({ type: "SET_LOADING", payload: true });
@@ -2122,7 +2132,43 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AssessmentContext.Provider value={{ state, dispatch }}>{children}</AssessmentContext.Provider>
+    <AssessmentContext.Provider value={{ state, dispatch }}>
+      {children}
+
+      <CustomDialog
+        open={!!state.lockedGroupError}
+        onOpenChange={() => dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null })}
+      >
+        <div className="flex flex-col items-center gap-4 py-4 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
+            <AlertTriangle className="h-7 w-7 text-amber-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-white">Section Already Submitted</h3>
+          <p className="text-sm text-gray-300 max-w-md">
+            This section has already been submitted and is locked for editing. Please continue with
+            the next section or start a new assessment to enter updated data.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <CustomButton
+              variant="outlined"
+              onClick={() => dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null })}
+            >
+              Dismiss
+            </CustomButton>
+            <CustomButton
+              onClick={() => {
+                dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null });
+                if (state.assessmentId) {
+                  router.push(`/assessments/${state.assessmentId}`);
+                }
+              }}
+            >
+              Continue Assessment
+            </CustomButton>
+          </div>
+        </div>
+      </CustomDialog>
+    </AssessmentContext.Provider>
   );
 }
 

@@ -40,11 +40,10 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
       {/* Header */}
       <div className="flex items-center gap-3">
         <span
-          className="flex shrink-0 items-center justify-center rounded-lg p-2.5"
-          style={{ backgroundColor: "#f5e6d3" }}
+          className="flex shrink-0 items-center justify-center rounded-lg p-2.5 bg-blue-50"
           aria-hidden
         >
-          <HardHat className="h-6 w-6 text-amber-600 sm:h-7 sm:w-7" strokeWidth={2} />
+          <HardHat className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7" strokeWidth={2} />
         </span>
         <div className="flex flex-col gap-0.5">
           <h2 className="text-lg font-bold text-gray-900 sm:text-xl">Human Capital</h2>

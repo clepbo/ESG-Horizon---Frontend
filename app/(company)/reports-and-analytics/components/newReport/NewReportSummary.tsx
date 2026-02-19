@@ -76,7 +76,7 @@ export default function NewReportSummary() {
   }
 
   const bg = {
-    progress: "bg-orange-300",
+    progress: "bg-blue-400",
     completed: "bg-green-500",
   };
 

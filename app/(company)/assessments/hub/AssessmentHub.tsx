@@ -208,6 +208,30 @@ export default function AssessmentHub() {
     );
   }
 
+  // Handle all non-GHG disclosure topic views (social, human capital, business model, leadership, etc.)
+  const disclosureTopicViews = [
+    "biodiversity",
+    "crs",
+    "security-human-rights",
+    "air-quality",
+    "water-and-wastewater-management",
+    "workforce-health-and-safety",
+    "reserves-valuation-capital-expenditures",
+    "business-ethics-transparency",
+    "critical-incident-risk-management",
+    "management-of-legal-and-regulatory-environment",
+  ];
+
+  if (disclosureTopicViews.includes(state.currentView)) {
+    return (
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView={state.currentView}
+        initialForm={state.targetStep as any}
+      />
+    );
+  }
+
   const isFormValid =
     state.assessmentData.startMonth &&
     state.assessmentData.startYear &&

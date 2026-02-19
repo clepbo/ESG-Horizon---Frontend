@@ -3,9 +3,6 @@
 import { PieChart, Pie, Cell } from "recharts";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { CustomButton } from "../reusables/CustomButton";
-import { Edit, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
 
 interface MiniDonutChartProps {
@@ -100,34 +97,11 @@ interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const KpiCard: React.FC<KpiCardProps> = ({
   title,
   children,
-  isTarget = false,
   className,
 }) => {
-  const router = useRouter();
   return (
     <div className={cn("w-full rounded-lg bg-white p-6 shadow-sm", className)}>
-      {/* {title && <h2 className="text-lg font-semibold mb-4">{title}</h2>} */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
-        <div className="flex flex-wrap justify-end gap-3">
-          <CustomButton
-            variant="outlined"
-            icon={<Plus />}
-            onClick={() => router.push("/kpis/create")}
-          >
-            Set New Target
-          </CustomButton>
-          {isTarget && (
-            <CustomButton
-              variant="filled"
-              icon={<Edit />}
-              onClick={() => router.push("/kpis/edit")}
-            >
-              Edit Target
-            </CustomButton>
-          )}
-        </div>
-      </div>
+      {title && <h2 className="text-lg font-semibold mb-4">{title}</h2>}
       {children}
     </div>
   );
