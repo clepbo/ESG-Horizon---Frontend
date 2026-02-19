@@ -90,9 +90,11 @@ export function SuccessScreen({
             <br />
             <span className="font-bold text-lg">
               {"="}
-              {(sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
+              {Number(
+                (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
                 totals?.totals?.sum ??
-                0}{" "}
+                0
+              ).toFixed(2)}{" "}
               tCO₂e
             </span>
           </p>
