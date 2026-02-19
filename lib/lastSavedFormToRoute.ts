@@ -144,4 +144,51 @@ export const LAST_SAVED_FORM_MAP: Record<string, { view: string; form?: string; 
     view: "activity-metrics",
     step: "terrestrial-sites",
   },
+  // Business Innovation
+  "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing": {
+    view: "reserves-valuation-capital-expenditures",
+    step: "reserves-sensitivity-carbon-pricing",
+  },
+  "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves": {
+    view: "reserves-valuation-capital-expenditures",
+    step: "embedded-carbon",
+  },
+  "businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment": {
+    view: "reserves-valuation-capital-expenditures",
+    step: "renewable-energy-investment",
+  },
+  "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy": {
+    view: "reserves-valuation-capital-expenditures",
+    step: "capital-expenditure-strategy",
+  },
+  "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk": {
+    view: "business-ethics-transparency",
+    step: "reserves-in-countries-with-high-corruption-risk",
+  },
+  "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem": {
+    view: "business-ethics-transparency",
+    step: "anti-corruption-management-system",
+  },
+  // Human Capital
+  "humanCapital.workforceHealthSafety.workforceHealthSafety": {
+    view: "workforce-health-and-safety",
+    step: "workforce-health-safety",
+  },
+  // Leadership & Governance
+  "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems": {
+    view: "critical-incident-risk-management",
+    step: "catastrophic-risk-management-systems",
+  },
+  "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents": {
+    view: "critical-incident-risk-management",
+    step: "process-safety-events",
+  },
+  "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight": {
+    view: "management-of-legal-and-regulatory-environment",
+    step: "board-and-management-oversight",
+  },
+  "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.publicPolicyEngagement": {
+    view: "management-of-legal-and-regulatory-environment",
+    step: "public-policy-engagement",
+  },
 };

@@ -131,15 +131,8 @@ export default function EmbeddedCarbonInReserves({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     setIsSaving(true);
     setShowSaveSuccess(false);
-
-    // businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve
 
     try {
       await saveNow(
@@ -239,7 +232,7 @@ export default function EmbeddedCarbonInReserves({
                 totalProvedReserves.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, totalProvedReserves: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="Billion BOE"
               error={errors.totalProvedReserves}
               unitError={errors.totalProvedReservesUnit}
@@ -258,7 +251,7 @@ export default function EmbeddedCarbonInReserves({
                 estimatedEmbeddedEmissions.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, estimatedEmbeddedEmissions: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="Million t CO₂-e"
               error={errors.estimatedEmbeddedEmissions}
               unitError={errors.estimatedEmbeddedEmissionsUnit}

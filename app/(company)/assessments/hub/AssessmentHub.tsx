@@ -197,12 +197,30 @@ export default function AssessmentHub() {
     }
   }
 
-  // NEW: Handle activity-metrics view
   if (state.currentView === "activity-metrics") {
     return (
       <DisclosureTopics
         onBack={handleBack}
         initialView="activity-metrics"
+        initialStep={state.targetStep as any}
+      />
+    );
+  }
+
+  // Handle Business Innovation & Human Capital views
+  const otherViews = [
+    "reserves-valuation-capital-expenditures",
+    "business-ethics-transparency",
+    "workforce-health-and-safety",
+    "critical-incident-risk-management",
+    "management-of-legal-and-regulatory-environment"
+  ];
+
+  if (otherViews.includes(state.currentView)) {
+    return (
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView={state.currentView}
         initialStep={state.targetStep as any}
       />
     );
