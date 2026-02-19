@@ -122,6 +122,16 @@ export interface HumanCapitalPillar {
   fatalities?: number;
   nearMisses?: number;
   averageSafetyTrainingHoursPerEmployee?: number;
+  direct?: HumanCapitalMetrics;
+  contract?: HumanCapitalMetrics;
+}
+
+export interface HumanCapitalMetrics {
+  recordableIncidents?: number;
+  fatalities?: number;
+  nearMisses?: number;
+  totalHoursWorked?: number;
+  trir?: number;
 }
 
 export interface BusinessModelPillar {
@@ -326,7 +336,7 @@ export interface BiodiversityImpactsData {
 }
 
 // Placeholder pillar interfaces (keep for backwards compatibility)
-export interface SocialPillar {}
+export interface SocialPillar { }
 
 export interface Target {
   id?: number;

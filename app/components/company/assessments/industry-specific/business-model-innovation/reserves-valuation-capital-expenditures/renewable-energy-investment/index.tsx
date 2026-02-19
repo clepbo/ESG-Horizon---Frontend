@@ -131,11 +131,6 @@ export default function RenewableEnergyInvestment({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     try {
       await saveNow(current, payload);
       dispatch({
@@ -225,7 +220,7 @@ export default function RenewableEnergyInvestment({
                 investmentAmount.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, investmentAmount: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="NGN"
               error={errors.investmentAmount}
               formatNumbers={false}
@@ -243,7 +238,7 @@ export default function RenewableEnergyInvestment({
                 revenueAmount.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, revenueAmount: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="NGN"
               error={errors.revenueAmount}
               formatNumbers={false}
@@ -282,9 +277,8 @@ export default function RenewableEnergyInvestment({
                 }}
                 placeholder="e.g., Pilot solar power project for a production facility to reduce diesel consumption."
                 rows={6}
-                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                  errors.projectDescription ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.projectDescription ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.projectDescription && (
                 <p className="text-sm text-red-500">{errors.projectDescription}</p>

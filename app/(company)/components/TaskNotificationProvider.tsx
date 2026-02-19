@@ -27,9 +27,12 @@ interface TaskNotificationProviderProps {
 
 export default function TaskNotificationProvider({ children }: TaskNotificationProviderProps) {
   const { user } = useAuth();
-  const { data: allTasks = [], isLoading } = useMyTasks();
   const [showDialog, setShowDialog] = useState(false);
   const [hasShownDialog, setHasShownDialog] = useState(false);
+
+  const { data: allTasks = [], isLoading } = useMyTasks({
+    enabled: user?.role?.name !== "company_esg_admin" && !hasShownDialog,
+  });
 
   // Filter tasks to only show those assigned to the logged-in user
   const myTasks = allTasks.filter((task) => {
