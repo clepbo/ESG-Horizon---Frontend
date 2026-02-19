@@ -28,6 +28,7 @@ const STATUS_OPTIONS = [
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [companyName, setCompanyName] = useState<string>("");
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
@@ -46,6 +47,7 @@ export default function TeamsPage() {
       setLoading(false);
       return;
     }
+    setCompanyName(yourCompany.name);
     try {
       const depts = await departmentService.getAll(yourCompany.id);
       setDepartments(depts);
@@ -153,6 +155,7 @@ export default function TeamsPage() {
             users={filteredData}
             setUsers={setUsers}
             onStatusUpdate={handleStatusUpdate}
+            companyName={companyName}
           />
         )}
       </motion.main>

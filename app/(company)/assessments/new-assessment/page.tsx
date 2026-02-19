@@ -91,24 +91,33 @@ function NewAssessmentPage() {
             : "";
 
       const data = a.assessmentData ?? {};
+      const activity = data.activityMetrics;
       const env = data.environment ?? data.environmental;
       const social = data.socialCapital ?? data.social;
       const human = data.humanCapital;
-      const gov = data.leadershipAndGovernance;
-      const businessModel = data.businessModel;
+      const business = data.businessInnovation ?? data.businessModel;
+      const leadership = data.leadershipGovernance;
 
+      const hasActivity = !!activity && Object.keys(activity).length > 0;
       const hasEnv = !!env && Object.keys(env).length > 0;
-      const hasSocial =
-        (!!social && Object.keys(social).length > 0) ||
-        (!!human && Object.keys(human).length > 0);
-      const hasGov =
-        (!!gov && Object.keys(gov).length > 0) ||
-        (!!businessModel && Object.keys(businessModel).length > 0);
+      const hasSocial = !!social && Object.keys(social).length > 0;
+      const hasHuman = !!human && Object.keys(human).length > 0;
+      const hasBusiness = !!business && Object.keys(business).length > 0;
+      const hasLeadership =
+        !!leadership?.criticalIncidentRiskManagement &&
+        Object.keys(leadership.criticalIncidentRiskManagement).length > 0;
+      const hasGovernance =
+        !!leadership?.legalRegulatoryEnvironment &&
+        Object.keys(leadership.legalRegulatoryEnvironment).length > 0;
 
-      const pillars: ("E" | "S" | "G")[] = [];
+      const pillars: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[] = [];
+      if (hasActivity) pillars.push("A");
       if (hasEnv) pillars.push("E");
       if (hasSocial) pillars.push("S");
-      if (hasGov) pillars.push("G");
+      if (hasHuman) pillars.push("H");
+      if (hasBusiness) pillars.push("B");
+      if (hasLeadership) pillars.push("L");
+      if (hasGovernance) pillars.push("G");
 
       return {
         id: a.id,

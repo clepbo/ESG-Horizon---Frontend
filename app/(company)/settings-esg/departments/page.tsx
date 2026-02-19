@@ -15,6 +15,7 @@ import TableManagementControls from "@/app/components/company/TableManagementCon
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [companyName, setCompanyName] = useState<string>("");
   const [showAddDepartmentModal, setShowAddDepartmentModal] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Status");
@@ -45,6 +46,7 @@ export default function DepartmentsPage() {
       if (!yourCompany) {
         throw new Error("No company details found");
       }
+      setCompanyName(yourCompany.name);
       const data = await departmentService.getAll(yourCompany.id);
       setDepartments(data);
     } catch (error) {
@@ -162,7 +164,7 @@ export default function DepartmentsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">
-            <DepartmentsTable departments={filteredDepartments} onUpdate={loadDepartments} />
+            <DepartmentsTable departments={filteredDepartments} onUpdate={loadDepartments} companyName={companyName} />
           </div>
         )}
       </motion.main>

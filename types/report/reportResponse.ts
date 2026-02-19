@@ -86,7 +86,9 @@ export interface SocialCapitalPillar {
       probableReserves: number;
     };
     reservesInNearIndigenousLand?: {
+      totalProvedReserves: number;
       provedReserves: number;
+      totalProbableReserves: number;
       probableReserves: number;
     };
   };
