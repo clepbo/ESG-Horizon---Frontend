@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
 import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
+import { useAuth } from "@/context/AuthContext";
 
 function NewAssessmentPage() {
   const router = useRouter();
@@ -26,18 +27,39 @@ function NewAssessmentPage() {
   const hasAssignedTasks = userTasks && userTasks.length > 0;
   const hasAssessments = assessments && assessments.length > 0;
 
+  const { user } = useAuth();
+  const isCompanyAdmin = user?.role?.name === "company_esg_admin";
+
   // Auto-redirect to my-tasks view if user has assigned tasks (only on initial load)
   useEffect(() => {
     if (
       !tasksLoading &&
       hasAssignedTasks &&
       state.currentView === "hub" &&
-      !hasRedirected.current
+      !hasRedirected.current &&
+      !isCompanyAdmin // Prevent redirect for admin
     ) {
       hasRedirected.current = true;
       dispatch({ type: "SET_VIEW", payload: "my-tasks" });
     }
-  }, [hasAssignedTasks, tasksLoading, state.currentView, dispatch]);
+  }, [
+    hasAssignedTasks,
+    tasksLoading,
+    state.currentView,
+    dispatch,
+    isCompanyAdmin,
+  ]);
+
+  // Add safeguards to escape task view if admin
+  useEffect(() => {
+    if (
+      isCompanyAdmin &&
+      (state.currentView === "my-tasks" || state.isAssignedTask)
+    ) {
+      dispatch({ type: "SET_VIEW", payload: "hub" });
+      dispatch({ type: "SET_ASSIGNED_TASK", payload: false });
+    }
+  }, [isCompanyAdmin, state.currentView, state.isAssignedTask, dispatch]);
   const isInTaskFlow = state.currentView === "my-tasks" || state.isAssignedTask;
 
   if (isInTaskFlow) {
@@ -94,7 +116,7 @@ function NewAssessmentPage() {
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
-        progress: a.assessmentData?.overallProgress ?? 0,
+        progress: a.assessmentData?.overallProgress ?? null,
         rejection_reason: (a as any).rejection_reason,
         lastUpdated: a.updatedAt,
         pillars,

@@ -58,7 +58,7 @@ export function ProductionVolume({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.activityMetrics?.productionVolume;
+    const existingData = state.assessmentData.activityMetrics?.productionVolume;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.crudeOilProductionVolume !== undefined) {
         crudeOilProduction.handleChange(String(existingData.crudeOilProductionVolume));
@@ -77,7 +77,7 @@ export function ProductionVolume({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.assessmentData.environment?.activityMetrics?.productionVolume]);
+  }, [state.assessmentData.activityMetrics?.productionVolume]);
 
   const _breadcrumFeature = [
     { label: "Dashboard", href: "/dashboard-esg" },

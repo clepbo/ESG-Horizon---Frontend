@@ -38,7 +38,6 @@ export default function Reportcard({
     }
   }
 
-  console.log("DOne:", done, "Overall:", overall);
   return (
     <Card className="w-full h-64 flex flex-col p-4 gap-2 md:gap-4 justify-center">
       <CardTitle className=""> {subsidiary} </CardTitle>

@@ -175,12 +175,12 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
 
   const filteredData = dateRange
     ? data.filter((a) => {
-        const startDate = new Date(a.startPeriod);
-        const endDate = new Date(a.endPeriod);
-        const rangeStart = new Date(dateRange.startMonth);
-        const rangeEnd = new Date(dateRange.endMonth);
-        return startDate >= rangeStart && endDate <= rangeEnd;
-      })
+      const startDate = new Date(a.startPeriod);
+      const endDate = new Date(a.endPeriod);
+      const rangeStart = new Date(dateRange.startMonth);
+      const rangeEnd = new Date(dateRange.endMonth);
+      return startDate >= rangeStart && endDate <= rangeEnd;
+    })
     : data;
 
   const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);
@@ -336,10 +336,10 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
       id: "progress",
       header: "Progress",
       cell: (info) => {
-        const percentage = info.row.original.progress ?? 0;
+        const percentage = info.row.original.progress;
         const radius = 22;
         const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (percentage / 100) * circumference;
+        const offset = circumference - ((percentage ?? 0) / 100) * circumference;
         const index = info.row.index;
 
         return (
@@ -380,7 +380,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
               />
             </svg>
             <span className="absolute text-[11px] font-semibold text-gray-800">
-              {percentage > 0 ? `${percentage}%` : "N/A"}
+              {percentage != null ? `${percentage}%` : "N/A"}
             </span>
           </div>
         );
