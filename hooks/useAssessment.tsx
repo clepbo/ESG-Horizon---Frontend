@@ -49,6 +49,11 @@ export interface AssessmentData {
   overallProgress?: number;
   scopeTotals?: ScopeTotals;
   totals?: TotalsResponse;
+  humanCapital?: any;
+  socialCapital?: any;
+  businessInnovation?: any;
+  businessModel?: any;
+  businessModelAndInnovation?: any;
   activityMetrics?: {
     productionVolume?: {
       progress?: number;
@@ -2051,6 +2056,14 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         assessmentData: {
           ...state.assessmentData,
           ...action.payload,
+          environment: {
+            ...state.assessmentData.environment,
+            ...(action.payload.environment || {}),
+            businessInnovation: {
+              ...state.assessmentData.environment?.businessInnovation,
+              ...(action.payload.environment?.businessInnovation || {}),
+            },
+          },
           assessmentId: action.payload.assessmentId ?? state.assessmentData.assessmentId,
         },
         isLoading: false,

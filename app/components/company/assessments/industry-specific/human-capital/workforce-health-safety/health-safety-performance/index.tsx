@@ -44,6 +44,10 @@ export default function HealthSafetyPerformance({
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeTab]);
+
   const combinedProgress = {
     filled: directProgress.filled + contractProgress.filled,
     total: directProgress.total + contractProgress.total,
@@ -95,7 +99,7 @@ export default function HealthSafetyPerformance({
                       employeeType="direct"
                       data={directFormData}
                       onChange={onDirectFormChange}
-                      onContinueToNextAssessment={onContinueToNextAssessment}
+                      onContinueToNextAssessment={() => setActiveTab("contract")}
                       onBack={onBack}
                       onProgressChange={setDirectProgress}
                     />
@@ -107,7 +111,7 @@ export default function HealthSafetyPerformance({
                       data={contractFormData}
                       onChange={onContractFormChange}
                       onContinueToNextAssessment={onContinueToNextAssessment}
-                      onBack={onBack}
+                      onBack={() => setActiveTab("direct")}
                       onProgressChange={setContractProgress}
                     />
                   </TabsContent>
