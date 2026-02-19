@@ -61,7 +61,7 @@ export function TerrestialSites({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.activityMetrics?.assetPortfolio?.terrestrialSites;
+      state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.flowStations !== undefined) {
         flowStations.handleChange(String(existingData.flowStations));
@@ -77,7 +77,7 @@ export function TerrestialSites({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.terrestrialSites]);
+  }, [state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

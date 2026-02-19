@@ -15,6 +15,10 @@ interface HealthSafetyPerformanceProps {
   stepIndex?: number;
   totalSteps?: number;
   breadcrumb: BreadcrumbItemType[];
+  directFormData: EmployeeFormData;
+  onDirectFormChange: (data: EmployeeFormData) => void;
+  contractFormData: EmployeeFormData;
+  onContractFormChange: (data: EmployeeFormData) => void;
 }
 
 export default function HealthSafetyPerformance({
@@ -23,75 +27,15 @@ export default function HealthSafetyPerformance({
   stepIndex = 1,
   totalSteps = 2,
   breadcrumb,
+  directFormData,
+  onDirectFormChange,
+  contractFormData,
+  onContractFormChange,
 }: HealthSafetyPerformanceProps) {
   const { state } = useAssessment();
-
-  const savedHealthSafety: any = (state.assessmentData as any)?.humanCapital
-    ?.riskAndOpportunityManagement?.healthAndSafetyPerformance;
-
-  const getInitialFormData = (employeeType: "direct" | "contract"): EmployeeFormData => {
-    if (!savedHealthSafety) {
-      return { ...defaultEmployeeFormData };
-    }
-
-    let source: any | undefined;
-
-    if (Array.isArray(savedHealthSafety)) {
-      source = savedHealthSafety.find((entry) => entry?.employeeType === employeeType);
-    } else if (savedHealthSafety[employeeType]) {
-      source = savedHealthSafety[employeeType];
-    } else if (savedHealthSafety.employeeType === employeeType) {
-      source = savedHealthSafety;
-    }
-
-    if (!source) {
-      return { ...defaultEmployeeFormData };
-    }
-
-    return {
-      ...defaultEmployeeFormData,
-      totalHoursWorked:
-        source.totalHoursWorked !== undefined && source.totalHoursWorked !== null
-          ? String(source.totalHoursWorked)
-          : "",
-      recordableIncidents:
-        source.recordableIncidents !== undefined && source.recordableIncidents !== null
-          ? String(source.recordableIncidents)
-          : "",
-      fatalities:
-        source.fatalities !== undefined && source.fatalities !== null
-          ? String(source.fatalities)
-          : "",
-      nearMisses:
-        source.nearMisses !== undefined && source.nearMisses !== null
-          ? String(source.nearMisses)
-          : "",
-      safetyTrainingHours:
-        source.safetyTrainingHours !== undefined && source.safetyTrainingHours !== null
-          ? String(source.safetyTrainingHours)
-          : "",
-      totalHoursWorkedUnit:
-        source.totalHoursWorkedUnit ?? defaultEmployeeFormData.totalHoursWorkedUnit,
-      recordableIncidentsUnit:
-        source.recordableIncidentsUnit ?? defaultEmployeeFormData.recordableIncidentsUnit,
-      fatalitiesUnit: source.fatalitiesUnit ?? defaultEmployeeFormData.fatalitiesUnit,
-      nearMissesUnit: source.nearMissesUnit ?? defaultEmployeeFormData.nearMissesUnit,
-      safetyTrainingHoursUnit:
-        source.safetyTrainingHoursUnit ?? defaultEmployeeFormData.safetyTrainingHoursUnit,
-      filesAndLinks: Array.isArray(source.filesAndLinks) ? source.filesAndLinks : [],
-    };
-  };
-
+  // removed local state and getInitialFormData because data is now controlled by parent
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
-
-  const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
-    ...getInitialFormData("direct"),
-  }));
-
-  const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
-    ...getInitialFormData("contract"),
-  }));
 
   const [directProgress, setDirectProgress] = useState({ filled: 0, total: 6 });
   const [contractProgress, setContractProgress] = useState({ filled: 0, total: 6 });
@@ -150,7 +94,7 @@ export default function HealthSafetyPerformance({
                     <EmployeeForm
                       employeeType="direct"
                       data={directFormData}
-                      onChange={setDirectFormData}
+                      onChange={onDirectFormChange}
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setDirectProgress}
@@ -161,7 +105,7 @@ export default function HealthSafetyPerformance({
                     <EmployeeForm
                       employeeType="contract"
                       data={contractFormData}
-                      onChange={setContractFormData}
+                      onChange={onContractFormChange}
                       onContinueToNextAssessment={onContinueToNextAssessment}
                       onBack={onBack}
                       onProgressChange={setContractProgress}

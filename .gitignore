@@ -42,3 +42,12 @@ yarn.lock
 pnpm-lock.yaml
 
 sas-notes.txt
+sas-notes.txt
+
+# Yarn Berry
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

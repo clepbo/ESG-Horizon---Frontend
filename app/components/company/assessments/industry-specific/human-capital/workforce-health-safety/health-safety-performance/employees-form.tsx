@@ -149,7 +149,7 @@ export default function EmployeeForm({
 
     try {
       await saveNow(
-        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        `humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance.${employeeType}`,
         payload
       );
       setShowSaveSuccess(true);
@@ -181,7 +181,7 @@ export default function EmployeeForm({
     setIsSaving(true);
     try {
       await saveNow(
-        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        `humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance.${employeeType}`,
         payload
       );
       toast.success("Progress saved!");

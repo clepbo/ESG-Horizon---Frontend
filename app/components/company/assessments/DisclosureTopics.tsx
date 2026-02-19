@@ -239,23 +239,55 @@ export function DisclosureTopics({
   // Use the custom hook for topic completion status
   // const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
-  // Activity Metrics completion helpers
-  const getActivityMetricsStatus = () => {
-    return checkTopicCompletion("Activity Metrics", state.assessmentData);
+  // Helper to extract status from backend data
+  const getStatusFromData = (title: string, data: any) => {
+    // Map titles to data paths
+    const pathToData = {
+      "Greenhouse Gas Emissions": data?.environment?.ghg,
+      "Air Quality": data?.environment?.airQuality?.airPollutantEmissions, // Simplified mapping
+      "Water and Wastewater Management":
+        data?.environment?.waterManagement?.waterAndProducedWaterManagement,
+      "Biodiversity Impact":
+        data?.environment?.biodiversityImpact?.environmentalManagement,
+      "Community Relations": data?.socialCapital?.communityRelations,
+      "Security, Human Rights & Rights of Indigenous Peoples":
+        data?.socialCapital?.securityHumanRights,
+      "Workforce Health & Safety": data?.humanCapital?.workforceHealthSafety, // Check path
+      "Reserves Valuation & Capital Expenditures":
+        data?.businessModel?.reservesValuation,
+      "Business Ethics & Transparency": data?.businessModel?.businessEthics,
+      "Critical Incident Risk Management":
+        data?.leadershipGovernance?.criticalIncidentRiskManagement,
+      "Management of the Legal & Regulatory Environment":
+        data?.leadershipGovernance?.legalRegulatoryEnvironment,
+      "Activity Metrics": data?.foundationalData?.activityMetrics,
+    };
+
+    const itemData = pathToData[title as keyof typeof pathToData];
+
+    if (!itemData) return { status: "not-started", count: "0/0", progress: 0 };
+
+    const progress = itemData.progress || 0;
+    const completed = itemData.dataCount?.count || 0;
+    const total = itemData.dataCount?.expected || 0;
+
+    let status = "not-started";
+    if (progress === 100 || (total > 0 && completed === total)) {
+      status = "completed";
+    } else if (progress > 0 || completed > 0) {
+      status = "in-progress";
+    }
+
+    return {
+      status,
+      count: `${completed}/${total}`,
+      progress,
+    };
   };
 
-  // const getActivityMetricsBorderClass = () => {
-  //   const status = getActivityMetricsStatus();
-  //   switch (status.status) {
-  //     case "completed":
-  //       return "border-l-4 border-l-green-500";
-  //     case "in-progress":
-  //       return "border-l-4 border-l-yellow-500";
-  //     case "not-started":
-  //     default:
-  //       return "border-l-4 border-l-gray-300";
-  //   }
-  // };
+  const getActivityMetricsStatus = () => {
+    return getStatusFromData("Activity Metrics", state.assessmentData);
+  };
 
   const handleCardClick = (cardTitle: string) => {
     switch (cardTitle) {
@@ -340,12 +372,12 @@ export function DisclosureTopics({
         initialView={
           initialStep && typeof initialStep === "string"
             ? ((initialStep.includes("production")
-                ? "production-volume"
-                : initialStep.includes("offshore")
-                  ? "offshore-sites"
-                  : initialStep.includes("terrestrial")
-                    ? "terrestrial-sites"
-                    : "overview") as any)
+              ? "production-volume"
+              : initialStep.includes("offshore")
+                ? "offshore-sites"
+                : initialStep.includes("terrestrial")
+                  ? "terrestrial-sites"
+                  : "overview") as any)
             : "overview"
         }
       />
@@ -584,12 +616,12 @@ export function DisclosureTopics({
                   // className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
                   style={{
                     borderLeftWidth: "4px",
-                    // borderLeftColor:
-                    //   getActivityMetricsStatus().status === "completed"
-                    //     ? "#22c55e"
-                    //     : getActivityMetricsStatus().status === "in-progress"
-                    //       ? "#eab308"
-                    //       : "#d1d5db",
+                    borderLeftColor: (() => {
+                      const status = getActivityMetricsStatus();
+                      if (status.status === "completed") return "#2dd4bf"; // teal-400
+                      if (status.status === "in-progress") return "#facc15"; // yellow-400
+                      return "transparent";
+                    })()
                   }}
                   onClick={() => setCurrentView("activity-metrics")}
                 >
@@ -598,7 +630,26 @@ export function DisclosureTopics({
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center justify-between">
                           <h5 className="font-medium text-foreground">Activity Metrics</h5>
-                          {/* <CompletionIndicator status={getActivityMetricsStatus()} /> */}
+                          <div className="flex items-center gap-2">
+                            {(() => {
+                              const status = getActivityMetricsStatus();
+                              if (status.status === "in-progress") {
+                                return (
+                                  <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
+                                    In Progress
+                                  </span>
+                                );
+                              }
+                              if (status.status === "completed") {
+                                return (
+                                  <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
+                                    Completed
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </div>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
@@ -670,12 +721,19 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${
-                                      card.clickable
-                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                        : "cursor-default"
-                                    }`}
-                                    // style={{ borderLeftWidth, borderLeftColor: getBorderColor() }}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
+                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                      : "cursor-default"
+                                      }`}
+                                    style={{
+                                      borderLeftWidth: "4px",
+                                      borderLeftColor: (() => {
+                                        const status = getStatusFromData(card.title, state.assessmentData);
+                                        if (status.status === "completed") return "#2dd4bf"; // teal-400
+                                        if (status.status === "in-progress") return "#facc15"; // yellow-400
+                                        return "transparent";
+                                      })()
+                                    }}
                                     onClick={() => card.clickable && handleCardClick(card.title)}
                                   >
                                     <CardContent className="p-4 flex justify-between items-center">
@@ -685,6 +743,26 @@ export function DisclosureTopics({
                                             <h5 className="font-medium text-foreground">
                                               {card.title}
                                             </h5>
+                                            <div className="flex items-center gap-2">
+                                              {(() => {
+                                                const status = getStatusFromData(card.title, state.assessmentData);
+                                                if (status.status === "in-progress") {
+                                                  return (
+                                                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
+                                                      In Progress
+                                                    </span>
+                                                  );
+                                                }
+                                                if (status.status === "completed") {
+                                                  return (
+                                                    <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
+                                                      Completed
+                                                    </span>
+                                                  );
+                                                }
+                                                return null;
+                                              })()}
+                                            </div>
                                             {/* <CompletionIndicator status={status} /> */}
                                           </div>
                                           <p className="text-sm text-muted-foreground">
