@@ -54,7 +54,7 @@ export default function CapitalExpenditureStrategy({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.capitalExpenditureStrategy;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -69,7 +69,7 @@ export default function CapitalExpenditureStrategy({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.capitalExpenditureStrategy,
   ]);
 

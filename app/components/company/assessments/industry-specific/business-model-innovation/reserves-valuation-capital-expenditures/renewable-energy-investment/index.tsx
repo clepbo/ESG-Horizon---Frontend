@@ -52,7 +52,7 @@ export default function RenewableEnergyInvestment({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.renewableEnergyInvestment;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -70,7 +70,7 @@ export default function RenewableEnergyInvestment({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.renewableEnergyInvestment,
   ]);
 

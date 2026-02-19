@@ -54,6 +54,7 @@ export interface AssessmentData {
   businessInnovation?: any;
   businessModel?: any;
   businessModelAndInnovation?: any;
+  leadershipGovernance?: any;
   activityMetrics?: {
     productionVolume?: {
       progress?: number;
@@ -357,74 +358,6 @@ export interface AssessmentData {
           [key: string]: any;
         };
         reservesInSensitiveAreas?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-    };
-    activityMetrics?: {
-      productionVolume?: {
-        progress?: number;
-        [key: string]: any;
-      };
-      assetPortfolio?: {
-        offshoreSites?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        terrestrialSites?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-    };
-    businessInnovation?: {
-      businessEthicsAndTransparency?: {
-        reservesInCountriesWithHighCorruptionRisk?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        antiCorruptionManagementSystem?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-      reservesValuationAndCapitalExpenditures?: {
-        reservesSensitivityToCarbonPricing?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        embeddedCarbonInReserves?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        renewableEnergyInvestment?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        capitalExpenditureStrategy?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-    };
-    leadershipGovernance?: {
-      criticalIncidentRiskManagement?: {
-        catastrophicRiskManagementSystems?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        processSafetyEvents?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-      managementOfTheLegalAndRegulatoryEnvironment?: {
-        boardAndManagementOversight?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        publicPolicyEngagement?: {
           progress?: number;
           [key: string]: any;
         };
@@ -1052,37 +985,39 @@ const initialState: AssessmentState = {
           reservesInSensitiveAreas: {},
         },
       },
-      activityMetrics: {
-        productionVolume: {},
-        assetPortfolio: {
-          offshoreSites: {},
-          terrestrialSites: {},
-        },
+    },
+    activityMetrics: {
+      productionVolume: {},
+      assetPortfolio: {
+        offshoreSites: {},
+        terrestrialSites: {},
       },
-      businessInnovation: {
-        businessEthicsAndTransparency: {
-          reservesInCountriesWithHighCorruptionRisk: {},
-          antiCorruptionManagementSystem: {},
-        },
-        reservesValuationAndCapitalExpenditures: {
-          reservesSensitivityToCarbonPricing: {},
-          embeddedCarbonInReserves: {},
-          renewableEnergyInvestment: {},
-          capitalExpenditureStrategy: {},
-        },
+    },
+    businessModelAndInnovation: {},
+    businessInnovation: {
+      businessEthicsAndTransparency: {
+        reservesInCountriesWithHighCorruptionRisk: {},
+        antiCorruptionManagementSystem: {},
       },
-      leadershipGovernance: {
-        criticalIncidentRiskManagement: {
-          catastrophicRiskManagementSystems: {},
-          processSafetyEvents: {},
-        },
-        managementOfTheLegalAndRegulatoryEnvironment: {
-          boardAndManagementOversight: {},
-          publicPolicyEngagement: {},
-        },
+      reservesValuationAndCapitalExpenditures: {
+        reservesSensitivityToCarbonPricing: {},
+        embeddedCarbonInReserves: {},
+        renewableEnergyInvestment: {},
+        capitalExpenditureStrategy: {},
+      },
+    },
+    leadershipGovernance: {
+      criticalIncidentRiskManagement: {
+        catastrophicRiskManagementSystems: {},
+        processSafetyEvents: {},
+      },
+      managementOfTheLegalAndRegulatoryEnvironment: {
+        boardAndManagementOversight: {},
+        publicPolicyEngagement: {},
       },
     },
   },
+},
   isLoading: false,
   error: null,
   progress: [],
@@ -1975,12 +1910,9 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            activityMetrics: {
-              ...state.assessmentData.environment?.activityMetrics,
-              [action.payload.section]: action.payload.data,
-            },
+          activityMetrics: {
+            ...state.assessmentData.activityMetrics,
+            [action.payload.section]: action.payload.data,
           },
         },
       };
@@ -1990,14 +1922,11 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            activityMetrics: {
-              ...state.assessmentData.environment?.activityMetrics,
-              assetPortfolio: {
-                ...state.assessmentData.environment?.activityMetrics?.assetPortfolio,
-                [action.payload.section]: action.payload.data,
-              },
+          activityMetrics: {
+            ...state.assessmentData.activityMetrics,
+            assetPortfolio: {
+              ...state.assessmentData.activityMetrics?.assetPortfolio,
+              [action.payload.section]: action.payload.data,
             },
           },
         },
@@ -2008,18 +1937,13 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            businessInnovation: {
-              ...state.assessmentData.environment?.businessInnovation,
-              [action.payload.category]: {
-                ...state.assessmentData.environment?.businessInnovation?.[
-                action.payload.category as keyof NonNullable<
-                  NonNullable<AssessmentData["environment"]>["businessInnovation"]
-                >
-                ],
-                [action.payload.section]: action.payload.data,
-              },
+          businessInnovation: {
+            ...state.assessmentData.businessInnovation,
+            [action.payload.category]: {
+              ...state.assessmentData.businessInnovation?.[
+              action.payload.category as keyof NonNullable<AssessmentData["businessInnovation"]>
+              ],
+              [action.payload.section]: action.payload.data,
             },
           },
         },
@@ -2030,18 +1954,13 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            leadershipGovernance: {
-              ...state.assessmentData.environment?.leadershipGovernance,
-              [action.payload.category]: {
-                ...state.assessmentData.environment?.leadershipGovernance?.[
-                action.payload.category as keyof NonNullable<
-                  NonNullable<AssessmentData["environment"]>["leadershipGovernance"]
-                >
-                ],
-                [action.payload.section]: action.payload.data,
-              },
+          leadershipGovernance: {
+            ...state.assessmentData.leadershipGovernance,
+            [action.payload.category]: {
+              ...state.assessmentData.leadershipGovernance?.[
+              action.payload.category as keyof NonNullable<AssessmentData["leadershipGovernance"]>
+              ],
+              [action.payload.section]: action.payload.data,
             },
           },
         },
@@ -2059,10 +1978,18 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
           environment: {
             ...state.assessmentData.environment,
             ...(action.payload.environment || {}),
-            businessInnovation: {
-              ...state.assessmentData.environment?.businessInnovation,
-              ...(action.payload.environment?.businessInnovation || {}),
-            },
+          },
+          businessInnovation: {
+            ...state.assessmentData.businessInnovation,
+            ...(action.payload.businessInnovation || {}),
+          },
+          leadershipGovernance: {
+            ...state.assessmentData.leadershipGovernance,
+            ...(action.payload.leadershipGovernance || {}),
+          },
+          activityMetrics: {
+            ...state.assessmentData.activityMetrics,
+            ...(action.payload.activityMetrics || {}),
           },
           assessmentId: action.payload.assessmentId ?? state.assessmentData.assessmentId,
         },

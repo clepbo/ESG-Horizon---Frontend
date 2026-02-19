@@ -55,7 +55,7 @@ export default function EmbeddedCarbonInReserves({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.embeddedCarbonInReserves;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -77,7 +77,7 @@ export default function EmbeddedCarbonInReserves({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.embeddedCarbonInReserves,
   ]);
 

@@ -74,13 +74,21 @@ export default function ContinueAssessment() {
       downstream: scope3Data?.downstream || assessment.assessmentData?.downstream,
       environment: {
         ...(assessment.assessmentData?.environment || {}),
-        businessInnovation:
-          getNestedData(assessment.assessmentData, ["environment", "businessInnovation"]) ||
-          assessment.assessmentData?.environment?.businessInnovation ||
-          assessment.assessmentData?.businessInnovation ||
-          assessment.assessmentData?.businessModel ||
-          assessment.assessmentData?.businessModelAndInnovation,
       },
+      businessInnovation:
+        getNestedData(assessment.assessmentData, ["environment", "businessInnovation"]) ||
+        assessment.assessmentData?.environment?.businessInnovation ||
+        assessment.assessmentData?.businessInnovation ||
+        assessment.assessmentData?.businessModel ||
+        assessment.assessmentData?.businessModelAndInnovation,
+      leadershipGovernance:
+        getNestedData(assessment.assessmentData, ["environment", "leadershipGovernance"]) ||
+        assessment.assessmentData?.environment?.leadershipGovernance ||
+        assessment.assessmentData?.leadershipGovernance,
+      activityMetrics:
+        getNestedData(assessment.assessmentData, ["environment", "activityMetrics"]) ||
+        assessment.assessmentData?.environment?.activityMetrics ||
+        assessment.assessmentData?.activityMetrics,
     };
 
     dispatch({

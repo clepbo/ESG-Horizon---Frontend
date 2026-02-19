@@ -55,7 +55,7 @@ export default function CatastrophicRiskManagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
         ?.catastrophicRiskManagementSystems;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -70,7 +70,7 @@ export default function CatastrophicRiskManagement({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
       ?.catastrophicRiskManagementSystems,
   ]);
 
@@ -244,9 +244,8 @@ export default function CatastrophicRiskManagement({
                   setErrors((prev) => ({ ...prev, systemDescription: "" }));
                 }}
                 placeholder="e.g., Our Safety Case methodology for offshore assets identifies and mitigates major accident hazards (MAHs). For onshore assets, we conduct regular pipeline integrity checks and security audits to mitigate risks from sabotage and theft..."
-                className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                  errors.systemDescription ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.systemDescription ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.systemDescription && (
                 <p className="text-sm text-red-600 mt-1">{errors.systemDescription}</p>
