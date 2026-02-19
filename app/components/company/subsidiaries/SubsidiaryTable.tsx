@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import StatusBadge from "@/app/components/ui/reusables/StatusBadge";
+import ParentCompanyBadge from "@/app/components/ui/reusables/ParentCompanyBadge";
 import EditSubsidiaryModal from "@/app/components/company/subsidiaries/EditSubsidiary";
 import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
 import Pagination from "@/app/components/ui/reusables/Pagination";
@@ -15,9 +16,10 @@ interface SubsidiaryTableProps {
   subsidiaries: Subsidiary[];
   onDelete?: (id: string | number) => void;
   onEdit?: (subsidiary: Subsidiary) => void;
+  company?: { id: number; name: string; status?: string };
 }
 
-export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: SubsidiaryTableProps) {
+export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit, company }: SubsidiaryTableProps) {
   const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedSubsidiary, setSelectedSubsidiary] = useState<Subsidiary | null>(null);
@@ -80,6 +82,24 @@ export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit }: Subs
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
+                {company && (
+                  <tr className="bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      <div className="flex flex-col gap-0.5">
+                        <span>{company.name}</span>
+                        <ParentCompanyBadge />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-400">—</td>
+                    <td className="px-4 py-3 text-gray-400">—</td>
+                    <td className="px-4 py-3 text-gray-400">—</td>
+                    <td className="px-4 py-3 text-gray-400">—</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={company.status || "active"} />
+                    </td>
+                    <td className="px-4 py-3 text-gray-400">—</td>
+                  </tr>
+                )}
                 {paginatedSubsidiaries.map((subsidiary) => (
                   <tr key={subsidiary.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-900">{subsidiary.name}</td>

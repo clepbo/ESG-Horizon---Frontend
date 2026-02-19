@@ -35,25 +35,25 @@ interface SocialStepOneProps {
 }
 
 export default function SocialStepOne({ reportData }: SocialStepOneProps) {
-  const totalProvedReserves =
-    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves
-      ?.totalProvedReserves || 0;
+  const indigenousLand =
+    reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.reservesInNearIndigenousLand;
 
-  const totalProbableReserves =
-    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves
-      ?.totalProbableReserves || 0;
+  const indigenousTotalProved = indigenousLand?.totalProvedReserves || 0;
+  const indigenousTotalProbable = indigenousLand?.totalProbableReserves || 0;
 
+  // Conflict zones reuse the same company-wide totals stored on the indigenous land section
+  // (all forms collect the same reference totals for proved/probable reserves)
   const conflictZonesData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total: totalProvedReserves,
+      total: indigenousTotalProved,
       specific:
         reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
           ?.provedReserves || 0,
     },
     {
       reserveType: "Probable Reserves",
-      total: totalProbableReserves,
+      total: indigenousTotalProbable,
       specific:
         reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
           ?.probableReserves || 0,
@@ -63,17 +63,13 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const indigenousLandData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total: totalProvedReserves,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
-          ?.reservesInNearIndigenousLand?.provedReserves || 0,
+      total: indigenousTotalProved,
+      specific: indigenousLand?.provedReserves || 0,
     },
     {
       reserveType: "Probable Reserves",
-      total: totalProbableReserves,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
-          ?.reservesInNearIndigenousLand?.probableReserves || 0,
+      total: indigenousTotalProbable,
+      specific: indigenousLand?.probableReserves || 0,
     },
   ];
 
@@ -151,11 +147,9 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   axisLine={{ stroke: "#D1D5DB" }}
                 />
                 <YAxis
-                  domain={[0, 600]}
-                  ticks={[0, 150, 300, 450, 600]}
                   tick={{ fill: "#6B7280", fontSize: 12 }}
                   axisLine={{ stroke: "#D1D5DB" }}
-                  width={40}
+                  width={50}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend content={<CustomLegend />} />

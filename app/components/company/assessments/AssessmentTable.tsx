@@ -48,8 +48,8 @@ export interface Assessment {
   rejection_reason?: string;
   progress?: number;
   lastUpdated?: string | Date;
-  /** High-level ESG pillars that have data for this assessment (E, S, G). */
-  pillars?: ("E" | "S" | "G")[];
+  /** High-level ESG pillars that have data for this assessment. */
+  pillars?: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[];
 }
 
 interface AssessmentTableProps {
@@ -276,16 +276,24 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
           return <span className="text-xs text-gray-400">—</span>;
         }
 
-        const labelMap: Record<"E" | "S" | "G", string> = {
+        const labelMap: Record<"A" | "E" | "S" | "H" | "B" | "L" | "G", string> = {
+          A: "Activity Metrics",
           E: "Environmental",
-          S: "Social",
+          S: "Social Capital",
+          H: "Human Capital",
+          B: "Business Model & Innovation",
+          L: "Leadership",
           G: "Governance",
         };
 
-        const colorMap: Record<"E" | "S" | "G", string> = {
+        const colorMap: Record<"A" | "E" | "S" | "H" | "B" | "L" | "G", string> = {
+          A: "border-purple-200 bg-purple-50 text-purple-700",
           E: "border-emerald-200 bg-emerald-50 text-emerald-700",
           S: "border-sky-200 bg-sky-50 text-sky-700",
-          G: "border-amber-200 bg-amber-50 text-amber-700",
+          H: "border-orange-200 bg-orange-50 text-orange-700",
+          B: "border-indigo-200 bg-indigo-50 text-indigo-700",
+          L: "border-amber-200 bg-amber-50 text-amber-700",
+          G: "border-rose-200 bg-rose-50 text-rose-700",
         };
 
         return (
@@ -294,7 +302,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
               <Badge
                 key={p}
                 variant="outline"
-                className={`px-2 py-0.5 text-xs font-semibold rounded-md ${colorMap[p]}`}
+                className={`px-2.5 py-1 text-xs font-bold rounded-md ${colorMap[p]}`}
                 title={labelMap[p]}
               >
                 {p}

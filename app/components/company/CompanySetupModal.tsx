@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ArrowLeft, Info, X, Trash2, Edit2 } from "lucide-react";
+import ParentCompanyBadge from "@/app/components/ui/reusables/ParentCompanyBadge";
 import {
   useCompanySubsidiaries,
   useCreateSubsidiary,
@@ -627,7 +628,11 @@ export default function CompanySetupModal({
                           className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         >
                           <option value="">
-                            {isLoadingSubsidiaries ? "Loading..." : "Select subsidiary"}
+                            {isLoadingSubsidiaries
+                              ? "Loading..."
+                              : companyDetails?.name
+                                ? `${companyDetails.name} (Parent Company)`
+                                : "Parent Company"}
                           </option>
                           {allSubsidiaries.map((sub: Subsidiary) => (
                             <option key={sub.id} value={sub.name}>
@@ -635,6 +640,11 @@ export default function CompanySetupModal({
                             </option>
                           ))}
                         </select>
+                        {!deptForm.watch("subsidiary") && !isLoadingSubsidiaries && (
+                          <div className="mt-1">
+                            <ParentCompanyBadge />
+                          </div>
+                        )}
                       </div>
                       <div className="col-span-2">
                         <label className="block mb-1 text-sm font-medium">
@@ -732,7 +742,11 @@ export default function CompanySetupModal({
                           className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         >
                           <option value="">
-                            {isLoadingSubsidiaries ? "Loading..." : "Select subsidiary"}
+                            {isLoadingSubsidiaries
+                              ? "Loading..."
+                              : companyDetails?.name
+                                ? `${companyDetails.name} (Parent Company)`
+                                : "Parent Company"}
                           </option>
                           {allSubsidiaries.map((sub: Subsidiary) => (
                             <option key={sub.id} value={sub.name}>
@@ -740,6 +754,11 @@ export default function CompanySetupModal({
                             </option>
                           ))}
                         </select>
+                        {!userForm.watch("subsidiary") && !isLoadingSubsidiaries && (
+                          <div className="mt-1">
+                            <ParentCompanyBadge />
+                          </div>
+                        )}
                       </div>
                       <div>
                         <label className="block mb-1 text-sm font-medium">Department</label>
