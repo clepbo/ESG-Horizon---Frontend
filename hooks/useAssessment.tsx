@@ -1017,7 +1017,7 @@ const initialState: AssessmentState = {
       },
     },
   },
-},
+
   isLoading: false,
   error: null,
   progress: [],
