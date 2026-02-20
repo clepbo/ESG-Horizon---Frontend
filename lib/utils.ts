@@ -3,6 +3,8 @@ import { userService } from "@/services/user.service";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { FileData } from "@/app/components/company/assessments/AdditionalFileUpload";
+import { formatNumberFull } from "@/lib/numberFormat";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -293,7 +295,7 @@ export function formatTCO2eOutput(tCO2eValue: number): string {
   if (tCO2eValue === 0 || isNaN(tCO2eValue)) {
     return "0.00 tCO2e";
   }
-  return `${tCO2eValue.toFixed(2)} tCO2e`;
+  return `${formatNumberFull(tCO2eValue, { minimumFractionDigits: 2 })} tCO2e`;
 }
 
 export function formatStatus(status: any | any[]): string {

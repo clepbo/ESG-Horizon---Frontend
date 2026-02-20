@@ -38,7 +38,7 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import { allFuels } from "@/lib/fuelDataFile";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 interface FileWithMeta {
   name: string;
@@ -360,16 +360,15 @@ export function AssessmentDetailsModal({
                     <p className="text-teal-100 text-sm">Total Emissions</p>
 
                     <p
-                      className={`font-bold whitespace-normal wrap-break-word ${
-                        String(formatNumberFull(assessmentData.totalEmission) || "0.00").length > 10
+                      className={`font-bold whitespace-normal wrap-break-word ${String(formatNumberShort(assessmentData.totalEmission) || "0.00").length > 10
                           ? "text-2xl"
-                          : String(formatNumberFull(assessmentData.totalEmission) || "0.00").length >
-                              7
+                          : String(formatNumberShort(assessmentData.totalEmission) || "0.00").length >
+                            7
                             ? "text-3xl"
                             : "text-4xl"
-                      }`}
+                        }`}
                     >
-                      {formatNumberFull(assessmentData.totalEmission) || "0.00"} tCO₂e
+                      {formatNumberShort(assessmentData.totalEmission) || "0.00"} tCO₂e
                     </p>
                   </CardContent>
                 </Card>
@@ -430,7 +429,7 @@ export function AssessmentDetailsModal({
                           <Zap className="w-5 h-5 text-yellow-600" />
                           <span className="text-lg font-bold">GHG Emissions</span>
                           <Badge variant="outline" className="ml-2">
-                            {formatNumberFull(assessmentData.totalEmission) || "0.00"} tCO₂e
+                            {formatNumberShort(assessmentData.totalEmission) || "0.00"} tCO₂e
                           </Badge>
                         </div>
                       </AccordionTrigger>
