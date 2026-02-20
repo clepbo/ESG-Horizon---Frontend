@@ -69,12 +69,12 @@ export const departmentService = {
   },
 
   delete: async (id: string | number) => {
-    const { data } = await api.delete(`/departments/${id}`);
+    const data = await api.delete(`/departments/${id}`);
     return data;
   },
 
   getUsers: async (departmentId: string | number): Promise<DepartmentUser[]> => {
-    const response = await api.get(`/departments/${departmentId}/users`);
-    return response.data;
+    const data = await api.get(`/departments/${departmentId}/users`);
+    return data;
   },
 };

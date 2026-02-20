@@ -45,14 +45,38 @@ export default function PerformanceOverview() {
     <KpiCard title="Targets and Performance" isTarget={isTargt} className="space-y-6 w-full">
       {/* General Target Display */}
       {isGeneralTarget && general && (
-        <div className="mt-4 flex items-center justify-center">
-          <SpeedometerGauge
-            score={120}
-            initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
-            currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
-            targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
-          />
-        </div>
+        <>
+          <div className="mt-4 flex items-center justify-center">
+            <SpeedometerGauge
+              score={120}
+              initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
+              currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
+              targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
+            />
+          </div>
+
+          {/* Scope breakdown below gauge */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
+            <MiniDonutChart
+              label="Scope 1"
+              percentage={scope1Target?.reductionPercentage || 0}
+              value={scope1Target?.currentEmission || 0}
+              color="#EF4444"
+            />
+            <MiniDonutChart
+              label="Scope 2"
+              percentage={scope2Target?.reductionPercentage || 0}
+              value={scope2Target?.currentEmission || 0}
+              color="#3B82F6"
+            />
+            <MiniDonutChart
+              label="Scope 3"
+              percentage={scope3Target?.reductionPercentage || 0}
+              value={scope3Target?.currentEmission || 0}
+              color="#9333EA"
+            />
+          </div>
+        </>
       )}
 
       {/* Scope Targets Display */}

@@ -17,8 +17,8 @@ export default function ProducedWaterManagementChart({
   discharged = 0,
 }: ProducedWaterManagementChartProps) {
   const data = [
-    { name: "Recycled", value: recycled, color: "#2fb856" },
-    { name: "Injected", value: injected, color: "#dca54b" },
+    { name: "Recycled", value: recycled, color: "#10B981" },
+    { name: "Injected", value: injected, color: "#6366F1" },
     { name: "Discharged", value: discharged, color: "#eb6f70" },
   ].filter((item) => item.value > 0);
 
@@ -48,7 +48,7 @@ export default function ProducedWaterManagementChart({
               ))}
             </Pie>
 
-            <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" />
+            <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
             <Tooltip />
           </PieChart>
         </ResponsiveContainer>

@@ -34,7 +34,11 @@ interface ScopeTargetData {
   scope3: GeneralTargetData;
 }
 
-export default function SetTargetByScope() {
+interface SetTargetByScopeProps {
+  onSuccess?: () => void;
+}
+
+export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
   const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
     scope1: {
       reductionPercentage: null,
@@ -211,11 +215,12 @@ export default function SetTargetByScope() {
   };
 
   const handleModalContinue = () => {
-    // Close the modal
     setIsSuccessModalOpen(false);
-
-    // Redirect to ranking page
-    router.push("/ranking");
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      router.push("/assessments/target");
+    }
   };
 
   const handleModalClose = () => {
@@ -346,11 +351,13 @@ export default function SetTargetByScope() {
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years
+                    .filter((year) => !scopeTargetData.scope1.baselineYear || year > scopeTargetData.scope1.baselineYear)
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -445,11 +452,13 @@ export default function SetTargetByScope() {
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years
+                    .filter((year) => !scopeTargetData.scope2.baselineYear || year > scopeTargetData.scope2.baselineYear)
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -541,11 +550,13 @@ export default function SetTargetByScope() {
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years
+                    .filter((year) => !scopeTargetData.scope3.baselineYear || year > scopeTargetData.scope3.baselineYear)
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>

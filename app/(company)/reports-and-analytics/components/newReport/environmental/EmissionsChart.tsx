@@ -1,3 +1,4 @@
+import { useId } from "react";
 import {
   AreaChart,
   Area,
@@ -28,41 +29,14 @@ interface EmissionsChartProps {
   rotateIcon?: string;
   bgColor?: string;
   color?: string;
+  period?: string;
 }
-// Sample data for emissions over time (replace with your actual data)
 
-// function transformHistory(ghg: any): EmissionPoint[] {
-//   if (!ghg?.ghg_history) return [];
-
-//   return ghg.ghg_history.map((item: any) => ({
-//     period: item.period,
-//     emissions: item.score, // use "score" as the value
-//   }));
-// }
-
-// Sample data for emissions over time (replace with your actual data)
-
-// const emissionsData = [
-//   { month: "Jan", emissions: 13000 },
-//   { month: "Feb", emissions: 16500 },
-//   { month: "Mar", emissions: 14800 },
-//   { month: "Apr", emissions: 19000 },
-//   { month: "May", emissions: 17000 },
-//   { month: "Jun", emissions: 15400 },
-//   { month: "Jul", emissions: 18000 },
-//   { month: "Aug", emissions: 16000 },
-//   { month: "Sep", emissions: 17500 },
-//   { month: "Oct", emissions: 14000 },
-//   { month: "Nov", emissions: 16500 },
-//   { month: "Dec", emissions: 15400 },
-// ];
-
-// #region Reusable EmissionsChart Component
 const EmissionsChart = ({
   data,
   title = "Total Emissions",
   value = "0",
-  change = "0.0%",
+  change,
   unit = "tCO₂e",
   height = 100,
   width = "100%",
@@ -70,7 +44,10 @@ const EmissionsChart = ({
   rotateIcon = "",
   bgColor = "",
   color = "",
+  period,
 }: EmissionsChartProps) => {
+  const gradientId = `colorEmissions-${useId().replace(/:/g, "")}`;
+
   return (
     <div
       className="emissions-card border-l-4 p-4 w-full"
@@ -81,6 +58,8 @@ const EmissionsChart = ({
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
         backgroundColor: "white",
         margin: "0 auto",
+        overflow: "visible",
+        position: "relative",
       }}
     >
       {/* Header Section */}
@@ -103,23 +82,24 @@ const EmissionsChart = ({
           >
             {title}
           </h3>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: bgColor,
-              padding: "4px 8px",
-              borderRadius: "12px",
-              fontSize: "14px",
-              color: color,
-            }}
-          >
-            <span className={`text-green-600`} style={{ marginRight: "4px", rotate: rotateIcon }}>
-              {" "}
-              <FaArrowDown />{" "}
-            </span>
-            {change}
-          </div>
+          {change && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: bgColor,
+                padding: "4px 8px",
+                borderRadius: "12px",
+                fontSize: "14px",
+                color: color,
+              }}
+            >
+              <span style={{ marginRight: "4px", rotate: rotateIcon, display: "flex" }}>
+                <FaArrowDown />
+              </span>
+              {change}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div
@@ -134,7 +114,7 @@ const EmissionsChart = ({
           </div>
           <div
             style={{
-              fontSize: "14px",
+              fontSize: "16px",
               color: "#666",
               fontWeight: 500,
             }}
@@ -142,11 +122,16 @@ const EmissionsChart = ({
             {unit}
           </div>
         </div>
+        {period && (
+          <div style={{ fontSize: "12px", color: "#999", marginTop: "2px" }}>
+            {period}
+          </div>
+        )}
       </div>
 
       {/* Chart Section */}
-      <div style={{ width, height }}>
-        <ResponsiveContainer width="100%" height="50%">
+      <div style={{ width, height, position: "relative", overflow: "visible" }}>
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
             margin={{
@@ -157,7 +142,7 @@ const EmissionsChart = ({
             }}
           >
             <defs>
-              <linearGradient id="colorEmissions" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
@@ -168,27 +153,31 @@ const EmissionsChart = ({
             <YAxis
               axisLine={false}
               tickLine={false}
-              hide={true} // Hide Y-axis labels
-              domain={["dataMin - 1000", "dataMax + 1000"]} // Add some padding
+              hide={true}
+              domain={["dataMin - 1000", "dataMax + 1000"]}
             />
             <Tooltip
               formatter={(value) => [
                 `${formatNumberFull(value as number, { maximumFractionDigits: 2 })} tCO₂e`,
                 "Emissions",
               ]}
-              labelFormatter={(label) => `Month: ${label}`}
+              labelFormatter={(label) => `Period: ${label}`}
+              cursor={{ stroke: "#d1d5db", strokeDasharray: "3 3" }}
               contentStyle={{
                 borderRadius: "8px",
                 border: "1px solid #e5e7eb",
                 boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+                fontSize: "14px",
               }}
+              wrapperStyle={{ zIndex: 10 }}
+              position={{ y: -60 }}
             />
             <Area
               type="monotone"
               dataKey="emissions"
               stroke="#10b981"
               strokeWidth={1}
-              fill="url(#colorEmissions)"
+              fill={`url(#${gradientId})`}
               activeDot={{ r: 4, fill: "#10b981" }}
             />
           </AreaChart>

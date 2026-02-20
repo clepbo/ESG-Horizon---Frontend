@@ -27,13 +27,13 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       title: "Crude Oil",
       amount: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#F28B0D",
+      borderColor: "#EF4444",
     },
     {
       title: "Synthetic Oil",
       amount: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#FCDC8B",
+      borderColor: "#FCA5A5",
     },
     {
       title: "Natural Gas",
@@ -81,7 +81,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
     {
       name: "Other Sites",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.otherSites ?? 0,
-      color: "#f59e0b",
+      color: "#14b8a6",
     },
   ];
 
@@ -92,8 +92,8 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       secondary: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
       primaryLabel: "Crude Oil",
       secondaryLabel: "Synthetic Oil",
-      fillPrimary: "#f7931a",
-      fillSecondary: "#fcd88b",
+      fillPrimary: "#EF4444",
+      fillSecondary: "#FCA5A5",
     },
   ];
 
@@ -110,8 +110,8 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
   ];
 
   const oilLegendItems = [
-    { value: "Crude Oil", color: "#f7931a" },
-    { value: "Synthetic Oil", color: "#fcd88b" },
+    { value: "Crude Oil", color: "#EF4444" },
+    { value: "Synthetic Oil", color: "#FCA5A5" },
   ];
 
   const gasLegendItems = [
@@ -270,7 +270,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconBg={"#eff5ff"}
           iconText={"#2570eb"}
           borderColor={"#2570eb"}
-          scoreColor="#e8ab73"
+          scoreColor="#93BBFD"
         />
         <EsgAssignmrntReportCard
           title={"Total recordable incident rate"}
@@ -281,10 +281,10 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
             "Safety performance improved by 10% YoY. Zero fatalities recorded in the reporting period."
           }
           icon={<GiHumanPyramid />}
-          iconBg={"#fcf8ee"}
-          iconText={"#dca54b"}
-          borderColor={"#dca54b"}
-          scoreColor="#e8ab73"
+          iconBg={"#ECFDF5"}
+          iconText={"#0D9488"}
+          borderColor={"#0D9488"}
+          scoreColor="#5EEAD4"
         />
         <EsgAssignmrntReportCard
           title={"Reserves at risk"}
@@ -298,7 +298,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconBg={"#f5e2ff"}
           iconText={"#af57db"}
           borderColor={"#af57db"}
-          scoreColor="#e8ab73"
+          scoreColor="#D8B4FE"
         />
         <EsgAssignmrntReportCard
           title={"Process safety"}
@@ -310,7 +310,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconBg={"#e8e8e8"}
           iconText={"#4a4a4a"}
           borderColor={"#4a4a4a"}
-          scoreColor="#e8ab73"
+          scoreColor="#D1D5DB"
         />
       </div>
     </div>

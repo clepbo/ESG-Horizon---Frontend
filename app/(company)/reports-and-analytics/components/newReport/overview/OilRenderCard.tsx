@@ -23,7 +23,7 @@ export default function OilRenderCard({ borderColor, title, sub, amount }: Props
       <p className="text-gray-800">{title}</p>
       {typeof amount === "number" && amount >= 0 && (
         <p className="font-bold text-3xl">
-          {formatNumberFigures(amount)} <sub className="text-gray-400 text-xs">{sub}</sub>
+          {formatNumberFigures(amount)} <sub className="text-gray-700 text-xs">{sub}</sub>
         </p>
       )}
 
@@ -63,8 +63,8 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
 }
 
 export const cardData = [
-  { title: "Crude Oil", amount: -10, sub: "kbbl/day", borderColor: "#F28B0D" },
-  { title: "Synthetic Oil", amount: -20, sub: "kbbl/day", borderColor: "#FCDC8B" },
+  { title: "Crude Oil", amount: -10, sub: "kbbl/day", borderColor: "#EF4444" },
+  { title: "Synthetic Oil", amount: -20, sub: "kbbl/day", borderColor: "#FCA5A5" },
   { title: "Natural Gas", amount: -20, sub: "mmscfd", borderColor: "#3B82F6" },
   { title: "Synthetic Gas", amount: -30, sub: "mmscfd", borderColor: "#BFD7FE" },
 ];

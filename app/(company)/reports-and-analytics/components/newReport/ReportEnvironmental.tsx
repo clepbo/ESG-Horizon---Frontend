@@ -39,11 +39,33 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   }
   console.log("Report target Data", scopeTarget);
 
-  // const emissionScopeData = reportData?.
   const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);
   const emissionDataScope1 = GHGHistoryTransformer(ghg?.scope1History || []);
   const emissionDataScope2 = GHGHistoryTransformer(ghg?.scope2History || []);
   const emissionDataScope3 = GHGHistoryTransformer(ghg?.scope3History || []);
+
+  // Build period string from report dates
+  const assessmentPeriod =
+    reportData?.startMonth && reportData?.endMonth
+      ? `${reportData.startMonth} ${reportData.startYear} – ${reportData.endMonth} ${reportData.endYear}`
+      : undefined;
+
+  // Format a change value into display props (null = no previous data → hide badge)
+  const formatChange = (change: number | null | undefined) => {
+    if (change == null) return null;
+    const abs = Math.abs(change);
+    if (change < 0) {
+      // Emissions decreased — good
+      return { text: `${abs.toFixed(1)}%`, rotate: "", bg: "#dff9e6", color: "#16a34a" };
+    }
+    // Emissions increased — bad
+    return { text: `${abs.toFixed(1)}%`, rotate: "180deg", bg: "#fee2e2", color: "#dc2626" };
+  };
+
+  const totalChangeProps = formatChange(ghg?.totalChange);
+  const scope1ChangeProps = formatChange(ghg?.scope1Change);
+  const scope2ChangeProps = formatChange(ghg?.scope2Change);
+  const scope3ChangeProps = formatChange(ghg?.scope3Change);
   return (
     <div className="flex flex-col gap-4 lg:gap-20">
       <div className="grid gap-3">
@@ -52,8 +74,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <FaLeaf className="text-primary rounded" />
           </span>
           <div className="flex flex-col">
-            <h6 className="text-sm"> Greenhouse Gas Emissions </h6>
-            <p className="text-xs text-gray-600">
+            <h6 className="text-base font-semibold"> Greenhouse Gas Emissions </h6>
+            <p className="text-sm text-gray-600">
               Scope 1, 2, and 3 emissions performance against targets
             </p>
           </div>
@@ -61,58 +83,70 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           <EmissionsChart
             borderColor="#1e8a3d"
-            bgColor="#dff9e6"
-            color="#84bb94"
+            period={assessmentPeriod}
             value={
               ghg
-                ? Number(
-                    reportData?.environmental?.greenhouseGasEmission?.totalEmissions || 0
-                  ).toFixed(2)
+                ? Number(ghg.totalEmissions || 0).toFixed(2)
                 : "0.00"
             }
             data={emissionData}
+            {...(totalChangeProps && {
+              change: totalChangeProps.text,
+              bgColor: totalChangeProps.bg,
+              color: totalChangeProps.color,
+              rotateIcon: totalChangeProps.rotate,
+            })}
           />
           <EmissionsChart
             borderColor="#2570eb"
-            bgColor="#dff9e6"
             title="Scope 1"
+            period={assessmentPeriod}
             value={
               ghg
-                ? Number(
-                    reportData?.environmental?.greenhouseGasEmission?.scope1Emissions || 0
-                  ).toFixed(2)
+                ? Number(ghg.scope1Emissions || 0).toFixed(2)
                 : "0.00"
             }
-            color="#84bb94"
             data={emissionDataScope1}
+            {...(scope1ChangeProps && {
+              change: scope1ChangeProps.text,
+              bgColor: scope1ChangeProps.bg,
+              color: scope1ChangeProps.color,
+              rotateIcon: scope1ChangeProps.rotate,
+            })}
           />
           <EmissionsChart
-            borderColor="#fac565"
-            bgColor="#dff9e6"
+            borderColor="#10B981"
             title="Scope 2"
+            period={assessmentPeriod}
             value={
               ghg
-                ? Number(
-                    reportData?.environmental?.greenhouseGasEmission?.scope2Emissions || 0
-                  ).toFixed(2)
+                ? Number(ghg.scope2Emissions || 0).toFixed(2)
                 : "0.00"
             }
-            color="#84bb94"
             data={emissionDataScope2}
+            {...(scope2ChangeProps && {
+              change: scope2ChangeProps.text,
+              bgColor: scope2ChangeProps.bg,
+              color: scope2ChangeProps.color,
+              rotateIcon: scope2ChangeProps.rotate,
+            })}
           />
           <EmissionsChart
             borderColor="#af57db"
-            bgColor="#dff9e6"
             title="Scope 3"
+            period={assessmentPeriod}
             value={
               ghg
-                ? Number(
-                    reportData?.environmental?.greenhouseGasEmission?.scope3Emissions || 0
-                  ).toFixed(2)
+                ? Number(ghg.scope3Emissions || 0).toFixed(2)
                 : "0.00"
             }
-            color="#84bb94"
             data={emissionDataScope3}
+            {...(scope3ChangeProps && {
+              change: scope3ChangeProps.text,
+              bgColor: scope3ChangeProps.bg,
+              color: scope3ChangeProps.color,
+              rotateIcon: scope3ChangeProps.rotate,
+            })}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -177,8 +211,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <MdAir className="text-blue-600 rounded-md" />
           </span>
           <div className="flex flex-col">
-            <h6 className="text-sm"> Air Quality </h6>
-            <p className="text-xs text-gray-600"> NOx, SOx, VOCs and PM10 emissions management </p>
+            <h6 className="text-base font-semibold"> Air Quality </h6>
+            <p className="text-sm text-gray-600"> NOx, SOx, VOCs and PM10 emissions management </p>
           </div>
         </div>
 
@@ -196,7 +230,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             amount={airQuality?.nox || 0}
           />
           <OilRenderCard
-            borderColor={"#dca54b"}
+            borderColor={"#6366F1"}
             title={"Oxides of Sulphur (SOx) "}
             sub={"tonnes"}
             amount={airQuality?.sox || 0}
@@ -240,8 +274,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <IoWaterSharp className="text-primary rounded-md" />
           </span>
           <div className="flex flex-col">
-            <h6 className="text-sm"> Water & Wastewater Management </h6>
-            <p className="text-xs text-gray-600">
+            <h6 className="text-base font-semibold"> Water & Wastewater Management </h6>
+            <p className="text-sm text-gray-900 font-medium">
               {" "}
               Freshwater withdrawal, produced water recycling, and chemical disclosure{" "}
             </p>
@@ -275,7 +309,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             amount={waterManagement?.recycledWater || 0}
           />
           <OilRenderCard
-            borderColor={"#f9b232"}
+            borderColor={"#14b8a6"}
             title={"Injected for Disposal"}
             sub={"m²"}
             amount={waterManagement?.injectedForDisposal || 0}
@@ -317,15 +351,15 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <FreshWaterWithdrawalSource
               surfaceWater={waterManagement?.freshwaterWithdrawalBySource?.surfaceWater || 0}
               groundwater={waterManagement?.freshwaterWithdrawalBySource?.groundwater || 0}
               municipal={waterManagement?.freshwaterWithdrawalBySource?.municipalWater || 0}
             />
           </div>
-          <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
             <ProducedWaterManagementChart
               recycled={waterManagement?.recycledWater || 0}
               injected={waterManagement?.injectedForDisposal || 0}
@@ -391,14 +425,31 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 </CircularProgressbarWithChildren>
               </div>
               <div className="bg-gray-100 p-2 py-4 rounded-md">
-                {/* <CustomProgressWithoutSections percent={51} title="Volume Recycled/Reused" value={30} total={4500} unit="m" className="" /> */}
                 <CustomProgressWithoutSections
-                  value={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
+                  value={
+                    (waterManagement?.producedWater?.totalGenerated ?? 0) > 0
+                      ? Math.round(
+                          ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
+                            (waterManagement?.producedWater?.totalGenerated ?? 1)) *
+                            100
+                        )
+                      : (waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) > 0
+                        ? 100
+                        : 0
+                  }
                   title="Volume Recycled/Reused"
                   total={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
                   unit="m³"
-                  barColor=""
-                  percent={100}
+                  barColor="#119b95"
+                  percent={
+                    (waterManagement?.producedWater?.totalGenerated ?? 0) > 0
+                      ? Math.round(
+                          ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
+                            (waterManagement?.producedWater?.totalGenerated ?? 1)) *
+                            100
+                        )
+                      : 0
+                  }
                 />
               </div>
             </div>
@@ -442,8 +493,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             <FaSeedling className="text-[#308947] rounded-md" />
           </span>
           <div className="flex flex-col">
-            <h6 className="text-sm"> Biodiversity Impacts </h6>
-            <p className="text-xs text-gray-600">
+            <h6 className="text-base font-semibold"> Biodiversity Impacts </h6>
+            <p className="text-sm text-gray-600">
               {" "}
               Spill management, sensitive area reserves, and environmental policies{" "}
             </p>
@@ -455,7 +506,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <h6 className="p-3 "> Hydraulic Spills </h6>
               <hr className="text-gray-200" />
             </span>
-            <div className="p-4 flex flex-col my-20 w-full gap-6 h-full">
+            <div className="p-4 flex flex-col my-4 w-full gap-6 h-full">
               <div className="flex flex-col items-center justify-center text-sm">
                 <p className="font-thin">Number of Spills</p>
                 <p className="font-semibold text-3xl ml-4">
@@ -464,7 +515,9 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               </div>
 
               <CustomProgressWithoutSections
-                value={100}
+                value={
+                  (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0 ? 100 : 0
+                }
                 title="Total Volume Spilled"
                 total={bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled || 0}
                 unit="bbl"
@@ -473,12 +526,28 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               />
 
               <CustomProgressWithoutSections
-                value={88}
+                value={
+                  (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0
+                    ? Math.round(
+                        ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
+                          (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
+                          100
+                      )
+                    : 0
+                }
                 title="Volume Recovered"
                 total={bioDiversity?.hydrocarbonSpills?.volumeRecovered || 0}
                 unit="bbl"
                 barColor="#3d9f56"
-                percent={88}
+                percent={
+                  (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0
+                    ? Math.round(
+                        ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
+                          (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
+                          100
+                      )
+                    : 0
+                }
               />
             </div>
             <hr className="text-gray-200" />
@@ -491,7 +560,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
-                <span className="font-semibold text-[#d48c3b] text-2xl">
+                <span className="font-semibold text-red-500 text-2xl">
                   {bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0}{" "}
                   bbl{" "}
                 </span>

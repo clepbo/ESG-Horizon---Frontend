@@ -51,7 +51,6 @@ export default function DepartmentsTable({ departments, onUpdate, companyName }:
                 <tr>
                   <th className="px-4 py-3">Department Name</th>
                   <th className="px-4 py-3">Subsidiary</th>
-                  <th className="px-4 py-3">Description</th>
                   <th className="px-4 py-3">Lead</th>
                   <th className="px-4 py-3">Team Size</th>
                   <th className="px-4 py-3">Actions</th>
@@ -68,11 +67,6 @@ export default function DepartmentsTable({ departments, onUpdate, companyName }:
                             <span className="font-medium text-gray-900">{companyName || "—"}</span>
                             <ParentCompanyBadge />
                           </div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {dept.description || (
-                          <span className="text-gray-400 font-medium text-sm italic">no desc.</span>
                         )}
                       </td>
                       <td className="px-4 py-3">

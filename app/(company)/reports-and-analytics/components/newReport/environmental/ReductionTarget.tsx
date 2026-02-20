@@ -73,17 +73,17 @@ export default function ReductionTarget({
       </div>
 
       <div className="flex flex-col gap-3 mt-auto p-4 border-t border-gray-50">
-        <div className="flex justify-between items-center text-sm">
+        <div className="flex justify-between items-center text-base">
           <span className="text-gray-500">Baseline{baselineYear ? ` (${baselineYear})` : ""}:</span>
           <span className="font-bold text-gray-700">{formatNumberFigures(safeBaseline)} tCO₂e</span>
         </div>
 
-        <div className="flex justify-between items-center text-sm">
+        <div className="flex justify-between items-center text-base">
           <span className="text-gray-500">Current ({currentYear}):</span>
           <span className="font-bold text-gray-700">{formatNumberFigures(safeCurrent)} tCO₂e</span>
         </div>
 
-        <div className="flex justify-between items-center text-sm">
+        <div className="flex justify-between items-center text-base">
           <span className="text-gray-500">Target ({targetYear}):</span>
           <span className="font-bold text-gray-700">{formatNumberFigures(safeTarget)} tCO₂e</span>
         </div>

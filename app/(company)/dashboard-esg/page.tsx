@@ -169,6 +169,7 @@ export default function DashboardPage() {
               progress={dashboard?.hubStats?.environment?.progress ?? 0}
               completed={dashboard?.hubStats?.environment?.completed ?? "0 sections completed"}
               iconSrc={"/icons/leaftwo.svg"}
+              assessmentId={dashboard?.latestAssessmentId}
             />
             <AssessmentHubCard
               type="Social"
@@ -176,6 +177,7 @@ export default function DashboardPage() {
               progress={dashboard?.hubStats?.social?.progress ?? 0}
               completed={dashboard?.hubStats?.social?.completed ?? "0 sections completed"}
               iconSrc={"/icons/userstwo.svg"}
+              assessmentId={dashboard?.latestAssessmentId}
             />
             <AssessmentHubCard
               type="Governance"
@@ -183,6 +185,7 @@ export default function DashboardPage() {
               progress={dashboard?.hubStats?.governance?.progress ?? 0}
               completed={dashboard?.hubStats?.governance?.completed ?? "0 sections completed"}
               iconSrc={"/icons/injusticetwo.svg"}
+              assessmentId={dashboard?.latestAssessmentId}
             />
           </div>
         </div>

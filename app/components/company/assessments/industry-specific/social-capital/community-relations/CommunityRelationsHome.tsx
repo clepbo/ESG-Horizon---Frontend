@@ -20,6 +20,7 @@ interface Props {
   backToAssessmentHub?: () => void;
   backToDisclosureTopics?: () => void;
   onContinue?: () => void;
+  initialForm?: string;
 }
 
 export default function CommunityRelationsHome({
@@ -27,9 +28,10 @@ export default function CommunityRelationsHome({
   backToAssessmentHub,
   onContinue: _onContinue,
   backToDisclosureTopics,
+  initialForm,
 }: Props) {
   const router = useRouter();
-  const [currentView, setCurrentView] = useState<string>("");
+  const [currentView, setCurrentView] = useState<string>(initialForm ?? "");
   const { dispatch } = useAssessment();
   const [showSuccess, setShowSuccess] = React.useState(false);
 

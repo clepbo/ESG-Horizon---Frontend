@@ -49,7 +49,7 @@ export default function CriticalIncidentRiskManagement({
             </p>
           </span>
         </div>
-        <Card className="p-4 m-4 bg-[#fff9eb] border border-[#fdeabb] text-[#e69d5d]">
+        <Card className="p-4 m-4 bg-blue-50 border border-blue-200 text-blue-600">
           <div className="flex items-center gap-2">
             <IoMdAlert className="text-lg" />
             <p className="text-xs">

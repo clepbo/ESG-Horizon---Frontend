@@ -10,6 +10,7 @@ import {
   BarChart,
   Bar,
   LabelList,
+  Legend,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { useAssessment } from "@/hooks/useAssessment";
@@ -182,23 +183,25 @@ export function Scope2EmissionsChart() {
             </div>
 
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData}>
+              <BarChart data={chartData} margin={{ top: 10, right: 150, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#6B7280" }}
+                  tick={{ fontSize: 14, fill: "#111827" }}
                 />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 14, fill: "#111827" }} width={60} />
                 <Tooltip
+                  cursor={false}
                   formatter={(value?: number) => [
                     `${(value ?? 0).toFixed(2)} kg CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6">
+                <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
+                <Bar dataKey="value" name="Emissions (kg CO₂e)" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6">
                   <LabelList
                     dataKey="value"
                     position="top"

@@ -28,9 +28,9 @@ export default function BusinessEthicAndTransparency({
           { name: "Maintenance", value: maintenance, color: "#9CA3AF" },
         ]
       : [
-          { name: "Gas Projects", value: 55, color: "#3B82F6" },
-          { name: "Renewable Projects", value: 25, color: "#22C55E" },
-          { name: "Maintenance", value: 20, color: "#9CA3AF" },
+          { name: "Gas Projects", value: 0, color: "#3B82F6" },
+          { name: "Renewable Projects", value: 0, color: "#22C55E" },
+          { name: "Maintenance", value: 0, color: "#9CA3AF" },
         ];
 
   const formatCurrency = (value: number | undefined) => {
@@ -129,7 +129,7 @@ export default function BusinessEthicAndTransparency({
           {capitalData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-              <span className="text-gray-600">{item.name}</span>
+              <span className="text-gray-900 font-medium">{item.name}</span>
             </div>
           ))}
         </div>

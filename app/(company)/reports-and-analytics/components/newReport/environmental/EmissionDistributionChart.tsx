@@ -35,8 +35,8 @@ function renderCustomLabel(props: PieLabelRenderProps) {
       fill="#374151"
       textAnchor={textAnchor}
       dominantBaseline="central"
-      fontSize={12}
-      fontWeight={500}
+      fontSize={13}
+      fontWeight={600}
     >
       {typeof value === "number" ? formatNumberFigures(value) : String(value)}
     </text>
@@ -51,8 +51,8 @@ export default function EmissionDistributionChart({
   PM10,
 }: EmissionDistributionChartProps) {
   const data = [
-    { name: "NOx", value: NOx, fill: "#0088FE" },
-    { name: "SOx", value: SOx, fill: "#f9b232" },
+    { name: "NOx", value: NOx, fill: "#3b82f6" },
+    { name: "SOx", value: SOx, fill: "#10B981" },
     { name: "VOCs", value: VOCs, fill: "#af57db" },
     { name: "PM10", value: PM10, fill: "#eb6f70" },
   ];
@@ -85,7 +85,8 @@ export default function EmissionDistributionChart({
             layout="horizontal"
             verticalAlign="bottom"
             align="center"
-            wrapperStyle={{ fontSize: 12 }}
+            iconType="circle"
+            wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
           />
         </PieChart>
       </ResponsiveContainer>

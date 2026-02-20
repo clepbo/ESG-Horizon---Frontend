@@ -197,6 +197,7 @@ export default function AssessmentHub() {
     }
   }
 
+  // NEW: Handle activity-metrics view
   if (state.currentView === "activity-metrics") {
     return (
       <DisclosureTopics
@@ -207,21 +208,26 @@ export default function AssessmentHub() {
     );
   }
 
-  // Handle Business Innovation & Human Capital views
-  const otherViews = [
+  // Handle all non-GHG disclosure topic views (social, human capital, business model, leadership, etc.)
+  const disclosureTopicViews = [
+    "biodiversity",
+    "crs",
+    "security-human-rights",
+    "air-quality",
+    "water-and-wastewater-management",
+    "workforce-health-and-safety",
     "reserves-valuation-capital-expenditures",
     "business-ethics-transparency",
-    "workforce-health-and-safety",
     "critical-incident-risk-management",
-    "management-of-legal-and-regulatory-environment"
+    "management-of-legal-and-regulatory-environment",
   ];
 
-  if (otherViews.includes(state.currentView)) {
+  if (disclosureTopicViews.includes(state.currentView)) {
     return (
       <DisclosureTopics
         onBack={handleBack}
         initialView={state.currentView}
-        initialStep={state.targetStep as any}
+        initialForm={state.targetStep as any}
       />
     );
   }
@@ -350,9 +356,11 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endMonth", value)}
                       >
                         <SelectTrigger
-                          className={`w-32 border ${dateError ? "border-red-500" : "border-slate-300"
-                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                            }`}
+                          className={`w-32 border ${
+                            dateError ? "border-red-500" : "border-slate-300"
+                          } hover:cursor-pointer focus:ring-2 ${
+                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                          }`}
                         >
                           <SelectValue placeholder="Month" />
                         </SelectTrigger>
@@ -370,9 +378,11 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endYear", value)}
                       >
                         <SelectTrigger
-                          className={`w-24 border ${dateError ? "border-red-500" : "border-slate-300"
-                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                            }`}
+                          className={`w-24 border ${
+                            dateError ? "border-red-500" : "border-slate-300"
+                          } hover:cursor-pointer focus:ring-2 ${
+                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                          }`}
                         >
                           <SelectValue placeholder="Year" />
                         </SelectTrigger>
