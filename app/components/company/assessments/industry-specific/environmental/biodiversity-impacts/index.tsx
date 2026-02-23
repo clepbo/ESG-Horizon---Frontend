@@ -71,7 +71,9 @@ const scopeData = [
 
 export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactProps) {
   const router = useRouter();
+  const { state } = useAssessment();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
+
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
 

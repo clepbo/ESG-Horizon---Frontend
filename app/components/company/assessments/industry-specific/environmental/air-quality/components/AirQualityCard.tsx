@@ -20,13 +20,15 @@ export default function AirQualityCard({
   backToAssessmentHub,
   handleCardClick,
 }: AirQualityProps) {
+  const { state } = useAssessment();
   const router = useRouter();
-  const { dispatch } = useAssessment();
 
   useEffect(() => {
-    // Only verify completion - status not used in current render as indicators are commented out
-    // console.log("Air Quality completion status:", checkTopicCompletion("Air Quality", state.assessmentData));
-  }, []);
+    // Debugging completion status - keep or remove as needed for dev
+    if (state.assessmentData) {
+      checkTopicCompletion("Air Quality", state.assessmentData);
+    }
+  }, [state.assessmentData]);
 
   const cards = [
     {
