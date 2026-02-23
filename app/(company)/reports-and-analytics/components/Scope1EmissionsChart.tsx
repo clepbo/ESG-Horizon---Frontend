@@ -1,7 +1,16 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, LabelList, Legend } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  LabelList,
+  Legend,
+} from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { formatNumberFull } from "@/lib/numberFormat";
 import { useAssessment, type SourceData } from "@/hooks/useAssessment";
@@ -160,7 +169,11 @@ export function Scope1EmissionsChart() {
               <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
             </div>
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData} barCategoryGap={8} margin={{ top: 10, right: 130, left: 0, bottom: 5 }}>
+              <BarChart
+                data={chartData}
+                barCategoryGap={8}
+                margin={{ top: 10, right: 130, left: 0, bottom: 5 }}
+              >
                 <XAxis
                   dataKey="category"
                   axisLine={false}
@@ -185,8 +198,20 @@ export function Scope1EmissionsChart() {
                   ]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
-                <Bar dataKey="emissions" name="Emissions (tCO₂e)" radius={[4, 4, 0, 0]} maxBarSize={40} fill="#3B82F6">
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                />
+                <Bar
+                  dataKey="emissions"
+                  name="Emissions (tCO₂e)"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={40}
+                  fill="#3B82F6"
+                >
                   <LabelList
                     dataKey="emissions"
                     position="top"

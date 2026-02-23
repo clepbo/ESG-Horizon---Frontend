@@ -212,7 +212,7 @@ export default function CapitalExpenditureStrategy({
                 capexPercentage.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, capexPercentage: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="%"
               error={errors.capexPercentage}
               formatNumbers={false}
@@ -251,8 +251,9 @@ export default function CapitalExpenditureStrategy({
                 }}
                 placeholder="e.g., Our CAPEX strategy prioritizes low-cost, low-carbon intensity barrels. The FIA's gas flaring penalties have accelerated investment in gas utilization projects, shifting capital from pure exploration to development of gas infrastructure..."
                 rows={8}
-                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.capexDiscussion ? "border-red-500" : "border-gray-300"
-                  }`}
+                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  errors.capexDiscussion ? "border-red-500" : "border-gray-300"
+                }`}
               />
               {errors.capexDiscussion && (
                 <p className="text-sm text-red-500">{errors.capexDiscussion}</p>

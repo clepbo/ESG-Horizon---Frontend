@@ -67,7 +67,11 @@ export function ReportSubmittedChart() {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data} barCategoryGap={12} margin={{ top: 5, right: 120, left: 0, bottom: 5 }}>
+            <BarChart
+              data={data}
+              barCategoryGap={12}
+              margin={{ top: 5, right: 120, left: 0, bottom: 5 }}
+            >
               <XAxis
                 dataKey="month"
                 axisLine={false}
@@ -82,8 +86,20 @@ export function ReportSubmittedChart() {
                 interval={0}
                 width={55}
               />
-              <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
-              <Bar dataKey="value" name="Score (%)" radius={[4, 4, 0, 0]} maxBarSize={32} fill="url(#gradient)" />
+              <Legend
+                layout="vertical"
+                align="right"
+                verticalAlign="middle"
+                iconType="circle"
+                wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+              />
+              <Bar
+                dataKey="value"
+                name="Score (%)"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={32}
+                fill="url(#gradient)"
+              />
               <defs>
                 <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#111827" />

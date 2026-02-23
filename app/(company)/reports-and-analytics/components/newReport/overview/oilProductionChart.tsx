@@ -86,7 +86,12 @@ export default function ProductionVolumesChart({
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} barGap={4} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#111827", fontSize: 14 }} />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#111827", fontSize: 14 }}
+            />
             <YAxis
               width={70}
               tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}

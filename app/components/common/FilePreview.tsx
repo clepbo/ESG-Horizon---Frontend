@@ -108,7 +108,10 @@ export function FilePreview({ file, onRemove, disabled }: FilePreviewProps) {
         )}
       </div>
 
-      <p className="text-xs text-gray-500 mt-1 max-w-[100px] truncate text-center" title={file.name}>
+      <p
+        className="text-xs text-gray-500 mt-1 max-w-[100px] truncate text-center"
+        title={file.name}
+      >
         {file.name}
       </p>
 
@@ -146,7 +149,12 @@ export function FilePreview({ file, onRemove, disabled }: FilePreviewProps) {
                 )}
                 {fileUrl && (
                   <Button variant="ghost" size="sm" asChild>
-                    <a href={fileUrl} download={file.name} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={fileUrl}
+                      download={file.name}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <CloudUpload className="h-4 w-4 mr-2 rotate-180" />
                       Download
                     </a>

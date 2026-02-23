@@ -16,19 +16,6 @@ export default function ReportLayout({ children }: ReportLayoutProps) {
   const reportId = Number(params?.id);
   const { data: report } = useSingleReport(reportId);
 
-  let customBreadcrumb;
-
-  if (reportId && report) {
-    customBreadcrumb = (
-      <CustomBreadcrumb
-        items={[
-          { label: "Home", href: "/dashboard-esg" },
-          { label: "Reports & Analytics", href: "/reports-and-analytics" },
-          { label: report.title || "Report Details" },
-        ]}
-      />
-    );
-  }
 
   return (
     <ReportBreadcrumbProvider>

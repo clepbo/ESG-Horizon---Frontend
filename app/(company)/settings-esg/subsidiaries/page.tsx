@@ -28,7 +28,9 @@ export default function SubsidiariesPage() {
   const { data: subsidiariesData, isLoading: subsidiariesLoading } = useCompanySubsidiaries();
   // Restore local state to support legacy manual updates while syncing with the hook
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
-  const [company, setCompany] = useState<{ id: number; name: string; status?: string } | undefined>();
+  const [company, setCompany] = useState<
+    { id: number; name: string; status?: string } | undefined
+  >();
   const loading = subsidiariesLoading;
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -48,9 +50,12 @@ export default function SubsidiariesPage() {
   }, [subsidiariesData]);
 
   useEffect(() => {
-    companyService.getDetails().then((c) => {
-      if (c) setCompany({ id: c.id, name: c.name });
-    }).catch(() => {});
+    companyService
+      .getDetails()
+      .then((c) => {
+        if (c) setCompany({ id: c.id, name: c.name });
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {

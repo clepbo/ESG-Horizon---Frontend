@@ -14,7 +14,12 @@ import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { GeneralTargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/app/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
 import { formatNumberFull } from "@/lib/numberFormat";
 
@@ -28,7 +33,12 @@ export interface GeneralTargetFormProps {
 const currentYear = new Date().getFullYear();
 export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
 
-export default function GeneralTargetForm({ data, onChange, onComplete, onSuccess }: GeneralTargetFormProps) {
+export default function GeneralTargetForm({
+  data,
+  onChange,
+  onComplete,
+  onSuccess,
+}: GeneralTargetFormProps) {
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [showNoBaselineModal, setShowNoBaselineModal] = useState(false);
@@ -53,14 +63,14 @@ export default function GeneralTargetForm({ data, onChange, onComplete, onSucces
     if (baseline.data?.startYear && !data.baselineYear) {
       onChange({ ...data, baselineYear: baseline.data.startYear });
     }
-  }, [baseline.data?.startYear]);
+  }, [baseline.data?.startYear, data, onChange]);
 
   // Show redirect modal if baseline fetch is complete but no baseline exists
   useEffect(() => {
     if (!baseline.isLoading && !baseline.error && baseline.data && !baseline.data.totalSum) {
       setShowNoBaselineModal(true);
     }
-  }, [baseline.isLoading, baseline.data]);
+  }, [baseline.isLoading, baseline.error, baseline.data]);
 
   const createTarget = useMutation({
     mutationFn: async (targetData: GeneralTargetPayload) => {
@@ -283,7 +293,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete, onSucces
                         <TooltipContent side="top" className="max-w-xs">
                           <p>Formula: Baseline × (1 − Reduction% ÷ 100)</p>
                           <p className="text-xs text-gray-300 mt-1">
-                            e.g. {baseline?.data?.totalSum ?? 0} × (1 − {data?.reductionPercentage ?? 0} ÷ 100)
+                            e.g. {baseline?.data?.totalSum ?? 0} × (1 −{" "}
+                            {data?.reductionPercentage ?? 0} ÷ 100)
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -369,15 +380,10 @@ export default function GeneralTargetForm({ data, onChange, onComplete, onSucces
               captures the emissions data used to calculate your reduction goal.
             </p>
             <div className="flex gap-3 justify-center pt-2">
-              <CustomButton
-                variant="outlined"
-                onClick={() => setShowNoBaselineModal(false)}
-              >
+              <CustomButton variant="outlined" onClick={() => setShowNoBaselineModal(false)}>
                 Dismiss
               </CustomButton>
-              <CustomButton
-                onClick={() => router.push("/assessments/hub?setup=baseline")}
-              >
+              <CustomButton onClick={() => router.push("/assessments/hub?setup=baseline")}>
                 Create Baseline
               </CustomButton>
             </div>

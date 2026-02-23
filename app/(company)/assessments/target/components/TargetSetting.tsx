@@ -29,7 +29,11 @@ export function TargetSetting({ onSuccess }: TargetSettingProps) {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} onSuccess={onSuccess} />
+            <GeneralTargetForm
+              data={generalTargetData}
+              onChange={setGeneralTargetData}
+              onSuccess={onSuccess}
+            />
           )}
 
           {selectedType === "scope" && (

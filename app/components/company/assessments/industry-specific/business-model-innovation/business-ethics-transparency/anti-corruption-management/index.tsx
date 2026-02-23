@@ -303,8 +303,9 @@ export default function AntiCorruptionManagement({
                     setErrors((prev) => ({ ...prev, systemDescription: "" }));
                   }}
                   placeholder="e.g., We have a zero-tolerance policy for bribery and corruption, embedded in our Corporate Code of Conduct. Mandatory annual anti-corruption training is required for all staff. We are a signatory to the Nigerian Extractive Industries Transparency Initiative (NEITI) principles and publish all payments to government..."
-                  className={`min-h-[150px] resize-none w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.systemDescription ? "border-red-500" : "border-gray-300"
-                    }`}
+                  className={`min-h-[150px] resize-none w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    errors.systemDescription ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
 
                 {errors.systemDescription && (

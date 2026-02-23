@@ -176,7 +176,11 @@ export default function DepartmentsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">
-            <DepartmentsTable departments={filteredDepartments} onUpdate={loadDepartments} companyName={companyName} />
+            <DepartmentsTable
+              departments={filteredDepartments}
+              onUpdate={loadDepartments}
+              companyName={companyName}
+            />
           </div>
         )}
       </motion.main>

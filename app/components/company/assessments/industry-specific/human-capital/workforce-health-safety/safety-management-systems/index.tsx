@@ -61,9 +61,8 @@ export default function SafetyManagementSystem({
   const hasRehydrated = useRef(false);
   useEffect(() => {
     if (hasRehydrated.current) return;
-    const saved = (state.assessmentData as any)?.humanCapital
-      ?.workforceHealthAndSafety?.riskAndOpportunityManagement
-      ?.safetyManagementSystems;
+    const saved = (state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety
+      ?.riskAndOpportunityManagement?.safetyManagementSystems;
     if (!saved) return;
     hasRehydrated.current = true;
 

@@ -55,8 +55,8 @@ export default function BoardManagementOversight({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.leadershipGovernance
-        ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
+      state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+        ?.boardAndManagementOversight;
 
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.hasBoardCommittee !== undefined) {
@@ -70,8 +70,8 @@ export default function BoardManagementOversight({
       }
     }
   }, [
-    state.assessmentData.leadershipGovernance
-      ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight,
+    state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+      ?.boardAndManagementOversight,
   ]);
 
   const validateForm = () => {
@@ -276,8 +276,9 @@ export default function BoardManagementOversight({
                   setErrors((prev) => ({ ...prev, oversightDiscussion: "" }));
                 }}
                 placeholder="e.g., The Board's Sustainability Committee oversees our ESG strategy, including the annual review of the NUPRC-mandated Environmental Risk Register (ERR) to quantify and disclose associated financial risks in our IFRS S1 report..."
-                className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.oversightDiscussion ? "border-red-500" : "border-gray-300"
-                  }`}
+                className={`min-h-37.5 resize-none w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                  errors.oversightDiscussion ? "border-red-500" : "border-gray-300"
+                }`}
               />
               {errors.oversightDiscussion && (
                 <p className="text-sm text-red-600 mt-1">{errors.oversightDiscussion}</p>

@@ -99,7 +99,6 @@ function MetricCard({
 }) {
   const isPositive = change && change > 0;
   const isNegative = change && change < 0;
-  const isNeutral = !change || change === 0;
 
   // For TRIR, increase is BAD (Red), decrease is GOOD (Green)
   const colorClass = isTrir
@@ -119,8 +118,7 @@ function MetricCard({
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
-            {Math.abs(change)}%
-            <span className="ml-1 text-gray-400 font-normal">vs last year</span>
+            {Math.abs(change)}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
           </div>
         )}
       </div>

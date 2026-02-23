@@ -232,7 +232,7 @@ export default function EmbeddedCarbonInReserves({
                 totalProvedReserves.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, totalProvedReserves: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="Billion BOE"
               error={errors.totalProvedReserves}
               unitError={errors.totalProvedReservesUnit}
@@ -251,7 +251,7 @@ export default function EmbeddedCarbonInReserves({
                 estimatedEmbeddedEmissions.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, estimatedEmbeddedEmissions: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="Million t CO₂-e"
               error={errors.estimatedEmbeddedEmissions}
               unitError={errors.estimatedEmbeddedEmissionsUnit}

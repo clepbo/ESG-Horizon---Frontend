@@ -517,9 +517,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               </div>
 
               <CustomProgressWithoutSections
-                value={
-                  (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0 ? 100 : 0
-                }
+                value={(bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0 ? 100 : 0}
                 title="Total Volume Spilled"
                 total={bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled || 0}
                 unit="bbl"

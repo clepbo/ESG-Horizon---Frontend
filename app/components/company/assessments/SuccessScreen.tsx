@@ -25,7 +25,6 @@ export function SuccessScreen({
   nextAssessment,
   totals,
   onContinue,
-  onContinueAssessment, // Kept in props but ignored in render as per design
   onBackToHub,
   reportId,
 }: SuccessScreenProps) {
@@ -76,7 +75,9 @@ export function SuccessScreen({
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-4 text-center leading-tight">
-          {type === "report" ? "Report Generated Successfully!" : `${assessmentName}\nAssessment Submitted!`}
+          {type === "report"
+            ? "Report Generated Successfully!"
+            : `${assessmentName}\nAssessment Submitted!`}
         </h2>
 
         <p className="text-white/90 mb-6 text-center text-sm leading-relaxed">

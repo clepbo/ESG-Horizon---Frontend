@@ -50,8 +50,8 @@ export default function PublicPolicyEngagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.leadershipGovernance
-        ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement;
+      state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+        ?.publicPolicyEngagement;
 
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.disclosesContributions !== undefined) {
@@ -65,8 +65,8 @@ export default function PublicPolicyEngagement({
       }
     }
   }, [
-    state.assessmentData.leadershipGovernance
-      ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement,
+    state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+      ?.publicPolicyEngagement,
   ]);
 
   // Calculate progress

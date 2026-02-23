@@ -43,20 +43,11 @@ function NewAssessmentPage() {
       hasRedirected.current = true;
       dispatch({ type: "SET_VIEW", payload: "my-tasks" });
     }
-  }, [
-    hasAssignedTasks,
-    tasksLoading,
-    state.currentView,
-    dispatch,
-    isCompanyAdmin,
-  ]);
+  }, [hasAssignedTasks, tasksLoading, state.currentView, dispatch, isCompanyAdmin]);
 
   // Add safeguards to escape task view if admin
   useEffect(() => {
-    if (
-      isCompanyAdmin &&
-      (state.currentView === "my-tasks" || state.isAssignedTask)
-    ) {
+    if (isCompanyAdmin && (state.currentView === "my-tasks" || state.isAssignedTask)) {
       dispatch({ type: "SET_VIEW", payload: "hub" });
       dispatch({ type: "SET_ASSIGNED_TASK", payload: false });
     }
