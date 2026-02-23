@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { TrendingDown } from "lucide-react";
 import { FaCaretLeft } from "react-icons/fa";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface TargetSummaryProps {
   reductionPercentage: number;
@@ -49,13 +50,13 @@ export function GeneralTargetSummary({
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">From</span>
                 <span className="font-semibold text-red-500 text-right">
-                  {baselineEmission?.toLocaleString()} tCO₂e
+                  {formatNumberFull(baselineEmission)} tCO₂e
                 </span>
               </div>
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">To</span>
                 <span className="font-semibold text-green-600 text-right">
-                  {targetEmission?.toLocaleString()} tCO₂e
+                  {formatNumberFull(targetEmission)} tCO₂e
                 </span>
               </div>
               <div className="flex items-baseline justify-between gap-6">
@@ -80,7 +81,7 @@ export function GeneralTargetSummary({
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
                 <div className="text-sm font-semibold text-red-600">
-                  -{totalReduction?.toLocaleString()} tCO₂e
+                  -{formatNumberFull(totalReduction)} tCO₂e
                 </div>
               </div>
 
@@ -88,7 +89,7 @@ export function GeneralTargetSummary({
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
                 <div className={`text-sm font-semibold text-green-600`}>
-                  {Math.round(annualRate)?.toLocaleString()} tCO₂e/year
+                  {formatNumberFull(Math.round(annualRate))} tCO₂e/year
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { BusinessModelPillar } from "@/types/report/reportResponse";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberFull, formatCurrencyCompact } from "@/lib/numberFormat";
 
 interface BusinessEthicAndTransparencyProps {
   businessModel?: BusinessModelPillar;
@@ -33,13 +33,6 @@ export default function BusinessEthicAndTransparency({
           { name: "Maintenance", value: 0, color: "#9CA3AF" },
         ];
 
-  const formatCurrency = (value: number | undefined) => {
-    if (!value) return "₦0";
-    if (value >= 1000000) return `₦${(value / 1000000).toFixed(0)}M`;
-    if (value >= 1000) return `₦${(value / 1000).toFixed(0)}K`;
-    return `₦${value.toLocaleString()}`;
-  };
-
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* LEFT CARD - Climate Impact on Reserves */}
@@ -51,7 +44,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Carbon Price Scenario</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">
-              ₦ {(climateImpact?.carbonPriceScenario ?? 0).toLocaleString()}
+              ₦ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0)}
               <span className="ml-1 text-sm font-normal text-gray-500">/tonne</span>
             </p>
           </div>
@@ -60,7 +53,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-red-50 p-4">
             <p className="text-sm font-medium text-red-500">Reserves at Risk</p>
             <p className="mt-2 text-3xl font-bold text-red-500">
-              {(climateImpact?.reservesAtRiskPercent ?? 0).toFixed(0)}%
+              {Math.round(climateImpact?.reservesAtRiskPercent ?? 0)}%
             </p>
             <p className="text-sm text-red-400">Decrease in Proved Oil</p>
           </div>
@@ -96,13 +89,13 @@ export default function BusinessEthicAndTransparency({
           <div>
             <p className="text-gray-500">Renewable Investment</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrency(strategicAllocation?.renewableInvestmentAmount)}
+              {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount)}
             </p>
           </div>
           <div className="text-right">
             <p className="text-gray-500">Renewable Revenue</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrency(strategicAllocation?.renewableRevenueAmount)}
+              {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount)}
             </p>
           </div>
         </div>

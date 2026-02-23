@@ -21,6 +21,7 @@ import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
 import { getYear } from "date-fns";
 import Link from "next/link";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface ReportEnvironmentalProps {
   reportData?: ReportResponse;
@@ -56,10 +57,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
     const abs = Math.abs(change);
     if (change < 0) {
       // Emissions decreased — good
-      return { text: `${abs.toFixed(1)}%`, rotate: "", bg: "#dff9e6", color: "#16a34a" };
+      return { text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`, rotate: "", bg: "#dff9e6", color: "#16a34a" };
     }
     // Emissions increased — bad
-    return { text: `${abs.toFixed(1)}%`, rotate: "180deg", bg: "#fee2e2", color: "#dc2626" };
+    return { text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`, rotate: "180deg", bg: "#fee2e2", color: "#dc2626" };
   };
 
   const totalChangeProps = formatChange(ghg?.totalChange);
@@ -86,7 +87,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             period={assessmentPeriod}
             value={
               ghg
-                ? Number(ghg.totalEmissions || 0).toFixed(2)
+                ? formatNumberFull(ghg.totalEmissions ?? 0, { minimumFractionDigits: 2 })
                 : "0.00"
             }
             data={emissionData}
@@ -103,7 +104,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             period={assessmentPeriod}
             value={
               ghg
-                ? Number(ghg.scope1Emissions || 0).toFixed(2)
+                ? formatNumberFull(ghg.scope1Emissions ?? 0, { minimumFractionDigits: 2 })
                 : "0.00"
             }
             data={emissionDataScope1}
@@ -120,7 +121,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             period={assessmentPeriod}
             value={
               ghg
-                ? Number(ghg.scope2Emissions || 0).toFixed(2)
+                ? formatNumberFull(ghg.scope2Emissions ?? 0, { minimumFractionDigits: 2 })
                 : "0.00"
             }
             data={emissionDataScope2}
@@ -137,7 +138,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             period={assessmentPeriod}
             value={
               ghg
-                ? Number(ghg.scope3Emissions || 0).toFixed(2)
+                ? formatNumberFull(ghg.scope3Emissions ?? 0, { minimumFractionDigits: 2 })
                 : "0.00"
             }
             data={emissionDataScope3}
@@ -394,12 +395,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   //       ?.percentageWithDisclosure || 0
                   //   ).toFixed(1) || 0
                   // )}
-                  value={parseFloat(
-                    Number(
-                      waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                        ?.percentageWithDisclosure || 0
-                    ).toFixed(1)
-                  )}
+                  value={Number(formatNumberFull(
+                    waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                      ?.percentageWithDisclosure ?? 0,
+                    { maximumFractionDigits: 1 }
+                  ))}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
                   <div
@@ -407,18 +407,20 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     className="flex text-xs flex-col items-center"
                   >
                     <strong>
-                      {Number(
+                      {formatNumberFull(
                         waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                          ?.percentageWithDisclosure || 0
-                      ).toFixed(2)}
+                          ?.percentageWithDisclosure ?? 0,
+                        { maximumFractionDigits: 2 }
+                      )}
                       %
                     </strong>
                     <p className="font-thin">Disclosure Rate </p>
                     <p className="">
-                      {(
+                      {formatNumberFull(
                         waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                          ?.percentageWithDisclosure || 0
-                      ).toFixed(2)}{" "}
+                          ?.percentageWithDisclosure ?? 0,
+                        { maximumFractionDigits: 2 }
+                      )}{" "}
                       Wells Disclosed
                     </p>
                   </div>

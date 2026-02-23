@@ -3,6 +3,7 @@ import React from "react";
 import { RxDividerVertical } from "react-icons/rx";
 import { IoMdAlert } from "react-icons/io";
 import { LeadershipAndGovernancePillar } from "@/types/report/reportResponse";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface CriticalIncidentRiskManagementProps {
   leadershipData?: LeadershipAndGovernancePillar;
@@ -45,7 +46,7 @@ export default function CriticalIncidentRiskManagement({
             <p className="text-center"> Total Hours Worked </p>
             <p className="text-green-600 text-center font-semibold">
               {" "}
-              {totalHoursWorked.toLocaleString()}{" "}
+              {formatNumberFull(totalHoursWorked)}{" "}
             </p>
           </span>
         </div>
@@ -53,7 +54,7 @@ export default function CriticalIncidentRiskManagement({
           <div className="flex items-center gap-2">
             <IoMdAlert className="text-lg" />
             <p className="text-xs">
-              <span className="font-semibold">Rate: </span> {rate.toFixed(2)} per 200k hours,
+              <span className="font-semibold">Rate: </span> {formatNumberFull(rate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hours,
               investigations closed for all events.
             </p>
           </div>

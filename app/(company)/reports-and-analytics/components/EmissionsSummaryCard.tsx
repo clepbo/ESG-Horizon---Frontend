@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/ca
 import { useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { TrendingDown, TrendingUp, Calendar, Building } from "lucide-react";
 import { formatCO2e } from "@/lib/utils";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 export function EmissionsSummaryCard() {
   const {
@@ -189,7 +190,7 @@ export function EmissionsSummaryCard() {
                     summary.reduction > 0 ? "text-green-600" : "text-red-600"
                   }`}
                 >
-                  {Math.abs(summary.reduction).toFixed(1)}%
+                  {formatNumberFull(Math.abs(summary.reduction), { maximumFractionDigits: 1 })}%
                 </span>
               </div>
             </div>
@@ -210,7 +211,7 @@ export function EmissionsSummaryCard() {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Target Progress</span>
               <span className="text-sm font-medium text-gray-600">
-                {summary.progressToTarget.toFixed(0)}% of {summary.targetReduction}% target
+                {Math.round(summary.progressToTarget)}% of {summary.targetReduction}% target
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">

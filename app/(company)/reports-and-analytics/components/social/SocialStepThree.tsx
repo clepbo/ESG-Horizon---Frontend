@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ReportResponse } from "@/types/report/reportResponse";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrencyCompact } from "@/lib/numberFormat";
 
 const COUNT_COLOR = "#9CA3AF";
 const DURATION_COLOR = "#F97316";
@@ -41,13 +41,13 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
         <div>
           <p className="text-sm pt-4 text-gray-500">Prior Year OPEX</p>
           <p className="text-lg md:text-xl font-bold text-gray-800">
-            {formatCurrency(priorYearOpex)}
+            {formatCurrencyCompact(priorYearOpex)}
           </p>
         </div>
         <div>
           <p className="text-sm text-gray-500">Annual Contribution ({percentage}%)</p>
           <p className="text-xl md:text-2xl font-bold text-gray-800">
-            {formatCurrency(annualContribution)}
+            {formatCurrencyCompact(annualContribution)}
           </p>
         </div>
       </div>
