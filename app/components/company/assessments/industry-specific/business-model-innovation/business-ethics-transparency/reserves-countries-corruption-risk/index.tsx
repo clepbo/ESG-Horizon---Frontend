@@ -61,7 +61,7 @@ export default function ReservesCountriesCorruptionRisk({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+      state.assessmentData.businessInnovation?.businessEthicsAndTransparency
         ?.reservesInCountriesWithHighCorruptionRisk;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -91,7 +91,7 @@ export default function ReservesCountriesCorruptionRisk({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+    state.assessmentData.businessInnovation?.businessEthicsAndTransparency
       ?.reservesInCountriesWithHighCorruptionRisk,
   ]);
 

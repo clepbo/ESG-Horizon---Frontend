@@ -54,7 +54,7 @@ export default function CapitalExpenditureStrategy({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.capitalExpenditureStrategy;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -69,7 +69,7 @@ export default function CapitalExpenditureStrategy({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.capitalExpenditureStrategy,
   ]);
 
@@ -116,11 +116,6 @@ export default function CapitalExpenditureStrategy({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     try {
       await saveNow(current, payload);
       dispatch({
@@ -133,6 +128,9 @@ export default function CapitalExpenditureStrategy({
       });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
+      setTimeout(() => {
+        _router.push("/assessments/new-assessment");
+      }, 1500);
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
@@ -214,7 +212,7 @@ export default function CapitalExpenditureStrategy({
                 capexPercentage.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, capexPercentage: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="%"
               error={errors.capexPercentage}
               formatNumbers={false}
@@ -253,9 +251,8 @@ export default function CapitalExpenditureStrategy({
                 }}
                 placeholder="e.g., Our CAPEX strategy prioritizes low-cost, low-carbon intensity barrels. The FIA's gas flaring penalties have accelerated investment in gas utilization projects, shifting capital from pure exploration to development of gas infrastructure..."
                 rows={8}
-                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${
-                  errors.capexDiscussion ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.capexDiscussion ? "border-red-500" : "border-gray-300"
+                  }`}
               />
               {errors.capexDiscussion && (
                 <p className="text-sm text-red-500">{errors.capexDiscussion}</p>
@@ -296,7 +293,7 @@ export default function CapitalExpenditureStrategy({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
+                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2 cursor-pointer border-none"
               >
                 {isSaving ? (
                   <>

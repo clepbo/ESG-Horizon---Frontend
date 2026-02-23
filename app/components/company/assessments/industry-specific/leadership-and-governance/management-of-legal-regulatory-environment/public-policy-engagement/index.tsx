@@ -50,7 +50,7 @@ export default function PublicPolicyEngagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance
+      state.assessmentData.leadershipGovernance
         ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -65,7 +65,7 @@ export default function PublicPolicyEngagement({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance
+    state.assessmentData.leadershipGovernance
       ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement,
   ]);
 

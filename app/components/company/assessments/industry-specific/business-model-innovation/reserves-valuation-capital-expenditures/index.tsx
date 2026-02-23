@@ -147,7 +147,7 @@ export default function ReservesValuationAssessment({
       <SuccessScreen
         assessmentName="Reserves Valuation & Capital Expenditures"
         totals={totals ?? undefined}
-        nextAssessment="Next Assessment"
+        nextAssessment="Business Ethics & Transparency"
         reportId={reportId}
         onContinue={handleViewReport}
         onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
@@ -300,11 +300,10 @@ export default function ReservesValuationAssessment({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${
-                            card.clickable
+                          className={`transition-all bg-white shadow-sm rounded-lg ${card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
-                          }`}
+                            }`}
                           // Status indication commented out - revisit later: getCardBorderClass(card.title)
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >

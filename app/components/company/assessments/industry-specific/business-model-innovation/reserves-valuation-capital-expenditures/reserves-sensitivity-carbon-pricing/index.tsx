@@ -51,7 +51,7 @@ export default function ReservesSensitivityForm({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.reservesSensitivityToCarbonPricing;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -77,7 +77,7 @@ export default function ReservesSensitivityForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.reservesSensitivityToCarbonPricing,
   ]);
 
@@ -151,11 +151,6 @@ export default function ReservesSensitivityForm({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     setIsSaving(true);
     setShowSaveSuccess(false);
 
@@ -174,6 +169,9 @@ export default function ReservesSensitivityForm({
       });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
+      setTimeout(() => {
+        _router.push("/assessments/new-assessment");
+      }, 1500);
     } catch (_error: any) {
       console.error(_error);
       toast.error("Failed to save data");
@@ -258,7 +256,7 @@ export default function ReservesSensitivityForm({
                 carbonPriceScenario.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, carbonPriceScenario: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="$/tonne CO₂-e"
               error={errors.carbonPriceScenario}
               formatNumbers={false}
@@ -276,7 +274,7 @@ export default function ReservesSensitivityForm({
                 percentageDecrease.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, percentageDecrease: "" }));
               }}
-              onUnitChange={() => {}}
+              onUnitChange={() => { }}
               customUnit="%"
               error={errors.percentageDecrease}
               formatNumbers={false}
@@ -341,7 +339,7 @@ export default function ReservesSensitivityForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
+                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2 cursor-pointer border-none"
               >
                 {isSaving ? (
                   <>

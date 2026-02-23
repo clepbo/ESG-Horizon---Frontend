@@ -4,6 +4,7 @@ import { Button } from "@/app/components/ui/button";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface SuccessScreenProps {
   assessmentName: string;
@@ -90,11 +91,14 @@ export function SuccessScreen({
             <br />
             <span className="font-bold text-lg">
               {"="}
-              {Number(
-                (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
-                totals?.totals?.sum ??
-                0
-              ).toFixed(2)}{" "}
+              {formatNumberFull(
+                Number(
+                  (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
+                  totals?.totals?.sum ??
+                  0
+                ),
+                { minimumFractionDigits: 2 }
+              )}{" "}
               tCO₂e
             </span>
           </p>
