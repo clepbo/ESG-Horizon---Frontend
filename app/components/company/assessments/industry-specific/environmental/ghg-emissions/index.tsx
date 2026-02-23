@@ -420,7 +420,7 @@ export function GhgEmissionsAssessment({
                             >
                               {scope.id === "scope-1" && (
                                 <>
-                                  <h6 className="font-semibold mb-1">Scope 1 - Direct Emissions</h6>
+                                  <h6 className="font-semibold mb-1">Scope 1 (Direct Emissions)</h6>
                                   <p>
                                     Emissions from sources your company owns or directly controls
                                     (e.g., fuel combustion, company vehicles, generators).
@@ -431,7 +431,7 @@ export function GhgEmissionsAssessment({
                               {scope.id === "scope-2" && (
                                 <>
                                   <h6 className="font-semibold mb-1">
-                                    Scope 2 - Indirect Energy Emissions
+                                    Scope 2 (Indirect Energy Emissions)
                                   </h6>
                                   <p>
                                     Emissions from purchased electricity, steam, heating, or cooling
@@ -443,7 +443,7 @@ export function GhgEmissionsAssessment({
                               {scope.id === "scope-3" && (
                                 <>
                                   <h6 className="font-semibold mb-1">
-                                    Scope 3 - Value Chain Emissions
+                                    Scope 3 (Value Chain Emissions)
                                   </h6>
                                   <p>
                                     All other indirect emissions outside your direct control - such

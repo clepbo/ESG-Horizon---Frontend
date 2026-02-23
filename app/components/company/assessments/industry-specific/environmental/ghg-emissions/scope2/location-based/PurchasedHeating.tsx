@@ -327,7 +327,7 @@ export function PurchasedHeatingForm({
             Back
           </Button>
           <div>
-            <h3 className="text-2xl font-semibold text-foreground">Scope 2 – Heating</h3>
+            <h3 className="text-2xl font-semibold text-foreground">Scope 2 (Heating)</h3>
             <p className="text-muted-foreground text-base">
               Purchased heating energy consumption and supporting evidence.
             </p>
