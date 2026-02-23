@@ -13,6 +13,7 @@ import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
 import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 import { useAuth } from "@/context/AuthContext";
+import { getAssessmentProgressForTable } from "@/lib/utils";
 
 function NewAssessmentPage() {
   const router = useRouter();
@@ -125,7 +126,7 @@ function NewAssessmentPage() {
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
-        progress: a.assessmentData?.overallProgress ?? null,
+        progress: getAssessmentProgressForTable(a),
         rejection_reason: (a as any).rejection_reason,
         lastUpdated: a.updatedAt,
         pillars,
