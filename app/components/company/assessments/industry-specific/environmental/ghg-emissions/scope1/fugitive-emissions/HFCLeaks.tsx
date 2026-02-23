@@ -29,6 +29,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface HFCLeaksProps {
   onBack: () => void;

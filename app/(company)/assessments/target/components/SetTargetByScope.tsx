@@ -352,7 +352,11 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
                 >
                   <option value="">Select year</option>
                   {years
-                    .filter((year) => !scopeTargetData.scope1.baselineYear || year > scopeTargetData.scope1.baselineYear)
+                    .filter(
+                      (year) =>
+                        !scopeTargetData.scope1.baselineYear ||
+                        year > scopeTargetData.scope1.baselineYear
+                    )
                     .map((year) => (
                       <option key={year} value={year}>
                         {year}
@@ -453,7 +457,11 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
                 >
                   <option value="">Select year</option>
                   {years
-                    .filter((year) => !scopeTargetData.scope2.baselineYear || year > scopeTargetData.scope2.baselineYear)
+                    .filter(
+                      (year) =>
+                        !scopeTargetData.scope2.baselineYear ||
+                        year > scopeTargetData.scope2.baselineYear
+                    )
                     .map((year) => (
                       <option key={year} value={year}>
                         {year}
@@ -551,7 +559,11 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
                 >
                   <option value="">Select year</option>
                   {years
-                    .filter((year) => !scopeTargetData.scope3.baselineYear || year > scopeTargetData.scope3.baselineYear)
+                    .filter(
+                      (year) =>
+                        !scopeTargetData.scope3.baselineYear ||
+                        year > scopeTargetData.scope3.baselineYear
+                    )
                     .map((year) => (
                       <option key={year} value={year}>
                         {year}

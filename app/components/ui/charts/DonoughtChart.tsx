@@ -94,11 +94,7 @@ interface KpiCardProps extends React.HTMLAttributes<HTMLDivElement> {
   isTarget?: boolean;
 }
 
-export const KpiCard: React.FC<KpiCardProps> = ({
-  title,
-  children,
-  className,
-}) => {
+export const KpiCard: React.FC<KpiCardProps> = ({ title, children, className }) => {
   return (
     <div className={cn("w-full rounded-lg bg-white p-6 shadow-sm", className)}>
       {title && <h2 className="text-lg font-semibold mb-4">{title}</h2>}

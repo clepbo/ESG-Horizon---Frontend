@@ -17,7 +17,6 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 
-
 // Status badge styles
 const statusStyles: Record<string, string> = {
   Published: "bg-green-500 text-white",

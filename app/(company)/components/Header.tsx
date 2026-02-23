@@ -50,8 +50,9 @@ export default function Header({
             alt={user?.first_name || "User"}
             width={36}
             height={36}
-            className={`rounded-full object-cover ${isFallbackImage ? "opacity-50 blur-[1px]" : ""
-              }`}
+            className={`rounded-full object-cover ${
+              isFallbackImage ? "opacity-50 blur-[1px]" : ""
+            }`}
           />
 
           <div className="flex flex-col text-sm">

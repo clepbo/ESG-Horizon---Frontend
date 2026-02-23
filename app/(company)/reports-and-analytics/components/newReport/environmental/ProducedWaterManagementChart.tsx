@@ -48,7 +48,13 @@ export default function ProducedWaterManagementChart({
               ))}
             </Pie>
 
-            <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
+            <Legend
+              layout="horizontal"
+              verticalAlign="bottom"
+              align="center"
+              iconType="circle"
+              wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+            />
             <Tooltip />
           </PieChart>
         </ResponsiveContainer>

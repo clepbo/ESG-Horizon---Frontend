@@ -27,7 +27,15 @@ const COLORS = {
 } as const;
 
 const renderLegend = () => (
-  <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", paddingLeft: "10px" }}>
+  <ul
+    style={{
+      listStyle: "none",
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      paddingLeft: "10px",
+    }}
+  >
     {Object.entries(COLORS).map(([key, color]) => (
       <li key={key} style={{ display: "flex", alignItems: "center" }}>
         <span
@@ -92,7 +100,13 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
               }}
             />
             <Legend content={renderLegend} layout="vertical" align="right" verticalAlign="middle" />
-            <Bar dataKey="value" fill="#8884d8" radius={[10, 10, 0, 0]} isAnimationActive={false} maxBarSize={60}>
+            <Bar
+              dataKey="value"
+              fill="#8884d8"
+              radius={[10, 10, 0, 0]}
+              isAnimationActive={false}
+              maxBarSize={60}
+            >
               <LabelList
                 dataKey="value"
                 position="top"

@@ -247,14 +247,12 @@ export function DisclosureTopics({
       "Air Quality": data?.environment?.airQuality?.airPollutantEmissions, // Simplified mapping
       "Water and Wastewater Management":
         data?.environment?.waterManagement?.waterAndProducedWaterManagement,
-      "Biodiversity Impact":
-        data?.environment?.biodiversityImpact?.environmentalManagement,
+      "Biodiversity Impact": data?.environment?.biodiversityImpact?.environmentalManagement,
       "Community Relations": data?.socialCapital?.communityRelations,
       "Security, Human Rights & Rights of Indigenous Peoples":
         data?.socialCapital?.securityHumanRights,
       "Workforce Health & Safety": data?.humanCapital?.workforceHealthSafety, // Check path
-      "Reserves Valuation & Capital Expenditures":
-        data?.businessModel?.reservesValuation,
+      "Reserves Valuation & Capital Expenditures": data?.businessModel?.reservesValuation,
       "Business Ethics & Transparency": data?.businessModel?.businessEthics,
       "Critical Incident Risk Management":
         data?.leadershipGovernance?.criticalIncidentRiskManagement,
@@ -372,12 +370,12 @@ export function DisclosureTopics({
         initialView={
           initialStep && typeof initialStep === "string"
             ? ((initialStep.includes("production")
-              ? "production-volume"
-              : initialStep.includes("offshore")
-                ? "offshore-sites"
-                : initialStep.includes("terrestrial")
-                  ? "terrestrial-sites"
-                  : "overview") as any)
+                ? "production-volume"
+                : initialStep.includes("offshore")
+                  ? "offshore-sites"
+                  : initialStep.includes("terrestrial")
+                    ? "terrestrial-sites"
+                    : "overview") as any)
             : "overview"
         }
       />
@@ -626,7 +624,7 @@ export function DisclosureTopics({
                       if (status.status === "completed") return "#2dd4bf"; // teal-400
                       if (status.status === "in-progress") return "#facc15"; // yellow-400
                       return "transparent";
-                    })()
+                    })(),
                   }}
                   onClick={() => setCurrentView("activity-metrics")}
                 >
@@ -726,18 +724,22 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                      }`}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${
+                                      card.clickable
+                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                        : "cursor-default"
+                                    }`}
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: (() => {
-                                        const status = getStatusFromData(card.title, state.assessmentData);
+                                        const status = getStatusFromData(
+                                          card.title,
+                                          state.assessmentData
+                                        );
                                         if (status.status === "completed") return "#2dd4bf"; // teal-400
                                         if (status.status === "in-progress") return "#facc15"; // yellow-400
                                         return "transparent";
-                                      })()
+                                      })(),
                                     }}
                                     onClick={() => card.clickable && handleCardClick(card.title)}
                                   >
@@ -750,7 +752,10 @@ export function DisclosureTopics({
                                             </h5>
                                             <div className="flex items-center gap-2">
                                               {(() => {
-                                                const status = getStatusFromData(card.title, state.assessmentData);
+                                                const status = getStatusFromData(
+                                                  card.title,
+                                                  state.assessmentData
+                                                );
                                                 if (status.status === "in-progress") {
                                                   return (
                                                     <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">

@@ -76,7 +76,9 @@ export function SuccessScreen({
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-4 text-center leading-tight">
-          {type === "report" ? "Report Generated Successfully!" : `${assessmentName}\nAssessment Submitted!`}
+          {type === "report"
+            ? "Report Generated Successfully!"
+            : `${assessmentName}\nAssessment Submitted!`}
         </h2>
 
         <p className="text-white/90 mb-6 text-center text-sm leading-relaxed">
@@ -94,8 +96,8 @@ export function SuccessScreen({
               {formatNumberFull(
                 Number(
                   (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
-                  totals?.totals?.sum ??
-                  0
+                    totals?.totals?.sum ??
+                    0
                 ),
                 { minimumFractionDigits: 2 }
               )}{" "}

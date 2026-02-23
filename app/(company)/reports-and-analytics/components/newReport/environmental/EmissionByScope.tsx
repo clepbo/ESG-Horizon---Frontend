@@ -116,9 +116,30 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             iconType="circle"
             wrapperStyle={{ paddingLeft: "16px", fontSize: 14, color: "#111827", fontWeight: 500 }}
           />
-          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1" maxBarSize={60} />
-          <Bar dataKey="scope2" stackId="a" fill="#10B981" radius={[0, 0, 0, 0]} name="Scope 2" maxBarSize={60} />
-          <Bar dataKey="scope3" stackId="a" fill="#af57db" radius={[4, 4, 0, 0]} name="Scope 3" maxBarSize={60}>
+          <Bar
+            dataKey="scope1"
+            stackId="a"
+            fill="#3b82f6"
+            radius={[0, 0, 0, 0]}
+            name="Scope 1"
+            maxBarSize={60}
+          />
+          <Bar
+            dataKey="scope2"
+            stackId="a"
+            fill="#10B981"
+            radius={[0, 0, 0, 0]}
+            name="Scope 2"
+            maxBarSize={60}
+          />
+          <Bar
+            dataKey="scope3"
+            stackId="a"
+            fill="#af57db"
+            radius={[4, 4, 0, 0]}
+            name="Scope 3"
+            maxBarSize={60}
+          >
             <LabelList
               dataKey="total"
               position="top"

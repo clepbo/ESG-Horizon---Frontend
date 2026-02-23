@@ -51,7 +51,12 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
         <div className="h-64 w-full">
           {hasRiskData ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={riskData} barGap={12} barCategoryGap={32} margin={{ top: 10, right: 110, left: 0, bottom: 5 }}>
+              <BarChart
+                data={riskData}
+                barGap={12}
+                barCategoryGap={32}
+                margin={{ top: 10, right: 110, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis
                   dataKey="name"
@@ -60,15 +65,33 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   tickLine={false}
                 />
                 <YAxis tick={{ fill: "#111827", fontSize: 14 }} axisLine={false} tickLine={false} />
-                <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
-                <Bar dataKey="total" name="Total" fill="#BDBDBD" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                />
+                <Bar
+                  dataKey="total"
+                  name="Total"
+                  fill="#BDBDBD"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={60}
+                >
                   <LabelList
                     dataKey="total"
                     position="top"
                     formatter={(value) => formatNumberFigures(Number(value) || 0)}
                   />
                 </Bar>
-                <Bar dataKey="highRisk" name="High Risk" fill="#EF4444" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                <Bar
+                  dataKey="highRisk"
+                  name="High Risk"
+                  fill="#EF4444"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={60}
+                >
                   <LabelList
                     dataKey="highRisk"
                     position="top"
@@ -83,7 +106,6 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
             </div>
           )}
         </div>
-
       </div>
 
       {/* RIGHT CARD - Anti-Corruption Management */}

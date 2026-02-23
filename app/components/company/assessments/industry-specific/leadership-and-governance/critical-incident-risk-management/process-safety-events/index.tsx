@@ -69,8 +69,7 @@ export default function ProcessSafetyEvents({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
-      ?.processSafetyEvents,
+    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.processSafetyEvents,
   ]);
 
   // Calculate progress

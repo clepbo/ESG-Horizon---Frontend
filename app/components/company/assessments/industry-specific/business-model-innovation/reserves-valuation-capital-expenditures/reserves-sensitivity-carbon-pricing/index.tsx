@@ -256,7 +256,7 @@ export default function ReservesSensitivityForm({
                 carbonPriceScenario.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, carbonPriceScenario: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="$/tonne CO₂-e"
               error={errors.carbonPriceScenario}
               formatNumbers={false}
@@ -274,7 +274,7 @@ export default function ReservesSensitivityForm({
                 percentageDecrease.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, percentageDecrease: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="%"
               error={errors.percentageDecrease}
               formatNumbers={false}

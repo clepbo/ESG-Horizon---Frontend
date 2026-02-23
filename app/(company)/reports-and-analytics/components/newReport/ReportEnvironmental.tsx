@@ -84,11 +84,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           <EmissionsChart
             borderColor="#1e8a3d"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? Number(ghg.totalEmissions || 0).toFixed(2)
-                : "0.00"
-            }
+            value={ghg ? Number(ghg.totalEmissions || 0).toFixed(2) : "0.00"}
             data={emissionData}
             {...(totalChangeProps && {
               change: totalChangeProps.text,
@@ -101,11 +97,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor="#2570eb"
             title="Scope 1"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? Number(ghg.scope1Emissions || 0).toFixed(2)
-                : "0.00"
-            }
+            value={ghg ? Number(ghg.scope1Emissions || 0).toFixed(2) : "0.00"}
             data={emissionDataScope1}
             {...(scope1ChangeProps && {
               change: scope1ChangeProps.text,
@@ -118,11 +110,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor="#10B981"
             title="Scope 2"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? Number(ghg.scope2Emissions || 0).toFixed(2)
-                : "0.00"
-            }
+            value={ghg ? Number(ghg.scope2Emissions || 0).toFixed(2) : "0.00"}
             data={emissionDataScope2}
             {...(scope2ChangeProps && {
               change: scope2ChangeProps.text,
@@ -135,11 +123,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor="#af57db"
             title="Scope 3"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? Number(ghg.scope3Emissions || 0).toFixed(2)
-                : "0.00"
-            }
+            value={ghg ? Number(ghg.scope3Emissions || 0).toFixed(2) : "0.00"}
             data={emissionDataScope3}
             {...(scope3ChangeProps && {
               change: scope3ChangeProps.text,
@@ -515,9 +499,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               </div>
 
               <CustomProgressWithoutSections
-                value={
-                  (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0 ? 100 : 0
-                }
+                value={(bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0 ? 100 : 0}
                 title="Total Volume Spilled"
                 total={bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled || 0}
                 unit="bbl"

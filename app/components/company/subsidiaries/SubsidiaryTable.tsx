@@ -19,7 +19,12 @@ interface SubsidiaryTableProps {
   company?: { id: number; name: string; status?: string };
 }
 
-export default function SubsidiaryTable({ subsidiaries, onDelete, onEdit, company }: SubsidiaryTableProps) {
+export default function SubsidiaryTable({
+  subsidiaries,
+  onDelete,
+  onEdit,
+  company,
+}: SubsidiaryTableProps) {
   const router = useRouter();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedSubsidiary, setSelectedSubsidiary] = useState<Subsidiary | null>(null);

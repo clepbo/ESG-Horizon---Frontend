@@ -60,8 +60,7 @@ export function TerrestialSites({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData =
-      state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
+    const existingData = state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.flowStations !== undefined) {
         flowStations.handleChange(String(existingData.flowStations));

@@ -53,8 +53,7 @@ export function OffshoreSites({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData =
-      state.assessmentData.activityMetrics?.assetPortfolio?.offshoreSites;
+    const existingData = state.assessmentData.activityMetrics?.assetPortfolio?.offshoreSites;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.productionPlatforms !== undefined) {
         productionPlatforms.handleChange(String(existingData.productionPlatforms));

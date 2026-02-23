@@ -26,6 +26,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface DownstreamLeasedAssetProps {
   onBack: () => void;
@@ -533,19 +534,12 @@ export function DownstreamLeasedAsset({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

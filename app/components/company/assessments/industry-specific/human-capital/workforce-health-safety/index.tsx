@@ -74,8 +74,8 @@ export default function WorkforceHealthSafety({
   const hasRehydrated = useRef(false);
   useEffect(() => {
     if (hasRehydrated.current) return;
-    const hsp = (state.assessmentData as any)?.humanCapital
-      ?.riskAndOpportunityManagement?.healthAndSafetyPerformance;
+    const hsp = (state.assessmentData as any)?.humanCapital?.riskAndOpportunityManagement
+      ?.healthAndSafetyPerformance;
     if (!hsp) return;
     hasRehydrated.current = true;
 

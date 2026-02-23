@@ -1,4 +1,13 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  LabelList,
+  ResponsiveContainer,
+} from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 // #region Sample data
@@ -65,7 +74,13 @@ function ReserveInSensitiveAreasChart({
             formatter={(value) => formatNumberFigures(Number(value) || 0)}
           />
         </Bar>
-        <Bar dataKey="sensitive" name="Sensitive Area" fill="#EF4444" radius={[10, 10, 0, 0]} maxBarSize={60}>
+        <Bar
+          dataKey="sensitive"
+          name="Sensitive Area"
+          fill="#EF4444"
+          radius={[10, 10, 0, 0]}
+          maxBarSize={60}
+        >
           <LabelList
             dataKey="sensitive"
             position="top"

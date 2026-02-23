@@ -123,9 +123,7 @@ const EmissionsChart = ({
           </div>
         </div>
         {period && (
-          <div style={{ fontSize: "12px", color: "#999", marginTop: "2px" }}>
-            {period}
-          </div>
+          <div style={{ fontSize: "12px", color: "#999", marginTop: "2px" }}>{period}</div>
         )}
       </div>
 

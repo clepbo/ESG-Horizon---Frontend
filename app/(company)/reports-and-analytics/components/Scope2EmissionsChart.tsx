@@ -191,7 +191,12 @@ export function Scope2EmissionsChart() {
                   tickLine={false}
                   tick={{ fontSize: 14, fill: "#111827" }}
                 />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 14, fill: "#111827" }} width={60} />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 14, fill: "#111827" }}
+                  width={60}
+                />
                 <Tooltip
                   cursor={false}
                   formatter={(value?: number) => [
@@ -200,8 +205,20 @@ export function Scope2EmissionsChart() {
                   ]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }} />
-                <Bar dataKey="value" name="Emissions (kg CO₂e)" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6">
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                />
+                <Bar
+                  dataKey="value"
+                  name="Emissions (kg CO₂e)"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={64}
+                  fill="#8B5CF6"
+                >
                   <LabelList
                     dataKey="value"
                     position="top"

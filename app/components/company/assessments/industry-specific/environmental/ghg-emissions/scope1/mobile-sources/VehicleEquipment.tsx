@@ -21,6 +21,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useRouter } from "next/navigation";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface VehicleEquipmentProps {
   onBack: () => void;
@@ -524,19 +525,12 @@ export function VehicleEquipment({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
+                              disabled={deleting[field]}
+                            />
                           </div>
                         ) : null}
                       </Card>

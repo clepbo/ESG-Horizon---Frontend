@@ -408,7 +408,9 @@ export function GhgEmissionsAssessment({
                       <div className="flex items-center w-full relative">
                         <span className="text-lg font-semibold flex items-center gap-2">
                           {scope.title}{" "}
-                          <span className="text-sm font-normal text-muted-foreground">(GHG Emission)</span>
+                          <span className="text-sm font-normal text-muted-foreground">
+                            (GHG Emission)
+                          </span>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />

@@ -44,12 +44,12 @@ export default function ContinueAssessment() {
 
     const mappedStationarySources = stationarySources
       ? {
-        ...stationarySources,
-        industrialProcesses:
-          stationarySources.industrialProcesses || stationarySources.industrialprocess,
-        oilGasOperations:
-          stationarySources.oilGasOperations || stationarySources.oilgasoperations,
-      }
+          ...stationarySources,
+          industrialProcesses:
+            stationarySources.industrialProcesses || stationarySources.industrialprocess,
+          oilGasOperations:
+            stationarySources.oilGasOperations || stationarySources.oilgasoperations,
+        }
       : undefined;
 
     dispatch({ type: "SET_CONTINUE_MODE", payload: true });

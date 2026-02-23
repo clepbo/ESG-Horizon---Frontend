@@ -16,8 +16,18 @@ export function calculateTimelineYear(baseYear: number, targetYear: number) {
 }
 
 const SHORT_MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 /** Format month for display in baseline dropdown (e.g. "January" → "Jan", 1 → "Jan"). */
