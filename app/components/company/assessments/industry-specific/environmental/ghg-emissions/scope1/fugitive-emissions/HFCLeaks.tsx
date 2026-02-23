@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CloudUpload, ArrowLeft, Save, CheckCircle2, Info } from "lucide-react";
+import { CloudUpload, ArrowLeft, Save, CheckCircle2, Info, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";

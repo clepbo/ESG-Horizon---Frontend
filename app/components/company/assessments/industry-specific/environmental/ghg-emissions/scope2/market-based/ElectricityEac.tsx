@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, Info } from "lucide-react";
+import { ArrowLeft, ArrowRight, Save, CheckCircle2, CloudUpload, Info, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -470,9 +470,8 @@ export function ElectricityEACForm({
                     emissionFactor: undefined,
                   }));
                 }}
-                className={`w-full border-gray-400 ${
-                  errors.emissionFactor ? "border-red-500" : ""
-                }`}
+                className={`w-full border-gray-400 ${errors.emissionFactor ? "border-red-500" : ""
+                  }`}
               />
               {errors.emissionFactor && (
                 <p className="text-sm text-red-500 mt-1">{errors.emissionFactor}</p>
