@@ -74,7 +74,7 @@ export default function DepartmentsTable({ departments, onUpdate, companyName }:
                           <span className="font-medium text-gray-900">
                             {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}
                           </span>
-                          <span className="text-xs text-gray-500">{dept?.lead?.email || ""}</span>
+                          <span className="text-xs text-gray-500">{dept?.contact_email || dept?.lead?.email || ""}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-500">

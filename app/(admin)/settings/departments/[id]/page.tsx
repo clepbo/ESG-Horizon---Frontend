@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { fetchTeamUsers, fetchDepartments } from "@/lib/api/departmentsApi";
-import { TeamUser, Department } from "@/lib/mockData/mockDepartment";
+import { departmentService, DepartmentUser } from "@/services/department.service";
 import { Input } from "@/app/components/ui/input";
-import { Plus, Search, Edit } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -18,62 +16,69 @@ import Pagination from "@/app/components/ui/reusables/Pagination";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
+import { useAuth } from "@/context/AuthContext";
+import { Department } from "@/services/department.service";
+import TeamMembersTable from "@/app/components/settings/departments/TeamMembersTable";
 
 export default function DepartmentTeamUsersPage() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const companyId = user?.company?.id;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [roleFilter, setRoleFilter] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
-
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // data state
-  const [teamUsers, setTeamUsers] = useState<TeamUser[]>([]);
+  const [teamUsers, setTeamUsers] = useState<DepartmentUser[]>([]);
   const [department, setDepartment] = useState<Department | null>(null);
 
-  /** Fetch all departments and team users */
+  /** Fetch department info and its team members */
   const loadData = useCallback(async () => {
+    if (!companyId || !id) return;
     try {
       setLoading(true);
-      const [departmentsData, teamData] = await Promise.all([fetchDepartments(), fetchTeamUsers()]);
+      const [departmentsData, teamData] = await Promise.all([
+        departmentService.getAll(companyId),
+        departmentService.getUsers(id as string),
+      ]);
 
-      const dept = departmentsData.find((d) => d.id === id) || null;
+      const deptList = (departmentsData as unknown as Department[]) || [];
+      const dept = deptList.find((d) => String(d.id) === String(id)) || null;
       setDepartment(dept);
-      setTeamUsers(teamData);
+      setTeamUsers(Array.isArray(teamData) ? teamData : []);
     } catch (err) {
       console.error("Error fetching department/team users:", err);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, companyId]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   const filteredMembers = useMemo(() => {
-    return teamUsers.filter((user) => {
+    return teamUsers.filter((member) => {
+      const fullName = `${member.first_name} ${member.last_name}`.toLowerCase();
       const matchesSearch =
-        user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "All" || user.status === statusFilter;
-      const matchesRole = roleFilter === "All" || user.role === roleFilter;
+        fullName.includes(search.toLowerCase()) ||
+        member.email.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus = statusFilter === "All" || member.status === statusFilter;
+      const matchesRole = roleFilter === "All" || member.role === roleFilter;
       return matchesSearch && matchesStatus && matchesRole;
     });
   }, [search, statusFilter, roleFilter, teamUsers]);
 
-  const handleEditClick = (dept: Department) => {
-    setSelectedDepartment(dept);
-    setIsEditOpen(true);
-  };
+  const paginatedMembers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredMembers.slice(start, start + itemsPerPage);
+  }, [filteredMembers, currentPage, itemsPerPage]);
 
   if (loading || !department) {
     return (
@@ -102,35 +107,30 @@ export default function DepartmentTeamUsersPage() {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex justify-between items-start mb-6">
           <h2 className="text-xl font-semibold">{department.name}</h2>
-          <button
-            className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded hover:bg-gray-50 cursor-pointer"
-            onClick={() => handleEditClick(department)} // ✅ Use handler
-          >
-            <Edit className="w-4 h-4" />
-            Edit
-          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 text-sm">
           <InfoRow label="Department Name" value={department.name} />
-          <InfoRow label="Description" value={department.description} />
-          <InfoRow label="Department Lead" value={department.lead} />
-          <InfoRow label="Email" value={department.email} />
-          <InfoRow label="Team Members" value={department.teamSize?.toString() || "0"} />
-          <InfoRow label="Status" value={department.status} />
+          {department.description && (
+            <InfoRow label="Description" value={department.description} />
+          )}
+          <InfoRow
+            label="Department Lead"
+            value={
+              department.lead
+                ? `${department.lead.first_name} ${department.lead.last_name}`
+                : "—"
+            }
+          />
+          <InfoRow label="Email" value={department.contact_email || department.lead?.email || "—"} />
+          <InfoRow label="Team Members" value={String(teamUsers.length)} />
+          <InfoRow label="Status" value={department.status || "Active"} />
         </div>
       </div>
 
       {/* Actions */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4">
-        <h3 className="text-lg font-semibold">Team Members</h3>
-        <button
-          onClick={() => setShowInviteModal(true)}
-          className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Invite New User
-        </button>
+        <h3 className="text-lg font-semibold">Team Members ({teamUsers.length})</h3>
       </div>
 
       {/* Search & Filters */}
@@ -177,34 +177,30 @@ export default function DepartmentTeamUsersPage() {
 
       {/* Members Table */}
       <div className="overflow-x-auto shadow rounded-lg bg-white">
-        {/* <TeamMembersTable members={paginatedMembers} users={teamUsers} /> */}
+        {paginatedMembers.length > 0 ? (
+          <TeamMembersTable users={paginatedMembers} />
+        ) : (
+          <div className="px-4 py-10 text-center text-gray-500 text-sm">
+            No team members in this department.
+          </div>
+        )}
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 px-4 pb-4">
-        <Pagination
-          totalItems={filteredMembers.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={(value) => {
-            setItemsPerPage(value);
-            setCurrentPage(1);
-          }}
-        />
-      </div>
-
-      {/* Modals */}
-      {/* {showInviteModal && (
-        <InviteUserModal onClose={() => setShowInviteModal(false)} />
+      {filteredMembers.length > 0 && (
+        <div className="mt-4 px-4 pb-4">
+          <Pagination
+            totalItems={filteredMembers.length}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={(value) => {
+              setItemsPerPage(value);
+              setCurrentPage(1);
+            }}
+          />
+        </div>
       )}
-
-      {isEditOpen && selectedDepartment && (
-        <EditDepartmentModal
-          department={selectedDepartment}
-          onClose={() => setIsEditOpen(false)}
-        />
-      )} */}
     </motion.div>
   );
 }
@@ -217,14 +213,3 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-// export async function generateStaticParams() {
-//     const yourCompany = await companyService.getDetails();
-//     if (!yourCompany) return [];
-
-//     const departments = await departmentService.getAll(yourCompany.id);
-
-//     return departments.map((dept: Department) => ({
-//         id: String(dept.id),
-//     }));
-// }

@@ -107,8 +107,8 @@ function NewAssessmentPage() {
         !!leadership?.criticalIncidentRiskManagement &&
         Object.keys(leadership.criticalIncidentRiskManagement).length > 0;
       const hasGovernance =
-        !!leadership?.legalRegulatoryEnvironment &&
-        Object.keys(leadership.legalRegulatoryEnvironment).length > 0;
+        !!leadership?.managementOfTheLegalAndRegulatoryEnvironment &&
+        Object.keys(leadership.managementOfTheLegalAndRegulatoryEnvironment).length > 0;
 
       const pillars: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[] = [];
       if (hasActivity) pillars.push("A");
