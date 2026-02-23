@@ -51,10 +51,10 @@ export default function Reportcard({
       </div>
       <div className="flex flex-col gap-1">
         <CustomProgressWithoutUnit
-          value={progress}
+          value={Math.min(progress, 100)}
           title="Progress"
-          total={Number(progress)}
-          percent={progress}
+          total={Math.min(Number(progress), 100)}
+          percent={Math.min(progress, 100)}
           unit="%"
           done={done}
           overall={overall}

@@ -50,11 +50,11 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
 
       <div className="w-12.5 h-12.5">
         <CircularProgressbarWithChildren
-          value={progress}
+          value={Math.min(progress, 100)}
           styles={buildStyles({ pathColor: progress > 50 ? "green" : "red" })}
         >
           <div style={{ fontSize: 12, marginTop: -5 }}>
-            <strong>{progress}%</strong>
+            <strong>{Math.min(progress, 100)}%</strong>
           </div>
         </CircularProgressbarWithChildren>
       </div>

@@ -282,12 +282,12 @@ export function MyTasksList({ onBack, onTaskSelect, onNoTasks }: MyTasksListProp
                             <div className="space-y-2 pt-2">
                               <div className="flex items-center justify-between text-xs">
                                 <span className="text-muted-foreground font-medium">Progress</span>
-                                <span className="font-bold text-primary">{task.progress}%</span>
+                                <span className="font-bold text-primary">{Math.min(task.progress, 100)}%</span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                                 <div
                                   className="bg-primary h-full rounded-full transition-all duration-500"
-                                  style={{ width: `${task.progress}%` }}
+                                  style={{ width: `${Math.min(task.progress, 100)}%` }}
                                 />
                               </div>
                             </div>

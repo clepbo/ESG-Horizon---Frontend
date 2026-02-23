@@ -282,9 +282,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
                     <Progress
-                      value={percentage_emission_summary.scope1_emission_summary}
+                      value={Math.min(percentage_emission_summary.scope1_emission_summary, 100)}
                       className="h-2 bg-orange-500 rounded-2xl"
-                      style={{ width: `${percentage_emission_summary.scope1_emission_summary}%` }}
+                      style={{ width: `${Math.min(percentage_emission_summary.scope1_emission_summary, 100)}%` }}
                     />
                   </div>
                 </div>
@@ -307,9 +307,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
                     <Progress
-                      value={percentage_emission_summary.scope2_emission_summary}
+                      value={Math.min(percentage_emission_summary.scope2_emission_summary, 100)}
                       className="h-2 bg-blue-500 rounded-2xl"
-                      style={{ width: `${percentage_emission_summary.scope2_emission_summary}%` }}
+                      style={{ width: `${Math.min(percentage_emission_summary.scope2_emission_summary, 100)}%` }}
                     />
                   </div>
                 </div>
@@ -332,9 +332,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
                     <Progress
-                      value={percentage_emission_summary.scope3_emission_summary}
+                      value={Math.min(percentage_emission_summary.scope3_emission_summary, 100)}
                       className="h-2 bg-purple-500 rounded-2xl"
-                      style={{ width: `${percentage_emission_summary.scope3_emission_summary}%` }}
+                      style={{ width: `${Math.min(percentage_emission_summary.scope3_emission_summary, 100)}%` }}
                     />
                   </div>
                 </div>

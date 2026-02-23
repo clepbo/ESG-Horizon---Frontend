@@ -178,7 +178,7 @@ export default function DepartmentTeamUsersPage() {
       {/* Members Table */}
       <div className="overflow-x-auto shadow rounded-lg bg-white">
         {paginatedMembers.length > 0 ? (
-          <TeamMembersTable users={paginatedMembers} />
+          <TeamMembersTable users={paginatedMembers as any} />
         ) : (
           <div className="px-4 py-10 text-center text-gray-500 text-sm">
             No team members in this department.
