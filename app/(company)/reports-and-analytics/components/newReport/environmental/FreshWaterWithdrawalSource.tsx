@@ -1,4 +1,5 @@
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface FreshWaterWithdrawalSourceProps {
   surfaceWater?: number;
@@ -72,7 +73,7 @@ export function FreshWaterWithdrawalSource({
                   className="text-xs font-semibold px-1.5 py-0.5 rounded-full shrink-0"
                   style={{ backgroundColor: bg, color }}
                 >
-                  {pct.toFixed(1)}%
+                  {formatNumberFull(pct, { maximumFractionDigits: 1 })}%
                 </span>
               </div>
             </div>

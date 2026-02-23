@@ -36,50 +36,33 @@ export default function PerformanceOverview() {
   const scope2Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE2");
   const scope3Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE3");
 
+  // Compute ESG score from actual target data instead of hardcoded value
+  const score = general
+    ? Math.round(
+        ((general.currentEmission ?? 0) / (general.baselineYearEmission || 1)) * 200
+      )
+    : 0;
+
   if (latestTarget.isLoading) {
     return <CardSkeleton />;
   }
-  // console.log("Latest Target Data:", target?.name.length);
+
   const isTargt = target ? target.name.length > 3 : undefined;
   return (
     <KpiCard title="Targets and Performance" isTarget={isTargt} className="space-y-6 w-full">
-      {/* General Target Display */}
+      {/* General Target Display — speedometer only */}
       {isGeneralTarget && general && (
-        <>
-          <div className="mt-4 flex items-center justify-center">
-            <SpeedometerGauge
-              score={120}
-              initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
-              currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
-              targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
-            />
-          </div>
-
-          {/* Scope breakdown below gauge */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4">
-            <MiniDonutChart
-              label="Scope 1"
-              percentage={scope1Target?.reductionPercentage || 0}
-              value={scope1Target?.currentEmission || 0}
-              color="#EF4444"
-            />
-            <MiniDonutChart
-              label="Scope 2"
-              percentage={scope2Target?.reductionPercentage || 0}
-              value={scope2Target?.currentEmission || 0}
-              color="#3B82F6"
-            />
-            <MiniDonutChart
-              label="Scope 3"
-              percentage={scope3Target?.reductionPercentage || 0}
-              value={scope3Target?.currentEmission || 0}
-              color="#9333EA"
-            />
-          </div>
-        </>
+        <div className="mt-4 flex items-center justify-center">
+          <SpeedometerGauge
+            score={score}
+            initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
+            currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
+            targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
+          />
+        </div>
       )}
 
-      {/* Scope Targets Display */}
+      {/* Scope Targets Display — 3 donut charts only */}
       {isScopeTarget && scopeTargets.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
           <MiniDonutChart
@@ -105,7 +88,7 @@ export default function PerformanceOverview() {
 
       {!target && (
         <div className="text-center py-8">
-          <p className="text-gray-500">No target data available </p>
+          <p className="text-gray-500">No target data available</p>
         </div>
       )}
     </KpiCard>

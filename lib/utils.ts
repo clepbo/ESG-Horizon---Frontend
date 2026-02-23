@@ -75,14 +75,15 @@ export function computeProgressPercent({
 }) {
   const overallProgress = (stepIndex - 1) / totalSteps;
   const inputProgress = totalFields > 0 ? fieldsCompleted / totalFields : 0;
-  return Math.round((overallProgress + inputProgress / totalSteps) * 100);
+  return Math.min(Math.round((overallProgress + inputProgress / totalSteps) * 100), 100);
 }
 
 export function getAssessmentProgressForTable(assessment: any): number {
+  const cap = (v: number) => Math.min(Math.round(v), 100);
   const { assessmentData, progress } = assessment || {};
-  if (typeof progress === "number" && progress > 0) return Math.round(progress);
+  if (typeof progress === "number" && progress > 0) return cap(progress);
   if (assessmentData?.overallProgress && assessmentData.overallProgress > 0)
-    return Math.round(assessmentData.overallProgress);
+    return cap(assessmentData.overallProgress);
 
   // Use ProgressTrackingService to calculate actual progress from all topics
   if (assessmentData) {
@@ -312,12 +313,3 @@ export function formatStatus(status: any | any[]): string {
   return words.join(" ");
 }
 
-export const formatCurrency = (amount: number) => {
-  if (amount >= 1000000) {
-    return `₦ ${(amount / 1000000).toFixed(1)}M`;
-  } else if (amount >= 1000) {
-    return `₦ ${(amount / 1000).toFixed(1)}K`;
-  } else {
-    return `₦ ${amount.toLocaleString()}`;
-  }
-};

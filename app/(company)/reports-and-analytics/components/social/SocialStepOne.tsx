@@ -47,13 +47,13 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const conflictZonesData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total: conflictZones?.totalProvedReserves || indigenousTotalProved,
-      specific: conflictZones?.provedReserves || 0,
+      total: conflictZones?.totalProvedReserves ?? 0,
+      specific: conflictZones?.provedReserves ?? 0,
     },
     {
       reserveType: "Probable Reserves",
-      total: conflictZones?.totalProbableReserves || indigenousTotalProbable,
-      specific: conflictZones?.probableReserves || 0,
+      total: conflictZones?.totalProbableReserves ?? 0,
+      specific: conflictZones?.probableReserves ?? 0,
     },
   ];
 

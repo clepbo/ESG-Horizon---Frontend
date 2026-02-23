@@ -2091,15 +2091,21 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
           <div className="flex gap-3 pt-2">
             <CustomButton
               variant="outlined"
+              className="border-white text-white hover:bg-white/10"
               onClick={() => dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null })}
             >
               Dismiss
             </CustomButton>
             <CustomButton
+              className="bg-white text-primary hover:bg-gray-100"
               onClick={() => {
                 dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null });
-                if (state.assessmentId) {
-                  router.push(`/assessments/${state.assessmentId}`);
+                const id = state.assessmentId || state.assessmentData?.assessmentId;
+                if (id) {
+                  dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+                  router.push(`/assessments/${id}`);
+                } else {
+                  router.push("/assessments");
                 }
               }}
             >

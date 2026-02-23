@@ -13,6 +13,7 @@ import {
   Legend,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 import { useAssessment } from "@/hooks/useAssessment";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -99,15 +100,11 @@ export function Scope2EmissionsChart() {
 
   const locationTrendValue =
     previousLocationBased > 0
-      ? Math.abs(
-          ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
-        ).toFixed(2)
+      ? formatNumberFull(Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100), { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : "0.00";
   const marketTrendValue =
     previousMarketBased > 0
-      ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(
-          1
-        )
+      ? formatNumberFull(Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100), { maximumFractionDigits: 1 })
       : "0.00";
 
   const hasData = currentLocationBased > 0 || currentMarketBased > 0;
@@ -170,13 +167,13 @@ export function Scope2EmissionsChart() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-lg font-bold text-blue-900">
-                  {currentLocationBased.toFixed(2)}
+                  {formatNumberFull(currentLocationBased, { minimumFractionDigits: 2 })}
                 </div>
                 <div className="text-xs text-blue-600">Location-based</div>
               </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-lg font-bold text-purple-900">
-                  {currentMarketBased.toFixed(2)}
+                  {formatNumberFull(currentMarketBased, { minimumFractionDigits: 2 })}
                 </div>
                 <div className="text-xs text-purple-600">Market-based</div>
               </div>
@@ -200,7 +197,7 @@ export function Scope2EmissionsChart() {
                 <Tooltip
                   cursor={false}
                   formatter={(value?: number) => [
-                    `${(value ?? 0).toFixed(2)} kg CO2e`,
+                    `${formatNumberFull(value ?? 0, { minimumFractionDigits: 2 })} kg CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}

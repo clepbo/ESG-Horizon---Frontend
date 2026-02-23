@@ -369,7 +369,7 @@ export function CoolingSteamForm({
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
           <div>
-            <h3 className="text-2xl font-semibold text-foreground">Scope 2 – Cooling / Steam</h3>
+            <h3 className="text-2xl font-semibold text-foreground">Scope 2 (Cooling / Steam)</h3>
             <p className="text-muted-foreground text-base">
               Purchased cooling or steam energy consumption and supporting documents.
             </p>

@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
@@ -278,7 +279,7 @@ export default function GeneralTargetForm({
                   </Label>
                   <div className="text-sm text-gray-900 font-semibold">
                     {" "}
-                    {baseline?.data?.totalSum} tCO₂e
+                    {formatNumberFull(baseline?.data?.totalSum ?? 0)} tCO₂e
                   </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
@@ -300,14 +301,14 @@ export default function GeneralTargetForm({
                     </TooltipProvider>
                   </Label>
                   <div className="text-sm text-primary font-semibold">
-                    {calculatedTargetEmission.toLocaleString()} tCO₂e
+                    {formatNumberFull(calculatedTargetEmission)} tCO₂e
                   </div>
                 </div>
                 <hr className="text-gray-300" />
                 <div className="space-y-2 flex items-center justify-between w-full">
                   <Label>Total Reduction:</Label>
                   <div className="text-sm text-red-500 font-semibold">
-                    -{calculatedTotalReduction.toLocaleString()} tCO₂e
+                    -{formatNumberFull(calculatedTotalReduction)} tCO₂e
                   </div>
                 </div>
               </div>
