@@ -97,7 +97,7 @@ export default function ReservesValuationAssessment({
   const [currentView, setCurrentView] = useState<RVView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { dispatch } = useAssessment();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
@@ -300,11 +300,10 @@ export default function ReservesValuationAssessment({
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${
-                            card.clickable
+                          className={`transition-all bg-white shadow-sm rounded-lg ${card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
-                          }`}
+                            }`}
                           // Status indication commented out - revisit later: getCardBorderClass(card.title)
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >

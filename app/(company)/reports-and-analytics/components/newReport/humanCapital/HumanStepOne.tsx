@@ -99,7 +99,6 @@ function MetricCard({
 }) {
   const isPositive = change && change > 0;
   const isNegative = change && change < 0;
-  const isNeutral = !change || change === 0;
 
   // For TRIR, increase is BAD (Red), decrease is GOOD (Green)
   const colorClass = isTrir

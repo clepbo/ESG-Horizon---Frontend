@@ -120,7 +120,10 @@ export function RecentReportsWidget() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const report = useReport();
-  const data: TableRowType[] = Array.isArray(report.data) ? report.data : [];
+  const data: TableRowType[] = useMemo(
+    () => (Array.isArray(report.data) ? report.data : []),
+    [report.data]
+  );
 
   // console.log("Table data", data);
   const recentReports = useMemo(() => {
@@ -239,9 +242,8 @@ export function RecentReportsWidget() {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={`border-b border-gray-300 font-semibold text-gray-700 ${
-                      header.id === "actions" ? "text-right" : ""
-                    }`}
+                    className={`border-b border-gray-300 font-semibold text-gray-700 ${header.id === "actions" ? "text-right" : ""
+                      }`}
                   >
                     {header.isPlaceholder
                       ? null

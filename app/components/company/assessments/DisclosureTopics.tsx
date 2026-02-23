@@ -31,12 +31,10 @@ import ReservesValuationAndCapitalExpenditures from "./industry-specific/busines
 import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useTopicCompletion } from "@/hooks/useAssessmentCompletion";
 // import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
-import { checkTopicCompletion } from "@/lib/assessmentCompletionUtils";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -213,7 +211,6 @@ const industrySpecificMetrics: MetricSection[] = [
   },
 ];
 
-const allMetrics: MetricSection[] = [...industrySpecificMetrics];
 
 export function DisclosureTopics({
   onBack,
@@ -370,12 +367,12 @@ export function DisclosureTopics({
         initialView={
           initialStep && typeof initialStep === "string"
             ? ((initialStep.includes("production")
-                ? "production-volume"
-                : initialStep.includes("offshore")
-                  ? "offshore-sites"
-                  : initialStep.includes("terrestrial")
-                    ? "terrestrial-sites"
-                    : "overview") as any)
+              ? "production-volume"
+              : initialStep.includes("offshore")
+                ? "offshore-sites"
+                : initialStep.includes("terrestrial")
+                  ? "terrestrial-sites"
+                  : "overview") as any)
             : "overview"
         }
       />
@@ -724,11 +721,10 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${
-                                      card.clickable
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
                                         ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                         : "cursor-default"
-                                    }`}
+                                      }`}
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: (() => {

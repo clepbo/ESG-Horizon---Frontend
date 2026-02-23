@@ -174,7 +174,7 @@ export function GhgEmissionsAssessment({
   }, [initialForm]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
-  const { state } = useAssessment();
+
 
   // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
   //   scopeData,
@@ -465,11 +465,10 @@ export function GhgEmissionsAssessment({
                         {scope.cards.map((card) => (
                           <Card
                             key={card.title}
-                            className={`transition-all bg-white shadow-sm rounded-lg ${
-                              card.clickable
+                            className={`transition-all bg-white shadow-sm rounded-lg ${card.clickable
                                 ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
-                            }`}
+                              }`}
                             // Status indication commented out - revisit later: getCardBorderClass(card.title)
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >

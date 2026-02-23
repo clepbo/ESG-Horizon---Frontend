@@ -7,7 +7,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { Textarea } from "@/app/components/ui/textarea";
-import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";

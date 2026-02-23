@@ -19,8 +19,6 @@ import EnvironmentalManagementPolicies from "./environmental-managment-policies"
 import HydrocarbonSpills from "./hydrocarbon-spills";
 import ReservesInSensitiveAreas from "./reserves-in-sensitive-areas";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
 // import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 
 type SHRView =
@@ -76,7 +74,7 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state } = useAssessment();
+
   const params = useParams();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
@@ -247,11 +245,10 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${
-                            card.clickable
-                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                              : "cursor-default"
-                          }`}
+                          className={`transition-all bg-white shadow-sm rounded-lg ${card.clickable
+                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                            : "cursor-default"
+                            }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

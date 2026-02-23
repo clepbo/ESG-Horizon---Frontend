@@ -1,15 +1,12 @@
 import { Card, CardContent } from "@/app/components/ui/card";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, CheckCircle2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/hooks/useAssessment";
 import {
   checkTopicCompletion,
-  getCompletionBadgeVariant,
-  shouldShowBadge,
-  type CompletionStatus,
 } from "@/lib/assessmentCompletionUtils";
 
 export interface AirQualityProps {
@@ -24,16 +21,12 @@ export default function AirQualityCard({
   handleCardClick,
 }: AirQualityProps) {
   const router = useRouter();
-  const { state } = useAssessment();
-  const [completionStatus, setCompletionStatus] = useState<CompletionStatus>({
-    status: "not-started",
-    completionPercentage: 0,
-  });
+  const { dispatch } = useAssessment();
 
   useEffect(() => {
-    const status = checkTopicCompletion("Air Quality", state.assessmentData);
-    setCompletionStatus(status);
-  }, [state.assessmentData]);
+    // Only verify completion - status not used in current render as indicators are commented out
+    // console.log("Air Quality completion status:", checkTopicCompletion("Air Quality", state.assessmentData));
+  }, []);
 
   const cards = [
     {

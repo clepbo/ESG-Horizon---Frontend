@@ -25,7 +25,6 @@ export function SuccessScreen({
   nextAssessment,
   totals,
   onContinue,
-  onContinueAssessment, // Kept in props but ignored in render as per design
   onBackToHub,
   reportId,
 }: SuccessScreenProps) {
@@ -96,8 +95,8 @@ export function SuccessScreen({
               {formatNumberFull(
                 Number(
                   (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
-                    totals?.totals?.sum ??
-                    0
+                  totals?.totals?.sum ??
+                  0
                 ),
                 { minimumFractionDigits: 2 }
               )}{" "}

@@ -62,14 +62,14 @@ export default function GeneralTargetForm({
     if (baseline.data?.startYear && !data.baselineYear) {
       onChange({ ...data, baselineYear: baseline.data.startYear });
     }
-  }, [baseline.data?.startYear]);
+  }, [baseline.data?.startYear, data, onChange]);
 
   // Show redirect modal if baseline fetch is complete but no baseline exists
   useEffect(() => {
     if (!baseline.isLoading && !baseline.error && baseline.data && !baseline.data.totalSum) {
       setShowNoBaselineModal(true);
     }
-  }, [baseline.isLoading, baseline.data]);
+  }, [baseline.isLoading, baseline.error, baseline.data]);
 
   const createTarget = useMutation({
     mutationFn: async (targetData: GeneralTargetPayload) => {
