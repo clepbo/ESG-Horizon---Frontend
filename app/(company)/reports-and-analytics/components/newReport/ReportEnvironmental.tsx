@@ -574,8 +574,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             </span>
             <div className="p-4 grid grid-cols-1 gap-4 justify-end align-bottom">
               <ReserveInSensitiveAreasChart
-                provedTotal={bioDiversity?.reservesInSensitiveAreas?.provedReserves || 0}
-                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probableReserves || 0}
+                provedTotal={bioDiversity?.reservesInSensitiveAreas?.totalProvedReserves || 0}
+                provedSensitive={bioDiversity?.reservesInSensitiveAreas?.provedReserves || 0}
+                probableTotal={bioDiversity?.reservesInSensitiveAreas?.totalProbableReserves || 0}
+                probableSensitive={bioDiversity?.reservesInSensitiveAreas?.probableReserves || 0}
               />
             </div>
           </div>
