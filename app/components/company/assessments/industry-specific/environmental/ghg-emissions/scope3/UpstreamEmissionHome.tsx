@@ -38,46 +38,65 @@ export default function UpstreamEmissionHome({
     const data = state.assessmentData.environment?.ghg?.scope3?.upstream;
 
     try {
-      // Bulk save all steps in the group before submitting
+      // Save all steps in parallel for faster submission
+      const savePromises: Promise<void>[] = [];
       if (data?.purchasedGoodsAndServices) {
-        await saveNow(
-          "environment.ghg.scope3.upstream.purchasedGoodsAndServices",
-          data.purchasedGoodsAndServices
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.upstream.purchasedGoodsAndServices",
+            data.purchasedGoodsAndServices
+          )
         );
       }
       if (data?.capitalGoods) {
-        await saveNow("environment.ghg.scope3.upstream.capitalGoods", data.capitalGoods);
+        savePromises.push(
+          saveNow("environment.ghg.scope3.upstream.capitalGoods", data.capitalGoods)
+        );
       }
       if (data?.fuelEnergyRelatedActivities) {
-        await saveNow(
-          "environment.ghg.scope3.upstream.fuelEnergyRelatedActivities",
-          data.fuelEnergyRelatedActivities
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.upstream.fuelEnergyRelatedActivities",
+            data.fuelEnergyRelatedActivities
+          )
         );
       }
       if (data?.upstreamTransportationDistribution) {
-        await saveNow(
-          "environment.ghg.scope3.upstream.upstreamTransportationDistribution",
-          data.upstreamTransportationDistribution
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.upstream.upstreamTransportationDistribution",
+            data.upstreamTransportationDistribution
+          )
         );
       }
       if (data?.wasteGeneratedInOperations) {
-        await saveNow(
-          "environment.ghg.scope3.upstream.wasteGeneratedInOperations",
-          data.wasteGeneratedInOperations
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.upstream.wasteGeneratedInOperations",
+            data.wasteGeneratedInOperations
+          )
         );
       }
       if (data?.businessTravel) {
-        await saveNow("environment.ghg.scope3.upstream.businessTravel", data.businessTravel);
-      }
-      if (data?.employeeCommuting) {
-        await saveNow("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting);
-      }
-      if (data?.upstreamLeasedAssets) {
-        await saveNow(
-          "environment.ghg.scope3.upstream.upstreamLeasedAssets",
-          data.upstreamLeasedAssets
+        savePromises.push(
+          saveNow("environment.ghg.scope3.upstream.businessTravel", data.businessTravel)
         );
       }
+      if (data?.employeeCommuting) {
+        savePromises.push(
+          saveNow("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting)
+        );
+      }
+      if (data?.upstreamLeasedAssets) {
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.upstream.upstreamLeasedAssets",
+            data.upstreamLeasedAssets
+          )
+        );
+      }
+
+      await Promise.all(savePromises);
 
       const response = await submitGroup();
       setTotals(response?.totals ?? null);
