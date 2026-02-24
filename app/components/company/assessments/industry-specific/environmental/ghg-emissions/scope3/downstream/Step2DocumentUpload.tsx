@@ -306,7 +306,7 @@ export function DocumentUpload({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToParentSection },
-    { label: "2.2 Documents/Evidence Upload" },
+    { label: "9.2 Documents/Evidence Upload" },
   ];
 
   return (
@@ -325,7 +325,7 @@ export function DocumentUpload({
           </Button>
           <div>
             <h4 className="text-xl font-medium text-foreground">
-              1.1 Downstream Transportation & Distribution
+              Category 9: Downstream Transportation & Distribution
             </h4>
             <p className="text-muted-foreground text-base">
               Report transportation and distribution data for products sold to customers.

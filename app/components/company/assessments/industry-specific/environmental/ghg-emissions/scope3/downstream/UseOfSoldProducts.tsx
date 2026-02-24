@@ -405,7 +405,7 @@ export function UseOfSoldProducts({
               </p>
             </div>
 
-            {/* 3.1 Use of Sold Products */}
+            {/* 11.1 Use of Sold Products */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -544,10 +544,10 @@ export function UseOfSoldProducts({
               </div>
             </div>
 
-            {/* 3.2 Document/Evidence Upload */}
+            {/* 11.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                3.2 Documents/Evidence Upload
+                11.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

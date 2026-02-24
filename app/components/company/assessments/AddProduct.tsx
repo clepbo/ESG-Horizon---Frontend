@@ -41,6 +41,7 @@ const productTypeOptions = [
   { value: "textiles", label: "Textiles" },
   { value: "electronics", label: "Electronics / E-Waste" },
   { value: "organic", label: "Organic Materials" },
+  { value: "others", label: "Others" },
 ];
 
 const unitOptions = [{ value: "tonnes", label: "Tonnes" }];

@@ -382,7 +382,7 @@ export function Investments({
               </p>
             </div>
 
-            {/* 7.1 Investments */}
+            {/* 15.1 Investments */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -480,10 +480,10 @@ export function Investments({
               </div>
             </div>
 
-            {/* 7.2 Document/Evidence Upload */}
+            {/* 15.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                7.2 Documents/Evidence Upload
+                15.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

@@ -382,7 +382,7 @@ export function DownstreamLeasedAsset({
               </p>
             </div>
 
-            {/* 5.1 Downstream Leased Assets */}
+            {/* 13.1 Downstream Leased Assets */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -491,10 +491,10 @@ export function DownstreamLeasedAsset({
               </div>
             </div>
 
-            {/* 5.2 Document/Evidence Upload */}
+            {/* 13.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                5.2 Documents/Evidence Upload
+                13.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

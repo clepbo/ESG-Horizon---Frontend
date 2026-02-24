@@ -378,7 +378,7 @@ export function Franchise({
               <h4 className="text-xl font-medium text-foreground">Category 14: Franchises</h4>
             </div>
 
-            {/* 6.1 Franchises */}
+            {/* 14.1 Franchises */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -487,10 +487,10 @@ export function Franchise({
               </div>
             </div>
 
-            {/* 6.2 Document/Evidence Upload */}
+            {/* 14.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                6.2 Documents/Evidence Upload
+                14.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

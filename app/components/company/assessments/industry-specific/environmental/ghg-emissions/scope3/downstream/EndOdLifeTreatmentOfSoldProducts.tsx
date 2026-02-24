@@ -388,10 +388,10 @@ export function EndOfLifeTreatment({
               </p>
             </div>
 
-            {/* 4.1 Total mass of products sold */}
+            {/* 12.1 Total mass of products sold */}
             <div className="space-y-6">
               <Label className="text-base font-medium">
-                4.1 Total mass of products sold (by material type)
+                12.1 Total mass of products sold (by material type)
               </Label>
 
               <AddProduct
@@ -446,10 +446,10 @@ export function EndOfLifeTreatment({
               </div>
             </div>
 
-            {/* 4.2 Document/Evidence Upload */}
+            {/* 12.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                4.2 Documents/Evidence Upload
+                12.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
