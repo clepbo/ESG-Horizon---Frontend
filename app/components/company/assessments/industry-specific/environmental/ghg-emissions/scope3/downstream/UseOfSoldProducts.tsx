@@ -362,7 +362,7 @@ export function UseOfSoldProducts({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Use of Sold Products" },
+    { label: "Category 11: Use of Sold Products" },
   ];
 
   return (
@@ -399,7 +399,7 @@ export function UseOfSoldProducts({
               isSubmitted={false}
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">3. Use of Sold Products</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 11: Use of Sold Products</h4>
               <p className="text-muted-foreground text-base">
                 Report emissions from the use of products and services sold by your company.
               </p>

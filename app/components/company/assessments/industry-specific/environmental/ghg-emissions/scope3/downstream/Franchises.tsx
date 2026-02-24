@@ -338,7 +338,7 @@ export function Franchise({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Franchises" },
+    { label: "Category 14: Franchises" },
   ];
 
   return (
@@ -375,7 +375,7 @@ export function Franchise({
               isSubmitted={false}
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">6. Franchises</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 14: Franchises</h4>
             </div>
 
             {/* 6.1 Franchises */}

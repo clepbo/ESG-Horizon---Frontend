@@ -339,7 +339,7 @@ export function Investments({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Investments" },
+    { label: "Category 15: Investments" },
   ];
 
   return (
@@ -376,7 +376,7 @@ export function Investments({
               isSubmitted={false}
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">7. Investments</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 15: Investments</h4>
               <p className="text-muted-foreground text-base">
                 Report investment data and emissions from portfolio companies.
               </p>

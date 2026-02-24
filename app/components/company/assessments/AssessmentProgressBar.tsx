@@ -15,10 +15,13 @@ export function AssessmentProgressBar({
   totalSteps,
   fieldsCompleted,
   totalFields,
+  isSubmitted,
 }: AssessmentProgressBarProps) {
   // Show current section completion — "Section X of Y" already communicates position.
+  // Cap at 99% until submitted; 100% only after submit.
   const rawPercent = totalFields > 0 ? (fieldsCompleted / totalFields) * 100 : 0;
-  const percent = Math.round(Math.min(rawPercent, 100));
+  const cappedPercent = isSubmitted ? 100 : Math.min(rawPercent, 99);
+  const percent = Math.round(cappedPercent);
 
   return (
     <div className="mb-6">

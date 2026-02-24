@@ -339,7 +339,7 @@ export function DownstreamLeasedAsset({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Downstream Leased Assets" },
+    { label: "Category 13: Downstream Leased Assets" },
   ];
 
   return (
@@ -376,7 +376,7 @@ export function DownstreamLeasedAsset({
               isSubmitted={false}
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">5. Downstream Leased Assets</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 13: Downstream Leased Assets</h4>
               <p className="text-muted-foreground text-base">
                 Report energy consumption data for assets leased to tenants.
               </p>
