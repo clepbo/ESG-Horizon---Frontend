@@ -2,7 +2,7 @@
 import { useId, useState, useRef, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 interface EmissionPoint {
   period: string; // label for X-axis
@@ -127,7 +127,7 @@ const EmissionsChart = ({
               marginRight: "0px",
             }}
           >
-            {value}
+            {formatNumberShort(value)}
           </div>
           <div
             style={{

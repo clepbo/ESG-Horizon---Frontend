@@ -294,19 +294,19 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           <OilRenderCard
             borderColor={"#0000"}
             title={"Total Water Withdrawal"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.totalWaterWithdrawal || 0}
           />
           <OilRenderCard
             borderColor={"#0000"}
             title={"Total Water Consumed"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.totalWaterConsumed || 0}
           />
           <OilRenderCard
             borderColor={"#0000"}
             title={"Total Produced Water Generated"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.totalProducedWaterGenerated || 0}
           />
         </div>
@@ -314,22 +314,22 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           <OilRenderCard
             borderColor={"#3d9f56"}
             title={"Recycled/Reused"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.recycledWater || 0}
           />
           <OilRenderCard
             borderColor={"#14b8a6"}
             title={"Injected for Disposal"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.injectedForDisposal || 0}
           />
           <OilRenderCard
             borderColor={"#eb6f70"}
             title={"Discharged to Surface"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.dischargedToSurface || 0}
           />
-          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={0} />
+          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.totalFracturedWells || 0} />
           <OilRenderCard
             borderColor={"#2570eb"}
             title={"Wells with Public Disclosure"}
@@ -348,13 +348,13 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 ?.percentageWithDisclosure || 0
             }
           />
-          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={0} />
+          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={waterManagement?.hydraulicFracturingWaterQualityImpacts?.sites?.totalFracturedSitesMonitored || 0} />
           <OilRenderCard
             borderColor={"#1e8a3d"}
             title={"Sites with Deteriorated Water Quality"}
             sub={"sites"}
             amount={
-              waterManagement?.hydraulicFracturingChemicalDisclosure?.sites
+              waterManagement?.hydraulicFracturingWaterQualityImpacts?.sites
                 ?.withDeterioratedWaterQuality || 0
             }
           />
@@ -520,7 +520,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             </span>
             <div className="p-4 flex flex-col my-4 w-full gap-6 h-full">
               <div className="flex flex-col items-center justify-center text-sm">
-                <p className="font-thin">Number of Spills</p>
+                <p className="font-thin">Number of Spills (&gt;1 bbl)</p>
                 <p className="font-semibold text-3xl ml-4">
                   {bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0}{" "}
                 </p>
