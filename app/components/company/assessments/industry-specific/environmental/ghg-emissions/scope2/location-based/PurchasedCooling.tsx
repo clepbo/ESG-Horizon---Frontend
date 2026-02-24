@@ -55,6 +55,7 @@ const coolingSystemTypes = [
   },
   { id: "portable", label: "Portable Cooling Systems" },
   { id: "evaporative", label: "Evaporative Cooling Systems" },
+  { id: "not-applicable", label: "Not Applicable / No Cooling System" },
 ];
 
 export function PurchasedCoolingForm({
