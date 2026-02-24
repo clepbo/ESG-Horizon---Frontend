@@ -91,10 +91,28 @@ function NewAssessmentPage() {
       const leadership = data.leadershipGovernance;
 
       const hasActivity = !!activity && Object.keys(activity).length > 0;
-      const hasEnv = !!env && Object.keys(env).length > 0;
-      const hasSocial = !!social && Object.keys(social).length > 0;
-      const hasHuman = !!human && Object.keys(human).length > 0;
-      const hasBusiness = !!business && Object.keys(business).length > 0;
+
+      // Environment: the calculator always scaffolds { ghg, totalEmission, progress }
+      // even when no Environmental forms are filled. Check for actual user data:
+      // 1. Non-GHG sections (airQuality, waterManagement, biodiversityImpact) — only exist from user forms
+      // 2. GHG scopes with non-zero computed emissions (user entered data that produced results)
+      // 3. scope3 existence (never scaffolded by calculator)
+      const hasEnv = (() => {
+        if (!env) return false;
+        if (env.airQuality || env.waterManagement || env.biodiversityImpact) return true;
+        const ghg = env.ghg;
+        if (!ghg) return false;
+        if (ghg.scope3 && Object.keys(ghg.scope3).length > 0) return true;
+        const hasScope = (scope: any, groups: string[]) =>
+          scope && groups.some((g: string) => scope[g] && Object.keys(scope[g]).length > 0);
+        if (hasScope(ghg.scope1, ["stationarySources", "mobileSources", "processEmissions", "fugitiveEmissions"])) return true;
+        if (hasScope(ghg.scope2, ["locationBased", "marketBased"])) return true;
+        return false;
+      })();
+
+      const hasSocial = !!social && Object.keys(social).filter(k => k !== "progress").length > 0;
+      const hasHuman = !!human && Object.keys(human).filter(k => k !== "progress").length > 0;
+      const hasBusiness = !!business && Object.keys(business).filter(k => k !== "progress").length > 0;
       const hasLeadership =
         !!leadership?.criticalIncidentRiskManagement &&
         Object.keys(leadership.criticalIncidentRiskManagement).length > 0;

@@ -321,7 +321,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             sub={"m²"}
             amount={waterManagement?.dischargedToSurface || 0}
           />
-          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={0} />
+          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.totalFracturedWells || 0} />
           <OilRenderCard
             borderColor={"#2570eb"}
             title={"Wells with Public Disclosure"}
@@ -340,13 +340,13 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 ?.percentageWithDisclosure || 0
             }
           />
-          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={0} />
+          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={waterManagement?.hydraulicFracturingWaterQualityImpacts?.sites?.totalFracturedSitesMonitored || 0} />
           <OilRenderCard
             borderColor={"#1e8a3d"}
             title={"Sites with Deteriorated Water Quality"}
             sub={"sites"}
             amount={
-              waterManagement?.hydraulicFracturingChemicalDisclosure?.sites
+              waterManagement?.hydraulicFracturingWaterQualityImpacts?.sites
                 ?.withDeterioratedWaterQuality || 0
             }
           />
