@@ -510,7 +510,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             </span>
             <div className="p-4 flex flex-col my-4 w-full gap-6 h-full">
               <div className="flex flex-col items-center justify-center text-sm">
-                <p className="font-thin">Number of Spills</p>
+                <p className="font-thin">Number of Spills (&gt;1 bbl)</p>
                 <p className="font-semibold text-3xl ml-4">
                   {bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0}{" "}
                 </p>
