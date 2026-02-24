@@ -1,15 +1,14 @@
-import { useId } from "react";
+"use client";
+import { useId, useState, useRef, useCallback } from "react";
 import {
   AreaChart,
   Area,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
-import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { formatNumberFull } from "@/lib/numberFormat";
 
 interface EmissionPoint {
@@ -47,6 +46,31 @@ const EmissionsChart = ({
   period,
 }: EmissionsChartProps) => {
   const gradientId = `colorEmissions-${useId().replace(/:/g, "")}`;
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [tooltipData, setTooltipData] = useState<{
+    x: number;
+    point: EmissionPoint;
+  } | null>(null);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!chartRef.current || data.length === 0) return;
+      const rect = chartRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const chartWidth = rect.width;
+
+      // Map mouse X position to the nearest data point
+      const index = Math.round((x / chartWidth) * (data.length - 1));
+      const clampedIndex = Math.max(0, Math.min(data.length - 1, index));
+
+      setTooltipData({ x, point: data[clampedIndex] });
+    },
+    [data]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltipData(null);
+  }, []);
 
   return (
     <div
@@ -110,7 +134,7 @@ const EmissionsChart = ({
               marginRight: "0px",
             }}
           >
-            {formatNumberFigures(Number(value))}
+            {value}
           </div>
           <div
             style={{
@@ -127,8 +151,13 @@ const EmissionsChart = ({
         )}
       </div>
 
-      {/* Chart Section */}
-      <div style={{ width, height, position: "relative", overflow: "visible" }}>
+      {/* Chart Section — custom tooltip via native mouse events */}
+      <div
+        ref={chartRef}
+        style={{ width, height, position: "relative", cursor: data.length > 0 ? "crosshair" : "default" }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
@@ -147,39 +176,50 @@ const EmissionsChart = ({
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
             <XAxis dataKey="period" axisLine={false} tickLine={false} hide />
-
             <YAxis
               axisLine={false}
               tickLine={false}
               hide={true}
               domain={["dataMin - 1000", "dataMax + 1000"]}
             />
-            <Tooltip
-              formatter={(value) => [
-                `${formatNumberFull(value as number, { maximumFractionDigits: 2 })} tCO₂e`,
-                "Emissions",
-              ]}
-              labelFormatter={(label) => `Period: ${label}`}
-              cursor={{ stroke: "#d1d5db", strokeDasharray: "3 3" }}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-                fontSize: "14px",
-              }}
-              wrapperStyle={{ zIndex: 10 }}
-              position={{ y: -60 }}
-            />
             <Area
               type="monotone"
               dataKey="emissions"
               stroke="#10b981"
-              strokeWidth={1}
+              strokeWidth={2}
               fill={`url(#${gradientId})`}
-              activeDot={{ r: 4, fill: "#10b981" }}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>
+
+        {/* Custom tooltip overlay */}
+        {tooltipData && (
+          <div
+            style={{
+              position: "absolute",
+              left: tooltipData.x,
+              top: 0,
+              transform: "translateX(-50%)",
+              pointerEvents: "none",
+              zIndex: 50,
+              backgroundColor: "white",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              padding: "6px 10px",
+              fontSize: "12px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <div style={{ color: "#6b7280", marginBottom: "2px" }}>
+              {tooltipData.point.period}
+            </div>
+            <div style={{ fontWeight: 600, color: "#111" }}>
+              {formatNumberFull(tooltipData.point.emissions, { maximumFractionDigits: 2 })} tCO₂e
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
