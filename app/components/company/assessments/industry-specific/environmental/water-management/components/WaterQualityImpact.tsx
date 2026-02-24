@@ -282,8 +282,8 @@ export default function WaterQualityImpact({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-medium">
-                  Does your company operate hydraulically fractured wells during the reporting
-                  period?
+                  Does your company conduct baseline and ongoing water quality monitoring at
+                  hydraulic fracturing sites?
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -291,9 +291,9 @@ export default function WaterQualityImpact({
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
                     <p>
-                      Indicate whether your company operated any hydraulically fractured (fracking)
-                      wells during the reporting period. This helps determine if reporting on
-                      chemical use and water quality impacts is required.
+                      Indicate whether your company conducts baseline and ongoing water quality
+                      monitoring at hydraulic fracturing sites. This helps assess the impact of
+                      fracturing operations on local water sources.
                     </p>
                   </TooltipContent>
                 </Tooltip>
