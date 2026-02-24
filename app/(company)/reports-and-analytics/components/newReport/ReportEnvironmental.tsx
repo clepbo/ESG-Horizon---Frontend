@@ -286,19 +286,19 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           <OilRenderCard
             borderColor={"#0000"}
             title={"Total Water Withdrawal"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.totalWaterWithdrawal || 0}
           />
           <OilRenderCard
             borderColor={"#0000"}
             title={"Total Water Consumed"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.totalWaterConsumed || 0}
           />
           <OilRenderCard
             borderColor={"#0000"}
             title={"Total Produced Water Generated"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.totalProducedWaterGenerated || 0}
           />
         </div>
@@ -306,19 +306,19 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           <OilRenderCard
             borderColor={"#3d9f56"}
             title={"Recycled/Reused"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.recycledWater || 0}
           />
           <OilRenderCard
             borderColor={"#14b8a6"}
             title={"Injected for Disposal"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.injectedForDisposal || 0}
           />
           <OilRenderCard
             borderColor={"#eb6f70"}
             title={"Discharged to Surface"}
-            sub={"m²"}
+            sub={"m³"}
             amount={waterManagement?.dischargedToSurface || 0}
           />
           <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.totalFracturedWells || 0} />

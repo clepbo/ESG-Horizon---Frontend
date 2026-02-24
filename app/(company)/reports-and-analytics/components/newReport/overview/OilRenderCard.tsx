@@ -3,7 +3,7 @@ import React from "react";
 import { buildStyles, CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
-import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface Props {
   borderColor: string;
@@ -23,7 +23,7 @@ export default function OilRenderCard({ borderColor, title, sub, amount }: Props
       <p className="text-gray-800">{title}</p>
       {typeof amount === "number" && amount >= 0 && (
         <p className="font-bold text-3xl">
-          {formatNumberFigures(amount)} <sub className="text-gray-700 text-xs">{sub}</sub>
+          {formatNumberFull(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-gray-700 text-sm font-semibold">{sub}</sub>
         </p>
       )}
 
@@ -44,7 +44,7 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
       <div className={``}>
         <p className="text-gray-800">{title}</p>
         <p className="font-bold text-3xl">
-          {amount.toLocaleString()} <sub className="text-xs">{sub}</sub>
+          {formatNumberFull(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-sm font-semibold">{sub}</sub>
         </p>
       </div>
 
