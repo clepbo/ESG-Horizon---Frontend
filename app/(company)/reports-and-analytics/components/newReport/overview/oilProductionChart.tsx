@@ -67,7 +67,7 @@ export default function ProductionVolumesChart({
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: itemColor }} />
                 <span className="text-gray-600">{itemLabel}:</span>
                 <span className="font-medium text-gray-900">
-                  {Number(entry.value).toLocaleString()}
+                  {formatNumberFigures(Number(entry.value))}
                 </span>
               </div>
             );
