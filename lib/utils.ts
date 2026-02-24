@@ -312,4 +312,3 @@ export function formatStatus(status: any | any[]): string {
     .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1));
   return words.join(" ");
 }
-

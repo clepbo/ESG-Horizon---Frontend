@@ -132,7 +132,10 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <FaArrowDown
         className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.abs(environmental?.changePercentage ?? 0), { maximumFractionDigits: 1 })}%
+      {formatNumberFull(Math.abs(environmental?.changePercentage ?? 0), {
+        maximumFractionDigits: 1,
+      })}
+      %
     </small>
   );
 
@@ -143,7 +146,10 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <FaArrowDown
         className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.abs(humanCapital?.changePercentage ?? 0), { maximumFractionDigits: 1 })}%
+      {formatNumberFull(Math.abs(humanCapital?.changePercentage ?? 0), {
+        maximumFractionDigits: 1,
+      })}
+      %
     </small>
   );
 
@@ -152,7 +158,10 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <FaArrowDown
         className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.abs(businessModel?.changePercentage ?? 0), { maximumFractionDigits: 1 })}%
+      {formatNumberFull(Math.abs(businessModel?.changePercentage ?? 0), {
+        maximumFractionDigits: 1,
+      })}
+      %
     </small>
   );
 

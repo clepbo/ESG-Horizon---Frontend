@@ -5,9 +5,7 @@ import { ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/hooks/useAssessment";
-import {
-  checkTopicCompletion,
-} from "@/lib/assessmentCompletionUtils";
+import { checkTopicCompletion } from "@/lib/assessmentCompletionUtils";
 
 export interface AirQualityProps {
   backToDisclosureTopics: () => void;

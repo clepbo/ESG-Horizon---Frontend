@@ -46,7 +46,6 @@ const cards2 = [
   },
 ];
 
-
 export default function WaterAndWastemanagementCards({
   backToAssessmentHub,
   backToDisclosureTopics,
@@ -66,7 +65,6 @@ export default function WaterAndWastemanagementCards({
       router.push("/reports-and-analytics");
     }
   };
-
 
   useEffect(() => {
     // Debugging completion status - keep or remove as needed for dev

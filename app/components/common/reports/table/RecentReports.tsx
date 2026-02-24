@@ -242,8 +242,9 @@ export function RecentReportsWidget() {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={`border-b border-gray-300 font-semibold text-gray-700 ${header.id === "actions" ? "text-right" : ""
-                      }`}
+                    className={`border-b border-gray-300 font-semibold text-gray-700 ${
+                      header.id === "actions" ? "text-right" : ""
+                    }`}
                   >
                     {header.isPlaceholder
                       ? null

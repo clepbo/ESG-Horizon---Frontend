@@ -38,9 +38,7 @@ export default function PerformanceOverview() {
 
   // Compute ESG score from actual target data instead of hardcoded value
   const score = general
-    ? Math.round(
-        ((general.currentEmission ?? 0) / (general.baselineYearEmission || 1)) * 200
-      )
+    ? Math.round(((general.currentEmission ?? 0) / (general.baselineYearEmission || 1)) * 200)
     : 0;
 
   if (latestTarget.isLoading) {

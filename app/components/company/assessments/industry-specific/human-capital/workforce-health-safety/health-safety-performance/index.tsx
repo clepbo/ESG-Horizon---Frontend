@@ -9,7 +9,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 import { type EmployeeFormData } from "./types";
 import { useAssessment } from "@/hooks/useAssessment";
 
-
 interface HealthSafetyPerformanceProps {
   onBack: () => void;
   onContinueToNextAssessment: () => void;
@@ -34,7 +33,6 @@ export default function HealthSafetyPerformance({
   onContractFormChange,
 }: HealthSafetyPerformanceProps) {
   const { state } = useAssessment();
-
 
   // removed local state and getInitialFormData because data is now controlled by parent
   const [activeTab, setActiveTab] = useState<string>("direct");

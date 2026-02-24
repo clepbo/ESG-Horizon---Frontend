@@ -54,8 +54,9 @@ export default function CriticalIncidentRiskManagement({
           <div className="flex items-center gap-2">
             <IoMdAlert className="text-lg" />
             <p className="text-xs">
-              <span className="font-semibold">Rate: </span> {formatNumberFull(rate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hours,
-              investigations closed for all events.
+              <span className="font-semibold">Rate: </span>{" "}
+              {formatNumberFull(rate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per
+              200k hours, investigations closed for all events.
             </p>
           </div>
         </Card>
