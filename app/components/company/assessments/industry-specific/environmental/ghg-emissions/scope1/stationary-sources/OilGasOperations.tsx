@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress, normalizeFiles } from "@/lib/utils";
@@ -22,6 +22,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 interface OilGasOperationsProps {
   onBack: () => void;
   onSubmit: (totals: TotalsResponse | null) => void;
@@ -412,19 +413,12 @@ export function OilGasOperations({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

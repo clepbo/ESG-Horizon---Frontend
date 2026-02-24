@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 // import { useRouter } from "next/router";
 
@@ -43,6 +44,7 @@ export default function SafetyManagementSystem({
   const { saveNow, submitGroup } = useAssessmentFlow(
     "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
   );
+  const { state } = useAssessment();
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -54,6 +56,24 @@ export default function SafetyManagementSystem({
     executiveRemunerationLinked: "",
     safetyDescription: "",
   });
+
+  // Rehydrate form data from saved assessment (e.g., when navigating back)
+  const hasRehydrated = useRef(false);
+  useEffect(() => {
+    if (hasRehydrated.current) return;
+    const saved = (state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety
+      ?.riskAndOpportunityManagement?.safetyManagementSystems;
+    if (!saved) return;
+    hasRehydrated.current = true;
+
+    setFormData({
+      executiveRemunerationLinked: saved.executiveRemunerationLinked || "",
+      safetyDescription: saved.safetyDescription || "",
+    });
+    if (saved.filesAndLinks?.length) {
+      setFilesAndLinks(saved.filesAndLinks);
+    }
+  }, [state.assessmentData]);
 
   // Fix: Move calculateProgress inside useMemo to avoid dependency issues
   const { filled, total } = useMemo(() => {

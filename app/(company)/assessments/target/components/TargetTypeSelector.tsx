@@ -10,7 +10,7 @@ interface TargetTypeSelectorProps {
 export function TargetTypeSelector({ selectedType, onTypeChange }: TargetTypeSelectorProps) {
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Select type of target:</h2>
+      <h2 className="text-lg font-semibold text-gray-900">Select type of target(GHG Emission):</h2>
 
       <div className="flex flex-col gap-6 items-start">
         <div
@@ -26,7 +26,7 @@ export function TargetTypeSelector({ selectedType, onTypeChange }: TargetTypeSel
             <div>
               <h6 className="font-medium text-gray-900">Set general target</h6>
               <p className="text-sm text-gray-600 mt-1">
-                Set an overall emissions reduction goal for your company.
+                Set an overall emission reduction goal for your company.
               </p>
             </div>
           </div>

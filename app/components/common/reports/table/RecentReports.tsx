@@ -120,7 +120,10 @@ export function RecentReportsWidget() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const report = useReport();
-  const data: TableRowType[] = Array.isArray(report.data) ? report.data : [];
+  const data: TableRowType[] = useMemo(
+    () => (Array.isArray(report.data) ? report.data : []),
+    [report.data]
+  );
 
   // console.log("Table data", data);
   const recentReports = useMemo(() => {

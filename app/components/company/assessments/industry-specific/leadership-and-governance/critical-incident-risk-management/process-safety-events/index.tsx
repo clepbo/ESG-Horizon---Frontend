@@ -52,7 +52,7 @@ export default function ProcessSafetyEvents({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
         ?.processSafetyEvents;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -68,8 +68,7 @@ export default function ProcessSafetyEvents({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
-      ?.processSafetyEvents,
+    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.processSafetyEvents,
   ]);
 
   // Calculate progress

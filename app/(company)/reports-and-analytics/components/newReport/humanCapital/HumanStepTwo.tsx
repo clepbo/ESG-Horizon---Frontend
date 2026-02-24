@@ -34,17 +34,9 @@ function SafetyCard({
   tag: string;
 }) {
   return (
-    <article
-      className="flex flex-col rounded-xl p-4 shadow-sm sm:p-5 md:p-6"
-      style={{ backgroundColor: "#FFF7ED" }}
-    >
-      <h3 className="text-base font-bold sm:text-lg md:text-xl" style={{ color: "#E0813D" }}>
-        {title}
-      </h3>
-      <p
-        className="mt-2 text-sm font-normal leading-relaxed sm:mt-3 sm:text-base md:mt-4"
-        style={{ color: "#E0813D" }}
-      >
+    <article className="flex flex-col rounded-xl bg-blue-50 p-4 shadow-sm sm:p-5 md:p-6">
+      <h3 className="text-base font-bold text-blue-700 sm:text-lg md:text-xl">{title}</h3>
+      <p className="mt-2 text-sm font-normal leading-relaxed text-blue-700 sm:mt-3 sm:text-base md:mt-4">
         {description}
       </p>
       <span

@@ -6,7 +6,7 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
-import { defaultEmployeeFormData, type EmployeeFormData } from "./types";
+import { type EmployeeFormData } from "./types";
 import { useAssessment } from "@/hooks/useAssessment";
 
 interface HealthSafetyPerformanceProps {
@@ -33,6 +33,7 @@ export default function HealthSafetyPerformance({
   onContractFormChange,
 }: HealthSafetyPerformanceProps) {
   const { state } = useAssessment();
+
   // removed local state and getInitialFormData because data is now controlled by parent
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);

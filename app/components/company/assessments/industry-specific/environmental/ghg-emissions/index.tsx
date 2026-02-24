@@ -174,7 +174,6 @@ export function GhgEmissionsAssessment({
   }, [initialForm]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
-  const { state } = useAssessment();
 
   // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
   //   scopeData,
@@ -407,7 +406,10 @@ export function GhgEmissionsAssessment({
                     <AccordionTrigger className="py-4 px-2 rounded-lg bg-transparent hover:no-underline hover:cursor-pointer">
                       <div className="flex items-center w-full relative">
                         <span className="text-lg font-semibold flex items-center gap-2">
-                          {scope.title}
+                          {scope.title}{" "}
+                          <span className="text-sm font-normal text-muted-foreground">
+                            (GHG Emission)
+                          </span>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
@@ -419,7 +421,7 @@ export function GhgEmissionsAssessment({
                             >
                               {scope.id === "scope-1" && (
                                 <>
-                                  <h6 className="font-semibold mb-1">Scope 1 - Direct Emissions</h6>
+                                  <h6 className="font-semibold mb-1">Scope 1 (Direct Emissions)</h6>
                                   <p>
                                     Emissions from sources your company owns or directly controls
                                     (e.g., fuel combustion, company vehicles, generators).
@@ -430,7 +432,7 @@ export function GhgEmissionsAssessment({
                               {scope.id === "scope-2" && (
                                 <>
                                   <h6 className="font-semibold mb-1">
-                                    Scope 2 - Indirect Energy Emissions
+                                    Scope 2 (Indirect Energy Emissions)
                                   </h6>
                                   <p>
                                     Emissions from purchased electricity, steam, heating, or cooling
@@ -442,7 +444,7 @@ export function GhgEmissionsAssessment({
                               {scope.id === "scope-3" && (
                                 <>
                                   <h6 className="font-semibold mb-1">
-                                    Scope 3 - Value Chain Emissions
+                                    Scope 3 (Value Chain Emissions)
                                   </h6>
                                   <p>
                                     All other indirect emissions outside your direct control - such

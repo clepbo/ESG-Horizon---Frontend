@@ -51,7 +51,6 @@ export default function DepartmentsTable({ departments, onUpdate, companyName }:
                 <tr>
                   <th className="px-4 py-3">Department Name</th>
                   <th className="px-4 py-3">Subsidiary</th>
-                  <th className="px-4 py-3">Description</th>
                   <th className="px-4 py-3">Lead</th>
                   <th className="px-4 py-3">Team Size</th>
                   <th className="px-4 py-3">Actions</th>
@@ -70,17 +69,14 @@ export default function DepartmentsTable({ departments, onUpdate, companyName }:
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {dept.description || (
-                          <span className="text-gray-400 font-medium text-sm italic">no desc.</span>
-                        )}
-                      </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col">
                           <span className="font-medium text-gray-900">
                             {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}
                           </span>
-                          <span className="text-xs text-gray-500">{dept?.lead?.email || ""}</span>
+                          <span className="text-xs text-gray-500">
+                            {dept?.contact_email || dept?.lead?.email || ""}
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-500">

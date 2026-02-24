@@ -35,7 +35,7 @@ export default function ProductionVolumesChart({
 
   const renderLegend = (_props: any) => {
     return (
-      <ul className="flex justify-center gap-4 mt-4 text-xs lg:text-sm text-gray-600">
+      <ul className="flex justify-center gap-4 mt-4 text-sm font-medium text-gray-900">
         {legendItems.map((entry, index) => (
           <li key={`item-${index}`} className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
@@ -86,7 +86,12 @@ export default function ProductionVolumesChart({
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={data} barGap={4} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="name" />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "#111827", fontSize: 14 }}
+            />
             <YAxis
               width={70}
               tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}

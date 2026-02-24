@@ -41,22 +41,19 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const indigenousTotalProved = indigenousLand?.totalProvedReserves || 0;
   const indigenousTotalProbable = indigenousLand?.totalProbableReserves || 0;
 
-  // Conflict zones reuse the same company-wide totals stored on the indigenous land section
-  // (all forms collect the same reference totals for proved/probable reserves)
+  const conflictZones =
+    reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones;
+
   const conflictZonesData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total: indigenousTotalProved,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
-          ?.provedReserves || 0,
+      total: conflictZones?.totalProvedReserves ?? 0,
+      specific: conflictZones?.provedReserves ?? 0,
     },
     {
       reserveType: "Probable Reserves",
-      total: indigenousTotalProbable,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
-          ?.probableReserves || 0,
+      total: conflictZones?.totalProbableReserves ?? 0,
+      specific: conflictZones?.probableReserves ?? 0,
     },
   ];
 
@@ -87,7 +84,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
       totalLabel: "Total",
       specificLabel: "In/Near Indigenous",
       totalColor: "#9CA3AF", // grey
-      specificColor: "#F97316", // orange
+      specificColor: "#6366F1", // indigo
       data: indigenousLandData,
     },
   ];
@@ -95,11 +92,11 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const CustomLegend = ({ payload }: any) => {
     if (!payload) return null;
     return (
-      <div className="flex justify-center gap-6 mt-4">
+      <div className="flex flex-col gap-3 items-start pl-2">
         {payload.map((entry: any, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="text-sm text-gray-700">{entry.value}</span>
+            <span className="text-[14px] font-medium text-gray-900">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -137,30 +134,39 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
             <ResponsiveContainer width="100%" height={350}>
               <BarChart
                 data={chart.data}
-                margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+                margin={{ top: 20, right: 120, left: 0, bottom: 20 }}
                 barGap={8}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis
                   dataKey="reserveType"
-                  tick={{ fill: "#6B7280", fontSize: 12 }}
-                  axisLine={{ stroke: "#D1D5DB" }}
+                  tick={{ fill: "#111827", fontSize: 14 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "#6B7280", fontSize: 12 }}
-                  axisLine={{ stroke: "#D1D5DB" }}
-                  width={50}
+                  tick={{ fill: "#111827", fontSize: 14 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={65}
+                  tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}
                 />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend content={<CustomLegend />} />
+                <Tooltip cursor={false} content={<CustomTooltip />} />
+                <Legend
+                  content={<CustomLegend />}
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                />
                 <Bar
                   dataKey="total"
                   name={chart.totalLabel}
                   fill={chart.totalColor}
                   radius={[4, 4, 0, 0]}
+                  maxBarSize={60}
                 >
                   <LabelList
-                    dataKey="specific"
+                    dataKey="total"
                     position="top"
                     formatter={(value) => formatNumberFigures(Number(value) || 0)}
                   />
@@ -170,6 +176,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   name={chart.specificLabel}
                   fill={chart.specificColor}
                   radius={[4, 4, 0, 0]}
+                  maxBarSize={60}
                 >
                   <LabelList
                     dataKey="specific"

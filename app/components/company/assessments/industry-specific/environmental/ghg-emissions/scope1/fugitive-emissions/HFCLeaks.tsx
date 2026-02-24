@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { CloudUpload, ArrowLeft, Save, CheckCircle2, X, Info } from "lucide-react";
+import { CloudUpload, ArrowLeft, Save, CheckCircle2, Info, X } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress, computeProgressPercent, normalizeFiles } from "@/lib/utils";
@@ -29,6 +29,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface HFCLeaksProps {
   onBack: () => void;

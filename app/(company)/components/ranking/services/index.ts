@@ -87,10 +87,11 @@ export const useGetLatestTarget = (companyId?: number) => {
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
       const response = await api.get(`/target/latest`);
-      return response;
+      return response ?? null;
     },
     enabled: !!companyId,
     refetchOnWindowFocus: false,
+    retry: false,
   });
 };
 

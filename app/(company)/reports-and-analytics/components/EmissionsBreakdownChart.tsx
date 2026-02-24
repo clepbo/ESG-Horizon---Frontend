@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/ca
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useAssessment, type SourceData } from "@/hooks/useAssessment";
 import { PieChart as PieChartIcon } from "lucide-react";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 export function EmissionsBreakdownChart() {
   const {
@@ -176,7 +177,9 @@ export function EmissionsBreakdownChart() {
         {chartData.length > 0 ? (
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{totalEmissions.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {formatNumberFull(totalEmissions, { minimumFractionDigits: 2 })}
+              </div>
               <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
             </div>
             <ResponsiveContainer width="100%" height={200}>
@@ -188,7 +191,7 @@ export function EmissionsBreakdownChart() {
                   outerRadius={80}
                   dataKey="value"
                   label={({ name, percent }) =>
-                    `${name} ${(Number(percent || 0) * 100).toFixed(0)}%`
+                    `${name} ${Math.round(Number(percent || 0) * 100)}%`
                   }
                   labelLine={false}
                 >
@@ -198,7 +201,7 @@ export function EmissionsBreakdownChart() {
                 </Pie>
                 <Tooltip
                   formatter={(value?: number) => [
-                    `${(value ?? 0).toFixed(2)} tonnes CO2e`,
+                    `${formatNumberFull(value ?? 0, { minimumFractionDigits: 2 })} tonnes CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}

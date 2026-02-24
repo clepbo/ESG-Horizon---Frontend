@@ -5,7 +5,7 @@ import React from "react";
 interface AssessmentProgressBarProps {
   stepIndex: number; // current step (1-based, e.g., Section 1 of N)
   totalSteps: number; // total number of steps
-  isSubmitted: boolean;
+  isSubmitted?: boolean;
   fieldsCompleted: number; // new prop: number of fields completed in the current step
   totalFields: number; // new prop: total number of fields in the current step
 }
@@ -13,7 +13,6 @@ interface AssessmentProgressBarProps {
 export function AssessmentProgressBar({
   stepIndex,
   totalSteps,
-  isSubmitted,
   fieldsCompleted,
   totalFields,
 }: AssessmentProgressBarProps) {
@@ -24,7 +23,7 @@ export function AssessmentProgressBar({
 
   const rawPercent = (overallProgress + inputProgress / totalSteps) * 100; // Cap the percentage at 99% until the final submission.
 
-  const cappedPercent = isSubmitted ? 100 : Math.min(rawPercent, 99);
+  const cappedPercent = Math.min(rawPercent, 100);
   const percent = Math.round(cappedPercent);
 
   return (

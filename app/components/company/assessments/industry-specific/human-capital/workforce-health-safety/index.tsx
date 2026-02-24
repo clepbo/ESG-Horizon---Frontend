@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -69,6 +69,49 @@ export default function WorkforceHealthSafety({
   const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
     ...defaultEmployeeFormData,
   }));
+
+  // Rehydrate form data from saved assessment (e.g., when navigating back from Disclosure Topics)
+  const hasRehydrated = useRef(false);
+  useEffect(() => {
+    if (hasRehydrated.current) return;
+    const hsp = (state.assessmentData as any)?.humanCapital?.riskAndOpportunityManagement
+      ?.healthAndSafetyPerformance;
+    if (!hsp) return;
+    hasRehydrated.current = true;
+
+    const toStr = (v: any) => (v != null ? String(v) : "");
+
+    if (hsp.direct) {
+      setDirectFormData({
+        totalHoursWorked: toStr(hsp.direct.totalHoursWorked),
+        recordableIncidents: toStr(hsp.direct.recordableIncidents),
+        fatalities: toStr(hsp.direct.fatalities),
+        nearMisses: toStr(hsp.direct.nearMisses),
+        safetyTrainingHours: toStr(hsp.direct.safetyTrainingHours),
+        totalHoursWorkedUnit: hsp.direct.totalHoursWorkedUnit || "Hours",
+        recordableIncidentsUnit: hsp.direct.recordableIncidentsUnit || "Incidents",
+        fatalitiesUnit: hsp.direct.fatalitiesUnit || "Fatalities",
+        nearMissesUnit: hsp.direct.nearMissesUnit || "Near Misses",
+        safetyTrainingHoursUnit: hsp.direct.safetyTrainingHoursUnit || "Hours",
+        filesAndLinks: hsp.direct.filesAndLinks || [],
+      });
+    }
+    if (hsp.contract) {
+      setContractFormData({
+        totalHoursWorked: toStr(hsp.contract.totalHoursWorked),
+        recordableIncidents: toStr(hsp.contract.recordableIncidents),
+        fatalities: toStr(hsp.contract.fatalities),
+        nearMisses: toStr(hsp.contract.nearMisses),
+        safetyTrainingHours: toStr(hsp.contract.safetyTrainingHours),
+        totalHoursWorkedUnit: hsp.contract.totalHoursWorkedUnit || "Hours",
+        recordableIncidentsUnit: hsp.contract.recordableIncidentsUnit || "Incidents",
+        fatalitiesUnit: hsp.contract.fatalitiesUnit || "Fatalities",
+        nearMissesUnit: hsp.contract.nearMissesUnit || "Near Misses",
+        safetyTrainingHoursUnit: hsp.contract.safetyTrainingHoursUnit || "Hours",
+        filesAndLinks: hsp.contract.filesAndLinks || [],
+      });
+    }
+  }, [state.assessmentData]);
 
   // Status indication commented out - revisit later
   // const { getStatus, getCardBorderClass } = useAssessmentCompletion(

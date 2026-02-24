@@ -13,6 +13,7 @@ import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
 import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 import { useAuth } from "@/context/AuthContext";
+import { getAssessmentProgressForTable } from "@/lib/utils";
 
 function NewAssessmentPage() {
   const router = useRouter();
@@ -42,20 +43,11 @@ function NewAssessmentPage() {
       hasRedirected.current = true;
       dispatch({ type: "SET_VIEW", payload: "my-tasks" });
     }
-  }, [
-    hasAssignedTasks,
-    tasksLoading,
-    state.currentView,
-    dispatch,
-    isCompanyAdmin,
-  ]);
+  }, [hasAssignedTasks, tasksLoading, state.currentView, dispatch, isCompanyAdmin]);
 
   // Add safeguards to escape task view if admin
   useEffect(() => {
-    if (
-      isCompanyAdmin &&
-      (state.currentView === "my-tasks" || state.isAssignedTask)
-    ) {
+    if (isCompanyAdmin && (state.currentView === "my-tasks" || state.isAssignedTask)) {
       dispatch({ type: "SET_VIEW", payload: "hub" });
       dispatch({ type: "SET_ASSIGNED_TASK", payload: false });
     }
@@ -107,8 +99,8 @@ function NewAssessmentPage() {
         !!leadership?.criticalIncidentRiskManagement &&
         Object.keys(leadership.criticalIncidentRiskManagement).length > 0;
       const hasGovernance =
-        !!leadership?.legalRegulatoryEnvironment &&
-        Object.keys(leadership.legalRegulatoryEnvironment).length > 0;
+        !!leadership?.managementOfTheLegalAndRegulatoryEnvironment &&
+        Object.keys(leadership.managementOfTheLegalAndRegulatoryEnvironment).length > 0;
 
       const pillars: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[] = [];
       if (hasActivity) pillars.push("A");
@@ -125,7 +117,7 @@ function NewAssessmentPage() {
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
-        progress: a.assessmentData?.overallProgress ?? null,
+        progress: getAssessmentProgressForTable(a),
         rejection_reason: (a as any).rejection_reason,
         lastUpdated: a.updatedAt,
         pillars,

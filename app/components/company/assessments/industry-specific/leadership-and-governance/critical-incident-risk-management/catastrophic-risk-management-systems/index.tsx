@@ -55,7 +55,7 @@ export default function CatastrophicRiskManagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
         ?.catastrophicRiskManagementSystems;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -70,7 +70,7 @@ export default function CatastrophicRiskManagement({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
       ?.catastrophicRiskManagementSystems,
   ]);
 

@@ -4,6 +4,7 @@ import { Button } from "@/app/components/ui/button";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface SuccessScreenProps {
   assessmentName: string;
@@ -24,7 +25,6 @@ export function SuccessScreen({
   nextAssessment,
   totals,
   onContinue,
-  onContinueAssessment, // Kept in props but ignored in render as per design
   onBackToHub,
   reportId,
 }: SuccessScreenProps) {
@@ -75,7 +75,9 @@ export function SuccessScreen({
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-4 text-center leading-tight">
-          {type === "report" ? "Report Generated Successfully!" : `${assessmentName}\nAssessment Submitted!`}
+          {type === "report"
+            ? "Report Generated Successfully!"
+            : `${assessmentName}\nAssessment Submitted!`}
         </h2>
 
         <p className="text-white/90 mb-6 text-center text-sm leading-relaxed">
@@ -90,11 +92,14 @@ export function SuccessScreen({
             <br />
             <span className="font-bold text-lg">
               {"="}
-              {Number(
-                (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
-                totals?.totals?.sum ??
-                0
-              ).toFixed(2)}{" "}
+              {formatNumberFull(
+                Number(
+                  (sectionKey && totals?.totals?.breakdown?.[sectionKey]?.sum) ??
+                    totals?.totals?.sum ??
+                    0
+                ),
+                { minimumFractionDigits: 2 }
+              )}{" "}
               tCO₂e
             </span>
           </p>

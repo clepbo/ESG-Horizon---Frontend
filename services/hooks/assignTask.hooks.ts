@@ -18,10 +18,10 @@ function mapTaskResponseToFrontend(tasksFromApi: ITask[]): FrontendTask[] {
     status: task.status,
     assignedTo: task.assignments?.length
       ? task.assignments
-        .map((a: TaskAssignment) =>
-          `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
-        )
-        .join(", ")
+          .map((a: TaskAssignment) =>
+            `${a.user?.first_name ?? ""} ${a.user?.last_name ?? ""}`.trim()
+          )
+          .join(", ")
       : "—",
     assignedToEmail: task.assignments?.[0]?.user?.email,
     dateAssigned: task.createdAt ?? "Unknown",

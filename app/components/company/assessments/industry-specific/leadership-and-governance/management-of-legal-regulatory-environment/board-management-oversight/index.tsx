@@ -55,8 +55,8 @@ export default function BoardManagementOversight({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance
-        ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
+      state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+        ?.boardAndManagementOversight;
 
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.hasBoardCommittee !== undefined) {
@@ -70,8 +70,8 @@ export default function BoardManagementOversight({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance
-      ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight,
+    state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+      ?.boardAndManagementOversight,
   ]);
 
   const validateForm = () => {

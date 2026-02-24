@@ -7,7 +7,11 @@ import GeneralTargetForm from "./GeneralSetTarget";
 import SetTargetByScope from "./SetTargetByScope";
 // import SetTargetByScope from "./SetTargetByScope";
 
-export function TargetSetting() {
+interface TargetSettingProps {
+  onSuccess?: () => void;
+}
+
+export function TargetSetting({ onSuccess }: TargetSettingProps) {
   const [selectedType, setSelectedType] = useState<TargetType>("general");
   const [generalTargetData, setGeneralTargetData] = useState<GeneralTargetData>({
     reductionPercentage: null,
@@ -25,12 +29,16 @@ export function TargetSetting() {
           <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
-            <GeneralTargetForm data={generalTargetData} onChange={setGeneralTargetData} />
+            <GeneralTargetForm
+              data={generalTargetData}
+              onChange={setGeneralTargetData}
+              onSuccess={onSuccess}
+            />
           )}
 
           {selectedType === "scope" && (
             <div className="text-center py-12 text-gray-500">
-              <SetTargetByScope />
+              <SetTargetByScope onSuccess={onSuccess} />
             </div>
           )}
         </div>

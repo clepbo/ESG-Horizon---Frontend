@@ -57,7 +57,7 @@ export default function AntiCorruptionManagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+      state.assessmentData.businessInnovation?.businessEthicsAndTransparency
         ?.antiCorruptionManagementSystem;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -72,7 +72,7 @@ export default function AntiCorruptionManagement({
       }
     }
   }, [
-    state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+    state.assessmentData.businessInnovation?.businessEthicsAndTransparency
       ?.antiCorruptionManagementSystem,
   ]);
 

@@ -38,7 +38,7 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import { allFuels } from "@/lib/fuelDataFile";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 interface FileWithMeta {
   name: string;
@@ -59,7 +59,7 @@ const DataField = ({ label, value, unit }: { label: string; value: any; unit?: s
         ) : (
           <>
             <span className="text-sm font-semibold text-gray-800">
-              {isNumeric ? formatNumberFull(value) : value}
+              {isNumeric ? formatNumberShort(value) : value}
             </span>
             {unit && <span className="text-[10px] text-gray-500 font-normal">{unit}</span>}
           </>
@@ -105,7 +105,7 @@ const DataList = ({ data, label }: { data: any[]; label: string }) => {
                         {displayLabel}
                       </span>
                       <span className="text-xs font-semibold text-gray-700 truncate">
-                        {isNumericValue ? formatNumberFull(displayValue) : displayValue}
+                        {isNumericValue ? formatNumberShort(displayValue) : displayValue}
                         {key === "volume" && item.unit ? ` ${item.unit}` : ""}
                       </span>
                     </div>
@@ -361,15 +361,16 @@ export function AssessmentDetailsModal({
 
                     <p
                       className={`font-bold whitespace-normal wrap-break-word ${
-                        String(formatNumberFull(assessmentData.totalEmission) || "0.00").length > 10
+                        String(formatNumberShort(assessmentData.totalEmission) || "0.00").length >
+                        10
                           ? "text-2xl"
-                          : String(formatNumberFull(assessmentData.totalEmission) || "0.00").length >
-                              7
+                          : String(formatNumberShort(assessmentData.totalEmission) || "0.00")
+                                .length > 7
                             ? "text-3xl"
                             : "text-4xl"
                       }`}
                     >
-                      {formatNumberFull(assessmentData.totalEmission) || "0.00"} tCO₂e
+                      {formatNumberShort(assessmentData.totalEmission) || "0.00"} tCO₂e
                     </p>
                   </CardContent>
                 </Card>
@@ -430,7 +431,7 @@ export function AssessmentDetailsModal({
                           <Zap className="w-5 h-5 text-yellow-600" />
                           <span className="text-lg font-bold">GHG Emissions</span>
                           <Badge variant="outline" className="ml-2">
-                            {formatNumberFull(assessmentData.totalEmission) || "0.00"} tCO₂e
+                            {formatNumberShort(assessmentData.totalEmission) || "0.00"} tCO₂e
                           </Badge>
                         </div>
                       </AccordionTrigger>

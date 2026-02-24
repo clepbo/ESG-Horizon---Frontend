@@ -65,7 +65,7 @@ export function StatusButton({ status, progress = 0 }: StatusButtonProps) {
       <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
         <div
           className={cn("h-1 transition-all duration-300 bg-green-400", barClass)}
-          style={{ width: `${progress}%` }}
+          style={{ width: `${Math.min(progress, 100)}%` }}
         />
       </div>
     </div>

@@ -255,6 +255,21 @@ export function AdditionalFileUpload({ onFieldsChange, initialData }: Additional
                 {previewFile.name || "File Preview"}
               </h3>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-500 border-red-200 hover:bg-red-50"
+                  onClick={() => {
+                    const index = additionalFields.findIndex((f) => f === previewFile);
+                    if (index !== -1) {
+                      handleRemoveFile(index);
+                    }
+                    closePreview();
+                  }}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </Button>
                 {/* Force Download with Original Name */}
                 <Button variant="ghost" size="sm" asChild>
                   <a

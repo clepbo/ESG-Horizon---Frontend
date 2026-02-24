@@ -2,7 +2,7 @@
 
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import React, { useState } from "react";
-import PerformanceOverview from "./PerformanceOverview";
+import TargetHomePage from "@/app/(company)/assessments/target/components/TargetHomePage";
 import ESGLeaderboard from "./RankingTable";
 
 export default function RankingHome() {
@@ -25,11 +25,11 @@ export default function RankingHome() {
           variant={target === "leaderboard" ? "filled" : "outlined"}
           onClick={() => switchState("leaderboard")}
         >
-          Leader boards
+          Leaderboard
         </CustomButton>
       </div>
 
-      {target === "target" ? <PerformanceOverview /> : <ESGLeaderboard />}
+      {target === "target" ? <TargetHomePage /> : <ESGLeaderboard />}
     </div>
   );
 }

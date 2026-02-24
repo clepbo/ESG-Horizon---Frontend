@@ -55,7 +55,7 @@ export default function EmbeddedCarbonInReserves({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.embeddedCarbonInReserves;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -77,7 +77,7 @@ export default function EmbeddedCarbonInReserves({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.embeddedCarbonInReserves,
   ]);
 
@@ -232,7 +232,7 @@ export default function EmbeddedCarbonInReserves({
                 totalProvedReserves.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, totalProvedReserves: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="Billion BOE"
               error={errors.totalProvedReserves}
               unitError={errors.totalProvedReservesUnit}
@@ -251,7 +251,7 @@ export default function EmbeddedCarbonInReserves({
                 estimatedEmbeddedEmissions.handleChange(String(num));
                 setErrors((prev) => ({ ...prev, estimatedEmbeddedEmissions: "" }));
               }}
-              onUnitChange={() => { }}
+              onUnitChange={() => {}}
               customUnit="Million t CO₂-e"
               error={errors.estimatedEmbeddedEmissions}
               unitError={errors.estimatedEmbeddedEmissionsUnit}

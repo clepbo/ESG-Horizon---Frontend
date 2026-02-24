@@ -2,6 +2,10 @@
 
 import { TotalsResponse, ScopeTotals, AssessmentProgress } from "@/services/assessment.service";
 import React, { createContext, useContext, useReducer, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import CustomDialog from "@/app/components/ui/reusables/CustomDialog";
+import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
+import { AlertTriangle } from "lucide-react";
 
 export interface FileData {
   id?: string;
@@ -50,6 +54,7 @@ export interface AssessmentData {
   businessInnovation?: any;
   businessModel?: any;
   businessModelAndInnovation?: any;
+  leadershipGovernance?: any;
   activityMetrics?: {
     productionVolume?: {
       progress?: number;
@@ -358,74 +363,6 @@ export interface AssessmentData {
         };
       };
     };
-    activityMetrics?: {
-      productionVolume?: {
-        progress?: number;
-        [key: string]: any;
-      };
-      assetPortfolio?: {
-        offshoreSites?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        terrestrialSites?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-    };
-    businessInnovation?: {
-      businessEthicsAndTransparency?: {
-        reservesInCountriesWithHighCorruptionRisk?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        antiCorruptionManagementSystem?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-      reservesValuationAndCapitalExpenditures?: {
-        reservesSensitivityToCarbonPricing?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        embeddedCarbonInReserves?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        renewableEnergyInvestment?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        capitalExpenditureStrategy?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-    };
-    leadershipGovernance?: {
-      criticalIncidentRiskManagement?: {
-        catastrophicRiskManagementSystems?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        processSafetyEvents?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-      managementOfTheLegalAndRegulatoryEnvironment?: {
-        boardAndManagementOversight?: {
-          progress?: number;
-          [key: string]: any;
-        };
-        publicPolicyEngagement?: {
-          progress?: number;
-          [key: string]: any;
-        };
-      };
-    };
   };
 }
 
@@ -441,6 +378,7 @@ export interface AssessmentState {
   scopeTotals: ScopeTotals;
   lastSubmittedAt?: string;
   targetStep?: string;
+  lockedGroupError: string | null;
 }
 
 type AssessmentAction =
@@ -449,282 +387,283 @@ type AssessmentAction =
   | { type: "SET_TARGET_STEP"; payload: string }
   | { type: "SET_CONTINUE_MODE"; payload: boolean }
   | { type: "SET_ASSIGNED_TASK"; payload: boolean }
+  | { type: "SET_LOCKED_GROUP_ERROR"; payload: string | null }
   | {
-    type: "UPDATE_ASSESSMENT_METADATA";
-    payload: {
-      progress?: AssessmentProgress[];
-      scopeTotals?: ScopeTotals;
-      lastSubmittedAt?: string;
-    };
-  }
+      type: "UPDATE_ASSESSMENT_METADATA";
+      payload: {
+        progress?: AssessmentProgress[];
+        scopeTotals?: ScopeTotals;
+        lastSubmittedAt?: string;
+      };
+    }
   | { type: "UPDATE_BASIC_DATA"; payload: Partial<AssessmentData> }
   | {
-    type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["stationarySources"]
-    >["electricityHeat"];
-  }
+      type: "UPDATE_STATIONARY_ELECTRICITY_HEAT";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["stationarySources"]
+      >["electricityHeat"];
+    }
   | {
-    type: "UPDATE_STATIONARY_INDUSTRIAL";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["stationarySources"]
-    >["industrialProcesses"];
-  }
+      type: "UPDATE_STATIONARY_INDUSTRIAL";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["stationarySources"]
+      >["industrialProcesses"];
+    }
   | {
-    type: "UPDATE_STATIONARY_OIL_GAS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["stationarySources"]
-    >["oilGasOperations"];
-  }
+      type: "UPDATE_STATIONARY_OIL_GAS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["stationarySources"]
+      >["oilGasOperations"];
+    }
   | {
-    type: "UPDATE_MOBILE_ROAD_TRANSPORT";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["mobileSources"]
-    >["roadTransport"];
-  }
+      type: "UPDATE_MOBILE_ROAD_TRANSPORT";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["mobileSources"]
+      >["roadTransport"];
+    }
   | {
-    type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["mobileSources"]
-    >["vehicleEquipment"];
-  }
+      type: "UPDATE_MOBILE_VEHICLE_EQUIPMENT";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["mobileSources"]
+      >["vehicleEquipment"];
+    }
   | {
-    type: "UPDATE_MOBILE_MARINE_AVIATION";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["mobileSources"]
-    >["marineAviation"];
-  }
+      type: "UPDATE_MOBILE_MARINE_AVIATION";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["mobileSources"]
+      >["marineAviation"];
+    }
   | {
-    type: "UPDATE_PROCESS_CEMENT_MANUFACTURING";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["processEmissions"]
-    >["cementManufacturing"];
-  }
+      type: "UPDATE_PROCESS_CEMENT_MANUFACTURING";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["processEmissions"]
+      >["cementManufacturing"];
+    }
   | {
-    type: "UPDATE_PROCESS_GAS_FLARING";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["processEmissions"]
-    >["gasFlaring"];
-  }
+      type: "UPDATE_PROCESS_GAS_FLARING";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["processEmissions"]
+      >["gasFlaring"];
+    }
   | {
-    type: "UPDATE_FUGITIVE_VENTING";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["fugitiveEmissions"]
-    >["ventingNaturalGas"];
-  }
+      type: "UPDATE_FUGITIVE_VENTING";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["fugitiveEmissions"]
+      >["ventingNaturalGas"];
+    }
   | {
-    type: "UPDATE_FUGITIVE_HFC";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
-      >["fugitiveEmissions"]
-    >["hfcLeaks"];
-  }
+      type: "UPDATE_FUGITIVE_HFC";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope1"]
+        >["fugitiveEmissions"]
+      >["hfcLeaks"];
+    }
   // Scope 2 flattened
   | {
-    type: "UPDATE_LOCATION_ELECTRICITY";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["locationBased"]
-    >["electricity"];
-  }
+      type: "UPDATE_LOCATION_ELECTRICITY";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["locationBased"]
+      >["electricity"];
+    }
   | {
-    type: "UPDATE_LOCATION_COOLING";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["locationBased"]
-    >["cooling"];
-  }
+      type: "UPDATE_LOCATION_COOLING";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["locationBased"]
+      >["cooling"];
+    }
   | {
-    type: "UPDATE_LOCATION_STEAM";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["locationBased"]
-    >["steam"];
-  }
+      type: "UPDATE_LOCATION_STEAM";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["locationBased"]
+      >["steam"];
+    }
   | {
-    type: "UPDATE_LOCATION_HEATING";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["locationBased"]
-    >["heating"];
-  }
+      type: "UPDATE_LOCATION_HEATING";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["locationBased"]
+      >["heating"];
+    }
   | {
-    type: "UPDATE_MARKET_IPPS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["marketBased"]
-    >["ipps"];
-  }
+      type: "UPDATE_MARKET_IPPS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["marketBased"]
+      >["ipps"];
+    }
   | {
-    type: "UPDATE_MARKET_EAC";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["marketBased"]
-    >["eac"];
-  }
+      type: "UPDATE_MARKET_EAC";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["marketBased"]
+      >["eac"];
+    }
   | {
-    type: "UPDATE_MARKET_RESIDUAL";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["marketBased"]
-    >["residual"];
-  }
+      type: "UPDATE_MARKET_RESIDUAL";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["marketBased"]
+      >["residual"];
+    }
   | {
-    type: "UPDATE_MARKET_COOLING_STEAM";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
-      >["marketBased"]
-    >["coolingSteam"];
-  }
+      type: "UPDATE_MARKET_COOLING_STEAM";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope2"]
+        >["marketBased"]
+      >["coolingSteam"];
+    }
   // Scope 3 Upstream
   | {
-    type: "UPDATE_UPSTREAM_PURCHASED_GOODS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["purchasedGoodsAndServices"];
-  }
+      type: "UPDATE_UPSTREAM_PURCHASED_GOODS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["purchasedGoodsAndServices"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_CAPITAL_GOODS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["capitalGoods"];
-  }
+      type: "UPDATE_UPSTREAM_CAPITAL_GOODS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["capitalGoods"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_FUEL_ENERGY";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["fuelEnergyRelatedActivities"];
-  }
+      type: "UPDATE_UPSTREAM_FUEL_ENERGY";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["fuelEnergyRelatedActivities"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_TRANSPORTATION";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["upstreamTransportationDistribution"];
-  }
+      type: "UPDATE_UPSTREAM_TRANSPORTATION";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["upstreamTransportationDistribution"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_WASTE";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["wasteGeneratedInOperations"];
-  }
+      type: "UPDATE_UPSTREAM_WASTE";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["wasteGeneratedInOperations"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["businessTravel"];
-  }
+      type: "UPDATE_UPSTREAM_BUSINESS_TRAVEL";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["businessTravel"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["employeeCommuting"];
-  }
+      type: "UPDATE_UPSTREAM_EMPLOYEE_COMMUTING";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["employeeCommuting"];
+    }
   | {
-    type: "UPDATE_UPSTREAM_LEASED_ASSETS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["upstream"]
-    >["upstreamLeasedAssets"];
-  }
+      type: "UPDATE_UPSTREAM_LEASED_ASSETS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["upstream"]
+      >["upstreamLeasedAssets"];
+    }
   // Scope 3 Downstream
   | {
-    type: "UPDATE_DOWNSTREAM_TRANSPORTATION";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["downstreamTransportationDistribution"];
-  }
+      type: "UPDATE_DOWNSTREAM_TRANSPORTATION";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["downstreamTransportationDistribution"];
+    }
   | {
-    type: "UPDATE_DOWNSTREAM_PROCESSING_SOLD";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["processingSoldProducts"];
-  }
+      type: "UPDATE_DOWNSTREAM_PROCESSING_SOLD";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["processingSoldProducts"];
+    }
   | {
-    type: "UPDATE_DOWNSTREAM_USE_OF_SOLD";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["useOfSoldProducts"];
-  }
+      type: "UPDATE_DOWNSTREAM_USE_OF_SOLD";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["useOfSoldProducts"];
+    }
   | {
-    type: "UPDATE_DOWNSTREAM_END_OF_LIFE";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["endOfLifeTreatment"];
-  }
+      type: "UPDATE_DOWNSTREAM_END_OF_LIFE";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["endOfLifeTreatment"];
+    }
   | {
-    type: "UPDATE_DOWNSTREAM_LEASED_ASSETS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["downstreamLeasedAssets"];
-  }
+      type: "UPDATE_DOWNSTREAM_LEASED_ASSETS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["downstreamLeasedAssets"];
+    }
   | {
-    type: "UPDATE_DOWNSTREAM_FRANCHISES";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["franchises"];
-  }
+      type: "UPDATE_DOWNSTREAM_FRANCHISES";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["franchises"];
+    }
   | {
-    type: "UPDATE_DOWNSTREAM_INVESTMENTS";
-    payload: NonNullable<
-      NonNullable<
-        NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
-      >["downstream"]
-    >["investments"];
-  }
+      type: "UPDATE_DOWNSTREAM_INVESTMENTS";
+      payload: NonNullable<
+        NonNullable<
+          NonNullable<NonNullable<AssessmentData["environment"]>["ghg"]>["scope3"]
+        >["downstream"]
+      >["investments"];
+    }
   // Air Quality
   | { type: "UPDATE_AIR_QUALITY"; payload: any }
   // Water Management
@@ -739,28 +678,28 @@ type AssessmentAction =
   | { type: "UPDATE_ACTIVITY_METRICS"; payload: { section: string; data: any } }
   | { type: "UPDATE_ASSET_PORTFOLIO"; payload: { section: string; data: any } }
   | {
-    type: "UPDATE_BUSINESS_INNOVATION";
-    payload: { category: string; section: string; data: any };
-  }
+      type: "UPDATE_BUSINESS_INNOVATION";
+      payload: { category: string; section: string; data: any };
+    }
   | {
-    type: "UPDATE_LEADERSHIP_GOVERNANCE";
-    payload: { category: string; section: string; data: any };
-  }
+      type: "UPDATE_LEADERSHIP_GOVERNANCE";
+      payload: { category: string; section: string; data: any };
+    }
   | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
   | { type: "RESET_ASSESSMENT" }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "UPDATE_PROGRESS"; payload: AssessmentProgress[] }
   | {
-    type: "SET_COMPUTED_DATA";
-    payload: {
-      assessmentId: number;
-      progress: AssessmentProgress[];
-      scopeTotals: ScopeTotals;
-      totals: TotalsResponse | undefined;
-      status: string;
+      type: "SET_COMPUTED_DATA";
+      payload: {
+        assessmentId: number;
+        progress: AssessmentProgress[];
+        scopeTotals: ScopeTotals;
+        totals: TotalsResponse | undefined;
+        status: string;
+      };
     };
-  };
 
 const initialState: AssessmentState = {
   currentView: "hub",
@@ -1046,37 +985,39 @@ const initialState: AssessmentState = {
           reservesInSensitiveAreas: {},
         },
       },
-      activityMetrics: {
-        productionVolume: {},
-        assetPortfolio: {
-          offshoreSites: {},
-          terrestrialSites: {},
-        },
+    },
+    activityMetrics: {
+      productionVolume: {},
+      assetPortfolio: {
+        offshoreSites: {},
+        terrestrialSites: {},
       },
-      businessInnovation: {
-        businessEthicsAndTransparency: {
-          reservesInCountriesWithHighCorruptionRisk: {},
-          antiCorruptionManagementSystem: {},
-        },
-        reservesValuationAndCapitalExpenditures: {
-          reservesSensitivityToCarbonPricing: {},
-          embeddedCarbonInReserves: {},
-          renewableEnergyInvestment: {},
-          capitalExpenditureStrategy: {},
-        },
+    },
+    businessModelAndInnovation: {},
+    businessInnovation: {
+      businessEthicsAndTransparency: {
+        reservesInCountriesWithHighCorruptionRisk: {},
+        antiCorruptionManagementSystem: {},
       },
-      leadershipGovernance: {
-        criticalIncidentRiskManagement: {
-          catastrophicRiskManagementSystems: {},
-          processSafetyEvents: {},
-        },
-        managementOfTheLegalAndRegulatoryEnvironment: {
-          boardAndManagementOversight: {},
-          publicPolicyEngagement: {},
-        },
+      reservesValuationAndCapitalExpenditures: {
+        reservesSensitivityToCarbonPricing: {},
+        embeddedCarbonInReserves: {},
+        renewableEnergyInvestment: {},
+        capitalExpenditureStrategy: {},
+      },
+    },
+    leadershipGovernance: {
+      criticalIncidentRiskManagement: {
+        catastrophicRiskManagementSystems: {},
+        processSafetyEvents: {},
+      },
+      managementOfTheLegalAndRegulatoryEnvironment: {
+        boardAndManagementOversight: {},
+        publicPolicyEngagement: {},
       },
     },
   },
+
   isLoading: false,
   error: null,
   progress: [],
@@ -1086,6 +1027,7 @@ const initialState: AssessmentState = {
     scope3: 0,
     total: 0,
   },
+  lockedGroupError: null,
 };
 
 function assessmentReducer(state: AssessmentState, action: AssessmentAction): AssessmentState {
@@ -1968,12 +1910,9 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            activityMetrics: {
-              ...state.assessmentData.environment?.activityMetrics,
-              [action.payload.section]: action.payload.data,
-            },
+          activityMetrics: {
+            ...state.assessmentData.activityMetrics,
+            [action.payload.section]: action.payload.data,
           },
         },
       };
@@ -1983,14 +1922,11 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            activityMetrics: {
-              ...state.assessmentData.environment?.activityMetrics,
-              assetPortfolio: {
-                ...state.assessmentData.environment?.activityMetrics?.assetPortfolio,
-                [action.payload.section]: action.payload.data,
-              },
+          activityMetrics: {
+            ...state.assessmentData.activityMetrics,
+            assetPortfolio: {
+              ...state.assessmentData.activityMetrics?.assetPortfolio,
+              [action.payload.section]: action.payload.data,
             },
           },
         },
@@ -2001,18 +1937,13 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            businessInnovation: {
-              ...state.assessmentData.environment?.businessInnovation,
-              [action.payload.category]: {
-                ...state.assessmentData.environment?.businessInnovation?.[
-                action.payload.category as keyof NonNullable<
-                  NonNullable<AssessmentData["environment"]>["businessInnovation"]
-                >
-                ],
-                [action.payload.section]: action.payload.data,
-              },
+          businessInnovation: {
+            ...state.assessmentData.businessInnovation,
+            [action.payload.category]: {
+              ...state.assessmentData.businessInnovation?.[
+                action.payload.category as keyof NonNullable<AssessmentData["businessInnovation"]>
+              ],
+              [action.payload.section]: action.payload.data,
             },
           },
         },
@@ -2023,18 +1954,13 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         ...state,
         assessmentData: {
           ...state.assessmentData,
-          environment: {
-            ...state.assessmentData.environment,
-            leadershipGovernance: {
-              ...state.assessmentData.environment?.leadershipGovernance,
-              [action.payload.category]: {
-                ...state.assessmentData.environment?.leadershipGovernance?.[
-                action.payload.category as keyof NonNullable<
-                  NonNullable<AssessmentData["environment"]>["leadershipGovernance"]
-                >
-                ],
-                [action.payload.section]: action.payload.data,
-              },
+          leadershipGovernance: {
+            ...state.assessmentData.leadershipGovernance,
+            [action.payload.category]: {
+              ...state.assessmentData.leadershipGovernance?.[
+                action.payload.category as keyof NonNullable<AssessmentData["leadershipGovernance"]>
+              ],
+              [action.payload.section]: action.payload.data,
             },
           },
         },
@@ -2052,10 +1978,18 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
           environment: {
             ...state.assessmentData.environment,
             ...(action.payload.environment || {}),
-            businessInnovation: {
-              ...state.assessmentData.environment?.businessInnovation,
-              ...(action.payload.environment?.businessInnovation || {}),
-            },
+          },
+          businessInnovation: {
+            ...state.assessmentData.businessInnovation,
+            ...(action.payload.businessInnovation || {}),
+          },
+          leadershipGovernance: {
+            ...state.assessmentData.leadershipGovernance,
+            ...(action.payload.leadershipGovernance || {}),
+          },
+          activityMetrics: {
+            ...state.assessmentData.activityMetrics,
+            ...(action.payload.activityMetrics || {}),
           },
           assessmentId: action.payload.assessmentId ?? state.assessmentData.assessmentId,
         },
@@ -2104,6 +2038,8 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         error: action.payload,
         isLoading: false,
       };
+    case "SET_LOCKED_GROUP_ERROR":
+      return { ...state, lockedGroupError: action.payload };
     default:
       return state;
   }
@@ -2116,6 +2052,7 @@ export const AssessmentContext = createContext<{
 
 export function AssessmentProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(assessmentReducer, initialState);
+  const router = useRouter();
 
   React.useEffect(() => {
     dispatch({ type: "SET_LOADING", payload: true });
@@ -2135,7 +2072,49 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AssessmentContext.Provider value={{ state, dispatch }}>{children}</AssessmentContext.Provider>
+    <AssessmentContext.Provider value={{ state, dispatch }}>
+      {children}
+
+      <CustomDialog
+        open={!!state.lockedGroupError}
+        onOpenChange={() => dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null })}
+      >
+        <div className="flex flex-col items-center gap-4 py-4 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
+            <AlertTriangle className="h-7 w-7 text-amber-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-white">Section Already Submitted</h3>
+          <p className="text-sm text-gray-300 max-w-md">
+            This section has already been submitted and is locked for editing. Please continue with
+            the next section or start a new assessment to enter updated data.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <CustomButton
+              variant="outlined"
+              className="border-white text-white hover:bg-white/10"
+              onClick={() => dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null })}
+            >
+              Dismiss
+            </CustomButton>
+            <CustomButton
+              className="bg-white text-primary hover:bg-gray-100"
+              onClick={() => {
+                dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: null });
+                const id = state.assessmentId || state.assessmentData?.assessmentId;
+                if (id) {
+                  dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+                  router.push(`/assessments/${id}`);
+                } else {
+                  router.push("/assessments");
+                }
+              }}
+            >
+              Continue Assessment
+            </CustomButton>
+          </div>
+        </div>
+      </CustomDialog>
+    </AssessmentContext.Provider>
   );
 }
 

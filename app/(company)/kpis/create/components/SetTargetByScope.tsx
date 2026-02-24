@@ -340,6 +340,7 @@ export default function SetTargetByScope() {
                 onChange={(e) =>
                   handleScopeInputChange(scope, "reductionPercentage", e.target.value)
                 }
+                onWheel={(e) => e.currentTarget.blur()}
                 className="w-full"
               />
             </div>

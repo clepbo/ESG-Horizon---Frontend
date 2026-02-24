@@ -54,11 +54,10 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
       {/* Header */}
       <div className="flex items-center gap-3">
         <span
-          className="flex shrink-0 items-center justify-center rounded-lg p-2.5"
-          style={{ backgroundColor: "#f5e6d3" }}
+          className="flex shrink-0 items-center justify-center rounded-lg p-2.5 bg-blue-50"
           aria-hidden
         >
-          <HardHat className="h-6 w-6 text-amber-600 sm:h-7 sm:w-7" strokeWidth={2} />
+          <HardHat className="h-6 w-6 text-blue-600 sm:h-7 sm:w-7" strokeWidth={2} />
         </span>
         <div className="flex flex-col gap-0.5">
           <h2 className="text-lg font-bold text-gray-900 sm:text-xl">Human Capital</h2>
@@ -100,7 +99,6 @@ function MetricCard({
 }) {
   const isPositive = change && change > 0;
   const isNegative = change && change < 0;
-  const isNeutral = !change || change === 0;
 
   // For TRIR, increase is BAD (Red), decrease is GOOD (Green)
   const colorClass = isTrir
@@ -120,8 +118,7 @@ function MetricCard({
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
-            {Math.abs(change)}%
-            <span className="ml-1 text-gray-400 font-normal">vs last year</span>
+            {Math.abs(change)}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
           </div>
         )}
       </div>

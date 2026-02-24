@@ -14,6 +14,7 @@ import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
 import { ScopeTargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface ScopeData {
   scope: string;
@@ -34,7 +35,11 @@ interface ScopeTargetData {
   scope3: GeneralTargetData;
 }
 
-export default function SetTargetByScope() {
+interface SetTargetByScopeProps {
+  onSuccess?: () => void;
+}
+
+export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
   const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
     scope1: {
       reductionPercentage: null,
@@ -211,11 +216,12 @@ export default function SetTargetByScope() {
   };
 
   const handleModalContinue = () => {
-    // Close the modal
     setIsSuccessModalOpen(false);
-
-    // Redirect to ranking page
-    router.push("/ranking");
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      router.push("/assessments/target");
+    }
   };
 
   const handleModalClose = () => {
@@ -346,11 +352,17 @@ export default function SetTargetByScope() {
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years
+                    .filter(
+                      (year) =>
+                        !scopeTargetData.scope1.baselineYear ||
+                        year > scopeTargetData.scope1.baselineYear
+                    )
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -371,7 +383,7 @@ export default function SetTargetByScope() {
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Baseline ({scopeTargetData.scope1.baselineYear || baselineYear}):</Label>
                 <div className="text-sm text-gray-900 font-semibold">
-                  {baselineEmission.toLocaleString()} tCO₂e
+                  {formatNumberFull(baselineEmission)} tCO₂e
                   {baseline.data && (
                     <span className="text-xs text-green-600 ml-2">✓ From your data</span>
                   )}
@@ -380,14 +392,14 @@ export default function SetTargetByScope() {
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Target ({scopeTargetData.scope1.targetYear || 2030}):</Label>
                 <div className="text-sm text-primary font-semibold">
-                  {(scopeTargetData.scope1.targetEmission || 0).toLocaleString()} tCO₂e
+                  {formatNumberFull(scopeTargetData.scope1.targetEmission || 0)} tCO₂e
                 </div>
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Total Reduction:</Label>
                 <div className="text-sm text-red-500 font-semibold">
-                  -{(scopeTargetData.scope1.totalReduction || 0).toLocaleString()} tCO₂e
+                  -{formatNumberFull(scopeTargetData.scope1.totalReduction || 0)} tCO₂e
                 </div>
               </div>
             </div>
@@ -445,11 +457,17 @@ export default function SetTargetByScope() {
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years
+                    .filter(
+                      (year) =>
+                        !scopeTargetData.scope2.baselineYear ||
+                        year > scopeTargetData.scope2.baselineYear
+                    )
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -470,20 +488,20 @@ export default function SetTargetByScope() {
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Baseline ({scopeTargetData.scope2.baselineYear || baselineYear}):</Label>
                 <div className="text-sm text-gray-900 font-semibold">
-                  {baselineEmission.toLocaleString()} tCO₂e
+                  {formatNumberFull(baselineEmission)} tCO₂e
                 </div>
               </div>
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Target ({scopeTargetData.scope2.targetYear || 2030}):</Label>
                 <div className="text-sm text-primary font-semibold">
-                  {(scopeTargetData.scope2.targetEmission || 0).toLocaleString()} tCO₂e
+                  {formatNumberFull(scopeTargetData.scope2.targetEmission || 0)} tCO₂e
                 </div>
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Total Reduction:</Label>
                 <div className="text-sm text-red-500 font-semibold">
-                  -{(scopeTargetData.scope2.totalReduction || 0).toLocaleString()} tCO₂e
+                  -{formatNumberFull(scopeTargetData.scope2.totalReduction || 0)} tCO₂e
                 </div>
               </div>
             </div>
@@ -541,11 +559,17 @@ export default function SetTargetByScope() {
                   className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {years
+                    .filter(
+                      (year) =>
+                        !scopeTargetData.scope3.baselineYear ||
+                        year > scopeTargetData.scope3.baselineYear
+                    )
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -566,20 +590,20 @@ export default function SetTargetByScope() {
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Baseline ({scopeTargetData.scope3.baselineYear || baselineYear}):</Label>
                 <div className="text-sm text-gray-900 font-semibold">
-                  {baselineEmission.toLocaleString()} tCO₂e
+                  {formatNumberFull(baselineEmission)} tCO₂e
                 </div>
               </div>
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Target ({scopeTargetData.scope3.targetYear || 2030}):</Label>
                 <div className="text-sm text-primary font-semibold">
-                  {(scopeTargetData.scope3.targetEmission || 0).toLocaleString()} tCO₂e
+                  {formatNumberFull(scopeTargetData.scope3.targetEmission || 0)} tCO₂e
                 </div>
               </div>
               <hr className="text-gray-300" />
               <div className="space-y-2 flex items-center justify-between w-full">
                 <Label>Total Reduction:</Label>
                 <div className="text-sm text-red-500 font-semibold">
-                  -{(scopeTargetData.scope3.totalReduction || 0).toLocaleString()} tCO₂e
+                  -{formatNumberFull(scopeTargetData.scope3.totalReduction || 0)} tCO₂e
                 </div>
               </div>
             </div>

@@ -76,8 +76,8 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
         <BarChart
           data={enrichedData}
           margin={{
-            top: 30, // Increased top margin for labels
-            right: 30,
+            top: 30,
+            right: 130,
             left: 20,
             bottom: 5,
           }}
@@ -87,16 +87,17 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#666", fontSize: 12 }}
+            tick={{ fill: "#111827", fontSize: 14 }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#666", fontSize: 12 }}
+            tick={{ fill: "#111827", fontSize: 14 }}
             tickFormatter={(value) => formatNumberFigures(Number(value))}
+            width={65}
           />
           <Tooltip
-            cursor={{ fill: "rgba(0,0,0,0.05)" }}
+            cursor={false}
             contentStyle={{
               borderRadius: "8px",
               border: "none",
@@ -109,19 +110,41 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             ]}
           />
           <Legend
-            verticalAlign="bottom"
-            align="center"
+            layout="vertical"
+            align="right"
+            verticalAlign="middle"
             iconType="circle"
-            wrapperStyle={{ paddingTop: "20px" }}
+            wrapperStyle={{ paddingLeft: "16px", fontSize: 14, color: "#111827", fontWeight: 500 }}
           />
-          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1" />
-          <Bar dataKey="scope2" stackId="a" fill="#f9b232" radius={[0, 0, 0, 0]} name="Scope 2" />
-          <Bar dataKey="scope3" stackId="a" fill="#af57db" radius={[4, 4, 0, 0]} name="Scope 3">
+          <Bar
+            dataKey="scope1"
+            stackId="a"
+            fill="#3b82f6"
+            radius={[0, 0, 0, 0]}
+            name="Scope 1"
+            maxBarSize={60}
+          />
+          <Bar
+            dataKey="scope2"
+            stackId="a"
+            fill="#10B981"
+            radius={[0, 0, 0, 0]}
+            name="Scope 2"
+            maxBarSize={60}
+          />
+          <Bar
+            dataKey="scope3"
+            stackId="a"
+            fill="#af57db"
+            radius={[4, 4, 0, 0]}
+            name="Scope 3"
+            maxBarSize={60}
+          >
             <LabelList
               dataKey="total"
               position="top"
-              fill="#333"
-              fontSize={12}
+              fill="#111827"
+              fontSize={14}
               fontWeight="bold"
               offset={10}
               formatter={(value) => formatNumberFigures(Number(value) || 0)}

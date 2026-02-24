@@ -12,7 +12,6 @@ import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
 import { SuccessScreen } from "../../../../SuccessScreen";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
 // import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import { useRouter, useParams } from "next/navigation";
@@ -47,20 +46,6 @@ const cards2 = [
   },
 ];
 
-// Combine cards into sections for the hook
-const scopeData = [
-  {
-    id: "water-produced-water",
-    title: "Water and Produced Water Management",
-    cards: cards1,
-  },
-  {
-    id: "hydraulic-fracturing",
-    title: "Hydraulic Fracturing Impacts",
-    cards: cards2,
-  },
-];
-
 export default function WaterAndWastemanagementCards({
   backToAssessmentHub,
   backToDisclosureTopics,
@@ -69,7 +54,6 @@ export default function WaterAndWastemanagementCards({
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
   const { state } = useAssessment();
-
   const params = useParams();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
@@ -83,11 +67,8 @@ export default function WaterAndWastemanagementCards({
   };
 
   useEffect(() => {
+    // Debugging completion status - keep or remove as needed for dev
     if (state.assessmentData) {
-      const waterMgmt = state.assessmentData?.environment?.waterManagement;
-      console.log("🔍 Water Management Structure:", waterMgmt);
-
-      // Test all completion checks
       const tests = [
         "Freshwater Withdrawal & Consumption",
         "Produced Water Management",
@@ -96,8 +77,7 @@ export default function WaterAndWastemanagementCards({
       ];
 
       tests.forEach((title) => {
-        const status = checkSubComponentCompletion(title, state.assessmentData);
-        console.log(`${title}:`, status);
+        checkSubComponentCompletion(title, state.assessmentData);
       });
     }
   }, [state.assessmentData]);

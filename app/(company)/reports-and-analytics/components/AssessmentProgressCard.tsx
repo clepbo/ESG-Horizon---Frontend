@@ -110,7 +110,7 @@ export function AssessmentProgressCard() {
       <CardContent>
         <div className="space-y-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900">{overallProgress.toFixed(0)}%</div>
+            <div className="text-3xl font-bold text-gray-900">{Math.round(overallProgress)}%</div>
             <div className="text-sm text-gray-600">Overall Completion</div>
             <Progress value={overallProgress} className="mt-2" />
           </div>
@@ -129,7 +129,7 @@ export function AssessmentProgressCard() {
                     )}
                     <span className="text-sm font-medium text-gray-700">{section.name}</span>
                   </div>
-                  <span className="text-sm text-gray-500">{section.progress.toFixed(0)}%</span>
+                  <span className="text-sm text-gray-500">{Math.round(section.progress)}%</span>
                 </div>
                 <Progress value={section.progress} className="h-2" />
               </div>

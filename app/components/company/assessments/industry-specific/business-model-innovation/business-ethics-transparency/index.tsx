@@ -65,7 +65,7 @@ export default function BusinessEthicsAssessment({
   const [currentView, setCurrentView] = useState<BEView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { dispatch } = useAssessment();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
