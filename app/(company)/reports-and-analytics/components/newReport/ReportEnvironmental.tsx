@@ -284,19 +284,19 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <OilRenderCard
-            borderColor={"#0000"}
+            borderColor={"#3b82f6"}
             title={"Total Water Withdrawal"}
             sub={"m³"}
             amount={waterManagement?.totalWaterWithdrawal || 0}
           />
           <OilRenderCard
-            borderColor={"#0000"}
+            borderColor={"#3b82f6"}
             title={"Total Water Consumed"}
             sub={"m³"}
             amount={waterManagement?.totalWaterConsumed || 0}
           />
           <OilRenderCard
-            borderColor={"#0000"}
+            borderColor={"#3b82f6"}
             title={"Total Produced Water Generated"}
             sub={"m³"}
             amount={waterManagement?.totalProducedWaterGenerated || 0}
