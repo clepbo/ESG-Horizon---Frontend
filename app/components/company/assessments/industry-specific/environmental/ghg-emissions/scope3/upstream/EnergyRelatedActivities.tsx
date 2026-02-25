@@ -19,8 +19,6 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
-import { Fuel } from "lucide-react";
-import { Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -456,8 +454,7 @@ export function EnergyRelatedActivities({
                     errorTrigger={fieldErrors.fuelVolume}
                     errorMessage="Please enter the volume of fuel consumed."
                   />
-                  <div className="absolute right-3 top-2 flex items-center gap-2">
-                    <Fuel className="h-5 w-5 text-gray-600" />
+                  <div className="absolute right-3 top-2 flex items-center gap-1">
                     <span className="text-sm text-gray-600">litres</span>
                   </div>
                 </div>
@@ -506,8 +503,7 @@ export function EnergyRelatedActivities({
                     errorTrigger={fieldErrors.electricityConsumed}
                     errorMessage="Please enter the amount of electricity consumed."
                   />
-                  <div className="absolute right-3 top-2 flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-gray-600" />
+                  <div className="absolute right-3 top-2 flex items-center gap-1">
                     <span className="text-sm text-gray-600">kWh</span>
                   </div>
                 </div>

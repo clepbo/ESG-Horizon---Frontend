@@ -3,7 +3,7 @@ import React from "react";
 import { buildStyles, CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
-import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface Props {
   borderColor: string;
@@ -23,7 +23,7 @@ export default function OilRenderCard({ borderColor, title, sub, amount }: Props
       <p className="text-gray-800">{title}</p>
       {typeof amount === "number" && amount >= 0 && (
         <p className="font-bold text-3xl">
-          {formatNumberFigures(amount)} <sub className="text-gray-700 text-xs">{sub}</sub>
+          {formatNumberFull(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-gray-700 text-sm font-semibold">{sub}</sub>
         </p>
       )}
 
@@ -40,11 +40,11 @@ interface WaterQualityCardProps {
 }
 export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQualityCardProps) {
   return (
-    <div className="flex items-center justify-between w-full shadow rounded-md max-w-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white">
+    <div className="flex items-center justify-between w-full shadow rounded-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white">
       <div className={``}>
         <p className="text-gray-800">{title}</p>
         <p className="font-bold text-3xl">
-          {amount.toLocaleString()} <sub className="text-xs">{sub}</sub>
+          {formatNumberFull(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-sm font-semibold">{sub}</sub>
         </p>
       </div>
 
@@ -54,7 +54,7 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
           styles={buildStyles({ pathColor: progress > 50 ? "green" : "red" })}
         >
           <div style={{ fontSize: 12, marginTop: -5 }}>
-            <strong>{Math.min(progress, 100)}%</strong>
+            <strong>{Math.round(Math.min(progress, 100))}%</strong>
           </div>
         </CircularProgressbarWithChildren>
       </div>

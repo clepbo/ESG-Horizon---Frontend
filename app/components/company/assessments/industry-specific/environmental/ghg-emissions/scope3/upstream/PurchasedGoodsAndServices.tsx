@@ -508,7 +508,7 @@ export function PurchasedGoodsAndServices({
                 <SmartInput
                   label=""
                   type="number"
-                  unit="kWh"
+                  unit="₦"
                   required
                   value={electricity}
                   onChange={(value) => {
@@ -571,7 +571,7 @@ export function PurchasedGoodsAndServices({
             {/* CHECKBOX FIELD */}
             <div className="space-y-4">
               <Label className="text-md font-medium block">
-                Type of manure management system used (e.g., liquid slurry, solid storage, pasture).
+                Select Categories of purchases
               </Label>
 
               {errors.goodsCategories && (

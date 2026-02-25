@@ -277,7 +277,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                         maximumFractionDigits: 2,
                       })}{" "}
                       tCO₂e (
-                      {parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2))}%)
+                      {formatNumberFull(percentage_emission_summary.scope1_emission_summary, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -304,7 +304,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                         maximumFractionDigits: 2,
                       })}{" "}
                       tCO₂e (
-                      {parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2))}%)
+                      {formatNumberFull(percentage_emission_summary.scope2_emission_summary, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
@@ -331,7 +331,7 @@ const ReportSummary = (props: ReportSummaryProps) => {
                         maximumFractionDigits: 2,
                       })}{" "}
                       tCO₂e (
-                      {parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2))}%)
+                      {formatNumberFull(percentage_emission_summary.scope3_emission_summary, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">

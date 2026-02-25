@@ -33,43 +33,60 @@ export default function DownstreamEmission({
     const data = state.assessmentData.environment?.ghg?.scope3?.downstream;
 
     try {
-      // Bulk save all steps in the group before submitting
+      // Save all steps in parallel for faster submission
+      const savePromises: Promise<void>[] = [];
       if (data?.downstreamTransportationDistribution) {
-        await saveNow(
-          "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
-          data.downstreamTransportationDistribution
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
+            data.downstreamTransportationDistribution
+          )
         );
       }
       if (data?.processingSoldProducts) {
-        await saveNow(
-          "environment.ghg.scope3.downstream.processingSoldProducts",
-          data.processingSoldProducts
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.downstream.processingSoldProducts",
+            data.processingSoldProducts
+          )
         );
       }
       if (data?.useOfSoldProducts) {
-        await saveNow(
-          "environment.ghg.scope3.downstream.useOfSoldProducts",
-          data.useOfSoldProducts
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.downstream.useOfSoldProducts",
+            data.useOfSoldProducts
+          )
         );
       }
       if (data?.endOfLifeTreatment) {
-        await saveNow(
-          "environment.ghg.scope3.downstream.endOfLifeTreatment",
-          data.endOfLifeTreatment
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.downstream.endOfLifeTreatment",
+            data.endOfLifeTreatment
+          )
         );
       }
       if (data?.downstreamLeasedAssets) {
-        await saveNow(
-          "environment.ghg.scope3.downstream.downstreamLeasedAssets",
-          data.downstreamLeasedAssets
+        savePromises.push(
+          saveNow(
+            "environment.ghg.scope3.downstream.downstreamLeasedAssets",
+            data.downstreamLeasedAssets
+          )
         );
       }
       if (data?.franchises) {
-        await saveNow("environment.ghg.scope3.downstream.franchises", data.franchises);
+        savePromises.push(
+          saveNow("environment.ghg.scope3.downstream.franchises", data.franchises)
+        );
       }
       if (data?.investments) {
-        await saveNow("environment.ghg.scope3.downstream.investments", data.investments);
+        savePromises.push(
+          saveNow("environment.ghg.scope3.downstream.investments", data.investments)
+        );
       }
+
+      await Promise.all(savePromises);
 
       const response = await submitGroup();
       setTotals(response?.totals ?? null);

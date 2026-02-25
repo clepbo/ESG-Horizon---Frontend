@@ -21,7 +21,7 @@ import {
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
 import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
 import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
-import AirQiality from "./industry-specific/environmental/air-quality/components/AirQiality";
+import AirQuality from "./industry-specific/environmental/air-quality/components/AirQuality";
 import { useDebounce } from "use-debounce";
 import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
@@ -366,12 +366,12 @@ export function DisclosureTopics({
         initialView={
           initialStep && typeof initialStep === "string"
             ? ((initialStep.includes("production")
-                ? "production-volume"
-                : initialStep.includes("offshore")
-                  ? "offshore-sites"
-                  : initialStep.includes("terrestrial")
-                    ? "terrestrial-sites"
-                    : "overview") as any)
+              ? "production-volume"
+              : initialStep.includes("offshore")
+                ? "offshore-sites"
+                : initialStep.includes("terrestrial")
+                  ? "terrestrial-sites"
+                  : "overview") as any)
             : "overview"
         }
       />
@@ -433,7 +433,7 @@ export function DisclosureTopics({
   }
   if (currentView === "air-quality") {
     return (
-      <AirQiality
+      <AirQuality
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
       />
@@ -720,11 +720,10 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${
-                                      card.clickable
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
                                         ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                         : "cursor-default"
-                                    }`}
+                                      }`}
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: (() => {

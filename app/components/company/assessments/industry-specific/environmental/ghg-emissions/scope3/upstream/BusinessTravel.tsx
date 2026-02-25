@@ -850,7 +850,7 @@ export function BusinessTravel({
                     type="number"
                     required={false}
                     value={hotelNights}
-                    placeholder="Enter cummulative number of nights stayed"
+                    placeholder="Enter cumulative number of nights stayed"
                     onChange={handleAccommodationChange}
                     errorTrigger={fieldErrors.hotelNights}
                     errorMessage="Please enter the total number of hotel nights (0 or greater)."

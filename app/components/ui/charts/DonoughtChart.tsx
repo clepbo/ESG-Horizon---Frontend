@@ -36,7 +36,7 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
               dominantBaseline="middle"
               className="text-base font-semibold"
             >
-              {percentage}%
+              {Math.round(percentage)}%
             </text>
           )}
         >
@@ -75,7 +75,7 @@ export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniD
               dominantBaseline="middle"
               className="text-base font-semibold"
             >
-              {percentage}%
+              {Math.round(percentage)}%
             </text>
           )}
         >

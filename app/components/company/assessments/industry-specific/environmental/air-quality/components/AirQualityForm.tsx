@@ -13,12 +13,13 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface AirQualityFormProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   backToAirQualityCard: () => void;
-  onSubmit: () => void;
+  onSubmit: (totals: TotalsResponse | null) => void;
 }
 
 export default function AirQualityForm({
@@ -46,6 +47,11 @@ export default function AirQualityForm({
     },
   ];
   const { state, dispatch } = useAssessment();
+  const assessmentStatus = state.assessmentData.status;
+  const isPreviouslySubmitted =
+    assessmentStatus === "awaiting_review" ||
+    assessmentStatus === "submitted_approved" ||
+    assessmentStatus === "approved";
   const {
     saveNow,
     submitGroup,
@@ -152,8 +158,8 @@ export default function AirQualityForm({
     try {
       dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
       await saveNow("environment.airQuality.airPollutantEmissions", formData);
-      await submitGroup();
-      onSubmit();
+      const response = await submitGroup();
+      onSubmit(response?.totals || null);
     } catch (error) {
       console.error(error);
       // toast.error is already handled in useAssessmentFlow
@@ -205,7 +211,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.oxidesOfNitrogen}
             />
@@ -221,7 +227,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfSulphur")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.oxidesOfSulphur}
             />
@@ -237,7 +243,7 @@ export default function AirQualityForm({
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.volatileOrganicCompound}
             />
@@ -253,7 +259,7 @@ export default function AirQualityForm({
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => {}}
+              setUnit={() => { }}
               required={true}
               error={errors.particulateMatter}
             />
@@ -291,18 +297,14 @@ export default function AirQualityForm({
               </Button>
 
               <Button
+                type="button"
                 variant="outline"
-                onClick={handleSubmit}
-                disabled={isActionLoading || isSubmitting || !isFormValid()}
+                onClick={() => handleSubmit()}
+                disabled={isActionLoading || isPreviouslySubmitted || !isFormValid()}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Submit form"
               >
-                {isSubmitting ? (
-                  <>
-                    <LoadingSpinner size="sm" className="mr-2" /> Submitting...
-                  </>
-                ) : (
-                  "Submit"
-                )}
+                {isActionLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
               </Button>
             </div>
           </Card>

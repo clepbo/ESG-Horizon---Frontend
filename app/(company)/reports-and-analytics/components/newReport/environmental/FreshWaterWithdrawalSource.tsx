@@ -73,7 +73,7 @@ export function FreshWaterWithdrawalSource({
                   className="text-xs font-semibold px-1.5 py-0.5 rounded-full shrink-0"
                   style={{ backgroundColor: bg, color }}
                 >
-                  {formatNumberFull(pct, { maximumFractionDigits: 1 })}%
+                  {formatNumberFull(pct, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
                 </span>
               </div>
             </div>
