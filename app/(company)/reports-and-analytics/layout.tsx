@@ -16,7 +16,6 @@ export default function ReportLayout({ children }: ReportLayoutProps) {
   const reportId = Number(params?.id);
   const { data: report } = useSingleReport(reportId);
 
-
   return (
     <ReportBreadcrumbProvider>
       <div className=" py-4 gap-8 md:gap-16 md:py-8 px-8 w-full min-h-screen">

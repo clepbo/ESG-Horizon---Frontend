@@ -284,7 +284,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                     <Progress
                       value={Math.min(percentage_emission_summary.scope1_emission_summary, 100)}
                       className="h-2 bg-orange-500 rounded-2xl"
-                      style={{ width: `${Math.min(percentage_emission_summary.scope1_emission_summary, 100)}%` }}
+                      style={{
+                        width: `${Math.min(percentage_emission_summary.scope1_emission_summary, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -309,7 +311,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                     <Progress
                       value={Math.min(percentage_emission_summary.scope2_emission_summary, 100)}
                       className="h-2 bg-blue-500 rounded-2xl"
-                      style={{ width: `${Math.min(percentage_emission_summary.scope2_emission_summary, 100)}%` }}
+                      style={{
+                        width: `${Math.min(percentage_emission_summary.scope2_emission_summary, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -334,7 +338,9 @@ const ReportSummary = (props: ReportSummaryProps) => {
                     <Progress
                       value={Math.min(percentage_emission_summary.scope3_emission_summary, 100)}
                       className="h-2 bg-purple-500 rounded-2xl"
-                      style={{ width: `${Math.min(percentage_emission_summary.scope3_emission_summary, 100)}%` }}
+                      style={{
+                        width: `${Math.min(percentage_emission_summary.scope3_emission_summary, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>

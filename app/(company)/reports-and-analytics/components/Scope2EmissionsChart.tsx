@@ -100,11 +100,17 @@ export function Scope2EmissionsChart() {
 
   const locationTrendValue =
     previousLocationBased > 0
-      ? formatNumberFull(Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100), { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      ? formatNumberFull(
+          Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100),
+          { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        )
       : "0.00";
   const marketTrendValue =
     previousMarketBased > 0
-      ? formatNumberFull(Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100), { maximumFractionDigits: 1 })
+      ? formatNumberFull(
+          Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100),
+          { maximumFractionDigits: 1 }
+        )
       : "0.00";
 
   const hasData = currentLocationBased > 0 || currentMarketBased > 0;

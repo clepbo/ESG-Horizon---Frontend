@@ -1,13 +1,6 @@
 "use client";
 import { useId, useState, useRef, useCallback } from "react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-} from "recharts";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
 import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
@@ -154,7 +147,12 @@ const EmissionsChart = ({
       {/* Chart Section — custom tooltip via native mouse events */}
       <div
         ref={chartRef}
-        style={{ width, height, position: "relative", cursor: data.length > 0 ? "crosshair" : "default" }}
+        style={{
+          width,
+          height,
+          position: "relative",
+          cursor: data.length > 0 ? "crosshair" : "default",
+        }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -212,9 +210,7 @@ const EmissionsChart = ({
               whiteSpace: "nowrap",
             }}
           >
-            <div style={{ color: "#6b7280", marginBottom: "2px" }}>
-              {tooltipData.point.period}
-            </div>
+            <div style={{ color: "#6b7280", marginBottom: "2px" }}>{tooltipData.point.period}</div>
             <div style={{ fontWeight: 600, color: "#111" }}>
               {formatNumberFull(tooltipData.point.emissions, { maximumFractionDigits: 2 })} tCO₂e
             </div>

@@ -111,18 +111,17 @@ export default function DepartmentTeamUsersPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 text-sm">
           <InfoRow label="Department Name" value={department.name} />
-          {department.description && (
-            <InfoRow label="Description" value={department.description} />
-          )}
+          {department.description && <InfoRow label="Description" value={department.description} />}
           <InfoRow
             label="Department Lead"
             value={
-              department.lead
-                ? `${department.lead.first_name} ${department.lead.last_name}`
-                : "—"
+              department.lead ? `${department.lead.first_name} ${department.lead.last_name}` : "—"
             }
           />
-          <InfoRow label="Email" value={department.contact_email || department.lead?.email || "—"} />
+          <InfoRow
+            label="Email"
+            value={department.contact_email || department.lead?.email || "—"}
+          />
           <InfoRow label="Team Members" value={String(teamUsers.length)} />
           <InfoRow label="Status" value={department.status || "Active"} />
         </div>

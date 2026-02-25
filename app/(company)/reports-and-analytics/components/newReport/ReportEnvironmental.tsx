@@ -57,10 +57,20 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
     const abs = Math.abs(change);
     if (change < 0) {
       // Emissions decreased — good
-      return { text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`, rotate: "", bg: "#dff9e6", color: "#16a34a" };
+      return {
+        text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`,
+        rotate: "",
+        bg: "#dff9e6",
+        color: "#16a34a",
+      };
     }
     // Emissions increased — bad
-    return { text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`, rotate: "180deg", bg: "#fee2e2", color: "#dc2626" };
+    return {
+      text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`,
+      rotate: "180deg",
+      bg: "#fee2e2",
+      color: "#dc2626",
+    };
   };
 
   const totalChangeProps = formatChange(ghg?.totalChange);
@@ -86,9 +96,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor="#1e8a3d"
             period={assessmentPeriod}
             value={
-              ghg
-                ? formatNumberFull(ghg.totalEmissions ?? 0, { minimumFractionDigits: 2 })
-                : "0.00"
+              ghg ? formatNumberFull(ghg.totalEmissions ?? 0, { minimumFractionDigits: 2 }) : "0.00"
             }
             data={emissionData}
             {...(totalChangeProps && {
@@ -395,11 +403,13 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   //       ?.percentageWithDisclosure || 0
                   //   ).toFixed(1) || 0
                   // )}
-                  value={Number(formatNumberFull(
-                    waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                      ?.percentageWithDisclosure ?? 0,
-                    { maximumFractionDigits: 1 }
-                  ))}
+                  value={Number(
+                    formatNumberFull(
+                      waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                        ?.percentageWithDisclosure ?? 0,
+                      { maximumFractionDigits: 1 }
+                    )
+                  )}
                   styles={buildStyles({ pathColor: "#119b95" })}
                 >
                   <div

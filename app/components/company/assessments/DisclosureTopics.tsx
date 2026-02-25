@@ -21,7 +21,7 @@ import {
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
 import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
 import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
-import AirQiality from "./industry-specific/environmental/air-quality/components/AirQiality";
+import AirQuality from "./industry-specific/environmental/air-quality/components/AirQuality";
 import { useDebounce } from "use-debounce";
 import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
@@ -210,7 +210,6 @@ const industrySpecificMetrics: MetricSection[] = [
     ],
   },
 ];
-
 
 export function DisclosureTopics({
   onBack,
@@ -485,7 +484,7 @@ export function DisclosureTopics({
   }
   if (currentView === "air-quality") {
     return (
-      <AirQiality
+      <AirQuality
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
       />

@@ -470,8 +470,9 @@ export function ElectricityEACForm({
                     emissionFactor: undefined,
                   }));
                 }}
-                className={`w-full border-gray-400 ${errors.emissionFactor ? "border-red-500" : ""
-                  }`}
+                className={`w-full border-gray-400 ${
+                  errors.emissionFactor ? "border-red-500" : ""
+                }`}
               />
               {errors.emissionFactor && (
                 <p className="text-sm text-red-500 mt-1">{errors.emissionFactor}</p>

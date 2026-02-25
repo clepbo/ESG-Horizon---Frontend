@@ -177,7 +177,9 @@ export function EmissionsBreakdownChart() {
         {chartData.length > 0 ? (
           <div className="space-y-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{formatNumberFull(totalEmissions, { minimumFractionDigits: 2 })}</div>
+              <div className="text-2xl font-bold text-gray-900">
+                {formatNumberFull(totalEmissions, { minimumFractionDigits: 2 })}
+              </div>
               <div className="text-sm text-gray-600">Total CO2e (tonnes)</div>
             </div>
             <ResponsiveContainer width="100%" height={200}>

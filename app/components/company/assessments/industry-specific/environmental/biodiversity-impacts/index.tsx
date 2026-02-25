@@ -247,10 +247,11 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${card.clickable
-                            ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                            : "cursor-default"
-                            }`}
+                          className={`transition-all bg-white shadow-sm rounded-lg ${
+                            card.clickable
+                              ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                              : "cursor-default"
+                          }`}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
