@@ -382,7 +382,7 @@ export function DownstreamTransportationAndDistribution({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Downstream Transportation & Distribution" },
+    { label: "Category 9: Downstream Transportation & Distribution" },
   ];
 
   return (
@@ -420,14 +420,14 @@ export function DownstreamTransportationAndDistribution({
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
-                1.1 Downstream Transportation & Distribution
+                Category 9: Downstream Transportation & Distribution
               </h4>
               <p className="text-muted-foreground text-base">
                 Report transportation and distribution data for products sold to customers.
               </p>
             </div>
 
-            {/* 1.1 Downstream Transportation & Distribution */}
+            {/* Category 9: Downstream Transportation & Distribution */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -584,10 +584,10 @@ export function DownstreamTransportationAndDistribution({
               </div>
             </div>
 
-            {/* 1.2 Document/Evidence Upload */}
+            {/* 9.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                1.2 Documents/Evidence Upload
+                9.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

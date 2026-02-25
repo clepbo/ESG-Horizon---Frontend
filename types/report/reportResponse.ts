@@ -334,9 +334,11 @@ export interface BiodiversityImpactsData {
     volumeImpactingSensitiveShorelines?: number;
   };
   reservesInSensitiveAreas?: {
+    totalProvedReserves?: number;
     proved?: number;
     probable?: number;
     provedReserves?: number;
+    totalProbableReserves?: number;
     probableReserves?: number;
   };
   volumeInArctic?: number;

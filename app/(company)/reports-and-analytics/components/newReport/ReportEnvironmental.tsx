@@ -292,19 +292,19 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <OilRenderCard
-            borderColor={"#0000"}
+            borderColor={"#3b82f6"}
             title={"Total Water Withdrawal"}
             sub={"m³"}
             amount={waterManagement?.totalWaterWithdrawal || 0}
           />
           <OilRenderCard
-            borderColor={"#0000"}
+            borderColor={"#3b82f6"}
             title={"Total Water Consumed"}
             sub={"m³"}
             amount={waterManagement?.totalWaterConsumed || 0}
           />
           <OilRenderCard
-            borderColor={"#0000"}
+            borderColor={"#3b82f6"}
             title={"Total Produced Water Generated"}
             sub={"m³"}
             amount={waterManagement?.totalProducedWaterGenerated || 0}
@@ -487,11 +487,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <WaterQualityCard
                 title={"Volume Recycled/Reused"}
                 amount={waterManagement?.recycledWater || 0}
-                progress={Number(
-                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
-                    2
-                  ) || 0
-                )}
+                progress={
+                  waterManagement?.totalProducedWaterGenerated
+                    ? Math.round(((waterManagement.recycledWater || 0) / waterManagement.totalProducedWaterGenerated) * 100)
+                    : 0
+                }
                 sub="m³"
               />
             </div>
@@ -584,8 +584,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             </span>
             <div className="p-4 grid grid-cols-1 gap-4 justify-end align-bottom">
               <ReserveInSensitiveAreasChart
-                provedTotal={bioDiversity?.reservesInSensitiveAreas?.provedReserves || 0}
-                probableTotal={bioDiversity?.reservesInSensitiveAreas?.probableReserves || 0}
+                provedTotal={bioDiversity?.reservesInSensitiveAreas?.totalProvedReserves || 0}
+                provedSensitive={bioDiversity?.reservesInSensitiveAreas?.provedReserves || 0}
+                probableTotal={bioDiversity?.reservesInSensitiveAreas?.totalProbableReserves || 0}
+                probableSensitive={bioDiversity?.reservesInSensitiveAreas?.probableReserves || 0}
               />
             </div>
           </div>

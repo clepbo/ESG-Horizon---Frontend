@@ -168,6 +168,7 @@ export default function LoginForm() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  autoComplete="off"
                   {...register("password", {
                     required: "Password is required",
                     minLength: {

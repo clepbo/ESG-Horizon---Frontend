@@ -946,9 +946,9 @@ export function AssessmentDetailsModal({
                               label="Sensitive Area Reserves"
                               value={
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.reservesInSensitiveAreas?.totalProvedReservesVolume ??
+                                  ?.reservesInSensitiveAreas?.provedReservesSensitiveVolume ??
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.reservesInSensitiveAreas?.calculated?.total_reserves
+                                  ?.reservesInSensitiveAreas?.calculated?.provedReservesInSensitiveAreas?.volume
                               }
                               unit="BOE"
                             />
@@ -965,14 +965,23 @@ export function AssessmentDetailsModal({
                               label="Spills in Sensitive Areas"
                               value={
                                 env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
-                                  ?.spillsInSensitiveAreas
+                                  ?.volumeImpactingSensitiveShorelines ??
+                                env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
+                                  ?.volumeImpactingShorelines ??
+                                env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
+                                  ?.calculated?.volumeImpactingSensitiveShorelines?.volume
                               }
+                              unit="bbl"
                             />
                             <DataField
                               label="ISO 14001 Certified"
                               value={
+                                (env.biodiversityImpact?.environmentalManagement
+                                  ?.environmentalManagementPolicies?.isISO14001Certified ??
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.environmentalManagementPolicies?.isISO14001Certified
+                                  ?.environmentalManagementPolicies?.calculated?.isISO14001Certified ??
+                                env.biodiversityImpact?.environmentalManagement
+                                  ?.environmentalManagementPolicies?.calculated?.iso14001Certified)
                                   ? "Yes"
                                   : "No"
                               }

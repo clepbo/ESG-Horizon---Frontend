@@ -343,7 +343,7 @@ export function EndOfLifeTreatment({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 End-of-Life Treatment of Sold Products" },
+    { label: "Category 12: End-of-Life Treatment of Sold Products" },
   ];
 
   return (
@@ -381,17 +381,17 @@ export function EndOfLifeTreatment({
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
-                4. End-of-Life Treatment of Sold Products
+                Category 12: End-of-Life Treatment of Sold Products
               </h4>
               <p className="text-muted-foreground text-base">
                 Report disposal methods and end-of-life treatment for products sold by your company.
               </p>
             </div>
 
-            {/* 4.1 Total mass of products sold */}
+            {/* 12.1 Total mass of products sold */}
             <div className="space-y-6">
               <Label className="text-base font-medium">
-                4.1 Total mass of products sold (by material type)
+                12.1 Total mass of products sold (by material type)
               </Label>
 
               <AddProduct
@@ -446,10 +446,10 @@ export function EndOfLifeTreatment({
               </div>
             </div>
 
-            {/* 4.2 Document/Evidence Upload */}
+            {/* 12.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                4.2 Documents/Evidence Upload
+                12.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

@@ -49,6 +49,7 @@ const uploadFields = [
 const steamSources = [
   { id: "industrial-supplier", label: "Industrial Supplier" },
   { id: "district-heating", label: "District Heating/Steam Plant" },
+  { id: "not-applicable", label: "Not Applicable / No Steam Source" },
 ];
 
 export function PurchasedSteamForm({

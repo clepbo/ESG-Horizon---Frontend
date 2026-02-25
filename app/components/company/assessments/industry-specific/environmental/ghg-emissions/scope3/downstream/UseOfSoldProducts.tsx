@@ -362,7 +362,7 @@ export function UseOfSoldProducts({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Use of Sold Products" },
+    { label: "Category 11: Use of Sold Products" },
   ];
 
   return (
@@ -399,13 +399,13 @@ export function UseOfSoldProducts({
               isSubmitted={false}
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">3. Use of Sold Products</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 11: Use of Sold Products</h4>
               <p className="text-muted-foreground text-base">
                 Report emissions from the use of products and services sold by your company.
               </p>
             </div>
 
-            {/* 3.1 Use of Sold Products */}
+            {/* 11.1 Use of Sold Products */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -544,10 +544,10 @@ export function UseOfSoldProducts({
               </div>
             </div>
 
-            {/* 3.2 Document/Evidence Upload */}
+            {/* 11.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                3.2 Documents/Evidence Upload
+                11.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (

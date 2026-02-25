@@ -15,15 +15,12 @@ export function AssessmentProgressBar({
   totalSteps,
   fieldsCompleted,
   totalFields,
+  isSubmitted,
 }: AssessmentProgressBarProps) {
-  // Calculate the overall progress based on completed steps.
-  const overallProgress = (stepIndex - 1) / totalSteps; // Calculate the progress within the current step.
-
-  const inputProgress = totalFields > 0 ? fieldsCompleted / totalFields : 0; // Combine the two concepts for a single percentage value.
-
-  const rawPercent = (overallProgress + inputProgress / totalSteps) * 100; // Cap the percentage at 99% until the final submission.
-
-  const cappedPercent = Math.min(rawPercent, 100);
+  // Show current section completion — "Section X of Y" already communicates position.
+  // Cap at 99% until submitted; 100% only after submit.
+  const rawPercent = totalFields > 0 ? (fieldsCompleted / totalFields) * 100 : 0;
+  const cappedPercent = isSubmitted ? 100 : Math.min(rawPercent, 99);
   const percent = Math.round(cappedPercent);
 
   return (

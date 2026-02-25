@@ -59,13 +59,13 @@ export default function ReductionTarget({
           >
             <div className="flex flex-col items-center justify-center text-center px-4">
               <span className="text-3xl font-bold text-gray-800">
-                {formatNumberFigures(achievedPercentage)}%
+                {Math.round(achievedPercentage)}%
               </span>
               <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mt-1">
                 Reduction Achieved
               </span>
               <span className="text-[10px] text-gray-400 mt-0.5">
-                Target: {formatNumberFigures(percentage)}% by {targetYear}
+                Target: {Math.round(percentage)}% by {targetYear}
               </span>
             </div>
           </CircularProgressbarWithChildren>

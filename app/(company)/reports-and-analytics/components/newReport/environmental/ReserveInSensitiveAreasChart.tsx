@@ -5,7 +5,6 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  LabelList,
   ResponsiveContainer,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
@@ -65,30 +64,14 @@ function ReserveInSensitiveAreasChart({
           iconType="circle"
           wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingLeft: "12px" }}
         />
-        <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[10, 10, 0, 0]} maxBarSize={60}>
-          <LabelList
-            dataKey="total"
-            position="top"
-            fontSize={13}
-            fill="#111827"
-            formatter={(value) => formatNumberFigures(Number(value) || 0)}
-          />
-        </Bar>
+        <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[10, 10, 0, 0]} maxBarSize={60} />
         <Bar
           dataKey="sensitive"
           name="Sensitive Area"
           fill="#EF4444"
           radius={[10, 10, 0, 0]}
           maxBarSize={60}
-        >
-          <LabelList
-            dataKey="sensitive"
-            position="top"
-            fontSize={13}
-            fill="#111827"
-            formatter={(value) => formatNumberFigures(Number(value) || 0)}
-          />
-        </Bar>
+        />
       </BarChart>
     </ResponsiveContainer>
   );

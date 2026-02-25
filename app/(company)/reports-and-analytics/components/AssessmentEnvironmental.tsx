@@ -169,14 +169,13 @@ export default function AssessmentEnvironmental({ reportData }: AssessmentAllPro
                   </div>
                   <div className="space-y-1">
                     <p className="text-2xl font-semibold">
-                      {index === 0
-                        ? formatNumberFull(item.value, {
-                            maximumFractionDigits: 2,
-                          })
-                        : formatNumberFigures(item.value)}
+                      {formatNumberFull(item.value, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {index === 0 ? item.unit : `${item.percentage}% of total emissions`}
+                      {index === 0 ? item.unit : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
                     </p>
                   </div>
                 </CardContent>
@@ -228,10 +227,13 @@ export function PillarAssessmentCard({
                   </div>
                   <div className="space-y-1">
                     <p className={`text-2xl font-semibold ${item.textColorClass}`}>
-                      {item.value.toLocaleString()}
+                      {formatNumberFull(item.value, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {index === 0 ? item.unit : `${item.percentage ?? 0}% of total emissions`}
+                      {index === 0 ? item.unit : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
                     </p>
                   </div>
                 </CardContent>
