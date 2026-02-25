@@ -477,11 +477,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <WaterQualityCard
                 title={"Volume Recycled/Reused"}
                 amount={waterManagement?.recycledWater || 0}
-                progress={Number(
-                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
-                    2
-                  ) || 0
-                )}
+                progress={
+                  waterManagement?.totalProducedWaterGenerated
+                    ? Math.round(((waterManagement.recycledWater || 0) / waterManagement.totalProducedWaterGenerated) * 100)
+                    : 0
+                }
                 sub="m³"
               />
             </div>

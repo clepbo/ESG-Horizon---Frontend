@@ -40,7 +40,7 @@ interface WaterQualityCardProps {
 }
 export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQualityCardProps) {
   return (
-    <div className="flex items-center justify-between w-full shadow rounded-md max-w-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white">
+    <div className="flex items-center justify-between w-full shadow rounded-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white">
       <div className={``}>
         <p className="text-gray-800">{title}</p>
         <p className="font-bold text-3xl">
@@ -54,7 +54,7 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
           styles={buildStyles({ pathColor: progress > 50 ? "green" : "red" })}
         >
           <div style={{ fontSize: 12, marginTop: -5 }}>
-            <strong>{formatNumberFull(Math.min(progress, 100), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</strong>
+            <strong>{Math.round(Math.min(progress, 100))}%</strong>
           </div>
         </CircularProgressbarWithChildren>
       </div>
