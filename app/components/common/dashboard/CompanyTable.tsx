@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Company, companyService } from "@/services/company.service";
 import { toast } from "react-toastify";
+
 interface CompanyTableProps {
   companies: Company[];
   loading?: boolean;
@@ -56,35 +57,43 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const [updating, setUpdating] = useState(false);
   const [modalData, setModalData] = useState<{
     open: boolean;
     companyId: number | null;
+    currentStatus: Company["status"] | null;
     newStatus: Company["status"] | null;
-  }>({ open: false, companyId: null, newStatus: null });
+  }>({ open: false, companyId: null, currentStatus: null, newStatus: null });
 
-  const openModal = (companyId: number, newStatus: Company["status"]) => {
-    setModalData({ open: true, companyId, newStatus });
+  const openModal = (companyId: number, currentStatus: Company["status"], newStatus: Company["status"]) => {
+    setModalData({ open: true, companyId, currentStatus, newStatus });
+  };
+
+  const closeModal = () => {
+    setModalData({ open: false, companyId: null, currentStatus: null, newStatus: null });
   };
 
   const handleStatusChange = async () => {
     const { companyId, newStatus } = modalData;
+    if (!companyId || !newStatus) return;
 
-    if (companyId && newStatus) {
-      try {
-        await companyService.updateStatus(companyId, newStatus);
+    setUpdating(true);
+    try {
+      await companyService.updateStatus(companyId, newStatus);
 
-        queryClient.setQueryData<Company[]>(["companies"], (prev) =>
-          prev?.map((company) =>
-            company.id === companyId ? { ...company, status: newStatus } : company
-          )
-        );
-        toast.info(`Company status updated to ${newStatus}`);
-      } catch (error) {
-        queryClient.invalidateQueries({ queryKey: ["companies"] });
-        console.log("error", error);
-      }
-
-      setModalData({ open: false, companyId: null, newStatus: null });
+      queryClient.setQueryData<Company[]>(["companies"], (prev) =>
+        prev?.map((company) =>
+          company.id === companyId ? { ...company, status: newStatus } : company
+        )
+      );
+      toast.info(`Company status updated to ${newStatus}`);
+    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast.error("Failed to update company status. Please try again.");
+      console.error("Status update error:", error);
+    } finally {
+      setUpdating(false);
+      closeModal();
     }
   };
 
@@ -113,17 +122,14 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
               <tr key={id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{name}</td>
                 <td className="px-4 py-3">{registration_number || "N/A"}</td>
-                <td className="px-4 py-3">{industry?.sector || industry?.sector || "N/A"}</td>
+                <td className="px-4 py-3">{industry?.sector || "N/A"}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={status} />
                 </td>
                 <td className="px-4 py-3 space-x-2">
                   <button
                     className="rounded-md border p-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => {
-                      console.log("Navigating to company:", id);
-                      router.push(`/company/${id}`);
-                    }}
+                    onClick={() => router.push(`/company/${id}`)}
                     title="View"
                   >
                     <Eye className="w-4 h-4 text-gray-600" />
@@ -132,7 +138,7 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
                   {action && (
                     <button
                       className={`rounded-md border p-2 cursor-pointer ${action.color}`}
-                      onClick={() => openModal(id, action.newStatus)}
+                      onClick={() => openModal(id, status, action.newStatus)}
                       title={action.title}
                     >
                       {action.icon}
@@ -150,18 +156,19 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
         title="Confirm Status Change"
         message={
           <>
-            Are you sure you want to change this company&apos;s status to{" "}
-            <span className="font-bold">{modalData.newStatus}</span>?
+            Are you sure you want to{" "}
+            <span className="font-bold lowercase">
+              {modalData.currentStatus ? STATUS_ACTIONS[modalData.currentStatus]?.title : modalData.newStatus}
+            </span>{" "}
+            this company?{" "}
+            {modalData.newStatus === "suspended"
+              ? "All company users will lose access immediately."
+              : "The company ESG admin(s) will be notified by email."}
           </>
         }
-        onCancel={() =>
-          setModalData({
-            open: false,
-            companyId: null,
-            newStatus: null,
-          })
-        }
+        onCancel={closeModal}
         onConfirm={handleStatusChange}
+        loading={updating}
       />
     </div>
   );

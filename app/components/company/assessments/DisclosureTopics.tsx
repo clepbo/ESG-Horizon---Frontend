@@ -236,48 +236,99 @@ export function DisclosureTopics({
   // Use the custom hook for topic completion status
   // const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
-  // Helper to extract status from backend data
-  const getStatusFromData = (title: string, data: any) => {
-    // Map titles to data paths
-    const pathToData = {
-      "Greenhouse Gas Emissions": data?.environment?.ghg,
-      "Air Quality": data?.environment?.airQuality?.airPollutantEmissions, // Simplified mapping
-      "Water and Wastewater Management":
-        data?.environment?.waterManagement?.waterAndProducedWaterManagement,
-      "Biodiversity Impact": data?.environment?.biodiversityImpact?.environmentalManagement,
-      "Community Relations": data?.socialCapital?.communityRelations,
-      "Security, Human Rights & Rights of Indigenous Peoples":
-        data?.socialCapital?.securityHumanRights,
-      "Workforce Health & Safety": data?.humanCapital?.workforceHealthSafety, // Check path
-      "Reserves Valuation & Capital Expenditures": data?.businessModel?.reservesValuation,
-      "Business Ethics & Transparency": data?.businessModel?.businessEthics,
-      "Critical Incident Risk Management":
-        data?.leadershipGovernance?.criticalIncidentRiskManagement,
-      "Management of the Legal & Regulatory Environment":
-        data?.leadershipGovernance?.legalRegulatoryEnvironment,
-      "Activity Metrics": data?.foundationalData?.activityMetrics,
-    };
+  /** Map each disclosure topic to its exact sub-group paths (mirrors backend PILLAR_GROUPS) */
+  const getTopicSubGroups = (title: string): string[] => {
+    switch (title) {
+      case "Greenhouse Gas Emissions":
+        return [
+          "environment.ghg.scope1.stationarySources",
+          "environment.ghg.scope1.mobileSources",
+          "environment.ghg.scope1.processEmissions",
+          "environment.ghg.scope1.fugitiveEmissions",
+          "environment.ghg.scope2.locationBased",
+          "environment.ghg.scope2.marketBased",
+          "environment.ghg.scope3.upstream",
+          "environment.ghg.scope3.downstream",
+        ];
+      case "Air Quality":
+        return ["environment.airQuality.airPollutantEmissions"];
+      case "Water and Wastewater Management":
+        return [
+          "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
+          "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
+        ];
+      case "Biodiversity Impact":
+        return [
+          "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
+          "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+          "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
+        ];
+      case "Community Relations":
+        return [
+          "socialCapital.communityRelations.communityRiskOpportunityManagement",
+          "socialCapital.communityRelations.hcdtContribution",
+          "socialCapital.communityRelations.communityDisputeResolution",
+          "socialCapital.communityRelations.operationalDelays",
+        ];
+      case "Security, Human Rights & Rights of Indigenous Peoples":
+        return [
+          "socialCapital.securityHumanRights.operationsInConflictZones",
+          "socialCapital.securityHumanRights.reservesInNearIndigenousLand",
+          "socialCapital.securityHumanRights.humanRightsEngagementProcesses",
+        ];
+      case "Workforce Health & Safety":
+        return [
+          "humanCapital.workforceHealthSafety",
+          "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        ];
+      case "Reserves Valuation & Capital Expenditures":
+        return [
+          "businessModel.reservesValuation.reservesSensitivity",
+          "businessModel.reservesValuation.embeddedCarbon",
+          "businessModel.reservesValuation.renewableEnergyInvestment",
+          "businessModel.reservesValuation.capitalExpenditureStrategy",
+        ];
+      case "Business Ethics & Transparency":
+        return [
+          "businessModel.businessEthics.reservesCountriesCorruptionRisk",
+          "businessModel.businessEthics.antiCorruptionManagement",
+        ];
+      case "Critical Incident Risk Management":
+        return [
+          "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents",
+          "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems",
+        ];
+      case "Management of the Legal & Regulatory Environment":
+        return [
+          "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight",
+          "leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement",
+        ];
+      case "Activity Metrics":
+        return [
+          "foundationalData.activityMetrics.productionVolumes",
+          "foundationalData.activityMetrics.offshoreSites",
+          "foundationalData.activityMetrics.terrestrialSites",
+        ];
+      default:
+        return [];
+    }
+  };
 
-    const itemData = pathToData[title as keyof typeof pathToData];
+  /** Only track "submitted" status via submittedGroups — no "in-progress" heuristic */
+  const getStatusFromData = (title: string, data: any): { status: string } => {
+    if (!data) return { status: "not-started" };
 
-    if (!itemData) return { status: "not-started", count: "0/0", progress: 0 };
+    const submittedGroups: string[] = data?.submittedGroups || [];
+    const topicSubGroups = getTopicSubGroups(title);
 
-    const progress = itemData.progress || 0;
-    const completed = itemData.dataCount?.count || 0;
-    const total = itemData.dataCount?.expected || 0;
-
-    let status = "not-started";
-    if (progress === 100 || (total > 0 && completed === total)) {
-      status = "completed";
-    } else if (progress > 0 || completed > 0) {
-      status = "in-progress";
+    if (topicSubGroups.length > 0) {
+      const submittedCount = topicSubGroups.filter((g) => submittedGroups.includes(g)).length;
+      if (submittedCount === topicSubGroups.length) {
+        return { status: "submitted" };
+      }
     }
 
-    return {
-      status,
-      count: `${completed}/${total}`,
-      progress,
-    };
+    return { status: "not-started" };
   };
 
   const getActivityMetricsStatus = () => {
@@ -613,12 +664,11 @@ export function DisclosureTopics({
                 {/* Status indication commented out - revisit later (was getActivityMetricsBorderClass()) */}
                 <Card
                   className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
-                  // className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
                   style={{
                     borderLeftWidth: "4px",
                     borderLeftColor: (() => {
                       const status = getActivityMetricsStatus();
-                      if (status.status === "completed") return "#2dd4bf"; // teal-400
+                      if (status.status === "submitted") return "#2dd4bf"; // teal-400
                       if (status.status === "in-progress") return "#facc15"; // yellow-400
                       return "transparent";
                     })(),
@@ -633,17 +683,17 @@ export function DisclosureTopics({
                           <div className="flex items-center gap-2">
                             {(() => {
                               const status = getActivityMetricsStatus();
+                              if (status.status === "submitted") {
+                                return (
+                                  <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
+                                    Submitted
+                                  </span>
+                                );
+                              }
                               if (status.status === "in-progress") {
                                 return (
                                   <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
                                     In Progress
-                                  </span>
-                                );
-                              }
-                              if (status.status === "completed") {
-                                return (
-                                  <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
-                                    Completed
                                   </span>
                                 );
                               }
@@ -732,7 +782,7 @@ export function DisclosureTopics({
                                           card.title,
                                           state.assessmentData
                                         );
-                                        if (status.status === "completed") return "#2dd4bf"; // teal-400
+                                        if (status.status === "submitted") return "#2dd4bf"; // teal-400
                                         if (status.status === "in-progress") return "#facc15"; // yellow-400
                                         return "transparent";
                                       })(),
@@ -752,17 +802,17 @@ export function DisclosureTopics({
                                                   card.title,
                                                   state.assessmentData
                                                 );
+                                                if (status.status === "submitted") {
+                                                  return (
+                                                    <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
+                                                      Submitted
+                                                    </span>
+                                                  );
+                                                }
                                                 if (status.status === "in-progress") {
                                                   return (
                                                     <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
                                                       In Progress
-                                                    </span>
-                                                  );
-                                                }
-                                                if (status.status === "completed") {
-                                                  return (
-                                                    <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
-                                                      Completed
                                                     </span>
                                                   );
                                                 }

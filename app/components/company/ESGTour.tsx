@@ -143,7 +143,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "Set up your company and personal details to personalize your dashboard and unlock all platform features.",
       buttonText: "Complete Profile",
       href: "/settings-esg/company",
-      isCompleted: onboardingData?.checklist[0]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[0]?.isCompleted ?? false,
     },
     {
       title: "Invite Your Teams, Set Up Departments & Subsidiaries",
@@ -151,7 +151,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "Add team members, assign roles, and structure your departments or subsidiaries for seamless collaboration.",
       buttonText: "Start Now",
       href: "/settings-esg/subsidiaries?setup=true",
-      isCompleted: onboardingData?.checklist[1]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[1]?.isCompleted ?? false,
     },
     {
       title: "Start First Assessment",
@@ -159,7 +159,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "Begin your ESG assessment and start capturing the data needed for reporting and performance tracking.",
       buttonText: "Start Now",
       href: "/assessments",
-      isCompleted: onboardingData?.checklist[2]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[2]?.isCompleted ?? false,
     },
     {
       title: "View ESG Dashboard",
@@ -167,7 +167,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "See your company's ESG performance, track progress, and access key insights from all your assessments.",
       buttonText: "View Dashboard",
       href: "/dashboard-esg",
-      isCompleted: onboardingData?.checklist[3]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[3]?.isCompleted ?? false,
       onAction: handleContinueToDashboard,
     },
   ];

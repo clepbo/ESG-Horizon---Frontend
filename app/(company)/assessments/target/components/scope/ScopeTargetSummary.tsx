@@ -16,6 +16,7 @@ interface ScopeSummaryProps {
   onPrevious: () => void;
   onSetTarget: () => void;
   isLoading?: boolean;
+  isEdit?: boolean;
 }
 
 export function ScopeSummary({
@@ -25,6 +26,7 @@ export function ScopeSummary({
   onPrevious,
   onSetTarget,
   isLoading = false,
+  isEdit = false,
 }: ScopeSummaryProps) {
   return (
     <div className="space-y-6 max-w-3xl mx-auto px-4">
@@ -54,13 +56,13 @@ export function ScopeSummary({
                   <div className="text-sm md:text-base font-medium text-gray-600">
                     Target ({targetYear})
                   </div>
-                  <div className="text-sm md:text-base font-semibold text-green-500 text-right">
+                  <div className={`text-sm md:text-base font-semibold text-right ${scope.targetReduction >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {scope.targetReduction.toLocaleString()} tCO₂e
                   </div>
                 </div>
                 <div className="py-3 flex items-baseline justify-between gap-4 w-full">
                   <div className="text-sm md:text-base font-medium text-gray-600">Annual Rate</div>
-                  <div className="text-sm md:text-base font-semibold text-red-500 text-right">
+                  <div className={`text-sm md:text-base font-semibold text-right ${scope.annualRate >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {scope.annualRate.toLocaleString()} tCO₂e/year
                   </div>
                 </div>
@@ -81,7 +83,9 @@ export function ScopeSummary({
         </CustomButton>
 
         <CustomButton onClick={onSetTarget} className="px-6 py-2">
-          {isLoading ? "Loading..." : " Set Target"}
+          {isLoading
+            ? isEdit ? "Updating Target..." : "Loading..."
+            : isEdit ? "Update Target" : "Set Target"}
         </CustomButton>
       </div>
     </div>

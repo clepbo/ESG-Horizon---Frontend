@@ -107,7 +107,6 @@ export const companyService = {
   },
 
   getOnboardingProgress: async () => {
-    const data = await api.get("/company/esg/onboarding-progress");
-    return data.data;
+    return await api.get("/company/esg/onboarding-progress");
   },
 };

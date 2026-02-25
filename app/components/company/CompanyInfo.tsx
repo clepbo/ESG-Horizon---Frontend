@@ -1,35 +1,79 @@
 "use client";
 
-// import { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { Mail, Phone } from "lucide-react";
-// import { User } from "@/mockData/users";
-// import ConfirmModal from "@/app/components/modals/ConfirmModal";
-import { Company } from "@/services/company.service";
+import { Mail, Phone, RotateCcw, Ban, CircleCheckBig } from "lucide-react";
+import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
+import { Company, companyService } from "@/services/company.service";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 type Props = {
   company: Company;
+  onStatusChange?: (newStatus: Company["status"]) => void;
 };
 
-export default function CompanyInfo({ company }: Props) {
-  // const [status, setStatus] = useState(company.status || "Suspended");
-  // const [modalOpen, setModalOpen] = useState(false);
-  // const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  // const [targetStatus, setTargetStatus] = useState<User["status"]>();
+const STATUS_CONFIG: Partial<
+  Record<
+    Company["status"],
+    {
+      label: string;
+      icon: React.ReactNode;
+      className: string;
+      newStatus: Company["status"];
+      confirmMessage: string;
+    }
+  >
+> = {
+  pending: {
+    label: "Activate",
+    icon: <CircleCheckBig size={14} />,
+    className: "bg-green-600 text-white hover:bg-green-700",
+    newStatus: "active",
+    confirmMessage: "The company ESG admin(s) will be notified by email.",
+  },
+  active: {
+    label: "Suspend",
+    icon: <Ban size={14} />,
+    className: "bg-red-500 text-white hover:bg-red-600",
+    newStatus: "suspended",
+    confirmMessage: "All company users will lose access immediately.",
+  },
+  suspended: {
+    label: "Reactivate",
+    icon: <RotateCcw size={14} />,
+    className: "bg-green-600 text-white hover:bg-green-700",
+    newStatus: "active",
+    confirmMessage: "The company ESG admin(s) will be notified by email.",
+  },
+};
 
-  // const openModal = (id: string, newStatus: User["status"]) => {
-  //   setSelectedUserId(id);
-  //   setTargetStatus(newStatus);
-  //   setModalOpen(true);
-  // };
+export default function CompanyInfo({ company, onStatusChange }: Props) {
+  const [currentStatus, setCurrentStatus] = useState<Company["status"]>(company.status);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const queryClient = useQueryClient();
 
-  // const handleConfirmStatusChange = () => {
-  //   if (selectedUserId && targetStatus) {
-  //     // Replace with actual API call
-  //     setStatus(targetStatus);
-  //   }
-  //   setModalOpen(false);
-  // };
+  const action = STATUS_CONFIG[currentStatus];
+
+  const handleConfirmStatusChange = async () => {
+    if (!action) return;
+
+    setUpdating(true);
+    try {
+      await companyService.updateStatus(company.id, action.newStatus);
+      setCurrentStatus(action.newStatus);
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast.info(`Company status updated to ${action.newStatus}`);
+      onStatusChange?.(action.newStatus);
+    } catch (error) {
+      toast.error("Failed to update company status. Please try again.");
+      console.error("Status update error:", error);
+    } finally {
+      setUpdating(false);
+      setModalOpen(false);
+    }
+  };
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -64,9 +108,6 @@ export default function CompanyInfo({ company }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="text-sm font-medium text-gray-900">{company.name || "N/A"}</div>
-              {/* <div className="text-xs text-gray-500">
-                {company.role || "N/A"}
-              </div> */}
             </div>
             <ContactInfo icon={<Mail size={16} />} value={company.contact_email} />
             <ContactInfo icon={<Phone size={16} />} value={company.contact_phone} />
@@ -75,73 +116,48 @@ export default function CompanyInfo({ company }: Props) {
 
         {/* Right Column */}
         <div className="space-y-4">
-          {/* Registration Details */}
-          {/* <DetailCard
-            title="Registration Details"
-            icon={<Calendar size={14} />}
-          >
-            <Info label="Registration Date" value={company.activity } />
-             <Info
-              label="Days Since Registration"
-              value={`${company.recentActivities?.length || 0} days`}
-            /> 
-          </DetailCard> */}
-
           {/* Company Status */}
           <DetailCard
             title="Company Status"
             icon={
               <Image
-                src="/icons/company.svg" // your actual calendar image path
-                alt="Calendar Icon"
+                src="/icons/company.svg"
+                alt="Company Icon"
                 width={14}
                 height={14}
               />
             }
           >
-            <div className="flex justify-between items-center">
-              <Info label="Current Status" value={<StatusBadge status={status} />} />
-              {/* <button
-                onClick={() =>
-                  openModal(
-                    company.id,
-                    status.toLowerCase() === "approved"
-                      ? "Suspended"
-                      : "Approved"
-                  )
-                }
-                className={`flex items-center gap-1 w-full md:w-auto px-4 py-1.5 text-xs font-medium rounded-lg transition ${
-                  status.toLowerCase() === "approved"
-                    ? "bg-red-500 text-white hover:bg-red-600" // Suspend
-                    : "bg-yellow-500 text-white hover:bg-yellow-600" // Restore
-                }`}
-              >
-                {status.toLowerCase() === "approved" ? (
-                  "Suspend"
-                ) : (
-                  <>
-                    <RotateCcw size={14} /> Restore
-                  </>
-                )}
-              </button> */}
+            <div className="flex flex-col gap-3">
+              <Info label="Current Status" value={<StatusBadge status={currentStatus} />} />
+              {action && (
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className={`flex items-center justify-center gap-1 w-full px-4 py-1.5 text-xs font-medium rounded-lg transition cursor-pointer ${action.className}`}
+                >
+                  {action.icon}
+                  {action.label}
+                </button>
+              )}
             </div>
           </DetailCard>
         </div>
       </div>
 
-      {/* Confirm Modal */}
-      {/* <ConfirmModal
+      <ConfirmModal
         open={modalOpen}
         title="Confirm Status Change"
         message={
-          <span>
-            Are you sure you want to change this company&apos;s status to{" "}
-            <strong>{targetStatus}</strong>?
-          </span>
+          <>
+            Are you sure you want to{" "}
+            <span className="font-bold lowercase">{action?.label}</span> this company?{" "}
+            {action?.confirmMessage}
+          </>
         }
         onCancel={() => setModalOpen(false)}
         onConfirm={handleConfirmStatusChange}
-      /> */}
+        loading={updating}
+      />
     </div>
   );
 }
@@ -186,11 +202,15 @@ function DetailCard({
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const colors =
-    status.toLowerCase() === "approved" ? "bg-green-500 text-white" : "bg-red-500 text-white";
+  const colorMap: Record<string, string> = {
+    active: "bg-green-500 text-white",
+    pending: "bg-yellow-400 text-white",
+    suspended: "bg-red-500 text-white",
+  };
+  const colors = colorMap[status] ?? "bg-gray-400 text-white";
 
   return (
-    <span className={`px-3 py-0.5 text-xs rounded-full font-medium ${colors}`}>
+    <span className={`px-3 py-0.5 text-xs rounded-full font-medium capitalize ${colors}`}>
       {status || "N/A"}
     </span>
   );

@@ -228,6 +228,7 @@ export const SignupForm = ({ onSubmitted }: { onSubmitted: () => void }) => {
             {...register("password")}
             error={errors.password}
             placeholder="Enter a strong password"
+            autoComplete="new-password"
           />
           <button
             type="button"

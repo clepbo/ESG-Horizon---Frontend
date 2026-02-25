@@ -209,19 +209,13 @@ export default function GeneralTargetForm({
 
                 <div className="space-y-2">
                   <Label htmlFor="baselineYear">Baseline Year</Label>
-                  <select
+                  <Input
                     id="baselineYear"
-                    value={data?.baselineYear ?? ""}
-                    onChange={(e) => handleInputChange("baselineYear", e.target.value)}
-                    className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select year</option>
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
+                    type="number"
+                    value={data?.baselineYear ?? baseline.data?.startYear ?? ""}
+                    readOnly
+                    className="w-full bg-gray-50 cursor-not-allowed"
+                  />
                 </div>
 
                 <div className="space-y-2">
