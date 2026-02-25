@@ -354,7 +354,7 @@ export function PurchasedHeatingForm({
             {/* 4.1 Purchased Heating */}
             <div className="ml-6">
               <Label className="text-md font-medium mb-2 block">
-                4.1 Purchased Heating <span className="text-red-500">*</span>
+                Do you use purchased heating? <span className="text-red-500">*</span>
               </Label>
               <RadioGroup
                 value={heatingPurchased}
@@ -383,10 +383,12 @@ export function PurchasedHeatingForm({
               )}
             </div>
 
+            {heatingPurchased === "yes" && (
+            <>
             <div className="ml-6">
               <div className="flex items-center gap-1 mb-2">
                 <Label htmlFor="heating-consumed" className="text-sm font-medium text-gray-700">
-                  If yes, what was the total heating energy consumed in Gigajoules (GJ)
+                  What was the total heating energy consumed in Gigajoules (GJ)?
                 </Label>
                 <TooltipProvider>
                   <Tooltip>
@@ -507,6 +509,8 @@ export function PurchasedHeatingForm({
                 />
               </div>
             </div>
+            </>
+            )}
 
             {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">
