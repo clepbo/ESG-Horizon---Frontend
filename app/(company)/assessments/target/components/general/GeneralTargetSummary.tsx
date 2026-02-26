@@ -77,10 +77,10 @@ export function GeneralTargetSummary({
                 <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
               </div>
 
-              {/* Total Reduction - FIXED */}
+              {/* Total Reduction */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
-                <div className="text-sm font-semibold text-red-600">
+                <div className={`text-sm font-semibold ${totalReduction > 0 ? "text-red-600" : "text-green-600"}`}>
                   -{formatNumberFull(totalReduction)} tCO₂e
                 </div>
               </div>
@@ -88,7 +88,7 @@ export function GeneralTargetSummary({
               {/* Annual Rate */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
-                <div className={`text-sm font-semibold text-green-600`}>
+                <div className={`text-sm font-semibold ${annualRate > 0 ? "text-green-600" : "text-red-600"}`}>
                   {formatNumberFull(Math.round(annualRate))} tCO₂e/year
                 </div>
               </div>

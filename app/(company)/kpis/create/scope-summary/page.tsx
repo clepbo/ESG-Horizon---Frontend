@@ -37,6 +37,8 @@ export default function ScopeSummaryPage() {
   const [loadError, setLoadError] = useState(false);
   const [showBaselineModal, setShowBaselineModal] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [targetId, setTargetId] = useState<number | null>(null);
+  const isEdit = targetId !== null;
 
   useEffect(() => {
     // Get data from localStorage
@@ -46,6 +48,9 @@ export default function ScopeSummaryPage() {
         const parsedData = JSON.parse(storedData);
         console.log("Loaded scope target data:", parsedData);
         setSummaryData(parsedData);
+        if (parsedData.targetId) {
+          setTargetId(parsedData.targetId);
+        }
       } catch (error) {
         console.error("Error parsing stored data:", error);
         setLoadError(true);
@@ -59,12 +64,16 @@ export default function ScopeSummaryPage() {
   const createTarget = useMutation({
     mutationFn: async (targetData: ScopeTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
+      if (targetId) {
+        return await api.patch(`/target/${targetId}`, targetData);
+      }
       return await api.post(`/target`, targetData);
     },
     onSuccess: () => {
       setCreateError(null);
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
       queryClient.invalidateQueries({ queryKey: ["targets"] });
+      queryClient.invalidateQueries({ queryKey: ["latest-target"] });
       localStorage.removeItem("scopeTargetSummary");
     },
     onError: (error: unknown) => {
@@ -85,7 +94,7 @@ export default function ScopeSummaryPage() {
 
   const handlePrevious = () => {
     // Navigate back to form page - data will be preserved in localStorage
-    router.push("/kpis/create");
+    router.push(isEdit ? "/kpis/create?edit=true" : "/kpis/create");
   };
 
   const handleSetTarget = async () => {
@@ -278,6 +287,7 @@ export default function ScopeSummaryPage() {
         onPrevious={handlePrevious}
         onSetTarget={handleSetTarget}
         isLoading={createTarget.isPending}
+        isEdit={isEdit}
       />
 
       <SuccessModal

@@ -3,13 +3,13 @@
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { Edit, Plus } from "lucide-react";
 import React, { useState } from "react";
-import { TargetSetting } from "./TargetSetting";
 import InitialTargetPage from "./InitialTargetPage";
 import PerformanceOverview from "@/app/(company)/components/ranking/PerformanceOverview";
 import { useGetLatestTarget } from "@/app/(company)/components/ranking/services";
 import { useAuth } from "@/context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import { TargetSetting } from "@/app/(company)/kpis/create/components/TargetSetting";
 
 export default function TargetHomePage() {
   const [showForm, setShowForm] = useState(false);
@@ -75,10 +75,10 @@ export default function TargetHomePage() {
       {/* Scene 1 — no target set yet */}
       {!hasTarget && !showForm && <InitialTargetPage onSetTarget={() => setShowForm(true)} />}
 
-      {/* Scenes 2-4 — target creation form */}
-      {showForm && <TargetSetting onSuccess={handleSuccess} />}
+      {/* Scenes 2-4 — target creation/edit form (uses the improved kpis/create forms) */}
+      {showForm && <TargetSetting isEdit={hasTarget} onSuccess={handleSuccess} />}
 
-      {/* Scene 6 — target exists, show performance dashboard */}
+      {/* Scene 5 — target exists, show performance dashboard */}
       {hasTarget && !showForm && <PerformanceOverview />}
     </section>
   );

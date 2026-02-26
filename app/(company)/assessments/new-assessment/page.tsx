@@ -90,35 +90,37 @@ function NewAssessmentPage() {
       const business = data.businessInnovation ?? data.businessModel;
       const leadership = data.leadershipGovernance;
 
-      const hasActivity = !!activity && Object.keys(activity).length > 0;
+      // Calculator auto-adds these keys to every object — filter them out
+      // to detect only real user-entered form data (mirrors countFilledFields ignoredKeys)
+      const CALC_KEYS = new Set(["totalEmission", "totalEmissions", "progress", "calculated", "dataCount", "status", "breakdown"]);
+      const hasUserData = (obj: any): boolean =>
+        !!obj && Object.keys(obj).some((k) => !CALC_KEYS.has(k));
 
-      // Environment: the calculator always scaffolds { ghg, totalEmission, progress }
-      // even when no Environmental forms are filled. Check for actual user data:
-      // 1. Non-GHG sections (airQuality, waterManagement, biodiversityImpact) — only exist from user forms
-      // 2. GHG scopes with non-zero computed emissions (user entered data that produced results)
-      // 3. scope3 existence (never scaffolded by calculator)
+      const hasActivity = hasUserData(activity);
+
+      // Environment: the calculator scaffolds the full GHG tree on every save
+      // (scope1.stationarySources = { totalEmission: 0, progress: 0 }, etc.)
+      // so we must check each group for keys beyond totalEmission/progress.
       const hasEnv = (() => {
         if (!env) return false;
-        if (env.airQuality || env.waterManagement || env.biodiversityImpact) return true;
+        if (hasUserData(env.airQuality)) return true;
+        if (hasUserData(env.waterManagement)) return true;
+        if (hasUserData(env.biodiversityImpact)) return true;
         const ghg = env.ghg;
         if (!ghg) return false;
-        if (ghg.scope3 && Object.keys(ghg.scope3).length > 0) return true;
-        const hasScope = (scope: any, groups: string[]) =>
-          scope && groups.some((g: string) => scope[g] && Object.keys(scope[g]).length > 0);
-        if (hasScope(ghg.scope1, ["stationarySources", "mobileSources", "processEmissions", "fugitiveEmissions"])) return true;
-        if (hasScope(ghg.scope2, ["locationBased", "marketBased"])) return true;
+        const hasScopeData = (scope: any, groups: string[]) =>
+          scope && groups.some((g: string) => hasUserData(scope[g]));
+        if (hasScopeData(ghg.scope1, ["stationarySources", "mobileSources", "processEmissions", "fugitiveEmissions"])) return true;
+        if (hasScopeData(ghg.scope2, ["locationBased", "marketBased"])) return true;
+        if (hasScopeData(ghg.scope3, ["upstream", "downstream"])) return true;
         return false;
       })();
 
-      const hasSocial = !!social && Object.keys(social).filter(k => k !== "progress").length > 0;
-      const hasHuman = !!human && Object.keys(human).filter(k => k !== "progress").length > 0;
-      const hasBusiness = !!business && Object.keys(business).filter(k => k !== "progress").length > 0;
-      const hasLeadership =
-        !!leadership?.criticalIncidentRiskManagement &&
-        Object.keys(leadership.criticalIncidentRiskManagement).length > 0;
-      const hasGovernance =
-        !!leadership?.managementOfTheLegalAndRegulatoryEnvironment &&
-        Object.keys(leadership.managementOfTheLegalAndRegulatoryEnvironment).length > 0;
+      const hasSocial = hasUserData(social);
+      const hasHuman = hasUserData(human);
+      const hasBusiness = hasUserData(business);
+      const hasLeadership = hasUserData(leadership?.criticalIncidentRiskManagement);
+      const hasGovernance = hasUserData(leadership?.managementOfTheLegalAndRegulatoryEnvironment);
 
       const pillars: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[] = [];
       if (hasActivity) pillars.push("A");

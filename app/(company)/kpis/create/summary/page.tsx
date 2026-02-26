@@ -38,7 +38,9 @@ export default function SummaryPage() {
   const [hasLocalBaseline, setHasLocalBaseline] = useState(getHasLocalBaseline);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  // State for data
+  // State for data — targetId is set when editing an existing target
+  const [targetId, setTargetId] = useState<number | null>(null);
+  const isEdit = targetId !== null;
   const [targetData, setTargetData] = useState<GeneralTargetData | null>(null);
   const [emissionData, setEmissionData] = useState<EmissionDataResponseGeneral>({
     startYear: 0,
@@ -59,6 +61,11 @@ export default function SummaryPage() {
         const parsedData = JSON.parse(storedData);
         console.log("Loaded target data:", parsedData); // Debug log
         setTargetData(parsedData);
+
+        // If editing, grab the target ID passed through from the form
+        if (parsedData.targetId) {
+          setTargetId(parsedData.targetId);
+        }
 
         // Use the baselineEmission saved by the form page as the primary source
         // (the form already fetched and validated this from useBaseline)
@@ -136,12 +143,16 @@ export default function SummaryPage() {
   const createTarget = useMutation({
     mutationFn: async (targetDataPayload: GeneralTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
+      if (targetId) {
+        return await api.patch(`/target/${targetId}`, targetDataPayload);
+      }
       return await api.post(`/target`, targetDataPayload);
     },
     onSuccess: () => {
       setCreateError(null);
       queryClient.invalidateQueries({ queryKey: ["baseline"] });
       queryClient.invalidateQueries({ queryKey: ["targets"] });
+      queryClient.invalidateQueries({ queryKey: ["latest-target"] });
       localStorage.removeItem("generalTargetSummary");
     },
     onError: (error: unknown) => {
@@ -162,7 +173,7 @@ export default function SummaryPage() {
 
   const handlePrevious = () => {
     // Navigate back to form page - data will be preserved in localStorage
-    router.push("/kpis/create");
+    router.push(isEdit ? "/kpis/create?edit=true" : "/kpis/create");
   };
 
   const handleSetTarget = async () => {
@@ -309,6 +320,7 @@ export default function SummaryPage() {
         onPrevious={handlePrevious}
         onSetTarget={handleSetTarget}
         isLoading={createTarget.isPending}
+        isEdit={isEdit}
       />
 
       <SuccessModal

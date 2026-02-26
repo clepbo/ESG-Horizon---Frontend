@@ -79,91 +79,15 @@ export function computeProgressPercent({
 }
 
 export function getAssessmentProgressForTable(assessment: any): number {
-  const cap = (v: number) => Math.min(Math.round(v), 100);
-  const { assessmentData, progress } = assessment || {};
-  if (typeof progress === "number" && progress > 0) return cap(progress);
-  if (assessmentData?.overallProgress && assessmentData.overallProgress > 0)
-    return cap(assessmentData.overallProgress);
-
-  // Use ProgressTrackingService to calculate actual progress from all topics
-  if (assessmentData) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { ProgressTrackingService } = require("@/lib/assessmentCompletionUtils");
-      const service = new ProgressTrackingService();
-      const overall = service.getOverallCompletion(assessmentData);
-      if (overall.completionPercentage > 0) {
-        return Math.round(overall.completionPercentage);
-      }
-    } catch {
-      // Fallback to legacy logic if import fails
-      console.warn("ProgressTrackingService not available, using legacy logic");
-    }
-  }
-
-  // fallback to legacy logic for GHG forms
+  const { assessmentData } = assessment || {};
   if (!assessmentData) return 0;
-  const lastSavedForm: string = assessmentData.lastSavedForm || "";
-  if (!lastSavedForm) return 0;
 
-  const cleaned = lastSavedForm.replace(/^ghg-/, "");
-
-  const parts = cleaned.split("-");
-
-  const groupMap: Record<string, string> = {
-    "stationary-sources": "stationarySources",
-    "mobile-sources": "mobileSources",
-    "fugitive-emissions": "fugitiveEmissions",
-    "process-emissions": "processEmissions",
-    "location-based": "locationBased",
-    "market-based": "marketBased",
-  };
-
-  const groupKey = groupMap[parts.slice(0, 2).join("-")];
-  if (!groupKey) return 0;
-
-  const formKeyMap: Record<string, string[]> = {
-    stationarySources: [
-      "electricityHeat",
-      "oilGasOperations",
-      "industrialProcesses",
-      "otherCombustion",
-      "emergencyGenerators",
-      "refrigerationAC",
-    ],
-    mobileSources: [
-      "companyOwnedVehicles",
-      "employeeTransportation",
-      "businessTravel",
-      "logistics",
-    ],
-    fugitiveEmissions: ["fugitiveSources"],
-    processEmissions: ["processSources"],
-    locationBased: ["electricity", "cooling", "steam", "heating"],
-    marketBased: ["electricityIPP", "electricityEAC", "residual", "coolingSteam"],
-  };
-
-  const group = assessmentData[groupKey];
-  if (!group) return 0;
-
-  const rawFormKey = camelCase(parts.slice(2).join("-"));
-  let form = group[rawFormKey];
-
-  if (!form) {
-    const possibleKeys = formKeyMap[groupKey];
-    for (const key of possibleKeys) {
-      if (group[key]?.progressPercent) {
-        form = group[key];
-        break;
-      }
-    }
+  const progress = assessmentData.overallProgress;
+  if (typeof progress === "number" && progress > 0) {
+    return Math.min(Math.round(progress), 100);
   }
 
-  return form?.progressPercent ?? 0;
-}
-
-function camelCase(str: string) {
-  return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  return 0;
 }
 
 export const handleAxiosError = (error: unknown, defaultMessage?: string): string => {

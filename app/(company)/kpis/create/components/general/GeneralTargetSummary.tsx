@@ -15,6 +15,7 @@ interface TargetSummaryProps {
   onPrevious: () => void;
   onSetTarget: () => void;
   isLoading?: boolean;
+  isEdit?: boolean;
   annualRate: number;
   baselinePeriodLabel?: string;
 }
@@ -29,6 +30,7 @@ export function GeneralTargetSummary({
   annualRate,
   onSetTarget,
   isLoading = false,
+  isEdit = false,
   baselinePeriodLabel,
 }: TargetSummaryProps) {
   // Fix: Calculate total reduction correctly
@@ -69,13 +71,13 @@ export function GeneralTargetSummary({
             <div className="text-sm md:text-base text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">From</span>
-                <span className="font-semibold text-red-500 text-right">
+                <span className="font-semibold text-gray-900 text-right">
                   {baselineEmission?.toLocaleString()} tCO₂e
                 </span>
               </div>
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">To</span>
-                <span className="font-semibold text-green-500 text-right">
+                <span className="font-semibold text-green-600 text-right">
                   {targetEmission?.toLocaleString()} tCO₂e
                 </span>
               </div>
@@ -99,12 +101,12 @@ export function GeneralTargetSummary({
                 </div>
               </div>
 
-              {/* Total Reduction - FIXED */}
+              {/* Total Reduction */}
               <div className="py-3 flex items-baseline justify-between gap-4 w-full">
                 <div className="text-sm md:text-base font-medium text-gray-600">
                   Total Reduction
                 </div>
-                <div className="text-sm md:text-base font-semibold text-red-600 text-right">
+                <div className={`text-sm md:text-base font-semibold text-right ${totalReduction > 0 ? "text-red-600" : "text-green-600"}`}>
                   -{totalReduction?.toLocaleString()} tCO₂e
                 </div>
               </div>
@@ -112,7 +114,7 @@ export function GeneralTargetSummary({
               {/* Annual Rate */}
               <div className="py-3 flex items-baseline justify-between gap-4 w-full">
                 <div className="text-sm md:text-base font-medium text-gray-600">Annual Rate</div>
-                <div className="text-sm md:text-base font-semibold text-green-600 text-right">
+                <div className={`text-sm md:text-base font-semibold text-right ${annualRate < 0 ? "text-red-600" : "text-green-600"}`}>
                   {formattedAnnualRate} tCO₂e/year
                 </div>
               </div>
@@ -133,7 +135,9 @@ export function GeneralTargetSummary({
         </CustomButton>
 
         <CustomButton onClick={onSetTarget} className="">
-          {isLoading ? "Setting Target..." : "Set Target"}
+          {isLoading
+            ? isEdit ? "Updating Target..." : "Setting Target..."
+            : isEdit ? "Update Target" : "Set Target"}
         </CustomButton>
       </div>
     </div>

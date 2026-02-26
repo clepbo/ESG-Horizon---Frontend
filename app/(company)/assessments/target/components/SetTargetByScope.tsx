@@ -323,24 +323,13 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="scope1-baselineYear">Baseline Year</Label>
-                <select
+                <Input
                   id="scope1-baselineYear"
-                  value={scopeTargetData.scope1.baselineYear ?? baselineYear}
-                  onChange={(e) => handleScopeInputChange("scope1", "baselineYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-                {baselineYear && (
-                  <p className="text-xs text-gray-500">
-                    Suggested: {baselineYear} (from your baseline data)
-                  </p>
-                )}
+                  type="number"
+                  value={scopeTargetData.scope1.baselineYear ?? baselineYear ?? ""}
+                  readOnly
+                  className="w-full bg-gray-50 cursor-not-allowed"
+                />
               </div>
 
               <div className="space-y-2">
@@ -433,19 +422,13 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="scope2-baselineYear">Baseline Year</Label>
-                <select
+                <Input
                   id="scope2-baselineYear"
-                  value={scopeTargetData.scope2.baselineYear ?? baselineYear}
-                  onChange={(e) => handleScopeInputChange("scope2", "baselineYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                  type="number"
+                  value={scopeTargetData.scope2.baselineYear ?? baselineYear ?? ""}
+                  readOnly
+                  className="w-full bg-gray-50 cursor-not-allowed"
+                />
               </div>
 
               <div className="space-y-2">
@@ -535,19 +518,13 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
 
               <div className="space-y-2">
                 <Label htmlFor="scope3-baselineYear">Baseline Year</Label>
-                <select
+                <Input
                   id="scope3-baselineYear"
-                  value={scopeTargetData.scope3.baselineYear ?? baselineYear}
-                  onChange={(e) => handleScopeInputChange("scope3", "baselineYear", e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+                  type="number"
+                  value={scopeTargetData.scope3.baselineYear ?? baselineYear ?? ""}
+                  readOnly
+                  className="w-full bg-gray-50 cursor-not-allowed"
+                />
               </div>
 
               <div className="space-y-2">

@@ -10,10 +10,7 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { ProductionVolume } from "./ProductionVolume";
 import { OffshoreSites } from "./OffschoreSites";
 import { TerrestialSites } from "./TerrestialSites";
-// import { useAssessment } from "@/hooks/useAssessment";
-// import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-// import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { useAssessment } from "@/hooks/useAssessment";
 
 type ActivityMetricView = "overview" | "production-volume" | "offshore-sites" | "terrestrial-sites";
 
@@ -57,6 +54,7 @@ const activityMetricData = [
 
 export function ActivityMetricHome({ onBack, initialView = "overview" }: ActivityMetricHomeProps) {
   const router = useRouter();
+  const { state } = useAssessment();
   const [currentView, setCurrentView] = useState<ActivityMetricView>(initialView);
 
   useEffect(() => {
@@ -64,17 +62,21 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
       setCurrentView(initialView);
     }
   }, [initialView]);
-  // const { state } = useAssessment();
-  // const params = useParams();
 
-  // const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const getSubCardStatus = (cardTitle: string): "submitted" | "not-started" => {
+    const data = state.assessmentData as any;
+    const submitted: string[] = data?.submittedGroups || [];
 
-  // Use the reusable hook with checkSubComponentCompletion
-  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-  //   activityMetricData,
-  //   state.assessmentData,
-  //   checkSubComponentCompletion
-  // );
+    const groupMap: Record<string, string> = {
+      "Production Volumes": "foundationalData.activityMetrics.productionVolumes",
+      "Offshore Sites": "foundationalData.activityMetrics.offshoreSites",
+      "Terrestrial Sites": "foundationalData.activityMetrics.terrestrialSites",
+    };
+
+    const groupPath = groupMap[cardTitle];
+    if (groupPath && submitted.includes(groupPath)) return "submitted";
+    return "not-started";
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -208,10 +210,7 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                     }
                   >
                     {section.cards.map((card) => {
-                      // Status indication commented out - revisit later
-                      // const status = getStatus(card.title);
-                      // const borderClass = getCardBorderClass(card.title);
-                      // const getBorderColor = () => { ... };
+                      const status = getSubCardStatus(card.title);
 
                       return (
                         <Card
@@ -221,7 +220,6 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
                           }`}
-                          // style={{ borderLeftWidth, borderLeftColor: getBorderColor() }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
@@ -229,7 +227,11 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                               <div className="space-y-2 flex-1">
                                 <div className="flex items-center justify-between">
                                   <h5 className="font-medium text-foreground">{card.title}</h5>
-                                  {/* <CompletionIndicator status={status} /> */}
+                                  {status === "submitted" && (
+                                    <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
+                                      Submitted
+                                    </span>
+                                  )}
                                 </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
