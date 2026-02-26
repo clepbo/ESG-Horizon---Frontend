@@ -679,26 +679,6 @@ export function DisclosureTopics({
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center justify-between">
                           <h5 className="font-medium text-foreground">Activity Metrics</h5>
-                          <div className="flex items-center gap-2">
-                            {(() => {
-                              const status = getActivityMetricsStatus();
-                              if (status.status === "submitted") {
-                                return (
-                                  <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
-                                    Submitted
-                                  </span>
-                                );
-                              }
-                              if (status.status === "in-progress") {
-                                return (
-                                  <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
-                                    In Progress
-                                  </span>
-                                );
-                              }
-                              return null;
-                            })()}
-                          </div>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
@@ -795,30 +775,6 @@ export function DisclosureTopics({
                                             <h5 className="font-medium text-foreground">
                                               {card.title}
                                             </h5>
-                                            <div className="flex items-center gap-2">
-                                              {(() => {
-                                                const status = getStatusFromData(
-                                                  card.title,
-                                                  state.assessmentData
-                                                );
-                                                if (status.status === "submitted") {
-                                                  return (
-                                                    <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
-                                                      Submitted
-                                                    </span>
-                                                  );
-                                                }
-                                                if (status.status === "in-progress") {
-                                                  return (
-                                                    <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded-full border border-yellow-200 font-medium">
-                                                      In Progress
-                                                    </span>
-                                                  );
-                                                }
-                                                return null;
-                                              })()}
-                                            </div>
-                                            {/* <CompletionIndicator status={status} /> */}
                                           </div>
                                           <p className="text-sm text-muted-foreground">
                                             {card.subtitle}

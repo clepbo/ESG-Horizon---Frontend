@@ -3,12 +3,10 @@ import { assessmentService } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { toast } from "react-toastify";
 import { useDebouncedCallback } from "use-debounce";
-import { useRouter } from "next/navigation";
 
 export const useAssessmentFlow = (currentFormKey: string) => {
   const { state, dispatch } = useAssessment();
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   const createMut = useMutation({
     mutationFn: assessmentService.createAssessment,
@@ -81,14 +79,7 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   const submitGroup = async () => {
     try {
       const response = await submitMut.mutateAsync();
-
-      if (response?.assessment?.status === "submitted_approved") {
-        toast.success("Pillar completed! Assessment submitted successfully.");
-        setTimeout(() => {
-          router.push("/assessments/new-assessment");
-        }, 2000);
-      }
-
+      toast.success("Section submitted successfully.");
       return response;
     } catch (err: any) {
       const msg = err.response?.data?.message || "Failed to submit assessment. Please try again.";
