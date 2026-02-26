@@ -147,7 +147,7 @@ export interface BusinessModelPillar {
   changePercentage?: number;
   reservesValuationAndCapitalExpenditure?: {
     climateImpactOnReserves?: {
-      carbonPriceScenario: string;
+      carbonPriceScenario: number;
       reservesAtRiskPercent: number;
       totalProvedReserves: number;
       totalProbableReserves: number;

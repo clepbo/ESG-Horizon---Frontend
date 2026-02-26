@@ -62,7 +62,7 @@ export default function LegalRegulatoryEnvironment({
       <SuccessScreen
         assessmentName="Management of the Legal & Regulatory Environment"
         totals={totals ?? undefined}
-        nextAssessment="Next Assessment"
+        nextAssessment={null}
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}
