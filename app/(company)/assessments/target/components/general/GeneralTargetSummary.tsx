@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { TrendingDown } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { FaCaretLeft } from "react-icons/fa";
 import { formatNumberFull } from "@/lib/numberFormat";
 
@@ -32,6 +32,10 @@ export function GeneralTargetSummary({
   const yearsDifference = Math.abs(targetYear - baselineYear);
   const annualRate = yearsDifference > 0 ? totalReduction / yearsDifference : 0;
 
+  // Semantic coloring: green = emission reduction (on track), red = emission increase (off track)
+  const isReducing = totalReduction > 0;
+  const TrendIcon = isReducing ? TrendingDown : TrendingUp;
+
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       {/* Target Summary Card */}
@@ -42,20 +46,20 @@ export function GeneralTargetSummary({
         <CardContent className="space-y-6">
           {/* Main Reduction Target */}
           <div className="text-center space-y-2">
-            <TrendingDown className={`justify-self-auto mx-auto text-green-600 font-semibold`} />
+            <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
             <h6 className="text-2xl font-semibold text-gray-900">
               {reductionPercentage}% Reduction Target
             </h6>
             <div className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">From</span>
-                <span className="font-semibold text-red-500 text-right">
+                <span className="font-semibold text-gray-900 text-right">
                   {formatNumberFull(baselineEmission)} tCO₂e
                 </span>
               </div>
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">To</span>
-                <span className="font-semibold text-green-600 text-right">
+                <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
                   {formatNumberFull(targetEmission)} tCO₂e
                 </span>
               </div>
@@ -80,7 +84,7 @@ export function GeneralTargetSummary({
               {/* Total Reduction */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
-                <div className={`text-sm font-semibold ${totalReduction > 0 ? "text-red-600" : "text-green-600"}`}>
+                <div className={`text-sm font-semibold ${isReducing ? "text-green-600" : "text-red-600"}`}>
                   -{formatNumberFull(totalReduction)} tCO₂e
                 </div>
               </div>
@@ -88,10 +92,22 @@ export function GeneralTargetSummary({
               {/* Annual Rate */}
               <div className="space-y-2 flex items-center justify-between w-full">
                 <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
-                <div className={`text-sm font-semibold ${annualRate > 0 ? "text-green-600" : "text-red-600"}`}>
+                <div className={`text-sm font-semibold ${isReducing ? "text-green-600" : "text-red-600"}`}>
                   {formatNumberFull(Math.round(annualRate))} tCO₂e/year
                 </div>
               </div>
+            </div>
+
+            {/* Color legend */}
+            <div className="flex items-center gap-4 text-xs text-gray-400 pt-1">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                Emission reduction
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                Emission increase
+              </span>
             </div>
           </div>
         </CardContent>

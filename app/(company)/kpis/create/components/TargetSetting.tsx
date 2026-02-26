@@ -11,6 +11,8 @@ import StartAssessment from "./StartAssessment";
 import { usePathname, useSearchParams } from "next/navigation";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import { Target } from "@/app/(company)/components/types/target";
+import { useRouter } from "next/navigation";
+import { FaCaretLeft } from "react-icons/fa";
 
 interface TargetSettingProps {
   /** When true, fetches the latest target and prepopulates forms for editing. */
@@ -20,6 +22,7 @@ interface TargetSettingProps {
 }
 
 export function TargetSetting({ isEdit: isEditProp, onSuccess }: TargetSettingProps = {}) {
+  const router = useRouter();
   const [selectedType, setSelectedType] = useState<TargetType>("general");
   const [generalTargetData, setGeneralTargetData] = useState<GeneralTargetData>({
     reductionPercentage: null,
@@ -74,6 +77,15 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess }: TargetSettingPr
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <button
+          type="button"
+          onClick={() => router.push("/kpis")}
+          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-4"
+        >
+          <FaCaretLeft className="text-xs" />
+          Go back
+        </button>
+
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-8">
           {/* When editing, lock to the existing target type; otherwise show the selector */}
           {isEditMode && existingTarget ? null : (
