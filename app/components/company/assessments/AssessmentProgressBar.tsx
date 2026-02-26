@@ -6,8 +6,8 @@ interface AssessmentProgressBarProps {
   stepIndex: number; // current step (1-based, e.g., Section 1 of N)
   totalSteps: number; // total number of steps
   isSubmitted?: boolean;
-  fieldsCompleted: number; // new prop: number of fields completed in the current step
-  totalFields: number; // new prop: total number of fields in the current step
+  fieldsCompleted?: number; // kept for backward compat — not used for bar percentage
+  totalFields?: number; // kept for backward compat — not used for bar percentage
 }
 
 export function AssessmentProgressBar({
@@ -17,9 +17,9 @@ export function AssessmentProgressBar({
   totalFields,
   isSubmitted,
 }: AssessmentProgressBarProps) {
-  // Show current section completion — "Section X of Y" already communicates position.
+  // Step-based progress: completed steps = stepIndex - 1 (stepIndex is 1-based).
   // Cap at 99% until submitted; 100% only after submit.
-  const rawPercent = totalFields > 0 ? (fieldsCompleted / totalFields) * 100 : 0;
+  const rawPercent = totalSteps > 0 ? ((stepIndex - 1) / totalSteps) * 100 : 0;
   const cappedPercent = isSubmitted ? 100 : Math.min(rawPercent, 99);
   const percent = Math.round(cappedPercent);
 

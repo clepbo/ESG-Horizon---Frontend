@@ -36,10 +36,21 @@ export default function PerformanceOverview() {
   const scope2Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE2");
   const scope3Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE3");
 
-  // Compute ESG score from actual target data instead of hardcoded value
-  const score = general
-    ? Math.round(((general.currentEmission ?? 0) / (general.baselineYearEmission || 1)) * 200)
-    : 0;
+  // Compute ESG score: 0 = no progress, 200 = target fully achieved
+  // Measures how much of the baseline→target gap has been closed
+  const baselineEmission = general?.baselineYearEmission ?? 0;
+  // 0 means the calculator hasn't computed totals yet — treat as "no data" (baseline)
+  const currentEmission = general?.currentEmission || baselineEmission;
+  const targetEmission = general?.targetEmission ?? 0;
+  const reductionGap = baselineEmission - targetEmission;
+
+  const score =
+    general && reductionGap > 0
+      ? Math.min(
+          200,
+          Math.max(0, Math.round(((baselineEmission - currentEmission) / reductionGap) * 200))
+        )
+      : 0;
 
   if (latestTarget.isLoading) {
     return <CardSkeleton />;

@@ -130,10 +130,19 @@ function ActionDropdown({
 
         <DropdownMenuItem
           onClick={onContinue}
-          disabled={status === "approved" || status === "submitted_approved"}
+          disabled={
+            status === "approved" ||
+            status === "submitted_approved"
+          }
         >
-          {getActionIcon("Continue")}
-          Continue
+          {getActionIcon(
+            status === "declined" || status === "unapproved_rejected"
+              ? "Update"
+              : "Continue",
+          )}
+          {status === "declined" || status === "unapproved_rejected"
+            ? "Update"
+            : "Continue"}
         </DropdownMenuItem>
 
         <DropdownMenuItem onClick={onGenerateReport}>

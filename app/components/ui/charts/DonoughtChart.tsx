@@ -17,13 +17,13 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
   const data = [{ value: percentage }, { value: 100 - percentage }];
   return (
     <div className="flex flex-col items-center text-center space-y-2">
-      <PieChart width={100} height={100}>
+      <PieChart width={120} height={120}>
         <Pie
           data={data}
-          cx={50}
-          cy={50}
-          innerRadius={30}
-          outerRadius={45}
+          cx={60}
+          cy={60}
+          innerRadius={38}
+          outerRadius={55}
           startAngle={90}
           endAngle={-270}
           dataKey="value"
@@ -34,9 +34,9 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
               y={cy}
               textAnchor="middle"
               dominantBaseline="middle"
-              className="text-base font-semibold"
+              className="text-sm font-semibold"
             >
-              {Math.round(percentage)}%
+              {parseFloat(percentage.toFixed(2))}%
             </text>
           )}
         >
@@ -56,13 +56,13 @@ export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniD
   const data = [{ value: percentage }, { value: 100 - percentage }];
   return (
     <div className="flex items-center gap-3 text-center space-y-2">
-      <PieChart width={100} height={100}>
+      <PieChart width={120} height={120}>
         <Pie
           data={data}
-          cx={50}
-          cy={50}
-          innerRadius={30}
-          outerRadius={45}
+          cx={60}
+          cy={60}
+          innerRadius={38}
+          outerRadius={55}
           startAngle={90}
           endAngle={-270}
           dataKey="value"
@@ -73,9 +73,9 @@ export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniD
               y={cy}
               textAnchor="middle"
               dominantBaseline="middle"
-              className="text-base font-semibold"
+              className="text-sm font-semibold"
             >
-              {Math.round(percentage)}%
+              {parseFloat(percentage.toFixed(2))}%
             </text>
           )}
         >

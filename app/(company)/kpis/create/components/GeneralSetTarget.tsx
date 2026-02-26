@@ -13,28 +13,35 @@ import { useAuth } from "@/context/AuthContext";
 import { GeneralTargetData } from "@/types/target";
 import { BaselineOption, CompanyTargetSummary, targetRangesOverlap } from "@/types/target/index";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { EmissionDataResponseGeneral } from "../type";
 import { CalculateEmissionPercentage, calculateTotal, toShortMonth } from "../utils";
 import CustomTooltip from "./CustomTooltip";
 import { TooltipMessage } from "./TooltipMessage";
+import { Target } from "@/app/(company)/components/types/target";
+import { Info } from "lucide-react";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
   onChange: (data: GeneralTargetData) => void;
   onComplete?: (data: GeneralTargetData) => void;
+  existingTarget?: Target | null;
 }
 
 const currentYear = new Date().getFullYear();
 export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
 
-export default function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetFormProps) {
+export default function GeneralTargetForm({ data, onChange, onComplete, existingTarget }: GeneralTargetFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   const companyId = user?.company?.id;
 
+  const isEdit = !!existingTarget;
+  const didPrepopulate = useRef(false);
+
   const [selectedBaselineId, setSelectedBaselineId] = useState<number | null>(null);
+  const [showPrerequisiteModal, setShowPrerequisiteModal] = useState(false);
   const [emissionData, setEmissionData] = useState<EmissionDataResponseGeneral>({
     startYear: 0,
     endYear: 0,
@@ -45,27 +52,46 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   const companyTargetsQuery = useCompanyTargets(companyId);
   const existingTargets = useMemo(() => companyTargetsQuery.data ?? [], [companyTargetsQuery.data]);
 
+  // Prepopulate form from existing target when editing
+  useEffect(() => {
+    if (!existingTarget || !existingTarget.generalTarget || didPrepopulate.current) return;
+    didPrepopulate.current = true;
+
+    const gt = existingTarget.generalTarget;
+    onChange({
+      reductionPercentage: gt.reductionPercentage ?? null,
+      baselineYear: existingTarget.baselineYear ?? null,
+      targetYear: existingTarget.targetYear ?? null,
+      description: existingTarget.description ?? "",
+      targetEmission: gt.targetEmission ?? null,
+      totalReduction: (gt.baselineYearEmission ?? 0) - (gt.targetEmission ?? 0),
+    });
+  }, [existingTarget, onChange]);
+
   const targetYear = data?.targetYear ?? null;
   const isOptionDisabled = useCallback(
     (option: BaselineOption): boolean => {
       if (!targetYear || typeof targetYear !== "number") return false;
       const baselineYear = Number(option.startYear) || 0;
-      return existingTargets.some((t: CompanyTargetSummary) =>
-        targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear)
-      );
+      // When editing, don't flag the current target as an overlap
+      return existingTargets.some((t: CompanyTargetSummary) => {
+        if (isEdit && t.id === existingTarget?.id) return false;
+        return targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear);
+      });
     },
-    [targetYear, existingTargets]
+    [targetYear, existingTargets, isEdit, existingTarget?.id]
   );
   const getOverlapLabel = useCallback(
     (option: BaselineOption): string => {
       if (!targetYear || typeof targetYear !== "number") return "";
       const baselineYear = Number(option.startYear) || 0;
-      const overlapping = existingTargets.find((t: CompanyTargetSummary) =>
-        targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear)
-      );
+      const overlapping = existingTargets.find((t: CompanyTargetSummary) => {
+        if (isEdit && t.id === existingTarget?.id) return false;
+        return targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear);
+      });
       return overlapping ? ` (overlaps ${overlapping.baselineYear}–${overlapping.targetYear})` : "";
     },
-    [targetYear, existingTargets]
+    [targetYear, existingTargets, isEdit, existingTarget?.id]
   );
 
   useEffect(() => {
@@ -116,7 +142,21 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
   }, [baselineOptionsQuery.data, selectedBaselineId, data, onChange]);
 
-  console.log("Emission Data in GeneralTargetForm:", emissionData);
+  // Show prerequisite modal when baseline data cannot support target creation
+  useEffect(() => {
+    if (!baselineOptionsQuery.isSuccess) return;
+
+    // No baseline options available at all
+    if (!baselineOptionsQuery.data?.length) {
+      setShowPrerequisiteModal(true);
+      return;
+    }
+
+    // Baseline selected but has no emissions (startYear > 0 ensures sync has completed)
+    if (selectedBaselineId && emissionData.startYear > 0 && !emissionData.totals) {
+      setShowPrerequisiteModal(true);
+    }
+  }, [baselineOptionsQuery.isSuccess, baselineOptionsQuery.data, selectedBaselineId, emissionData.startYear, emissionData.totals]);
 
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
@@ -147,20 +187,11 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     onChange(updated);
   };
 
-  // In your form component's handleContinue function:
   const handleContinue = () => {
     if (data.reductionPercentage && selectedBaselineId && emissionData?.totals && data.targetYear) {
-      // Calculate target emission (same calculation)
       const calculatedTargetEmission = data?.reductionPercentage
         ? emissionData?.totals * (1 - data?.reductionPercentage / 100)
         : 0;
-
-      console.log("Saving to localStorage:", {
-        // Debug log
-        reductionPercentage: data.reductionPercentage,
-        baselineEmission: emissionData?.totals,
-        calculatedTargetEmission: calculatedTargetEmission,
-      });
 
       const selected =
         baselineOptionsQuery.data?.find(
@@ -173,14 +204,15 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         ? `${toShortMonth(selected.startMonth)} ${selected.startYear} – ${toShortMonth(selected.endMonth)} ${selected.endYear}`
         : undefined;
 
-      // Save to localStorage, including the chosen baseline assessment metadata
       const storageData = {
         ...data,
-        targetEmission: calculatedTargetEmission, // Make sure this is included
+        targetEmission: calculatedTargetEmission,
         baselineEmission,
         baselineYear: baselineYear || 0,
         baselineAssessmentId: selected?.assessmentId ?? null,
         baselinePeriodLabel,
+        // Pass edit info so the summary page knows to PATCH
+        ...(isEdit && existingTarget ? { targetId: existingTarget.id } : {}),
       };
 
       localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
@@ -189,7 +221,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     }
   };
 
-  // Calculate values for display (same as original)
+  // Calculate values for display
   const calculatedTargetEmission = data?.reductionPercentage
     ? emissionData?.totals * (1 - data?.reductionPercentage / 100)
     : 0;
@@ -214,7 +246,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="text-lg">General Reduction Target from KPI</div>
+          <div className="text-lg">
+            {isEdit ? "Edit General Reduction Target" : "General Reduction Target from KPI"}
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-sm text-gray-600">
@@ -242,23 +276,26 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                 placeholder="e.g. 30"
                 value={data?.reductionPercentage ?? ""}
                 onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
+                onWheel={(e) => e.currentTarget.blur()}
                 className="w-full"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="baselineAssessment">
-                Baseline Assessment{" "}
+              <Label htmlFor="baselineYear">
+                Baseline Year{" "}
                 <CustomTooltip
                   detail={
                     <TooltipMessage
-                      title={"Baseline Assessment"}
+                      title={"Baseline Year"}
                       message={
-                        "Choose which completed assessment period to use as your baseline for this target."
+                        isEdit
+                          ? "Select which assessment period to use as the baseline for this target."
+                          : "The reference year from your most recent completed assessment. This is automatically set."
                       }
                     />
                   }
-                />{" "}
+                />
               </Label>
               {baselineOptionsQuery.isLoading ? (
                 <div className="flex h-10 items-center text-sm text-gray-500">
@@ -274,9 +311,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                     Go to Assessments
                   </Link>
                 </div>
-              ) : (
+              ) : isEdit ? (
                 <select
-                  id="baselineAssessment"
+                  id="baselineYear"
                   value={selectedBaselineId ?? ""}
                   onChange={(e) =>
                     setSelectedBaselineId(e.target.value ? Number(e.target.value) : null)
@@ -286,19 +323,27 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                   {baselineOptionsQuery.data.map((option: BaselineOption) => {
                     const disabled = isOptionDisabled(option);
                     const overlapLabel = getOverlapLabel(option);
-                    const periodLabel = `${toShortMonth(option.startMonth)} ${option.startYear} – ${toShortMonth(option.endMonth)} ${option.endYear}`;
                     return (
                       <option
                         key={option.assessmentId}
                         value={option.assessmentId}
                         disabled={disabled}
                       >
-                        {periodLabel}
+                        {option.startYear}
+                        {` (${toShortMonth(option.startMonth)} ${option.startYear} – ${toShortMonth(option.endMonth)} ${option.endYear})`}
                         {overlapLabel}
                       </option>
                     );
                   })}
                 </select>
+              ) : (
+                <Input
+                  id="baselineYear"
+                  type="number"
+                  value={emissionData?.startYear || ""}
+                  readOnly
+                  className="w-full bg-gray-50 cursor-not-allowed"
+                />
               )}
             </div>
 
@@ -356,13 +401,23 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             <div className="space-y-2 flex items-center justify-between w-full">
               <Label className="flex items-center gap-1">
                 Baseline ({emissionData?.startYear || "—"})
+                <CustomTooltip
+                  detail={
+                    <TooltipMessage
+                      title={"Baseline"}
+                      message={
+                        "Total GHG emissions recorded in the baseline year (tCO₂e). This is the reference point for measuring your reduction progress."
+                      }
+                    />
+                  }
+                />
               </Label>
               <div className="text-sm text-gray-900 font-semibold">
                 {formatNumberWithCommas(emissionData?.totals)} tCO₂e
               </div>
             </div>
             <div className="space-y-2 flex items-center justify-between w-full">
-              <Label className="flex items-center">
+              <Label className="flex items-center gap-1">
                 Target: ({data?.targetYear || 0})
                 <CustomTooltip
                   detail={
@@ -384,8 +439,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             </div>
             <hr className="text-gray-300" />
             <div className="space-y-2 flex items-center justify-between w-full">
-              <Label>
-                Total Reduction:{" "}
+              <Label className="flex items-center gap-1">
+                Total Reduction:
                 <CustomTooltip
                   detail={
                     <TooltipMessage
@@ -419,6 +474,33 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
           Continue
         </CustomButton>
       </div>
+
+      {/* Prerequisite modal — shown when baseline data is missing or has no emissions */}
+      {showPrerequisiteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4 space-y-4 text-center">
+            <Info className="h-12 w-12 text-amber-500 mx-auto" />
+            <h2 className="text-xl font-semibold text-gray-900">Baseline Data Required</h2>
+            <p className="text-gray-600 text-sm">
+              To set a reduction target, you need a completed baseline assessment with
+              calculated emissions data. Please ensure the following are in place:
+            </p>
+            <ul className="text-left text-sm text-gray-600 space-y-1 pl-4">
+              <li>&#x2022; At least one approved assessment</li>
+              <li>&#x2022; Emissions data calculated (total &gt; 0 tCO₂e)</li>
+              <li>&#x2022; A valid reporting period (baseline year)</li>
+            </ul>
+            <div className="flex gap-3 justify-center pt-2">
+              <CustomButton variant="outlined" onClick={() => setShowPrerequisiteModal(false)}>
+                Dismiss
+              </CustomButton>
+              <CustomButton onClick={() => router.push("/assessments/new-assessment")}>
+                Go to Assessments
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

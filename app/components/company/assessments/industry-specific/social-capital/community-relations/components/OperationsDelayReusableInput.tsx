@@ -59,12 +59,6 @@ export default function OperationsDelayReusableInput({
     });
   };
 
-  // Parse formatted string back to number
-  const parseFormattedNumber = (formatted: string): number => {
-    const clean = formatted.replace(/[^\d.]/g, "");
-    return clean === "" ? 0 : parseFloat(clean);
-  };
-
   // Initialize display value (only when not focused to preserve user input)
   useEffect(() => {
     if (!isFocused) {
@@ -76,18 +70,37 @@ export default function OperationsDelayReusableInput({
     setIsTouched(true);
     const value = e.target.value;
 
-    // Allow only numbers, commas, and decimal point
-    const isValidInput = /^[\d,.]*$/.test(value);
-    if (!isValidInput) return;
+    // Strip commas to get raw input
+    const stripped = value.replace(/,/g, "");
 
-    // Update display value immediately to preserve user input
-    setDisplayValue(value);
+    // Allow only digits and one decimal point
+    if (!/^\d*\.?\d*$/.test(stripped)) return;
 
-    // Parse the raw number (remove commas)
-    const rawNumber = parseFormattedNumber(value);
+    // Empty or just a dot
+    if (stripped === "" || stripped === ".") {
+      setDisplayValue(stripped);
+      setCount(0);
+      return;
+    }
 
-    // Update parent with raw number
-    setCount(rawNumber);
+    // Format live while typing
+    if (stripped.endsWith(".")) {
+      const whole = stripped.slice(0, -1);
+      const formattedWhole = Number(whole).toLocaleString("en-US");
+      setDisplayValue(`${formattedWhole}.`);
+      setCount(parseFloat(whole));
+      return;
+    }
+
+    if (stripped.includes(".")) {
+      const [whole, decimal] = stripped.split(".");
+      const formattedWhole = Number(whole || "0").toLocaleString("en-US");
+      setDisplayValue(`${formattedWhole}.${decimal}`);
+    } else {
+      setDisplayValue(Number(stripped).toLocaleString("en-US"));
+    }
+
+    setCount(parseFloat(stripped) || 0);
   };
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,9 +116,6 @@ export default function OperationsDelayReusableInput({
   const handleFocus = () => {
     setIsTouched(true);
     setIsFocused(true);
-    if (count !== 0) {
-      setDisplayValue(count.toString());
-    }
   };
 
   return (
