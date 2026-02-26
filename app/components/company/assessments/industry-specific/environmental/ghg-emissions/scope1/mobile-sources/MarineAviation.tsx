@@ -72,6 +72,7 @@ export function MarineAviation({
     saveNow,
     submitGroup,
     isLoading: isActionLoading,
+    isPreviouslySubmitted,
   } = useAssessmentFlow("ghg-mobile-sources-marine-aviation");
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -569,11 +570,11 @@ export function MarineAviation({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isActionLoading}
-                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isActionLoading || isPreviouslySubmitted}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit assessment"
               >
-                {isActionLoading ? "Submitting..." : "Submit"}
+                {isActionLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
               </Button>
             </div>
           </CardContent>

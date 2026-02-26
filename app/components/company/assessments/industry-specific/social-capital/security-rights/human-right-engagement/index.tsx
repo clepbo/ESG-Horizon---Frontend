@@ -38,7 +38,7 @@ export default function HumanRightEngagement({
   onSubmit,
 }: HumanRightEngagementProps) {
   const router = useRouter();
-  const { saveNow, submitGroup } = useAssessmentFlow(
+  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(
     "socialCapital.securityRights.humanRightEngagement"
   );
 
@@ -300,10 +300,10 @@ export default function HumanRightEngagement({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSaving || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
+                {isPreviouslySubmitted ? "Submitted" : "Submit"}
               </Button>
             </div>
           </CardContent>

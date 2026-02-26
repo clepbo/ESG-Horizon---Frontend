@@ -41,6 +41,7 @@ export default function ProducedWaterManagement({
   const volumeDischargedToSurface = useFormattedNumber("");
   const volumeInjectedForDisposal = useFormattedNumber("");
   const volumeRecycledReused = useFormattedNumber("");
+  const averageHydrocarbonContent = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
   const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("produced-water-management");
@@ -78,6 +79,7 @@ export default function ProducedWaterManagement({
     volumeDischargedToSurfaceUnit: "m³",
     volumeInjectedForDisposalUnit: "m³",
     volumeRecycledReusedUnit: "m³",
+    averageHydrocarbonContentUnit: "mg/L",
   });
 
   useEffect(() => {
@@ -91,12 +93,14 @@ export default function ProducedWaterManagement({
       volumeDischargedToSurface.handleChange(String(existingData.volumeDischargedToSurface || ""));
       volumeInjectedForDisposal.handleChange(String(existingData.volumeInjectedForDisposal || ""));
       volumeRecycledReused.handleChange(String(existingData.volumeRecycledReused || ""));
+      averageHydrocarbonContent.handleChange(String(existingData.averageHydrocarbonContent || ""));
 
       setFormData({
         totalProducedWaterGeneratedUnit: existingData.totalProducedWaterGeneratedUnit || "m³",
         volumeDischargedToSurfaceUnit: existingData.volumeDischargedToSurfaceUnit || "m³",
         volumeInjectedForDisposalUnit: existingData.volumeInjectedForDisposalUnit || "m³",
         volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "m³",
+        averageHydrocarbonContentUnit: existingData.averageHydrocarbonContentUnit || "mg/L",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
@@ -107,6 +111,7 @@ export default function ProducedWaterManagement({
     volumeDischargedToSurface,
     volumeInjectedForDisposal,
     volumeRecycledReused,
+    averageHydrocarbonContent,
   ]);
 
   // Calculate percentages based on total produced water
@@ -140,6 +145,8 @@ export default function ProducedWaterManagement({
     const hasVolumeRecycledReused =
       volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
 
+    const hasAverageHydrocarbonContent = averageHydrocarbonContent.rawValue !== "";
+
     const hasEvidence = filesAndLinks.length > 0;
 
     return calculateProgress([
@@ -147,6 +154,7 @@ export default function ProducedWaterManagement({
       hasVolumeDischargedToSurface,
       hasVolumeInjectedForDisposal,
       hasVolumeRecycledReused,
+      hasAverageHydrocarbonContent,
       hasEvidence,
     ]);
   }, [
@@ -154,6 +162,7 @@ export default function ProducedWaterManagement({
     volumeDischargedToSurface.rawValue,
     volumeInjectedForDisposal.rawValue,
     volumeRecycledReused.rawValue,
+    averageHydrocarbonContent.rawValue,
     formData.totalProducedWaterGeneratedUnit,
     formData.volumeDischargedToSurfaceUnit,
     formData.volumeInjectedForDisposalUnit,
@@ -192,6 +201,10 @@ export default function ProducedWaterManagement({
       newErrors.volumeRecycledReusedUnit = "Unit is required";
     }
 
+    if (!averageHydrocarbonContent.rawValue) {
+      newErrors.averageHydrocarbonContent = "Value is required";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -215,6 +228,8 @@ export default function ProducedWaterManagement({
       volumeInjectedForDisposalUnit: formData.volumeInjectedForDisposalUnit,
       volumeRecycledReused: Number(volumeRecycledReused.rawValue),
       volumeRecycledReusedUnit: formData.volumeRecycledReusedUnit,
+      averageHydrocarbonContent: Number(averageHydrocarbonContent.rawValue),
+      averageHydrocarbonContentUnit: formData.averageHydrocarbonContentUnit,
       percentages: {
         dischargedPercentage: percentages.discharged,
         injectedPercentage: percentages.injected,
@@ -256,6 +271,8 @@ export default function ProducedWaterManagement({
       volumeInjectedForDisposalUnit: formData.volumeInjectedForDisposalUnit,
       volumeRecycledReused: Number(volumeRecycledReused.rawValue),
       volumeRecycledReusedUnit: formData.volumeRecycledReusedUnit,
+      averageHydrocarbonContent: Number(averageHydrocarbonContent.rawValue),
+      averageHydrocarbonContentUnit: formData.averageHydrocarbonContentUnit,
       percentages: {
         dischargedPercentage: percentages.discharged,
         injectedPercentage: percentages.injected,
@@ -391,6 +408,25 @@ export default function ProducedWaterManagement({
               unitError={errors.volumeRecycledReusedUnit}
               formatNumbers={false}
               placeholder="e.g., 1300"
+            />
+
+            <ReusableInput
+              label="Average Hydrocarbon Content in Discharged Water"
+              tooltipTitle="Average Hydrocarbon Content in Discharged Water"
+              tooltipBody="The average concentration of hydrocarbons present in produced water discharged to surface water bodies. Measured in milligrams per litre (mg/L). This metric indicates the quality of discharged water and compliance with environmental discharge limits."
+              inputValue={averageHydrocarbonContent.displayValue}
+              unitValue={formData.averageHydrocarbonContentUnit}
+              onInputChange={(num) => {
+                averageHydrocarbonContent.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, averageHydrocarbonContent: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("averageHydrocarbonContentUnit", unit);
+              }}
+              error={errors.averageHydrocarbonContent}
+              formatNumbers={false}
+              placeholder="e.g., 15"
+              customUnit="mg/L"
             />
 
             {/* Document/Evidence Upload */}

@@ -90,6 +90,12 @@ export const useAssessmentFlow = (currentFormKey: string) => {
 
   const isAssignedTask = state.isAssignedTask || false;
 
+  const assessmentStatus = state.assessmentData?.status;
+  const isPreviouslySubmitted =
+    assessmentStatus === "awaiting_review" ||
+    assessmentStatus === "submitted_approved" ||
+    assessmentStatus === "approved";
+
   const handleAssignedTaskRedirect = () => {
     if (isAssignedTask) {
       dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
@@ -103,6 +109,7 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     saveNow,
     submitGroup,
     isLoading: createMut.isPending || saveMut.isPending || submitMut.isPending,
+    isPreviouslySubmitted,
     isAssignedTask,
     handleAssignedTaskRedirect,
   };

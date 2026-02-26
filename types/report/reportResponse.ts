@@ -264,6 +264,7 @@ export interface WaterManagementData {
   recycledWater: number;
   injectedForDisposal?: number;
   dischargedToSurface?: number;
+  averageHydrocarbonContent?: number;
   freshwaterWithdrawals?: {
     surfaceWater: number;
     groundwater: number;
