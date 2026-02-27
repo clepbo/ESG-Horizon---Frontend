@@ -17,7 +17,8 @@ import { useSingleReport } from "../service/useReport";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
-import { exportPNG, generatePDF } from "../exportFiles";
+import { generateReportPDF, generateReportPNG } from "../pdf-export/generateReportExport";
+import { useCompanyDetails } from "@/services/hooks/company.hooks";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { shortenMonth, useBreadcrumb } from "../../context/ReportBreadcrumbContext";
+import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 
 export default function NewReportSummary() {
   // const [view, setView] = useState("overview");
@@ -37,9 +39,11 @@ export default function NewReportSummary() {
 
   const [reportData, setReportData] = React.useState<ReportResponse | undefined>(undefined);
   const [selected, setSelected] = useState<string | undefined>(undefined);
+  const [exporting, setExporting] = useState(false);
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
+  const { data: company } = useCompanyDetails();
   const { setLastLabelOverride } = useBreadcrumb();
 
   useEffect(() => {
@@ -112,16 +116,38 @@ export default function NewReportSummary() {
   }
 
   async function exportfile(value: string) {
-    if (value === "pdf") {
-      await generatePDF("section", "esg-detail");
-    } else if (value === "png") {
-      await exportPNG("section");
+    setExporting(true);
+    try {
+      const companyInfo = {
+        name: company?.name ?? "",
+        logoUrl: company?.company_logo_url ?? null,
+        address: company?.address ?? "",
+        country: company?.country ?? "",
+      };
+      if (value === "pdf") {
+        await generateReportPDF({ reportData: reportData!, company: companyInfo });
+      } else if (value === "png") {
+        await generateReportPNG({ reportData: reportData!, company: companyInfo });
+      }
+    } finally {
+      setExporting(false);
+      setSelected(undefined);
     }
-    setSelected(undefined);
   }
 
   return (
     <div className="min-h-screen flex flex-col gap-4 w-full overflow-auto" id="section">
+      {exporting && (
+        <div className="no-export fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl px-8 py-6 flex flex-col items-center gap-4">
+            <LoadingSpinner size="lg" />
+            <p className="text-sm font-medium text-gray-700">
+              Generating your report, please wait...
+            </p>
+          </div>
+        </div>
+      )}
+
       <Card className="p-4 rounded flex flex-col md:flex-row justify-between w-full items-center">
         <div className="flex flex-col gap-4">
           <div className="grid items-center gap-2 justify-start">
@@ -145,15 +171,16 @@ export default function NewReportSummary() {
         </div>
 
         <div className="no-export">
-          <Select value={selected} onValueChange={exportfile}>
+          <Select value={selected} onValueChange={exportfile} disabled={exporting}>
             <SelectTrigger
               className="rounded min-w-xs p-4 border-primary text-primary cursor-pointer
        hover:shadow-md hover:scale-[1.03]
       active:scale-[0.97]
+      disabled:opacity-60 disabled:cursor-not-allowed
     "
             >
               <SelectValue
-                placeholder="Export file"
+                placeholder={exporting ? "Exporting..." : "Export file"}
                 className="data-placeholder-shown:text-white"
               />
             </SelectTrigger>

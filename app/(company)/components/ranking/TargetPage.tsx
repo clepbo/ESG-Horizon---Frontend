@@ -98,10 +98,10 @@ const ESGPerformance = () => {
         </div>
       </div>
 
-      {/* Overall ESG Performance */}
+      {/* Net Zero Progress */}
       <div className="mb-12">
         <h2 className="mb-8 text-center text-xl font-semibold text-foreground">
-          Overall ESG Performance
+          Net Zero Progress (Carbon Footprint)
         </h2>
         <div className="flex flex-col items-center">
           <div className="relative mb-6">

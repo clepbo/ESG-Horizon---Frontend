@@ -94,7 +94,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
       <div className="flex flex-col gap-3 items-start pl-2">
         {payload.map((entry: any, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+            <div className="w-3 h-3" style={{ backgroundColor: entry.color }} />
             <span className="text-[14px] font-medium text-gray-900">{entry.value}</span>
           </div>
         ))}
@@ -144,11 +144,21 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: "#111827", fontSize: 14 }}
                   axisLine={false}
                   tickLine={false}
                   width={65}
-                  tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}
+                  tick={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      fill="#111827"
+                      fontSize={12}
+                      textAnchor="end"
+                      transform={`rotate(-35, ${props.x}, ${props.y})`}
+                    >
+                      {formatNumberFigures(Number(props.payload.value) || 0)}
+                    </text>
+                  )}
                 />
                 <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend
