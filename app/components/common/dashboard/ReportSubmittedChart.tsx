@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { formatNumberFull } from "@/lib/numberFormat";
 import { useState, useEffect } from "react";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 
@@ -38,7 +39,7 @@ export function ReportSubmittedChart() {
   }, []);
 
   return (
-    <Card className="bg-white border-none shadow rounded-xl h-[340px]">
+    <Card className="bg-white border-none shadow rounded-xl h-[340px] overflow-visible">
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold text-neutral-900">
@@ -86,11 +87,19 @@ export function ReportSubmittedChart() {
                 interval={0}
                 width={55}
               />
+              <Tooltip
+                cursor={false}
+                formatter={(value) => [
+                  formatNumberFull(Number(value) || 0),
+                  "Score (%)",
+                ]}
+                labelStyle={{ color: "#374151" }}
+              />
               <Legend
                 layout="vertical"
                 align="right"
                 verticalAlign="middle"
-                iconType="circle"
+                iconType="rect"
                 wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
               />
               <Bar

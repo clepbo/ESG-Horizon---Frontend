@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { BusinessModelPillar } from "@/types/report/reportResponse";
 import { formatNumberFull, formatCurrencyCompact } from "@/lib/numberFormat";
 
@@ -53,7 +53,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-red-50 p-4">
             <p className="text-sm font-medium text-red-500">Reserves at Risk</p>
             <p className="mt-2 text-3xl font-bold text-red-500">
-              {Math.round(climateImpact?.reservesAtRiskPercent ?? 0)}%
+              {formatNumberFull(climateImpact?.reservesAtRiskPercent ?? 0, { maximumFractionDigits: 2 })}%
             </p>
             <p className="text-sm text-red-400">Decrease in Proved Oil</p>
           </div>
@@ -114,6 +114,9 @@ export default function BusinessEthicAndTransparency({
                   <Cell key={index} fill={entry.color} />
                 ))}
               </Pie>
+              <Tooltip
+                formatter={(value) => formatNumberFull(Number(value) || 0)}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -121,7 +124,7 @@ export default function BusinessEthicAndTransparency({
         <div className="mt-4 flex justify-center gap-2 text-sm">
           {capitalData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: item.color }} />
               <span className="text-gray-900 font-medium">{item.name}</span>
             </div>
           ))}

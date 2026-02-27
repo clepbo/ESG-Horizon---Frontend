@@ -207,7 +207,7 @@ export function Scope1EmissionsChart() {
                   layout="vertical"
                   align="right"
                   verticalAlign="middle"
-                  iconType="circle"
+                  iconType="rect"
                   wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
                 />
                 <Bar

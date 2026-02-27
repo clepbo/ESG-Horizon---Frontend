@@ -72,7 +72,7 @@ export default function FullReport() {
         <OverallSummary report={data} />
       </div>
 
-      <div className="grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm">
+      <div className="grid w-full gap-4 p-4 bg-white rounded-lg shadow-sm overflow-visible">
         <EmissionInventoryWrapper report={data} />
         <hr className="text-gray-300" />
 

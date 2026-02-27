@@ -3,6 +3,7 @@
 import { HardHat, ArrowDown, ArrowUp, Minus } from "lucide-react";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { cn } from "@/lib/utils";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface HumanStepOneProps {
   reportData?: ReportResponse;
@@ -13,39 +14,39 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
   const metrics = [
     {
       title: "Total TRIR",
-      value: reportData?.humanCapital?.totalRecordableIncidentRatePer200kHours?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
       change: change,
       isTrir: true,
     },
     {
       title: "Direct TRIR",
-      value: reportData?.humanCapital?.direct?.trir?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.direct?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
     },
     {
       title: "Contract TRIR",
-      value: reportData?.humanCapital?.contract?.trir?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.contract?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
     },
     {
       title: "Recordable Incidents",
-      value: reportData?.humanCapital?.recordableIncidents?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.recordableIncidents ?? 0),
       unit: "incidents",
     },
     {
       title: "Fatalities",
-      value: reportData?.humanCapital?.fatalities?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.fatalities ?? 0),
       unit: "fatalities",
     },
     {
       title: "Near Misses",
-      value: reportData?.humanCapital?.nearMisses?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.nearMisses ?? 0),
       unit: "misses",
     },
     {
       title: "Avg Safety Training",
-      value: reportData?.humanCapital?.averageSafetyTrainingHoursPerEmployee?.toString() || "0",
+      value: formatNumberFull(reportData?.humanCapital?.averageSafetyTrainingHoursPerEmployee ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "hours/employee",
     },
   ];
@@ -118,7 +119,7 @@ function MetricCard({
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
-            {Math.abs(change)}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
+            {formatNumberFull(Math.abs(change), { maximumFractionDigits: 2 })}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
           </div>
         )}
       </div>

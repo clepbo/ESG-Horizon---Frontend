@@ -2,6 +2,7 @@ import React from "react";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 export interface ReductionTargetProps {
   percentage: number;
@@ -59,13 +60,13 @@ export default function ReductionTarget({
           >
             <div className="flex flex-col items-center justify-center text-center px-4">
               <span className="text-3xl font-bold text-gray-800">
-                {parseFloat(achievedPercentage.toFixed(2))}%
+                {formatNumberFull(achievedPercentage, { maximumFractionDigits: 2 })}%
               </span>
               <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mt-1">
                 Reduction Achieved
               </span>
               <span className="text-[10px] text-gray-400 mt-0.5">
-                Target: {parseFloat(percentage.toFixed(2))}% by {targetYear}
+                Target: {formatNumberFull(percentage, { maximumFractionDigits: 2 })}% by {targetYear}
               </span>
             </div>
           </CircularProgressbarWithChildren>
