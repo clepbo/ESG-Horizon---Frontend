@@ -18,6 +18,7 @@ interface EmissionsChartProps {
   height?: number;
   width?: string;
   borderColor?: string;
+  chartColor?: string;
   rotateIcon?: string;
   bgColor?: string;
   color?: string;
@@ -33,6 +34,7 @@ const EmissionsChart = ({
   height = 100,
   width = "100%",
   borderColor = "",
+  chartColor = "#10b981",
   rotateIcon = "",
   bgColor = "",
   color = "",
@@ -168,8 +170,8 @@ const EmissionsChart = ({
           >
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                <stop offset="5%" stopColor={chartColor} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -183,7 +185,7 @@ const EmissionsChart = ({
             <Area
               type="monotone"
               dataKey="emissions"
-              stroke="#10b981"
+              stroke={chartColor}
               strokeWidth={2}
               fill={`url(#${gradientId})`}
               isAnimationActive={false}

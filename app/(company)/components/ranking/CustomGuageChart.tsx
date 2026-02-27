@@ -89,8 +89,8 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       startAngle: -90,
       endAngle: 89.9,
       background: undefined,
-      center: ["50%", "80%"],
-      size: "170%",
+      center: ["50%", "75%"],
+      size: "140%",
     },
     credits: {
       enabled: false,
