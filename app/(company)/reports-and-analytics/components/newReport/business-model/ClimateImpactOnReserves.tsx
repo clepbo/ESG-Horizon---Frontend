@@ -7,8 +7,8 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  LabelList,
   Legend,
+  Tooltip,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ShieldCheck } from "lucide-react";
@@ -45,7 +45,7 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* LEFT CARD - Geopolitical & Corruption Risk */}
-      <div className="rounded-xl bg-white p-6 shadow-sm">
+      <div className="rounded-xl bg-white p-6 shadow-sm overflow-visible">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Geopolitical & Corruption Risk</h3>
 
         <div className="h-64 w-full">
@@ -64,12 +64,16 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   axisLine={false}
                   tickLine={false}
                 />
-                <YAxis tick={{ fill: "#111827", fontSize: 14 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: "#111827", fontSize: 14 }} axisLine={false} tickLine={false} width={65} tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
+                <Tooltip
+                  cursor={false}
+                  formatter={(value?: number) => formatNumberFigures(Number(value) || 0)}
+                />
                 <Legend
                   layout="vertical"
                   align="right"
                   verticalAlign="middle"
-                  iconType="circle"
+                  iconType="rect"
                   wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
                 />
                 <Bar
@@ -78,26 +82,14 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   fill="#BDBDBD"
                   radius={[6, 6, 0, 0]}
                   maxBarSize={60}
-                >
-                  <LabelList
-                    dataKey="total"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                />
                 <Bar
                   dataKey="highRisk"
                   name="High Risk"
                   fill="#EF4444"
                   radius={[6, 6, 0, 0]}
                   maxBarSize={60}
-                >
-                  <LabelList
-                    dataKey="highRisk"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (

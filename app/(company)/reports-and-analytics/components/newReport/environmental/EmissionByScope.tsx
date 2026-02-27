@@ -7,7 +7,6 @@ import {
   Legend,
   ResponsiveContainer,
   CartesianGrid,
-  LabelList,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { shortenPeriod } from "./GHGHistoryTransformer";
@@ -78,7 +77,7 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
           margin={{
             top: 30,
             right: 130,
-            left: 20,
+            left: 24,
             bottom: 5,
           }}
         >
@@ -113,7 +112,7 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             layout="vertical"
             align="right"
             verticalAlign="middle"
-            iconType="circle"
+            iconType="rect"
             wrapperStyle={{ paddingLeft: "16px", fontSize: 14, color: "#111827", fontWeight: 500 }}
           />
           <Bar
@@ -139,17 +138,7 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             radius={[4, 4, 0, 0]}
             name="Scope 3"
             maxBarSize={60}
-          >
-            <LabelList
-              dataKey="total"
-              position="top"
-              fill="#111827"
-              fontSize={14}
-              fontWeight="bold"
-              offset={10}
-              formatter={(value) => formatNumberFigures(Number(value) || 0)}
-            />
-          </Bar>
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

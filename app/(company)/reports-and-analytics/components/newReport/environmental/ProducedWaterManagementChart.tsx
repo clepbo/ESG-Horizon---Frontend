@@ -52,10 +52,10 @@ export default function ProducedWaterManagementChart({
               layout="horizontal"
               verticalAlign="bottom"
               align="center"
-              iconType="circle"
+              iconType="rect"
               wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
             />
-            <Tooltip />
+            <Tooltip formatter={(value) => formatNumberFigures(Number(value) || 0)} />
           </PieChart>
         </ResponsiveContainer>
       </div>

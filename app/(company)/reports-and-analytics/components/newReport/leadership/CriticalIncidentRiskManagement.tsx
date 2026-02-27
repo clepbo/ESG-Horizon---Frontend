@@ -37,7 +37,7 @@ export default function CriticalIncidentRiskManagement({
         <div className=" items-center flex p-4 justify-between">
           <span className="fflex flex-col items-center">
             <p className="text-center"> Tier 1 Events</p>
-            <p className="text-red-600 text-center font-semibold"> {tierOneEvents} </p>
+            <p className="text-red-600 text-center font-semibold"> {formatNumberFull(tierOneEvents)} </p>
           </span>
           <span>
             <RxDividerVertical className="" />

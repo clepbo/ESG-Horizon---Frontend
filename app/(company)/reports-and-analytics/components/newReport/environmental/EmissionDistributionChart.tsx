@@ -85,7 +85,7 @@ export default function EmissionDistributionChart({
             layout="horizontal"
             verticalAlign="bottom"
             align="center"
-            iconType="circle"
+            iconType="rect"
             wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
           />
         </PieChart>

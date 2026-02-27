@@ -11,7 +11,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LabelList,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
@@ -95,7 +94,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
       <div className="flex flex-col gap-3 items-start pl-2">
         {payload.map((entry: any, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
             <span className="text-[14px] font-medium text-gray-900">{entry.value}</span>
           </div>
         ))}
@@ -110,7 +109,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
           <p className="font-semibold text-sm mb-2">{payload[0].payload.reserveType}</p>
           {payload.map((entry: any, index: number) => (
             <p key={`tooltip-${index}`} className="text-sm" style={{ color: entry.color }}>
-              {`${entry.name}: ${entry.value}`}
+              {`${entry.name}: ${formatNumberFigures(Number(entry.value) || 0)}`}
             </p>
           ))}
         </div>
@@ -125,7 +124,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
         {chartsConfig.map((chart, chartIndex) => (
           <div
             key={chartIndex}
-            className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100"
+            className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 overflow-visible"
           >
             <h3 className="text-lg md:text-xl font-semibold mb-4 md:mb-6 text-gray-800">
               {chart.title}
@@ -134,7 +133,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
             <ResponsiveContainer width="100%" height={350}>
               <BarChart
                 data={chart.data}
-                margin={{ top: 20, right: 120, left: 0, bottom: 20 }}
+                margin={{ top: 20, right: 120, left: 10, bottom: 20 }}
                 barGap={8}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -164,26 +163,14 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   fill={chart.totalColor}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={60}
-                >
-                  <LabelList
-                    dataKey="total"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                />
                 <Bar
                   dataKey="specific"
                   name={chart.specificLabel}
                   fill={chart.specificColor}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={60}
-                >
-                  <LabelList
-                    dataKey="specific"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>

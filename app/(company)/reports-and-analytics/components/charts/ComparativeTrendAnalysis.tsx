@@ -11,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface TrendData {
   year: string | number;
@@ -38,7 +39,9 @@ export default function ComparativeTrendAnalysis({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="year" />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            formatter={(value) => formatNumberFull(Number(value) || 0)}
+          />
           <Legend />
 
           {keys.map((key, index) => (

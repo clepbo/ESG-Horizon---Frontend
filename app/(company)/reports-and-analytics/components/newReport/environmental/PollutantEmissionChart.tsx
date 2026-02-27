@@ -8,7 +8,6 @@ import {
   Legend,
   Cell,
   ResponsiveContainer,
-  LabelList,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
@@ -43,7 +42,7 @@ const renderLegend = () => (
             display: "inline-block",
             width: 12,
             height: 12,
-            borderRadius: "50%",
+            borderRadius: "2px",
             backgroundColor: color,
             marginRight: 8,
           }}
@@ -92,6 +91,7 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
             />
             <Tooltip
               cursor={false}
+              formatter={(value) => formatNumberFigures(Number(value) || 0)}
               contentStyle={{
                 backgroundColor: "rgba(255, 255, 255, 0.95)",
                 borderRadius: "8px",
@@ -107,11 +107,6 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
               isAnimationActive={false}
               maxBarSize={60}
             >
-              <LabelList
-                dataKey="value"
-                position="top"
-                formatter={(value) => formatNumberFigures(Number(value) || 0)}
-              />
               <Cell fill="#3b82f6" />
               <Cell fill="#10B981" />
               <Cell fill="#af57db" />
