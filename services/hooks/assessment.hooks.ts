@@ -90,6 +90,32 @@ export const useDeclineAssessment = () => {
     },
   });
 };
+
+export const useSubmitForReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { message: string; data: any },
+    Error,
+    { assessmentId: number; reviewerId?: number }
+  >({
+    mutationFn: ({ assessmentId, reviewerId }) =>
+      assessmentService.submitForReview(assessmentId, reviewerId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      const status = data?.data?.status;
+      toast.success(
+        status === "submitted_approved"
+          ? "Assessment submitted successfully."
+          : "Assessment submitted for review.",
+      );
+    },
+    onError: () => {
+      toast.error("Failed to submit assessment.");
+    },
+  });
+};
+
 export const useGenerateReport = () => {
   const queryClient = useQueryClient();
 

@@ -300,6 +300,7 @@ export default function ReservesSensitivityForm({
               unitError={errors.estimatedDecreaseUnit}
               formatNumbers={false}
               placeholder="e.g., 120"
+              context="oil-gas"
             />
 
             {/* Document/Evidence Upload */}

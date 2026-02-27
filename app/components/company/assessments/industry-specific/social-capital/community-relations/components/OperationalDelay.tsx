@@ -35,7 +35,7 @@ export default function OperationalDelay({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow, submitGroup } = useAssessmentFlow(
+  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(
     "socialCapital.communityRelations.operationalDelays"
   );
 
@@ -485,14 +485,16 @@ export default function OperationalDelay({
               <Button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isActionLoading}
-                className="justify-self-end border border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 cursor-pointer"
+                disabled={isActionLoading || isPreviouslySubmitted}
+                className="justify-self-end border border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isActionLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Submitting...
                   </>
+                ) : isPreviouslySubmitted ? (
+                  <>Submitted</>
                 ) : (
                   <>Submit</>
                 )}

@@ -144,6 +144,10 @@ function NewAssessmentPage() {
       };
     }) ?? [];
 
+  // Extract the company's review toggle from the first assessment (same for all)
+  const requireAssessmentReview =
+    (assessments as any[])?.[0]?.company?.requireAssessmentReview ?? true;
+
   if (isLoading || tasksLoading) {
     return (
       <div className="flex h-screen bg-green-50 overflow-hidden">
@@ -255,7 +259,7 @@ function NewAssessmentPage() {
                 Start New Assessment
               </Button>
             </div>
-            <AssessmentTable data={tableData} />
+            <AssessmentTable data={tableData} requireAssessmentReview={requireAssessmentReview} />
           </div>
         )}
       </motion.main>

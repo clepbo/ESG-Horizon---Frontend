@@ -41,7 +41,7 @@ export default function SafetyManagementSystem({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { saveNow, submitGroup } = useAssessmentFlow(
+  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(
     "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
   );
   const { state } = useAssessment();
@@ -321,11 +321,11 @@ export default function SafetyManagementSystem({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSaving || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

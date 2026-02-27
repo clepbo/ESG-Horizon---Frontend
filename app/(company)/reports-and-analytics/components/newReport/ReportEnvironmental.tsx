@@ -329,6 +329,12 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             sub={"m³"}
             amount={waterManagement?.dischargedToSurface || 0}
           />
+          <OilRenderCard
+            borderColor={"#f59e0b"}
+            title={"Avg. Hydrocarbon Content in Discharged Water"}
+            sub={"mg/L"}
+            amount={waterManagement?.averageHydrocarbonContent || 0}
+          />
           <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.totalFracturedWells || 0} />
           <OilRenderCard
             borderColor={"#2570eb"}

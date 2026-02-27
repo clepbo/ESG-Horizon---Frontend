@@ -84,7 +84,7 @@ export function LeasedAssets({
     floorArea: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
+  const { saveNow, isLoading, isPreviouslySubmitted } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -652,12 +652,12 @@ export function LeasedAssets({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isLoading}
-                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
-                aria-label="Next step"
+                disabled={isLoading || isPreviouslySubmitted}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Submit form"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

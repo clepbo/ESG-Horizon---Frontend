@@ -145,7 +145,7 @@ export default function AirQualityForm({
   }
 
   function handlePrevious() {
-    // Logic to go back to the previous step
+    backToAirQualityCard();
   }
 
   async function handleSubmit() {
