@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "@/app/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 import { useAllUsers } from "@/services/hooks/user.hooks";
 
 interface ReviewerSelectionModalProps {
@@ -44,29 +51,28 @@ export default function ReviewerSelectionModal({
           Submit for Review
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Select a reviewer for this assessment. If no reviewer is selected, you
-          will be assigned as the reviewer (self-review).
+          Select a reviewer for this assessment. The selected user
+          will be assigned as the reviewer.
         </p>
 
         {usersLoading ? (
           <p className="text-sm text-gray-400 py-4">Loading users...</p>
         ) : (
-          <select
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-            value={selectedUserId ?? ""}
-            onChange={(e) =>
-              setSelectedUserId(
-                e.target.value ? Number(e.target.value) : undefined,
-              )
-            }
+          <Select
+            value={selectedUserId?.toString() ?? ""}
+            onValueChange={(val) => setSelectedUserId(Number(val))}
           >
-            <option value="">Self-review (no reviewer)</option>
-            {activeUsers.map((user: any) => (
-              <option key={user.id} value={user.id}>
-                {user.first_name} {user.last_name} ({user.email})
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full mb-4">
+              <SelectValue placeholder="Select a reviewer" />
+            </SelectTrigger>
+            <SelectContent className="z-[70]">
+              {activeUsers.map((user: any) => (
+                <SelectItem key={user.id} value={user.id.toString()}>
+                  {user.first_name} {user.last_name} ({user.email})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         )}
 
         <div className="flex justify-end gap-3">
@@ -75,7 +81,7 @@ export default function ReviewerSelectionModal({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !selectedUserId}
             className="bg-[var(--color-primary)] text-white hover:bg-teal-600"
           >
             {loading ? "Submitting..." : "Submit for Review"}

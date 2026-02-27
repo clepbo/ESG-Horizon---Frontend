@@ -12,9 +12,9 @@ export default function AssessmentPage() {
   const { dispatch, state } = useAssessmentContext();
 
   useEffect(() => {
-    if (data?.data) {
+    if (data) {
       const assessmentId = Number(id);
-      const assessmentData = data.data.assessmentData || {};
+      const assessmentData = data.assessmentData || {};
       const lastSavedForm = assessmentData.lastSavedForm;
 
       dispatch({ type: "SET_CONTINUE_MODE", payload: true });
@@ -24,11 +24,11 @@ export default function AssessmentPage() {
         payload: {
           ...assessmentData,
           assessmentId,
-          subsidiary: data.data.subsidiary || assessmentData.subsidiary || "",
-          startMonth: data.data.startMonth || assessmentData.startMonth || "",
-          startYear: data.data.startYear || assessmentData.startYear || "",
-          endMonth: data.data.endMonth || assessmentData.endMonth || "",
-          endYear: data.data.endYear || assessmentData.endYear || "",
+          subsidiary: data.subsidiary || assessmentData.subsidiary || "",
+          startMonth: data.startMonth || assessmentData.startMonth || "",
+          startYear: data.startYear || assessmentData.startYear || "",
+          endMonth: data.endMonth || assessmentData.endMonth || "",
+          endYear: data.endYear || assessmentData.endYear || "",
         },
       });
 
@@ -40,7 +40,7 @@ export default function AssessmentPage() {
     }
   }, [data, dispatch, id]);
 
-  if (isLoading || !data?.data) {
+  if (isLoading || !data) {
     return <div className="p-10">Loading assessment...</div>;
   }
 

@@ -77,7 +77,10 @@ export const assessmentService = {
 
   getAssessments: async () => (await api.get("/assessments")).data,
 
-  getAssessment: async (id: number) => await api.get(`/assessments/${id}`),
+  getAssessment: async (id: number) => {
+    const res = await api.get(`/assessments/${id}`);
+    return res.data;
+  },
 
   approveAssessment: async (assessmentId: number): Promise<{ message: string; data: any }> => {
     const response = await api.post(`/assessments/${assessmentId}/approve`);
