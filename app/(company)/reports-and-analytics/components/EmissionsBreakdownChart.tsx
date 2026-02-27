@@ -211,7 +211,7 @@ export function EmissionsBreakdownChart() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               {chartData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
                   <span className="text-gray-700">{item.name}</span>
                 </div>
               ))}
@@ -348,7 +348,7 @@ export function EmissionsBreakdownChart() {
 //             <div className="grid grid-cols-2 gap-2 text-xs">
 //               {chartData.map((item, index) => (
 //                 <div key={index} className="flex items-center gap-2">
-//                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+//                   <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.color }} />
 //                   <span className="text-gray-700">{item.name}</span>
 //                 </div>
 //               ))}

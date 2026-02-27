@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { formatNumberFull } from "@/lib/numberFormat";
 import type { PieLabelRenderProps } from "recharts/types/polar/Pie";
 import Spinner from "../../ui/reusables/Spinner";
 
@@ -55,7 +56,9 @@ export default function UserPieChart() {
                   <Cell key={`slice-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                formatter={(value) => formatNumberFull(Number(value) || 0)}
+              />
               <Legend layout="horizontal" verticalAlign="bottom" align="center" />
             </PieChart>
           </ResponsiveContainer>

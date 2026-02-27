@@ -79,7 +79,7 @@ export default function ProductionVolumesChart({
   };
 
   return (
-    <div className="w-full h-full bg-white rounded-lg p-6 shadow">
+    <div className="w-full h-full bg-white rounded-lg p-6 shadow overflow-visible">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
 
       {hasData ? (

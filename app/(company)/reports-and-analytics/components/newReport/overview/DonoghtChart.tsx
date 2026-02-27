@@ -54,7 +54,7 @@ export default function DonutChart({
             <Legend
               verticalAlign="bottom"
               height={36}
-              iconType="circle"
+              iconType="rect"
               wrapperStyle={{ fontSize: 14 }}
             />
           </PieChart>

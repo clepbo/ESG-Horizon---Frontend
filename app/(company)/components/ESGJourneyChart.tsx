@@ -51,7 +51,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
   const hasData = processed.data && processed.data.length > 0;
 
   return (
-    <Card className="bg-white border-none rounded-xl h-auto">
+    <Card className="bg-white border-none rounded-xl h-auto overflow-visible">
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-gray-900">Your ESG Journey</CardTitle>

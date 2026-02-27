@@ -66,7 +66,9 @@ export default function GHGEmissionsInventory({
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              formatter={(value) => formatNumberFigures(Number(value) || 0)}
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
@@ -83,7 +85,9 @@ export default function GHGEmissionsInventory({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
-            <Tooltip />
+            <Tooltip
+              formatter={(value) => formatNumberFigures(Number(value) || 0)}
+            />
             <Legend />
             {fuelKeys.map((key, index) => (
               <Bar key={key} dataKey={key} stackId="a" fill={fuelColors[index] || "#000"}>

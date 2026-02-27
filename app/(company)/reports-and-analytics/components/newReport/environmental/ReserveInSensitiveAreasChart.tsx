@@ -55,13 +55,14 @@ function ReserveInSensitiveAreasChart({
           tickLine={false}
           tick={{ fill: "#111827", fontSize: 14 }}
           tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}
+          width={65}
         />
-        <Tooltip cursor={false} />
+        <Tooltip cursor={false} formatter={(value) => formatNumberFigures(Number(value) || 0)} />
         <Legend
           layout="vertical"
           align="right"
           verticalAlign="middle"
-          iconType="circle"
+          iconType="rect"
           wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingLeft: "12px" }}
         />
         <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[10, 10, 0, 0]} maxBarSize={60} />

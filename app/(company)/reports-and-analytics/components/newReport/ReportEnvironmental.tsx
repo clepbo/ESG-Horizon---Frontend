@@ -159,7 +159,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="col-span-1 md:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="col-span-1 md:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-visible">
             <h6 className="p-4 font-semibold border-b border-gray-300"> Emissions by Scope </h6>
             <div className="p-4 flex-1 flex items-center justify-center">
               {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
@@ -258,7 +258,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-visible">
             <PollutantEmissionChart
               NOx={airQuality?.nox ?? 0}
               SOx={airQuality?.sox ?? 0}
@@ -484,11 +484,9 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                     ?.numberOfWellsWithPublicDisclosure || 0
                 }
-                progress={Number(
-                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure?.toFixed(
-                    2
-                  ) || 0
-                )}
+                progress={
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure ?? 0
+                }
               />
               <WaterQualityCard
                 title={"Volume Recycled/Reused"}
@@ -528,7 +526,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center justify-center text-sm">
                 <p className="font-thin">Number of Spills (&gt;1 bbl)</p>
                 <p className="font-semibold text-3xl ml-4">
-                  {bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0}{" "}
+                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0)}{" "}
                 </p>
               </div>
 
@@ -571,19 +569,19 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Volume in Arctic </span>
                 <span className="font-semibold text-2xl">
-                  {bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0} bbl{" "}
+                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0)} bbl{" "}
                 </span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
                 <span className="font-semibold text-red-500 text-2xl">
-                  {bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0}{" "}
+                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0)}{" "}
                   bbl{" "}
                 </span>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-visible">
             <span className="">
               <h6 className="p-3 "> Reserves in Sensitive Areas </h6>
               <hr className="text-gray-200" />
