@@ -38,7 +38,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   if (reportData?.targets && reportData?.targets?.scopeTargets !== undefined) {
     scopeTarget = reportData?.targets?.scopeTargets;
   }
-  console.log("Report target Data", scopeTarget);
+
 
   const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);
   const emissionDataScope1 = GHGHistoryTransformer(ghg?.scope1History || []);
@@ -94,6 +94,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           <EmissionsChart
             borderColor="#1e8a3d"
+            chartColor="#1e8a3d"
             period={assessmentPeriod}
             value={
               ghg ? formatNumberFull(ghg.totalEmissions ?? 0, { minimumFractionDigits: 2 }) : "0.00"
@@ -108,6 +109,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
           <EmissionsChart
             borderColor="#2570eb"
+            chartColor="#2570eb"
             title="Scope 1"
             period={assessmentPeriod}
             value={
@@ -125,6 +127,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
           <EmissionsChart
             borderColor="#10B981"
+            chartColor="#10B981"
             title="Scope 2"
             period={assessmentPeriod}
             value={
@@ -142,6 +145,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
           <EmissionsChart
             borderColor="#af57db"
+            chartColor="#af57db"
             title="Scope 3"
             period={assessmentPeriod}
             value={
@@ -193,18 +197,15 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               ) : (
                 <ReductionTargetByScope
                   scope1percentage={
-                    // reportData?.percentage_emission_summary?.scope1_emission_summary || 0
-                    (scopeTarget && scopeTarget[0]?.reductionPercentage) || 0
+                    scopeTarget?.find((t: any) => t.scope === "SCOPE1")?.reductionPercentage ?? 0
                   }
                   scope1value={ghg?.scope1Emissions || 0}
                   scope2percentage={
-                    // reportData?.percentage_emission_summary?.scope2_emission_summary || 0
-                    (scopeTarget && scopeTarget[1]?.reductionPercentage) || 0
+                    scopeTarget?.find((t: any) => t.scope === "SCOPE2")?.reductionPercentage ?? 0
                   }
                   scope2value={ghg?.scope2Emissions || 0}
                   scope3percentage={
-                    // reportData?.percentage_emission_summary?.scope3_emission_summary || 0
-                    (scopeTarget && scopeTarget[2]?.reductionPercentage) || 0
+                    scopeTarget?.find((t: any) => t.scope === "SCOPE3")?.reductionPercentage ?? 0
                   }
                   scope3value={ghg?.scope3Emissions || 0}
                 />

@@ -44,12 +44,19 @@ export function transformGHGData(ghg: any): ChartData {
     result[key].scope3 = item.score;
   });
 
-  return Object.values(result).map((item) => ({
-    name: item.name,
-    scope1: item.scope1 ?? 0,
-    scope2: item.scope2 ?? 0,
-    scope3: item.scope3 ?? 0,
-  }));
+  return Object.values(result)
+    .map((item) => ({
+      name: item.name,
+      scope1: item.scope1 ?? 0,
+      scope2: item.scope2 ?? 0,
+      scope3: item.scope3 ?? 0,
+    }))
+    .sort((a, b) => {
+      // Extract year (last 4-digit number in the name) for chronological ordering
+      const yearA = Number(a.name.match(/\d{4}/g)?.pop() ?? 0);
+      const yearB = Number(b.name.match(/\d{4}/g)?.pop() ?? 0);
+      return yearA - yearB;
+    });
 }
 
 export interface EmissionData {
@@ -64,16 +71,11 @@ interface EmissionByScopeProps {
 }
 
 const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
-  const enrichedData = data.map((d) => ({
-    ...d,
-    total: d.scope1 + d.scope2 + d.scope3,
-  }));
-
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={enrichedData}
+          data={data}
           margin={{
             top: 30,
             right: 130,
