@@ -22,14 +22,14 @@ export const useAssessment = (assessmentId?: number) => {
 
   useEffect(() => {
     if (query.data) {
-      const data = query.data.data;
+      const assessment = query.data;
       dispatch({
         type: "LOAD_SAVED_DATA",
         payload: {
-          ...data.assessmentData,
-          id: data.id,
-          status: data.status,
-          lastSavedForm: data.assessmentData?.lastSavedForm,
+          ...assessment.assessmentData,
+          id: assessment.id,
+          status: assessment.status,
+          lastSavedForm: assessment.assessmentData?.lastSavedForm,
         },
       });
     }

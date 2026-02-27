@@ -2,7 +2,13 @@
 
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { Info, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 import { FaCaretLeft } from "react-icons/fa";
 import { formatNumberFull } from "@/lib/numberFormat";
 
@@ -37,97 +43,152 @@ export function GeneralTargetSummary({
   const TrendIcon = isReducing ? TrendingDown : TrendingUp;
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      {/* Target Summary Card */}
-      <Card className="shadow-md">
-        <CardHeader>
-          <div className="text-lg font-semibold">Target Summary</div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Main Reduction Target */}
-          <div className="text-center space-y-2">
-            <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
-            <h6 className="text-2xl font-semibold text-gray-900">
-              {reductionPercentage}% Reduction Target
-            </h6>
-            <div className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
-              <div className="flex items-baseline justify-between gap-6">
-                <span className="font-medium text-gray-700">From</span>
-                <span className="font-semibold text-gray-900 text-right">
-                  {formatNumberFull(baselineEmission)} tCO₂e
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between gap-6">
-                <span className="font-medium text-gray-700">To</span>
-                <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
-                  {formatNumberFull(targetEmission)} tCO₂e
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between gap-6">
-                <span className="font-medium text-gray-700">By</span>
-                <span className="font-semibold text-gray-900 text-right">{targetYear}</span>
+    <TooltipProvider>
+      <div className="space-y-6 max-w-2xl mx-auto">
+        {/* Target Summary Card */}
+        <Card className="shadow-md">
+          <CardHeader>
+            <div className="text-lg font-semibold">Target Summary</div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Main Reduction Target */}
+            <div className="text-center space-y-2">
+              <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
+              <h6 className="text-2xl font-semibold text-gray-900">
+                {reductionPercentage}% Reduction Target
+              </h6>
+              <div className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
+                {/* From (Baseline) */}
+                <div className="flex items-center justify-between gap-6">
+                  <span className="font-medium text-gray-700 inline-flex items-center gap-1">
+                    From
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none">
+                        <p>Your total emissions from the baseline assessment period.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                  <span className="font-semibold text-gray-900 text-right">
+                    {formatNumberFull(baselineEmission)} tCO₂e
+                  </span>
+                </div>
+                {/* To (Target Emission) */}
+                <div className="flex items-center justify-between gap-6">
+                  <span className="font-medium text-gray-700 inline-flex items-center gap-1">
+                    To
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                        <p className="font-sans font-medium mb-1">Target Emission</p>
+                        <p>= Baseline x (1 - Reduction% / 100)</p>
+                        <p>= {formatNumberFull(baselineEmission)} x (1 - {reductionPercentage} / 100)</p>
+                        <p className="font-semibold">= {formatNumberFull(targetEmission)} tCO₂e</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                  <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
+                    {formatNumberFull(targetEmission)} tCO₂e
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-6">
+                  <span className="font-medium text-gray-700">By</span>
+                  <span className="font-semibold text-gray-900 text-right">{targetYear}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Target Details */}
-          <div className="space-y-4 mx-2 lg:mx-14">
-            <h6 className="font-semibold text-gray-900">Target Details</h6>
+            {/* Target Details */}
+            <div className="space-y-4 mx-2 lg:mx-14">
+              <h6 className="font-semibold text-gray-900">Target Details</h6>
 
-            <div className="flex flex-col gap-4 w-full">
-              {/* Timeline */}
-              <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600">Timeline:</div>
-                <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
-              </div>
+              <div className="flex flex-col gap-4 w-full">
+                {/* Timeline */}
+                <div className="space-y-2 flex items-center justify-between w-full">
+                  <div className="text-sm font-medium text-gray-600 inline-flex items-center gap-1">
+                    Timeline:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                        <p className="font-sans font-medium mb-1">Timeline</p>
+                        <p>= |Target Year - Baseline Year|</p>
+                        <p>= |{targetYear} - {baselineYear}|</p>
+                        <p className="font-semibold">= {yearsDifference} {yearsDifference === 1 ? "year" : "years"}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="text-sm font-semibold text-gray-900">{yearsDifference} years</div>
+                </div>
 
-              {/* Total Reduction */}
-              <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600">Total Reduction:</div>
-                <div className={`text-sm font-semibold ${isReducing ? "text-green-600" : "text-red-600"}`}>
-                  -{formatNumberFull(totalReduction)} tCO₂e
+                {/* Total Reduction */}
+                <div className="space-y-2 flex items-center justify-between w-full">
+                  <div className="text-sm font-medium text-gray-600 inline-flex items-center gap-1">
+                    Total Reduction:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                        <p className="font-sans font-medium mb-1">Total Reduction</p>
+                        <p>= Baseline - Target Emission</p>
+                        <p>= {formatNumberFull(baselineEmission)} - {formatNumberFull(targetEmission)}</p>
+                        <p className="font-semibold">= {formatNumberFull(totalReduction)} tCO₂e</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="text-sm font-semibold text-red-600">
+                    -{formatNumberFull(totalReduction)} tCO₂e
+                  </div>
+                </div>
+
+                {/* Annual Rate */}
+                <div className="space-y-2 flex items-center justify-between w-full">
+                  <div className="text-sm font-medium text-gray-600 inline-flex items-center gap-1">
+                    Annual Rate:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                        <p className="font-sans font-medium mb-1">Annual Rate</p>
+                        <p>= Total Reduction / Timeline</p>
+                        <p>= {formatNumberFull(totalReduction)} / {yearsDifference}</p>
+                        <p className="font-semibold">= {formatNumberFull(Math.round(annualRate))} tCO₂e/year</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="text-sm font-semibold text-red-600">
+                    {formatNumberFull(Math.round(annualRate))} tCO₂e/year
+                  </div>
                 </div>
               </div>
 
-              {/* Annual Rate */}
-              <div className="space-y-2 flex items-center justify-between w-full">
-                <div className="text-sm font-medium text-gray-600">Annual Rate:</div>
-                <div className={`text-sm font-semibold ${isReducing ? "text-green-600" : "text-red-600"}`}>
-                  {formatNumberFull(Math.round(annualRate))} tCO₂e/year
-                </div>
-              </div>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Color legend */}
-            <div className="flex items-center gap-4 text-xs text-gray-400 pt-1">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-                Emission reduction
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-red-500" />
-                Emission increase
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Action Buttons */}
+        <div className="flex justify-between">
+          <CustomButton
+            icon={<FaCaretLeft className="mr-2" />}
+            variant="outlined"
+            onClick={onPrevious}
+            className="px-6 py-2"
+          >
+            Previous
+          </CustomButton>
 
-      {/* Action Buttons */}
-      <div className="flex justify-between">
-        <CustomButton
-          icon={<FaCaretLeft className="mr-2" />}
-          variant="outlined"
-          onClick={onPrevious}
-          className="px-6 py-2"
-        >
-          Previous
-        </CustomButton>
-
-        <CustomButton onClick={onSetTarget} className="">
-          {isLoading ? "Setting Target..." : "Set Target"}
-        </CustomButton>
+          <CustomButton onClick={onSetTarget} className="">
+            {isLoading ? "Setting Target..." : "Set Target"}
+          </CustomButton>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

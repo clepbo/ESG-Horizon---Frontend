@@ -21,12 +21,12 @@ export default function ContinueAssessment() {
   const { dispatch, state } = useAssessment();
 
   useEffect(() => {
-    if (!data?.data) return;
+    if (!data) return;
 
     // If we've already loaded this assessment and transitioned away from the initial hub view, don't re-run
     if (state.assessmentId === assessmentId && state.currentView !== "hub") return;
 
-    const assessment = data.data;
+    const assessment = data;
     const lastSavedForm = assessment.assessmentData?.lastSavedForm;
 
     const getNestedData = (obj: any, path: string[]) => {

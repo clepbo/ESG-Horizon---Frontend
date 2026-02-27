@@ -10,6 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/ca
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 import { Textarea } from "@/app/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { GeneralTargetData } from "@/types/target";
@@ -480,21 +487,23 @@ export default function SetTargetByScope({ existingTarget }: SetTargetByScopePro
                   }
                 />{" "}
               </Label>
-              <select
-                id={`${scope}-targetYear`}
-                value={scopeData.targetYear ?? ""}
-                onChange={(e) => handleScopeInputChange(scope, "targetYear", e.target.value)}
-                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <Select
+                value={scopeData.targetYear?.toString() ?? ""}
+                onValueChange={(val) => handleScopeInputChange(scope, "targetYear", val)}
               >
-                <option value="">Select year</option>
-                {years
-                  .filter((year) => year >= Number(emissionData?.startYear))
-                  .map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-              </select>
+                <SelectTrigger id={`${scope}-targetYear`} className="w-full">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years
+                    .filter((year) => year >= Number(emissionData?.startYear))
+                    .map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

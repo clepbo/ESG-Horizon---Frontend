@@ -2,13 +2,29 @@ import React from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "highcharts/highcharts-more";
-import { formatNumberFigures } from "./FormatNumberFigures";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { formatNumberFigures, formatWithCommas } from "./FormatNumberFigures";
+
+export interface ScopeBreakdown {
+  scope1: number;
+  scope2: number;
+  scope3: number;
+}
 
 interface GuageProps {
   score: number;
   initialEmission: number | string;
   currentEmission: number | string;
   targetEmission: number | string;
+  reductionPercentage?: number;
+  baselineBreakdown?: ScopeBreakdown;
+  currentBreakdown?: ScopeBreakdown;
 }
 
 function toEmissionFigure(value: number | string): string {
@@ -16,11 +32,41 @@ function toEmissionFigure(value: number | string): string {
   return formatNumberFigures(Number.isNaN(num) ? 0 : num);
 }
 
+function toRawNumber(value: number | string): number {
+  const num = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
+  return Number.isNaN(num) ? 0 : num;
+}
+
+function hasScopeData(breakdown: ScopeBreakdown) {
+  return breakdown.scope1 > 0 || breakdown.scope2 > 0 || breakdown.scope3 > 0;
+}
+
+function scopeLabel(breakdown: ScopeBreakdown) {
+  const parts: string[] = [];
+  if (breakdown.scope1 > 0) parts.push("Scope 1");
+  if (breakdown.scope2 > 0) parts.push("Scope 2");
+  if (breakdown.scope3 > 0) parts.push("Scope 3");
+  return parts.join(" + ");
+}
+
+function ScopeRows({ breakdown }: { breakdown: ScopeBreakdown }) {
+  return (
+    <>
+      {breakdown.scope1 > 0 && <p>Scope 1: {formatWithCommas(breakdown.scope1)} tCO₂e</p>}
+      {breakdown.scope2 > 0 && <p>Scope 2: {formatWithCommas(breakdown.scope2)} tCO₂e</p>}
+      {breakdown.scope3 > 0 && <p>Scope 3: {formatWithCommas(breakdown.scope3)} tCO₂e</p>}
+    </>
+  );
+}
+
 const SpeedometerGauge: React.FC<GuageProps> = ({
   score,
   initialEmission,
   currentEmission,
   targetEmission,
+  reductionPercentage,
+  baselineBreakdown,
+  currentBreakdown,
 }) => {
   const initial = toEmissionFigure(initialEmission);
   const current = toEmissionFigure(currentEmission);
@@ -32,12 +78,10 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       plotBackgroundImage: "",
       plotBorderWidth: 0,
       plotShadow: false,
-      // Larger fixed height so the semicircle is visually dominant
       height: 380,
     },
     title: {
       text: "Overall ESG Performance",
-      // Make the title more prominent and give space below it
       margin: 30,
       style: { fontSize: "22px" },
     },
@@ -46,7 +90,6 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       endAngle: 89.9,
       background: undefined,
       center: ["50%", "80%"],
-      // Increase overall gauge size for a bolder half-circle
       size: "170%",
     },
     credits: {
@@ -113,114 +156,137 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
   };
 
   return (
-    <div
-      className="highcharts-figure"
-      style={{
-        // Let the gauge use available width while keeping a predictable height
-        width: "100%",
-        maxWidth: "900px",
-        minHeight: "420px",
-        margin: "1.25em auto",
-      }}
-    >
-      <HighchartsReact highcharts={Highcharts} options={options} />
+    <TooltipProvider>
       <div
+        className="highcharts-figure"
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: "8px",
-          padding: "0 8px",
-          position: "relative",
+          width: "100%",
+          maxWidth: "900px",
+          minHeight: "420px",
+          margin: "1.25em auto",
         }}
       >
-        {/* Label 1 - Left (Start) */}
+        <HighchartsReact highcharts={Highcharts} options={options} />
         <div
           style={{
-            textAlign: "center",
-            flex: 1,
-            transform: "translateX(-10px)",
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: "8px",
+            padding: "0 8px",
+            position: "relative",
           }}
         >
-          <div
-            style={{
-              color: "red",
-              fontSize: "18px",
-              fontWeight: 600,
-            }}
-          >
-            {initial}
+          {/* Label 1 - Left (Baseline) */}
+          <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
+            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>
+              {initial}
+            </div>
+            <div
+              style={{
+                color: "#666",
+                fontSize: "14px",
+                marginTop: "6px",
+                fontWeight: "bold",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              Baseline year emission
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs">
+                  <p className="font-medium mb-1">Baseline Year Emission</p>
+                  {baselineBreakdown && hasScopeData(baselineBreakdown) ? (
+                    <>
+                      <p className="mb-1">It is the total GHG emissions ({scopeLabel(baselineBreakdown)}) from the assessment selected as your baseline when the target was created.</p>
+                      <div className="mt-2 border-t border-gray-600 pt-2">
+                        <p className="font-medium mb-1">Scope breakdown:</p>
+                        <ScopeRows breakdown={baselineBreakdown} />
+                      </div>
+                    </>
+                  ) : (
+                    <p>It is the total GHG emissions from the assessment selected as your baseline when the target was created.</p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-          <div
-            style={{
-              color: "#666",
-              fontSize: "14px",
-              marginTop: "6px",
-              fontWeight: "bold",
-            }}
-          >
-            Baseline year emission
-          </div>
-        </div>
 
-        {/* Label 2 - Center (Middle) */}
-        <div
-          style={{
-            textAlign: "center",
-            flex: 1,
-            transform: "translateX(-10px)",
-          }}
-        >
-          <div
-            style={{
-              color: "red",
-              fontSize: "18px",
-              fontWeight: 600,
-            }}
-          >
-            {current}
+          {/* Label 2 - Center (Current) */}
+          <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
+            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>
+              {current}
+            </div>
+            <div
+              style={{
+                color: "#666",
+                fontSize: "14px",
+                marginTop: "6px",
+                fontWeight: "bold",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              Current emission
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs">
+                  <p className="font-medium mb-1">Current Emission</p>
+                  {currentBreakdown && hasScopeData(currentBreakdown) ? (
+                    <>
+                      <p className="mb-1">It is the total GHG emissions ({scopeLabel(currentBreakdown)}) from your most recent assessment. This value updates each time this page loads.</p>
+                      <div className="mt-2 border-t border-gray-600 pt-2">
+                        <p className="font-medium mb-1">Scope breakdown:</p>
+                        <ScopeRows breakdown={currentBreakdown} />
+                      </div>
+                    </>
+                  ) : (
+                    <p>It is the total GHG emissions from your most recent assessment. This value updates each time this page loads.</p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
-          <div
-            style={{
-              color: "#666",
-              fontSize: "14px",
-              marginTop: "6px",
-              fontWeight: "bold",
-            }}
-          >
-            Current emission
-          </div>
-        </div>
 
-        {/* Label 3 - Right (End) */}
-        <div
-          style={{
-            textAlign: "center",
-            flex: 1,
-            transform: "translateX(-10px)",
-          }}
-        >
-          <div
-            style={{
-              color: "red",
-              fontSize: "18px",
-              fontWeight: 600,
-            }}
-          >
-            {target}
-          </div>
-          <div
-            style={{
-              color: "#666",
-              fontSize: "14px",
-              marginTop: "6px",
-              fontWeight: "bold",
-            }}
-          >
-            Target year emission
+          {/* Label 3 - Right (Target) */}
+          <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
+            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>
+              {target}
+            </div>
+            <div
+              style={{
+                color: "#666",
+                fontSize: "14px",
+                marginTop: "6px",
+                fontWeight: "bold",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              Target year emission
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs font-mono">
+                  <p className="font-sans font-medium mb-1">Target Year Emission</p>
+                  <p>= Baseline x (1 - Reduction% / 100)</p>
+                  <p>= {formatWithCommas(toRawNumber(initialEmission))} x (1 - {reductionPercentage ?? 0} / 100)</p>
+                  <p className="font-semibold">= {formatWithCommas(toRawNumber(targetEmission))} tCO₂e</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
 
