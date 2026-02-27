@@ -64,7 +64,23 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   axisLine={false}
                   tickLine={false}
                 />
-                <YAxis tick={{ fill: "#111827", fontSize: 14 }} axisLine={false} tickLine={false} width={65} tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  width={65}
+                  tick={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      fill="#111827"
+                      fontSize={12}
+                      textAnchor="end"
+                      transform={`rotate(-35, ${props.x}, ${props.y})`}
+                    >
+                      {formatNumberFigures(Number(props.payload.value) || 0)}
+                    </text>
+                  )}
+                />
                 <Tooltip
                   cursor={false}
                   formatter={(value?: number) => formatNumberFigures(Number(value) || 0)}

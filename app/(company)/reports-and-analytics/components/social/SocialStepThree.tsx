@@ -79,7 +79,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className="w-3 h-3 rounded-sm shrink-0"
+              className="w-3 h-3 shrink-0"
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-sm text-gray-700">{entry.value}</span>
@@ -145,7 +145,7 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className="w-3 h-3 rounded-sm shrink-0"
+              className="w-3 h-3 shrink-0"
               style={{ backgroundColor: entry.color }}
             />
             <span

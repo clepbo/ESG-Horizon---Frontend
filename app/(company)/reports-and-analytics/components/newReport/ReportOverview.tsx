@@ -179,32 +179,28 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
 
       <div className="">
         <h5 className=" border-b w-full border-gray-400 text-gray-700">Production Data</h5>
-        <div className="grid gap-3 grid-cols-1 lg:grid-cols-3 mt-3">
-          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ProductionVolumesChart
-              data={oilChartData}
-              title="Oil Production"
-              legendItems={oilLegendItems}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+          {productionCards.map((card) => (
+            <OilRenderCard
+              key={card.title}
+              borderColor={card.borderColor}
+              title={card.title}
+              amount={card.amount}
+              sub={card.sub}
             />
-            <ProductionVolumesChart
-              data={gasChartData}
-              title="Gas Production"
-              legendItems={gasLegendItems}
-            />
-          </div>
-          <div className="flex flex-col gap-2 lg:gap-4">
-            {productionCards.map((card) => {
-              return (
-                <OilRenderCard
-                  key={card.title}
-                  borderColor={card.borderColor}
-                  title={card.title}
-                  amount={card.amount}
-                  sub={card.sub}
-                />
-              );
-            })}
-          </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 gap-4 mt-4">
+          <ProductionVolumesChart
+            data={oilChartData}
+            title="Oil Production"
+            legendItems={oilLegendItems}
+          />
+          <ProductionVolumesChart
+            data={gasChartData}
+            title="Gas Production"
+            legendItems={gasLegendItems}
+          />
         </div>
       </div>
 
