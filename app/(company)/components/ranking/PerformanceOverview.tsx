@@ -67,6 +67,17 @@ export default function PerformanceOverview() {
             initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
             currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
             targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
+            reductionPercentage={general?.reductionPercentage}
+            baselineBreakdown={{
+              scope1: scope1Target?.baselineYearEmission ?? 0,
+              scope2: scope2Target?.baselineYearEmission ?? 0,
+              scope3: scope3Target?.baselineYearEmission ?? 0,
+            }}
+            currentBreakdown={{
+              scope1: scope1Target?.currentEmission ?? 0,
+              scope2: scope2Target?.currentEmission ?? 0,
+              scope3: scope3Target?.currentEmission ?? 0,
+            }}
           />
         </div>
       )}

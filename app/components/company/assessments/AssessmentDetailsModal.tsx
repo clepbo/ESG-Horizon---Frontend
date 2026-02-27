@@ -174,7 +174,7 @@ export function AssessmentDetailsModal({
 
   if (!open || !assessment) return null;
 
-  if (isLoading || !fullAssessment?.data) {
+  if (isLoading || !fullAssessment) {
     return (
       <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <Card className="w-full max-w-4xl p-12 ">
@@ -187,8 +187,7 @@ export function AssessmentDetailsModal({
     );
   }
 
-  const data = fullAssessment.data;
-  const assessmentData = data.assessmentData || {};
+  const assessmentData = fullAssessment.assessmentData || {};
   const env = assessmentData.environment || {};
   const ghg = env.ghg || {};
   const scope1 = ghg.scope1 || {};
@@ -278,12 +277,12 @@ export function AssessmentDetailsModal({
   };
 
   const statusInfo =
-    statusConfig[data.status as keyof typeof statusConfig] || statusConfig.in_progress;
+    statusConfig[fullAssessment.status as keyof typeof statusConfig] || statusConfig.in_progress;
 
   const isActionLoading = approveMutation.isPending || declineMutation.isPending;
 
   const isAwaitingApproval =
-    (data.status && data.status === "awaiting_review") || assessment?.status === "awaiting_review";
+    (fullAssessment.status && fullAssessment.status === "awaiting_review") || assessment?.status === "awaiting_review";
 
   const handleApprove = () => {
     if (!assessment?.id || isActionLoading) return;
@@ -390,7 +389,7 @@ export function AssessmentDetailsModal({
                 <Card>
                   <CardContent className="p-6">
                     <p className="text-gray-500 text-sm">Subsidiary</p>
-                    <p className="text-xl font-semibold">{data.subsidiary}</p>
+                    <p className="text-xl font-semibold">{fullAssessment.subsidiary}</p>
                   </CardContent>
                 </Card>
 
@@ -398,7 +397,7 @@ export function AssessmentDetailsModal({
                   <CardContent className="p-6">
                     <p className="text-gray-500 text-sm">Reporting Period</p>
                     <p className="text-xl font-semibold">
-                      {data.startMonth} {data.startYear} – {data.endMonth} {data.endYear}
+                      {fullAssessment.startMonth} {fullAssessment.startYear} – {fullAssessment.endMonth} {fullAssessment.endYear}
                     </p>
                   </CardContent>
                 </Card>
@@ -1089,11 +1088,11 @@ export function AssessmentDetailsModal({
                 </Card>
               )}
 
-              {data.rejection_reason && (
+              {fullAssessment.rejection_reason && (
                 <Alert className="border-red-300 bg-red-50">
                   <XCircle className=" h-5 text-red-600" />
                   <AlertDescription className="text-red-700 font-medium">
-                    Assessment Declined: {data.rejection_reason}
+                    Assessment Declined: {fullAssessment.rejection_reason}
                   </AlertDescription>
                 </Alert>
               )}
