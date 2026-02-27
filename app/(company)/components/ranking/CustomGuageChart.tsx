@@ -91,14 +91,11 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         data: [score],
         tooltip: {
           pointFormatter: function () {
-            return `ESG Score: <b>${this.y ?? 0}</b>`;
+            return `ESG Score: <b>N/A</b>`;
           },
         },
         dataLabels: {
-          format: `<span style="font-size:32px;font-weight:700;color:#119B95">${score}</span>`,
-          useHTML: true,
-          borderWidth: 0,
-          y: 30,
+          enabled: false,
         },
         dial: {
           radius: "85%",

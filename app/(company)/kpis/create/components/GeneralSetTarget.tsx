@@ -289,9 +289,7 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
                     <TooltipMessage
                       title={"Baseline Year"}
                       message={
-                        isEdit
-                          ? "Select which assessment period to use as the baseline for this target."
-                          : "The reference year from your most recent completed assessment. This is automatically set."
+                        "The reference year from your most recent completed assessment. This is automatically set."
                       }
                     />
                   }
@@ -311,31 +309,6 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
                     Go to Assessments
                   </Link>
                 </div>
-              ) : isEdit ? (
-                <select
-                  id="baselineYear"
-                  value={selectedBaselineId ?? ""}
-                  onChange={(e) =>
-                    setSelectedBaselineId(e.target.value ? Number(e.target.value) : null)
-                  }
-                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {baselineOptionsQuery.data.map((option: BaselineOption) => {
-                    const disabled = isOptionDisabled(option);
-                    const overlapLabel = getOverlapLabel(option);
-                    return (
-                      <option
-                        key={option.assessmentId}
-                        value={option.assessmentId}
-                        disabled={disabled}
-                      >
-                        {option.startYear}
-                        {` (${toShortMonth(option.startMonth)} ${option.startYear} – ${toShortMonth(option.endMonth)} ${option.endYear})`}
-                        {overlapLabel}
-                      </option>
-                    );
-                  })}
-                </select>
               ) : (
                 <Input
                   id="baselineYear"

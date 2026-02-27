@@ -109,7 +109,7 @@ export default function BusinessEthicsAssessment({
       <SuccessScreen
         assessmentName="Business Ethics & Transparency"
         totals={totals ?? undefined}
-        nextAssessment="Next Assessment"
+        nextAssessment="Critical Incident Risk Management"
         reportId={reportId}
         onContinue={handleViewReport}
         onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}

@@ -173,7 +173,7 @@ export default function CommunityRelationsHome({
                 This disclosure topic assesses the company&apos;s framework for managing its
                 relationship with host communities, from proactive risk and opportunity management
                 to the operational impact of non-technical disruptions. IFRS codes: EM-EP-210b.1,
-                EM-EP-210b.2
+                EM-EP-210b.2, EM-EP-NGA.S1, EM-EP-NGA.S2
               </p>
             </div>
             <Button

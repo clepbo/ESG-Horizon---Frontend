@@ -86,7 +86,7 @@ export function PurchasedHeatingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
+  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, isAssignedTask, handleAssignedTaskRedirect } =
     useAssessmentFlow("ghg-scope2-location-purchasedheating");
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -552,10 +552,10 @@ export function PurchasedHeatingForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isPending}
-                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isPending || isPreviouslySubmitted}
+                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPending ? "Submitting..." : "Submit"}
+                {isPending ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
               </Button>
             </div>
           </CardContent>

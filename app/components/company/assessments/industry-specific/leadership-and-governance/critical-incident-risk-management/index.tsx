@@ -62,7 +62,7 @@ export default function CriticalIncidentRiskManagement({
       <SuccessScreen
         assessmentName="Critical Incident Risk Management"
         totals={totals ?? undefined}
-        nextAssessment="Next Assessment"
+        nextAssessment="Management of the Legal & Regulatory Environment"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
         onBackToHub={onBack}

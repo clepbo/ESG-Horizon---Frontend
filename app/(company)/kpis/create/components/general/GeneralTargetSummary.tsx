@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@/app/components/ui/card";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { TrendingDown } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { FaCaretLeft } from "react-icons/fa";
 import { calculateTimelineYear } from "../../utils";
 
@@ -47,6 +47,10 @@ export function GeneralTargetSummary({
       })
     : annualRate;
 
+  // Semantic coloring: green = emission reduction (on track), red = emission increase (off track)
+  const isReducing = totalReduction > 0;
+  const TrendIcon = isReducing ? TrendingDown : TrendingUp;
+
   return (
     <div className="space-y-6 max-w-3xl mx-auto px-4">
       {/* Target Summary Card */}
@@ -59,7 +63,7 @@ export function GeneralTargetSummary({
         <CardContent className="space-y-8 pt-6">
           {/* Main Reduction Target */}
           <div className="text-center space-y-4">
-            <TrendingDown className={`justify-self-auto mx-auto text-green-600 font-semibold`} />
+            <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
             <h6 className="text-2xl md:text-3xl font-semibold text-gray-900">
               {reductionPercentage}% Reduction Target
             </h6>
@@ -77,7 +81,7 @@ export function GeneralTargetSummary({
               </div>
               <div className="flex items-baseline justify-between gap-6">
                 <span className="font-medium text-gray-700">To</span>
-                <span className="font-semibold text-green-600 text-right">
+                <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
                   {targetEmission?.toLocaleString()} tCO₂e
                 </span>
               </div>
@@ -106,7 +110,7 @@ export function GeneralTargetSummary({
                 <div className="text-sm md:text-base font-medium text-gray-600">
                   Total Reduction
                 </div>
-                <div className={`text-sm md:text-base font-semibold text-right ${totalReduction > 0 ? "text-red-600" : "text-green-600"}`}>
+                <div className={`text-sm md:text-base font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
                   -{totalReduction?.toLocaleString()} tCO₂e
                 </div>
               </div>
@@ -114,10 +118,22 @@ export function GeneralTargetSummary({
               {/* Annual Rate */}
               <div className="py-3 flex items-baseline justify-between gap-4 w-full">
                 <div className="text-sm md:text-base font-medium text-gray-600">Annual Rate</div>
-                <div className={`text-sm md:text-base font-semibold text-right ${annualRate < 0 ? "text-red-600" : "text-green-600"}`}>
+                <div className={`text-sm md:text-base font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
                   {formattedAnnualRate} tCO₂e/year
                 </div>
               </div>
+            </div>
+
+            {/* Color legend */}
+            <div className="flex items-center gap-4 text-xs text-gray-400 pt-1">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                Emission reduction
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                Emission increase
+              </span>
             </div>
           </div>
         </CardContent>

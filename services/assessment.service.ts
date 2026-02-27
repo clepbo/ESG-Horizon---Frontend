@@ -66,6 +66,15 @@ export const assessmentService = {
     return api.post(`/assessments/${assessmentId}/submit`, { lastSavedForm });
   },
 
+  submitForReview: async (
+    assessmentId: number,
+    reviewerId?: number,
+  ): Promise<{ message: string; data: any }> => {
+    return api.post(`/assessments/${assessmentId}/submit-for-review`, {
+      reviewerId,
+    });
+  },
+
   getAssessments: async () => (await api.get("/assessments")).data,
 
   getAssessment: async (id: number) => await api.get(`/assessments/${id}`),

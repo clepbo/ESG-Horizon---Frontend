@@ -59,7 +59,7 @@ export function OilGasOperations({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
+  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, isAssignedTask, handleAssignedTaskRedirect } =
     useAssessmentFlow("ghg-scope1-stationary-oilgasoperations");
 
   const [errors, setErrors] = useState<{
@@ -471,11 +471,11 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isLoading}
-                className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isLoading || isPreviouslySubmitted}
+                className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {isLoading ? "Submitting..." : "Submit"}
+                {isLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
               </Button>
             </div>
           </CardContent>

@@ -29,7 +29,8 @@ import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { formatStatus } from "@/lib/utils";
-import { useDeleteAssessment } from "@/services/hooks/assessment.hooks";
+import { useDeleteAssessment, useSubmitForReview } from "@/services/hooks/assessment.hooks";
+import ReviewerSelectionModal from "./ReviewerSelectionModal";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -54,6 +55,7 @@ export interface Assessment {
 
 interface AssessmentTableProps {
   data: Assessment[];
+  requireAssessmentReview?: boolean;
 }
 
 const columnHelper = createColumnHelper<Assessment>();
@@ -85,9 +87,12 @@ function DeclineReasonModal({
 
 interface ActionDropdownProps {
   status: AssessmentStatus;
+  requireAssessmentReview?: boolean;
   getActionIcon: (label: string) => ReactNode;
   onContinue: () => void;
   onReview: () => void;
+  onSubmitForReview?: () => void;
+  onSubmitDirect?: () => void;
   onGenerateReport?: () => void;
   onDelete?: () => void;
   deletePending?: boolean;
@@ -95,9 +100,12 @@ interface ActionDropdownProps {
 
 function ActionDropdown({
   status,
+  requireAssessmentReview,
   getActionIcon,
   onContinue,
   onReview,
+  onSubmitForReview,
+  onSubmitDirect,
   onGenerateReport,
   onDelete,
   deletePending,
@@ -127,6 +135,16 @@ function ActionDropdown({
           {getActionIcon("Review")}
           Review
         </DropdownMenuItem>
+
+        {/* Submit for Review / Submit — only for editable statuses */}
+        {(status === "in_progress" || status === "declined") && (
+          <DropdownMenuItem
+            onClick={requireAssessmentReview ? onSubmitForReview : onSubmitDirect}
+          >
+            {getActionIcon("Submit")}
+            {requireAssessmentReview ? "Submit for Review" : "Submit"}
+          </DropdownMenuItem>
+        )}
 
         <DropdownMenuItem
           onClick={onContinue}
@@ -166,7 +184,7 @@ function ActionDropdown({
   );
 }
 
-export default function AssessmentTable({ data }: AssessmentTableProps) {
+export default function AssessmentTable({ data, requireAssessmentReview }: AssessmentTableProps) {
   const router = useRouter();
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [modalData, setModalData] = useState({
@@ -179,8 +197,17 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   const [dateRange, setDateRange] = useState<
     { startMonth: string; endMonth: string } | undefined
   >();
+  const [reviewerModalData, setReviewerModalData] = useState({
+    open: false,
+    assessmentId: null as number | null,
+  });
+  const [submitConfirmData, setSubmitConfirmData] = useState({
+    open: false,
+    assessmentId: null as number | null,
+  });
 
   const deleteMutation = useDeleteAssessment();
+  const submitForReviewMutation = useSubmitForReview();
 
   const filteredData = dateRange
     ? data.filter((a) => {
@@ -228,6 +255,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
       case "Update":
         return <SquarePen className="mr-2 h-4 w-4 " />;
       case "Continue":
+      case "Submit":
         return <SquareArrowOutUpRight className="mr-2 h-4 w-4 " />;
       default:
         return null;
@@ -242,6 +270,34 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   const handleContinue = (assessment: Assessment) => {
     if (!assessment?.id) return;
     router.push(`/assessments/${assessment.id}?forceDisclosure=1`);
+  };
+
+  const handleSubmitForReview = (assessmentId: number) => {
+    setReviewerModalData({ open: true, assessmentId });
+  };
+
+  const handleReviewerSelected = (reviewerId?: number) => {
+    if (!reviewerModalData.assessmentId) return;
+    submitForReviewMutation.mutate(
+      { assessmentId: reviewerModalData.assessmentId, reviewerId },
+      {
+        onSettled: () => setReviewerModalData({ open: false, assessmentId: null }),
+      },
+    );
+  };
+
+  const handleSubmitDirect = (assessmentId: number) => {
+    setSubmitConfirmData({ open: true, assessmentId });
+  };
+
+  const handleDirectSubmitConfirm = () => {
+    if (!submitConfirmData.assessmentId) return;
+    submitForReviewMutation.mutate(
+      { assessmentId: submitConfirmData.assessmentId },
+      {
+        onSettled: () => setSubmitConfirmData({ open: false, assessmentId: null }),
+      },
+    );
   };
 
   const formatShortMonthYear = (value: string | undefined) => {
@@ -423,7 +479,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
               {label}
             </Badge>
 
-            {status === "unapproved_rejected" && assessment.rejection_reason && (
+            {(status === "unapproved_rejected" || status === "declined") && assessment.rejection_reason && (
               <button
                 onClick={() => handleOpenReason(assessment.rejection_reason)}
                 className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -446,9 +502,12 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
             {/* Put actions back into the dropdown (always show View & Continue) */}
             <ActionDropdown
               status={assessment.status}
+              requireAssessmentReview={requireAssessmentReview}
               getActionIcon={getActionIcon}
               onContinue={() => handleContinue(assessment)}
               onReview={() => handleOpenDetails(assessment)}
+              onSubmitForReview={() => handleSubmitForReview(assessment.id)}
+              onSubmitDirect={() => handleSubmitDirect(assessment.id)}
               onGenerateReport={() => handleGenerateReport(assessment.id)}
               onDelete={() => handleOpenModal(assessment.id)}
               deletePending={deleteMutation.isPending}
@@ -505,6 +564,22 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
         open={reasonOpen}
         onClose={() => setReasonOpen(false)}
         reason={selectedReason}
+      />
+
+      <ReviewerSelectionModal
+        open={reviewerModalData.open}
+        onClose={() => setReviewerModalData({ open: false, assessmentId: null })}
+        onSubmit={handleReviewerSelected}
+        loading={submitForReviewMutation.isPending}
+      />
+
+      <ConfirmModal
+        open={submitConfirmData.open}
+        title="Submit Assessment"
+        message="Are you sure you want to submit this assessment? Once submitted, you will not be able to edit it further."
+        onCancel={() => setSubmitConfirmData({ open: false, assessmentId: null })}
+        onConfirm={handleDirectSubmitConfirm}
+        loading={submitForReviewMutation.isPending}
       />
     </div>
   );

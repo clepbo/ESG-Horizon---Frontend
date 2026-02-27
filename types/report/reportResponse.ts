@@ -147,7 +147,7 @@ export interface BusinessModelPillar {
   changePercentage?: number;
   reservesValuationAndCapitalExpenditure?: {
     climateImpactOnReserves?: {
-      carbonPriceScenario: string;
+      carbonPriceScenario: number;
       reservesAtRiskPercent: number;
       totalProvedReserves: number;
       totalProbableReserves: number;
@@ -264,6 +264,7 @@ export interface WaterManagementData {
   recycledWater: number;
   injectedForDisposal?: number;
   dischargedToSurface?: number;
+  averageHydrocarbonContent?: number;
   freshwaterWithdrawals?: {
     surfaceWater: number;
     groundwater: number;
