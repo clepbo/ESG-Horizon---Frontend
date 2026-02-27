@@ -81,7 +81,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       height: 380,
     },
     title: {
-      text: "Overall ESG Performance",
+      text: "Net Zero Progress (Carbon Footprint)",
       margin: 30,
       style: { fontSize: "22px" },
     },
@@ -178,9 +178,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         >
           {/* Label 1 - Left (Baseline) */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
-            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>
-              {initial}
-            </div>
+            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{initial}</div>
             <div
               style={{
                 color: "#666",
@@ -197,18 +195,27 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs">
+                <TooltipContent
+                  side="top"
+                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs"
+                >
                   <p className="font-medium mb-1">Baseline Year Emission</p>
                   {baselineBreakdown && hasScopeData(baselineBreakdown) ? (
                     <>
-                      <p className="mb-1">It is the total GHG emissions ({scopeLabel(baselineBreakdown)}) from the assessment selected as your baseline when the target was created.</p>
+                      <p className="mb-1">
+                        It is the total GHG emissions ({scopeLabel(baselineBreakdown)}) from the
+                        assessment selected as your baseline when the target was created.
+                      </p>
                       <div className="mt-2 border-t border-gray-600 pt-2">
                         <p className="font-medium mb-1">Scope breakdown:</p>
                         <ScopeRows breakdown={baselineBreakdown} />
                       </div>
                     </>
                   ) : (
-                    <p>It is the total GHG emissions from the assessment selected as your baseline when the target was created.</p>
+                    <p>
+                      It is the total GHG emissions from the assessment selected as your baseline
+                      when the target was created.
+                    </p>
                   )}
                 </TooltipContent>
               </Tooltip>
@@ -217,9 +224,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
 
           {/* Label 2 - Center (Current) */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
-            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>
-              {current}
-            </div>
+            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{current}</div>
             <div
               style={{
                 color: "#666",
@@ -236,18 +241,27 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs">
+                <TooltipContent
+                  side="top"
+                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs"
+                >
                   <p className="font-medium mb-1">Current Emission</p>
                   {currentBreakdown && hasScopeData(currentBreakdown) ? (
                     <>
-                      <p className="mb-1">It is the total GHG emissions ({scopeLabel(currentBreakdown)}) from your most recent assessment. This value updates each time this page loads.</p>
+                      <p className="mb-1">
+                        It is the total GHG emissions ({scopeLabel(currentBreakdown)}) from your
+                        most recent assessment. This value updates each time this page loads.
+                      </p>
                       <div className="mt-2 border-t border-gray-600 pt-2">
                         <p className="font-medium mb-1">Scope breakdown:</p>
                         <ScopeRows breakdown={currentBreakdown} />
                       </div>
                     </>
                   ) : (
-                    <p>It is the total GHG emissions from your most recent assessment. This value updates each time this page loads.</p>
+                    <p>
+                      It is the total GHG emissions from your most recent assessment. This value
+                      updates each time this page loads.
+                    </p>
                   )}
                 </TooltipContent>
               </Tooltip>
@@ -256,9 +270,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
 
           {/* Label 3 - Right (Target) */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
-            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>
-              {target}
-            </div>
+            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{target}</div>
             <div
               style={{
                 color: "#666",
@@ -275,11 +287,19 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs font-mono">
+                <TooltipContent
+                  side="top"
+                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs font-mono"
+                >
                   <p className="font-sans font-medium mb-1">Target Year Emission</p>
                   <p>= Baseline x (1 - Reduction% / 100)</p>
-                  <p>= {formatWithCommas(toRawNumber(initialEmission))} x (1 - {reductionPercentage ?? 0} / 100)</p>
-                  <p className="font-semibold">= {formatWithCommas(toRawNumber(targetEmission))} tCO₂e</p>
+                  <p>
+                    = {formatWithCommas(toRawNumber(initialEmission))} x (1 -{" "}
+                    {reductionPercentage ?? 0} / 100)
+                  </p>
+                  <p className="font-semibold">
+                    = {formatWithCommas(toRawNumber(targetEmission))} tCO₂e
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>

@@ -31,7 +31,7 @@ export interface GeneralTargetFormProps {
 }
 
 const currentYear = new Date().getFullYear();
-export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
+export const years = Array.from({ length: 2060 - (currentYear - 10) + 1 }, (_, i) => currentYear - 10 + i);
 
 export default function GeneralTargetForm({
   data,

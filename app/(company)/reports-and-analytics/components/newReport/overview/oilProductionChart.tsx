@@ -38,7 +38,7 @@ export default function ProductionVolumesChart({
       <ul className="flex justify-center gap-4 mt-4 text-sm font-medium text-gray-900">
         {legendItems.map((entry, index) => (
           <li key={`item-${index}`} className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+            <span className="w-3 h-3 " style={{ backgroundColor: entry.color }} />
             {entry.value}
           </li>
         ))}
@@ -64,7 +64,7 @@ export default function ProductionVolumesChart({
 
             return (
               <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: itemColor }} />
+                <span className="w-3 h-3 " style={{ backgroundColor: itemColor }} />
                 <span className="text-gray-600">{itemLabel}:</span>
                 <span className="font-medium text-gray-900">
                   {formatNumberFigures(Number(entry.value))}
@@ -94,9 +94,20 @@ export default function ProductionVolumesChart({
             />
             <YAxis
               width={70}
-              tickFormatter={(value) => formatNumberFigures(Number(value) || 0)}
               axisLine={false}
               tickLine={false}
+              tick={(props: any) => (
+                <text
+                  x={props.x}
+                  y={props.y}
+                  fill="#111827"
+                  fontSize={12}
+                  textAnchor="end"
+                  transform={`rotate(-35, ${props.x}, ${props.y})`}
+                >
+                  {formatNumberFigures(Number(props.payload.value) || 0)}
+                </text>
+              )}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "transparent" }} />
             <Legend content={renderLegend} />

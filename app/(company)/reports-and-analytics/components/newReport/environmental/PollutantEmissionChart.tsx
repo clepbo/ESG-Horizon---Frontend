@@ -85,8 +85,18 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#111827", fontSize: 14 }}
-              tickFormatter={(value) => formatNumberFigures(Number(value))}
+              tick={(props: any) => (
+                <text
+                  x={props.x}
+                  y={props.y}
+                  fill="#111827"
+                  fontSize={12}
+                  textAnchor="end"
+                  transform={`rotate(-35, ${props.x}, ${props.y})`}
+                >
+                  {formatNumberFigures(Number(props.payload.value))}
+                </text>
+              )}
               width={65}
             />
             <Tooltip

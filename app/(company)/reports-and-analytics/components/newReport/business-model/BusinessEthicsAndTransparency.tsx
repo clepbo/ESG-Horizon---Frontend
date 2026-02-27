@@ -124,7 +124,7 @@ export default function BusinessEthicAndTransparency({
         <div className="mt-4 flex justify-center gap-2 text-sm">
           {capitalData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: item.color }} />
+              <span className="h-3 w-3" style={{ backgroundColor: item.color }} />
               <span className="text-gray-900 font-medium">{item.name}</span>
             </div>
           ))}

@@ -42,7 +42,7 @@ export function ProcessEmissionsForm({
   const overviewBreadcrumb: BreadcrumbItemType[] = [
     { label: "Dashboard", href: "/dashboard-esg" },
     { label: "Assessments", href: "/assessments/hub" },
-    { label: "Stationary Sources", onClick: handleBackToOverview },
+    { label: "Process Emissions", onClick: handleBackToOverview },
   ];
 
   if (showSuccess) {
