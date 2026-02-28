@@ -186,7 +186,7 @@ export function Scope2EmissionsChart() {
             </div>
 
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData} margin={{ top: 10, right: 150, left: 0, bottom: 5 }}>
+              <BarChart data={chartData} margin={{ top: 10, right: 150, left: 0, bottom: 5 }} style={{ overflow: "visible" }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis
                   dataKey="label"

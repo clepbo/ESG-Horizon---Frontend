@@ -81,7 +81,7 @@ export default function GHGEmissionsInventory({
           Emissions by fuel type across all scopes – tCO₂e
         </p>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={fuelMixData}>
+          <BarChart data={fuelMixData} margin={{ top: 20 }} style={{ overflow: "visible" }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />

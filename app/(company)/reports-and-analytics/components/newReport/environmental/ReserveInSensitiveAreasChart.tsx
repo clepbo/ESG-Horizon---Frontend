@@ -43,6 +43,7 @@ function ReserveInSensitiveAreasChart({
         data={data}
         margin={{ top: 10, right: 130, left: 10, bottom: 5 }}
         barCategoryGap="30%"
+        style={{ overflow: "visible" }}
       >
         <XAxis
           dataKey="name"

@@ -171,6 +171,7 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
           <BarChart
             data={DELAYS_DATA}
             margin={{ top: 12, right: 12, left: 10, bottom: 8 }}
+            style={{ overflow: "visible" }}
             barGap={6}
             barCategoryGap="25%"
           >

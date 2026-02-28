@@ -178,6 +178,7 @@ export function Scope1EmissionsChart() {
                 data={chartData}
                 barCategoryGap={8}
                 margin={{ top: 10, right: 130, left: 0, bottom: 5 }}
+                style={{ overflow: "visible" }}
               >
                 <XAxis
                   dataKey="category"
