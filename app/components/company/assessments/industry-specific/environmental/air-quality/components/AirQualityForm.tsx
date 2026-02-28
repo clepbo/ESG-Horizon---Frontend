@@ -49,7 +49,6 @@ export default function AirQualityForm({
   const { state, dispatch } = useAssessment();
   const assessmentStatus = state.assessmentData.status;
   const isPreviouslySubmitted =
-    assessmentStatus === "awaiting_review" ||
     assessmentStatus === "submitted_approved" ||
     assessmentStatus === "approved";
   const {

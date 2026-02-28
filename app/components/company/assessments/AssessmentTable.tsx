@@ -154,11 +154,11 @@ function ActionDropdown({
           }
         >
           {getActionIcon(
-            status === "declined" || status === "unapproved_rejected"
+            status === "declined" || status === "unapproved_rejected" || status === "awaiting_review"
               ? "Update"
               : "Continue",
           )}
-          {status === "declined" || status === "unapproved_rejected"
+          {status === "declined" || status === "unapproved_rejected" || status === "awaiting_review"
             ? "Update"
             : "Continue"}
         </DropdownMenuItem>

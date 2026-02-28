@@ -92,7 +92,6 @@ export const useAssessmentFlow = (currentFormKey: string) => {
 
   const assessmentStatus = state.assessmentData?.status;
   const isPreviouslySubmitted =
-    assessmentStatus === "awaiting_review" ||
     assessmentStatus === "submitted_approved" ||
     assessmentStatus === "approved";
 
