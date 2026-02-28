@@ -72,37 +72,90 @@ async function renderAndCaptureSections(
 }
 
 /**
- * Slices a tall image into page-sized chunks so each chunk fits within the
- * usable area of an A4 page (above the footer). Returns an array of PNG data URLs.
+ * Checks if a row of pixels in the image is a white/near-white gap.
+ * Samples every 10th pixel for performance.
+ */
+function isWhiteRow(ctx: CanvasRenderingContext2D, y: number, width: number): boolean {
+  const step = 10;
+  const samples = Math.ceil(width / step);
+  const data = ctx.getImageData(0, y, width, 1).data;
+  for (let i = 0; i < samples; i++) {
+    const px = i * step * 4;
+    if (data[px] < 245 || data[px + 1] < 245 || data[px + 2] < 245) return false;
+  }
+  return true;
+}
+
+/**
+ * Finds the nearest white row to `idealY`, searching ±searchRange pixels.
+ * Prefers the closest match. Falls back to idealY if none found.
+ */
+function findWhiteBand(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  idealY: number,
+  searchRange = 100
+): number {
+  for (let offset = 0; offset <= searchRange; offset++) {
+    // Search downward first (prefer keeping more content on current page)
+    const down = idealY + offset;
+    if (down < height && isWhiteRow(ctx, down, width)) return down;
+    // Then upward
+    const up = idealY - offset;
+    if (up > 0 && isWhiteRow(ctx, up, width)) return up;
+  }
+  return idealY; // fallback — no worse than before
+}
+
+/**
+ * Slices a tall image into page-sized chunks using content-aware break points.
+ * Scans for white horizontal bands near each ideal cut point so slices happen
+ * at natural gaps between cards/charts instead of cutting through content.
  */
 async function sliceImageForPages(
   imageDataUrl: string,
   usableWidthMm: number,
-  usableHeightMm: number,
-  _marginMm: number
+  usableHeightMm: number
 ): Promise<string[]> {
   const img = await loadImage(imageDataUrl);
   const srcW = img.naturalWidth;
   const srcH = img.naturalHeight;
 
-  // Calculate how many source pixels correspond to one page of usable height
-  const scaledHeight = (srcH * usableWidthMm) / (srcW > 0 ? srcW : 1);
-  const pagesNeeded = Math.ceil(scaledHeight / usableHeightMm);
+  // How many source pixels fit one usable page height
+  const pxPerMm = srcW / usableWidthMm;
+  const srcPixelsPerPage = Math.floor(usableHeightMm * pxPerMm);
 
-  if (pagesNeeded <= 1) {
-    // Image fits on one page — return as-is (it will be scaled by addImage)
+  const scaledHeight = (srcH * usableWidthMm) / (srcW > 0 ? srcW : 1);
+  if (scaledHeight <= usableHeightMm) {
     return [imageDataUrl];
   }
 
-  // How many source pixels per page slice
-  const srcPixelsPerPage = Math.floor(srcH / pagesNeeded);
-  const slices: string[] = [];
+  // Draw full image onto a canvas for pixel inspection
+  const scanCanvas = document.createElement("canvas");
+  scanCanvas.width = srcW;
+  scanCanvas.height = srcH;
+  const scanCtx = scanCanvas.getContext("2d");
+  if (!scanCtx) return [imageDataUrl];
+  scanCtx.drawImage(img, 0, 0);
 
-  // Determine output canvas size: match source width, height = pixels per page
-  for (let i = 0; i < pagesNeeded; i++) {
-    const sy = i * srcPixelsPerPage;
-    const sliceH = Math.min(srcPixelsPerPage, srcH - sy);
-    if (sliceH <= 0) break;
+  // Find content-aware cut points
+  const cutPoints: number[] = [0];
+  let cursor = 0;
+  while (cursor + srcPixelsPerPage < srcH) {
+    const idealCut = cursor + srcPixelsPerPage;
+    const actualCut = findWhiteBand(scanCtx, srcW, srcH, idealCut);
+    cutPoints.push(actualCut);
+    cursor = actualCut;
+  }
+  cutPoints.push(srcH);
+
+  // Slice at the cut points
+  const slices: string[] = [];
+  for (let i = 0; i < cutPoints.length - 1; i++) {
+    const sy = cutPoints[i];
+    const sliceH = cutPoints[i + 1] - sy;
+    if (sliceH <= 0) continue;
 
     const canvas = document.createElement("canvas");
     canvas.width = srcW;
@@ -110,11 +163,8 @@ async function sliceImageForPages(
     const ctx = canvas.getContext("2d");
     if (!ctx) continue;
 
-    // White background so transparent areas don't show as black
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw just this slice of the source image
     ctx.drawImage(img, 0, sy, srcW, sliceH, 0, 0, srcW, sliceH);
     slices.push(canvas.toDataURL("image/png"));
   }
@@ -151,20 +201,40 @@ export async function generateReportPDF(params: ExportParams) {
     };
     await drawCoverPage(pdf, coverData);
 
-    // Add each section as subsequent pages (sliced to avoid footer overlap)
+    // Flow all section slices continuously across pages using a Y cursor
+    const sectionGap = 6; // mm gap between sections
+    let cursorY = usableHeight + 1; // force first slice onto a new page
+    let isFirstContentPage = true;
+
     for (const name of sectionNames) {
       const imageDataUrl = images.get(name);
       if (!imageDataUrl) continue;
 
-      const slices = await sliceImageForPages(imageDataUrl, usableWidth, usableHeight, margin);
-      for (const sliceDataUrl of slices) {
-        pdf.addPage();
-        // Calculate the actual height of this slice to avoid stretching
+      const slices = await sliceImageForPages(imageDataUrl, usableWidth, usableHeight);
+
+      for (let i = 0; i < slices.length; i++) {
+        const sliceDataUrl = slices[i];
         const sliceProps = pdf.getImageProperties(sliceDataUrl);
         const sliceDrawW = usableWidth;
         const sliceDrawH = (sliceProps.height * sliceDrawW) / sliceProps.width;
-        pdf.addImage(sliceDataUrl, "PNG", margin, margin, sliceDrawW, sliceDrawH);
+
+        // Add gap before first slice of a section (except the very first section)
+        const gapNeeded = i === 0 && !isFirstContentPage ? sectionGap : 0;
+
+        // Check if this slice fits on the current page
+        if (cursorY + gapNeeded + sliceDrawH > usableHeight) {
+          pdf.addPage();
+          cursorY = margin;
+          isFirstContentPage = false;
+        } else {
+          cursorY += gapNeeded;
+        }
+
+        pdf.addImage(sliceDataUrl, "PNG", margin, cursorY, sliceDrawW, sliceDrawH);
+        cursorY += sliceDrawH;
       }
+
+      isFirstContentPage = false;
     }
 
     // Pre-fetch platform logo for footers

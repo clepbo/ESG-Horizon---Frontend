@@ -135,6 +135,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                 data={chart.data}
                 margin={{ top: 20, right: 120, left: 10, bottom: 20 }}
                 barGap={8}
+                style={{ overflow: "visible" }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis

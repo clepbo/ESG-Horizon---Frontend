@@ -76,6 +76,7 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
+          style={{ overflow: "visible" }}
           margin={{
             top: 30,
             right: 130,

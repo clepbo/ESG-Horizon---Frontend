@@ -56,6 +56,7 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                 barGap={12}
                 barCategoryGap={32}
                 margin={{ top: 10, right: 110, left: 0, bottom: 5 }}
+                style={{ overflow: "visible" }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis

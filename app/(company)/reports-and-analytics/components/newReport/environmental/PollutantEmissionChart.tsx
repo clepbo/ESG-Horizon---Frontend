@@ -68,6 +68,7 @@ const PollutantEmissionChart = ({ NOx, SOx, VOCs, PM10 }: PollutantData) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={transformedData}
+            style={{ overflow: "visible" }}
             margin={{
               top: 20,
               right: 130,
