@@ -78,15 +78,12 @@ export default function HydrocarbonSpills({
     const hasVolumeRecovered = volumeRecovered.rawValue !== "";
     const hasVolumeInArctic = volumeInArctic.rawValue !== "";
     const hasVolumeImpactingShorelines = volumeImpactingShorelines.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasNumberOfSpills,
       hasTotalVolumeSpilled,
       hasVolumeRecovered,
       hasVolumeInArctic,
       hasVolumeImpactingShorelines,
-      hasEvidence,
     ]);
   }, [
     numberOfSpills.rawValue,
@@ -94,7 +91,6 @@ export default function HydrocarbonSpills({
     volumeRecovered.rawValue,
     volumeInArctic.rawValue,
     volumeImpactingShorelines.rawValue,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {

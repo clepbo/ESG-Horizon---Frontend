@@ -105,15 +105,12 @@ export default function EmbeddedCarbonInReserves({
       totalProvedReserves.rawValue !== "" && formData.totalProvedReservesUnit !== "";
     const hasEstimatedEmbeddedEmissions =
       estimatedEmbeddedEmissions.rawValue !== "" && formData.estimatedEmbeddedEmissionsUnit !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasTotalProvedReserves, hasEstimatedEmbeddedEmissions, hasEvidence]);
+    return calculateProgress([hasTotalProvedReserves, hasEstimatedEmbeddedEmissions]);
   }, [
     totalProvedReserves.rawValue,
     estimatedEmbeddedEmissions.rawValue,
     formData.totalProvedReservesUnit,
     formData.estimatedEmbeddedEmissionsUnit,
-    filesAndLinks,
   ]);
 
   // const handleInputChange = (field: string, value: string) => {

@@ -147,15 +147,12 @@ export default function ProducedWaterManagement({
 
     const hasAverageHydrocarbonContent = averageHydrocarbonContent.rawValue !== "";
 
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalProducedWaterGenerated,
       hasVolumeDischargedToSurface,
       hasVolumeInjectedForDisposal,
       hasVolumeRecycledReused,
       hasAverageHydrocarbonContent,
-      hasEvidence,
     ]);
   }, [
     totalProducedWaterGenerated.rawValue,
@@ -167,7 +164,6 @@ export default function ProducedWaterManagement({
     formData.volumeDischargedToSurfaceUnit,
     formData.volumeInjectedForDisposalUnit,
     formData.volumeRecycledReusedUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {

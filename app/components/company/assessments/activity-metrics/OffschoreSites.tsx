@@ -92,10 +92,8 @@ export function OffshoreSites({
     const hasProductionPlatforms = productionPlatforms.rawValue !== "";
     const hasFpsos = fpsos.rawValue !== "";
     const hasOtherSites = otherOffshoreSites.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasProductionPlatforms, hasFpsos, hasOtherSites, hasEvidence]);
-  }, [productionPlatforms.rawValue, fpsos.rawValue, otherOffshoreSites.rawValue, filesAndLinks]);
+    return calculateProgress([hasProductionPlatforms, hasFpsos, hasOtherSites]);
+  }, [productionPlatforms.rawValue, fpsos.rawValue, otherOffshoreSites.rawValue]);
 
   const getPayload = () => {
     const platforms = Number(productionPlatforms.rawValue) || 0;

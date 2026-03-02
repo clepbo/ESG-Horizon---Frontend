@@ -125,16 +125,13 @@ export default function ChemicalDisclosure({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasEvidence = operatesHydraulicFracturingWells !== "" ? filesAndLinks.length > 0 : false;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields]);
   }, [
     operatesHydraulicFracturingWells,
     totalNumberOfFracturedWells.rawValue,
     numberOfWellsWithPublicDisclosure.rawValue,
     formData.totalNumberOfFracturedWellsUnit,
     formData.numberOfWellsWithPublicDisclosureUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
