@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useMobileNav } from "./Sidebar";
@@ -14,7 +14,7 @@ export default function LayoutContent({ children, role }: LayoutContentProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const { setShowMobileNav } = useMobileNav();
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
   const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -49,15 +49,15 @@ export default function LayoutContent({ children, role }: LayoutContentProps) {
         const currentScrollY = mainRef.current.scrollTop;
 
         // Show nav when scrolling up or at the top
-        if (currentScrollY < lastScrollY || currentScrollY < 10) {
+        if (currentScrollY < lastScrollYRef.current || currentScrollY < 10) {
           setShowMobileNav(true);
         }
         // Hide nav when scrolling down (and not near the top)
-        else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        else if (currentScrollY > lastScrollYRef.current && currentScrollY > 50) {
           setShowMobileNav(false);
         }
 
-        setLastScrollY(currentScrollY);
+        lastScrollYRef.current = currentScrollY;
       }, 10);
     };
 
@@ -74,7 +74,7 @@ export default function LayoutContent({ children, role }: LayoutContentProps) {
         }
       };
     }
-  }, [lastScrollY, setShowMobileNav]);
+  }, [setShowMobileNav]);
 
   if (loading || !user)
     return (

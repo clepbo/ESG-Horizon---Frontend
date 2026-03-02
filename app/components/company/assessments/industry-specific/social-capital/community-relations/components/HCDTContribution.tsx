@@ -14,6 +14,7 @@ import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -32,6 +33,7 @@ export default function HCDTContribution({
   totalSteps,
 }: Props) {
   const router = useRouter();
+  const { state } = useAssessment();
   const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution");
 
   const opexAmount = useFormattedNumber("");
@@ -46,6 +48,27 @@ export default function HCDTContribution({
     opexUnit: "NGN",
     hcdtUnit: "NGN",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.hcdtContribution;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.opexAmount != null) {
+        opexAmount.handleChange(String(existingData.opexAmount));
+      }
+      if (existingData.hcdtAmount != null) {
+        hcdtAmount.handleChange(String(existingData.hcdtAmount));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        opexUnit: existingData.opexUnit ?? prev.opexUnit,
+        hcdtUnit: existingData.hcdtUnit ?? prev.hcdtUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.hcdtContribution]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },

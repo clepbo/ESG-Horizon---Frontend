@@ -138,7 +138,7 @@ export default function AirQualityForm({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   }
 
@@ -160,7 +160,7 @@ export default function AirQualityForm({
       onSubmit(response?.totals || null);
     } catch (error) {
       console.error(error);
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to submit air quality assessment.");
     } finally {
       setIsSubmitting(false);
     }

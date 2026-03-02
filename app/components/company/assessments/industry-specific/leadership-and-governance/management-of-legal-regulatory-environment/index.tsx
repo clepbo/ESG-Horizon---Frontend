@@ -78,7 +78,7 @@ export default function LegalRegulatoryEnvironment({
         totals={totals ?? undefined}
         nextAssessment={null}
         onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBack}
       />
     );

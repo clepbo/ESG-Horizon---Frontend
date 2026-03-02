@@ -22,6 +22,7 @@ interface Props {
   backToDisclosureTopics?: () => void;
   onContinue?: () => void;
   initialForm?: string;
+  onContinueToNextAssessment?: () => void;
 }
 
 export default function CommunityRelationsHome({
@@ -30,6 +31,7 @@ export default function CommunityRelationsHome({
   onContinue: _onContinue,
   backToDisclosureTopics,
   initialForm,
+  onContinueToNextAssessment,
 }: Props) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<string>(initialForm ?? "");
@@ -92,7 +94,7 @@ export default function CommunityRelationsHome({
         totals={undefined}
         nextAssessment="Workforce Health & Safety"
         onContinue={handleSuccessContinue}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={handleBackToHub}
       />
     );

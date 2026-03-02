@@ -57,6 +57,7 @@ const scopeData = [
 export default function BusinessEthicsAssessment({
   onBack,
   initialForm,
+  onContinueToNextAssessment,
 }: BusinessEthicsAssessmentProps) {
   const router = useRouter();
   const params = useParams();
@@ -116,7 +117,7 @@ export default function BusinessEthicsAssessment({
         nextAssessment="Critical Incident Risk Management"
         reportId={reportId}
         onContinue={handleViewReport}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBack}
       />
     );

@@ -204,7 +204,7 @@ export default function WaterQualityImpact({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 

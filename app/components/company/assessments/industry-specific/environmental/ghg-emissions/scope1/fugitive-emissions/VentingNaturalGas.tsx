@@ -212,7 +212,7 @@ export function VentingNaturalGas({
       }, 2000);
     } catch (error) {
       console.error("Save failed:", error);
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 

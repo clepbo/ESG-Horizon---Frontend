@@ -14,6 +14,7 @@ import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -32,6 +33,7 @@ export default function CommunityDisputeResolution({
   totalSteps,
 }: Props) {
   const router = useRouter();
+  const { state } = useAssessment();
   const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.disputeResolution");
 
   const disputesReferred = useFormattedNumber("");
@@ -46,6 +48,27 @@ export default function CommunityDisputeResolution({
     disputesReferredUnit: "Dispute",
     disputesResolvedUnit: "Dispute",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.disputeResolution;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.disputesReferred != null) {
+        disputesReferred.handleChange(String(existingData.disputesReferred));
+      }
+      if (existingData.disputesResolved != null) {
+        disputesResolved.handleChange(String(existingData.disputesResolved));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        disputesReferredUnit: existingData.disputesReferredUnit ?? prev.disputesReferredUnit,
+        disputesResolvedUnit: existingData.disputesResolvedUnit ?? prev.disputesResolvedUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.disputeResolution]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },
