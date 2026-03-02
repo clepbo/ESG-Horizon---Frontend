@@ -310,4 +310,4 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
   );
 };
 
-export default SpeedometerGauge;
+export default React.memo(SpeedometerGauge);

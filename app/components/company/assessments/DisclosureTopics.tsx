@@ -476,7 +476,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("workforce-health-and-safety");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -493,7 +493,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("crs");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -507,6 +507,7 @@ export function DisclosureTopics({
       <CommunityRelationsHome
         onBack={() => setCurrentView("topics")}
         initialForm={initialForm as any}
+        onContinueToNextAssessment={() => setCurrentView("security-human-rights")}
       />
     );
   }
@@ -515,6 +516,7 @@ export function DisclosureTopics({
       <AirQuality
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
+        onContinueToNextAssessment={() => setCurrentView("water-and-wastewater-management")}
       />
     );
   }
@@ -523,6 +525,7 @@ export function DisclosureTopics({
       <WaterAndWastewaterManagement
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
+        onContinueToNextAssessment={() => setCurrentView("biodiversity")}
       />
     );
   }
@@ -534,7 +537,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("business-ethics-transparency");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -552,7 +555,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("reserves-valuation-capital-expenditures");
         }}
       />
     );
@@ -566,7 +569,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("critical-incident-risk-management");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -583,7 +586,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("management-of-legal-and-regulatory-environment");
         }}
         onSubmit={(data) => {
           console.info(data);

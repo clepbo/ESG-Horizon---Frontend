@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assessmentService } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
-import { toast } from "react-toastify";
 import { useDebouncedCallback } from "use-debounce";
 
 export const useAssessmentFlow = (currentFormKey: string) => {
@@ -61,8 +60,6 @@ export const useAssessmentFlow = (currentFormKey: string) => {
       const msg = err.response?.data?.message || "Failed to save data. Please try again.";
       if (msg.includes("submitted group")) {
         dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: msg });
-      } else {
-        toast.error(msg);
       }
       throw err;
     }
@@ -77,15 +74,8 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   });
 
   const submitGroup = async () => {
-    try {
-      const response = await submitMut.mutateAsync();
-      toast.success("Section submitted successfully.");
-      return response;
-    } catch (err: any) {
-      const msg = err.response?.data?.message || "Failed to submit assessment. Please try again.";
-      toast.error(msg);
-      throw err;
-    }
+    const response = await submitMut.mutateAsync();
+    return response;
   };
 
   const isAssignedTask = state.isAssignedTask || false;

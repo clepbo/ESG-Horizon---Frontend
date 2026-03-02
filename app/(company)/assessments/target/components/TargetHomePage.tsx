@@ -76,7 +76,7 @@ export default function TargetHomePage() {
       {!hasTarget && !showForm && <InitialTargetPage onSetTarget={() => setShowForm(true)} />}
 
       {/* Scenes 2-4 — target creation/edit form (uses the improved kpis/create forms) */}
-      {showForm && <TargetSetting isEdit={hasTarget} onSuccess={handleSuccess} />}
+      {showForm && <TargetSetting isEdit={hasTarget} onSuccess={handleSuccess} onBack={() => setShowForm(false)} />}
 
       {/* Scene 5 — target exists, show performance dashboard */}
       {hasTarget && !showForm && <PerformanceOverview />}

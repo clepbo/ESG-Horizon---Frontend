@@ -15,6 +15,7 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -33,6 +34,7 @@ export default function CommunityRisk({
   totalSteps,
 }: Props) {
   const router = useRouter();
+  const { state } = useAssessment();
   const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.communityRisk");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -44,6 +46,21 @@ export default function CommunityRisk({
     hcdtIncorporated: "",
     riskDescription: "",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.communityRisk;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        hcdtIncorporated: existingData.hcdtIncorporated ?? prev.hcdtIncorporated,
+        riskDescription: existingData.riskDescription ?? prev.riskDescription,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.communityRisk]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },

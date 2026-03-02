@@ -50,6 +50,7 @@ const cards2 = [
 export default function WaterAndWastemanagementCards({
   backToAssessmentHub,
   backToDisclosureTopics,
+  onContinueToNextAssessment,
 }: AirQualityProps) {
   const router = useRouter();
   const [step, setStep] = React.useState<number>(0);
@@ -143,6 +144,7 @@ export default function WaterAndWastemanagementCards({
         nextAssessment="Biodiversity Impact"
         reportId={reportId}
         onContinue={handleViewReport}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={backToDisclosureTopics}
       />
     );

@@ -158,7 +158,7 @@ export default function WorkforceHealthSafety({
         onContinueAssessment={() => {
           setDirectFormData({ ...defaultEmployeeFormData });
           setContractFormData({ ...defaultEmployeeFormData });
-          dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+          onContinueToNextAssessment();
         }}
         onBackToHub={onBackToHub}
       />

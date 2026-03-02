@@ -4,10 +4,12 @@ import WaterAndWastemanagamentCards from "./components/WaterAndWastemanagamentCa
 interface AirQualityProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
+  onContinueToNextAssessment?: () => void;
 }
 export default function WaterAndWastewaterManagement({
   backToDisclosureTopics,
   backToAssessmentHub,
+  onContinueToNextAssessment,
 }: AirQualityProps) {
   const [step, setStep] = React.useState<number>(0);
 
@@ -17,6 +19,7 @@ export default function WaterAndWastewaterManagement({
         backToDisclosureTopics={backToDisclosureTopics}
         backToAssessmentHub={backToAssessmentHub}
         handleCardClick={() => setStep(1)}
+        onContinueToNextAssessment={onContinueToNextAssessment}
       />
     );
   }

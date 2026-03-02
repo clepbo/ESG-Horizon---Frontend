@@ -61,6 +61,21 @@ export default function HumanRightEngagement({
     engagementDescription: "",
   });
 
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.securityRights?.humanRightEngagement;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        hasGrievanceMechanism: existingData.hasGrievanceMechanism ?? prev.hasGrievanceMechanism,
+        engagementDescription: existingData.engagementDescription ?? prev.engagementDescription,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.securityRights?.humanRightEngagement]);
+
   const { filled, total } = useMemo(() => {
     const hasGrievanceMechanism = formData.hasGrievanceMechanism !== "";
     const hasDescription = formData.engagementDescription.trim() !== "";

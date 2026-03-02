@@ -11,6 +11,7 @@ export interface AirQualityProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   handleCardClick: () => void;
+  onContinueToNextAssessment?: () => void;
 }
 
 export default function AirQualityCard({

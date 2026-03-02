@@ -17,6 +17,7 @@ import { UnitSelect } from "../../../../UnitSelect";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 
 interface ReservesAreaConflictProps {
@@ -35,6 +36,7 @@ export default function ReservesAreaConflict({
   breadcrumb,
 }: ReservesAreaConflictProps) {
   const router = useRouter();
+  const { state } = useAssessment();
   const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesAreaConflict");
 
   const totalProvedReservesVolume = useFormattedNumber("");
@@ -59,6 +61,35 @@ export default function ReservesAreaConflict({
     provedReservesInConflictUnit: "",
     probableReservesInConflictUnit: "",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.securityRights?.reservesAreaConflict;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.totalProvedReservesVolume != null) {
+        totalProvedReservesVolume.handleChange(String(existingData.totalProvedReservesVolume));
+      }
+      if (existingData.totalProbableReservesVolume != null) {
+        totalProbableReservesVolume.handleChange(String(existingData.totalProbableReservesVolume));
+      }
+      if (existingData.provedReservesInConflictVolume != null) {
+        provedReservesInConflictVolume.handleChange(String(existingData.provedReservesInConflictVolume));
+      }
+      if (existingData.probableReservesInConflictVolume != null) {
+        probableReservesInConflictVolume.handleChange(String(existingData.probableReservesInConflictVolume));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        totalProvedReservesUnit: existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
+        totalProbableReservesUnit: existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
+        provedReservesInConflictUnit: existingData.provedReservesInConflictUnit ?? prev.provedReservesInConflictUnit,
+        probableReservesInConflictUnit: existingData.probableReservesInConflictUnit ?? prev.probableReservesInConflictUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.securityRights?.reservesAreaConflict]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

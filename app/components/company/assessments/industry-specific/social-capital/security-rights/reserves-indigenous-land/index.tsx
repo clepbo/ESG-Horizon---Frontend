@@ -17,6 +17,7 @@ import { UnitSelect } from "../../../../UnitSelect";
 import { uploadService } from "@/services/upload.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 
 interface ReservesIndigenousLandProps {
@@ -35,6 +36,7 @@ export default function ReservesIndigenousLand({
   breadcrumb,
 }: ReservesIndigenousLandProps) {
   const router = useRouter();
+  const { state } = useAssessment();
   const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand");
 
   const totalProvedReservesVolume = useFormattedNumber("");
@@ -62,6 +64,35 @@ export default function ReservesIndigenousLand({
     probableIndigenousVolume: "",
     probableIndigenousUnit: "",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.totalProvedReservesVolume != null) {
+        totalProvedReservesVolume.handleChange(String(existingData.totalProvedReservesVolume));
+      }
+      if (existingData.provedIndigenousVolume != null) {
+        provedIndigenousVolume.handleChange(String(existingData.provedIndigenousVolume));
+      }
+      if (existingData.totalProbableReservesVolume != null) {
+        totalProbableReservesVolume.handleChange(String(existingData.totalProbableReservesVolume));
+      }
+      if (existingData.probableIndigenousVolume != null) {
+        probableIndigenousVolume.handleChange(String(existingData.probableIndigenousVolume));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        totalProvedReservesUnit: existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
+        provedIndigenousUnit: existingData.provedIndigenousUnit ?? prev.provedIndigenousUnit,
+        totalProbableReservesUnit: existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
+        probableIndigenousUnit: existingData.probableIndigenousUnit ?? prev.probableIndigenousUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand]);
 
   const { filled, total } = useMemo(() => {
     const hasTotalProvedReserves =

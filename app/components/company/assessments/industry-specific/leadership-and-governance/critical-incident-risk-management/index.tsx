@@ -78,7 +78,7 @@ export default function CriticalIncidentRiskManagement({
         totals={totals ?? undefined}
         nextAssessment="Management of the Legal & Regulatory Environment"
         onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBack}
       />
     );

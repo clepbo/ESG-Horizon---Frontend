@@ -88,7 +88,7 @@ export default function ReservesValuationAssessment({
   onBack,
   onBackToHub,
   initialForm,
-  // onContinueToNextAssessment,
+  onContinueToNextAssessment,
 }: ReservesValuationAssessmentProps) {
   const router = useRouter();
   const params = useParams();
@@ -156,7 +156,7 @@ export default function ReservesValuationAssessment({
         nextAssessment="Business Ethics & Transparency"
         reportId={reportId}
         onContinue={handleViewReport}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBackToHub}
       />
     );
