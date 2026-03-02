@@ -11,7 +11,7 @@ import { ArrowLeft, CheckCircle2, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { TotalsResponse } from "@/services/assessment.service";
 
@@ -84,6 +84,21 @@ export default function AirQualityForm({
       });
     }
   }, [state.assessmentData.environment?.airQuality?.airPollutantEmissions]);
+
+  const { filled, total } = useMemo(() => {
+    const fields = [
+      formData.oxidesOfNitrogen > 0,
+      formData.oxidesOfSulphur > 0,
+      formData.volatileOrganicCompound > 0,
+      formData.particulateMatter > 0,
+    ];
+    return { filled: fields.filter(Boolean).length, total: fields.length };
+  }, [
+    formData.oxidesOfNitrogen,
+    formData.oxidesOfSulphur,
+    formData.volatileOrganicCompound,
+    formData.particulateMatter,
+  ]);
 
   const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -193,8 +208,8 @@ export default function AirQualityForm({
             <AssessmentProgressBar
               stepIndex={1}
               totalSteps={1}
-              fieldsCompleted={1}
-              totalFields={4}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
 
