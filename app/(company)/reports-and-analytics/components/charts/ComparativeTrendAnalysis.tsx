@@ -40,7 +40,7 @@ export default function ComparativeTrendAnalysis({
           <XAxis dataKey="year" />
           <YAxis />
           <Tooltip
-            formatter={(value) => formatNumberFull(Number(value) || 0)}
+            formatter={(value) => formatNumberFull(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           />
           <Legend />
 
