@@ -31,7 +31,7 @@ import ReservesValuationAndCapitalExpenditures from "./industry-specific/busines
 import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
-// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
@@ -313,17 +313,45 @@ export function DisclosureTopics({
     }
   };
 
-  /** Only track "submitted" status via submittedGroups — no "in-progress" heuristic */
-  const getStatusFromData = (title: string, data: any): { status: string } => {
+  /** Map each topic to its data root in assessmentData for "in-progress" detection */
+  const topicDataRoots: Record<string, string[]> = {
+    "Greenhouse Gas Emissions": ["environment", "ghg"],
+    "Air Quality": ["environment", "airQuality"],
+    "Water and Wastewater Management": ["environment", "waterManagement"],
+    "Biodiversity Impact": ["environment", "biodiversityImpact"],
+    "Community Relations": ["socialCapital", "communityRelations"],
+    "Security, Human Rights & Rights of Indigenous Peoples": ["socialCapital", "securityRights"],
+    "Workforce Health & Safety": ["humanCapital"],
+    "Reserves Valuation & Capital Expenditures": ["businessInnovation", "reservesValuationAndCapitalExpenditures"],
+    "Business Ethics & Transparency": ["businessInnovation", "businessEthicsAndTransparency"],
+    "Critical Incident Risk Management": ["leadershipGovernance", "criticalIncidentRiskManagement"],
+    "Management of the Legal & Regulatory Environment": ["leadershipGovernance", "managementOfTheLegalAndRegulatoryEnvironment"],
+    "Activity Metrics": ["activityMetrics"],
+  };
+
+  const getStatusFromData = (title: string, data: any): { status: SectionStatus } => {
     if (!data) return { status: "not-started" };
 
     const submittedGroups: string[] = data?.submittedGroups || [];
     const topicSubGroups = getTopicSubGroups(title);
+    const submittedCount = topicSubGroups.filter((g) => submittedGroups.includes(g)).length;
 
-    if (topicSubGroups.length > 0) {
-      const submittedCount = topicSubGroups.filter((g) => submittedGroups.includes(g)).length;
-      if (submittedCount === topicSubGroups.length) {
-        return { status: "submitted" };
+    // All sub-groups submitted → submitted
+    if (topicSubGroups.length > 0 && submittedCount === topicSubGroups.length) {
+      return { status: "submitted" };
+    }
+
+    // Some sub-groups submitted → in-progress
+    if (submittedCount > 0) {
+      return { status: "in-progress" };
+    }
+
+    // No submissions but data exists at topic root → in-progress
+    const dataPath = topicDataRoots[title];
+    if (dataPath) {
+      const topicData = resolveDataPath(data, dataPath);
+      if (topicData && typeof topicData === "object" && Object.keys(topicData).length > 0) {
+        return { status: "in-progress" };
       }
     }
 
@@ -677,9 +705,7 @@ export function DisclosureTopics({
                   <CardContent className="p-4 flex justify-between items-center">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-2 flex-1">
-                        <div className="flex items-center justify-between">
-                          <h5 className="font-medium text-foreground">Activity Metrics</h5>
-                        </div>
+                        <h5 className="font-medium text-foreground">Activity Metrics</h5>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
                         </p>
@@ -742,10 +768,7 @@ export function DisclosureTopics({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {section.cards.map((card) => {
-                                // Status indication commented out - revisit later
-                                // const status = getStatus(card.title);
-                                // const borderClass = getCardBorderClass(card.title);
-                                // const getBorderColor = () => { ... };
+                                const cardStatus = getStatusFromData(card.title, state.assessmentData);
 
                                 return (
                                   <Card
@@ -757,12 +780,8 @@ export function DisclosureTopics({
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: (() => {
-                                        const status = getStatusFromData(
-                                          card.title,
-                                          state.assessmentData
-                                        );
-                                        if (status.status === "submitted") return "#2dd4bf"; // teal-400
-                                        if (status.status === "in-progress") return "#facc15"; // yellow-400
+                                        if (cardStatus.status === "submitted") return "#2dd4bf";
+                                        if (cardStatus.status === "in-progress") return "#facc15";
                                         return "transparent";
                                       })(),
                                     }}
@@ -771,11 +790,9 @@ export function DisclosureTopics({
                                     <CardContent className="p-4 flex justify-between items-center">
                                       <div className="flex items-start justify-between gap-3 flex-1">
                                         <div className="space-y-2 flex-1">
-                                          <div className="flex items-center justify-between">
-                                            <h5 className="font-medium text-foreground">
+                                          <h5 className="font-medium text-foreground">
                                               {card.title}
-                                            </h5>
-                                          </div>
+                                          </h5>
                                           <p className="text-sm text-muted-foreground">
                                             {card.subtitle}
                                           </p>

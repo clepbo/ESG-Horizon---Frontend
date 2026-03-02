@@ -49,7 +49,9 @@ export default function WaterQualityImpact({
     submitGroup,
     isLoading: isActionLoading,
     isPreviouslySubmitted,
+    getSubmitLabel,
   } = useAssessmentFlow("water-quality-impacts");
+  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts?.waterQualityImpacts;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -441,7 +443,7 @@ export default function WaterQualityImpact({
                 disabled={isActionLoading || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
                 {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>

@@ -25,8 +25,7 @@ import { FrontendTask } from "@/services/assignTask.service";
 import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
 import DownstreamEmission from "./scope3/DownstreamEmission";
 import { useAssessment } from "@/hooks/useAssessment";
-// import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 type GHGView =
   | "overview"
@@ -175,10 +174,25 @@ export function GhgEmissionsAssessment({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
-  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-  //   scopeData,
-  //   state.assessmentData
-  // );
+  const { state } = useAssessment();
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Stationary Sources": { groupKey: "environment.ghg.scope1.stationarySources", dataPath: ["environment", "ghg", "scope1", "stationarySources"] },
+    "Mobile Sources": { groupKey: "environment.ghg.scope1.mobileSources", dataPath: ["environment", "ghg", "scope1", "mobileSources"] },
+    "Process Emissions": { groupKey: "environment.ghg.scope1.processEmissions", dataPath: ["environment", "ghg", "scope1", "processEmissions"] },
+    "Fugitive Emissions": { groupKey: "environment.ghg.scope1.fugitiveEmissions", dataPath: ["environment", "ghg", "scope1", "fugitiveEmissions"] },
+    "Location-Based Scope 2 Emissions": { groupKey: "environment.ghg.scope2.locationBased", dataPath: ["environment", "ghg", "scope2", "locationBased"] },
+    "Market-Based Scope 2 Emissions": { groupKey: "environment.ghg.scope2.marketBased", dataPath: ["environment", "ghg", "scope2", "marketBased"] },
+    "Upstream Emissions (Categories 1-8)": { groupKey: "environment.ghg.scope3.upstream", dataPath: ["environment", "ghg", "scope3", "upstream"] },
+    "Downstream Emissions (Categories 9-15)": { groupKey: "environment.ghg.scope3.downstream", dataPath: ["environment", "ghg", "scope3", "downstream"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -469,16 +483,13 @@ export function GhgEmissionsAssessment({
                                 ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
                             }`}
-                            // Status indication commented out - revisit later: getCardBorderClass(card.title)
+                            style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between gap-3">
                                 <div className="space-y-2 flex-1">
-                                  <div className="flex items-center justify-between">
-                                    <h5 className="font-medium text-foreground">{card.title}</h5>
-                                    {/* <CompletionIndicator status={getStatus(card.title)} /> */}
-                                  </div>
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
                                   <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                                 </div>
                                 <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

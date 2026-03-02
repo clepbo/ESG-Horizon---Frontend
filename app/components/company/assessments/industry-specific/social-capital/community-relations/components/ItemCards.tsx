@@ -17,6 +17,7 @@ export interface FeatureCardProps {
   body: string;
   clickable?: boolean;
   onClick?: () => void;
+  borderColor?: string;
 }
 
 export const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -27,6 +28,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   body,
   clickable = false,
   onClick,
+  borderColor,
 }) => {
   return (
     <div className="mb-2">
@@ -46,6 +48,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
         className={`transition-colors shadow-sm max-w-lg bg-white rounded-lg border ${
           clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
         }`}
+        style={borderColor ? { borderLeftWidth: "4px", borderLeftColor: borderColor } : undefined}
         onClick={() => clickable && onClick?.()}
       >
         <CardContent className="p-4">

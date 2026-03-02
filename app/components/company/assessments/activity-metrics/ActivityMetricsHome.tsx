@@ -11,6 +11,7 @@ import { ProductionVolume } from "./ProductionVolume";
 import { OffshoreSites } from "./OffschoreSites";
 import { TerrestialSites } from "./TerrestialSites";
 import { useAssessment } from "@/hooks/useAssessment";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 type ActivityMetricView = "overview" | "production-volume" | "offshore-sites" | "terrestrial-sites";
 
@@ -63,19 +64,18 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
     }
   }, [initialView]);
 
-  const getSubCardStatus = (cardTitle: string): "submitted" | "not-started" => {
-    const data = state.assessmentData as any;
-    const submitted: string[] = data?.submittedGroups || [];
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
-    const groupMap: Record<string, string> = {
-      "Production Volumes": "foundationalData.activityMetrics.productionVolumes",
-      "Offshore Sites": "foundationalData.activityMetrics.offshoreSites",
-      "Terrestrial Sites": "foundationalData.activityMetrics.terrestrialSites",
-    };
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Production Volumes": { groupKey: "foundationalData.activityMetrics.productionVolumes", dataPath: ["activityMetrics", "productionData", "productionVolumes"] },
+    "Offshore Sites": { groupKey: "foundationalData.activityMetrics.offshoreSites", dataPath: ["activityMetrics", "assetPortfolio", "offshoreSites"] },
+    "Terrestrial Sites": { groupKey: "foundationalData.activityMetrics.terrestrialSites", dataPath: ["activityMetrics", "assetPortfolio", "terrestrialSites"] },
+  };
 
-    const groupPath = groupMap[cardTitle];
-    if (groupPath && submitted.includes(groupPath)) return "submitted";
-    return "not-started";
+  const getSubCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
   };
 
   const handleBackToOverview = () => {
@@ -220,19 +220,13 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
                           }`}
+                          style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(status) }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between gap-3">
                               <div className="space-y-2 flex-1">
-                                <div className="flex items-center justify-between">
-                                  <h5 className="font-medium text-foreground">{card.title}</h5>
-                                  {status === "submitted" && (
-                                    <span className="bg-teal-100 text-teal-800 text-xs px-2 py-0.5 rounded-full border border-teal-200 font-medium">
-                                      Submitted
-                                    </span>
-                                  )}
-                                </div>
+                                <h5 className="font-medium text-foreground">{card.title}</h5>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
                               <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

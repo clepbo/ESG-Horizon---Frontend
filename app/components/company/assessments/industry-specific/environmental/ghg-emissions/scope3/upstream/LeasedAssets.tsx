@@ -84,7 +84,8 @@ export function LeasedAssets({
     floorArea: false,
   });
 
-  const { saveNow, isLoading, isPreviouslySubmitted } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
+  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -656,7 +657,7 @@ export function LeasedAssets({
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
                 {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
