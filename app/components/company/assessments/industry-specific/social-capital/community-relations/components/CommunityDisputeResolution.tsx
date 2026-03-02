@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 
 interface Props {
   onBack: () => void;
@@ -85,14 +86,12 @@ export default function CommunityDisputeResolution({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasDisputesReferred =
       disputesReferred.rawValue !== "" && formData.disputesReferredUnit !== "";
     const hasDisputesResolved =
       disputesResolved.rawValue !== "" && formData.disputesResolvedUnit !== "";
-
-    const completed = [hasDisputesReferred, hasDisputesResolved].filter(Boolean).length;
-    return completed;
+    return calculateProgress([hasDisputesReferred, hasDisputesResolved]);
   }, [
     disputesReferred.rawValue,
     disputesResolved.rawValue,
@@ -199,8 +198,8 @@ export default function CommunityDisputeResolution({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={2}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
 

@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 
 interface Props {
   onBack: () => void;
@@ -77,12 +78,10 @@ export default function CommunityRisk({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasHcdtAnswer = formData.hcdtIncorporated !== "";
     const hasDescription = formData.riskDescription.trim() !== "";
-
-    const completed = [hasHcdtAnswer, hasDescription].filter(Boolean).length;
-    return completed;
+    return calculateProgress([hasHcdtAnswer, hasDescription]);
   }, [formData.hcdtIncorporated, formData.riskDescription]);
 
   const validateForm = () => {
@@ -177,8 +176,8 @@ export default function CommunityRisk({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={2}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
 
