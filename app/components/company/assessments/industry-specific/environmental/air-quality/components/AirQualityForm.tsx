@@ -47,15 +47,14 @@ export default function AirQualityForm({
     },
   ];
   const { state, dispatch } = useAssessment();
-  const assessmentStatus = state.assessmentData.status;
-  const isPreviouslySubmitted =
-    assessmentStatus === "submitted_approved" ||
-    assessmentStatus === "approved";
   const {
     saveNow,
     submitGroup,
     isLoading: isActionLoading,
+    isPreviouslySubmitted,
+    getSubmitLabel,
   } = useAssessmentFlow("air-pollutant-emissions");
+  const hasExistingData = !!state.assessmentData.environment?.airQuality?.airPollutantEmissions;
 
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
@@ -303,7 +302,7 @@ export default function AirQualityForm({
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {isActionLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData, isActionLoading)}
               </Button>
             </div>
           </Card>

@@ -77,8 +77,9 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, isAssignedTask, handleAssignedTaskRedirect } =
+  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
     useAssessmentFlow("ghg-scope2-market-coolingsteam");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -558,7 +559,7 @@ export function CoolingSteamForm({
                 disabled={isLoading || isPreviouslySubmitted}
                 className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData, isLoading)}
               </Button>
             </div>
           </CardContent>

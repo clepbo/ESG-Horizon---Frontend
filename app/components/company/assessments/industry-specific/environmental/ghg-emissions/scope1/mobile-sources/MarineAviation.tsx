@@ -73,7 +73,9 @@ export function MarineAviation({
     submitGroup,
     isLoading: isActionLoading,
     isPreviouslySubmitted,
+    getSubmitLabel,
   } = useAssessmentFlow("ghg-mobile-sources-marine-aviation");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -574,7 +576,7 @@ export function MarineAviation({
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit assessment"
               >
-                {isActionLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData, isActionLoading)}
               </Button>
             </div>
           </CardContent>

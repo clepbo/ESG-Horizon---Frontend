@@ -41,10 +41,11 @@ export default function SafetyManagementSystem({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(
+  const { saveNow, submitGroup, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
     "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
   );
   const { state } = useAssessment();
+  const hasExistingData = !!(state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety?.riskAndOpportunityManagement?.safetyManagementSystems;
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -324,7 +325,7 @@ export default function SafetyManagementSystem({
                 disabled={isSaving || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
                 {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>

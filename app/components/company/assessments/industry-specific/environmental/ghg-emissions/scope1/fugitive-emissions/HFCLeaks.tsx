@@ -90,7 +90,9 @@ export function HFCLeaks({
     submitGroup,
     isLoading: isActionLoading,
     isPreviouslySubmitted,
+    getSubmitLabel,
   } = useAssessmentFlow("ghg-fugitive-emissions-hfc-leaks");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.hfcLeaks;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -647,7 +649,7 @@ export function HFCLeaks({
                   className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Submit form"
                 >
-                  {isActionLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
+                  {getSubmitLabel(hasExistingData, isActionLoading)}
                 </Button>
               </div>
             </form>

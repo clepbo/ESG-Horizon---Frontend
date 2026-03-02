@@ -38,7 +38,8 @@ export default function CatastrophicRiskManagement({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems";
-  const { saveNow, isPreviouslySubmitted } = useAssessmentFlow(current);
+  const { saveNow, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current);
+  const hasExistingData = !!state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.catastrophicRiskManagementSystems;
   const [auditDate, setAuditDate] = useState("");
   const [systemDescription, setSystemDescription] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -318,7 +319,7 @@ export default function CatastrophicRiskManagement({
                 disabled={isSaving || isPreviouslySubmitted}
                 className="border-primary text-primary bg-transparent hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
               </Button>
             </div>
           </CardContent>

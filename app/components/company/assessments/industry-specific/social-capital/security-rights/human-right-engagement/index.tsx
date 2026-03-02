@@ -16,6 +16,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 
@@ -38,9 +39,11 @@ export default function HumanRightEngagement({
   onSubmit,
 }: HumanRightEngagementProps) {
   const router = useRouter();
-  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(
+  const { state } = useAssessment();
+  const { saveNow, submitGroup, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
     "socialCapital.securityRights.humanRightEngagement"
   );
+  const hasExistingData = !!state.assessmentData.socialCapital?.securityRights?.humanRightEngagement;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -303,7 +306,7 @@ export default function HumanRightEngagement({
                 disabled={isSaving || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
               </Button>
             </div>
           </CardContent>

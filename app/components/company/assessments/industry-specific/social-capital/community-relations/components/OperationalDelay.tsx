@@ -15,6 +15,7 @@ import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
@@ -35,9 +36,11 @@ export default function OperationalDelay({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(
+  const { state } = useAssessment();
+  const { saveNow, submitGroup, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
     "socialCapital.communityRelations.operationalDelays"
   );
+  const hasExistingData = !!state.assessmentData.socialCapital?.communityRelations?.operationalDelays;
 
   const numberOfDelaysCommunityProtests = useFormattedNumber("");
   const durationDelaysCommunityProtests = useFormattedNumber("");
@@ -488,16 +491,7 @@ export default function OperationalDelay({
                 disabled={isActionLoading || isPreviouslySubmitted}
                 className="justify-self-end border border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isActionLoading ? (
-                  <>
-                    <LoadingSpinner size="sm" className="mr-2" />
-                    Submitting...
-                  </>
-                ) : isPreviouslySubmitted ? (
-                  <>Submitted</>
-                ) : (
-                  <>Submit</>
-                )}
+                {getSubmitLabel(hasExistingData, isActionLoading)}
               </Button>
             </div>
           </CardContent>

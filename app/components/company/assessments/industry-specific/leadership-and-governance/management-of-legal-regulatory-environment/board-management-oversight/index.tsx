@@ -38,7 +38,8 @@ export default function BoardManagementOversight({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight";
-  const { saveNow, isPreviouslySubmitted } = useAssessmentFlow(current);
+  const { saveNow, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current);
+  const hasExistingData = !!state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
   const [hasBoardCommittee, setHasBoardCommittee] = useState("");
   const [oversightDiscussion, setOversightDiscussion] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -350,7 +351,7 @@ export default function BoardManagementOversight({
                 disabled={isSaving || isPreviouslySubmitted}
                 className="border-primary text-primary bg-transparent hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
               </Button>
             </div>
           </CardContent>
