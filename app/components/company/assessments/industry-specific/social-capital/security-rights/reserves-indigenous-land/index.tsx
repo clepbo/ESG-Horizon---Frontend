@@ -107,14 +107,11 @@ export default function ReservesIndigenousLand({
     const hasProbableIndigenous =
       probableIndigenousVolume.rawValue !== "" && formData.probableIndigenousUnit !== "";
 
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalProvedReserves,
       hasProvedIndigenous,
       hasTotalProbableReserves,
       hasProbableIndigenous,
-      hasEvidence,
     ]);
   }, [
     totalProvedReservesVolume.rawValue,
@@ -125,7 +122,6 @@ export default function ReservesIndigenousLand({
     formData.provedIndigenousUnit,
     formData.totalProbableReservesUnit,
     formData.probableIndigenousUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {

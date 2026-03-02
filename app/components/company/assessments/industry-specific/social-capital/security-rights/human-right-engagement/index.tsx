@@ -79,10 +79,8 @@ export default function HumanRightEngagement({
   const { filled, total } = useMemo(() => {
     const hasGrievanceMechanism = formData.hasGrievanceMechanism !== "";
     const hasDescription = formData.engagementDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasGrievanceMechanism, hasDescription, hasEvidence]);
-  }, [formData.hasGrievanceMechanism, formData.engagementDescription, filesAndLinks]);
+    return calculateProgress([hasGrievanceMechanism, hasDescription]);
+  }, [formData.hasGrievanceMechanism, formData.engagementDescription]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

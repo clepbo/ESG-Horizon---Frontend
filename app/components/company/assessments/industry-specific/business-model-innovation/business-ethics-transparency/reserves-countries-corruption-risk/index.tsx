@@ -139,14 +139,11 @@ export default function ReservesCountriesCorruptionRisk({
       totalProbableReserves.rawValue !== "" && formData.totalProbableReservesUnit !== "";
     const hasProbableReservesHighRisk =
       probableReservesHighRisk.rawValue !== "" && formData.probableReservesHighRiskUnit !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalProvedReserves,
       hasProvedReservesHighRisk,
       hasTotalProbableReserves,
       hasProbableReservesHighRisk,
-      hasEvidence,
     ]);
   }, [
     totalProvedReserves.rawValue,
@@ -157,7 +154,6 @@ export default function ReservesCountriesCorruptionRisk({
     formData.totalProbableReservesUnit,
     probableReservesHighRisk.rawValue,
     formData.probableReservesHighRiskUnit,
-    filesAndLinks,
   ]);
 
   const handleInputChange = (field: string, value: string) => {

@@ -111,21 +111,17 @@ export function ProductionVolume({
     const hasNaturalGas = naturalGasProduction.rawValue !== "";
     const hasSyntheticOil = syntheticOilProduction.rawValue !== "";
     const hasSyntheticGas = syntheticGasProduction.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasCrudeOil,
       hasNaturalGas,
       hasSyntheticOil,
       hasSyntheticGas,
-      hasEvidence,
     ]);
   }, [
     crudeOilProduction.rawValue,
     naturalGasProduction.rawValue,
     syntheticOilProduction.rawValue,
     syntheticGasProduction.rawValue,
-    filesAndLinks,
   ]);
 
   const handleSaveAndContinue = async () => {

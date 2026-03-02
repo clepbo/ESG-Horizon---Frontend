@@ -106,10 +106,8 @@ export default function AntiCorruptionManagement({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
-  }, [hasWhistleblowerHotline, systemDescription, filesAndLinks]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields]);
+  }, [hasWhistleblowerHotline, systemDescription]);
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {

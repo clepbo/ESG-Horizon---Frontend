@@ -121,14 +121,11 @@ export default function ReservesInSensitiveAreas({
       probableReservesSensitiveVolume.rawValue !== "" &&
       formData.probableReservesSensitiveUnit !== "";
 
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalProvedReserves,
       hasProvedSensitive,
       hasTotalProbable,
       hasProbableSensitive,
-      hasEvidence,
     ]);
   }, [
     totalProvedReservesVolume.rawValue,
@@ -139,7 +136,6 @@ export default function ReservesInSensitiveAreas({
     formData.provedReservesSensitiveUnit,
     formData.totalProbableReservesUnit,
     formData.probableReservesSensitiveUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
