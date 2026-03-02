@@ -7,7 +7,6 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
-import { formatNumberWithCommas } from "../utils/helpers";
 import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 import { ReportResponse } from "@/types/report/reportResponse";
 
@@ -122,7 +121,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
 
   const environmentalAmount = (
     <p className="font-bold">
-      {formatNumberWithCommas(environmental?.total_emission ?? 0)}{" "}
+      {formatNumberFull(environmental?.total_emission ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
       <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
     </p>
   );
@@ -132,8 +131,9 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <FaArrowDown
         className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.abs(environmental?.changePercentage ?? 0), {
-        maximumFractionDigits: 1,
+      {formatNumberFull(Math.min(Math.abs(environmental?.changePercentage ?? 0), 100), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       })}
       %
     </small>
@@ -146,8 +146,9 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <FaArrowDown
         className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.abs(humanCapital?.changePercentage ?? 0), {
-        maximumFractionDigits: 1,
+      {formatNumberFull(Math.min(Math.abs(humanCapital?.changePercentage ?? 0), 100), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       })}
       %
     </small>
@@ -158,8 +159,9 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       <FaArrowDown
         className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.abs(businessModel?.changePercentage ?? 0), {
-        maximumFractionDigits: 1,
+      {formatNumberFull(Math.min(Math.abs(businessModel?.changePercentage ?? 0), 100), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       })}
       %
     </small>
@@ -268,7 +270,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Operational Delays"}
           pillar={"Social Capital"}
           score={socialCapitalScore}
-          amount={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0)} incidents`}
+          amount={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} incidents`}
           footer={
             "Community engagement efforts increased in conflict zones. Protests remain a key operational risk."
           }
@@ -282,7 +284,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Total recordable incident rate"}
           pillar={"Human Capital"}
           score={humanCapitalScore}
-          amount={`${formatNumberFull(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0)} per 200k hrs`}
+          amount={`${formatNumberFull(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hrs`}
           footer={
             "Safety performance improved by 10% YoY. Zero fatalities recorded in the reporting period."
           }
@@ -296,7 +298,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Reserves at risk"}
           pillar={"Business Model"}
           score={businessModelScore}
-          amount={`${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0)} bbl`}
+          amount={`${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl`}
           footer={
             "Strategic shift towards renewables accelerating. Carbon pricing impact on reserves modeled"
           }
@@ -310,7 +312,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Process safety"}
           pillar={"Leadership and Governance"}
           score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
-          amount={leadership?.numberOfTierEventsAndWhatTier ?? "N/A"}
+          amount={leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}
           footer={"Sustainability committee established. Whistleblower system active and verified"}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}

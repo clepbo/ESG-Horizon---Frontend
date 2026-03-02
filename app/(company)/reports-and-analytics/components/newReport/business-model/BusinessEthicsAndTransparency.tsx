@@ -44,7 +44,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Carbon Price Scenario</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">
-              ₦ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0)}
+              ₦ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               <span className="ml-1 text-sm font-normal text-gray-500">/tonne</span>
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-red-50 p-4">
             <p className="text-sm font-medium text-red-500">Reserves at Risk</p>
             <p className="mt-2 text-3xl font-bold text-red-500">
-              {formatNumberFull(climateImpact?.reservesAtRiskPercent ?? 0, { maximumFractionDigits: 2 })}%
+              {formatNumberFull(climateImpact?.reservesAtRiskPercent ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
             </p>
             <p className="text-sm text-red-400">Decrease in Proved Oil</p>
           </div>
@@ -64,7 +64,7 @@ export default function BusinessEthicAndTransparency({
             <span>Total Proved Reserves</span>
             <span className="font-medium text-gray-900">
               {formatNumberFull(climateImpact?.totalProvedReserves ?? 0, {
-                maximumFractionDigits: 2,
+                minimumFractionDigits: 2, maximumFractionDigits: 2,
               })}{" "}
               MMboe
             </span>
@@ -73,7 +73,7 @@ export default function BusinessEthicAndTransparency({
             <span>Embedded Carbon</span>
             <span className="font-medium text-gray-900">
               {formatNumberFull(climateImpact?.embeddedCarbon ?? 0, {
-                maximumFractionDigits: 2,
+                minimumFractionDigits: 2, maximumFractionDigits: 2,
               })}{" "}
               MtCO₂e
             </span>
@@ -89,13 +89,13 @@ export default function BusinessEthicAndTransparency({
           <div>
             <p className="text-gray-500">Renewable Investment</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount)}
+              {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           <div className="text-right">
             <p className="text-gray-500">Renewable Revenue</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount)}
+              {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function BusinessEthicAndTransparency({
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value) => formatNumberFull(Number(value) || 0)}
+                formatter={(value) => formatNumberFull(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               />
             </PieChart>
           </ResponsiveContainer>

@@ -129,7 +129,7 @@ const EmissionsChart = ({
               marginRight: "0px",
             }}
           >
-            {formatNumberShort(value)}
+            {formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div
             style={{
@@ -214,7 +214,7 @@ const EmissionsChart = ({
           >
             <div style={{ color: "#6b7280", marginBottom: "2px" }}>{tooltipData.point.period}</div>
             <div style={{ fontWeight: 600, color: "#111" }}>
-              {formatNumberFull(tooltipData.point.emissions, { maximumFractionDigits: 2 })} tCO₂e
+              {formatNumberFull(tooltipData.point.emissions, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO₂e
             </div>
           </div>
         )}
