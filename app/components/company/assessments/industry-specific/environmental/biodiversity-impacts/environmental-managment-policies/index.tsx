@@ -75,10 +75,8 @@ export default function EnvironmentalManagementPolicies({
   const { filled, total } = useMemo(() => {
     const hasISO = formData.isISO14001Certified !== "";
     const hasDescription = formData.policiesDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasISO, hasDescription, hasEvidence]);
-  }, [formData.isISO14001Certified, formData.policiesDescription, filesAndLinks]);
+    return calculateProgress([hasISO, hasDescription]);
+  }, [formData.isISO14001Certified, formData.policiesDescription]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

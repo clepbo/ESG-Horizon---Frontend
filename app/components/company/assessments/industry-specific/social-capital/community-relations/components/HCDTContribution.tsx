@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 
 interface Props {
   onBack: () => void;
@@ -85,12 +86,10 @@ export default function HCDTContribution({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasOpexAmount = opexAmount.rawValue !== "" && formData.opexUnit !== "";
     const hasHcdtAmount = hcdtAmount.rawValue !== "" && formData.hcdtUnit !== "";
-
-    const completed = [hasOpexAmount, hasHcdtAmount].filter(Boolean).length;
-    return completed;
+    return calculateProgress([hasOpexAmount, hasHcdtAmount]);
   }, [opexAmount.rawValue, hcdtAmount.rawValue, formData.opexUnit, formData.hcdtUnit]);
 
   const validateForm = () => {
@@ -190,8 +189,8 @@ export default function HCDTContribution({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={2}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
 

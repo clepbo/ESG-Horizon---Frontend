@@ -104,15 +104,12 @@ export default function RenewableEnergyInvestment({
     const hasInvestmentAmount = investmentAmount.rawValue !== "";
     const hasRevenueAmount = revenueAmount.rawValue !== "";
     const hasProjectDescription = projectDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasInvestmentAmount,
       hasRevenueAmount,
       hasProjectDescription,
-      hasEvidence,
     ]);
-  }, [investmentAmount.rawValue, revenueAmount.rawValue, projectDescription, filesAndLinks]);
+  }, [investmentAmount.rawValue, revenueAmount.rawValue, projectDescription]);
 
   // const handleInputChange = (field: string, value: string) => {
   //   setFormData((prev) => ({ ...prev, [field]: value }));

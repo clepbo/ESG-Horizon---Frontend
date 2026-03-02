@@ -80,11 +80,9 @@ export default function SafetyManagementSystem({
   const { filled, total } = useMemo(() => {
     const hasRemuneration = formData.executiveRemunerationLinked !== "";
     const hasDescription = formData.safetyDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    const filled = [hasRemuneration, hasDescription, hasEvidence].filter(Boolean).length;
-    return { filled, total: 3 };
-  }, [formData, filesAndLinks]);
+    const filled = [hasRemuneration, hasDescription].filter(Boolean).length;
+    return { filled, total: 2 };
+  }, [formData]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

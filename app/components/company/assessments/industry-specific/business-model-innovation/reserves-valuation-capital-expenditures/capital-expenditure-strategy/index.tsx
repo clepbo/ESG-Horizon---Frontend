@@ -100,10 +100,8 @@ export default function CapitalExpenditureStrategy({
   const { filled, total } = useMemo(() => {
     const hasCapexPercentage = capexPercentage.rawValue !== "";
     const hasCapexDiscussion = capexDiscussion.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasCapexPercentage, hasCapexDiscussion, hasEvidence]);
-  }, [capexPercentage.rawValue, capexDiscussion, filesAndLinks]);
+    return calculateProgress([hasCapexPercentage, hasCapexDiscussion]);
+  }, [capexPercentage.rawValue, capexDiscussion]);
 
   // const handleInputChange = (field: string, value: string) => {
   //   setFormData((prev) => ({ ...prev, [field]: value }));

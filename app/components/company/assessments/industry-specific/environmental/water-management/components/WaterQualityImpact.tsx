@@ -128,16 +128,13 @@ export default function WaterQualityImpact({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasEvidence = operatesFrackedWells !== "" ? filesAndLinks.length > 0 : false;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields]);
   }, [
     operatesFrackedWells,
     totalMonitoredSites.rawValue,
     sitesWithDeterioratedQuality.rawValue,
     formData.totalMonitoredSitesUnit,
     formData.sitesWithDeterioratedQualityUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {

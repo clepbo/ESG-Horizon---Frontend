@@ -93,10 +93,8 @@ export default function CatastrophicRiskManagement({
   const { filled, total } = useMemo(() => {
     const hasAuditDate = auditDate !== "";
     const hasDescription = systemDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasAuditDate, hasDescription, hasEvidence]);
-  }, [auditDate, systemDescription, filesAndLinks]);
+    return calculateProgress([hasAuditDate, hasDescription]);
+  }, [auditDate, systemDescription]);
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {

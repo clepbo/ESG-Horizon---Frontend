@@ -98,15 +98,12 @@ export default function EmployeeForm({
     const hasFatalities = (data.fatalities ?? "").trim() !== "";
     const hasNearMisses = (data.nearMisses ?? "").trim() !== "";
     const hasSafetyTrainingHours = (data.safetyTrainingHours ?? "").trim() !== "";
-    const hasEvidence = data.filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalHoursWorked,
       hasRecordableIncidents,
       hasFatalities,
       hasNearMisses,
       hasSafetyTrainingHours,
-      hasEvidence,
     ]);
   }, [
     data.totalHoursWorked,
@@ -114,7 +111,6 @@ export default function EmployeeForm({
     data.fatalities,
     data.nearMisses,
     data.safetyTrainingHours,
-    data.filesAndLinks,
   ]);
 
   useEffect(() => {

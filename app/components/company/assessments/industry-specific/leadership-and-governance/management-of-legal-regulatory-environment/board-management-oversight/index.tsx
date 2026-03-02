@@ -93,10 +93,8 @@ export default function BoardManagementOversight({
   const { filled, total } = useMemo(() => {
     const hasCommittee = hasBoardCommittee !== "";
     const hasDiscussion = oversightDiscussion.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasCommittee, hasDiscussion, hasEvidence]);
-  }, [hasBoardCommittee, oversightDiscussion, filesAndLinks]);
+    return calculateProgress([hasCommittee, hasDiscussion]);
+  }, [hasBoardCommittee, oversightDiscussion]);
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {

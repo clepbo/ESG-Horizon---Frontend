@@ -96,14 +96,11 @@ export function TerrestialSites({
     const hasFlowStations = flowStations.rawValue !== "";
     const hasGasProcessing = gasProcessingPlants.rawValue !== "";
     const hasOtherSites = otherTerrestrialSites.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasFlowStations, hasGasProcessing, hasOtherSites, hasEvidence]);
+    return calculateProgress([hasFlowStations, hasGasProcessing, hasOtherSites]);
   }, [
     flowStations.rawValue,
     gasProcessingPlants.rawValue,
     otherTerrestrialSites.rawValue,
-    filesAndLinks,
   ]);
 
   const getPayload = () => {
