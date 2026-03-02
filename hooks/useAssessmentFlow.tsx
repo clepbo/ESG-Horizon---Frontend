@@ -103,6 +103,12 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     return false;
   };
 
+  const getSubmitLabel = (hasExistingData: boolean, isSubmitting?: boolean): string => {
+    if (isSubmitting) return "Submitting...";
+    if (isPreviouslySubmitted) return "Submitted";
+    return hasExistingData ? "Update" : "Submit";
+  };
+
   return {
     autoSave,
     saveNow,
@@ -111,5 +117,6 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     isPreviouslySubmitted,
     isAssignedTask,
     handleAssignedTaskRedirect,
+    getSubmitLabel,
   };
 };

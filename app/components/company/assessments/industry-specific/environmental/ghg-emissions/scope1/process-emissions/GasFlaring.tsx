@@ -94,7 +94,9 @@ export function GasFlaring({
     submitGroup,
     isLoading: isActionLoading,
     isPreviouslySubmitted,
+    getSubmitLabel,
   } = useAssessmentFlow("ghg-process-emissions-gas-flaring");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -555,7 +557,7 @@ export function GasFlaring({
                 disabled={isActionLoading || isPreviouslySubmitted}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isActionLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData, isActionLoading)}
               </Button>
             </div>
           </CardContent>

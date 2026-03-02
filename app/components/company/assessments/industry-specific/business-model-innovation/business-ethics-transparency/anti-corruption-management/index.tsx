@@ -38,9 +38,10 @@ export default function AntiCorruptionManagement({
   onSubmit,
 }: AntiCorruptionManagementProps) {
   const { state, dispatch } = useAssessment();
-  const { saveNow, isPreviouslySubmitted } = useAssessmentFlow(
+  const { saveNow, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
     "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"
   );
+  const hasExistingData = !!state.assessmentData.businessInnovation?.businessEthicsAndTransparency?.antiCorruptionManagementSystem;
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -421,7 +422,7 @@ export default function AntiCorruptionManagement({
                     disabled={isSaving || isPreviouslySubmitted}
                     className="border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                    {getSubmitLabel(hasExistingData)}
                     {!isPreviouslySubmitted && <ArrowLeft className="h-4 w-4 rotate-180" />}
                   </Button>
                 </div>

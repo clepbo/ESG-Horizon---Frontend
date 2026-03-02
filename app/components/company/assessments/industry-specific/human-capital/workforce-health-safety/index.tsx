@@ -12,9 +12,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import HealthSafetyPerformance from "./health-safety-performance";
 import SafetyManagementSystems from "./safety-management-systems";
-// import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-// import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import { defaultEmployeeFormData, type EmployeeFormData } from "./health-safety-performance/types";
 
 type WHSView = "overview" | "health-safety-performance" | "safety-management-systems";
@@ -113,12 +111,18 @@ export default function WorkforceHealthSafety({
     }
   }, [state.assessmentData]);
 
-  // Status indication commented out - revisit later
-  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-  //   scopeData,
-  //   state.assessmentData,
-  //   checkSubComponentCompletion
-  // );
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Health & Safety Performance": { groupKey: "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", dataPath: ["humanCapital", "riskAndOpportunityManagement", "healthAndSafetyPerformance"] },
+    "Safety Management Systems": { groupKey: "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems", dataPath: ["humanCapital", "workforceHealthAndSafety", "riskAndOpportunityManagement", "safetyManagementSystems"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -275,15 +279,13 @@ export default function WorkforceHealthSafety({
                         className={`transition-colors bg-white shadow-sm rounded-lg ${
                           card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
                         }`}
+                        style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-2 flex-1">
-                              <div className="flex items-center justify-between">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
-                                {/* <CompletionIndicator status={getStatus(card.title)} /> */}
-                              </div>
+                              <h5 className="font-medium text-foreground">{card.title}</h5>
                               <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />

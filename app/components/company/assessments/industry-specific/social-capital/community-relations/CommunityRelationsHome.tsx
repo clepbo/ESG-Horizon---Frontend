@@ -14,6 +14,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { FeatureCard } from "./components/ItemCards";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 interface Props {
   onBack?: () => void;
@@ -32,8 +33,23 @@ export default function CommunityRelationsHome({
 }: Props) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<string>(initialForm ?? "");
-  const { dispatch } = useAssessment();
+  const { state, dispatch } = useAssessment();
   const [showSuccess, setShowSuccess] = React.useState(false);
+
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Risk & Opportunity Management": { groupKey: "socialCapital.communityRelations.communityRiskOpportunityManagement", dataPath: ["socialCapital", "communityRelations", "communityRiskOpportunityManagement"] },
+    "Host Community Development (PIA)": { groupKey: "socialCapital.communityRelations.hcdtContribution", dataPath: ["socialCapital", "communityRelations", "hcdtContribution"] },
+    "Community Dispute Resolution": { groupKey: "socialCapital.communityRelations.communityDisputeResolution", dataPath: ["socialCapital", "communityRelations", "communityDisputeResolution"] },
+    "Operational Delays": { groupKey: "socialCapital.communityRelations.operationalDelays", dataPath: ["socialCapital", "communityRelations", "operationalDelays"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   function handleForwardBack() {
     setCurrentView("");
@@ -197,6 +213,7 @@ export default function CommunityRelationsHome({
             body={communityItems[0].body}
             clickable={communityItems[0].clickable}
             onClick={() => communityItems[0].clickable && handleCardClick(communityItems[0].title)}
+            borderColor={getSectionBorderColor(getCardStatus(communityItems[0].title))}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -211,6 +228,7 @@ export default function CommunityRelationsHome({
               onClick={() =>
                 communityItems[1].clickable && handleCardClick(communityItems[1].title)
               }
+              borderColor={getSectionBorderColor(getCardStatus(communityItems[1].title))}
             />
             <FeatureCard
               key={communityItems[2].subtitle}
@@ -223,6 +241,7 @@ export default function CommunityRelationsHome({
               onClick={() =>
                 communityItems[2].clickable && handleCardClick(communityItems[2].title)
               }
+              borderColor={getSectionBorderColor(getCardStatus(communityItems[2].title))}
             />
           </div>
 
@@ -235,6 +254,7 @@ export default function CommunityRelationsHome({
             body={communityItems[3].body}
             clickable={communityItems[3].clickable}
             onClick={() => communityItems[3].clickable && handleCardClick(communityItems[3].title)}
+            borderColor={getSectionBorderColor(getCardStatus(communityItems[3].title))}
           />
         </Card>
       </div>

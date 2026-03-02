@@ -59,8 +59,9 @@ export function OilGasOperations({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, isAssignedTask, handleAssignedTaskRedirect } =
+  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
     useAssessmentFlow("ghg-scope1-stationary-oilgasoperations");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
 
   const [errors, setErrors] = useState<{
     onShoreProduction?: string;
@@ -475,7 +476,7 @@ export function OilGasOperations({
                 className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {isLoading ? "Submitting..." : isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData, isLoading)}
               </Button>
             </div>
           </CardContent>

@@ -12,6 +12,7 @@ import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
 import { SuccessScreen } from "../../../../SuccessScreen";
 import { useAssessment } from "@/hooks/useAssessment";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
 // import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import { useRouter, useParams } from "next/navigation";
@@ -82,12 +83,20 @@ export default function WaterAndWastemanagementCards({
     }
   }, [state.assessmentData]);
 
-  // Status indication commented out - revisit later
-  // const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-  //   scopeData,
-  //   state.assessmentData,
-  //   checkSubComponentCompletion
-  // );
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Freshwater Withdrawal & Consumption": { groupKey: "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals", dataPath: ["environment", "waterManagement", "waterAndProducedWaterManagement", "freshwaterWithdrawals"] },
+    "Produced Water Management": { groupKey: "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement", dataPath: ["environment", "waterManagement", "waterAndProducedWaterManagement", "producedWaterManagement"] },
+    "Chemical Disclosure": { groupKey: "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure", dataPath: ["environment", "waterManagement", "hydraulicFracturingImpacts", "chemicalDisclosure"] },
+    "Water Quality Impacts": { groupKey: "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts", dataPath: ["environment", "waterManagement", "hydraulicFracturingImpacts", "waterQualityImpacts"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   function backToWasteWaterManagement() {
     setStep(0);
@@ -190,14 +199,12 @@ export default function WaterAndWastemanagementCards({
                     key={i}
                     onClick={() => handleCardClick(card.title)}
                     className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h5 className="font-medium text-foreground">{card.title}</h5>
-                            {/* <CompletionIndicator status={getStatus(card.title)} /> */}
-                          </div>
+                          <h5 className="font-medium text-foreground">{card.title}</h5>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -227,14 +234,12 @@ export default function WaterAndWastemanagementCards({
                     key={i}
                     onClick={() => handleCardClick(card.title)}
                     className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h5 className="font-medium text-foreground">{card.title}</h5>
-                            {/* <CompletionIndicator status={getStatus(card.title)} /> */}
-                          </div>
+                          <h5 className="font-medium text-foreground">{card.title}</h5>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

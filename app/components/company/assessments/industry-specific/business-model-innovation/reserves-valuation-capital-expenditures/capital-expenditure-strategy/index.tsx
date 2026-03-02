@@ -50,7 +50,8 @@ export default function CapitalExpenditureStrategy({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy";
-  const { saveNow, submitGroup, isPreviouslySubmitted } = useAssessmentFlow(current);
+  const { saveNow, submitGroup, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current);
+  const hasExistingData = !!state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures?.capitalExpenditureStrategy;
 
   useEffect(() => {
     const existingData =
@@ -320,7 +321,7 @@ export default function CapitalExpenditureStrategy({
                 disabled={isSaving || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPreviouslySubmitted ? "Submitted" : "Submit"}
+                {getSubmitLabel(hasExistingData)}
                 {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
