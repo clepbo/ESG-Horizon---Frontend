@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 
@@ -96,7 +97,7 @@ export default function OperationalDelay({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasNumberOfDelaysCommunity =
       numberOfDelaysCommunityProtests.rawValue !== "" &&
       formData.numberOfDelaysCommunityProtestsUnit !== "";
@@ -108,14 +109,12 @@ export default function OperationalDelay({
       formData.numberOfDelaysOtherStakeholderUnit !== "";
     const hasDurationDelaysOther =
       durationDelaysOtherIssues.rawValue !== "" && formData.durationDelaysOtherIssuesUnit !== "";
-
-    const completed = [
+    return calculateProgress([
       hasNumberOfDelaysCommunity,
       hasDurationDelaysCommunity,
       hasNumberOfDelaysOther,
       hasDurationDelaysOther,
-    ].filter(Boolean).length;
-    return completed;
+    ]);
   }, [
     numberOfDelaysCommunityProtests.rawValue,
     formData.numberOfDelaysCommunityProtestsUnit,
@@ -237,8 +236,8 @@ export default function OperationalDelay({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={4}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
             />
 
