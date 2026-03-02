@@ -19,9 +19,11 @@ interface TargetSettingProps {
   isEdit?: boolean;
   /** Called after a successful create/update (e.g. to refresh parent data). */
   onSuccess?: () => void;
+  /** Called when "Go back" is clicked. Falls back to router.back() if not provided. */
+  onBack?: () => void;
 }
 
-export function TargetSetting({ isEdit: isEditProp, onSuccess }: TargetSettingProps = {}) {
+export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetSettingProps = {}) {
   const router = useRouter();
   const [selectedType, setSelectedType] = useState<TargetType>("general");
   const [generalTargetData, setGeneralTargetData] = useState<GeneralTargetData>({
@@ -79,7 +81,7 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess }: TargetSettingPr
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           type="button"
-          onClick={() => router.push("/kpis")}
+          onClick={() => (onBack ? onBack() : router.back())}
           className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-4"
         >
           <FaCaretLeft className="text-xs" />

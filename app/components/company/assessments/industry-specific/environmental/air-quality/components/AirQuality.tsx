@@ -8,11 +8,13 @@ import { TotalsResponse } from "@/services/assessment.service";
 interface AirQualityProps {
     backToDisclosureTopics: () => void;
     backToAssessmentHub: () => void;
+    onContinueToNextAssessment?: () => void;
 }
 
 export default function AirQuality({
     backToDisclosureTopics,
     backToAssessmentHub,
+    onContinueToNextAssessment,
 }: AirQualityProps) {
     const [step, setStep] = React.useState<number>(0);
     const [showSuccess, setShowSuccess] = React.useState(false);
@@ -38,6 +40,7 @@ export default function AirQuality({
                 totals={totals ?? undefined}
                 reportId={reportId}
                 onContinue={handleViewReport}
+                onContinueAssessment={onContinueToNextAssessment}
                 onBackToHub={backToDisclosureTopics}
             />
         );

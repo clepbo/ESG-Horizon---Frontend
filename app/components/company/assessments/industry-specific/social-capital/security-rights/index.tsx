@@ -124,7 +124,7 @@ export function SecurityHumanRightsAssessment({
         totals={totals ?? undefined}
         nextAssessment="Community Relations"
         onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBack}
       />
     );

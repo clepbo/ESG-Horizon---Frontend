@@ -25,6 +25,7 @@ export function SuccessScreen({
   nextAssessment,
   totals,
   onContinue,
+  onContinueAssessment,
   onBackToHub,
   reportId,
 }: SuccessScreenProps) {
@@ -112,8 +113,18 @@ export function SuccessScreen({
         )}
 
         <div className="w-full flex flex-col gap-3">
+          {nextAssessment && onContinueAssessment && (
+            <Button
+              className="w-full bg-white text-[#3C8D84] hover:bg-gray-100 font-bold py-3 text-sm rounded-md transition-all duration-200 shadow-md whitespace-normal h-auto min-h-[44px]"
+              onClick={onContinueAssessment}
+            >
+              Continue to {nextAssessment}
+            </Button>
+          )}
+
           <Button
-            className="w-full bg-white text-[#3C8D84] hover:bg-gray-100 font-bold py-3 text-base rounded-md transition-all duration-200 shadow-md"
+            className={`w-full font-medium py-3 text-base rounded-md transition-all duration-200 ${nextAssessment && onContinueAssessment ? "bg-transparent border border-white text-white hover:bg-white/10" : "bg-white text-[#3C8D84] hover:bg-gray-100 font-bold shadow-md"}`}
+            variant={nextAssessment && onContinueAssessment ? "outline" : "default"}
             onClick={handleViewReport}
           >
             View &amp; Download Report

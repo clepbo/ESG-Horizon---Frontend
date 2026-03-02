@@ -59,6 +59,28 @@ export default function OperationalDelay({
     durationDelaysOtherIssuesUnit: "Days",
   });
 
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.operationalDelays;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.numberOfDelaysCommunityProtests != null) {
+        numberOfDelaysCommunityProtests.handleChange(String(existingData.numberOfDelaysCommunityProtests));
+      }
+      if (existingData.durationDelaysCommunityProtests != null) {
+        durationDelaysCommunityProtests.handleChange(String(existingData.durationDelaysCommunityProtests));
+      }
+      if (existingData.numberOfDelaysOtherStakeholder != null) {
+        numberOfDelaysOtherStakeholder.handleChange(String(existingData.numberOfDelaysOtherStakeholder));
+      }
+      if (existingData.durationDelaysOtherIssues != null) {
+        durationDelaysOtherIssues.handleChange(String(existingData.durationDelaysOtherIssues));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.operationalDelays]);
+
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },
     { label: "Assessments", href: "/assessments/hub" },
