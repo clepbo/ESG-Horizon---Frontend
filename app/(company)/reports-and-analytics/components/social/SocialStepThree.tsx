@@ -39,13 +39,13 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
         <div>
           <p className="text-sm pt-4 text-gray-500">Prior Year OPEX</p>
           <p className="text-lg md:text-xl font-bold text-gray-800">
-            {formatCurrencyCompact(priorYearOpex)}
+            {formatCurrencyCompact(priorYearOpex, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Annual Contribution ({formatNumberFull(percentage, { maximumFractionDigits: 2 })}%)</p>
+          <p className="text-sm text-gray-500">Annual Contribution ({formatNumberFull(percentage, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)</p>
           <p className="text-xl md:text-2xl font-bold text-gray-800">
-            {formatCurrencyCompact(annualContribution)}
+            {formatCurrencyCompact(annualContribution, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       </div>
@@ -108,19 +108,19 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               outerRadius={75}
               paddingAngle={0}
               stroke="none"
-              label={({ value }) => formatNumberShort(value)}
+              label={({ value }) => formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               // labelLine={false}
             >
               {DISPUTE_DATA.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip formatter={(value) => formatNumberShort(Number(value) || 0)} />
+            <Tooltip formatter={(value) => formatNumberShort(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
             <Legend content={<CustomLegend />} />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {formatNumberFull(total)}</p>
+      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {formatNumberFull(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
     </div>
   );
 }
@@ -186,11 +186,11 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
               tick={{ fill: "#6B7280", fontSize: 12 }}
               axisLine={{ stroke: "#D1D5DB" }}
               width={48}
-              tickFormatter={(value) => formatNumberShort(value)}
+              tickFormatter={(value) => formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             />
             <Tooltip
               cursor={false}
-              formatter={(value) => formatNumberShort(Number(value) || 0)}
+              formatter={(value) => formatNumberShort(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             />
             <Legend content={<CustomLegend />} />
             <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} />

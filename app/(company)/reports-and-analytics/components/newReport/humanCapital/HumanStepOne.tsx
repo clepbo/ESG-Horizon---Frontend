@@ -31,17 +31,17 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
     },
     {
       title: "Recordable Incidents",
-      value: formatNumberFull(reportData?.humanCapital?.recordableIncidents ?? 0),
+      value: formatNumberFull(reportData?.humanCapital?.recordableIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "incidents",
     },
     {
       title: "Fatalities",
-      value: formatNumberFull(reportData?.humanCapital?.fatalities ?? 0),
+      value: formatNumberFull(reportData?.humanCapital?.fatalities ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "fatalities",
     },
     {
       title: "Near Misses",
-      value: formatNumberFull(reportData?.humanCapital?.nearMisses ?? 0),
+      value: formatNumberFull(reportData?.humanCapital?.nearMisses ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "misses",
     },
     {
@@ -119,7 +119,7 @@ function MetricCard({
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
-            {formatNumberFull(Math.abs(change), { maximumFractionDigits: 2 })}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
+            {formatNumberFull(Math.abs(change), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
           </div>
         )}
       </div>

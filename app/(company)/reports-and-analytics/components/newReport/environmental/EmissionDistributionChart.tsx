@@ -77,7 +77,7 @@ export default function EmissionDistributionChart({
 
           <Tooltip
             formatter={(value: number | undefined) =>
-              value != null ? formatNumberFull(value, { maximumFractionDigits: 2 }) : ""
+              value != null ? formatNumberFull(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""
             }
           />
 

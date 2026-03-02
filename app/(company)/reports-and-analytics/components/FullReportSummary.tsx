@@ -147,7 +147,7 @@ export default function FullReportSummary({ data }: any) {
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-sm">
-                    {formatNumberFull(source.volume, { maximumFractionDigits: 2 })}
+                    {formatNumberFull(source.volume, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <p className="text-xs text-muted-foreground border rounded-3xl px-1 whitespace-nowrap">
                     {source.scope}

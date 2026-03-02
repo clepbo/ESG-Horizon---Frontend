@@ -54,11 +54,12 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   // Format a change value into display props (null = no previous data → hide badge)
   const formatChange = (change: number | null | undefined) => {
     if (change == null) return null;
-    const abs = Math.abs(change);
+    const abs = Math.min(Math.abs(change), 100);
+    const formatted = formatNumberFull(abs, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     if (change < 0) {
       // Emissions decreased — good
       return {
-        text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`,
+        text: `${formatted}%`,
         rotate: "",
         bg: "#dff9e6",
         color: "#16a34a",
@@ -66,7 +67,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
     }
     // Emissions increased — bad
     return {
-      text: `${formatNumberFull(abs, { maximumFractionDigits: 1 })}%`,
+      text: `${formatted}%`,
       rotate: "180deg",
       bg: "#fee2e2",
       color: "#dc2626",
@@ -96,9 +97,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             borderColor="#1e8a3d"
             chartColor="#1e8a3d"
             period={assessmentPeriod}
-            value={
-              ghg ? formatNumberFull(ghg.totalEmissions ?? 0, { minimumFractionDigits: 2 }) : "0.00"
-            }
+            value={String(ghg?.totalEmissions ?? 0)}
             data={emissionData}
             {...(totalChangeProps && {
               change: totalChangeProps.text,
@@ -112,11 +111,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             chartColor="#2570eb"
             title="Scope 1"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? formatNumberFull(ghg.scope1Emissions ?? 0, { minimumFractionDigits: 2 })
-                : "0.00"
-            }
+            value={String(ghg?.scope1Emissions ?? 0)}
             data={emissionDataScope1}
             {...(scope1ChangeProps && {
               change: scope1ChangeProps.text,
@@ -130,11 +125,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             chartColor="#10B981"
             title="Scope 2"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? formatNumberFull(ghg.scope2Emissions ?? 0, { minimumFractionDigits: 2 })
-                : "0.00"
-            }
+            value={String(ghg?.scope2Emissions ?? 0)}
             data={emissionDataScope2}
             {...(scope2ChangeProps && {
               change: scope2ChangeProps.text,
@@ -148,11 +139,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             chartColor="#af57db"
             title="Scope 3"
             period={assessmentPeriod}
-            value={
-              ghg
-                ? formatNumberFull(ghg.scope3Emissions ?? 0, { minimumFractionDigits: 2 })
-                : "0.00"
-            }
+            value={String(ghg?.scope3Emissions ?? 0)}
             data={emissionDataScope3}
             {...(scope3ChangeProps && {
               change: scope3ChangeProps.text,
@@ -414,7 +401,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     formatNumberFull(
                       waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                         ?.percentageWithDisclosure ?? 0,
-                      { maximumFractionDigits: 1 }
+                      { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                     )
                   )}
                   styles={buildStyles({ pathColor: "#119b95" })}
@@ -427,7 +414,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                       {formatNumberFull(
                         waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                           ?.percentageWithDisclosure ?? 0,
-                        { maximumFractionDigits: 2 }
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}
                       %
                     </strong>
@@ -436,7 +423,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                       {formatNumberFull(
                         waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                           ?.percentageWithDisclosure ?? 0,
-                        { maximumFractionDigits: 2 }
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                       )}{" "}
                       Wells Disclosed
                     </p>
@@ -527,7 +514,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center justify-center text-sm">
                 <p className="font-thin">Number of Spills (&gt;1 bbl)</p>
                 <p className="font-semibold text-3xl ml-4">
-                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0)}{" "}
+                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                 </p>
               </div>
 
@@ -570,13 +557,13 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Volume in Arctic </span>
                 <span className="font-semibold text-2xl">
-                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0)} bbl{" "}
+                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl{" "}
                 </span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
                 <span className="font-semibold text-red-500 text-2xl">
-                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0)}{" "}
+                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                   bbl{" "}
                 </span>
               </div>
