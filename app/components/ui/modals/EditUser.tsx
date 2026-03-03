@@ -144,7 +144,7 @@ export default function EditUserModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <PhoneInput
               placeholder="Enter phone number"
-              className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="border border-gray-300 rounded-md px-3 py-2 w-full focus-within:ring-2 focus-within:ring-green-500 [&_input]:border-none [&_input]:outline-none [&_input]:shadow-none [&_input]:bg-transparent"
               value={phoneNumber}
               onChange={(value) => setPhoneNumber(value)}
               labels={en}

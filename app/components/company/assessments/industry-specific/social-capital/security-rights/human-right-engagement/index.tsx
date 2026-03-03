@@ -40,14 +40,14 @@ export default function HumanRightEngagement({
 }: HumanRightEngagementProps) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, submitGroup, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
-    "socialCapital.securityRights.humanRightEngagement"
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "socialCapital.securityRights.humanRightEngagement",
+    "socialCapital.securityHumanRights.humanRightsEngagementProcesses"
   );
   const hasExistingData = !!state.assessmentData.socialCapital?.securityRights?.humanRightEngagement;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -102,8 +102,6 @@ export default function HumanRightEngagement({
   };
 
   const handleSaveAndContinue = async () => {
-    setIsSaving(true);
-
     const payload = {
       hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
@@ -120,8 +118,6 @@ export default function HumanRightEngagement({
     } catch (_error: any) {
       console.error(_error);
       toast.error("Failed to save data", _error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -131,8 +127,6 @@ export default function HumanRightEngagement({
       return;
     }
 
-    setIsSaving(true);
-
     const payload = {
       hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
@@ -140,16 +134,11 @@ export default function HumanRightEngagement({
     };
 
     try {
-      // Save data first
-      await saveNow("socialCapital.securityRights.humanRightEngagement", payload);
-      // Then submit the group
-      await submitGroup();
+      await saveAndSubmit("socialCapital.securityRights.humanRightEngagement", payload);
       toast.success("Assessment completed successfully!");
       onSubmit(null);
     } catch (_error: any) {
       toast.error("Failed to submit assessment", _error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -184,7 +173,7 @@ export default function HumanRightEngagement({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="socialCapital.securityHumanRights.humanRightsEngagementProcesses"
             />
 
             {/* Third-Party Grievance Mechanism Radio Button */}
@@ -316,10 +305,10 @@ export default function HumanRightEngagement({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

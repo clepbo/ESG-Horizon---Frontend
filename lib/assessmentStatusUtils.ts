@@ -2,14 +2,16 @@ export type SectionStatus = "submitted" | "in-progress" | "not-started";
 
 /**
  * Determine status of a form section based on submission state and saved data.
+ * Accepts either a boolean or the raw section data (which is checked via hasUserData
+ * to distinguish the empty initialState skeleton from real user input).
  */
 export function getFormSectionStatus(
   submittedGroups: string[],
   groupKey: string,
-  dataExists: boolean
+  sectionData: any
 ): SectionStatus {
   if (submittedGroups.includes(groupKey)) return "submitted";
-  if (dataExists) return "in-progress";
+  if (hasUserData(sectionData)) return "in-progress";
   return "not-started";
 }
 
@@ -29,4 +31,18 @@ export function getSectionBorderColor(status: SectionStatus): string {
  */
 export function resolveDataPath(data: any, path: string[]): any {
   return path.reduce((current, key) => current?.[key], data);
+}
+
+/**
+ * Recursively check whether an object tree contains any real user-entered data.
+ * Returns false for the empty skeleton in initialState (empty strings, zeros,
+ * false booleans, empty arrays, and nested objects that only contain those).
+ */
+export function hasUserData(obj: any): boolean {
+  if (obj === null || obj === undefined || obj === "" || obj === 0 || obj === false) return false;
+  if (Array.isArray(obj)) return obj.length > 0;
+  if (typeof obj === "object") {
+    return Object.values(obj).some(hasUserData);
+  }
+  return true;
 }

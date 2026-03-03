@@ -59,8 +59,8 @@ export function OilGasOperations({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope1-stationary-oilgasoperations");
+  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope1-stationary-oilgasoperations", "environment.ghg.scope1.stationarySources");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
 
   const [errors, setErrors] = useState<{
@@ -254,17 +254,15 @@ export function OilGasOperations({
     try {
       // Bulk save all steps in the group before submitting
       if (electricityHeat) {
-        await saveNow("environment.ghg.scope1.stationarySources.electricityHeat", electricityHeat);
+        await saveQuiet("environment.ghg.scope1.stationarySources.electricityHeat", electricityHeat);
       }
       if (industrialProcesses) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope1.stationarySources.industrialProcesses",
           industrialProcesses
         );
       }
-      await saveNow("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
-
-      const response = await submitGroup();
+      const response = await saveAndSubmit("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
       onSubmit(response?.totals ?? null);
     } catch (err) {
       toast.error("Submission failed");
@@ -343,6 +341,7 @@ export function OilGasOperations({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope1.stationarySources"
             />
 
             <div>
@@ -448,11 +447,11 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-teal-500 hover:cursor-pointer text-white hover:bg-green-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -472,11 +471,11 @@ export function OilGasOperations({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isLoading || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end hover:cursor-pointer border-teal-600 text-teal-700 bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {getSubmitLabel(hasExistingData, isLoading)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

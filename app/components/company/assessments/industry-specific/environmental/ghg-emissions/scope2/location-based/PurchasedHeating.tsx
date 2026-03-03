@@ -86,8 +86,8 @@ export function PurchasedHeatingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope2-location-purchasedheating");
+  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope2-location-purchasedheating", "environment.ghg.scope2.locationBased");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.locationBased?.heating;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -95,8 +95,6 @@ export function PurchasedHeatingForm({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
-
-  const isPending = isLoading;
 
   // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
@@ -253,17 +251,15 @@ export function PurchasedHeatingForm({
     try {
       // Bulk save all steps in the group before submitting
       if (electricity) {
-        await saveNow("environment.ghg.scope2.locationBased.electricity", electricity);
+        await saveQuiet("environment.ghg.scope2.locationBased.electricity", electricity);
       }
       if (cooling) {
-        await saveNow("environment.ghg.scope2.locationBased.cooling", cooling);
+        await saveQuiet("environment.ghg.scope2.locationBased.cooling", cooling);
       }
       if (steam) {
-        await saveNow("environment.ghg.scope2.locationBased.steam", steam);
+        await saveQuiet("environment.ghg.scope2.locationBased.steam", steam);
       }
-      await saveNow("environment.ghg.scope2.locationBased.heating", payload);
-
-      const response = await submitGroup();
+      const response = await saveAndSubmit("environment.ghg.scope2.locationBased.heating", payload);
       onSubmit(response.totals);
     } catch (err) {
       toast.error("Failed to submit");
@@ -345,6 +341,7 @@ export function PurchasedHeatingForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope2.locationBased"
             />
             <div className="flex justify-between mb-2">
               <span className="text-sm text-gray-500">
@@ -528,11 +525,11 @@ export function PurchasedHeatingForm({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -553,10 +550,10 @@ export function PurchasedHeatingForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isPending || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData, isPending)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

@@ -77,8 +77,8 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope2-market-coolingsteam");
+  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope2-market-coolingsteam", "environment.ghg.scope2.marketBased");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -293,17 +293,15 @@ export function CoolingSteamForm({
     try {
       // Bulk save all steps in the group before submitting
       if (ipps) {
-        await saveNow("environment.ghg.scope2.marketBased.ipps", ipps);
+        await saveQuiet("environment.ghg.scope2.marketBased.ipps", ipps);
       }
       if (eac) {
-        await saveNow("environment.ghg.scope2.marketBased.eac", eac);
+        await saveQuiet("environment.ghg.scope2.marketBased.eac", eac);
       }
       if (residual) {
-        await saveNow("environment.ghg.scope2.marketBased.residual", residual);
+        await saveQuiet("environment.ghg.scope2.marketBased.residual", residual);
       }
-      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", payload);
-
-      const response = await submitGroup();
+      const response = await saveAndSubmit("environment.ghg.scope2.marketBased.coolingSteam", payload);
       onSubmit(response.totals);
       resetForm();
     } catch (err) {
@@ -386,6 +384,7 @@ export function CoolingSteamForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope2.marketBased"
             />
 
             {/* Energy Consumed */}
@@ -532,11 +531,11 @@ export function CoolingSteamForm({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -556,10 +555,10 @@ export function CoolingSteamForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isLoading || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData, isLoading)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

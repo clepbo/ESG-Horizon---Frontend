@@ -686,6 +686,7 @@ type AssessmentAction =
       payload: { category: string; section: string; data: any };
     }
   | { type: "LOAD_SAVED_DATA"; payload: AssessmentData }
+  | { type: "ADD_SUBMITTED_GROUP"; payload: string }
   | { type: "RESET_ASSESSMENT" }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
@@ -2022,6 +2023,17 @@ function assessmentReducer(state: AssessmentState, action: AssessmentAction): As
         isLoading: false,
         error: null,
       };
+    case "ADD_SUBMITTED_GROUP": {
+      const existing: string[] = (state.assessmentData as any)?.submittedGroups || [];
+      if (existing.includes(action.payload)) return state;
+      return {
+        ...state,
+        assessmentData: {
+          ...state.assessmentData,
+          submittedGroups: [...existing, action.payload],
+        } as any,
+      };
+    }
     case "RESET_ASSESSMENT":
       try {
         localStorage.removeItem("esg-assessment-data");
