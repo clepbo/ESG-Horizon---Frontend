@@ -213,15 +213,21 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
 
   const filteredData = dateRange
     ? data.filter((a) => {
-        const startDate = new Date(a.startPeriod);
-        const endDate = new Date(a.endPeriod);
-        const rangeStart = new Date(dateRange.startMonth);
-        const rangeEnd = new Date(dateRange.endMonth);
-        return startDate >= rangeStart && endDate <= rangeEnd;
-      })
+      const startDate = new Date(a.startPeriod);
+      const endDate = new Date(a.endPeriod);
+      const rangeStart = new Date(dateRange.startMonth);
+      const rangeEnd = new Date(dateRange.endMonth);
+      return startDate >= rangeStart && endDate <= rangeEnd;
+    })
     : data;
 
-  const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);
+  const validData = filteredData
+    .filter((a) => a.startPeriod && a.endPeriod && a.subsidiary)
+    .sort((a, b) => {
+      const dateA = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0;
+      const dateB = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0;
+      return dateB - dateA;
+    });
 
   const handleOpenModal = (assessmentId: number) => setModalData({ open: true, assessmentId });
 

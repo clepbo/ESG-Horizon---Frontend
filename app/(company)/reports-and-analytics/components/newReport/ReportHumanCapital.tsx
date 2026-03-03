@@ -10,7 +10,7 @@ export default function ReportHumanCapital({ reportData }: ReportHumanCapitalPro
   return (
     <div className="w-full grid gap-4">
       <HumanStepOne reportData={reportData} />
-      <HumanStepTwo />
+      <HumanStepTwo reportData={reportData} />
     </div>
   );
 }

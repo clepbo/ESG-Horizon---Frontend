@@ -126,46 +126,46 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
     </p>
   );
 
-  const environmentalScore = (
+  const environmentalScore = environmental?.changePercentage != null ? (
     <small className="flex items-center gap-2">
       <FaArrowDown
-        className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        className={`${environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.min(Math.abs(environmental?.changePercentage ?? 0), 100), {
+      {formatNumberFull(Math.abs(environmental.changePercentage), {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}
       %
     </small>
-  );
+  ) : null;
 
   const socialCapitalScore = socialCapital?.operationalDelaysLevel ?? "N/A";
 
-  const humanCapitalScore = (
+  const humanCapitalScore = humanCapital?.changePercentage != null ? (
     <small className="flex items-center gap-2">
       <FaArrowDown
-        className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        className={`${humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.min(Math.abs(humanCapital?.changePercentage ?? 0), 100), {
+      {formatNumberFull(Math.abs(humanCapital.changePercentage), {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}
       %
     </small>
-  );
+  ) : null;
 
-  const businessModelScore = (
+  const businessModelScore = businessModel?.changePercentage != null ? (
     <small className="flex items-center gap-2">
       <FaArrowDown
-        className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        className={`${businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {formatNumberFull(Math.min(Math.abs(businessModel?.changePercentage ?? 0), 100), {
+      {formatNumberFull(Math.abs(businessModel.changePercentage), {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}
       %
     </small>
-  );
+  ) : null;
 
   return (
     <div className="flex flex-col gap-4 lg:gap-10">
@@ -257,7 +257,9 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           score={environmentalScore}
           amount={environmentalAmount}
           footer={
-            "On track to meet 2030 reduction targets. Scope 2 emissions show significant improvement."
+            environmental?.changePercentage != null
+              ? `Total emissions ${environmental.changePercentage > 0 ? 'increased' : 'decreased'} by ${Math.abs(environmental.changePercentage)}% YoY.`
+              : "On track to meet 2030 reduction targets. Scope 2 emissions show significant improvement."
           }
           icon={<FaLeaf />}
           iconBg={"#f1fcf4"}
@@ -272,7 +274,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           score={socialCapitalScore}
           amount={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} incidents`}
           footer={
-            "Community engagement efforts increased in conflict zones. Protests remain a key operational risk."
+            `${socialCapital?.totalNumberOfIncidents ?? 0} incidents recorded. ${socialCapital?.operationalDelaysLevel || 'Low'} risk level observed.`
           }
           icon={<PiUsersFill />}
           iconBg={"#eff5ff"}
@@ -286,7 +288,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           score={humanCapitalScore}
           amount={`${formatNumberFull(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hrs`}
           footer={
-            "Safety performance improved by 10% YoY. Zero fatalities recorded in the reporting period."
+            `Safety performance ${humanCapital?.changePercentage && humanCapital.changePercentage < 0 ? 'improved' : 'tracked'} YoY. ${humanCapital?.fatalities ?? 0} fatalities recorded.`
           }
           icon={<GiHumanPyramid />}
           iconBg={"#ECFDF5"}
@@ -300,7 +302,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           score={businessModelScore}
           amount={`${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl`}
           footer={
-            "Strategic shift towards renewables accelerating. Carbon pricing impact on reserves modeled"
+            `Strategic shift towards renewables. ${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0)} bbl reserves modeled at risk.`
           }
           icon={<GiHumanPyramid />}
           iconBg={"#f5e2ff"}
@@ -313,7 +315,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           pillar={"Leadership and Governance"}
           score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
           amount={leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}
-          footer={"Sustainability committee established. Whistleblower system active and verified"}
+          footer={`Sustainability oversight active. Process safety events rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })}%.`}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}
           iconText={"#4a4a4a"}
