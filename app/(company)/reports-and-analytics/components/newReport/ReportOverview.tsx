@@ -258,8 +258,8 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           amount={environmentalAmount}
           footer={
             environmental?.changePercentage != null
-              ? `Total emissions ${environmental.changePercentage > 0 ? 'increased' : 'decreased'} by ${Math.abs(environmental.changePercentage)}% YoY.`
-              : "On track to meet 2030 reduction targets. Scope 2 emissions show significant improvement."
+              ? `Total emissions ${environmental.changePercentage > 0 ? 'increased' : 'decreased'} by ${formatNumberShort(Math.abs(environmental.changePercentage))}% YoY.`
+              : "On track to meet reduction targets." // A safe generic fallback if no previous data
           }
           icon={<FaLeaf />}
           iconBg={"#f1fcf4"}
@@ -274,7 +274,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           score={socialCapitalScore}
           amount={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} incidents`}
           footer={
-            `${socialCapital?.totalNumberOfIncidents ?? 0} incidents recorded. ${socialCapital?.operationalDelaysLevel || 'Low'} risk level observed.`
+            `${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0)} incidents recorded. ${socialCapital?.operationalDelaysLevel || 'Low Risk'} observed.`
           }
           icon={<PiUsersFill />}
           iconBg={"#eff5ff"}
@@ -315,7 +315,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           pillar={"Leadership and Governance"}
           score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
           amount={leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}
-          footer={`Sustainability oversight active. Process safety events rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })}%.`}
+          footer={`Sustainability oversight ${leadership?.managementOfLegalAndRegulatoryEnvironment?.sustainabilityGovernance === "yes" ? "active" : "needs attention"}. Process safety events rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })}%.`}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}
           iconText={"#4a4a4a"}

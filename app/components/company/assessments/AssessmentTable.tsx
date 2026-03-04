@@ -159,7 +159,7 @@ function ActionDropdown({
             onClick={requireAssessmentReview ? onSubmitForReview : onSubmitDirect}
           >
             {getActionIcon("Submit")}
-            {requireAssessmentReview ? "Submit for Review" : "Submit"}
+            {requireAssessmentReview ? "Submit for Review" : "Submit/Approve"}
           </DropdownMenuItem>
         )}
 

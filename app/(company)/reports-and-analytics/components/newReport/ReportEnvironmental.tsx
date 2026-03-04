@@ -213,7 +213,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <OilRenderCard
             borderColor={"#1e8a3d"}
             title={"Total Air Pollutant Emission (t)"}
@@ -245,8 +245,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             amount={airQuality?.pm10 || 0}
           />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-visible">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="col-span-1 lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-visible">
             <PollutantEmissionChart
               NOx={airQuality?.nox ?? 0}
               SOx={airQuality?.sox ?? 0}
@@ -435,10 +435,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   value={
                     (waterManagement?.producedWater?.totalGenerated ?? 0) > 0
                       ? Math.round(
-                          ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
-                            (waterManagement?.producedWater?.totalGenerated ?? 1)) *
-                            100
-                        )
+                        ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
+                          (waterManagement?.producedWater?.totalGenerated ?? 1)) *
+                        100
+                      )
                       : (waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) > 0
                         ? 100
                         : 0
@@ -450,10 +450,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   percent={
                     (waterManagement?.producedWater?.totalGenerated ?? 0) > 0
                       ? Math.round(
-                          ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
-                            (waterManagement?.producedWater?.totalGenerated ?? 1)) *
-                            100
-                        )
+                        ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
+                          (waterManagement?.producedWater?.totalGenerated ?? 1)) *
+                        100
+                      )
                       : 0
                   }
                 />
@@ -531,10 +531,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 value={
                   (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0
                     ? Math.round(
-                        ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
-                          (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
-                          100
-                      )
+                      ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
+                        (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
+                      100
+                    )
                     : 0
                 }
                 title="Volume Recovered"
@@ -544,10 +544,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 percent={
                   (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0
                     ? Math.round(
-                        ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
-                          (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
-                          100
-                      )
+                      ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
+                        (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
+                      100
+                    )
                     : 0
                 }
               />
