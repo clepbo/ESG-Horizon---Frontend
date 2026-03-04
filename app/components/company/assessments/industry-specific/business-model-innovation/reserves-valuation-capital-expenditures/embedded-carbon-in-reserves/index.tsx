@@ -44,8 +44,9 @@ export default function EmbeddedCarbonInReserves({
 
   const _router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves",
+    "businessModel.reservesValuation.embeddedCarbon"
   );
 
   const [formData, _setFormData] = useState({
@@ -160,7 +161,7 @@ export default function EmbeddedCarbonInReserves({
       return;
     }
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves",
         payload
       );
@@ -216,6 +217,7 @@ export default function EmbeddedCarbonInReserves({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.reservesValuation.embeddedCarbon"
             />
 
             {/* Total Proved Reserves */}

@@ -69,7 +69,7 @@ const scopeData = [
   },
 ];
 
-export function BioDiversityImpact({ onBack, initialForm, onContinueToNextAssessment }: BioDiversityImpactProps) {
+export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinueToNextAssessment }: BioDiversityImpactProps) {
   const router = useRouter();
   const { state } = useAssessment();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
@@ -135,7 +135,7 @@ export function BioDiversityImpact({ onBack, initialForm, onContinueToNextAssess
         reportId={reportId}
         onContinue={handleViewReport}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }

@@ -38,7 +38,7 @@ export default function CatastrophicRiskManagement({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems";
-  const { saveNow, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems");
   const hasExistingData = !!state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.catastrophicRiskManagementSystems;
   const [auditDate, setAuditDate] = useState("");
   const [systemDescription, setSystemDescription] = useState("");
@@ -143,7 +143,7 @@ export default function CatastrophicRiskManagement({
     };
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_LEADERSHIP_GOVERNANCE",
         payload: {
@@ -196,6 +196,7 @@ export default function CatastrophicRiskManagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems"
             />
 
             {/* Date of Audit */}

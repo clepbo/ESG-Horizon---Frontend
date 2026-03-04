@@ -64,9 +64,9 @@ export default function EmployeeForm({
   }, [data.safetyTrainingHours, safetyTrainingHours]);
 
   const router = useRouter();
-  const { saveNow, isSaving } = useAssessmentFlow(
+  const { saveNow, saveAndSubmit, isSaving } = useAssessmentFlow(
     "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
-    "humanCapital.workforceHealthSafety"
+    "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
   );
 
   const validateForm = () => {
@@ -162,7 +162,8 @@ export default function EmployeeForm({
       return;
     }
     try {
-      await saveNow(
+      const saveFn = employeeType === "contract" ? saveAndSubmit : saveNow;
+      await saveFn(
         `humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance.${employeeType}`,
         payload
       );

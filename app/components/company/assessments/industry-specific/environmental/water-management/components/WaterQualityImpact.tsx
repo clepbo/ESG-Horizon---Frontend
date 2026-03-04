@@ -50,7 +50,7 @@ export default function WaterQualityImpact({
     isLoading: isActionLoading,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("water-quality-impacts");
+  } = useAssessmentFlow("water-quality-impacts", "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts");
   const hasExistingData = !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts?.waterQualityImpacts;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -276,6 +276,7 @@ export default function WaterQualityImpact({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts"
             />
 
             {/* Radio Button Question */}

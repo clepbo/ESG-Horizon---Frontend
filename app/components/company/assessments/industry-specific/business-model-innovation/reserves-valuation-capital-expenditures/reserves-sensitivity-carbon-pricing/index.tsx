@@ -45,8 +45,9 @@ export default function ReservesSensitivityForm({
 
   const _router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing",
+    "businessModel.reservesValuation.reservesSensitivity"
   );
 
   useEffect(() => {
@@ -183,7 +184,7 @@ export default function ReservesSensitivityForm({
     }
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing",
         payload
       );
@@ -239,6 +240,7 @@ export default function ReservesSensitivityForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.reservesValuation.reservesSensitivity"
             />
 
             {/* Carbon Price Scenario Used */}

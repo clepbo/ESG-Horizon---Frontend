@@ -35,7 +35,7 @@ export default function CommunityDisputeResolution({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.disputeResolution");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.disputeResolution", "socialCapital.communityRelations.communityDisputeResolution");
 
   const disputesReferred = useFormattedNumber("");
   const disputesResolved = useFormattedNumber("");
@@ -161,7 +161,7 @@ export default function CommunityDisputeResolution({
     };
 
     try {
-      await saveNow("socialCapital.communityRelations.disputeResolution", payload);
+      await saveAndSubmit("socialCapital.communityRelations.disputeResolution", payload);
       toast.success("Progress saved!");
       onNext();
     } catch (error) {
@@ -201,6 +201,7 @@ export default function CommunityDisputeResolution({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.communityRelations.communityDisputeResolution"
             />
 
             {/* Number of Disputes Referred to ADRC */}

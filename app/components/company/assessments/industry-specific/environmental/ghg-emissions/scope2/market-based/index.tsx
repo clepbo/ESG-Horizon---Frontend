@@ -59,8 +59,7 @@ export function MarketBasedForm({
         sectionKey="marketBased"
         totals={totals ?? undefined}
         nextAssessment="Scope3"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

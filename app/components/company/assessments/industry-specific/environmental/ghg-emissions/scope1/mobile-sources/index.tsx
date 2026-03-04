@@ -52,8 +52,7 @@ export function MobileSourcesForm({
         sectionKey="mobileSources"
         totals={totals ?? undefined}
         nextAssessment="Process Emissions"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

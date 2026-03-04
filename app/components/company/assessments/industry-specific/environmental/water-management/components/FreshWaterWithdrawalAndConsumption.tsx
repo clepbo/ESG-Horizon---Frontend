@@ -44,8 +44,9 @@ export default function FreshWaterWithdrawalAndConsumption({
   const withdrawalfromSurfaceWater = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
-    "freshwater-withdrawal-consumption"
+  const { saveNow, saveAndSubmit, isLoading: isActionLoading } = useAssessmentFlow(
+    "freshwater-withdrawal-consumption",
+    "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
   );
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -288,7 +289,7 @@ export default function FreshWaterWithdrawalAndConsumption({
     dispatch({ type: "UPDATE_WATER_FRESHWATER", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
         payload
       );
@@ -331,6 +332,7 @@ export default function FreshWaterWithdrawalAndConsumption({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
             />
 
             <ReusableInput

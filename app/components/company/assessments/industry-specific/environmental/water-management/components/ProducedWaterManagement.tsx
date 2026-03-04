@@ -44,7 +44,7 @@ export default function ProducedWaterManagement({
   const averageHydrocarbonContent = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("produced-water-management");
+  const { saveNow, saveAndSubmit, isLoading: isActionLoading } = useAssessmentFlow("produced-water-management", "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -280,7 +280,7 @@ export default function ProducedWaterManagement({
     dispatch({ type: "UPDATE_WATER_PRODUCED", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
         payload
       );
@@ -324,6 +324,7 @@ export default function ProducedWaterManagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement"
             />
 
             <ReusableInput

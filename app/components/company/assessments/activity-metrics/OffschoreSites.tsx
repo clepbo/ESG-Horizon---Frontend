@@ -36,7 +36,7 @@ export function OffshoreSites({
 }: OffshoreSitesProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites", "foundationalData.activityMetrics.offshoreSites");
 
   const productionPlatforms = useFormattedNumber("");
   const fpsos = useFormattedNumber("");
@@ -140,7 +140,7 @@ export function OffshoreSites({
     const payload = getPayload();
 
     try {
-      await saveNow("activityMetrics.assetPortfolio.offshoreSites", payload);
+      await saveAndSubmit("activityMetrics.assetPortfolio.offshoreSites", payload);
       dispatch({
         type: "UPDATE_ASSET_PORTFOLIO",
         payload: { section: "offshoreSites", data: payload },
@@ -237,6 +237,7 @@ export function OffshoreSites({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.offshoreSites"
             />
 
             {renderCountField(

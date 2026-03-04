@@ -56,6 +56,7 @@ const scopeData = [
 
 export default function BusinessEthicsAssessment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: BusinessEthicsAssessmentProps) {
@@ -118,7 +119,7 @@ export default function BusinessEthicsAssessment({
         reportId={reportId}
         onContinue={handleViewReport}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }

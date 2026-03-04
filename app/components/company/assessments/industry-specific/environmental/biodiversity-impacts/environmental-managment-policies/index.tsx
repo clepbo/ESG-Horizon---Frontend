@@ -37,7 +37,7 @@ export default function EnvironmentalManagementPolicies({
 }: EnvironmentalManagementPoliciesProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow, isSaving } = useAssessmentFlow(
+  const { saveNow, saveAndSubmit, isSaving } = useAssessmentFlow(
     "environmental-management-policies",
     "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"
   );
@@ -128,7 +128,7 @@ export default function EnvironmentalManagementPolicies({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -141,7 +141,16 @@ export default function EnvironmentalManagementPolicies({
     };
 
     dispatch({ type: "UPDATE_BIODIVERSITY_POLICIES", payload });
-    onContinueToNextAssessment();
+
+    try {
+      await saveAndSubmit(
+        "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+        payload
+      );
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save data.");
+    }
   };
 
   const handlePrevious = () => {
@@ -176,6 +185,7 @@ export default function EnvironmentalManagementPolicies({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"
             />
             {/* ISO 14001 Certification Question */}
             <div className="space-y-4">

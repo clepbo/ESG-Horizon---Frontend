@@ -48,7 +48,7 @@ export default function RenewableEnergyInvestment({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment";
-  const { saveNow } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(current, "businessModel.reservesValuation.renewableEnergyInvestment");
 
   useEffect(() => {
     const existingData =
@@ -155,7 +155,7 @@ export default function RenewableEnergyInvestment({
     }
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_BUSINESS_INNOVATION",
         payload: {
@@ -204,6 +204,7 @@ export default function RenewableEnergyInvestment({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.reservesValuation.renewableEnergyInvestment"
             />
 
             {/* Investment in Renewable Energy */}

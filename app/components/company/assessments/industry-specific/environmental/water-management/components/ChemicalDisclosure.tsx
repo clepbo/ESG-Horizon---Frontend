@@ -44,7 +44,7 @@ export default function ChemicalDisclosure({
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("chemical-disclosure");
+  const { saveNow, saveAndSubmit, isLoading: isActionLoading } = useAssessmentFlow("chemical-disclosure", "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -222,7 +222,7 @@ export default function ChemicalDisclosure({
     dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
         payload
       );
@@ -273,6 +273,7 @@ export default function ChemicalDisclosure({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure"
             />
 
             {/* Radio Button Question */}

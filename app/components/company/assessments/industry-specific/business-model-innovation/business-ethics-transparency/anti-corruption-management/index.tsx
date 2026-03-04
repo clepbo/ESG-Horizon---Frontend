@@ -38,8 +38,9 @@ export default function AntiCorruptionManagement({
   onSubmit,
 }: AntiCorruptionManagementProps) {
   const { state, dispatch } = useAssessment();
-  const { saveNow, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
-    "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
+    "businessModel.businessEthics.antiCorruptionManagement"
   );
   const hasExistingData = !!state.assessmentData.businessInnovation?.businessEthicsAndTransparency?.antiCorruptionManagementSystem;
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -163,7 +164,7 @@ export default function AntiCorruptionManagement({
     };
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
         payload
       );
@@ -223,6 +224,7 @@ export default function AntiCorruptionManagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.businessEthics.antiCorruptionManagement"
             />
 
             {/* Radio Button Question */}
