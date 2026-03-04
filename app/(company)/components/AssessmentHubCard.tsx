@@ -4,6 +4,7 @@ import { Progress } from "@/app/components/ui/progress";
 import { ArrowRight, Zap } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
 interface AssessmentHubCardProps {
   icon?: React.ElementType;
   iconSrc?: string;
@@ -12,6 +13,8 @@ interface AssessmentHubCardProps {
   progress: number;
   completed: string;
   assessmentId?: number | null;
+  pillarStatus?: "not-started" | "in-progress" | "completed";
+  assessmentStatus?: string | null;
 }
 
 export default function AssessmentHubCard({
@@ -22,10 +25,56 @@ export default function AssessmentHubCard({
   progress,
   completed,
   assessmentId,
+  pillarStatus = "not-started",
+  assessmentStatus,
 }: AssessmentHubCardProps) {
   const FallbackIcon = Icon || Zap;
-
   const router = useRouter();
+
+  const isAssessmentEditable = assessmentStatus === "in_progress";
+  const pillarTab = type.toLowerCase();
+
+  const getButtonConfig = () => {
+    // No work started for this pillar → start new
+    if (pillarStatus === "not-started") {
+      return {
+        label: "Start Assessment",
+        onClick: () => router.push(`/assessments/new-assessment?tab=${pillarTab}`),
+      };
+    }
+
+    // Pillar in progress and assessment is editable → continue
+    if (pillarStatus === "in-progress" && isAssessmentEditable) {
+      return {
+        label: "Continue Assessment",
+        onClick: () => router.push(`/assessments/${assessmentId}`),
+      };
+    }
+
+    // Pillar completed but assessment still in progress (other pillars may be incomplete)
+    if (pillarStatus === "completed" && isAssessmentEditable) {
+      return {
+        label: "Continue Assessment",
+        onClick: () => router.push(`/assessments/${assessmentId}`),
+      };
+    }
+
+    // Assessment submitted/approved → view or start new
+    if (!isAssessmentEditable && assessmentId) {
+      return {
+        label: "Start New Assessment",
+        onClick: () => router.push("/assessments"),
+      };
+    }
+
+    // Fallback
+    return {
+      label: "Start Assessment",
+      onClick: () => router.push(`/assessments/new-assessment?tab=${pillarTab}`),
+    };
+  };
+
+  const { label, onClick } = getButtonConfig();
 
   return (
     <Card className="bg-white border border-border hover:shadow-md transition-shadow">
@@ -55,33 +104,24 @@ export default function AssessmentHubCard({
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">{description}</p>
 
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium">{progress}%</span>
+        {progress > 0 && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Progress</span>
+              <span className="font-medium">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+            <p className="text-xs text-muted-foreground">{completed}</p>
           </div>
-          <Progress value={progress} className="h-2" />
-          <p className="text-xs text-muted-foreground">{completed}</p>
-        </div>
+        )}
 
         <Button
           className={
             "w-full bg-transparent border border-esg-green text-teal-500 transform hover:scale-[1.02] hover:text-white transition-colors"
           }
-          onClick={() => {
-            // "Continue" → go directly to the in-progress assessment
-            if (progress > 0 && assessmentId) {
-              router.push(`/assessments/${assessmentId}`);
-              return;
-            }
-            // "Start" → go to the assessment hub for this pillar
-            if (type === "Environmental")
-              router.push("/assessments/new-assessment?tab=environmental");
-            if (type === "Social") router.push("/assessments/new-assessment?tab=social");
-            if (type === "Governance") router.push("/assessments/new-assessment?tab=governance");
-          }}
+          onClick={onClick}
         >
-          {progress <= 0 ? "Start Assessment" : "Continue Assessment"}
+          {label}
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </CardContent>

@@ -36,7 +36,7 @@ export default function CommunityRisk({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.communityRisk");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.communityRisk", "socialCapital.communityRelations.communityRiskOpportunityManagement");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -139,7 +139,7 @@ export default function CommunityRisk({
     };
 
     try {
-      await saveNow("socialCapital.communityRelations.communityRisk", payload);
+      await saveAndSubmit("socialCapital.communityRelations.communityRisk", payload);
       toast.success("Progress saved!");
       onNext();
     } catch (error) {
@@ -179,6 +179,7 @@ export default function CommunityRisk({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.communityRelations.communityRiskOpportunityManagement"
             />
 
             {/* HCDT Incorporation Question */}

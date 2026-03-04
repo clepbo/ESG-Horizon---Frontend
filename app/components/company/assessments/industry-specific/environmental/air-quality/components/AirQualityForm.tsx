@@ -47,13 +47,8 @@ export default function AirQualityForm({
     },
   ];
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("air-pollutant-emissions");
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow("air-pollutant-emissions", "environment.airQuality.airPollutantEmissions");
   const hasExistingData = !!state.assessmentData.environment?.airQuality?.airPollutantEmissions;
 
   const [formData, setFormData] = React.useState({
@@ -101,7 +96,6 @@ export default function AirQualityForm({
   ]);
 
   const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   const setCount = (key: keyof typeof formData) => (value: number) => {
@@ -167,17 +161,16 @@ export default function AirQualityForm({
       return;
     }
 
-    setIsSubmitting(true);
     try {
       dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
-      await saveNow("environment.airQuality.airPollutantEmissions", formData);
-      const response = await submitGroup();
+      const response = await saveAndSubmit(
+        "environment.airQuality.airPollutantEmissions",
+        formData
+      );
       onSubmit(response?.totals || null);
     } catch (error) {
       console.error(error);
       toast.error("Failed to submit air quality assessment.");
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -210,7 +203,7 @@ export default function AirQualityForm({
               totalSteps={1}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="environment.airQuality.airPollutantEmissions"
             />
 
             <OperationsDelayReusableInput
@@ -224,7 +217,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfNitrogen")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.oxidesOfNitrogen}
             />
@@ -240,7 +233,7 @@ export default function AirQualityForm({
               setCount={setCount("oxidesOfSulphur")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.oxidesOfSulphur}
             />
@@ -256,7 +249,7 @@ export default function AirQualityForm({
               setCount={setCount("volatileOrganicCompound")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.volatileOrganicCompound}
             />
@@ -272,7 +265,7 @@ export default function AirQualityForm({
               setCount={setCount("particulateMatter")}
               unitPlaceholder="Metric Ton (Mt)"
               unit="Metric Ton (Mt)"
-              setUnit={() => { }}
+              setUnit={() => {}}
               required={true}
               error={errors.particulateMatter}
             />
@@ -291,10 +284,10 @@ export default function AirQualityForm({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 transition-colors"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -313,11 +306,11 @@ export default function AirQualityForm({
                 type="button"
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isActionLoading || isPreviouslySubmitted || !isFormValid()}
+                disabled={isSubmitting || isPreviouslySubmitted || !isFormValid()}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {getSubmitLabel(hasExistingData, isActionLoading)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </Card>

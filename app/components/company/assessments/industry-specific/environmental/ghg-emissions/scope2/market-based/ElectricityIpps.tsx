@@ -353,6 +353,7 @@ export function ElectricityIppsForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope2.marketBased"
             />
 
             {/* Electricity Consumed */}

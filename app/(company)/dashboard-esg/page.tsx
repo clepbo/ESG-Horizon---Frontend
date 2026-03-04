@@ -15,13 +15,13 @@ import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import { RecentReportsWidget } from "@/app/components/common/reports/table/RecentReports";
 
 export default function DashboardPage() {
-  const storedTourStatus = localStorage.getItem("esg-tour-completed");
-  const hasUserOptedOut = storedTourStatus === "true";
-  const initialShowTour = !hasUserOptedOut;
-  const [showTour, setShowTour] = useState(initialShowTour);
+  const [showTour, setShowTour] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("esg-tour-completed") !== "true";
+  });
 
   const { user } = useAuth();
-  const { data, isLoading, isError } = useCompanyDashboard();
+  const { data, isLoading, isError } = useCompanyDashboard(!showTour);
 
   const dashboard: CompanyDashboardData | undefined = useMemo(() => {
     if (!data) return undefined;
@@ -45,6 +45,8 @@ export default function DashboardPage() {
         reviewedAssessments: Number(raw.stats?.reviewedAssessments ?? 0),
       },
       hubStats: raw.hubStats ?? null,
+      latestAssessmentId: raw.latestAssessmentId ?? null,
+      latestAssessmentStatus: raw.latestAssessmentStatus ?? null,
     };
 
     return normalized;
@@ -168,6 +170,8 @@ export default function DashboardPage() {
               description="Measure your environmental impact, resource usage and conservation efforts."
               progress={dashboard?.hubStats?.environment?.progress ?? 0}
               completed={dashboard?.hubStats?.environment?.completed ?? "0 sections completed"}
+              pillarStatus={(dashboard?.hubStats?.environment?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
+              assessmentStatus={dashboard?.latestAssessmentStatus}
               iconSrc={"/icons/leaftwo.svg"}
               assessmentId={dashboard?.latestAssessmentId}
             />
@@ -176,6 +180,8 @@ export default function DashboardPage() {
               description="Evaluate labor practices, human rights, community impact and product responsibility."
               progress={dashboard?.hubStats?.social?.progress ?? 0}
               completed={dashboard?.hubStats?.social?.completed ?? "0 sections completed"}
+              pillarStatus={(dashboard?.hubStats?.social?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
+              assessmentStatus={dashboard?.latestAssessmentStatus}
               iconSrc={"/icons/userstwo.svg"}
               assessmentId={dashboard?.latestAssessmentId}
             />
@@ -184,6 +190,8 @@ export default function DashboardPage() {
               description="Evaluate financial governance, market presence, procurement practices and more."
               progress={dashboard?.hubStats?.governance?.progress ?? 0}
               completed={dashboard?.hubStats?.governance?.completed ?? "0 sections completed"}
+              pillarStatus={(dashboard?.hubStats?.governance?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
+              assessmentStatus={dashboard?.latestAssessmentStatus}
               iconSrc={"/icons/injusticetwo.svg"}
               assessmentId={dashboard?.latestAssessmentId}
             />

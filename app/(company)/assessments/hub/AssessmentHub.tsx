@@ -42,7 +42,11 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
-  // const [targetStep, setTargetStep] = useState<string | null>(null);
+  // Always reset when mounting AssessmentHub — this page is for NEW assessments only.
+  // Continue mode uses /assessments/[id] (different page), so this is always safe.
+  useEffect(() => {
+    dispatch({ type: "RESET_ASSESSMENT" });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // useEffect(() => {
   //   if (state.targetStep) {

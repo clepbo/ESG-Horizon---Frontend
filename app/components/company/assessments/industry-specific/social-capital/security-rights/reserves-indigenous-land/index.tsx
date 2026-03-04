@@ -37,7 +37,7 @@ export default function ReservesIndigenousLand({
 }: ReservesIndigenousLandProps) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand", "socialCapital.securityHumanRights.reservesInNearIndigenousLand");
 
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedIndigenousVolume = useFormattedNumber("");
@@ -210,7 +210,7 @@ export default function ReservesIndigenousLand({
     };
 
     try {
-      await saveNow("socialCapital.securityRights.reservesIndigenousLand", payload);
+      await saveAndSubmit("socialCapital.securityRights.reservesIndigenousLand", payload);
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
@@ -250,6 +250,7 @@ export default function ReservesIndigenousLand({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.securityHumanRights.reservesInNearIndigenousLand"
             />
 
             {/* Total Proved Reserves */}

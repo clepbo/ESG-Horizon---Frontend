@@ -1,10 +1,8 @@
 "use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
-
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -40,11 +38,11 @@ export function TerrestialSites({
 
   const {
     saveNow,
-    submitGroup,
+    saveAndSubmit,
     isLoading: isActionLoading,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites");
+  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites", "foundationalData.activityMetrics.terrestrialSites");
   const hasExistingData = !!state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
 
   const flowStations = useFormattedNumber("");
@@ -147,12 +145,11 @@ export function TerrestialSites({
 
     const payload = getPayload();
     try {
-      await saveNow("activityMetrics.assetPortfolio.terrestrialSites", payload);
+      await saveAndSubmit("activityMetrics.assetPortfolio.terrestrialSites", payload);
       dispatch({
         type: "UPDATE_ASSET_PORTFOLIO",
         payload: { section: "terrestrialSites", data: payload },
       });
-      await submitGroup();
       toast.success("Activity metrics submitted successfully");
       setShowSuccess(true);
     } catch (err) {
@@ -260,7 +257,7 @@ export function TerrestialSites({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.terrestrialSites"
             />
 
             {renderCountField(

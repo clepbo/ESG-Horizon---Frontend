@@ -40,7 +40,7 @@ export function ProductionVolume({
     router.push("/assessments/activity-metrics");
   };
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow("activityMetrics.productionVolume");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("activityMetrics.productionVolume", "foundationalData.activityMetrics.productionVolumes");
 
   const crudeOilProduction = useFormattedNumber("");
   const naturalGasProduction = useFormattedNumber("");
@@ -177,7 +177,7 @@ export function ProductionVolume({
     };
 
     try {
-      await saveNow("activityMetrics.productionVolume", payload);
+      await saveAndSubmit("activityMetrics.productionVolume", payload);
       dispatch({
         type: "UPDATE_ACTIVITY_METRICS",
         payload: { section: "productionVolume", data: payload },
@@ -274,6 +274,7 @@ export function ProductionVolume({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.productionVolumes"
             />
 
             {renderProductionField(

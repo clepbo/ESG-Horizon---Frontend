@@ -355,6 +355,7 @@ export function PurchasedCoolingForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope2.locationBased"
             />
 
             {/* Cooling Consumed */}

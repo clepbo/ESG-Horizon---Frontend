@@ -58,8 +58,7 @@ export function LocationBasedForm({
         sectionKey="locationBased"
         totals={totals ?? undefined}
         nextAssessment="Market Based"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

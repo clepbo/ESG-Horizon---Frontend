@@ -348,6 +348,7 @@ export function PurchasedElectricityForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope2.locationBased"
             />
 
             {/* Electricity Consumed */}

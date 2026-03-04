@@ -12,9 +12,8 @@ import {
 } from "@/app/components/ui/dropdown-menu";
 import {
   Eye,
-  BadgeAlert,
   SquarePen,
-  SquareArrowOutUpRight,
+  Send,
   Trash2,
   CircleHelp,
   FileText,
@@ -130,22 +129,7 @@ function ActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        {/* Review is the primary entry point to open assessment details */}
-        <DropdownMenuItem onClick={onReview}>
-          {getActionIcon("Review")}
-          Review
-        </DropdownMenuItem>
-
-        {/* Submit for Review / Submit — only for editable statuses */}
-        {(status === "in_progress" || status === "declined") && (
-          <DropdownMenuItem
-            onClick={requireAssessmentReview ? onSubmitForReview : onSubmitDirect}
-          >
-            {getActionIcon("Submit")}
-            {requireAssessmentReview ? "Submit for Review" : "Submit"}
-          </DropdownMenuItem>
-        )}
-
+        {/* Continue / Update — primary action */}
         <DropdownMenuItem
           onClick={onContinue}
           disabled={
@@ -163,11 +147,29 @@ function ActionDropdown({
             : "Continue"}
         </DropdownMenuItem>
 
+        {/* Review — view assessment details */}
+        <DropdownMenuItem onClick={onReview}>
+          {getActionIcon("Review")}
+          Review
+        </DropdownMenuItem>
+
+        {/* Submit for Review / Submit — only for editable statuses */}
+        {(status === "in_progress" || status === "declined") && (
+          <DropdownMenuItem
+            onClick={requireAssessmentReview ? onSubmitForReview : onSubmitDirect}
+          >
+            {getActionIcon("Submit")}
+            {requireAssessmentReview ? "Submit for Review" : "Submit/Approve"}
+          </DropdownMenuItem>
+        )}
+
+        {/* View Report */}
         <DropdownMenuItem onClick={onGenerateReport}>
-          <FileText className="mr-2 h-4 w-4" />
+          {getActionIcon("View Report")}
           View Report
         </DropdownMenuItem>
 
+        {/* Delete — destructive, always last */}
         {status !== "awaiting_review" &&
           status !== "submitted_approved" &&
           status !== "approved" && (
@@ -211,15 +213,21 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
 
   const filteredData = dateRange
     ? data.filter((a) => {
-        const startDate = new Date(a.startPeriod);
-        const endDate = new Date(a.endPeriod);
-        const rangeStart = new Date(dateRange.startMonth);
-        const rangeEnd = new Date(dateRange.endMonth);
-        return startDate >= rangeStart && endDate <= rangeEnd;
-      })
+      const startDate = new Date(a.startPeriod);
+      const endDate = new Date(a.endPeriod);
+      const rangeStart = new Date(dateRange.startMonth);
+      const rangeEnd = new Date(dateRange.endMonth);
+      return startDate >= rangeStart && endDate <= rangeEnd;
+    })
     : data;
 
-  const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);
+  const validData = filteredData
+    .filter((a) => a.startPeriod && a.endPeriod && a.subsidiary)
+    .sort((a, b) => {
+      const dateA = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0;
+      const dateB = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0;
+      return dateB - dateA;
+    });
 
   const handleOpenModal = (assessmentId: number) => setModalData({ open: true, assessmentId });
 
@@ -248,15 +256,15 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
 
   const getActionIcon = (label: string) => {
     switch (label) {
-      case "View":
-        return <Eye className="mr-2 h-4 w-4 " />;
-      case "Review":
-        return <BadgeAlert className="mr-2 h-4 w-4" />;
-      case "Update":
-        return <SquarePen className="mr-2 h-4 w-4 " />;
       case "Continue":
+      case "Update":
+        return <SquarePen className="mr-2 h-4 w-4" />;
+      case "Review":
+        return <Eye className="mr-2 h-4 w-4" />;
       case "Submit":
-        return <SquareArrowOutUpRight className="mr-2 h-4 w-4 " />;
+        return <Send className="mr-2 h-4 w-4" />;
+      case "View Report":
+        return <FileText className="mr-2 h-4 w-4" />;
       default:
         return null;
     }

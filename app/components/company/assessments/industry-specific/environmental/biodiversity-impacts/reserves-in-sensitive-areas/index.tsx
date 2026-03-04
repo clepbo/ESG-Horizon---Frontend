@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import {
   Select,
@@ -39,7 +39,7 @@ interface ReservesInSensitiveAreasProps {
 
 export default function ReservesInSensitiveAreas({
   onBack,
-  onContinueToNextAssessment,
+  onContinueToNextAssessment: _onContinueToNextAssessment,
   stepIndex,
   totalSteps,
   breadcrumb,
@@ -52,14 +52,14 @@ export default function ReservesInSensitiveAreas({
   const probableReservesSensitiveVolume = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("reserves-in-sensitive-areas");
-  const hasExistingData = !!state.assessmentData.environment?.biodiversityImpact?.environmentalManagement?.reservesInSensitiveAreas;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "reserves-in-sensitive-areas",
+      "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.biodiversityImpact?.environmentalManagement
+      ?.reservesInSensitiveAreas;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -235,13 +235,13 @@ export default function ReservesInSensitiveAreas({
     dispatch({ type: "UPDATE_BIODIVERSITY_RESERVES", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
         payload
       );
-      await submitGroup();
-      onContinueToNextAssessment();
-    } catch {
+      _onContinueToNextAssessment();
+    } catch (error: any) {
+      console.error("Submission error:", error);
       toast.error("Failed to submit biodiversity assessment");
     }
   };
@@ -277,7 +277,7 @@ export default function ReservesInSensitiveAreas({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas"
             />
 
             {/* Total Proved Reserves */}
@@ -573,10 +573,10 @@ export default function ReservesInSensitiveAreas({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -597,11 +597,10 @@ export default function ReservesInSensitiveAreas({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isActionLoading || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData)}
-                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

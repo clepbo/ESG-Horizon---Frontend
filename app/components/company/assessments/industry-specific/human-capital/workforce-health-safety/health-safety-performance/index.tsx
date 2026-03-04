@@ -7,7 +7,6 @@ import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 import { type EmployeeFormData } from "./types";
-import { useAssessment } from "@/hooks/useAssessment";
 
 interface HealthSafetyPerformanceProps {
   onBack: () => void;
@@ -32,8 +31,6 @@ export default function HealthSafetyPerformance({
   contractFormData,
   onContractFormChange,
 }: HealthSafetyPerformanceProps) {
-  const { state } = useAssessment();
-
   // removed local state and getInitialFormData because data is now controlled by parent
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
@@ -46,7 +43,7 @@ export default function HealthSafetyPerformance({
   }, [stepIndex]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [activeTab]);
 
   const combinedProgress = {
@@ -80,6 +77,7 @@ export default function HealthSafetyPerformance({
               fieldsCompleted={combinedProgress.filled}
               totalFields={combinedProgress.total}
               isSubmitted={false}
+              groupKey="humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
             />
 
             {/* Tabs */}

@@ -32,8 +32,9 @@ export default function ReservesCountriesCorruptionRisk({
   breadcrumb,
 }: ReservesCorruptionRiskFormProps) {
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk"
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk",
+    "businessModel.businessEthics.reservesCountriesCorruptionRisk"
   );
   const totalProvedReserves = useFormattedNumber("");
   const provedReservesHighRisk = useFormattedNumber("");
@@ -226,7 +227,7 @@ export default function ReservesCountriesCorruptionRisk({
     };
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk",
         payload
       );
@@ -284,6 +285,7 @@ export default function ReservesCountriesCorruptionRisk({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.businessEthics.reservesCountriesCorruptionRisk"
             />
 
             {/* Total Proved Reserves */}

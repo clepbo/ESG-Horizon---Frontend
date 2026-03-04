@@ -91,11 +91,12 @@ export function GasFlaring({
   const router = useRouter();
   const {
     saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("ghg-process-emissions-gas-flaring");
+  } = useAssessmentFlow("ghg-process-emissions-gas-flaring", "environment.ghg.scope1.processEmissions");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -318,8 +319,7 @@ export function GasFlaring({
     });
 
     try {
-      await saveNow("environment.ghg.scope1.processEmissions.gasFlaring", payload);
-      const res = await submitGroup();
+      const res = await saveAndSubmit("environment.ghg.scope1.processEmissions.gasFlaring", payload);
       onSubmit(res?.totals ?? null);
       if (!assessmentId && res?.assessment?.id) {
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
@@ -363,6 +363,7 @@ export function GasFlaring({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope1.processEmissions"
             />
 
             {/* Gas Volume & Carbon Content */}
@@ -415,7 +416,7 @@ export function GasFlaring({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 mb-2">
                     <Label htmlFor="carbon-content" className="text-sm font-medium text-gray-700">
-                      Carbon Content/Composition (% by volume)
+                      Methane/Carbon Composition (% by volume)
                     </Label>
                     <TooltipProvider>
                       <Tooltip>
@@ -533,10 +534,10 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -554,10 +555,10 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isActionLoading || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData, isActionLoading)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { companyService } from "@/services/company.service";
+import { useOnboardingProgress } from "@/services/hooks/company.hooks";
 
 interface TourCardProps {
   title: string;
@@ -73,26 +73,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const { user } = useAuth();
 
-  const [onboardingData, setOnboardingData] = useState<{
-    progressPercent: number;
-    checklist: { title: string; isCompleted: boolean }[];
-  } | null>(null);
-  const [isDataLoading, setIsDataLoading] = useState(true);
-
-  const fetchProgress = async () => {
-    try {
-      const data = await companyService.getOnboardingProgress();
-      setOnboardingData(data);
-    } catch (err) {
-      console.error("Failed to fetch onboarding progress", err);
-    } finally {
-      setIsDataLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProgress();
-  }, []);
+  const { data: onboardingData, isLoading: isDataLoading } = useOnboardingProgress();
 
   const handleCardClick = (index: number, href: string, onAction?: () => void): void => {
     setLoadingIndex(index);

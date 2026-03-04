@@ -227,10 +227,10 @@ export const OrganizationDetails = ({
                   defaultCountry={country}
                   international
                   withCountryCallingCode
-                  className={`w-full rounded-lg border px-3 py-2 text-base [&>input]:outline-none ${
+                  className={`w-full rounded-lg border px-3 py-2 text-base focus-within:ring-2 [&_input]:border-none [&_input]:outline-none [&_input]:shadow-none [&_input]:bg-transparent ${
                     errors.contactPhone
                       ? "border-red-500"
-                      : "border-neutral-500 focus:outline-none focus:ring-primary"
+                      : "border-gray-300 focus-within:ring-primary"
                   }`}
                 />
               )}

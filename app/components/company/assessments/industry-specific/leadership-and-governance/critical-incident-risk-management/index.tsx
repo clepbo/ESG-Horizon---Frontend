@@ -29,6 +29,7 @@ const steps = ["process-safety-events", "catastrophic-risk-management"] as const
 
 export default function CriticalIncidentRiskManagement({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: CriticalIncidentRiskManagementProps) {
@@ -48,7 +49,7 @@ export default function CriticalIncidentRiskManagement({
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
   };
 
   const handleBackToOverview = () => {
@@ -79,7 +80,7 @@ export default function CriticalIncidentRiskManagement({
         nextAssessment="Management of the Legal & Regulatory Environment"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }

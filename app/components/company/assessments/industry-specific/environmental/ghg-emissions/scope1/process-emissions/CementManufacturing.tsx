@@ -299,6 +299,7 @@ export function CementManufacturing({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.processEmissions"
             />
 
             {/* Cement Quantity */}

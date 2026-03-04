@@ -131,6 +131,11 @@ export interface HumanCapitalPillar {
   averageSafetyTrainingHoursPerEmployee?: number;
   direct?: HumanCapitalMetrics;
   contract?: HumanCapitalMetrics;
+  safetyManagementSystems?: {
+    title: string;
+    tag: string;
+    description: string;
+  }[];
 }
 
 export interface HumanCapitalMetrics {
@@ -185,6 +190,7 @@ export interface LeadershipAndGovernancePillar {
     policyPosition?: string;
     sustainabilityGovernance?: string;
     sustainabilityPosition?: string;
+    hasBoardCommittee?: string;
   };
   criticalIncidenceRiskManagement?: {
     processSafetyEvents?: {
@@ -346,7 +352,7 @@ export interface BiodiversityImpactsData {
 }
 
 // Placeholder pillar interfaces (keep for backwards compatibility)
-export interface SocialPillar {}
+export interface SocialPillar { }
 
 export interface Target {
   id?: number;

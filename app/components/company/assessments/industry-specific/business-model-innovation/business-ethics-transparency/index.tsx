@@ -56,6 +56,7 @@ const scopeData = [
 
 export default function BusinessEthicsAssessment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: BusinessEthicsAssessmentProps) {
@@ -86,7 +87,7 @@ export default function BusinessEthicsAssessment({
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, !!resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
   };
 
   const handleBackToOverview = () => {
@@ -118,7 +119,7 @@ export default function BusinessEthicsAssessment({
         reportId={reportId}
         onContinue={handleViewReport}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }
