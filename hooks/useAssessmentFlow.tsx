@@ -139,7 +139,7 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   const isGroupSubmitted = groupPath ? submittedGroups.includes(groupPath) : false;
 
   const getSubmitLabel = (hasExistingData: boolean, isSubmitting?: boolean): string => {
-    const isUpdate = isGroupSubmitted || hasExistingData;
+    const isUpdate = isGroupSubmitted;
     if (isSubmitting) return "Submitting...";
     if (isPreviouslySubmitted) return "Submitted";
     return isUpdate ? "Update" : "Submit";
