@@ -357,6 +357,7 @@ export function PurchasedSteamForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope2.locationBased"
             />
             {/* Steam Consumed */}
             <div>

@@ -71,6 +71,7 @@ const scopeData = [
 
 export function SecurityHumanRightsAssessment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: SecurityHumanRightsAssessmentProps) {
@@ -125,7 +126,7 @@ export function SecurityHumanRightsAssessment({
         nextAssessment="Community Relations"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }

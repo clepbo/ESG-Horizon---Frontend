@@ -414,6 +414,7 @@ export function VehicleEquipment({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.mobileSources"
             />
 
             <div>

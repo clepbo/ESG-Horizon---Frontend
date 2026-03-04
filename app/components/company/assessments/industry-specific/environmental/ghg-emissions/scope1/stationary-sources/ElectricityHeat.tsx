@@ -346,6 +346,7 @@ export function ElectricityHeatForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.stationarySources"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">

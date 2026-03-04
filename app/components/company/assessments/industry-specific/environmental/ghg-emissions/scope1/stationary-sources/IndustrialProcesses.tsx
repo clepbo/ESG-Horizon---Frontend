@@ -326,6 +326,7 @@ export function IndustrialProcessesForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.stationarySources"
             />
 
             <div>

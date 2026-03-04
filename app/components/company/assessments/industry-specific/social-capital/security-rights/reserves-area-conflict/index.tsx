@@ -37,7 +37,7 @@ export default function ReservesAreaConflict({
 }: ReservesAreaConflictProps) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesAreaConflict");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.securityRights.reservesAreaConflict", "socialCapital.securityHumanRights.operationsInConflictZones");
 
   const totalProvedReservesVolume = useFormattedNumber("");
   const totalProbableReservesVolume = useFormattedNumber("");
@@ -175,7 +175,7 @@ export default function ReservesAreaConflict({
     }
 
     try {
-      await saveNow("socialCapital.securityRights.reservesAreaConflict", buildPayload());
+      await saveAndSubmit("socialCapital.securityRights.reservesAreaConflict", buildPayload());
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch {
@@ -259,6 +259,7 @@ export default function ReservesAreaConflict({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.securityHumanRights.operationsInConflictZones"
             />
 
             {renderInputCard(

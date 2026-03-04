@@ -42,7 +42,7 @@ export default function HydrocarbonSpills({
   const volumeImpactingShorelines = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("hydrocarbon-spills");
+  const { saveNow, saveAndSubmit, isLoading: isActionLoading } = useAssessmentFlow("hydrocarbon-spills", "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -162,7 +162,7 @@ export default function HydrocarbonSpills({
     dispatch({ type: "UPDATE_BIODIVERSITY_SPILLS", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
         payload
       );
@@ -204,6 +204,7 @@ export default function HydrocarbonSpills({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills"
             />
 
             {/* Number of Spills */}

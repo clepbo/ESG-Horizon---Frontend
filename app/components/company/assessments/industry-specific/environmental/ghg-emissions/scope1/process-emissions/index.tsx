@@ -51,8 +51,8 @@ export function ProcessEmissionsForm({
         assessmentName="Process Emissions"
         sectionKey="processEmissions"
         totals={_totals ?? undefined}
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        nextAssessment="Fugitive Emissions"
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

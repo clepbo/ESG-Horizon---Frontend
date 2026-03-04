@@ -77,6 +77,7 @@ export default function HealthSafetyPerformance({
               fieldsCompleted={combinedProgress.filled}
               totalFields={combinedProgress.total}
               isSubmitted={false}
+              groupKey="humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
             />
 
             {/* Tabs */}

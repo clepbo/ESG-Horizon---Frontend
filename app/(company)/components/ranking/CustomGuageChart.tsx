@@ -23,6 +23,9 @@ interface GuageProps {
   currentEmission: number | string;
   targetEmission: number | string;
   reductionPercentage?: number;
+  baselineYear?: number;
+  currentYear?: number;
+  targetYear?: number;
   baselineBreakdown?: ScopeBreakdown;
   currentBreakdown?: ScopeBreakdown;
 }
@@ -65,12 +68,26 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
   currentEmission,
   targetEmission,
   reductionPercentage,
+  baselineYear,
+  currentYear,
+  targetYear,
   baselineBreakdown,
   currentBreakdown,
 }) => {
   const initial = toEmissionFigure(initialEmission);
   const current = toEmissionFigure(currentEmission);
   const target = toEmissionFigure(targetEmission);
+
+  const baselineRaw = toRawNumber(initialEmission);
+  const currentRaw = toRawNumber(currentEmission);
+  const targetRaw = toRawNumber(targetEmission);
+  const totalReductionNeeded = baselineRaw - targetRaw;
+  const reducedSoFar = Math.max(0, baselineRaw - currentRaw);
+  const attainedPct =
+    totalReductionNeeded > 0
+      ? Math.min(100, Math.max(0, Math.round((reducedSoFar / totalReductionNeeded) * 100)))
+      : 0;
+  const stillNeeded = Math.max(0, currentRaw - targetRaw);
   const options: Highcharts.Options = {
     chart: {
       type: "gauge",
@@ -179,6 +196,11 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           {/* Label 1 - Left (Baseline) */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
             <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{initial}</div>
+            {baselineYear && (
+              <div style={{ color: "#119B95", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
+                {baselineYear}
+              </div>
+            )}
             <div
               style={{
                 color: "#666",
@@ -225,6 +247,11 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           {/* Label 2 - Center (Current) */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
             <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{current}</div>
+            {currentYear && (
+              <div style={{ color: "#119B95", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
+                {currentYear}
+              </div>
+            )}
             <div
               style={{
                 color: "#666",
@@ -250,7 +277,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                     <>
                       <p className="mb-1">
                         It is the total GHG emissions ({scopeLabel(currentBreakdown)}) from your
-                        most recent assessment. This value updates each time this page loads.
+                        most recent assessment. This value updates each time a new assessment is approved.
                       </p>
                       <div className="mt-2 border-t border-gray-600 pt-2">
                         <p className="font-medium mb-1">Scope breakdown:</p>
@@ -271,6 +298,16 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           {/* Label 3 - Right (Target) */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
             <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{target}</div>
+            {targetYear && (
+              <div style={{ color: "#119B95", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
+                {targetYear}
+              </div>
+            )}
+            {reductionPercentage != null && (
+              <div style={{ color: "#f97316", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
+                Goal: -{reductionPercentage}%
+              </div>
+            )}
             <div
               style={{
                 color: "#666",
@@ -294,12 +331,30 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                   <p className="font-sans font-medium mb-1">Target Year Emission</p>
                   <p>= Baseline x (1 - Reduction% / 100)</p>
                   <p>
-                    = {formatWithCommas(toRawNumber(initialEmission))} x (1 -{" "}
+                    = {formatWithCommas(baselineRaw)} x (1 -{" "}
                     {reductionPercentage ?? 0} / 100)
                   </p>
                   <p className="font-semibold">
-                    = {formatWithCommas(toRawNumber(targetEmission))} tCO₂e
+                    = {formatWithCommas(targetRaw)} tCO₂e
                   </p>
+                  {totalReductionNeeded > 0 && (
+                    <div className="mt-2 border-t border-gray-600 pt-2 font-sans">
+                      <p className="font-medium mb-1">Progress toward goal:</p>
+                      <p>
+                        Reduced so far:{" "}
+                        <span className="font-semibold">{formatWithCommas(reducedSoFar)} tCO₂e</span>{" "}
+                        ({attainedPct}%)
+                      </p>
+                      {stillNeeded > 0 ? (
+                        <p>
+                          Still needed:{" "}
+                          <span className="font-semibold">{formatWithCommas(stillNeeded)} tCO₂e</span>
+                        </p>
+                      ) : (
+                        <p className="text-green-400 font-semibold">Goal achieved!</p>
+                      )}
+                    </div>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </div>

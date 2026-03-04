@@ -29,6 +29,7 @@ const steps = ["process-safety-events", "catastrophic-risk-management"] as const
 
 export default function CriticalIncidentRiskManagement({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: CriticalIncidentRiskManagementProps) {
@@ -79,7 +80,7 @@ export default function CriticalIncidentRiskManagement({
         nextAssessment="Management of the Legal & Regulatory Environment"
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }

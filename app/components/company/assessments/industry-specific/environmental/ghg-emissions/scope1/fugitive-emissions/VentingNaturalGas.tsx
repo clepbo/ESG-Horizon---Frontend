@@ -290,6 +290,7 @@ export function VentingNaturalGas({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.fugitiveEmissions"
             />
 
             {/* Volume of Gas Vented */}

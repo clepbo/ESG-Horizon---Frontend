@@ -38,7 +38,7 @@ export default function BoardManagementOversight({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight";
-  const { saveNow, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight");
   const hasExistingData = !!state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
   const [hasBoardCommittee, setHasBoardCommittee] = useState("");
   const [oversightDiscussion, setOversightDiscussion] = useState("");
@@ -143,7 +143,7 @@ export default function BoardManagementOversight({
     };
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_LEADERSHIP_GOVERNANCE",
         payload: {
@@ -198,6 +198,7 @@ export default function BoardManagementOversight({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight"
             />
 
             {/* Board Committee Question */}

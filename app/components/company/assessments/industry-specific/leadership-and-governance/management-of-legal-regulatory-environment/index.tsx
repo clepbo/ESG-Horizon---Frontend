@@ -29,6 +29,7 @@ const steps = ["public-policy-engagement", "board-management-oversight"] as cons
 
 export default function LegalRegulatoryEnvironment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: LegalRegulatoryEnvironmentProps) {
@@ -79,7 +80,7 @@ export default function LegalRegulatoryEnvironment({
         nextAssessment={null}
         onContinue={onContinueToNextAssessment}
         onContinueAssessment={onContinueToNextAssessment}
-        onBackToHub={onBack}
+        onBackToHub={onBackToHub}
       />
     );
   }

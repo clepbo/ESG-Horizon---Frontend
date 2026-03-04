@@ -38,11 +38,11 @@ export function TerrestialSites({
 
   const {
     saveNow,
-    submitGroup,
+    saveAndSubmit,
     isLoading: isActionLoading,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites");
+  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites", "foundationalData.activityMetrics.terrestrialSites");
   const hasExistingData = !!state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
 
   const flowStations = useFormattedNumber("");
@@ -145,12 +145,11 @@ export function TerrestialSites({
 
     const payload = getPayload();
     try {
-      await saveNow("activityMetrics.assetPortfolio.terrestrialSites", payload);
+      await saveAndSubmit("activityMetrics.assetPortfolio.terrestrialSites", payload);
       dispatch({
         type: "UPDATE_ASSET_PORTFOLIO",
         payload: { section: "terrestrialSites", data: payload },
       });
-      await submitGroup();
       toast.success("Activity metrics submitted successfully");
       setShowSuccess(true);
     } catch (err) {

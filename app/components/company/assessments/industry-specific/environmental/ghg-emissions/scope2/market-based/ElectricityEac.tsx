@@ -351,6 +351,7 @@ export function ElectricityEACForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope2.marketBased"
             />
 
             {/* Grid Electricity */}
