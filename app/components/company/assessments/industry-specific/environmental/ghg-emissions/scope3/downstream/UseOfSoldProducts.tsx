@@ -123,18 +123,14 @@ export function UseOfSoldProducts({
       averageAnnualConsumption.trim() !== "" &&
       !isNaN(Number(averageAnnualConsumption)) &&
       Number(averageAnnualConsumption) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasUnitsSold,
       hasProductLifetime,
       hasAverageAnnualConsumption,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [unitsSold, productLifetime, averageAnnualConsumption, files, additionalFields]);
+  }, [unitsSold, productLifetime, averageAnnualConsumption]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -397,6 +393,7 @@ export function UseOfSoldProducts({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Category 11: Use of Sold Products</h4>

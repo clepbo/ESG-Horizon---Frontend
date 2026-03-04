@@ -143,18 +143,14 @@ export function UpstreamTransportationAndDistribution({
       !isNaN(Number(logisticsSpend)) &&
       Number(logisticsSpend) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasMassTransported,
       hasDistanceTravelled,
       hasLogisticsSpend,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [massTransported, distanceTravelled, logisticsSpend, files, additionalFields]);
+  }, [massTransported, distanceTravelled, logisticsSpend]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -427,6 +423,7 @@ export function UpstreamTransportationAndDistribution({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">

@@ -37,7 +37,7 @@ export default function CriticalIncidentRiskManagement({
   const [currentView, setCurrentView] = useState<CIRMView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
@@ -78,7 +78,6 @@ export default function CriticalIncidentRiskManagement({
         assessmentName="Critical Incident Risk Management"
         totals={totals ?? undefined}
         nextAssessment="Management of the Legal & Regulatory Environment"
-        onContinue={onContinueToNextAssessment}
         onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBackToHub}
       />

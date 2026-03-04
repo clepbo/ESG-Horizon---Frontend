@@ -47,8 +47,8 @@ export default function PerformanceOverview() {
   const score =
     general && reductionGap > 0
       ? Math.min(
-          200,
-          Math.max(0, Math.round(((baselineEmission - currentEmission) / reductionGap) * 200))
+          100,
+          Math.max(0, Math.round(((baselineEmission - currentEmission) / reductionGap) * 100))
         )
       : 0;
 

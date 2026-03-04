@@ -126,14 +126,10 @@ export function DownstreamTransportationAndDistribution({
       fuelConsumedByDistribution.trim() !== "" &&
       !isNaN(Number(fuelConsumedByDistribution)) &&
       Number(fuelConsumedByDistribution) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasMassOfProductsSold,
       hasAverageDistributionDistance,
       hasFuelConsumedByDistribution,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
@@ -141,8 +137,6 @@ export function DownstreamTransportationAndDistribution({
     massOfProductsSold,
     averageDistributionDistance,
     fuelConsumedByDistribution,
-    files,
-    additionalFields,
   ]);
 
   // Clear error when user interacts with ANY field
@@ -417,6 +411,7 @@ export function DownstreamTransportationAndDistribution({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">

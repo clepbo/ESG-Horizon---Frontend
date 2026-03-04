@@ -24,15 +24,11 @@ export function AssessmentProgressBar({
   const submittedGroups: string[] = (ctx?.state?.assessmentData as any)?.submittedGroups || [];
   const groupSubmitted = groupKey ? submittedGroups.includes(groupKey) : false;
 
-  // Combine step position + field completion for accurate progress.
-  const completedSteps = stepIndex - 1;
-  const currentStepFraction =
-    fieldsCompleted != null && totalFields != null && totalFields > 0
-      ? fieldsCompleted / totalFields
-      : 0;
+  // Progress = purely how many required fields are filled (0–99%), 100% only after submission.
   const rawPercent =
-    totalSteps > 0 ? ((completedSteps + currentStepFraction) / totalSteps) * 100 : 0;
-  // 100% only when the group has been submitted; otherwise cap at 99%
+    fieldsCompleted != null && totalFields != null && totalFields > 0
+      ? (fieldsCompleted / totalFields) * 100
+      : 0;
   const percent = isSubmitted || groupSubmitted ? 100 : Math.min(Math.round(rawPercent), 99);
 
   return (

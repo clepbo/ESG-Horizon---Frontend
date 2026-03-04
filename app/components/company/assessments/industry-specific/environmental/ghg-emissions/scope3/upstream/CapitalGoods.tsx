@@ -127,17 +127,13 @@ export function CapitalGoods({
       !isNaN(Number(materialWeight)) &&
       Number(materialWeight) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasTotalCost,
       hasMaterialWeight,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [totalCost, materialWeight, files, additionalFields]);
+  }, [totalCost, materialWeight]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -386,6 +382,7 @@ export function CapitalGoods({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Capital Goods</h4>

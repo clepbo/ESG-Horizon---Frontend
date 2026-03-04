@@ -118,17 +118,13 @@ export function Investments({
       portfolioEmissions.trim() !== "" &&
       !isNaN(Number(portfolioEmissions)) &&
       Number(portfolioEmissions) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasInvestmentAmount,
       hasPortfolioEmissions,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [investmentAmount, portfolioEmissions, files, additionalFields]);
+  }, [investmentAmount, portfolioEmissions]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -375,6 +371,7 @@ export function Investments({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Category 15: Investments</h4>
