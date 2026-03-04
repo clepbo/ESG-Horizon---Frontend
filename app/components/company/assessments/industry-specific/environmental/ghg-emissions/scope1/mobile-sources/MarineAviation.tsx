@@ -70,11 +70,13 @@ export function MarineAviation({
   const router = useRouter();
   const {
     saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
+    saveQuiet,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("ghg-mobile-sources-marine-aviation");
+  } = useAssessmentFlow("ghg-mobile-sources-marine-aviation", "environment.ghg.scope1.mobileSources");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -331,14 +333,12 @@ export function MarineAviation({
     try {
       // Bulk save all steps in the group before submitting
       if (roadTransport) {
-        await saveNow("environment.ghg.scope1.mobileSources.roadTransport", roadTransport);
+        await saveQuiet("environment.ghg.scope1.mobileSources.roadTransport", roadTransport);
       }
       if (vehicleEquipment) {
-        await saveNow("environment.ghg.scope1.mobileSources.vehicleEquipment", vehicleEquipment);
+        await saveQuiet("environment.ghg.scope1.mobileSources.vehicleEquipment", vehicleEquipment);
       }
-      await saveNow("environment.ghg.scope1.mobileSources.marineAviation", payload);
-
-      const res = await submitGroup();
+      const res = await saveAndSubmit("environment.ghg.scope1.mobileSources.marineAviation", payload);
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
       onSubmit(res?.totals ?? null);
@@ -423,6 +423,7 @@ export function MarineAviation({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope1.mobileSources"
             />
 
             <div>
@@ -548,11 +549,11 @@ export function MarineAviation({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -572,11 +573,11 @@ export function MarineAviation({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isActionLoading || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit assessment"
               >
-                {getSubmitLabel(hasExistingData, isActionLoading)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

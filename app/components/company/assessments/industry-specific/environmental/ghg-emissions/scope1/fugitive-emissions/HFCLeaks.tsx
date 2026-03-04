@@ -87,11 +87,13 @@ export function HFCLeaks({
   const router = useRouter();
   const {
     saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
+    saveQuiet,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("ghg-fugitive-emissions-hfc-leaks");
+  } = useAssessmentFlow("ghg-fugitive-emissions-hfc-leaks", "environment.ghg.scope1.fugitiveEmissions");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.hfcLeaks;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -313,14 +315,12 @@ export function HFCLeaks({
     try {
       // Bulk save all steps in the group before submitting
       if (ventingNaturalGas) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope1.fugitiveEmissions.ventingNaturalGas",
           ventingNaturalGas
         );
       }
-      await saveNow("environment.ghg.scope1.fugitiveEmissions.hfcLeaks", payload);
-
-      const res = await submitGroup();
+      const res = await saveAndSubmit("environment.ghg.scope1.fugitiveEmissions.hfcLeaks", payload);
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
       onSubmit(res?.totals ?? null);
@@ -437,6 +437,7 @@ export function HFCLeaks({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope1.fugitiveEmissions"
             />
 
             <h2 className="text-lg font-semibold text-gray-800">
@@ -620,11 +621,11 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={handleSaveAndContinue}
-                  disabled={isActionLoading}
+                  disabled={isSaving}
                   className="justify-self-center bg-primary  hover:bg-primary hover:cursor-pointer text-white  transition-colors"
                   aria-label="Save and continue later"
                 >
-                  {isActionLoading ? (
+                  {isSaving ? (
                     <>
                       <LoadingSpinner size="sm" className="mr-2" />
                       Saving...
@@ -645,11 +646,11 @@ export function HFCLeaks({
                   type="button"
                   variant="outline"
                   onClick={() => handleSubmit()}
-                  disabled={isActionLoading || isPreviouslySubmitted}
+                  disabled={isSubmitting || isPreviouslySubmitted}
                   className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Submit form"
                 >
-                  {getSubmitLabel(hasExistingData, isActionLoading)}
+                  {getSubmitLabel(hasExistingData, isSubmitting)}
                 </Button>
               </div>
             </form>

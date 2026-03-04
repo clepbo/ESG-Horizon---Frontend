@@ -31,7 +31,7 @@ import ReservesValuationAndCapitalExpenditures from "./industry-specific/busines
 import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
-import { resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { resolveDataPath, hasUserData, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
@@ -320,12 +320,12 @@ export function DisclosureTopics({
     "Water and Wastewater Management": ["environment", "waterManagement"],
     "Biodiversity Impact": ["environment", "biodiversityImpact"],
     "Community Relations": ["socialCapital", "communityRelations"],
-    "Security, Human Rights & Rights of Indigenous Peoples": ["socialCapital", "securityRights"],
+    "Security, Human Rights & Rights of Indigenous Peoples": ["socialCapital", "securityHumanRights"],
     "Workforce Health & Safety": ["humanCapital"],
-    "Reserves Valuation & Capital Expenditures": ["businessInnovation", "reservesValuationAndCapitalExpenditures"],
-    "Business Ethics & Transparency": ["businessInnovation", "businessEthicsAndTransparency"],
+    "Reserves Valuation & Capital Expenditures": ["businessModel", "reservesValuation"],
+    "Business Ethics & Transparency": ["businessModel", "businessEthics"],
     "Critical Incident Risk Management": ["leadershipGovernance", "criticalIncidentRiskManagement"],
-    "Management of the Legal & Regulatory Environment": ["leadershipGovernance", "managementOfTheLegalAndRegulatoryEnvironment"],
+    "Management of the Legal & Regulatory Environment": ["leadershipGovernance", "legalRegulatoryEnvironment"],
     "Activity Metrics": ["activityMetrics"],
   };
 
@@ -346,11 +346,11 @@ export function DisclosureTopics({
       return { status: "in-progress" };
     }
 
-    // No submissions but data exists at topic root → in-progress
+    // No submissions but real user data exists at topic root → in-progress
     const dataPath = topicDataRoots[title];
     if (dataPath) {
       const topicData = resolveDataPath(data, dataPath);
-      if (topicData && typeof topicData === "object" && Object.keys(topicData).length > 0) {
+      if (topicData && hasUserData(topicData)) {
         return { status: "in-progress" };
       }
     }

@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assessmentService } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useDebouncedCallback } from "use-debounce";
 
-export const useAssessmentFlow = (currentFormKey: string) => {
+export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) => {
   const { state, dispatch } = useAssessment();
   const queryClient = useQueryClient();
+  const [savingManual, setSavingManual] = useState(false);
+  const [submittingManual, setSubmittingManual] = useState(false);
 
   const createMut = useMutation({
     mutationFn: assessmentService.createAssessment,
@@ -54,6 +57,7 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   };
 
   const saveNow = async (path: string, data: any) => {
+    setSavingManual(true);
     try {
       await ensureIdAndSave(path, data);
     } catch (err: any) {
@@ -62,6 +66,8 @@ export const useAssessmentFlow = (currentFormKey: string) => {
         dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: msg });
       }
       throw err;
+    } finally {
+      setSavingManual(false);
     }
   };
 
@@ -74,16 +80,50 @@ export const useAssessmentFlow = (currentFormKey: string) => {
   });
 
   const submitGroup = async () => {
-    const response = await submitMut.mutateAsync();
-    return response;
+    setSubmittingManual(true);
+    try {
+      const response = await submitMut.mutateAsync();
+      if (groupPath) dispatch({ type: "ADD_SUBMITTED_GROUP", payload: groupPath });
+      return response;
+    } finally {
+      setSubmittingManual(false);
+    }
+  };
+
+  /** Save without triggering isSaving — for intermediate saves inside submit handlers */
+  const saveQuiet = async (path: string, data: any) => {
+    await ensureIdAndSave(path, data);
+  };
+
+  /** Save + submit in one call — only sets isSubmitting (not isSaving) */
+  const saveAndSubmit = async (path: string, data: any) => {
+    setSubmittingManual(true);
+    try {
+      await ensureIdAndSave(path, data);
+      const response = await submitMut.mutateAsync();
+      if (groupPath) dispatch({ type: "ADD_SUBMITTED_GROUP", payload: groupPath });
+      return response;
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "";
+      if (msg.includes("submitted group")) {
+        dispatch({ type: "SET_LOCKED_GROUP_ERROR", payload: msg });
+      }
+      throw err;
+    } finally {
+      setSubmittingManual(false);
+    }
   };
 
   const isAssignedTask = state.isAssignedTask || false;
 
-  const assessmentStatus = state.assessmentData?.status;
-  const isPreviouslySubmitted =
-    assessmentStatus === "submitted_approved" ||
-    assessmentStatus === "approved";
+  const assessmentStatus = state.assessmentData?.status || "";
+  const lockedStatuses = ["approved", "submitted_approved"];
+  const isAssessmentLocked = lockedStatuses.includes(assessmentStatus);
+
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+  const isPreviouslySubmitted = isAssessmentLocked && groupPath
+    ? submittedGroups.includes(groupPath)
+    : false;
 
   const handleAssignedTaskRedirect = () => {
     if (isAssignedTask) {
@@ -93,17 +133,24 @@ export const useAssessmentFlow = (currentFormKey: string) => {
     return false;
   };
 
+  const isGroupSubmitted = groupPath ? submittedGroups.includes(groupPath) : false;
+
   const getSubmitLabel = (hasExistingData: boolean, isSubmitting?: boolean): string => {
-    if (isSubmitting) return "Submitting...";
+    const isUpdate = isGroupSubmitted || hasExistingData;
+    if (isSubmitting) return isUpdate ? "Updating..." : "Submitting...";
     if (isPreviouslySubmitted) return "Submitted";
-    return hasExistingData ? "Update" : "Submit";
+    return isUpdate ? "Update" : "Submit";
   };
 
   return {
     autoSave,
     saveNow,
+    saveQuiet,
+    saveAndSubmit,
     submitGroup,
-    isLoading: createMut.isPending || saveMut.isPending || submitMut.isPending,
+    isLoading: savingManual || submittingManual,
+    isSaving: savingManual,
+    isSubmitting: submittingManual,
     isPreviouslySubmitted,
     isAssignedTask,
     handleAssignedTaskRedirect,

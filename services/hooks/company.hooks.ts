@@ -47,9 +47,8 @@ export const useInviteUser = () => {
   return useMutation({
     mutationFn: companyService.invite,
     onSuccess: () => {
-      // Invalidate the 'companyUsers' query to refetch the user list
-      // after a new user is invited, keeping the UI up-to-date.
       queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["onboarding-progress"] });
     },
   });
 };
@@ -78,8 +77,8 @@ export const useEditUser = () => {
     mutationFn: ({ id, payload }: { id: string | number; payload: Partial<User> }) =>
       companyService.editUser(id, payload),
     onSuccess: () => {
-      // Invalidate the 'companyUsers' query to reflect the changes.
       queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["onboarding-progress"] });
     },
   });
 };
@@ -109,10 +108,23 @@ export const useUpdateCompanyDetails = () => {
     mutationFn: ({ id, payload }: { id: string | number; payload: Partial<Company> }) =>
       companyService.updateDetails(id, payload),
     onSuccess: () => {
-      // Invalidate both the companyDetails and companies queries to update the UI.
       queryClient.invalidateQueries({ queryKey: ["companyDetails"] });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["onboarding-progress"] });
     },
+  });
+};
+
+/**
+ * Custom hook to fetch onboarding progress (setup checklist + percentage).
+ */
+export const useOnboardingProgress = () => {
+  return useQuery<{
+    progressPercent: number;
+    checklist: { title: string; isCompleted: boolean }[];
+  }>({
+    queryKey: ["onboarding-progress"],
+    queryFn: companyService.getOnboardingProgress,
   });
 };
 
@@ -122,11 +134,10 @@ export const useBulkCreate = () => {
   return useMutation({
     mutationFn: companyService.bulkCreate,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["companySubsidiaries"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["companySubsidiaries"] });
       queryClient.invalidateQueries({ queryKey: ["departments"] });
       queryClient.invalidateQueries({ queryKey: ["companyUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["onboarding-progress"] });
     },
   });
 };

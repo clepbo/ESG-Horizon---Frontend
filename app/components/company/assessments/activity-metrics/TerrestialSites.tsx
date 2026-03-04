@@ -260,7 +260,7 @@ export function TerrestialSites({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.terrestrialSites"
             />
 
             {renderCountField(

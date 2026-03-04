@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, Info } from "lucide-react";
 import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { calculateProgress } from "@/lib/utils";
@@ -40,7 +40,6 @@ export default function CapitalExpenditureStrategy({
   const capexPercentage = useFormattedNumber("");
 
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [capexDiscussion, setCapexDiscussion] = useState("");
@@ -50,7 +49,7 @@ export default function CapitalExpenditureStrategy({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy";
-  const { saveNow, submitGroup, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "businessModel.reservesValuation.capitalExpenditureStrategy");
   const hasExistingData = !!state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures?.capitalExpenditureStrategy;
 
   useEffect(() => {
@@ -133,8 +132,6 @@ export default function CapitalExpenditureStrategy({
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -143,10 +140,7 @@ export default function CapitalExpenditureStrategy({
       toast.error("Please fix the errors before submitting.");
       return;
     }
-    setIsSaving(true);
     try {
-      // Save data first
-      await saveNow(current, payload);
       dispatch({
         type: "UPDATE_BUSINESS_INNOVATION",
         payload: {
@@ -155,14 +149,11 @@ export default function CapitalExpenditureStrategy({
           data: payload,
         },
       });
-      // Then submit the group
-      await submitGroup();
+      await saveAndSubmit(current, payload);
       toast.success("Assessment completed successfully!");
-      if (onSubmit) onSubmit(null); // trigger parent success screen
+      if (onSubmit) onSubmit(null);
     } catch (error: any) {
       toast.error("Failed to submit assessment", error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -197,7 +188,7 @@ export default function CapitalExpenditureStrategy({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="businessModel.reservesValuation.capitalExpenditureStrategy"
             />
 
             {/* Percentage of current Capital Expenditure (CAPEX) allocated to Gas or Renewable projects */}
@@ -316,11 +307,10 @@ export default function CapitalExpenditureStrategy({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData)}
-                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

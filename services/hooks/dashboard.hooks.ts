@@ -15,11 +15,12 @@ export interface CompanyDashboardData {
   esgJourney: ESGJourneyItem[];
   stats: { totalAssessments: number; reviewedAssessments: number };
   hubStats?: {
-    environment: { progress: number; completed: string };
-    social: { progress: number; completed: string };
-    governance: { progress: number; completed: string };
+    environment: { progress: number; completed: string; status: string };
+    social: { progress: number; completed: string; status: string };
+    governance: { progress: number; completed: string; status: string };
   } | null;
   latestAssessmentId?: number | null;
+  latestAssessmentStatus?: string | null;
 }
 
 export interface CompanyDashboardApiResponse {
@@ -29,9 +30,10 @@ export interface CompanyDashboardApiResponse {
 
 export type DashboardQueryData = Awaited<ReturnType<typeof dashboardService.getDashboard>>;
 
-export const useCompanyDashboard = () => {
+export const useCompanyDashboard = (enabled = true) => {
   return useQuery<DashboardQueryData, Error>({
     queryKey: ["company-dashboard"],
     queryFn: () => dashboardService.getDashboard(),
+    enabled,
   });
 };

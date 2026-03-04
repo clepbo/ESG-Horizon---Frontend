@@ -37,8 +37,9 @@ export default function EnvironmentalManagementPolicies({
 }: EnvironmentalManagementPoliciesProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
-    "environmental-management-policies"
+  const { saveNow, isSaving } = useAssessmentFlow(
+    "environmental-management-policies",
+    "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"
   );
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -278,10 +279,10 @@ export default function EnvironmentalManagementPolicies({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -302,7 +303,6 @@ export default function EnvironmentalManagementPolicies({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next
