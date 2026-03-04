@@ -416,7 +416,7 @@ export function GasFlaring({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 mb-2">
                     <Label htmlFor="carbon-content" className="text-sm font-medium text-gray-700">
-                      Carbon Content/Composition (% by volume)
+                      Methane/Carbon Composition (% by volume)
                     </Label>
                     <TooltipProvider>
                       <Tooltip>

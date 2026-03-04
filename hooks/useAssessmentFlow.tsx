@@ -3,6 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assessmentService } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useDebouncedCallback } from "use-debounce";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+
 
 export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) => {
   const { state, dispatch } = useAssessment();
@@ -32,6 +35,7 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   });
 
   const autoSave = useDebouncedCallback((path: string, data: any) => {
+    if (isPreviouslySubmitted) return;
     if (state.assessmentId) {
       saveMut.mutate({ path, data, assessmentId: state.assessmentId });
     }
@@ -124,7 +128,6 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   const isPreviouslySubmitted = isAssessmentLocked && groupPath
     ? submittedGroups.includes(groupPath)
     : false;
-
   const handleAssignedTaskRedirect = () => {
     if (isAssignedTask) {
       dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
@@ -136,8 +139,8 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   const isGroupSubmitted = groupPath ? submittedGroups.includes(groupPath) : false;
 
   const getSubmitLabel = (hasExistingData: boolean, isSubmitting?: boolean): string => {
-    const isUpdate = isGroupSubmitted || hasExistingData;
-    if (isSubmitting) return isUpdate ? "Updating..." : "Submitting...";
+    const isUpdate = isGroupSubmitted;
+    if (isSubmitting) return "Submitting...";
     if (isPreviouslySubmitted) return "Submitted";
     return isUpdate ? "Update" : "Submit";
   };

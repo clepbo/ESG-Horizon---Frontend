@@ -31,8 +31,8 @@ export default function ManagementOfLegalRegulatory({
             <VscLaw className="text-[#4185f6]" />
             Lobbying Disclosure
           </span>
-          <span className={`rounded-2xl px-2 py-1 ${legalData?.publicPolicyAndLobbying || legalData?.policyPosition ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-500"}`}>
-            {legalData?.publicPolicyAndLobbying || legalData?.policyPosition ? "Disclosed" : "Not Disclosed"}
+          <span className={`rounded-2xl px-2 py-1 ${legalData?.publicPolicyAndLobbying === "yes" ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-500"}`}>
+            {legalData?.publicPolicyAndLobbying === "yes" ? "Disclosed" : "Not Disclosed"}
           </span>
         </div>
         <Card className="p-4 m-4">
@@ -52,8 +52,8 @@ export default function ManagementOfLegalRegulatory({
             <IoMdCheckboxOutline className="text-[#b3d7bc]" />
             Board Oversight Committee
           </span>
-          <span className={`rounded-2xl px-2 py-1 ${legalData?.sustainabilityGovernance ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-500"}`}>
-            {legalData?.sustainabilityGovernance ? "Established" : "Not Established"}
+          <span className={`rounded-2xl px-2 py-1 ${legalData?.hasBoardCommittee === "yes" ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-500"}`}>
+            {legalData?.hasBoardCommittee === "yes" ? "Established" : "Not Established"}
           </span>
         </div>
         <Card className="p-4 m-4">

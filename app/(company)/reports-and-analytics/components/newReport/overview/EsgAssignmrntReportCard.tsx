@@ -6,7 +6,7 @@ import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
 interface Props {
   title: string;
   pillar: string;
-  score: React.ReactElement | string;
+  score?: React.ReactElement | string | null;
   amount: React.ReactElement | string;
   footer: string;
   icon: React.ReactElement;
@@ -56,7 +56,7 @@ export default function EsgAssignmrntReportCard({
         <p className="">{title}</p>
         {amount === "" ? (
           <NotAvailablePlaceholder />
-        ) : (
+        ) : score ? (
           <span
             className=" flex items-center gap-2 rounded-2xl text-sm p-1"
             style={{
@@ -67,7 +67,7 @@ export default function EsgAssignmrntReportCard({
             {/* <FaArrowDown /> */}
             {score}
           </span>
-        )}
+        ) : null}
       </div>
 
       {amount !== "" && (
