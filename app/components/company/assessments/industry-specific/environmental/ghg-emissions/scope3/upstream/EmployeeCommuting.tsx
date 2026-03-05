@@ -102,7 +102,7 @@ export function EmployeeCommuting({
     workdaysPerYear: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-employee-commuting");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-employee-commuting");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -114,10 +114,11 @@ export function EmployeeCommuting({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.employeeCommuting;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setNumberOfEmployees(existingData.numberOfEmployees || "");
-      setAverageDistance(existingData.averageDistance || "");
-      setWorkdaysPerYear(existingData.workdaysPerYear || "");
+      setNumberOfEmployees(s(existingData.numberOfEmployees));
+      setAverageDistance(s(existingData.averageDistance));
+      setWorkdaysPerYear(s(existingData.workdaysPerYear));
 
       // Checkbox fields
       const savedMethods = existingData.selectedMethods;
@@ -334,6 +335,7 @@ export function EmployeeCommuting({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.employeeCommuting", payload).catch(() => {});
     onNext();
   };
 

@@ -30,13 +30,14 @@ import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface InvestmentsProps {
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (investmentsPayload?: any) => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   backToAssessment: () => void;
   backToDisclosureTopics: () => void;
   backToGHGEmissions: () => void;
+  parentSubmitting?: boolean;
 }
 
 interface InvestmentsErrors {
@@ -59,6 +60,7 @@ export function Investments({
   backToAssessment,
   backToDisclosureTopics,
   backToGHGEmissions,
+  parentSubmitting,
 }: InvestmentsProps) {
   const { state, dispatch } = useAssessment();
   const router = useRouter();
@@ -82,7 +84,7 @@ export function Investments({
     portfolioEmissions: false,
   });
 
-  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-investments");
+  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-investments", "environment.ghg.scope3.downstream");
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope3?.downstream?.investments;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -95,9 +97,10 @@ export function Investments({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.investments;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setInvestmentAmount(existingData.investmentAmount || "");
-      setPortfolioEmissions(existingData.portfolioEmissions || "");
+      setInvestmentAmount(s(existingData.investmentAmount));
+      setPortfolioEmissions(s(existingData.portfolioEmissions));
 
       // Files
       setFiles(
@@ -242,8 +245,8 @@ export function Investments({
       payload,
     });
 
-    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
-    onSubmit();
+    // Pass payload to parent so it can save directly (dispatch is async, state won't be updated yet)
+    onSubmit(payload);
   };
 
   // Handle input changes with automatic error clearing
@@ -581,12 +584,12 @@ export function Investments({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isLoading || isPreviouslySubmitted}
+                disabled={isLoading || isPreviouslySubmitted || parentSubmitting}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                {getSubmitLabel(hasExistingData)}
-                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
+                {parentSubmitting ? "Submitting..." : getSubmitLabel(hasExistingData)}
+                {!isPreviouslySubmitted && !parentSubmitting && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

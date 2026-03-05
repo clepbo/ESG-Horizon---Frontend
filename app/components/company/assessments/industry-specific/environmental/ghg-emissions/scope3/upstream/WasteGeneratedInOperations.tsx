@@ -92,7 +92,7 @@ export function WasteGeneratedInOperations({
     wasteManagementMethod: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-waste");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-waste");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -284,6 +284,7 @@ export function WasteGeneratedInOperations({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.wasteGeneratedInOperations", payload).catch(() => {});
     onNext();
   };
 

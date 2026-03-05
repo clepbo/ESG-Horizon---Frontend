@@ -155,7 +155,7 @@ export function GasFlaring({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasGasVolume, hasCarbonContent, hasFiles]);
+    return calculateProgress([hasGasVolume, hasCarbonContent]);
   }, [gasVolume, carbonContent, files, additionalFields]);
 
   // FIX: Accept 0 and any valid number >= 0

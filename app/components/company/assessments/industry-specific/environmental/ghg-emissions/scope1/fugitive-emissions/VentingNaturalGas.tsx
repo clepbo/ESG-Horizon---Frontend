@@ -112,7 +112,7 @@ export function VentingNaturalGas({
       Number(volumeOfGasVented.rawValue) >= 0;
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-    return calculateProgress([hasVolume, hasFiles]);
+    return calculateProgress([hasVolume]);
   }, [volumeOfGasVented.rawValue, files, additionalFields]);
 
   // FIX: Accept 0 and any valid number >= 0

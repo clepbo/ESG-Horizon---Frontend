@@ -126,7 +126,6 @@ export function PurchasedHeatingForm({
       !isNaN(Number(heatingConsumedRaw)) &&
       Number(heatingConsumedRaw) >= 0,
     supplierName !== "",
-    Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
   ]);
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {

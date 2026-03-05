@@ -127,7 +127,7 @@ export function ResidualForm({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasElectricity, hasFactor, hasFiles]);
+    return calculateProgress([hasElectricity, hasFactor]);
   }, [electricityConsumed.rawValue, residualMixFactor.rawValue, files, additionalFields]);
 
   // FIX: Accept 0 and any valid number >= 0

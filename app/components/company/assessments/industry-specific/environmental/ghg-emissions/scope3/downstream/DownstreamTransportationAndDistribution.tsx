@@ -85,7 +85,7 @@ export function DownstreamTransportationAndDistribution({
     fuelConsumedByDistribution: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-downstream-transportation");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-downstream-transportation");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -99,10 +99,11 @@ export function DownstreamTransportationAndDistribution({
       state.assessmentData.environment?.ghg?.scope3?.downstream
         ?.downstreamTransportationDistribution;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setMassOfProductsSold(existingData.massOfProductsSold || "");
-      setAverageDistributionDistance(existingData.averageDistributionDistance || "");
-      setFuelConsumedByDistribution(existingData.fuelConsumedByDistribution || "");
+      setMassOfProductsSold(s(existingData.massOfProductsSold));
+      setAverageDistributionDistance(s(existingData.averageDistributionDistance));
+      setFuelConsumedByDistribution(s(existingData.fuelConsumedByDistribution));
 
       // Files
       setFiles(
@@ -271,6 +272,7 @@ export function DownstreamTransportationAndDistribution({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.downstreamTransportationDistribution", payload).catch(() => {});
     onNext();
   };
 

@@ -332,6 +332,7 @@ export function GhgEmissionsAssessment({
         handleBacktoAssessment={onBackToHub}
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
+        initialStep={initialStep}
       />
     );
   }
@@ -342,6 +343,7 @@ export function GhgEmissionsAssessment({
         handleBacktoAssessment={onBackToHub}
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
+        initialStep={initialStep}
       />
     );
   }
@@ -351,6 +353,7 @@ export function GhgEmissionsAssessment({
         handleBacktoAssessment={onBackToHub}
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
+        initialStep={initialStep}
       />
     );
   }
@@ -412,7 +415,7 @@ export function GhgEmissionsAssessment({
             {filteredScopes.length > 0 ? (
               <Accordion
                 type="multiple"
-                defaultValue={["scope-1", "scope-2"]}
+                defaultValue={["scope-1", "scope-2", "scope-3"]}
                 className="space-y-4"
               >
                 {filteredScopes.map((scope) => (

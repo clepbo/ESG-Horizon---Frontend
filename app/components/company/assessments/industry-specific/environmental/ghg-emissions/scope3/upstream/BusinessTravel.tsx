@@ -110,7 +110,7 @@ export function BusinessTravel({
     hotelNights: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-businesstravel");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-businesstravel");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -122,21 +122,22 @@ export function BusinessTravel({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.businessTravel;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Air Travel
-      setTotalFlights(existingData.totalFlights || "");
-      setAirDistance(existingData.airDistance || "");
-      setAirEmployees(existingData.airEmployees || "");
-      setEconomyPercent(existingData.economyPercent || "");
-      setBusinessPercent(existingData.businessPercent || "");
-      setFirstClassPercent(existingData.firstClassPercent || "");
+      setTotalFlights(s(existingData.totalFlights));
+      setAirDistance(s(existingData.airDistance));
+      setAirEmployees(s(existingData.airEmployees));
+      setEconomyPercent(s(existingData.economyPercent));
+      setBusinessPercent(s(existingData.businessPercent));
+      setFirstClassPercent(s(existingData.firstClassPercent));
 
       // Ground Travel
-      setGroundDistance(existingData.groundDistance || "");
-      setGroundEmployees(existingData.groundEmployees || "");
-      setFuelConsumed(existingData.fuelConsumed || "");
+      setGroundDistance(s(existingData.groundDistance));
+      setGroundEmployees(s(existingData.groundEmployees));
+      setFuelConsumed(s(existingData.fuelConsumed));
 
       // Accommodation
-      setHotelNights(existingData.hotelNights || "");
+      setHotelNights(s(existingData.hotelNights));
 
       // Files
       setFiles(
@@ -400,6 +401,7 @@ export function BusinessTravel({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.businessTravel", payload).catch(() => {});
     onNext();
   };
 

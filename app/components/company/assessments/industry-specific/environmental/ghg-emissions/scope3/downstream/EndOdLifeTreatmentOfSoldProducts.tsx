@@ -100,7 +100,7 @@ export function EndOfLifeTreatment({
     otherDisposalMethod: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-end-of-life-treatment");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-end-of-life-treatment");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -121,7 +121,7 @@ export function EndOfLifeTreatment({
           others: false,
         }
       );
-      setOtherDisposalMethod(existingData.otherDisposalMethod || "");
+      setOtherDisposalMethod(existingData.otherDisposalMethod !== null && existingData.otherDisposalMethod !== undefined ? existingData.otherDisposalMethod.toString() : "");
       setProducts(existingData.products || []);
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -238,6 +238,7 @@ export function EndOfLifeTreatment({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.endOfLifeTreatment", payload).catch(() => {});
     onNext();
   };
 

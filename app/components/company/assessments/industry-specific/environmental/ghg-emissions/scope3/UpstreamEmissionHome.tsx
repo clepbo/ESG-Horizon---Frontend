@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PurchasedGoodsAndServices } from "./upstream/PurchasedGoodsAndServices";
 import { CapitalGoods } from "./upstream/CapitalGoods";
 import { EnergyRelatedActivities } from "./upstream/EnergyRelatedActivities";
@@ -17,14 +17,29 @@ export interface UpstreamProps {
   handleBacktoAssessment: () => void;
   handleBacktoGHG: () => void;
   backToDisclossureTopic: () => void;
+  initialStep?: string;
 }
 export default function UpstreamEmissionHome({
   handleBacktoAssessment,
   handleBacktoGHG,
   backToDisclossureTopic,
+  initialStep,
 }: UpstreamProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    const parsed = Number(initialStep);
+    return !isNaN(parsed) && parsed >= 0 && parsed <= 7 ? parsed : 0;
+  });
+
+  useEffect(() => {
+    if (initialStep !== undefined) {
+      const parsed = Number(initialStep);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 7) {
+        setStep(parsed);
+      }
+    }
+  }, [initialStep]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
@@ -34,7 +49,9 @@ export default function UpstreamEmissionHome({
     setStep(val);
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(leasedAssetsPayload?: any) {
+    if (submitting) return;
+    setSubmitting(true);
     const data = state.assessmentData.environment?.ghg?.scope3?.upstream;
 
     try {
@@ -87,11 +104,12 @@ export default function UpstreamEmissionHome({
           saveNow("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting)
         );
       }
-      if (data?.upstreamLeasedAssets) {
+      const leasedData = leasedAssetsPayload || data?.upstreamLeasedAssets;
+      if (leasedData) {
         savePromises.push(
           saveNow(
             "environment.ghg.scope3.upstream.upstreamLeasedAssets",
-            data.upstreamLeasedAssets
+            leasedData
           )
         );
       }
@@ -104,6 +122,8 @@ export default function UpstreamEmissionHome({
     } catch (err) {
       toast.error("Submission failed");
       console.error("Submission failed:", err);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -221,6 +241,7 @@ export default function UpstreamEmissionHome({
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
         backToGHGEmissions={handleBacktoGHG}
+        parentSubmitting={submitting}
       />
     );
   }

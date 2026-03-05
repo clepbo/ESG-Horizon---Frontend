@@ -81,7 +81,7 @@ export function CapitalGoods({
     materialWeight: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-capitalgoods");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-capitalgoods");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -249,6 +249,7 @@ export function CapitalGoods({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.capitalGoods", payload).catch(() => {});
     onNext();
   };
 

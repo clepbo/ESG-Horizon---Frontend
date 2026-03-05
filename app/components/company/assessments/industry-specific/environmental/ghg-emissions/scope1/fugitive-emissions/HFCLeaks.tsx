@@ -143,7 +143,7 @@ export function HFCLeaks({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasOthers, hasRefrigerantAdded, hasCheckboxes, hasFiles]);
+    return calculateProgress([hasOthers, hasRefrigerantAdded, hasCheckboxes]);
   }, [formState, files, additionalFields, others.rawValue, refrigerantAdded.rawValue]);
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
