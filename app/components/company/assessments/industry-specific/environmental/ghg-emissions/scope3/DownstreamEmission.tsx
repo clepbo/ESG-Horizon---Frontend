@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UpstreamProps } from "./UpstreamEmissionHome";
 import { DownstreamTransportationAndDistribution } from "./downstream/DownstreamTransportationAndDistribution";
 import { DocumentUpload } from "./downstream/Step2DocumentUpload";
@@ -17,9 +17,23 @@ export default function DownstreamEmission({
   handleBacktoAssessment,
   handleBacktoGHG,
   backToDisclossureTopic,
+  initialStep,
 }: UpstreamProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    const parsed = Number(initialStep);
+    return !isNaN(parsed) && parsed >= 0 && parsed <= 6 ? parsed : 0;
+  });
+
+  useEffect(() => {
+    if (initialStep !== undefined) {
+      const parsed = Number(initialStep);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 6) {
+        setStep(parsed);
+      }
+    }
+  }, [initialStep]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
@@ -29,7 +43,9 @@ export default function DownstreamEmission({
     setStep(val);
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(investmentsPayload?: any) {
+    if (submitting) return;
+    setSubmitting(true);
     const data = state.assessmentData.environment?.ghg?.scope3?.downstream;
 
     try {
@@ -80,9 +96,10 @@ export default function DownstreamEmission({
           saveNow("environment.ghg.scope3.downstream.franchises", data.franchises)
         );
       }
-      if (data?.investments) {
+      const investData = investmentsPayload || data?.investments;
+      if (investData) {
         savePromises.push(
-          saveNow("environment.ghg.scope3.downstream.investments", data.investments)
+          saveNow("environment.ghg.scope3.downstream.investments", investData)
         );
       }
 
@@ -94,6 +111,8 @@ export default function DownstreamEmission({
     } catch (err) {
       toast.error("Submission failed");
       console.error("Submission failed:", err);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -198,6 +217,7 @@ export default function DownstreamEmission({
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
         backToGHGEmissions={handleBacktoGHG}
+        parentSubmitting={submitting}
       />
     );
   }

@@ -129,7 +129,7 @@ export function CoolingSteamForm({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasEnergy, hasFactor, hasFiles]);
+    return calculateProgress([hasEnergy, hasFactor]);
   }, [energyConsumed.rawValue, emissionFactor.rawValue, files, additionalFields]);
 
   // FIX: Accept 0 and any valid number >= 0

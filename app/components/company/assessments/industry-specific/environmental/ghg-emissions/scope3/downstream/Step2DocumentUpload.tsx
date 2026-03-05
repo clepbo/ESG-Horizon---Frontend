@@ -91,7 +91,7 @@ export function DocumentUpload({
     Object.fromEntries(uploadFields.map((field) => [field.key, false]))
   );
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-document-upload");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-document-upload");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -222,6 +222,7 @@ export function DocumentUpload({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.processingSoldProducts", payload).catch(() => {});
     onNext();
   };
 

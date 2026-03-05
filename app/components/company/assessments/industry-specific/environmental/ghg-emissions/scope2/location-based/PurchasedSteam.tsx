@@ -129,7 +129,6 @@ export function PurchasedSteamForm({
       !isNaN(Number(steamConsumedRaw)) &&
       Number(steamConsumedRaw) >= 0,
     Array.isArray(selectedSources) && selectedSources.length > 0,
-    Object.values(files).some(Boolean) || additionalFields.some((f) => f.file),
   ]);
 
   const handleSourceChange = (sourceId: string, checked: boolean) => {

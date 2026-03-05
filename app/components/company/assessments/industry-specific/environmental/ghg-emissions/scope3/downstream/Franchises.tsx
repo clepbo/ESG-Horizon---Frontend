@@ -82,7 +82,7 @@ export function Franchise({
     electricityConsumption: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-franchises");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-franchises");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -94,9 +94,10 @@ export function Franchise({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.franchises;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setFuelConsumption(existingData.fuelConsumption || "");
-      setElectricityConsumption(existingData.electricityConsumption || "");
+      setFuelConsumption(s(existingData.fuelConsumption));
+      setElectricityConsumption(s(existingData.electricityConsumption));
 
       // Files
       setFiles(
@@ -237,6 +238,7 @@ export function Franchise({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.franchises", payload).catch(() => {});
     onNext();
   };
 

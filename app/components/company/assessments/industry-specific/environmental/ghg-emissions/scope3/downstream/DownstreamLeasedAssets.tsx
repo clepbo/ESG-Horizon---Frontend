@@ -78,7 +78,7 @@ export function DownstreamLeasedAsset({
     otherEnergyConsumed: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-downstream-leased-assets");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-downstream-leased-assets");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -91,9 +91,10 @@ export function DownstreamLeasedAsset({
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.downstream?.downstreamLeasedAssets;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setElectricityConsumed(existingData.electricityConsumed || "");
-      setOtherEnergyConsumed(existingData.otherEnergyConsumed || "");
+      setElectricityConsumed(s(existingData.electricityConsumed));
+      setOtherEnergyConsumed(s(existingData.otherEnergyConsumed));
 
       // Files
       setFiles(
@@ -238,6 +239,7 @@ export function DownstreamLeasedAsset({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.downstreamLeasedAssets", payload).catch(() => {});
     onNext();
   };
 
