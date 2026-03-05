@@ -465,6 +465,7 @@ export function DisclosureTopics({
         initialStep={initialStep}
         assignedTask={assignedTask}
         assignedTopics={assignedTopics}
+        onContinueToNextAssessment={() => setCurrentView("air-quality")}
       />
     );
   }

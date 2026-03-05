@@ -46,6 +46,7 @@ interface GhgEmissionsAssessmentProps {
   initialStep?: string;
   assignedTask?: FrontendTask | null;
   assignedTopics?: string[];
+  onContinueToNextAssessment?: () => void;
 }
 
 interface ScopeCard {
@@ -162,6 +163,7 @@ export function GhgEmissionsAssessment({
   initialStep,
   assignedTask,
   assignedTopics,
+  onContinueToNextAssessment,
 }: GhgEmissionsAssessmentProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
@@ -333,6 +335,7 @@ export function GhgEmissionsAssessment({
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
         initialStep={initialStep}
+        onContinueToNextAssessment={() => setCurrentView("downstream-emissions")}
       />
     );
   }
@@ -344,6 +347,7 @@ export function GhgEmissionsAssessment({
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
         initialStep={initialStep}
+        onContinueToNextAssessment={() => setCurrentView("downstream-emissions")}
       />
     );
   }
@@ -354,6 +358,7 @@ export function GhgEmissionsAssessment({
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
         initialStep={initialStep}
+        onContinueToNextAssessment={onContinueToNextAssessment}
       />
     );
   }
