@@ -28,7 +28,7 @@ export default function UpstreamEmissionHome({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-upstream");
+  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-upstream", "environment.ghg.scope3.upstream");
 
   function handleNext(val: number) {
     setStep(val);

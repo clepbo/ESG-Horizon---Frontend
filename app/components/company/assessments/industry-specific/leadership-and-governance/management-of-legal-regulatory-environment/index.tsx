@@ -37,7 +37,7 @@ export default function LegalRegulatoryEnvironment({
   const [currentView, setCurrentView] = useState<LREView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
@@ -78,8 +78,6 @@ export default function LegalRegulatoryEnvironment({
         assessmentName="Management of the Legal & Regulatory Environment"
         totals={totals ?? undefined}
         nextAssessment={null}
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBackToHub}
       />
     );

@@ -192,6 +192,7 @@ export default function HCDTContribution({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.communityRelations.hcdtContribution"
             />
 
             {/* Prior Year's Actual Operating Expenditure */}

@@ -117,17 +117,13 @@ export function Franchise({
       electricityConsumption.trim() !== "" &&
       !isNaN(Number(electricityConsumption)) &&
       Number(electricityConsumption) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasFuelConsumption,
       hasElectricityConsumption,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [fuelConsumption, electricityConsumption, files, additionalFields]);
+  }, [fuelConsumption, electricityConsumption]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -373,6 +369,7 @@ export function Franchise({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Category 14: Franchises</h4>

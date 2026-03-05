@@ -114,17 +114,13 @@ export function DownstreamLeasedAsset({
       otherEnergyConsumed.trim() !== "" &&
       !isNaN(Number(otherEnergyConsumed)) &&
       Number(otherEnergyConsumed) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasElectricityConsumed,
       hasOtherEnergyConsumed,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [electricityConsumed, otherEnergyConsumed, files, additionalFields]);
+  }, [electricityConsumed, otherEnergyConsumed]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -374,6 +370,7 @@ export function DownstreamLeasedAsset({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Category 13: Downstream Leased Assets</h4>

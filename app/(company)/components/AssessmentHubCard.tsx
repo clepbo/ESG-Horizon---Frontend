@@ -11,7 +11,8 @@ interface AssessmentHubCardProps {
   type: string;
   description: string;
   progress: number;
-  completed: string;
+  completed?: string;
+  totalSections?: number;
   assessmentId?: number | null;
   pillarStatus?: "not-started" | "in-progress" | "completed";
   assessmentStatus?: string | null;
@@ -24,10 +25,15 @@ export default function AssessmentHubCard({
   description,
   progress,
   completed,
+  totalSections,
   assessmentId,
   pillarStatus = "not-started",
   assessmentStatus,
 }: AssessmentHubCardProps) {
+  // Derive section label: prefer static totalSections over the backend string
+  const sectionLabel = totalSections
+    ? `${Math.round((progress / 100) * totalSections)} of ${totalSections} sections`
+    : completed;
   const FallbackIcon = Icon || Zap;
   const router = useRouter();
 
@@ -111,7 +117,9 @@ export default function AssessmentHubCard({
               <span className="font-medium">{progress}%</span>
             </div>
             <Progress value={progress} className="h-2" />
-            <p className="text-xs text-muted-foreground">{completed}</p>
+            {sectionLabel && (
+              <p className="text-xs text-muted-foreground">{sectionLabel}</p>
+            )}
           </div>
         )}
 

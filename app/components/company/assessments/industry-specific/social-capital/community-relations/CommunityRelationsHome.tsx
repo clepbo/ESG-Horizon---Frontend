@@ -68,16 +68,6 @@ export default function CommunityRelationsHome({
     setCurrentView("");
   }
 
-  // Handle success screen navigation
-  const handleSuccessContinue = () => {
-    if (backToDisclosureTopics) {
-      backToDisclosureTopics();
-    } else {
-      setShowSuccess(false);
-      setCurrentView("");
-    }
-  };
-
   const handleBackToHub = () => {
     if (backToAssessmentHub) {
       backToAssessmentHub();
@@ -92,8 +82,7 @@ export default function CommunityRelationsHome({
       <SuccessScreen
         assessmentName="Community Relations"
         totals={undefined}
-        nextAssessment="Workforce Health & Safety"
-        onContinue={handleSuccessContinue}
+        nextAssessment="Security, Human Rights & Rights of Indigenous Peoples"
         onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={handleBackToHub}
       />

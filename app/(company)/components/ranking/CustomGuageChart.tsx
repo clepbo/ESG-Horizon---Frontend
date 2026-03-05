@@ -112,20 +112,32 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
     credits: {
       enabled: false,
     },
+    tooltip: {
+      enabled: true,
+    },
     yAxis: {
       min: 0,
-      max: 200,
-      tickPixelInterval: 72,
+      max: 100,
+      tickPositions: [0, 25, 50, 75, 100],
       tickPosition: "inside",
       tickColor: "#FFFFFF",
       tickLength: 26,
       tickWidth: 2,
       minorTickInterval: undefined,
       labels: {
-        enabled: false,
-        distance: 20,
+        enabled: true,
+        distance: 25,
         style: {
-          fontSize: "18px",
+          fontSize: "13px",
+          fontWeight: "600",
+          color: "#555",
+        },
+        formatter: function () {
+          const v = this.value as number;
+          if (v === 0) return "0%";
+          if (v === 50) return "50%";
+          if (v === 100) return "100%";
+          return "";
         },
       },
       lineWidth: 0,
@@ -138,7 +150,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         },
         {
           from: score,
-          to: 200,
+          to: 100,
           color: "#CDFAF3",
           thickness: 26,
         },
@@ -147,11 +159,18 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
     series: [
       {
         type: "gauge",
-        name: "ESG Score",
+        name: "Net Zero Progress",
         data: [score],
         tooltip: {
           pointFormatter: function () {
-            return `ESG Score: <b>N/A</b>`;
+            const lines = [
+              `<span style="color:#119B95;font-weight:bold">Net Zero Progress: ${attainedPct}%</span>`,
+              `<br/>Reduced so far: <b>${formatWithCommas(reducedSoFar)} tCO₂e</b>`,
+              stillNeeded > 0
+                ? `<br/>Still needed: <b>${formatWithCommas(stillNeeded)} tCO₂e</b>`
+                : `<br/><span style="color:#22c55e;font-weight:bold">Target Achieved!</span>`,
+            ];
+            return lines.join("");
           },
         },
         dataLabels: {

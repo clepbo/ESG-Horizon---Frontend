@@ -156,15 +156,11 @@ export function EmployeeCommuting({
       workdaysPerYear.trim() !== "" &&
       !isNaN(Number(workdaysPerYear)) &&
       Number(workdaysPerYear) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasNumberOfEmployees,
       hasAverageDistance,
       hasSelectedMethods,
       hasWorkdaysPerYear,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
@@ -173,8 +169,6 @@ export function EmployeeCommuting({
     averageDistance,
     selectedMethods,
     workdaysPerYear,
-    files,
-    additionalFields,
   ]);
 
   // Clear error when user interacts with ANY field
@@ -490,6 +484,7 @@ export function EmployeeCommuting({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Employee Commuting</h4>

@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useReport } from "./service/useReport";
+import { ESG_SECTION_COUNTS } from "@/lib/esgSectionCounts";
 
 export default function ReportPage() {
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -206,8 +207,8 @@ export default function ReportPage() {
             dateRange={`${report.startMonth} ${report.startYear} - ${report.endMonth} ${report.endYear}`}
             status={formatStatus(report.status)}
             progress={report.progress}
-            done={report.completed_sections}
-            overall={report.total_sections}
+            done={Math.round((report.progress / 100) * ESG_SECTION_COUNTS.total)}
+            overall={ESG_SECTION_COUNTS.total}
           />
         ))}
 

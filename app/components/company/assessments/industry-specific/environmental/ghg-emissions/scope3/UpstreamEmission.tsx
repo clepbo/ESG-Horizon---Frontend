@@ -118,12 +118,10 @@ export function UpstreamEmission({
     );
     const hasGasData = gasTurbines.some((s) => s.volume && parseFloat(s.volume.toString()) > 0);
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-    const progressChecks = [hasDieselData, hasGasData, hasFileUploaded || hasAdditionalFields];
+    const progressChecks = [hasDieselData, hasGasData];
 
     return calculateProgress(progressChecks);
-  }, [dieselGenerators, gasTurbines, files, additionalFields]);
+  }, [dieselGenerators, gasTurbines]);
 
   const validateForm = () => {
     const newErrors: {
@@ -306,6 +304,7 @@ export function UpstreamEmission({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.stationarySources"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">

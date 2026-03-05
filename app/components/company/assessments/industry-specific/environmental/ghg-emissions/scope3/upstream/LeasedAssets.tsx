@@ -121,18 +121,14 @@ export function LeasedAssets({
       fuelConsumed.trim() !== "" && !isNaN(Number(fuelConsumed)) && Number(fuelConsumed) >= 0;
     const hasFloorArea =
       floorArea.trim() !== "" && !isNaN(Number(floorArea)) && Number(floorArea) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasElectricityConsumed,
       hasFuelConsumed,
       hasFloorArea,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [electricityConsumed, fuelConsumed, floorArea, files, additionalFields]);
+  }, [electricityConsumed, fuelConsumed, floorArea]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -393,6 +389,7 @@ export function LeasedAssets({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Upstream Leased Assets</h4>

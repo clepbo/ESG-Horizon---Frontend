@@ -127,17 +127,13 @@ export function EnergyRelatedActivities({
       !isNaN(Number(electricityConsumed)) &&
       Number(electricityConsumed) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasFuelVolume,
       hasElectricityConsumed,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [fuelVolume, electricityConsumed, files, additionalFields]);
+  }, [fuelVolume, electricityConsumed]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -397,6 +393,7 @@ export function EnergyRelatedActivities({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
