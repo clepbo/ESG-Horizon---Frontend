@@ -18,12 +18,14 @@ export interface UpstreamProps {
   handleBacktoGHG: () => void;
   backToDisclossureTopic: () => void;
   initialStep?: string;
+  onContinueToNextAssessment?: () => void;
 }
 export default function UpstreamEmissionHome({
   handleBacktoAssessment,
   handleBacktoGHG,
   backToDisclossureTopic,
   initialStep,
+  onContinueToNextAssessment,
 }: UpstreamProps) {
   const [step, setStep] = useState(() => {
     const parsed = Number(initialStep);
@@ -133,8 +135,9 @@ export default function UpstreamEmissionHome({
         assessmentName="Upstream Emissions"
         sectionKey="upstream"
         totals={totals ?? undefined}
+        nextAssessment={onContinueToNextAssessment ? "Downstream Emissions" : undefined}
         onContinue={handleBacktoGHG}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment ?? (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))}
         onBackToHub={handleBacktoAssessment}
       />
     );
