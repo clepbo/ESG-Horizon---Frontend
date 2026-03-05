@@ -185,15 +185,11 @@ export function BusinessTravel({
     const hasAccommodationData =
       hotelNights.trim() !== "" && !isNaN(Number(hotelNights)) && Number(hotelNights) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasAirTravelData,
       hasClassDistribution,
       hasGroundTravelData,
       hasAccommodationData,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
@@ -208,8 +204,6 @@ export function BusinessTravel({
     groundEmployees,
     fuelConsumed,
     hotelNights,
-    files,
-    additionalFields,
   ]);
 
   // Clear error when user interacts with ANY field
@@ -578,6 +572,7 @@ export function BusinessTravel({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Business Travel</h4>

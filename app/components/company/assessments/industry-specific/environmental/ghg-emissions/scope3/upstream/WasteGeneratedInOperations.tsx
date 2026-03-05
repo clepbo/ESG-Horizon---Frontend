@@ -139,18 +139,15 @@ export function WasteGeneratedInOperations({
       !isNaN(Number(wasteWeight)) &&
       Number(wasteWeight) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
     const hasSelectedMethods = selectedMethods.length > 0;
 
     const progressChecks = [
       hasWasteWeight,
       hasSelectedMethods,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [wasteWeight, files, additionalFields, selectedMethods]);
+  }, [wasteWeight, selectedMethods]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -421,6 +418,7 @@ export function WasteGeneratedInOperations({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Waste Generated in Operations</h4>

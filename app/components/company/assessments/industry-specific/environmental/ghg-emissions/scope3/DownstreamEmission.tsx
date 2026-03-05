@@ -23,7 +23,7 @@ export default function DownstreamEmission({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-downstream");
+  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-downstream", "environment.ghg.scope3.downstream");
 
   function handleNext(val: number) {
     setStep(val);

@@ -156,19 +156,16 @@ export function PurchasedGoodsAndServices({
       !isNaN(Number(purchasedGoods)) &&
       Number(purchasedGoods) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
     const hasSelectedCategories = selectedCategories.length > 0;
 
     const progressChecks = [
       hasSpendingData,
       hasMassData,
-      hasFileUploaded || hasAdditionalFields,
       hasSelectedCategories,
     ];
 
     return calculateProgress(progressChecks);
-  }, [electricity, purchasedGoods, files, additionalFields, selectedCategories]);
+  }, [electricity, purchasedGoods, selectedCategories]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -464,6 +461,7 @@ export function PurchasedGoodsAndServices({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">

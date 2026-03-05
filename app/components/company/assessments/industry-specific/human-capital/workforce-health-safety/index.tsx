@@ -58,7 +58,7 @@ export default function WorkforceHealthSafety({
   const [currentView, setCurrentView] = useState<WHSView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   // Persist Health & Safety Performance form data across next/back until after submission
   const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
@@ -147,14 +147,9 @@ export default function WorkforceHealthSafety({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Safety Management Systems"
+        assessmentName="Workforce Health & Safety"
         totals={totals ?? undefined}
-        nextAssessment="Reserves Valuation and Capital Expenditures"
-        onContinue={() => {
-          setDirectFormData({ ...defaultEmployeeFormData });
-          setContractFormData({ ...defaultEmployeeFormData });
-          onContinueToNextAssessment();
-        }}
+        nextAssessment="Reserves Valuation & Capital Expenditures"
         onContinueAssessment={() => {
           setDirectFormData({ ...defaultEmployeeFormData });
           setContractFormData({ ...defaultEmployeeFormData });

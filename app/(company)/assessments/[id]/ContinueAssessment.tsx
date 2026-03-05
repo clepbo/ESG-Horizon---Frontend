@@ -55,6 +55,12 @@ export default function ContinueAssessment() {
     dispatch({ type: "SET_CONTINUE_MODE", payload: true });
     dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
 
+    const envBase = assessment.assessmentData?.environment || {};
+    const ghgBase = envBase?.ghg || {};
+    const scope1Base = ghgBase?.scope1 || {};
+    const scope2Base = ghgBase?.scope2 || {};
+    const scope3Base = ghgBase?.scope3 || {};
+
     const payload = {
       ...assessment.assessmentData,
       assessmentId,
@@ -64,16 +70,53 @@ export default function ContinueAssessment() {
       endMonth: assessment.endMonth,
       endYear: assessment.endYear,
       status: assessment.status,
-      stationarySources: mappedStationarySources || assessment.assessmentData?.stationarySources,
-      mobileSources: mobileSources || assessment.assessmentData?.mobileSources,
-      processEmissions: processEmissions || assessment.assessmentData?.processEmissions,
-      fugitiveEmissions: fugitiveEmissions || assessment.assessmentData?.fugitiveEmissions,
-      locationBased: scope2Data?.locationBased || assessment.assessmentData?.locationBased,
-      marketBased: scope2Data?.marketBased || assessment.assessmentData?.marketBased,
-      upstream: scope3Data?.upstream || assessment.assessmentData?.upstream,
-      downstream: scope3Data?.downstream || assessment.assessmentData?.downstream,
       environment: {
-        ...(assessment.assessmentData?.environment || {}),
+        ...envBase,
+        ghg: {
+          ...ghgBase,
+          scope1: {
+            ...scope1Base,
+            // Prefer nested path; fall back to legacy top-level keys for older assessments
+            stationarySources:
+              mappedStationarySources ||
+              scope1Base.stationarySources ||
+              assessment.assessmentData?.stationarySources,
+            mobileSources:
+              mobileSources ||
+              scope1Base.mobileSources ||
+              assessment.assessmentData?.mobileSources,
+            processEmissions:
+              processEmissions ||
+              scope1Base.processEmissions ||
+              assessment.assessmentData?.processEmissions,
+            fugitiveEmissions:
+              fugitiveEmissions ||
+              scope1Base.fugitiveEmissions ||
+              assessment.assessmentData?.fugitiveEmissions,
+          },
+          scope2: {
+            ...scope2Base,
+            locationBased:
+              scope2Data?.locationBased ||
+              scope2Base.locationBased ||
+              assessment.assessmentData?.locationBased,
+            marketBased:
+              scope2Data?.marketBased ||
+              scope2Base.marketBased ||
+              assessment.assessmentData?.marketBased,
+          },
+          scope3: {
+            ...scope3Base,
+            upstream:
+              scope3Data?.upstream ||
+              scope3Base.upstream ||
+              assessment.assessmentData?.upstream,
+            downstream:
+              scope3Data?.downstream ||
+              scope3Base.downstream ||
+              assessment.assessmentData?.downstream,
+          },
+        },
       },
       businessInnovation:
         getNestedData(assessment.assessmentData, ["environment", "businessInnovation"]) ||

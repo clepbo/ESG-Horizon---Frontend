@@ -341,6 +341,7 @@ export function DocumentUpload({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Required Documents</h4>

@@ -506,6 +506,7 @@ export function DisclosureTopics({
     return (
       <CommunityRelationsHome
         onBack={() => setCurrentView("topics")}
+        backToAssessmentHub={handleBackToHub}
         initialForm={initialForm as any}
         onContinueToNextAssessment={() => setCurrentView("security-human-rights")}
       />

@@ -79,7 +79,7 @@ export function SecurityHumanRightsAssessment({
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
@@ -121,10 +121,9 @@ export function SecurityHumanRightsAssessment({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Human Right Engagements"
+        assessmentName="Security, Human Rights & Rights of Indigenous Peoples"
         totals={totals ?? undefined}
-        nextAssessment="Community Relations"
-        onContinue={onContinueToNextAssessment}
+        nextAssessment="Workforce Health & Safety"
         onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBackToHub}
       />

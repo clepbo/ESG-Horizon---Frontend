@@ -136,17 +136,13 @@ export function EndOfLifeTreatment({
       ? otherDisposalMethod.trim().length > 0
       : true;
     const hasProducts = products.length > 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasDisposalMethods && hasOtherMethodFilled,
       hasProducts,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [selectedMethods, otherDisposalMethod, products, files, additionalFields]);
+  }, [selectedMethods, otherDisposalMethod, products]);
 
   const clearAllErrors = () => {
     setErrors({});
@@ -378,6 +374,7 @@ export function EndOfLifeTreatment({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
