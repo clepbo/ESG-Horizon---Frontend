@@ -80,7 +80,7 @@ export function EnergyRelatedActivities({
     electricityConsumed: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-energyrelatedactivities");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-energyrelatedactivities");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -260,6 +260,7 @@ export function EnergyRelatedActivities({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.fuelEnergyRelatedActivities", payload).catch(() => {});
     onNext();
   };
 

@@ -85,7 +85,7 @@ export function UseOfSoldProducts({
     averageAnnualConsumption: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-use-of-sold-products");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-use-of-sold-products");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -98,10 +98,11 @@ export function UseOfSoldProducts({
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.downstream?.useOfSoldProducts;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setUnitsSold(existingData.unitsSold || "");
-      setProductLifetime(existingData.productLifetime || "");
-      setAverageAnnualConsumption(existingData.averageAnnualConsumption || "");
+      setUnitsSold(s(existingData.unitsSold));
+      setProductLifetime(s(existingData.productLifetime));
+      setAverageAnnualConsumption(s(existingData.averageAnnualConsumption));
 
       // Files
       setFiles(
@@ -253,6 +254,7 @@ export function UseOfSoldProducts({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.useOfSoldProducts", payload).catch(() => {});
     onNext();
   };
 

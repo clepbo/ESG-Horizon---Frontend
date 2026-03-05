@@ -130,7 +130,7 @@ export function PurchasedCoolingForm({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasCooling, hasFiles]);
+    return calculateProgress([hasCooling]);
   }, [coolingConsumed.rawValue, files, additionalFields]);
 
   const handleSystemChange = (systemId: string, checked: boolean) => {

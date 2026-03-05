@@ -116,7 +116,7 @@ export function PurchasedElectricityForm({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasElectricity, hasSupplier, hasFiles]);
+    return calculateProgress([hasElectricity, hasSupplier]);
   }, [electricityConsumed.rawValue, supplier, files, additionalFields]);
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {

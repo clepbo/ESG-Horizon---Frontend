@@ -84,7 +84,7 @@ export function UpstreamTransportationAndDistribution({
     logisticsSpend: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-transportation");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-transportation");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -282,6 +282,7 @@ export function UpstreamTransportationAndDistribution({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.upstreamTransportationDistribution", payload).catch(() => {});
     onNext();
   };
 

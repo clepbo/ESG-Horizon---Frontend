@@ -135,9 +135,8 @@ export function ScopeInput({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  className="absolute bottom-0 right-0 flex items-center pr-1.5 cursor-pointer transform translate-y-3"
+                  className="absolute bottom-1 right-0 flex items-center pr-1.5 cursor-pointer"
                   onClick={(e) => e.preventDefault()}
-                  style={{ zIndex: 20 }}
                 >
                   <span className="text-sm font-semibold bg-teal-100 text-teal-700 px-2 py-1 rounded-full whitespace-nowrap shadow-md border border-teal-200 hover:bg-teal-200 transition-colors">
                     {formattedTCO2e}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { assessmentService } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
@@ -12,6 +12,9 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   const queryClient = useQueryClient();
   const [savingManual, setSavingManual] = useState(false);
   const [submittingManual, setSubmittingManual] = useState(false);
+
+  // Ref to deduplicate parallel assessment creation calls
+  const createPromiseRef = useRef<Promise<number> | null>(null);
 
   const createMut = useMutation({
     mutationFn: assessmentService.createAssessment,
@@ -45,16 +48,26 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
     let assessmentId: number = state.assessmentId ?? 0;
 
     if (!assessmentId) {
-      const meta = state.assessmentData;
-      const result = await createMut.mutateAsync({
-        subsidiary: meta.subsidiary || "Self",
-        startMonth: meta.startMonth,
-        startYear: meta.startYear,
-        endMonth: meta.endMonth,
-        endYear: meta.endYear,
-      });
-      assessmentId = result.id;
-      dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
+      // Deduplicate: if a creation is already in-flight, reuse its promise
+      if (!createPromiseRef.current) {
+        const meta = state.assessmentData;
+        createPromiseRef.current = createMut
+          .mutateAsync({
+            subsidiary: meta.subsidiary || "Self",
+            startMonth: meta.startMonth,
+            startYear: meta.startYear,
+            endMonth: meta.endMonth,
+            endYear: meta.endYear,
+          })
+          .then((result) => {
+            dispatch({ type: "SET_ASSESSMENT_ID", payload: result.id });
+            return result.id;
+          })
+          .finally(() => {
+            createPromiseRef.current = null;
+          });
+      }
+      assessmentId = await createPromiseRef.current;
     }
 
     await saveMut.mutateAsync({ path, data, assessmentId });

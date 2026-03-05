@@ -42,10 +42,12 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
-  // Always reset when mounting AssessmentHub — this page is for NEW assessments only.
-  // Continue mode uses /assessments/[id] (different page), so this is always safe.
+  // Reset state only for NEW assessments. When continuing an existing assessment,
+  // ContinueAssessment has already loaded data and set isContinueMode before this mounts.
   useEffect(() => {
-    dispatch({ type: "RESET_ASSESSMENT" });
+    if (!state.isContinueMode) {
+      dispatch({ type: "RESET_ASSESSMENT" });
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // useEffect(() => {
@@ -161,6 +163,8 @@ export default function AssessmentHub() {
       "fugitive-emissions",
       "location-based",
       "market-based",
+      "upstream-emissions",
+      "downstream-emissions",
     ];
 
     const currentForm = ghgForms.find((form) => state.currentView === `ghg-${form}`);

@@ -96,7 +96,7 @@ export function PurchasedGoodsAndServices({
     goodsCategories: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-purchasedgoodsandservices");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-purchasedgoodsandservices");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -318,6 +318,7 @@ export function PurchasedGoodsAndServices({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.purchasedGoodsAndServices", payload).catch(() => {});
     onNext();
   };
 

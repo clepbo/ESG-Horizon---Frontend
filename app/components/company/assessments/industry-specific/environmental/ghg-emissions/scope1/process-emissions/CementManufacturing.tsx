@@ -119,7 +119,7 @@ export function CementManufacturing({
       !isNaN(Number(cementQuantity)) &&
       Number(cementQuantity) >= 0;
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
-    return calculateProgress([hasCementData, hasFiles]);
+    return calculateProgress([hasCementData]);
   }, [cementQuantity, files, additionalFields]);
 
   const validateForm = () => {
