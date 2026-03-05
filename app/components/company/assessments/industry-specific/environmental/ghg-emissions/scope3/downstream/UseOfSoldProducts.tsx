@@ -77,7 +77,7 @@ export function UseOfSoldProducts({
   // Input fields
   const [unitsSold, setUnitsSold] = useState("");
   const [productLifetime, setProductLifetime] = useState("");
-  const [averageAnnualConsumption, setAverageAnnualConsumption] = useState("");
+  const [averageAnnualConsumption, setAverageAnnualConsumption] = useState("0");
 
   const [fieldErrors, setFieldErrors] = useState({
     unitsSold: false,
@@ -498,7 +498,7 @@ export function UseOfSoldProducts({
                   <div className="relative">
                     <div className="flex items-center gap-1 mb-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Average annual fuel/energy consumption of product (if applicable){" "}
+                        Average annual fuel/energy consumption of product{" "}
                         <span className="text-red-500">*</span>
                       </Label>
                       <TooltipProvider>

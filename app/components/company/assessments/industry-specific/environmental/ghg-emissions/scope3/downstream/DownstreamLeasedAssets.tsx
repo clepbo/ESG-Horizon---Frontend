@@ -71,7 +71,7 @@ export function DownstreamLeasedAsset({
 
   // Input fields
   const [electricityConsumed, setElectricityConsumed] = useState("");
-  const [otherEnergyConsumed, setOtherEnergyConsumed] = useState("");
+  const [otherEnergyConsumed, setOtherEnergyConsumed] = useState("0");
 
   const [fieldErrors, setFieldErrors] = useState({
     electricityConsumed: false,
@@ -440,7 +440,7 @@ export function DownstreamLeasedAsset({
                   <div className="relative">
                     <div className="flex items-center gap-1 mb-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Other energy consumed (if applicable){" "}
+                        Other energy consumed by tenants{" "}
                         <span className="text-red-500">*</span>
                       </Label>
                       <TooltipProvider>
@@ -469,7 +469,7 @@ export function DownstreamLeasedAsset({
                       label=""
                       type="number"
                       required={false}
-                      placeholder="Enter fuel consumption in litres"
+                      placeholder="Enter energy consumption in kWh"
                       value={otherEnergyConsumed}
                       onChange={handleOtherEnergyConsumedChange}
                       errorTrigger={fieldErrors.otherEnergyConsumed}
@@ -477,7 +477,7 @@ export function DownstreamLeasedAsset({
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
-                        litres
+                        kWh
                       </span>
                     </div>
                     {errors.otherEnergyConsumed && (
