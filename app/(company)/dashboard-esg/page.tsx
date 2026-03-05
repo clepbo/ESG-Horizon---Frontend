@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { useCompanyDashboard, CompanyDashboardData } from "@/services/hooks/dashboard.hooks";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import { RecentReportsWidget } from "@/app/components/common/reports/table/RecentReports";
+import { ESG_SECTION_COUNTS } from "@/lib/esgSectionCounts";
 
 export default function DashboardPage() {
   const [showTour, setShowTour] = useState(() => {
@@ -169,7 +170,7 @@ export default function DashboardPage() {
               type="Environmental"
               description="Measure your environmental impact, resource usage and conservation efforts."
               progress={dashboard?.hubStats?.environment?.progress ?? 0}
-              completed={dashboard?.hubStats?.environment?.completed ?? "0 sections completed"}
+              totalSections={ESG_SECTION_COUNTS.E}
               pillarStatus={(dashboard?.hubStats?.environment?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
               assessmentStatus={dashboard?.latestAssessmentStatus}
               iconSrc={"/icons/leaftwo.svg"}
@@ -179,7 +180,7 @@ export default function DashboardPage() {
               type="Social"
               description="Evaluate labor practices, human rights, community impact and product responsibility."
               progress={dashboard?.hubStats?.social?.progress ?? 0}
-              completed={dashboard?.hubStats?.social?.completed ?? "0 sections completed"}
+              totalSections={ESG_SECTION_COUNTS.S}
               pillarStatus={(dashboard?.hubStats?.social?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
               assessmentStatus={dashboard?.latestAssessmentStatus}
               iconSrc={"/icons/userstwo.svg"}
@@ -189,7 +190,7 @@ export default function DashboardPage() {
               type="Governance"
               description="Evaluate financial governance, market presence, procurement practices and more."
               progress={dashboard?.hubStats?.governance?.progress ?? 0}
-              completed={dashboard?.hubStats?.governance?.completed ?? "0 sections completed"}
+              totalSections={ESG_SECTION_COUNTS.G}
               pillarStatus={(dashboard?.hubStats?.governance?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
               assessmentStatus={dashboard?.latestAssessmentStatus}
               iconSrc={"/icons/injusticetwo.svg"}
