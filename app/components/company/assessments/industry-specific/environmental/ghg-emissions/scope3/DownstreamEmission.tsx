@@ -18,6 +18,7 @@ export default function DownstreamEmission({
   handleBacktoGHG,
   backToDisclossureTopic,
   initialStep,
+  onContinueToNextAssessment,
 }: UpstreamProps) {
   const [step, setStep] = useState(() => {
     const parsed = Number(initialStep);
@@ -122,8 +123,9 @@ export default function DownstreamEmission({
         assessmentName="Downstream Emissions"
         sectionKey="downstream"
         totals={totals ?? undefined}
+        nextAssessment={onContinueToNextAssessment ? "Air Quality" : undefined}
         onContinue={handleBacktoGHG}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment ?? (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))}
         onBackToHub={handleBacktoAssessment}
       />
     );
