@@ -238,7 +238,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs"
+                  className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none text-xs"
                 >
                   <p className="font-medium mb-1">Baseline Year Emission</p>
                   {baselineBreakdown && hasScopeData(baselineBreakdown) ? (
@@ -289,7 +289,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs"
+                  className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none text-xs"
                 >
                   <p className="font-medium mb-1">Current Emission</p>
                   {currentBreakdown && hasScopeData(currentBreakdown) ? (
@@ -345,7 +345,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none text-xs font-mono"
+                  className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none text-xs font-mono"
                 >
                   <p className="font-sans font-medium mb-1">Target Year Emission</p>
                   <p>= Baseline x (1 - Reduction% / 100)</p>

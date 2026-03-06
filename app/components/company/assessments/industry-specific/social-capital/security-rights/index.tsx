@@ -122,7 +122,7 @@ export function SecurityHumanRightsAssessment({
     return (
       <SuccessScreen
         assessmentName="Security, Human Rights & Rights of Indigenous Peoples"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment="Workforce Health & Safety"
         onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBackToHub}
@@ -221,7 +221,7 @@ export function SecurityHumanRightsAssessment({
                           <TooltipContent
                             side="top"
                             align="start"
-                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                           >
                             {scope.id === "operations-in-zone-conflict" && (
                               <>

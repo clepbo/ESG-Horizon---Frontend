@@ -293,7 +293,7 @@ export default function ReservesInSensitiveAreas({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <p>
                       Enter the total quantity of proved hydrocarbon reserves owned or controlled by
@@ -356,7 +356,7 @@ export default function ReservesInSensitiveAreas({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <p>
                       Report the portion of proved reserves located within ecologically sensitive
@@ -421,7 +421,7 @@ export default function ReservesInSensitiveAreas({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <p>
                       Provide the total estimated volume of probable reserves. These are reserves
@@ -486,7 +486,7 @@ export default function ReservesInSensitiveAreas({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <p>
                       Enter the estimated amount of probable reserves located in sensitive

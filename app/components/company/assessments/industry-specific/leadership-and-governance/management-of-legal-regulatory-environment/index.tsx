@@ -76,7 +76,7 @@ export default function LegalRegulatoryEnvironment({
     return (
       <SuccessScreen
         assessmentName="Management of the Legal & Regulatory Environment"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment={null}
         onBackToHub={onBackToHub}
       />
@@ -159,7 +159,7 @@ export default function LegalRegulatoryEnvironment({
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1">Public Policy & Lobbying</h6>
                       <p>
@@ -208,7 +208,7 @@ export default function LegalRegulatoryEnvironment({
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1">
                         Sustainability Governance & Reporting (Nigeria)

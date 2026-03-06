@@ -114,7 +114,7 @@ export default function BusinessEthicsAssessment({
     return (
       <SuccessScreen
         assessmentName="Business Ethics & Transparency"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment="Critical Incident Risk Management"
         reportId={reportId}
         onContinue={handleViewReport}
@@ -201,7 +201,7 @@ export default function BusinessEthicsAssessment({
                       <TooltipContent
                         side="top"
                         align="start"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         {scope.id === "geopolitical-corruption-risk" && (
                           <>

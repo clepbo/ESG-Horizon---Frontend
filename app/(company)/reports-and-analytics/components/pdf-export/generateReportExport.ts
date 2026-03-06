@@ -74,38 +74,55 @@ async function renderAndCaptureSections(
 /**
  * Checks if a row of pixels in the image is a white/near-white gap.
  * Samples every 10th pixel for performance.
+ * Threshold of 240 accommodates light gray card backgrounds.
  */
-function isWhiteRow(ctx: CanvasRenderingContext2D, y: number, width: number): boolean {
+function isWhiteRow(ctx: CanvasRenderingContext2D, y: number, width: number, threshold = 240): boolean {
   const step = 10;
   const samples = Math.ceil(width / step);
   const data = ctx.getImageData(0, y, width, 1).data;
   for (let i = 0; i < samples; i++) {
     const px = i * step * 4;
-    if (data[px] < 245 || data[px + 1] < 245 || data[px + 2] < 245) return false;
+    if (data[px] < threshold || data[px + 1] < threshold || data[px + 2] < threshold) return false;
   }
   return true;
 }
 
 /**
- * Finds the nearest white row to `idealY`, searching ±searchRange pixels.
- * Prefers the closest match. Falls back to idealY if none found.
+ * Checks if there's a horizontal band of consecutive white rows (not just a single row).
+ * A band of at least `minRows` white rows indicates a real gap between content blocks.
+ */
+function isWhiteBand(
+  ctx: CanvasRenderingContext2D,
+  y: number,
+  width: number,
+  height: number,
+  minRows = 3
+): boolean {
+  for (let r = 0; r < minRows; r++) {
+    if (y + r >= height) return false;
+    if (!isWhiteRow(ctx, y + r, width)) return false;
+  }
+  return true;
+}
+
+/**
+ * Finds the nearest white band at or above `idealY`.
+ * Only searches upward so every slice is guaranteed ≤ one page tall.
+ * Falls back to idealY if no gap is found within searchRange.
  */
 function findWhiteBand(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
   idealY: number,
-  searchRange = 100
+  searchRange = 300
 ): number {
   for (let offset = 0; offset <= searchRange; offset++) {
-    // Search downward first (prefer keeping more content on current page)
-    const down = idealY + offset;
-    if (down < height && isWhiteRow(ctx, down, width)) return down;
-    // Then upward
-    const up = idealY - offset;
-    if (up > 0 && isWhiteRow(ctx, up, width)) return up;
+    const y = idealY - offset;
+    if (y > 0 && isWhiteBand(ctx, y, width, height)) return y;
   }
-  return idealY; // fallback — no worse than before
+  // No gap found — cut at idealY (worst case: content clipped, but page won't overflow)
+  return idealY;
 }
 
 /**
@@ -183,10 +200,11 @@ export async function generateReportPDF(params: ExportParams) {
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
-    const footerSpace = 16;
-    const usableHeight = pageHeight - margin - footerSpace;
-    const usableWidth = pageWidth - margin * 2;
+    const marginTop = 15;
+    const marginSide = 14;
+    const footerSpace = 22;
+    const usableHeight = pageHeight - marginTop - footerSpace;
+    const usableWidth = pageWidth - marginSide * 2;
 
     // Draw cover page
     const period = `${reportData.startMonth ?? ""} ${reportData.startYear ?? ""} - ${reportData.endMonth ?? ""} ${reportData.endYear ?? ""}`;
@@ -202,7 +220,7 @@ export async function generateReportPDF(params: ExportParams) {
     await drawCoverPage(pdf, coverData);
 
     // Flow all section slices continuously across pages using a Y cursor
-    const sectionGap = 6; // mm gap between sections
+    const sectionGap = 8; // mm gap between sections
     let cursorY = usableHeight + 1; // force first slice onto a new page
     let isFirstContentPage = true;
 
@@ -224,13 +242,13 @@ export async function generateReportPDF(params: ExportParams) {
         // Check if this slice fits on the current page
         if (cursorY + gapNeeded + sliceDrawH > usableHeight) {
           pdf.addPage();
-          cursorY = margin;
+          cursorY = marginTop;
           isFirstContentPage = false;
         } else {
           cursorY += gapNeeded;
         }
 
-        pdf.addImage(sliceDataUrl, "PNG", margin, cursorY, sliceDrawW, sliceDrawH);
+        pdf.addImage(sliceDataUrl, "PNG", marginSide, cursorY, sliceDrawW, sliceDrawH);
         cursorY += sliceDrawH;
       }
 
@@ -263,10 +281,188 @@ export async function generateReportPDF(params: ExportParams) {
 }
 
 /**
- * Generates a full PNG of all sections stitched vertically.
+ * Draws a cover page section onto the PNG canvas.
+ * Returns the height consumed by the cover page.
+ */
+async function drawPngCoverPage(
+  ctx: CanvasRenderingContext2D,
+  canvasWidth: number,
+  data: CoverPageData
+): Promise<number> {
+  const centerX = canvasWidth / 2;
+  const padding = 60;
+  let y = padding;
+
+  // Top accent bar
+  ctx.fillStyle = "#0F4C81";
+  ctx.fillRect(0, 0, canvasWidth, 12);
+  y = 60;
+
+  // Platform logo
+  try {
+    const platformLogoDataUrl = await fetchImageAsDataUrl(
+      `${window.location.origin}${PLATFORM_LOGO_PATH}`
+    );
+    if (platformLogoDataUrl) {
+      const logoImg = await loadImage(platformLogoDataUrl);
+      const logoW = 200;
+      const logoH = 160;
+      ctx.drawImage(logoImg, centerX - logoW / 2, y, logoW, logoH);
+      y += logoH + 20;
+    }
+  } catch {
+    y += 40;
+  }
+
+  // Title
+  ctx.fillStyle = "#0F4C81";
+  ctx.font = "bold 48px Helvetica, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("ESG Performance Report", centerX, y);
+  y += 20;
+
+  // Platform address
+  ctx.fillStyle = "#828282";
+  ctx.font = "18px Helvetica, Arial, sans-serif";
+  ctx.fillText("43 Oghosa Crescent, Off Ihama Road, GRA, Benin City, 300001", centerX, y);
+  y += 16;
+  ctx.fillText("support@esghorizon.africa", centerX, y);
+  y += 30;
+
+  // Divider
+  ctx.strokeStyle = "#C8C8C8";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(120, y);
+  ctx.lineTo(canvasWidth - 120, y);
+  ctx.stroke();
+  y += 40;
+
+  // Company logo
+  if (data.companyLogoUrl) {
+    try {
+      const companyLogoDataUrl = await fetchImageAsDataUrl(data.companyLogoUrl);
+      if (companyLogoDataUrl) {
+        const logoImg = await loadImage(companyLogoDataUrl);
+        const logoSize = 100;
+        ctx.drawImage(logoImg, centerX - logoSize / 2, y, logoSize, logoSize);
+        y += logoSize + 20;
+      }
+    } catch {
+      // skip
+    }
+  }
+
+  // Company name
+  ctx.fillStyle = "#1E1E1E";
+  ctx.font = "bold 52px Helvetica, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(data.companyName || "Company", centerX, y);
+  y += 28;
+
+  // Address
+  ctx.fillStyle = "#646464";
+  ctx.font = "24px Helvetica, Arial, sans-serif";
+  if (data.companyAddress || data.companyCountry) {
+    const addressLine = [data.companyAddress, data.companyCountry].filter(Boolean).join(", ");
+    ctx.fillText(addressLine, centerX, y);
+  }
+  y += 30;
+
+  // Subsidiary
+  if (data.subsidiary) {
+    ctx.fillStyle = "#505050";
+    ctx.font = "28px Helvetica, Arial, sans-serif";
+    ctx.fillText(`Subsidiary: ${data.subsidiary}`, centerX, y);
+    y += 28;
+  }
+
+  // Reporting period
+  ctx.fillStyle = "#505050";
+  ctx.font = "26px Helvetica, Arial, sans-serif";
+  ctx.fillText(`Reporting Period: ${data.reportingPeriod}`, centerX, y);
+  y += 28;
+
+  // Status
+  if (data.status) {
+    ctx.fillStyle = "#646464";
+    ctx.font = "22px Helvetica, Arial, sans-serif";
+    ctx.fillText(`Status: ${data.status}`, centerX, y);
+    y += 24;
+  }
+
+  y += 30;
+
+  // Generation date
+  const today = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  ctx.fillStyle = "#8C8C8C";
+  ctx.font = "20px Helvetica, Arial, sans-serif";
+  ctx.fillText(`Generated on ${today}`, centerX, y);
+  y += 24;
+
+  // "Generated with ESG Horizon"
+  ctx.fillStyle = "#787878";
+  ctx.font = "18px Helvetica, Arial, sans-serif";
+  ctx.fillText("Generated with ESG Horizon", centerX, y);
+  y += 20;
+
+  // Bottom accent bar
+  ctx.fillStyle = "#0F4C81";
+  ctx.fillRect(0, y, canvasWidth, 12);
+  y += 12 + padding;
+
+  // Reset text alignment
+  ctx.textAlign = "start";
+
+  return y;
+}
+
+/**
+ * Draws a footer band at the bottom of the PNG canvas.
+ */
+function drawPngFooter(
+  ctx: CanvasRenderingContext2D,
+  canvasWidth: number,
+  y: number
+): number {
+  const footerHeight = 60;
+  const centerX = canvasWidth / 2;
+
+  // Light gray background
+  ctx.fillStyle = "#F5F5F5";
+  ctx.fillRect(0, y, canvasWidth, footerHeight);
+
+  // Divider line at top
+  ctx.strokeStyle = "#D0D0D0";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, y);
+  ctx.lineTo(canvasWidth, y);
+  ctx.stroke();
+
+  // Footer text
+  ctx.fillStyle = "#787878";
+  ctx.font = "16px Helvetica, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    "Generated with ESG Horizon  |  43 Oghosa Crescent, Off Ihama Road, GRA, Benin City  |  support@esghorizon.africa",
+    centerX,
+    y + footerHeight / 2 + 5
+  );
+  ctx.textAlign = "start";
+
+  return footerHeight;
+}
+
+/**
+ * Generates a full PNG of all sections stitched vertically, with cover page and footer.
  */
 export async function generateReportPNG(params: ExportParams) {
-  const { reportData } = params;
+  const { reportData, company } = params;
   const { images, cleanup } = await renderAndCaptureSections(reportData);
 
   try {
@@ -282,11 +478,15 @@ export async function generateReportPNG(params: ExportParams) {
 
     if (loadedImages.length === 0) return;
 
-    // Calculate total canvas dimensions
     const maxWidth = Math.max(...loadedImages.map((img) => img.naturalWidth));
-    const totalHeight = loadedImages.reduce((sum, img) => sum + img.naturalHeight, 0);
+    const sectionsHeight = loadedImages.reduce((sum, img) => sum + img.naturalHeight, 0);
 
-    // Create a stitching canvas
+    // Pre-calculate cover page height with a temporary canvas
+    const coverPageHeight = 700; // approximate height for cover
+    const footerHeight = 60;
+    const totalHeight = coverPageHeight + sectionsHeight + footerHeight;
+
+    // Create the stitching canvas
     const canvas = document.createElement("canvas");
     canvas.width = maxWidth;
     canvas.height = totalHeight;
@@ -297,15 +497,40 @@ export async function generateReportPNG(params: ExportParams) {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw each section image sequentially
-    let y = 0;
+    // Draw cover page
+    const period = `${reportData.startMonth ?? ""} ${reportData.startYear ?? ""} - ${reportData.endMonth ?? ""} ${reportData.endYear ?? ""}`;
+    const coverData: CoverPageData = {
+      companyName: company.name,
+      companyLogoUrl: company.logoUrl,
+      companyAddress: company.address,
+      companyCountry: company.country,
+      subsidiary: reportData.subsidiary ?? "",
+      reportingPeriod: period,
+      status: formatStatus(reportData.status ?? ""),
+    };
+    const actualCoverHeight = await drawPngCoverPage(ctx, maxWidth, coverData);
+
+    // Draw each section image sequentially after the cover
+    let y = actualCoverHeight;
     for (const img of loadedImages) {
       ctx.drawImage(img, 0, y, img.naturalWidth, img.naturalHeight);
       y += img.naturalHeight;
     }
 
+    // Draw footer
+    const actualFooterHeight = drawPngFooter(ctx, maxWidth, y);
+
+    // Trim canvas to actual content height
+    const finalHeight = y + actualFooterHeight;
+    const finalCanvas = document.createElement("canvas");
+    finalCanvas.width = maxWidth;
+    finalCanvas.height = finalHeight;
+    const finalCtx = finalCanvas.getContext("2d");
+    if (!finalCtx) return;
+    finalCtx.drawImage(canvas, 0, 0);
+
     // Export and download
-    const pngDataUrl = canvas.toDataURL("image/png");
+    const pngDataUrl = finalCanvas.toDataURL("image/png");
     const link = document.createElement("a");
     const subsidiary = reportData.subsidiary ?? "ESG";
     link.download = `${subsidiary}-Report-${reportData.startYear ?? ""}.png`;

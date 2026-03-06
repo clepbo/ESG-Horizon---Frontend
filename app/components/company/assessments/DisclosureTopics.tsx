@@ -677,7 +677,7 @@ export function DisclosureTopics({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl  border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl  border-none"
                       >
                         <h6 className="underline">Foundational Data</h6>
                         <p>
@@ -735,7 +735,7 @@ export function DisclosureTopics({
                             <TooltipContent
                               side="top"
                               align="center"
-                              className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl  border-none"
+                              className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl  border-none"
                             >
                               <h6>Industry-Specific Metrics</h6>
                               <p>
@@ -763,7 +763,7 @@ export function DisclosureTopics({
                                   <TooltipContent
                                     side="top"
                                     align="start"
-                                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                                   >
                                     <h6 className="font-semibold mb-1">{section.tooltip.title}</h6>
                                     <p>{section.tooltip.description}</p>

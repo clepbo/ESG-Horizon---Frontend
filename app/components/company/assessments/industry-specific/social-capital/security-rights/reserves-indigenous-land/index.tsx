@@ -268,7 +268,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Total Proved Reserves </h6>
                         <p>
@@ -329,7 +329,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Proved Reserves in/near Indigenous Land </h6>
                         <p>
@@ -390,7 +390,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Total Probable Reserves </h6>
                         <p>
@@ -451,7 +451,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Probable Reserves in/near Indigenous Land </h6>
                         <p>

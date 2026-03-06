@@ -15,6 +15,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
+import { calculateProgress } from "@/lib/utils";
 
 interface ProcessSafetyEventsFormProps {
   onBack: () => void;
@@ -71,16 +72,13 @@ export default function ProcessSafetyEvents({
     state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.processSafetyEvents,
   ]);
 
-  // Calculate progress
+  // Calculate progress (only required fields — file upload is optional)
   const { filled, total } = useMemo(() => {
-    const fields = [
-      totalHoursWorked.rawValue !== "",
-      numberOfEvents.rawValue !== "",
-      filesAndLinks.some((item) => item.name || item.link || item.file),
-    ];
-    const completed = fields.filter(Boolean).length;
-    return { filled: completed, total: fields.length };
-  }, [totalHoursWorked.rawValue, numberOfEvents.rawValue, filesAndLinks]);
+    return calculateProgress([
+      totalHoursWorked.rawValue !== "" ? true : undefined,
+      numberOfEvents.rawValue !== "" ? true : undefined,
+    ]);
+  }, [totalHoursWorked.rawValue, numberOfEvents.rawValue]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};

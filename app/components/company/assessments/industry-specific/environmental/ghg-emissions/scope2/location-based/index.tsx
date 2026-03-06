@@ -55,7 +55,7 @@ export function LocationBasedForm({
     return (
       <SuccessScreen
         assessmentName="Location Based"
-        sectionKey="locationBased"
+        sectionKey="scope2Location"
         totals={totals ?? undefined}
         nextAssessment="Market Based"
         onContinueAssessment={onContinueToNextAssessment}

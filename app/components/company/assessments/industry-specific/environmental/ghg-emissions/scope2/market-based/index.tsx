@@ -56,7 +56,7 @@ export function MarketBasedForm({
     return (
       <SuccessScreen
         assessmentName="Market Based"
-        sectionKey="marketBased"
+        sectionKey="scope2Market"
         totals={totals ?? undefined}
         nextAssessment="Scope3"
         onContinueAssessment={onContinueToNextAssessment}

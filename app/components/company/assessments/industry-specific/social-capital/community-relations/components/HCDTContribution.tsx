@@ -35,7 +35,7 @@ export default function HCDTContribution({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution", "socialCapital.communityRelations.hcdtContribution");
 
   const opexAmount = useFormattedNumber("");
   const hcdtAmount = useFormattedNumber("");
@@ -153,7 +153,7 @@ export default function HCDTContribution({
     };
 
     try {
-      await saveNow("socialCapital.communityRelations.hcdtContribution", payload);
+      await saveAndSubmit("socialCapital.communityRelations.hcdtContribution", payload);
       toast.success("Progress saved!");
       onNext();
     } catch (error: any) {

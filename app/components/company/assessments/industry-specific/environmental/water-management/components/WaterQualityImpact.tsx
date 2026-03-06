@@ -106,11 +106,10 @@ export default function WaterQualityImpact({
       }
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,
-    sitesWithDeterioratedQuality,
-    totalMonitoredSites,
   ]);
 
   const { filled, total } = useMemo(() => {
