@@ -152,7 +152,7 @@ export default function ReservesValuationAssessment({
     return (
       <SuccessScreen
         assessmentName="Reserves Valuation & Capital Expenditures"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment="Business Ethics & Transparency"
         reportId={reportId}
         onContinue={handleViewReport}
@@ -266,7 +266,7 @@ export default function ReservesValuationAssessment({
                           <TooltipContent
                             side="top"
                             align="start"
-                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                           >
                             {scope.id === "climate-impact-reserves" && (
                               <>

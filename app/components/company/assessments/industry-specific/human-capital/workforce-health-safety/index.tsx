@@ -148,7 +148,7 @@ export default function WorkforceHealthSafety({
     return (
       <SuccessScreen
         assessmentName="Workforce Health & Safety"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment="Reserves Valuation & Capital Expenditures"
         onContinueAssessment={() => {
           setDirectFormData({ ...defaultEmployeeFormData });
@@ -253,7 +253,7 @@ export default function WorkforceHealthSafety({
                         <TooltipContent
                           side="top"
                           align="start"
-                          className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                          className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                         >
                           <h6 className="font-semibold mb-1">Risk & Opportunity Management</h6>
                           <p>

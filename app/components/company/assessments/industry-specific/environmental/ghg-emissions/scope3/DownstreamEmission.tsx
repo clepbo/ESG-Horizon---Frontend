@@ -38,7 +38,7 @@ export default function DownstreamEmission({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-downstream", "environment.ghg.scope3.downstream");
+  const { saveQuiet, saveAndSubmit } = useAssessmentFlow("ghg-scope3-downstream", "environment.ghg.scope3.downstream");
 
   function handleNext(val: number) {
     setStep(val);
@@ -50,63 +50,46 @@ export default function DownstreamEmission({
     const data = state.assessmentData.environment?.ghg?.scope3?.downstream;
 
     try {
-      // Save all steps in parallel for faster submission
-      const savePromises: Promise<void>[] = [];
+      // Save all steps sequentially to avoid read-modify-write race conditions.
+      // Each save must complete before the next starts so the DB state is consistent.
       if (data?.downstreamTransportationDistribution) {
-        savePromises.push(
-          saveNow(
-            "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
-            data.downstreamTransportationDistribution
-          )
+        await saveQuiet(
+          "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
+          data.downstreamTransportationDistribution
         );
       }
       if (data?.processingSoldProducts) {
-        savePromises.push(
-          saveNow(
-            "environment.ghg.scope3.downstream.processingSoldProducts",
-            data.processingSoldProducts
-          )
+        await saveQuiet(
+          "environment.ghg.scope3.downstream.processingSoldProducts",
+          data.processingSoldProducts
         );
       }
       if (data?.useOfSoldProducts) {
-        savePromises.push(
-          saveNow(
-            "environment.ghg.scope3.downstream.useOfSoldProducts",
-            data.useOfSoldProducts
-          )
+        await saveQuiet(
+          "environment.ghg.scope3.downstream.useOfSoldProducts",
+          data.useOfSoldProducts
         );
       }
       if (data?.endOfLifeTreatment) {
-        savePromises.push(
-          saveNow(
-            "environment.ghg.scope3.downstream.endOfLifeTreatment",
-            data.endOfLifeTreatment
-          )
+        await saveQuiet(
+          "environment.ghg.scope3.downstream.endOfLifeTreatment",
+          data.endOfLifeTreatment
         );
       }
       if (data?.downstreamLeasedAssets) {
-        savePromises.push(
-          saveNow(
-            "environment.ghg.scope3.downstream.downstreamLeasedAssets",
-            data.downstreamLeasedAssets
-          )
+        await saveQuiet(
+          "environment.ghg.scope3.downstream.downstreamLeasedAssets",
+          data.downstreamLeasedAssets
         );
       }
       if (data?.franchises) {
-        savePromises.push(
-          saveNow("environment.ghg.scope3.downstream.franchises", data.franchises)
-        );
+        await saveQuiet("environment.ghg.scope3.downstream.franchises", data.franchises);
       }
       const investData = investmentsPayload || data?.investments;
-      if (investData) {
-        savePromises.push(
-          saveNow("environment.ghg.scope3.downstream.investments", investData)
-        );
-      }
-
-      await Promise.all(savePromises);
-
-      const response = await submitGroup();
+      const response = await saveAndSubmit(
+        "environment.ghg.scope3.downstream.investments",
+        investData || {}
+      );
       setTotals(response?.totals ?? null);
       setShowSuccess(true);
     } catch (err) {
@@ -121,7 +104,7 @@ export default function DownstreamEmission({
     return (
       <SuccessScreen
         assessmentName="Downstream Emissions"
-        sectionKey="downstream"
+        sectionKey="downstreamEmissions"
         totals={totals ?? undefined}
         nextAssessment={onContinueToNextAssessment ? "Air Quality" : undefined}
         onContinue={handleBacktoGHG}

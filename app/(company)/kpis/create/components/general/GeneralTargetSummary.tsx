@@ -88,7 +88,7 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none">
+                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none">
                         <p>Your total emissions from the baseline assessment period.</p>
                       </TooltipContent>
                     </Tooltip>
@@ -105,7 +105,7 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Target Emission</p>
                         <p>= Baseline x (1 - Reduction% / 100)</p>
                         <p>= {baselineEmission?.toLocaleString()} x (1 - {reductionPercentage} / 100)</p>
@@ -137,7 +137,7 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Timeline</p>
                         <p>= |Target Year - Baseline Year|</p>
                         <p>= |{targetYear} - {baselineYear}|</p>
@@ -158,7 +158,7 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Total Reduction</p>
                         <p>= Baseline - Target Emission</p>
                         <p>= {baselineEmission?.toLocaleString()} - {targetEmission?.toLocaleString()}</p>
@@ -179,7 +179,7 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Annual Rate</p>
                         <p>= Total Reduction / Timeline</p>
                         <p>= {totalReduction?.toLocaleString()} / {yearsDifference}</p>

@@ -218,7 +218,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Number of Spills</h6>
                     <p className="text-sm">
@@ -271,7 +271,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Total Volume Spilled</h6>
                     <p className="text-sm">
@@ -323,7 +323,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Volume Recovered from Environment</h6>
                     <p className="text-sm">
@@ -374,7 +374,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Volume in Arctic</h6>
                     <p className="text-sm">
@@ -427,7 +427,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">
                       Volume Impacting Sensitive Shorelines (ESI 8-10)

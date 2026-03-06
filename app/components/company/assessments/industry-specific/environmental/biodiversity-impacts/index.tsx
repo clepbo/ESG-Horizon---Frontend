@@ -131,7 +131,7 @@ export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinu
       <SuccessScreen
         assessmentName="Biodiversity Impacts"
         nextAssessment="Social Capital &amp; Human Rights"
-        totals={totals ?? undefined}
+        totals={undefined}
         reportId={reportId}
         onContinue={handleViewReport}
         onContinueAssessment={onContinueToNextAssessment}
@@ -228,7 +228,7 @@ export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinu
                           <TooltipContent
                             side="top"
                             align="start"
-                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                           >
                             {scope.id === "environmental-management" && (
                               <>

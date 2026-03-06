@@ -217,7 +217,7 @@ export function ProductionVolume({
           <TooltipContent
             side="top"
             align="center"
-            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
           >
             <h6>{tooltipTitle}</h6>
             <p>{tooltipContent}</p>

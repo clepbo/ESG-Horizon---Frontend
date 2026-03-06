@@ -12,6 +12,8 @@ interface SuccessScreenProps {
   sectionKey?: string;
   nextAssessment?: string | null;
   totals?: TotalsResponse;
+  metricLabel?: string;
+  metricUnit?: string;
   onContinue?: () => void;
   onContinueAssessment?: () => void;
   onBackToHub?: () => void;
@@ -24,6 +26,8 @@ export function SuccessScreen({
   sectionKey,
   nextAssessment,
   totals,
+  metricLabel,
+  metricUnit,
   onContinue,
   onContinueAssessment,
   onBackToHub,
@@ -89,7 +93,7 @@ export function SuccessScreen({
 
         {totals && (
           <p className="text-[#3C8D84] bg-white mb-6 text-center p-3 rounded-lg font-semibold w-full text-sm">
-            Total Emissions for {assessmentName}
+            {metricLabel || `Total Emissions for ${assessmentName}`}
             <br />
             <span className="font-bold text-lg">
               {"="}
@@ -101,7 +105,7 @@ export function SuccessScreen({
                 ),
                 { minimumFractionDigits: 2 }
               )}{" "}
-              tCO₂e
+              {metricUnit || "tCO₂e"}
             </span>
           </p>
         )}

@@ -176,7 +176,7 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                       <TooltipContent
                         side="top"
                         align="start"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         {section.id === "production-data" && (
                           <>

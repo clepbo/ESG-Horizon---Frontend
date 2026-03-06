@@ -104,14 +104,10 @@ export default function ProducedWaterManagement({
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.producedWaterManagement,
-    totalProducedWaterGenerated,
-    volumeDischargedToSurface,
-    volumeInjectedForDisposal,
-    volumeRecycledReused,
-    averageHydrocarbonContent,
   ]);
 
   // Calculate percentages based on total produced water
