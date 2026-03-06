@@ -96,20 +96,38 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
       </h3>
       <hr className="text-gray-200" />
       <div className="border-b border-gray-200 pb-4 flex-1 min-h-[200px]">
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={260}>
           <PieChart>
             <Pie
               data={DISPUTE_DATA}
               dataKey="value"
               nameKey="name"
               cx="50%"
-              cy="50%"
+              cy="45%"
               innerRadius={55}
               outerRadius={75}
-              paddingAngle={0}
+              paddingAngle={2}
               stroke="none"
-              label={({ value }) => formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              // labelLine={false}
+              label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
+                const RADIAN = Math.PI / 180;
+                const radius = (outerRadius ?? 75) + 18;
+                const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
+                const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    fill="#374151"
+                    textAnchor={x > cx ? "start" : "end"}
+                    dominantBaseline="central"
+                    fontSize={12}
+                    fontWeight={600}
+                  >
+                    {name}: {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </text>
+                );
+              }}
+              labelLine={false}
             >
               {DISPUTE_DATA.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />

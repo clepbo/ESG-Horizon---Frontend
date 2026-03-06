@@ -439,7 +439,7 @@ export function GhgEmissionsAssessment({
                             <TooltipContent
                               side="top"
                               align="start"
-                              className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                              className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                             >
                               {scope.id === "scope-1" && (
                                 <>

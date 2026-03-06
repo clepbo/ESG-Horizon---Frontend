@@ -198,7 +198,7 @@ export default function ReservesAreaConflict({
           <TooltipTrigger asChild>
             <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
           </TooltipTrigger>
-          <TooltipContent className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none">
+          <TooltipContent className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none">
             {tooltip}
           </TooltipContent>
         </Tooltip>

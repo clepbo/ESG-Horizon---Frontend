@@ -76,7 +76,7 @@ export default function CriticalIncidentRiskManagement({
     return (
       <SuccessScreen
         assessmentName="Critical Incident Risk Management"
-        totals={totals ?? undefined}
+        totals={undefined}
         nextAssessment="Management of the Legal & Regulatory Environment"
         onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={onBackToHub}
@@ -158,7 +158,7 @@ export default function CriticalIncidentRiskManagement({
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1">Process Safety</h6>
                       <p>
@@ -207,7 +207,7 @@ export default function CriticalIncidentRiskManagement({
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1">Catastrophic Risk Management</h6>
                       <p>

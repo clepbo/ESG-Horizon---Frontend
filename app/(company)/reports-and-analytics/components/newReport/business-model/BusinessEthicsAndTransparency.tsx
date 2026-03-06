@@ -14,23 +14,20 @@ export default function BusinessEthicAndTransparency({
   const strategicAllocation =
     businessModel?.reservesValuationAndCapitalExpenditure?.strategicCapitalAllocation;
 
-  // Calculate pie chart data from actual values
-  const gasProjects = strategicAllocation?.gasProjectsValueCount ?? 0;
-  const renewableProjects = strategicAllocation?.renewableProjectsValueCount ?? 0;
-  const maintenance = strategicAllocation?.maintenanceValueCount ?? 0;
-  const total = gasProjects + renewableProjects + maintenance;
+  // Calculate pie chart data — capexPercentage is the % of CAPEX on gas exploration
+  const gasPercent = strategicAllocation?.gasProjectsValueCount ?? 0;
+  const otherPercent = strategicAllocation?.maintenanceValueCount ?? 0;
+  const total = gasPercent + otherPercent;
 
   const capitalData =
     total > 0
       ? [
-          { name: "Gas Projects", value: gasProjects, color: "#3B82F6" },
-          { name: "Renewable Projects", value: renewableProjects, color: "#22C55E" },
-          { name: "Maintenance", value: maintenance, color: "#9CA3AF" },
+          { name: "Gas Exploration", value: gasPercent, color: "#3B82F6" },
+          { name: "Other CAPEX", value: otherPercent, color: "#9CA3AF" },
         ]
       : [
-          { name: "Gas Projects", value: 0, color: "#3B82F6" },
-          { name: "Renewable Projects", value: 0, color: "#22C55E" },
-          { name: "Maintenance", value: 0, color: "#9CA3AF" },
+          { name: "Gas Exploration", value: 0, color: "#3B82F6" },
+          { name: "Other CAPEX", value: 0, color: "#9CA3AF" },
         ];
 
   return (
@@ -64,6 +61,15 @@ export default function BusinessEthicAndTransparency({
             <span>Total Proved Reserves</span>
             <span className="font-medium text-gray-900">
               {formatNumberFull(climateImpact?.totalProvedReserves ?? 0, {
+                minimumFractionDigits: 2, maximumFractionDigits: 2,
+              })}{" "}
+              MMboe
+            </span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span>Estimated Decrease</span>
+            <span className="font-medium text-red-600">
+              {formatNumberFull(climateImpact?.totalProbableReserves ?? 0, {
                 minimumFractionDigits: 2, maximumFractionDigits: 2,
               })}{" "}
               MMboe
@@ -115,7 +121,7 @@ export default function BusinessEthicAndTransparency({
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value) => formatNumberFull(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                formatter={(value) => `${formatNumberFull(Number(value) || 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`}
               />
             </PieChart>
           </ResponsiveContainer>

@@ -390,7 +390,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   </p>
                 </div>
                 <CircularProgressbarWithChildren
-                  className=" h-40 w-40"
+                  className=" h-52 w-52"
                   // value={Number(
                   //   (
                   //     waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
@@ -422,8 +422,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     <p className="">
                       {formatNumberFull(
                         waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
-                          ?.percentageWithDisclosure ?? 0,
-                        { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                          ?.numberOfWellsWithPublicDisclosure ?? 0,
+                        { minimumFractionDigits: 0, maximumFractionDigits: 0 }
                       )}{" "}
                       Wells Disclosed
                     </p>
@@ -433,25 +433,25 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="bg-gray-100 p-2 py-4 rounded-md">
                 <CustomProgressWithoutSections
                   value={
-                    (waterManagement?.producedWater?.totalGenerated ?? 0) > 0
+                    (waterManagement?.totalProducedWaterGenerated ?? 0) > 0
                       ? Math.round(
-                        ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
-                          (waterManagement?.producedWater?.totalGenerated ?? 1)) *
+                        ((waterManagement?.recycledWater ?? 0) /
+                          (waterManagement?.totalProducedWaterGenerated ?? 1)) *
                         100
                       )
-                      : (waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) > 0
+                      : (waterManagement?.recycledWater ?? 0) > 0
                         ? 100
                         : 0
                   }
                   title="Volume Recycled/Reused"
-                  total={waterManagement?.hydraulicFracturing?.volumeRecycledReused || 0}
+                  total={waterManagement?.recycledWater || 0}
                   unit="m³"
                   barColor="#119b95"
                   percent={
-                    (waterManagement?.producedWater?.totalGenerated ?? 0) > 0
+                    (waterManagement?.totalProducedWaterGenerated ?? 0) > 0
                       ? Math.round(
-                        ((waterManagement?.hydraulicFracturing?.volumeRecycledReused ?? 0) /
-                          (waterManagement?.producedWater?.totalGenerated ?? 1)) *
+                        ((waterManagement?.recycledWater ?? 0) /
+                          (waterManagement?.totalProducedWaterGenerated ?? 1)) *
                         100
                       )
                       : 0

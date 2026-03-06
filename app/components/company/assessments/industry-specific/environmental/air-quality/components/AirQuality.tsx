@@ -38,6 +38,8 @@ export default function AirQuality({
                 assessmentName="Air Quality Assessment"
                 nextAssessment="Water WasteWater Management"
                 totals={totals ?? undefined}
+                metricLabel="Total Air Pollutant Emissions"
+                metricUnit="tonnes"
                 reportId={reportId}
                 onContinue={handleViewReport}
                 onContinueAssessment={onContinueToNextAssessment}

@@ -102,11 +102,10 @@ export default function ChemicalDisclosure({
       }
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.chemicalDisclosure,
-    numberOfWellsWithPublicDisclosure,
-    totalNumberOfFracturedWells,
   ]);
 
   const { filled, total } = useMemo(() => {

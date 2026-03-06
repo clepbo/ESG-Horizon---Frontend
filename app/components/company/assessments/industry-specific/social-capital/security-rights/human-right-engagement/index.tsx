@@ -219,7 +219,7 @@ export default function HumanRightEngagement({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <p>
                           Provide details on how your company engages with local communities,
