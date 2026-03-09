@@ -200,8 +200,8 @@ export function EmissionsBreakdownChart() {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value?: number) => [
-                    `${formatNumberFull(value ?? 0, { minimumFractionDigits: 2 })} tonnes CO2e`,
+                  formatter={(value) => [
+                    `${formatNumberFull(Number(value ?? 0), { minimumFractionDigits: 2 })} tonnes CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}
