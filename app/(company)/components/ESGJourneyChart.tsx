@@ -122,7 +122,7 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
               />
               <Tooltip
                 cursor={{ fill: "rgba(0,0,0,0.05)" }}
-                formatter={(v?: number) => [`${Math.round(Number(v ?? 0))}%`, "ESG Score"]}
+                formatter={(v) => [`${Math.round(Number(v ?? 0))}%`, "ESG Score"]}
               />
               <Bar
                 dataKey="_score"
