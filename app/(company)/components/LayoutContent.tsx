@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useMobileNav } from "./Sidebar";
+import UpdateBanner from "@/app/components/ui/UpdateBanner";
 
 interface LayoutContentProps {
   children: React.ReactNode;
@@ -103,8 +104,11 @@ export default function LayoutContent({ children, role }: LayoutContentProps) {
     );
 
   return (
-    <main ref={mainRef} className="flex-1 overflow-y-auto bg-gray-50">
-      {children}
-    </main>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <UpdateBanner />
+      <main ref={mainRef} className="flex-1 overflow-y-auto bg-gray-50">
+        {children}
+      </main>
+    </div>
   );
 }
