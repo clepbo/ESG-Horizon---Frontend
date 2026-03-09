@@ -46,8 +46,9 @@ export default function WaterQualityImpact({
   const { state, dispatch } = useAssessment();
   const {
     saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
     isPreviouslySubmitted,
     getSubmitLabel,
   } = useAssessmentFlow("water-quality-impacts", "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts");
@@ -224,11 +225,10 @@ export default function WaterQualityImpact({
     dispatch({ type: "UPDATE_WATER_QUALITY", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts",
         payload
       );
-      await submitGroup();
       toast.success("Water management assessment submitted successfully");
       onContinueToNextAssessment();
     } catch {
@@ -413,10 +413,10 @@ export default function WaterQualityImpact({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -437,10 +437,10 @@ export default function WaterQualityImpact({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading || isPreviouslySubmitted}
+                disabled={isSubmitting || isPreviouslySubmitted}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {getSubmitLabel(hasExistingData)}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
                 {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>

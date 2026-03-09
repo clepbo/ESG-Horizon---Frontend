@@ -41,7 +41,7 @@ function ReserveInSensitiveAreasChart({
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
         data={data}
-        margin={{ top: 10, right: 130, left: 10, bottom: 5 }}
+        margin={{ top: 10, right: 10, left: 10, bottom: 5 }}
         barCategoryGap="30%"
         style={{ overflow: "visible" }}
       >
@@ -50,31 +50,22 @@ function ReserveInSensitiveAreasChart({
           axisLine={false}
           tickLine={false}
           tick={{ fill: "#111827", fontSize: 14, fontWeight: 500 }}
+          padding={{ left: 30, right: 30 }}
         />
         <YAxis
           axisLine={false}
           tickLine={false}
-          tick={(props: any) => (
-            <text
-              x={props.x}
-              y={props.y}
-              fill="#111827"
-              fontSize={12}
-              textAnchor="end"
-              transform={`rotate(-35, ${props.x}, ${props.y})`}
-            >
-              {formatNumberFigures(Number(props.payload.value))}
-            </text>
-          )}
-          width={65}
+          tick={{ fill: "#111827", fontSize: 12 }}
+          width={80}
+          tickFormatter={(value) => formatNumberFigures(Number(value))}
         />
         <Tooltip cursor={false} formatter={(value) => formatNumberFigures(Number(value) || 0)} />
         <Legend
-          layout="vertical"
-          align="right"
-          verticalAlign="middle"
+          layout="horizontal"
+          align="center"
+          verticalAlign="bottom"
           iconType="rect"
-          wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingLeft: "12px" }}
+          wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingTop: "12px" }}
         />
         <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[10, 10, 0, 0]} maxBarSize={60} />
         <Bar
