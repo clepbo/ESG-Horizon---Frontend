@@ -202,7 +202,7 @@ export function Scope2EmissionsChart() {
                 />
                 <Tooltip
                   cursor={false}
-                  formatter={(value?: number) => [
+                  formatter={(value) => [
                     `${formatNumberFull(value ?? 0, { minimumFractionDigits: 2 })} kg CO2e`,
                     "Emissions",
                   ]}
