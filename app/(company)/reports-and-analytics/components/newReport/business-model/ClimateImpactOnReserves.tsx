@@ -84,7 +84,7 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                 />
                 <Tooltip
                   cursor={false}
-                  formatter={(value?: number) => formatNumberFigures(Number(value) || 0)}
+                  formatter={(value) => formatNumberFigures(Number(value) || 0)}
                 />
                 <Legend
                   layout="vertical"
