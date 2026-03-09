@@ -5,6 +5,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { formatNumberFull } from "@/lib/numberFormat";
+import { useAssessment } from "@/hooks/useAssessment";
 
 interface SuccessScreenProps {
   assessmentName: string;
@@ -34,6 +35,8 @@ export function SuccessScreen({
   reportId,
 }: SuccessScreenProps) {
   const router = useRouter();
+  const { state } = useAssessment();
+  const assessmentId = reportId || state.assessmentId;
 
   const handleBackToHub = () => {
     if (onBackToHub) {
@@ -47,7 +50,7 @@ export function SuccessScreen({
     if (onContinue) {
       onContinue();
     } else {
-      router.push(`/reports-and-analytics/${reportId || ""}`);
+      router.push(`/reports-and-analytics/${assessmentId || ""}`);
     }
   };
 
