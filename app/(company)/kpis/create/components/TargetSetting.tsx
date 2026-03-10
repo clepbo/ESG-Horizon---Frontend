@@ -48,6 +48,16 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
   const latestTargetQuery = useGetLatestTarget(isEditMode ? companyId : undefined);
   const existingTarget: Target | null = isEditMode ? (latestTargetQuery.data ?? null) : null;
 
+  // When rendered in embedded mode (assessments page), save the caller's URL so
+  // the summary pages can navigate back here instead of going to /kpis.
+  useEffect(() => {
+    if ((onBack || onSuccess) && typeof window !== "undefined") {
+      localStorage.setItem("_targetReturnTo", window.location.pathname);
+    }
+    // No cleanup — the value must survive navigation to the summary page
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Pre-select the matching form type when editing
   useEffect(() => {
     if (existingTarget) {
@@ -89,10 +99,7 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
         </button>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-8">
-          {/* When editing, lock to the existing target type; otherwise show the selector */}
-          {isEditMode && existingTarget ? null : (
-            <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
-          )}
+          <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
 
           {selectedType === "general" && (
             <GeneralTargetForm
