@@ -115,7 +115,7 @@ export default function WorkforceHealthSafety({
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
     "Health & Safety Performance": { groupKey: "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", dataPath: ["humanCapital", "riskAndOpportunityManagement", "healthAndSafetyPerformance"] },
-    "Safety Management Systems": { groupKey: "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems", dataPath: ["humanCapital", "workforceHealthAndSafety", "riskAndOpportunityManagement", "safetyManagementSystems"] },
+    "Safety Management Systems": { groupKey: "humanCapital.workforceHealthSafety", dataPath: ["humanCapital", "workforceHealthAndSafety", "riskAndOpportunityManagement", "safetyManagementSystems"] },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {

@@ -411,7 +411,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
       id: "progress",
       header: "Progress",
       cell: (info) => {
-        const raw = info.row.original.progress;
+        const raw = (info.row.original as any).assessmentData?.overallProgress ?? null;
         const percentage = raw != null ? Math.min(raw, 100) : null;
         const radius = 22;
         const circumference = 2 * Math.PI * radius;

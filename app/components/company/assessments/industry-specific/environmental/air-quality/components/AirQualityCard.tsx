@@ -2,10 +2,10 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/hooks/useAssessment";
-import { checkTopicCompletion } from "@/lib/assessmentCompletionUtils";
+import { getFormSectionStatus, getSectionBorderColor } from "@/lib/assessmentStatusUtils";
 
 export interface AirQualityProps {
   backToDisclosureTopics: () => void;
@@ -22,24 +22,17 @@ export default function AirQualityCard({
   const { state } = useAssessment();
   const router = useRouter();
 
-  useEffect(() => {
-    // Debugging completion status - keep or remove as needed for dev
-    if (state.assessmentData) {
-      checkTopicCompletion("Air Quality", state.assessmentData);
-    }
-  }, [state.assessmentData]);
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cards = [
     {
       title: "Air Pollutant Emisssions",
       subtitle:
         "This form covers metric  EM-EP-120a.1., focusing on the company&apos;s overall air quality",
+      groupKey: "environment.airQuality.airPollutantEmissions",
+      dataPath: (state.assessmentData as any)?.environment?.airQuality?.airPollutantEmissions,
     },
   ];
-
-  // Status indication commented out - revisit later
-  // const renderCompletionIndicator = () => { ... };
-  // const getCardBorderClass = (): string => { ... };
 
   const features = [
     {
@@ -79,11 +72,14 @@ export default function AirQualityCard({
               </Button>
             </div>
 
-            {cards.map((card, i) => (
+            {cards.map((card, i) => {
+              const status = getFormSectionStatus(submittedGroups, card.groupKey, card.dataPath);
+              return (
               <Card
                 key={i}
                 onClick={handleCardClick}
-                className="cursor-pointer hover:bg-gray-100 max-w-lg shadow border-gray-200"
+                className="cursor-pointer hover:bg-gray-100 max-w-lg shadow"
+                style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(status) }}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -98,7 +94,8 @@ export default function AirQualityCard({
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </Card>
         </div>
       </section>
