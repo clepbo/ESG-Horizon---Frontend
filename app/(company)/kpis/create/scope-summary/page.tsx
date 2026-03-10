@@ -155,7 +155,9 @@ export default function ScopeSummaryPage() {
 
   const handleModalContinue = () => {
     setIsSuccessModalOpen(false);
-    router.push("/kpis");
+    const returnTo = localStorage.getItem("_targetReturnTo");
+    localStorage.removeItem("_targetReturnTo");
+    router.push(returnTo ?? "/kpis");
   };
 
   const handleModalClose = () => {
