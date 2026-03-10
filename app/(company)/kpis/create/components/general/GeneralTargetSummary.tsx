@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { FaCaretLeft } from "react-icons/fa";
+import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { calculateTimelineYear } from "../../utils";
 
 interface TargetSummaryProps {
@@ -48,10 +49,8 @@ export function GeneralTargetSummary({
       : Number.parseInt(String(yearsDifferenceRaw), 10) || 0;
 
   const formattedAnnualRate = Number.isFinite(annualRate)
-    ? annualRate.toLocaleString(undefined, {
-        maximumFractionDigits: 2,
-      })
-    : annualRate;
+    ? formatWithCommas(annualRate)
+    : String(annualRate);
 
   // Semantic coloring: green = emission reduction (on track), red = emission increase (off track)
   const isReducing = totalReduction > 0;
@@ -72,7 +71,7 @@ export function GeneralTargetSummary({
             <div className="text-center space-y-4">
               <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
               <h6 className="text-2xl md:text-3xl font-semibold text-gray-900">
-                {reductionPercentage}% Reduction Target
+                {formatWithCommas(reductionPercentage)}% Reduction Target
               </h6>
               {baselinePeriodLabel && (
                 <p className="text-xs text-gray-500">
@@ -94,7 +93,7 @@ export function GeneralTargetSummary({
                     </Tooltip>
                   </span>
                   <span className="font-semibold text-gray-900 text-right">
-                    {baselineEmission?.toLocaleString()} tCO₂e
+                    {formatWithCommas(baselineEmission)} tCO₂e
                   </span>
                 </div>
                 {/* To (Target Emission) */}
@@ -108,13 +107,13 @@ export function GeneralTargetSummary({
                       <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Target Emission</p>
                         <p>= Baseline x (1 - Reduction% / 100)</p>
-                        <p>= {baselineEmission?.toLocaleString()} x (1 - {reductionPercentage} / 100)</p>
-                        <p className="font-semibold">= {targetEmission?.toLocaleString()} tCO₂e</p>
+                        <p>= {formatWithCommas(baselineEmission)} x (1 - {formatWithCommas(reductionPercentage)} / 100)</p>
+                        <p className="font-semibold">= {formatWithCommas(targetEmission)} tCO₂e</p>
                       </TooltipContent>
                     </Tooltip>
                   </span>
                   <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
-                    {targetEmission?.toLocaleString()} tCO₂e
+                    {formatWithCommas(targetEmission)} tCO₂e
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-6">
@@ -161,13 +160,13 @@ export function GeneralTargetSummary({
                       <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Total Reduction</p>
                         <p>= Baseline - Target Emission</p>
-                        <p>= {baselineEmission?.toLocaleString()} - {targetEmission?.toLocaleString()}</p>
-                        <p className="font-semibold">= {totalReduction?.toLocaleString()} tCO₂e</p>
+                        <p>= {formatWithCommas(baselineEmission)} - {formatWithCommas(targetEmission)}</p>
+                        <p className="font-semibold">= {formatWithCommas(totalReduction)} tCO₂e</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
                   <div className="text-sm md:text-base font-semibold text-right text-red-600">
-                    -{totalReduction?.toLocaleString()} tCO₂e
+                    -{formatWithCommas(totalReduction)} tCO₂e
                   </div>
                 </div>
 
@@ -182,7 +181,7 @@ export function GeneralTargetSummary({
                       <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Annual Rate</p>
                         <p>= Total Reduction / Timeline</p>
-                        <p>= {totalReduction?.toLocaleString()} / {yearsDifference}</p>
+                        <p>= {formatWithCommas(totalReduction)} / {yearsDifference}</p>
                         <p className="font-semibold">= {formattedAnnualRate} tCO₂e/year</p>
                       </TooltipContent>
                     </Tooltip>

@@ -12,4 +12,4 @@ export interface GeneralTargetData {
   baselinePeriodLabel?: string;
 }
 
-export type TargetType = "general" | "scope";
+export type TargetType = "general" | "scope" | "both";

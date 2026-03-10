@@ -11,12 +11,6 @@ import {
 } from "@/app/components/ui/tooltip";
 import { formatNumberFigures, formatWithCommas } from "./FormatNumberFigures";
 
-export interface ScopeBreakdown {
-  scope1: number;
-  scope2: number;
-  scope3: number;
-}
-
 interface GuageProps {
   score: number;
   initialEmission: number | string;
@@ -26,8 +20,12 @@ interface GuageProps {
   baselineYear?: number;
   currentYear?: number;
   targetYear?: number;
-  baselineBreakdown?: ScopeBreakdown;
-  currentBreakdown?: ScopeBreakdown;
+  /** When true, renders a smaller compact version for the 3-column scope layout */
+  compact?: boolean;
+  /** When set, tooltips and labels are scoped to this specific scope */
+  scopeLabel?: "Scope 1" | "Scope 2" | "Scope 3";
+  /** Short description shown in the compact scope gauge header */
+  scopeDescription?: string;
 }
 
 function toEmissionFigure(value: number | string): string {
@@ -40,28 +38,6 @@ function toRawNumber(value: number | string): number {
   return Number.isNaN(num) ? 0 : num;
 }
 
-function hasScopeData(breakdown: ScopeBreakdown) {
-  return breakdown.scope1 > 0 || breakdown.scope2 > 0 || breakdown.scope3 > 0;
-}
-
-function scopeLabel(breakdown: ScopeBreakdown) {
-  const parts: string[] = [];
-  if (breakdown.scope1 > 0) parts.push("Scope 1");
-  if (breakdown.scope2 > 0) parts.push("Scope 2");
-  if (breakdown.scope3 > 0) parts.push("Scope 3");
-  return parts.join(" + ");
-}
-
-function ScopeRows({ breakdown }: { breakdown: ScopeBreakdown }) {
-  return (
-    <>
-      {breakdown.scope1 > 0 && <p>Scope 1: {formatWithCommas(breakdown.scope1)} tCO₂e</p>}
-      {breakdown.scope2 > 0 && <p>Scope 2: {formatWithCommas(breakdown.scope2)} tCO₂e</p>}
-      {breakdown.scope3 > 0 && <p>Scope 3: {formatWithCommas(breakdown.scope3)} tCO₂e</p>}
-    </>
-  );
-}
-
 const SpeedometerGauge: React.FC<GuageProps> = ({
   score,
   initialEmission,
@@ -71,8 +47,9 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
   baselineYear,
   currentYear,
   targetYear,
-  baselineBreakdown,
-  currentBreakdown,
+  compact = false,
+  scopeLabel: sl,
+  scopeDescription,
 }) => {
   const initial = toEmissionFigure(initialEmission);
   const current = toEmissionFigure(currentEmission);
@@ -88,6 +65,13 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       ? Math.min(100, Math.max(0, Math.round((reducedSoFar / totalReductionNeeded) * 100)))
       : 0;
   const stillNeeded = Math.max(0, currentRaw - targetRaw);
+
+  const isScope = !!sl;
+  const chartHeight = compact ? 380 : 380;
+  // In compact scope mode the title is rendered as HTML outside the chart (left-aligned)
+  const chartTitle = compact && isScope ? "" : isScope ? `${sl} Progress` : "Net Zero Progress (Carbon Footprint)";
+  const chartTitleSize = compact ? "18px" : "22px";
+
   const options: Highcharts.Options = {
     chart: {
       type: "gauge",
@@ -95,12 +79,13 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       plotBackgroundImage: "",
       plotBorderWidth: 0,
       plotShadow: false,
-      height: 380,
+      height: chartHeight,
+      marginTop: compact && isScope ? 40 : undefined,
     },
     title: {
-      text: "Net Zero Progress (Carbon Footprint)",
-      margin: 30,
-      style: { fontSize: "22px" },
+      text: chartTitle,
+      margin: compact ? 30 : 30,
+      style: { fontSize: chartTitleSize },
     },
     pane: {
       startAngle: -90,
@@ -109,12 +94,8 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       center: ["50%", "75%"],
       size: "140%",
     },
-    credits: {
-      enabled: false,
-    },
-    tooltip: {
-      enabled: true,
-    },
+    credits: { enabled: false },
+    tooltip: { enabled: true },
     yAxis: {
       min: 0,
       max: 100,
@@ -142,29 +123,19 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       },
       lineWidth: 0,
       plotBands: [
-        {
-          from: 0,
-          to: score,
-          color: "#119B95",
-          thickness: 26,
-        },
-        {
-          from: score,
-          to: 100,
-          color: "#CDFAF3",
-          thickness: 26,
-        },
+        { from: 0, to: score, color: "#119B95", thickness: 26 },
+        { from: score, to: 100, color: "#CDFAF3", thickness: 26 },
       ],
     },
     series: [
       {
         type: "gauge",
-        name: "Net Zero Progress",
+        name: isScope ? `${sl} Progress` : "Net Zero Progress",
         data: [score],
         tooltip: {
           pointFormatter: function () {
             const lines = [
-              `<span style="color:#119B95;font-weight:bold">Net Zero Progress: ${attainedPct}%</span>`,
+              `<span style="color:#119B95;font-weight:bold">${isScope ? sl : "Net Zero"} Progress: ${attainedPct}%</span>`,
               `<br/>Reduced so far: <b>${formatWithCommas(reducedSoFar)} tCO₂e</b>`,
               stillNeeded > 0
                 ? `<br/>Still needed: <b>${formatWithCommas(stillNeeded)} tCO₂e</b>`
@@ -173,9 +144,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
             return lines.join("");
           },
         },
-        dataLabels: {
-          enabled: false,
-        },
+        dataLabels: { enabled: false },
         dial: {
           radius: "85%",
           backgroundColor: "#119B95",
@@ -183,12 +152,32 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           baseLength: "0%",
           rearLength: "0%",
         },
-        pivot: {
-          backgroundColor: "#119B95",
-          radius: 8,
-        },
+        pivot: { backgroundColor: "#119B95", radius: 8 },
       },
     ],
+  };
+
+  const labelStyle: React.CSSProperties = {
+    color: "#666",
+    fontSize: "14px",
+    marginTop: "6px",
+    fontWeight: "bold",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+  };
+
+  const valueStyle: React.CSSProperties = {
+    color: "red",
+    fontSize: "18px",
+    fontWeight: 600,
+  };
+
+  const yearStyle: React.CSSProperties = {
+    color: "#119B95",
+    fontSize: "12px",
+    fontWeight: 600,
+    marginTop: "2px",
   };
 
   return (
@@ -197,9 +186,9 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
         className="highcharts-figure"
         style={{
           width: "100%",
-          maxWidth: "900px",
-          minHeight: "420px",
-          margin: "1.25em auto",
+          maxWidth: compact ? "900px" : "900px",
+          minHeight: compact ? "420px" : "420px",
+          margin: "0 auto",
         }}
       >
         <HighchartsReact highcharts={Highcharts} options={options} />
@@ -207,31 +196,17 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginTop: "8px",
+            marginTop: compact ? "4px" : "8px",
             padding: "0 8px",
             position: "relative",
           }}
         >
-          {/* Label 1 - Left (Baseline) */}
+          {/* Baseline */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
-            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{initial}</div>
-            {baselineYear && (
-              <div style={{ color: "#119B95", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
-                {baselineYear}
-              </div>
-            )}
-            <div
-              style={{
-                color: "#666",
-                fontSize: "14px",
-                marginTop: "6px",
-                fontWeight: "bold",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              Baseline year emission
+            <div style={valueStyle}>{initial}</div>
+            {baselineYear && <div style={yearStyle}>{baselineYear}</div>}
+            <div style={labelStyle}>
+              {isScope ? `${sl} Baseline` : "Baseline year emission"}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
@@ -240,22 +215,18 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                   side="top"
                   className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none text-xs"
                 >
-                  <p className="font-medium mb-1">Baseline Year Emission</p>
-                  {baselineBreakdown && hasScopeData(baselineBreakdown) ? (
-                    <>
-                      <p className="mb-1">
-                        It is the total GHG emissions ({scopeLabel(baselineBreakdown)}) from the
-                        assessment selected as your baseline when the target was created.
-                      </p>
-                      <div className="mt-2 border-t border-gray-600 pt-2">
-                        <p className="font-medium mb-1">Scope breakdown:</p>
-                        <ScopeRows breakdown={baselineBreakdown} />
-                      </div>
-                    </>
+                  <p className="font-medium mb-1">
+                    {isScope ? `${sl} Baseline Emission` : "General Target Baseline Emission"}
+                  </p>
+                  {isScope ? (
+                    <p>
+                      {scopeDescription} — recorded in the baseline year ({baselineYear}) when the
+                      target was created.
+                    </p>
                   ) : (
                     <p>
-                      It is the total GHG emissions from the assessment selected as your baseline
-                      when the target was created.
+                      Total company-wide GHG emissions from the assessment selected as your general
+                      target baseline year ({baselineYear}).
                     </p>
                   )}
                 </TooltipContent>
@@ -263,26 +234,12 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
             </div>
           </div>
 
-          {/* Label 2 - Center (Current) */}
+          {/* Current */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
-            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{current}</div>
-            {currentYear && (
-              <div style={{ color: "#119B95", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
-                {currentYear}
-              </div>
-            )}
-            <div
-              style={{
-                color: "#666",
-                fontSize: "14px",
-                marginTop: "6px",
-                fontWeight: "bold",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              Current emission
+            <div style={valueStyle}>{current}</div>
+            {currentYear && <div style={yearStyle}>{currentYear}</div>}
+            <div style={labelStyle}>
+              {isScope ? `${sl} Current` : "Current emission"}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
@@ -291,22 +248,18 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                   side="top"
                   className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none text-xs"
                 >
-                  <p className="font-medium mb-1">Current Emission</p>
-                  {currentBreakdown && hasScopeData(currentBreakdown) ? (
-                    <>
-                      <p className="mb-1">
-                        It is the total GHG emissions ({scopeLabel(currentBreakdown)}) from your
-                        most recent assessment. This value updates each time a new assessment is approved.
-                      </p>
-                      <div className="mt-2 border-t border-gray-600 pt-2">
-                        <p className="font-medium mb-1">Scope breakdown:</p>
-                        <ScopeRows breakdown={currentBreakdown} />
-                      </div>
-                    </>
+                  <p className="font-medium mb-1">
+                    {isScope ? `${sl} Current Emission` : "General Target Current Emission"}
+                  </p>
+                  {isScope ? (
+                    <p>
+                      {scopeDescription} — from your most recent approved assessment. Updates each
+                      time a new assessment is approved.
+                    </p>
                   ) : (
                     <p>
-                      It is the total GHG emissions from your most recent assessment. This value
-                      updates each time this page loads.
+                      Total company-wide GHG emissions from your most recent approved assessment.
+                      Updates each time a new assessment is approved.
                     </p>
                   )}
                 </TooltipContent>
@@ -314,9 +267,9 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
             </div>
           </div>
 
-          {/* Label 3 - Right (Target) */}
+          {/* Target */}
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
-            <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{target}</div>
+            <div style={valueStyle}>{target}</div>
             {targetYear && (
               <div style={{ fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
                 <span style={{ color: "#119B95" }}>{targetYear}</span>
@@ -327,18 +280,8 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                 )}
               </div>
             )}
-            <div
-              style={{
-                color: "#666",
-                fontSize: "14px",
-                marginTop: "6px",
-                fontWeight: "bold",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              Target year emission
+            <div style={labelStyle}>
+              {isScope ? `${sl} Target` : "Target year emission"}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
@@ -347,15 +290,14 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                   side="top"
                   className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none text-xs font-mono"
                 >
-                  <p className="font-sans font-medium mb-1">Target Year Emission</p>
-                  <p>= Baseline x (1 - Reduction% / 100)</p>
+                  <p className="font-sans font-medium mb-1">
+                    {isScope ? `${sl} Target Emission` : "General Target Emission"}
+                  </p>
+                  <p>= {isScope ? `${sl} Baseline` : "General Baseline"} × (1 − Reduction% ÷ 100)</p>
                   <p>
-                    = {formatWithCommas(baselineRaw)} x (1 -{" "}
-                    {reductionPercentage ?? 0} / 100)
+                    = {formatWithCommas(baselineRaw)} × (1 − {reductionPercentage ?? 0} ÷ 100)
                   </p>
-                  <p className="font-semibold">
-                    = {formatWithCommas(targetRaw)} tCO₂e
-                  </p>
+                  <p className="font-semibold">= {formatWithCommas(targetRaw)} tCO₂e</p>
                   {totalReductionNeeded > 0 && (
                     <div className="mt-2 border-t border-gray-600 pt-2 font-sans">
                       <p className="font-medium mb-1">Progress toward goal:</p>

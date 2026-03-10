@@ -1,115 +1,132 @@
 "use client";
 
-import { KpiCard, MiniDonutChart } from "@/app/components/ui/charts/DonoughtChart";
+import { KpiCard } from "@/app/components/ui/charts/DonoughtChart";
 import SpeedometerGauge from "./CustomGuageChart";
-import { useGetLatestTarget } from "./services";
-import { useAuth } from "@/context/AuthContext";
 import { formatNumberWithCommas } from "../../reports-and-analytics/components/utils/helpers";
-import { useEffect, useState } from "react";
-import { Target, TargetType } from "../types/target";
-import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import { useState } from "react";
 
-export default function PerformanceOverview() {
-  const [target, setTarget] = useState<Target | null>(null);
-  const { user } = useAuth();
-  const companyId = user?.company?.id;
+import { TargetPair } from "./services";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 
-  const latestTarget = useGetLatestTarget(companyId);
+type ViewMode = "general" | "scope";
 
-  useEffect(() => {
-    if (latestTarget?.data) {
-      setTarget(latestTarget.data);
-    }
-  }, [latestTarget?.data]); // Added dependency array
+interface PerformanceOverviewProps {
+  pair: TargetPair;
+}
 
-  // Helper function to check if it's a general target
-  const isGeneralTarget = target?.type === TargetType.GENERAL;
+export default function PerformanceOverview({ pair }: PerformanceOverviewProps) {
+  const hasGeneral = !!pair.general;
+  const hasScope = !!pair.scope;
 
-  // Helper function to check if it's a scope target
-  const isScopeTarget = target?.type === TargetType.SCOPE;
+  const defaultView: ViewMode = hasGeneral ? "general" : "scope";
+  const [activeView, setActiveView] = useState<ViewMode>(defaultView);
 
-  const general = target?.generalTarget;
-  const scopeTargets = target?.scopeTargets || [];
+  const generalTarget = pair.general;
+  const scopeTarget = pair.scope;
 
-  // Find individual scope targets for the charts
-  const scope1Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE1");
-  const scope2Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE2");
-  const scope3Target = scopeTargets.find((st: { scope: string }) => st.scope === "SCOPE3");
+  // ── General gauge data ──────────────────────────────────────────────────
+  const general = generalTarget?.generalTarget;
 
-  // Compute ESG score: 0 = no progress, 200 = target fully achieved
-  // Measures how much of the baseline→target gap has been closed
   const baselineEmission = general?.baselineYearEmission ?? 0;
-  // 0 means the calculator hasn't computed totals yet — treat as "no data" (baseline)
   const currentEmission = general?.currentEmission || baselineEmission;
   const targetEmission = general?.targetEmission ?? 0;
   const reductionGap = baselineEmission - targetEmission;
-
-  const score =
+  const generalScore =
     general && reductionGap > 0
-      ? Math.min(
-          100,
-          Math.max(0, Math.round(((baselineEmission - currentEmission) / reductionGap) * 100))
-        )
+      ? Math.min(100, Math.max(0, Math.round(((baselineEmission - currentEmission) / reductionGap) * 100)))
       : 0;
 
-  if (latestTarget.isLoading) {
-    return <CardSkeleton />;
-  }
+  // ── Scope gauge data ─────────────────────────────────────────────────────
+  const scopeTargets = scopeTarget?.scopeTargets ?? [];
+  const s1 = scopeTargets.find((s) => s.scope === "SCOPE1");
+  const s2 = scopeTargets.find((s) => s.scope === "SCOPE2");
+  const s3 = scopeTargets.find((s) => s.scope === "SCOPE3");
 
-  const isTargt = target ? target.name.length > 3 : undefined;
+  const scopeGaugeData = [
+    { label: "Scope 1", description: "Direct emissions from owned or controlled sources", target: s1 },
+    { label: "Scope 2", description: "Indirect emissions from purchased energy", target: s2 },
+    { label: "Scope 3", description: "All other indirect emissions in the value chain", target: s3 },
+  ].map(({ label, description, target: st }) => {
+    const bl = st?.baselineYearEmission ?? 0;
+    const cur = st?.currentEmission || bl;
+    const tgt = st?.targetEmission ?? 0;
+    const gap = bl - tgt;
+    const score = gap > 0
+      ? Math.min(100, Math.max(0, Math.round(((bl - cur) / gap) * 100)))
+      : 0;
+    return { label, description, score, baseline: bl, current: cur, target: tgt, reductionPct: st?.reductionPercentage };
+  });
+
   return (
-    <KpiCard title="Targets and Performance" isTarget={isTargt} className="space-y-6 w-full">
-      {/* General Target Display — speedometer only */}
-      {isGeneralTarget && general && (
+    <KpiCard className="space-y-6 w-full">
+      {/* Header row: title + view switcher */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Targets and Performance</h2>
+        {(hasGeneral || hasScope) && (
+          <Select value={activeView} onValueChange={(v) => setActiveView(v as ViewMode)}>
+            <SelectTrigger className="w-36 h-8 text-sm border-none shadow-none p-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="general" disabled={!hasGeneral}>
+                General Target
+              </SelectItem>
+              <SelectItem value="scope" disabled={!hasScope}>
+                Scope Targets
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+      </div>
+
+      {/* General view — single speedometer */}
+      {activeView === "general" && hasGeneral && general && (
         <div className="mt-4 flex items-center justify-center">
           <SpeedometerGauge
-            score={score}
-            initialEmission={formatNumberWithCommas(general?.baselineYearEmission ?? 0) ?? 0}
-            currentEmission={formatNumberWithCommas(general?.currentEmission ?? 0) ?? 0}
-            targetEmission={formatNumberWithCommas(general?.targetEmission) ?? 0}
-            reductionPercentage={general?.reductionPercentage}
-            baselineYear={target.baselineYear}
-            currentYear={target.currentAssessmentYear ?? undefined}
-            targetYear={target.targetYear}
-            baselineBreakdown={{
-              scope1: scope1Target?.baselineYearEmission ?? 0,
-              scope2: scope2Target?.baselineYearEmission ?? 0,
-              scope3: scope3Target?.baselineYearEmission ?? 0,
-            }}
-            currentBreakdown={{
-              scope1: scope1Target?.currentEmission ?? 0,
-              scope2: scope2Target?.currentEmission ?? 0,
-              scope3: scope3Target?.currentEmission ?? 0,
-            }}
+            score={generalScore}
+            initialEmission={formatNumberWithCommas(general.baselineYearEmission ?? 0)}
+            currentEmission={formatNumberWithCommas(general.currentEmission ?? 0)}
+            targetEmission={formatNumberWithCommas(general.targetEmission)}
+            reductionPercentage={general.reductionPercentage}
+            baselineYear={generalTarget!.baselineYear}
+            currentYear={generalTarget!.currentAssessmentYear ?? undefined}
+            targetYear={generalTarget!.targetYear}
           />
         </div>
       )}
 
-      {/* Scope Targets Display — 3 donut charts only */}
-      {isScopeTarget && scopeTargets.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
-          <MiniDonutChart
-            label="Scope 1"
-            percentage={scope1Target?.reductionPercentage || 0}
-            value={scope1Target?.currentEmission || 0}
-            color="#EF4444"
-          />
-          <MiniDonutChart
-            label="Scope 2"
-            percentage={scope2Target?.reductionPercentage || 0}
-            value={scope2Target?.currentEmission || 0}
-            color="#3B82F6"
-          />
-          <MiniDonutChart
-            label="Scope 3"
-            percentage={scope3Target?.reductionPercentage || 0}
-            value={scope3Target?.currentEmission || 0}
-            color="#9333EA"
-          />
+      {/* Scope view — one gauge per scope, stacked */}
+      {activeView === "scope" && hasScope && (
+        <div className="flex flex-col divide-y divide-gray-100">
+          <p className="text-lg font-semibold text-gray-800 pb-4">Net Zero Progress (Carbon Footprint)</p>
+          {scopeGaugeData.map(({ label, description, score, baseline, current, target, reductionPct }) => (
+            <div key={label} className="py-6 first:pt-2">
+              <p className="text-base font-semibold text-gray-700 mb-1">{label} Progress</p>
+              <SpeedometerGauge
+                compact
+                scopeLabel={label as "Scope 1" | "Scope 2" | "Scope 3"}
+                scopeDescription={description}
+                score={score}
+                initialEmission={formatNumberWithCommas(baseline)}
+                currentEmission={formatNumberWithCommas(current)}
+                targetEmission={formatNumberWithCommas(target)}
+                reductionPercentage={reductionPct}
+                baselineYear={scopeTarget!.baselineYear}
+                currentYear={scopeTarget!.currentAssessmentYear ?? undefined}
+                targetYear={scopeTarget!.targetYear}
+              />
+            </div>
+          ))}
         </div>
       )}
 
-      {!target && (
+      {!hasGeneral && !hasScope && (
         <div className="text-center py-8">
           <p className="text-gray-500">No target data available</p>
         </div>

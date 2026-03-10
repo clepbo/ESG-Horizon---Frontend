@@ -82,7 +82,7 @@ const DataList = ({ data, label }: { data: any[]; label: string }) => {
           const fuelLabel = allFuels.find((f) => f.value === item.fuelType)?.label || item.fuelType;
           return (
             <div
-              key={item.id || idx}
+              key={`${item.id ?? "item"}-${idx}`}
               className="p-3 bg-gray-50/50 rounded-md border border-gray-100 space-y-2"
             >
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">

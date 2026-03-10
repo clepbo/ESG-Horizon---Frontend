@@ -80,11 +80,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
     (option: BaselineOption): boolean => {
       if (!targetYear || typeof targetYear !== "number") return false;
       const baselineYear = Number(option.startYear) || 0;
-      // When editing, don't flag the current target as an overlap
-      return existingTargets.some((t: CompanyTargetSummary) => {
-        if (isEdit && t.id === existingTarget?.id) return false;
-        return targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear);
-      });
+      // Only check overlap against other GENERAL targets — GENERAL and SCOPE are independent
+      return existingTargets
+        .filter((t: CompanyTargetSummary) => t.type === "GENERAL")
+        .some((t: CompanyTargetSummary) => {
+          if (isEdit && t.id === existingTarget?.id) return false;
+          return targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear);
+        });
     },
     [targetYear, existingTargets, isEdit, existingTarget?.id]
   );
@@ -92,10 +94,12 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
     (option: BaselineOption): string => {
       if (!targetYear || typeof targetYear !== "number") return "";
       const baselineYear = Number(option.startYear) || 0;
-      const overlapping = existingTargets.find((t: CompanyTargetSummary) => {
-        if (isEdit && t.id === existingTarget?.id) return false;
-        return targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear);
-      });
+      const overlapping = existingTargets
+        .filter((t: CompanyTargetSummary) => t.type === "GENERAL")
+        .find((t: CompanyTargetSummary) => {
+          if (isEdit && t.id === existingTarget?.id) return false;
+          return targetRangesOverlap(baselineYear, targetYear, t.baselineYear, t.targetYear);
+        });
       return overlapping ? ` (overlaps ${overlapping.baselineYear}–${overlapping.targetYear})` : "";
     },
     [targetYear, existingTargets, isEdit, existingTarget?.id]
@@ -222,9 +226,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
         ...(isEdit && existingTarget ? { targetId: existingTarget.id } : {}),
       };
 
-      localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
-
-      router.push("/kpis/create/summary");
+      if (onComplete) {
+        // BOTH mode — pass data up to TargetSetting, skip navigation
+        onComplete(storageData as any);
+      } else {
+        localStorage.setItem("generalTargetSummary", JSON.stringify(storageData));
+        router.push("/kpis/create/summary");
+      }
     }
   };
 

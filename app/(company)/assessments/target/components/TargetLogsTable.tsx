@@ -5,35 +5,78 @@ import { useAllTargets } from "@/app/(company)/components/ranking/services";
 import { useAuth } from "@/context/AuthContext";
 import { Target, TargetType } from "@/app/(company)/components/types/target";
 import { ColumnDef } from "@tanstack/react-table";
+import { formatNumberFull } from "@/lib/numberFormat";
+
+function getCurrentEmission(target: Target): number | null {
+  if (target.generalTarget?.currentEmission != null) {
+    return target.generalTarget.currentEmission;
+  }
+  return null;
+}
 
 const columns: ColumnDef<Target, any>[] = [
   {
-    header: "Name",
-    accessorKey: "name",
+    header: "ID",
+    accessorKey: "id",
     cell: ({ row }) => (
-      <div>
-        <p className="font-medium text-gray-900 text-sm">{row.original.name}</p>
-        {row.original.description && (
-          <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[200px]">
-            {row.original.description}
-          </p>
-        )}
-      </div>
+      <span className="text-sm font-mono text-gray-500">#{row.original.id}</span>
     ),
+  },
+  {
+    header: "Date",
+    accessorKey: "createdAt",
+    meta: {
+      toSearchString: (row: Target) => {
+        const d = new Date(row.createdAt);
+        return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      },
+    },
+    cell: ({ row }) => {
+      const d = new Date(row.original.createdAt);
+      return (
+        <div>
+          <p className="text-sm text-gray-700">
+            {d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+          </p>
+          <p className="text-xs text-gray-400">
+            {d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
+          </p>
+        </div>
+      );
+    },
   },
   {
     header: "Type",
     accessorKey: "type",
-    cell: ({ row }) =>
-      row.original.type === TargetType.GENERAL ? (
-        <span className="inline-flex items-center rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 ring-1 ring-teal-600/20">
-          General
+    meta: {
+      toSearchString: (row: Target) => {
+        if (row.type === TargetType.GENERAL) return "general";
+        if (row.type === TargetType.SCOPE) return "scope-based scope";
+        return "general scope both";
+      },
+    },
+    cell: ({ row }) => {
+      const { type } = row.original;
+      if (type === TargetType.GENERAL) {
+        return (
+          <span className="inline-flex items-center rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700 ring-1 ring-teal-600/20">
+            General
+          </span>
+        );
+      }
+      if (type === TargetType.SCOPE) {
+        return (
+          <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 ring-1 ring-purple-600/20">
+            Scope-based
+          </span>
+        );
+      }
+      return (
+        <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-blue-600/20">
+          General + Scope
         </span>
-      ) : (
-        <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 ring-1 ring-purple-600/20">
-          Scope-based
-        </span>
-      ),
+      );
+    },
   },
   {
     header: "Baseline Year",
@@ -59,6 +102,27 @@ const columns: ColumnDef<Target, any>[] = [
         );
       }
 
+      if (type === TargetType.BOTH && generalTarget?.reductionPercentage != null) {
+        const s1 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE1");
+        const s2 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE2");
+        const s3 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE3");
+        const scopeParts = [
+          s1 ? `S1: -${s1.reductionPercentage}%` : null,
+          s2 ? `S2: -${s2.reductionPercentage}%` : null,
+          s3 ? `S3: -${s3.reductionPercentage}%` : null,
+        ]
+          .filter(Boolean)
+          .join(" / ");
+        return (
+          <span className="text-sm text-gray-700">
+            {targetYear}{" "}
+            <span className="font-medium text-amber-500">
+              (Goal: -{generalTarget.reductionPercentage}%{scopeParts ? ` / ${scopeParts}` : ""})
+            </span>
+          </span>
+        );
+      }
+
       if (type === TargetType.SCOPE && scopeTargets?.length) {
         const s1 = scopeTargets.find((s) => s.scope.toString() === "SCOPE1");
         const s2 = scopeTargets.find((s) => s.scope.toString() === "SCOPE2");
@@ -70,7 +134,6 @@ const columns: ColumnDef<Target, any>[] = [
         ]
           .filter(Boolean)
           .join(" / ");
-
         return (
           <span className="text-sm text-gray-700">
             {targetYear}{" "}
@@ -83,19 +146,63 @@ const columns: ColumnDef<Target, any>[] = [
     },
   },
   {
-    header: "Date Set",
-    accessorKey: "createdAt",
+    header: "Current Emission",
+    accessorKey: "currentEmission",
+    meta: {
+      toSearchString: (row: Target) => {
+        if (row.type === TargetType.SCOPE && row.scopeTargets?.length) {
+          const total = row.scopeTargets.reduce((sum, s) => sum + (s.currentEmission ?? 0), 0);
+          const parts = row.scopeTargets
+            .map((s) => (s.currentEmission != null ? String(s.currentEmission) : ""))
+            .filter(Boolean)
+            .join(" ");
+          return `${total} ${parts}`;
+        }
+        const val = row.generalTarget?.currentEmission;
+        return val != null ? String(val) : "";
+      },
+    },
     cell: ({ row }) => {
-      const d = new Date(row.original.createdAt);
+      const { type, scopeTargets } = row.original;
+
+      // Scope target — sum of S1+S2+S3 with stacked breakdown below
+      if (type === TargetType.SCOPE && scopeTargets?.length) {
+        const s1 = scopeTargets.find((s) => s.scope.toString() === "SCOPE1");
+        const s2 = scopeTargets.find((s) => s.scope.toString() === "SCOPE2");
+        const s3 = scopeTargets.find((s) => s.scope.toString() === "SCOPE3");
+        const rows = [
+          { label: "S1", value: s1?.currentEmission },
+          { label: "S2", value: s2?.currentEmission },
+          { label: "S3", value: s3?.currentEmission },
+        ].filter((r) => r.value != null);
+
+        if (!rows.length) return <span className="text-sm text-gray-400">—</span>;
+
+        const total = rows.reduce((sum, r) => sum + (r.value ?? 0), 0);
+
+        return (
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-baseline gap-1 text-sm">
+              <span className="font-semibold text-gray-800">{formatNumberFull(total)}</span>
+              <span className="text-xs text-gray-400">tCO₂e</span>
+            </div>
+            <div className="flex gap-2 text-xs text-gray-400 mt-0.5">
+              {rows.map(({ label, value }) => (
+                <span key={label}>{label}: {formatNumberFull(value!)}</span>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // General target — single value
+      const value = getCurrentEmission(row.original);
+      if (value == null) return <span className="text-sm text-gray-400">—</span>;
       return (
-        <div>
-          <p className="text-sm text-gray-700">
-            {d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-          </p>
-          <p className="text-xs text-gray-400">
-            Time: {d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
-          </p>
-        </div>
+        <span className="text-sm text-gray-700">
+          {formatNumberFull(value)}{" "}
+          <span className="text-xs text-gray-400">tCO₂e</span>
+        </span>
       );
     },
   },
@@ -114,7 +221,7 @@ export default function TargetLogsTable() {
 
   return (
     <div className="mt-4">
-      <h6 className="font-semibold text-gray-900 mb-3">Target Logs</h6>
+      <h6 className="font-semibold text-gray-900 mb-3">Recent Targets</h6>
       <DataTable
         data={sorted}
         columns={columns}

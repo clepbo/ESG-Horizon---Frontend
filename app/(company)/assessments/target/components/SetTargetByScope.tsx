@@ -27,6 +27,7 @@ interface ScopeData {
   description: string;
   targetEmission: number;
   totalReduction: number;
+  baselineEmission: number;
 }
 
 interface ScopeTargetData {
@@ -37,9 +38,10 @@ interface ScopeTargetData {
 
 interface SetTargetByScopeProps {
   onSuccess?: () => void;
+  onComplete?: (data: ScopeTargetData) => void;
 }
 
-export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
+export default function SetTargetByScope({ onSuccess, onComplete }: SetTargetByScopeProps) {
   const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
     scope1: {
       reductionPercentage: null,
@@ -167,7 +169,12 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
         scopeTargetData.scope3.targetYear;
 
       if (isScope1Valid && isScope2Valid && isScope3Valid) {
-        setStep(1);
+        if (onComplete) {
+          // BOTH mode — pass data up, skip inline summary step
+          onComplete(scopeTargetData);
+        } else {
+          setStep(1);
+        }
       }
     }
   };
@@ -247,6 +254,7 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
       description: scopeTargetData.scope1.description || "",
       targetEmission: scopeTargetData.scope1.targetEmission || 0,
       totalReduction: scopeTargetData.scope1.totalReduction || 0,
+      baselineEmission,
     },
     {
       scope: "Scope 2",
@@ -265,6 +273,7 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
       description: scopeTargetData.scope2.description || "",
       targetEmission: scopeTargetData.scope2.targetEmission || 0,
       totalReduction: scopeTargetData.scope2.totalReduction || 0,
+      baselineEmission,
     },
     {
       scope: "Scope 3",
@@ -283,6 +292,7 @@ export default function SetTargetByScope({ onSuccess }: SetTargetByScopeProps) {
       description: scopeTargetData.scope3.description || "",
       targetEmission: scopeTargetData.scope3.targetEmission || 0,
       totalReduction: scopeTargetData.scope3.totalReduction || 0,
+      baselineEmission,
     },
   ];
 
