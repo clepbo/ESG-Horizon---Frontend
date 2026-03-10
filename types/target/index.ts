@@ -37,7 +37,26 @@ export interface ScopeTargetPayload {
   baselineAssessmentId?: number;
 }
 
-export type CreateTargetPayload = GeneralTargetPayload | ScopeTargetPayload;
+// Payload used when creating a combined (general + scope) target
+export interface BothTargetPayload {
+  name: string;
+  type: "BOTH";
+  description: string;
+  baselineYear: number;
+  targetYear: number;
+  reductionPercentage: number;
+  targetEmission: number | null;
+  baselineYearEmission: number;
+  currentEmission: number | null;
+  scopes: {
+    scope1: ScopeTarget;
+    scope2: ScopeTarget;
+    scope3: ScopeTarget;
+  };
+  baselineAssessmentId?: number;
+}
+
+export type CreateTargetPayload = GeneralTargetPayload | ScopeTargetPayload | BothTargetPayload;
 
 // Baseline selection option returned from /target/baseline-options
 export interface BaselineOption {
@@ -55,6 +74,7 @@ export interface BaselineOption {
 /** Minimal target shape for overlap checks (GET /target list). */
 export interface CompanyTargetSummary {
   id: number;
+  type: string;
   baselineYear: number;
   targetYear: number;
   name: string;

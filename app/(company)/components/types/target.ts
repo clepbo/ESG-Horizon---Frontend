@@ -2,6 +2,7 @@
 export enum TargetType {
   GENERAL = "GENERAL",
   SCOPE = "SCOPE",
+  BOTH = "BOTH",
 }
 
 export enum EmissionScope {

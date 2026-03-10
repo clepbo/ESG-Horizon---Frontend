@@ -93,8 +93,14 @@ export default function ScopeSummaryPage() {
   });
 
   const handlePrevious = () => {
-    // Navigate back to form page - data will be preserved in localStorage
-    router.push(isEdit ? "/kpis/create?edit=true" : "/kpis/create");
+    const returnTo = localStorage.getItem("_targetReturnTo");
+    if (returnTo && returnTo !== "/kpis/create") {
+      // Came from an embedded flow (e.g. /assessments/target) — signal it to reopen the form
+      localStorage.setItem("_autoOpenTarget", "scope");
+      router.push(returnTo);
+    } else {
+      router.push(isEdit ? "/kpis/create?edit=true" : "/kpis/create");
+    }
   };
 
   const handleSetTarget = async () => {

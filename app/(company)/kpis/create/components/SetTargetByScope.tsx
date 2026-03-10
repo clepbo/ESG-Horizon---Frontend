@@ -34,9 +34,10 @@ import { Info } from "lucide-react";
 
 interface SetTargetByScopeProps {
   existingTarget?: Target | null;
+  onComplete?: (data: any) => void;
 }
 
-export default function SetTargetByScope({ existingTarget }: SetTargetByScopeProps) {
+export default function SetTargetByScope({ existingTarget, onComplete }: SetTargetByScopeProps) {
   const isEdit = !!existingTarget;
   const didPrepopulate = useRef(false);
 
@@ -133,10 +134,13 @@ export default function SetTargetByScope({ existingTarget }: SetTargetByScopePro
     (option: BaselineOption): boolean => {
       if (scope1TargetYear == null || typeof scope1TargetYear !== "number") return false;
       const baselineYear = Number(option.startYear) || 0;
-      return existingTargets.some((t: CompanyTargetSummary) => {
-        if (isEdit && t.id === existingTarget?.id) return false;
-        return targetRangesOverlap(baselineYear, scope1TargetYear, t.baselineYear, t.targetYear);
-      });
+      // Only check overlap against other SCOPE targets — GENERAL and SCOPE are independent
+      return existingTargets
+        .filter((t: CompanyTargetSummary) => t.type === "SCOPE")
+        .some((t: CompanyTargetSummary) => {
+          if (isEdit && t.id === existingTarget?.id) return false;
+          return targetRangesOverlap(baselineYear, scope1TargetYear, t.baselineYear, t.targetYear);
+        });
     },
     [scope1TargetYear, existingTargets, isEdit, existingTarget?.id]
   );
@@ -357,11 +361,13 @@ export default function SetTargetByScope({ existingTarget }: SetTargetByScopePro
         ...(isEdit && existingTarget ? { targetId: existingTarget.id } : {}),
       };
 
-      // Save to localStorage
-      localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
-
-      // Navigate to scope summary page
-      router.push("/kpis/create/scope-summary");
+      if (onComplete) {
+        // BOTH mode — pass data up to TargetSetting, skip navigation
+        onComplete(scopeSummaryData);
+      } else {
+        localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
+        router.push("/kpis/create/scope-summary");
+      }
     }
   };
 
