@@ -123,7 +123,7 @@ export default function SummaryPage() {
       CalculateEmissionPercentage(targetData?.reductionPercentage ?? 0, emissionData?.totals)
     );
 
-    const annualRateValue = yearDiff > 0 ? (+reduction / yearDiff).toFixed(3) : "0";
+    const annualRateValue = yearDiff > 0 ? (+reduction / yearDiff).toFixed(2) : "0";
 
     console.log("Calculations:", {
       // Debug log
@@ -172,8 +172,13 @@ export default function SummaryPage() {
   });
 
   const handlePrevious = () => {
-    // Navigate back to form page - data will be preserved in localStorage
-    router.push(isEdit ? "/kpis/create?edit=true" : "/kpis/create");
+    const returnTo = localStorage.getItem("_targetReturnTo");
+    if (returnTo && returnTo !== "/kpis/create") {
+      localStorage.setItem("_autoOpenTarget", "general");
+      router.push(returnTo);
+    } else {
+      router.push(isEdit ? "/kpis/create?edit=true" : "/kpis/create");
+    }
   };
 
   const handleSetTarget = async () => {

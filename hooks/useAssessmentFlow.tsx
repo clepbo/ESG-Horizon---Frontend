@@ -16,6 +16,11 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   // Ref to deduplicate parallel assessment creation calls
   const createPromiseRef = useRef<Promise<number> | null>(null);
 
+  // Synchronous guards — state updates are async so refs are used to prevent
+  // double-submission from rapid clicks before the re-render disables the button
+  const isSavingRef = useRef(false);
+  const isSubmittingRef = useRef(false);
+
   const createMut = useMutation({
     mutationFn: assessmentService.createAssessment,
     onSuccess: (data) => {
@@ -74,6 +79,8 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   };
 
   const saveNow = async (path: string, data: any) => {
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
     setSavingManual(true);
     try {
       await ensureIdAndSave(path, data);
@@ -84,6 +91,7 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
       }
       throw err;
     } finally {
+      isSavingRef.current = false;
       setSavingManual(false);
     }
   };
@@ -97,12 +105,15 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   });
 
   const submitGroup = async () => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setSubmittingManual(true);
     try {
       const response = await submitMut.mutateAsync();
       if (groupPath) dispatch({ type: "ADD_SUBMITTED_GROUP", payload: groupPath });
       return response;
     } finally {
+      isSubmittingRef.current = false;
       setSubmittingManual(false);
     }
   };
@@ -114,6 +125,8 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
 
   /** Save + submit in one call — only sets isSubmitting (not isSaving) */
   const saveAndSubmit = async (path: string, data: any) => {
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setSubmittingManual(true);
     try {
       await ensureIdAndSave(path, data);
@@ -127,6 +140,7 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
       }
       throw err;
     } finally {
+      isSubmittingRef.current = false;
       setSubmittingManual(false);
     }
   };

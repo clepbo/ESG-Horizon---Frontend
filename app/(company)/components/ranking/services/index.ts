@@ -95,6 +95,26 @@ export const useGetLatestTarget = (companyId?: number) => {
   });
 };
 
+export interface TargetPair {
+  general: import("@/app/(company)/components/types/target").Target | null;
+  scope: import("@/app/(company)/components/types/target").Target | null;
+}
+
+/** Fetch the latest GENERAL and SCOPE targets independently. */
+export const useLatestTargetPair = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["latest-target-pair", companyId],
+    queryFn: async (): Promise<TargetPair> => {
+      if (!companyId) throw new Error("Company ID not available");
+      const response = await api.get<TargetPair>(`/target/latest-pair`);
+      return (response as unknown as TargetPair) ?? { general: null, scope: null };
+    },
+    enabled: !!companyId,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+};
+
 /** Fetch all company targets (for overlap checks when creating a new target). */
 export const useCompanyTargets = (companyId?: number) => {
   return useQuery({

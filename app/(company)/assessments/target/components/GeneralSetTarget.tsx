@@ -116,9 +116,13 @@ export default function GeneralTargetForm({
 
   const handleContinue = () => {
     if (step === 0) {
-      // Validate required fields before proceeding
       if (data.reductionPercentage && data.baselineYear && data.targetYear) {
-        setStep(1);
+        if (onComplete) {
+          // BOTH mode — pass data up, skip inline summary step
+          onComplete(data);
+        } else {
+          setStep(1);
+        }
       }
     }
   };

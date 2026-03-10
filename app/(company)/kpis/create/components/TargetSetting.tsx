@@ -15,17 +15,30 @@ import { useRouter } from "next/navigation";
 import { FaCaretLeft } from "react-icons/fa";
 
 interface TargetSettingProps {
+  /**
+   * When provided (embedded mode from TargetHomePage), locks the form to this
+   * target type and hides the TargetTypeSelector.
+   */
+  targetType?: "general" | "scope";
   /** When true, fetches the latest target and prepopulates forms for editing. */
   isEdit?: boolean;
+  /** Pre-populated target data for edit mode (passed from parent, avoids extra fetch). */
+  existingTarget?: Target | null;
   /** Called after a successful create/update (e.g. to refresh parent data). */
   onSuccess?: () => void;
   /** Called when "Go back" is clicked. Falls back to router.back() if not provided. */
   onBack?: () => void;
 }
 
-export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetSettingProps = {}) {
+export function TargetSetting({
+  targetType: targetTypeProp,
+  isEdit: isEditProp,
+  existingTarget: existingTargetProp,
+  onSuccess,
+  onBack,
+}: TargetSettingProps = {}) {
   const router = useRouter();
-  const [selectedType, setSelectedType] = useState<TargetType>("general");
+  const [selectedType, setSelectedType] = useState<TargetType>(targetTypeProp ?? "general");
   const [generalTargetData, setGeneralTargetData] = useState<GeneralTargetData>({
     reductionPercentage: null,
     baselineYear: null,
@@ -39,14 +52,26 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
   const searchParams = useSearchParams();
   const isEditMode = isEditProp ?? searchParams.get("edit") === "true";
 
+  // Embedded mode: targetType is fixed from parent — no selector needed.
+  const isEmbedded = !!targetTypeProp;
+
   const isScopeSummaryPage = pathname.includes("/kpis/create/scope-summary");
   const isGeneralSummaryPage = pathname.includes("/kpis/create/summary");
+  const isBothSummaryPage = pathname.includes("/kpis/create/both-summary");
 
   const { user } = useAuth();
   const companyId = user?.company?.id;
   const baseline = useBaseline(companyId);
-  const latestTargetQuery = useGetLatestTarget(isEditMode ? companyId : undefined);
-  const existingTarget: Target | null = isEditMode ? (latestTargetQuery.data ?? null) : null;
+
+  // In standalone KPI flow: fetch the latest target for pre-population when editing.
+  // In embedded mode: parent passes existingTarget directly to avoid an extra request.
+  const latestTargetQuery = useGetLatestTarget(!isEmbedded && isEditMode ? companyId : undefined);
+  const existingTarget: Target | null =
+    existingTargetProp !== undefined
+      ? (existingTargetProp ?? null)
+      : isEditMode
+        ? (latestTargetQuery.data ?? null)
+        : null;
 
   // When rendered in embedded mode (assessments page), save the caller's URL so
   // the summary pages can navigate back here instead of going to /kpis.
@@ -54,16 +79,17 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
     if ((onBack || onSuccess) && typeof window !== "undefined") {
       localStorage.setItem("_targetReturnTo", window.location.pathname);
     }
-    // No cleanup — the value must survive navigation to the summary page
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Pre-select the matching form type when editing
+  // Pre-select the matching form type when editing (standalone flow only)
   useEffect(() => {
-    if (existingTarget) {
-      setSelectedType(existingTarget.type === "SCOPE" ? "scope" : "general");
+    if (!isEmbedded && existingTarget) {
+      if (existingTarget.type === "SCOPE") setSelectedType("scope");
+      else if (existingTarget.type === "BOTH") setSelectedType("both");
+      else setSelectedType("general");
     }
-  }, [existingTarget]);
+  }, [existingTarget, isEmbedded]);
 
   useEffect(() => {
     const storedData = localStorage.getItem("generalTargetSummary");
@@ -73,12 +99,46 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
     }
   }, []);
 
+  // BOTH mode: scope form completes → derive general target → save both to localStorage → navigate
+  const handleScopeCompleteForBoth = (scopeSummaryData: any) => {
+    const totalBaseline = scopeSummaryData.emissionData?.totals?.total || 0;
+    const s1Target = scopeSummaryData.calculations.scope1.targetEmission || 0;
+    const s2Target = scopeSummaryData.calculations.scope2.targetEmission || 0;
+    const s3Target = scopeSummaryData.calculations.scope3.targetEmission || 0;
+    const totalTarget = s1Target + s2Target + s3Target;
+    const reductionPercentage =
+      totalBaseline > 0
+        ? Math.round(((totalBaseline - totalTarget) / totalBaseline) * 1000) / 10
+        : 0;
+
+    const generalData = {
+      baselineYear: scopeSummaryData.emissionData?.startYear,
+      targetYear: scopeSummaryData.scopeTargetData.scope1.targetYear,
+      baselineEmission: totalBaseline,
+      targetEmission: Math.round(totalTarget),
+      reductionPercentage,
+      description:
+        scopeSummaryData.scopeTargetData.scope1.description ||
+        "Combined general and scope-based target",
+      baselinePeriodLabel: scopeSummaryData.baselineSelection?.baselinePeriodLabel,
+      baselineAssessmentId: scopeSummaryData.baselineSelection?.baselineAssessmentId,
+      _targetType: "BOTH",
+      ...(scopeSummaryData.targetId ? { targetId: scopeSummaryData.targetId } : {}),
+    };
+
+    localStorage.setItem("generalTargetSummary", JSON.stringify(generalData));
+    localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
+    router.push(isEditMode ? "/kpis/create/both-summary?edit=true" : "/kpis/create/both-summary");
+  };
+
   // If we're on summary pages, don't render the main target setting UI
-  if (isScopeSummaryPage || isGeneralSummaryPage) {
+  if (isScopeSummaryPage || isGeneralSummaryPage || isBothSummaryPage) {
     return null;
   }
 
-  if (baseline.isLoading || (isEditMode && latestTargetQuery.isLoading)) {
+  const isLatestTargetLoading = !isEmbedded && isEditMode && latestTargetQuery.isLoading;
+
+  if (baseline.isLoading || isLatestTargetLoading) {
     return <PageSkeleton />;
   }
 
@@ -99,7 +159,9 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
         </button>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-8">
-          <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
+          {!isEmbedded && (
+            <TargetTypeSelector selectedType={selectedType} onTypeChange={setSelectedType} />
+          )}
 
           {selectedType === "general" && (
             <GeneralTargetForm
@@ -110,8 +172,19 @@ export function TargetSetting({ isEdit: isEditProp, onSuccess, onBack }: TargetS
           )}
 
           {selectedType === "scope" && (
-            <div className="text-center py-12 text-gray-500">
-              <SetTargetByScope existingTarget={isEditMode ? existingTarget : undefined} />
+            <SetTargetByScope existingTarget={isEditMode ? existingTarget : undefined} />
+          )}
+
+          {selectedType === "both" && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-500">
+                Set your scope-level targets below. The overall company-wide reduction target will
+                be automatically derived from your scope totals.
+              </p>
+              <SetTargetByScope
+                existingTarget={isEditMode ? existingTarget : undefined}
+                onComplete={handleScopeCompleteForBoth}
+              />
             </div>
           )}
         </div>

@@ -10,7 +10,7 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { FaCaretLeft } from "react-icons/fa";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 interface TargetSummaryProps {
   reductionPercentage: number;
@@ -55,7 +55,7 @@ export function GeneralTargetSummary({
             <div className="text-center space-y-2">
               <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
               <h6 className="text-2xl font-semibold text-gray-900">
-                {reductionPercentage}% Reduction Target
+                {formatWithCommas(reductionPercentage)}% Reduction Target
               </h6>
               <div className="text-sm text-gray-600 leading-relaxed max-w-md mx-auto space-y-1.5">
                 {/* From (Baseline) */}
@@ -72,7 +72,7 @@ export function GeneralTargetSummary({
                     </Tooltip>
                   </span>
                   <span className="font-semibold text-gray-900 text-right">
-                    {formatNumberFull(baselineEmission)} tCO₂e
+                    {formatWithCommas(baselineEmission)} tCO₂e
                   </span>
                 </div>
                 {/* To (Target Emission) */}
@@ -86,13 +86,13 @@ export function GeneralTargetSummary({
                       <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Target Emission</p>
                         <p>= Baseline x (1 - Reduction% / 100)</p>
-                        <p>= {formatNumberFull(baselineEmission)} x (1 - {reductionPercentage} / 100)</p>
-                        <p className="font-semibold">= {formatNumberFull(targetEmission)} tCO₂e</p>
+                        <p>= {formatWithCommas(baselineEmission)} x (1 - {formatWithCommas(reductionPercentage)} / 100)</p>
+                        <p className="font-semibold">= {formatWithCommas(targetEmission)} tCO₂e</p>
                       </TooltipContent>
                     </Tooltip>
                   </span>
                   <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
-                    {formatNumberFull(targetEmission)} tCO₂e
+                    {formatWithCommas(targetEmission)} tCO₂e
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-6">
@@ -137,13 +137,13 @@ export function GeneralTargetSummary({
                       <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Total Reduction</p>
                         <p>= Baseline - Target Emission</p>
-                        <p>= {formatNumberFull(baselineEmission)} - {formatNumberFull(targetEmission)}</p>
-                        <p className="font-semibold">= {formatNumberFull(totalReduction)} tCO₂e</p>
+                        <p>= {formatWithCommas(baselineEmission)} - {formatWithCommas(targetEmission)}</p>
+                        <p className="font-semibold">= {formatWithCommas(totalReduction)} tCO₂e</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
                   <div className="text-sm font-semibold text-red-600">
-                    -{formatNumberFull(totalReduction)} tCO₂e
+                    -{formatWithCommas(totalReduction)} tCO₂e
                   </div>
                 </div>
 
@@ -158,13 +158,13 @@ export function GeneralTargetSummary({
                       <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
                         <p className="font-sans font-medium mb-1">Annual Rate</p>
                         <p>= Total Reduction / Timeline</p>
-                        <p>= {formatNumberFull(totalReduction)} / {yearsDifference}</p>
-                        <p className="font-semibold">= {formatNumberFull(Math.round(annualRate))} tCO₂e/year</p>
+                        <p>= {formatWithCommas(totalReduction)} / {yearsDifference}</p>
+                        <p className="font-semibold">= {formatWithCommas(annualRate)} tCO₂e/year</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
                   <div className="text-sm font-semibold text-red-600">
-                    {formatNumberFull(Math.round(annualRate))} tCO₂e/year
+                    {formatWithCommas(annualRate)} tCO₂e/year
                   </div>
                 </div>
               </div>
