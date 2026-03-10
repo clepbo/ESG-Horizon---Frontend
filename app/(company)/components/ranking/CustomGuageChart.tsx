@@ -318,13 +318,13 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
           <div style={{ textAlign: "center", flex: 1, transform: "translateX(-10px)" }}>
             <div style={{ color: "red", fontSize: "18px", fontWeight: 600 }}>{target}</div>
             {targetYear && (
-              <div style={{ color: "#119B95", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
-                {targetYear}
-              </div>
-            )}
-            {reductionPercentage != null && (
-              <div style={{ color: "#f97316", fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
-                Goal: -{reductionPercentage}%
+              <div style={{ fontSize: "12px", fontWeight: 600, marginTop: "2px" }}>
+                <span style={{ color: "#119B95" }}>{targetYear}</span>
+                {reductionPercentage != null && (
+                  <span style={{ color: "#f97316", marginLeft: "4px" }}>
+                    (Goal: -{reductionPercentage}%)
+                  </span>
+                )}
               </div>
             )}
             <div

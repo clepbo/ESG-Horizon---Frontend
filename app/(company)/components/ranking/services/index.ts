@@ -108,3 +108,17 @@ export const useCompanyTargets = (companyId?: number) => {
     refetchOnWindowFocus: false,
   });
 };
+
+/** Fetch all company targets with full detail (for the target logs table). */
+export const useAllTargets = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["all-targets", companyId],
+    queryFn: async () => {
+      if (!companyId) throw new Error("Company ID not available");
+      const data = await api.get(`/target`);
+      return (Array.isArray(data) ? data : []) as import("@/app/(company)/components/types/target").Target[];
+    },
+    enabled: !!companyId,
+    refetchOnWindowFocus: false,
+  });
+};
