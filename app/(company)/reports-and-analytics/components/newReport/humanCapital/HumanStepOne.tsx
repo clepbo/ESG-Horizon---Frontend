@@ -1,9 +1,15 @@
 "use client";
 
-import { HardHat, ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { HardHat, ArrowDown, ArrowUp, Minus, Info } from "lucide-react";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { cn } from "@/lib/utils";
 import { formatNumberFull } from "@/lib/numberFormat";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
 
 interface HumanStepOneProps {
   reportData?: ReportResponse;
@@ -18,36 +24,43 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
       unit: "per 200k hours",
       change: change,
       isTrir: true,
+      tooltip: "(Total Recordable Incidents × 200,000) / Total hours worked",
     },
     {
       title: "Direct TRIR",
       value: formatNumberFull(reportData?.humanCapital?.direct?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
+      tooltip: "(Direct Employee Recordable Incidents × 200,000) / Direct employee hours worked",
     },
     {
       title: "Contract TRIR",
       value: formatNumberFull(reportData?.humanCapital?.contract?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
+      tooltip: "(Contract Employee Recordable Incidents × 200,000) / Contract employee hours worked",
     },
     {
       title: "Recordable Incidents",
       value: formatNumberFull(reportData?.humanCapital?.recordableIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "incidents",
+      tooltip: "Total number of work-related injuries or illnesses",
     },
     {
       title: "Fatalities",
       value: formatNumberFull(reportData?.humanCapital?.fatalities ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "fatalities",
+      tooltip: "Total number of work-related fatalities",
     },
     {
       title: "Near Misses",
       value: formatNumberFull(reportData?.humanCapital?.nearMisses ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "misses",
+      tooltip: "Total number of near miss incidents",
     },
     {
       title: "Avg Safety Training",
       value: formatNumberFull(reportData?.humanCapital?.averageSafetyTrainingHoursPerEmployee ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "hours/employee",
+      tooltip: "Total safety training hours / Total number of employees",
     },
   ];
   return (
@@ -78,6 +91,7 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
             unit={card.unit}
             change={card.change}
             isTrir={card.isTrir}
+            tooltip={card.tooltip}
           />
         ))}
       </div>
@@ -91,12 +105,14 @@ function MetricCard({
   unit,
   change,
   isTrir,
+  tooltip,
 }: {
   title: string;
   value: string;
   unit: string;
   change?: number;
   isTrir?: boolean;
+  tooltip?: string;
 }) {
   const isPositive = change && change > 0;
   const isNegative = change && change < 0;
@@ -115,7 +131,21 @@ function MetricCard({
   return (
     <div className="flex flex-col justify-between gap-1 rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
       <div className="flex justify-between items-start">
-        <p className="text-sm font-normal text-gray-700 sm:text-base">{title}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-normal text-gray-700 sm:text-base">{title}</p>
+          {tooltip && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent className="bg-white border text-gray-800 shadow-md max-w-sm">
+                  <p className="text-sm font-medium">{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
