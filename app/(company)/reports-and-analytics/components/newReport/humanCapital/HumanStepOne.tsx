@@ -139,7 +139,11 @@ function MetricCard({
                 <TooltipTrigger asChild>
                   <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent className="bg-white border text-gray-800 shadow-md max-w-sm">
+                <TooltipContent
+                  side="top"
+                  align="center"
+                  className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none z-[100]"
+                >
                   <p className="text-sm font-medium">{tooltip}</p>
                 </TooltipContent>
               </Tooltip>
