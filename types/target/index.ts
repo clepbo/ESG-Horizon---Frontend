@@ -69,6 +69,8 @@ export interface BaselineOption {
   hasReport: boolean;
   // ISO string from the API
   createdAt: string;
+  submittedAt: string | null;
+  approvedAt: string | null;
 }
 
 /** Minimal target shape for overlap checks (GET /target list). */

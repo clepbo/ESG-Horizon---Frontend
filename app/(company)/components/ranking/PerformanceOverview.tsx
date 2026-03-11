@@ -8,12 +8,19 @@ import { TargetPair } from "./services";
 
 export type ViewMode = "general" | "scope";
 
+export interface BaselineInfo {
+  startYear: string;
+  submittedAt: string | null;
+  approvedAt: string | null;
+}
+
 interface PerformanceOverviewProps {
   pair: TargetPair;
   activeView: ViewMode;
+  baselineInfo?: BaselineInfo | null;
 }
 
-export default function PerformanceOverview({ pair, activeView }: PerformanceOverviewProps) {
+export default function PerformanceOverview({ pair, activeView, baselineInfo }: PerformanceOverviewProps) {
   const hasGeneral = !!pair.general;
   const hasScope = !!pair.scope;
 
@@ -55,6 +62,13 @@ export default function PerformanceOverview({ pair, activeView }: PerformanceOve
 
   return (
     <KpiCard className="space-y-6 w-full">
+      {baselineInfo && (baselineInfo.submittedAt || baselineInfo.approvedAt) && (
+        <p className="text-xs text-gray-500">
+          Baseline assessment ({baselineInfo.startYear})
+          {baselineInfo.submittedAt && <> &middot; Submitted: {new Date(baselineInfo.submittedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</>}
+          {baselineInfo.approvedAt && <> &middot; <span className="text-green-600">Approved: {new Date(baselineInfo.approvedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span></>}
+        </p>
+      )}
       {/* General view — single speedometer */}
       {activeView === "general" && hasGeneral && general && (
         <div className="mt-4 flex items-center justify-center">

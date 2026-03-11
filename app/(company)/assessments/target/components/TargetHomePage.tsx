@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLatestTargetPair } from "@/app/(company)/components/ranking/services";
+import { useLatestTargetPair, useBaselineOptions } from "@/app/(company)/components/ranking/services";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { useState, useEffect } from "react";
 import { ChevronDown, Edit, Eye, Plus } from "lucide-react";
@@ -23,6 +23,9 @@ export default function TargetHomePage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { data: pair, isLoading } = useLatestTargetPair(companyId);
+  const { data: baselineOptions } = useBaselineOptions(companyId);
+
+  const latestBaseline = baselineOptions?.[0] ?? null;
 
   const hasGeneral = !!pair?.general;
   const hasScope = !!pair?.scope;
@@ -186,7 +189,15 @@ export default function TargetHomePage() {
       {/* Dashboard */}
       {hasAny && !showForm && (
         <>
-          <PerformanceOverview pair={pair ?? { general: null, scope: null }} activeView={activeView} />
+          <PerformanceOverview
+            pair={pair ?? { general: null, scope: null }}
+            activeView={activeView}
+            baselineInfo={latestBaseline ? {
+              startYear: latestBaseline.startYear,
+              submittedAt: latestBaseline.submittedAt,
+              approvedAt: latestBaseline.approvedAt,
+            } : null}
+          />
           <TargetLogsTable />
         </>
       )}
