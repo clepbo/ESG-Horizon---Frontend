@@ -28,8 +28,14 @@ export default function TargetHomePage() {
   const hasScope = !!pair?.scope;
   const hasAny = hasGeneral || hasScope;
 
-  const defaultView: ViewMode = hasGeneral ? "general" : "scope";
-  const [activeView, setActiveView] = useState<ViewMode>(defaultView);
+  const [activeView, setActiveView] = useState<ViewMode>("general");
+
+  // Sync activeView when pair data arrives
+  useEffect(() => {
+    if (pair) {
+      setActiveView(pair.general ? "general" : "scope");
+    }
+  }, [pair]);
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["latest-target-pair", companyId] });
