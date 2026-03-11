@@ -140,6 +140,8 @@ function NewAssessmentPage() {
         progress: getAssessmentProgressForTable(a),
         rejection_reason: (a as any).rejection_reason,
         lastUpdated: a.updatedAt,
+        submittedAt: a.submittedAt ?? null,
+        approvedAt: a.approvedAt ?? null,
         pillars,
       };
     }) ?? [];
