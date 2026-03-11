@@ -38,7 +38,7 @@ const columns: ColumnDef<Target, any>[] = [
           <p className="text-sm text-gray-700">
             {d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-600">
             {d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
           </p>
         </div>
@@ -79,70 +79,46 @@ const columns: ColumnDef<Target, any>[] = [
     },
   },
   {
-    header: "Baseline Year",
-    accessorKey: "baselineYear",
-    cell: ({ row }) => (
-      <span className="text-sm text-gray-700">{row.original.baselineYear}</span>
-    ),
-  },
-  {
-    header: "Target Year",
-    accessorKey: "targetYear",
+    header: "Baseline Emission",
+    id: "baselineEmission",
     cell: ({ row }) => {
-      const { type, targetYear, generalTarget, scopeTargets } = row.original;
-
-      if (type === TargetType.GENERAL && generalTarget?.reductionPercentage != null) {
-        return (
-          <span className="text-sm text-gray-700">
-            {targetYear}{" "}
-            <span className="font-medium text-amber-500">
-              (Goal: -{generalTarget.reductionPercentage}%)
-            </span>
-          </span>
-        );
-      }
-
-      if (type === TargetType.BOTH && generalTarget?.reductionPercentage != null) {
-        const s1 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE1");
-        const s2 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE2");
-        const s3 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE3");
-        const scopeParts = [
-          s1 ? `S1: -${s1.reductionPercentage}%` : null,
-          s2 ? `S2: -${s2.reductionPercentage}%` : null,
-          s3 ? `S3: -${s3.reductionPercentage}%` : null,
-        ]
-          .filter(Boolean)
-          .join(" / ");
-        return (
-          <span className="text-sm text-gray-700">
-            {targetYear}{" "}
-            <span className="font-medium text-amber-500">
-              (Goal: -{generalTarget.reductionPercentage}%{scopeParts ? ` / ${scopeParts}` : ""})
-            </span>
-          </span>
-        );
-      }
+      const { type, generalTarget, scopeTargets } = row.original;
 
       if (type === TargetType.SCOPE && scopeTargets?.length) {
         const s1 = scopeTargets.find((s) => s.scope.toString() === "SCOPE1");
         const s2 = scopeTargets.find((s) => s.scope.toString() === "SCOPE2");
         const s3 = scopeTargets.find((s) => s.scope.toString() === "SCOPE3");
-        const parts = [
-          s1 ? `S1: -${s1.reductionPercentage}%` : null,
-          s2 ? `S2: -${s2.reductionPercentage}%` : null,
-          s3 ? `S3: -${s3.reductionPercentage}%` : null,
-        ]
-          .filter(Boolean)
-          .join(" / ");
+        const rows = [
+          { label: "S1", value: s1?.baselineYearEmission },
+          { label: "S2", value: s2?.baselineYearEmission },
+          { label: "S3", value: s3?.baselineYearEmission },
+        ].filter((r) => r.value != null);
+
+        if (!rows.length) return <span className="text-sm text-gray-400">—</span>;
+
+        const total = rows.reduce((sum, r) => sum + (r.value ?? 0), 0);
+
         return (
-          <span className="text-sm text-gray-700">
-            {targetYear}{" "}
-            {parts && <span className="font-medium text-amber-500">({parts})</span>}
-          </span>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-baseline gap-1 text-sm">
+              <span className="font-semibold text-gray-800">{formatNumberFull(total)}</span>
+              <span className="text-xs text-gray-600">tCO₂e</span>
+            </div>
+            <p className="text-xs text-gray-600 mt-0.5">
+              {rows.map(({ label, value }) => `${label}: ${formatNumberFull(value!)}`).join(" / ")}
+            </p>
+          </div>
         );
       }
 
-      return <span className="text-sm text-gray-700">{targetYear}</span>;
+      const value = generalTarget?.baselineYearEmission;
+      if (value == null) return <span className="text-sm text-gray-400">—</span>;
+      return (
+        <span className="text-sm text-gray-700">
+          {formatNumberFull(value)}{" "}
+          <span className="text-xs text-gray-600">tCO₂e</span>
+        </span>
+      );
     },
   },
   {
@@ -165,7 +141,6 @@ const columns: ColumnDef<Target, any>[] = [
     cell: ({ row }) => {
       const { type, scopeTargets } = row.original;
 
-      // Scope target — sum of S1+S2+S3 with stacked breakdown below
       if (type === TargetType.SCOPE && scopeTargets?.length) {
         const s1 = scopeTargets.find((s) => s.scope.toString() === "SCOPE1");
         const s2 = scopeTargets.find((s) => s.scope.toString() === "SCOPE2");
@@ -184,26 +159,85 @@ const columns: ColumnDef<Target, any>[] = [
           <div className="flex flex-col gap-0.5">
             <div className="flex items-baseline gap-1 text-sm">
               <span className="font-semibold text-gray-800">{formatNumberFull(total)}</span>
-              <span className="text-xs text-gray-400">tCO₂e</span>
+              <span className="text-xs text-gray-600">tCO₂e</span>
             </div>
-            <div className="flex gap-2 text-xs text-gray-400 mt-0.5">
-              {rows.map(({ label, value }) => (
-                <span key={label}>{label}: {formatNumberFull(value!)}</span>
-              ))}
-            </div>
+            <p className="text-xs text-gray-600 mt-0.5">
+              {rows.map(({ label, value }) => `${label}: ${formatNumberFull(value!)}`).join(" / ")}
+            </p>
           </div>
         );
       }
 
-      // General target — single value
       const value = getCurrentEmission(row.original);
       if (value == null) return <span className="text-sm text-gray-400">—</span>;
       return (
         <span className="text-sm text-gray-700">
           {formatNumberFull(value)}{" "}
-          <span className="text-xs text-gray-400">tCO₂e</span>
+          <span className="text-xs text-gray-600">tCO₂e</span>
         </span>
       );
+    },
+  },
+  {
+    header: "Target Year",
+    accessorKey: "targetYear",
+    cell: ({ row }) => {
+      const { type, targetYear, generalTarget, scopeTargets } = row.original;
+
+      if (type === TargetType.GENERAL && generalTarget?.reductionPercentage != null) {
+        return (
+          <div>
+            <span className="text-sm text-gray-700">{targetYear}</span>
+            <p className="text-xs font-bold text-amber-600">
+              Goal: -{generalTarget.reductionPercentage}%
+            </p>
+          </div>
+        );
+      }
+
+      if (type === TargetType.BOTH && generalTarget?.reductionPercentage != null) {
+        const s1 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE1");
+        const s2 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE2");
+        const s3 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE3");
+        const scopeParts = [
+          s1 ? `S1: -${s1.reductionPercentage}%` : null,
+          s2 ? `S2: -${s2.reductionPercentage}%` : null,
+          s3 ? `S3: -${s3.reductionPercentage}%` : null,
+        ]
+          .filter(Boolean)
+          .join(" / ");
+        return (
+          <div>
+            <span className="text-sm text-gray-700">{targetYear}</span>
+            <p className="text-xs font-bold text-amber-600">
+              Goal: -{generalTarget.reductionPercentage}%{scopeParts ? ` / ${scopeParts}` : ""}
+            </p>
+          </div>
+        );
+      }
+
+      if (type === TargetType.SCOPE && scopeTargets?.length) {
+        const s1 = scopeTargets.find((s) => s.scope.toString() === "SCOPE1");
+        const s2 = scopeTargets.find((s) => s.scope.toString() === "SCOPE2");
+        const s3 = scopeTargets.find((s) => s.scope.toString() === "SCOPE3");
+        const parts = [
+          s1 ? `S1: -${s1.reductionPercentage}%` : null,
+          s2 ? `S2: -${s2.reductionPercentage}%` : null,
+          s3 ? `S3: -${s3.reductionPercentage}%` : null,
+        ]
+          .filter(Boolean)
+          .join(" / ");
+        return (
+          <div>
+            <span className="text-sm text-gray-700">{targetYear}</span>
+            {parts && (
+              <p className="text-xs font-bold text-amber-600">{parts}</p>
+            )}
+          </div>
+        );
+      }
+
+      return <span className="text-sm text-gray-700">{targetYear}</span>;
     },
   },
 ];

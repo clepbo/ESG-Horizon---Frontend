@@ -225,8 +225,8 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                     </p>
                   ) : (
                     <p>
-                      Total company-wide GHG emissions from the assessment selected as your general
-                      target baseline year ({baselineYear}).
+                      Your company&apos;s total GHG emissions as reported in the approved{" "}
+                      {baselineYear} baseline assessment.
                     </p>
                   )}
                 </TooltipContent>
@@ -258,8 +258,8 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
                     </p>
                   ) : (
                     <p>
-                      Total company-wide GHG emissions from your most recent approved assessment.
-                      Updates each time a new assessment is approved.
+                      Your latest approved GHG emissions total. Refreshes with each new approved
+                      assessment.
                     </p>
                   )}
                 </TooltipContent>
