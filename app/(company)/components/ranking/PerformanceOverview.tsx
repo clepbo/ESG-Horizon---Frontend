@@ -3,29 +3,19 @@
 import { KpiCard } from "@/app/components/ui/charts/DonoughtChart";
 import SpeedometerGauge from "./CustomGuageChart";
 import { formatNumberWithCommas } from "../../reports-and-analytics/components/utils/helpers";
-import { useState } from "react";
 
 import { TargetPair } from "./services";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/components/ui/select";
 
-type ViewMode = "general" | "scope";
+export type ViewMode = "general" | "scope";
 
 interface PerformanceOverviewProps {
   pair: TargetPair;
+  activeView: ViewMode;
 }
 
-export default function PerformanceOverview({ pair }: PerformanceOverviewProps) {
+export default function PerformanceOverview({ pair, activeView }: PerformanceOverviewProps) {
   const hasGeneral = !!pair.general;
   const hasScope = !!pair.scope;
-
-  const defaultView: ViewMode = hasGeneral ? "general" : "scope";
-  const [activeView, setActiveView] = useState<ViewMode>(defaultView);
 
   const generalTarget = pair.general;
   const scopeTarget = pair.scope;
@@ -65,26 +55,6 @@ export default function PerformanceOverview({ pair }: PerformanceOverviewProps) 
 
   return (
     <KpiCard className="space-y-6 w-full">
-      {/* Header row: title + view switcher */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Targets and Performance</h2>
-        {(hasGeneral || hasScope) && (
-          <Select value={activeView} onValueChange={(v) => setActiveView(v as ViewMode)}>
-            <SelectTrigger className="w-36 h-8 text-sm border-none shadow-none p-0">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="general" disabled={!hasGeneral}>
-                General Target
-              </SelectItem>
-              <SelectItem value="scope" disabled={!hasScope}>
-                Scope Targets
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-
       {/* General view — single speedometer */}
       {activeView === "general" && hasGeneral && general && (
         <div className="mt-4 flex items-center justify-center">
