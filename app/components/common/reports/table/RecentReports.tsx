@@ -30,7 +30,7 @@ import { StatusButton, StatusVariant } from "../StatusButton";
 import Link from "next/link";
 import { useReport } from "@/app/(company)/reports-and-analytics/components/service/useReport";
 import { Card, CardContent } from "@/app/components/ui/card";
-import { Search, Eye, Pencil } from "lucide-react";
+import { Search, Eye } from "lucide-react";
 
 const columnHelper = createColumnHelper<TableRowType>();
 
@@ -97,16 +97,6 @@ const columns = [
         >
           <Link href={`/reports-and-analytics/${info.row.original.id}`} aria-label="View report">
             <Eye className="h-4 w-4 text-gray-600" />
-          </Link>
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-9 w-9 rounded-md border-gray-300"
-          asChild
-        >
-          <Link href={`/assessments/${info.row.original.id}`} aria-label="Edit report">
-            <Pencil className="h-4 w-4 text-gray-600" />
           </Link>
         </Button>
       </div>

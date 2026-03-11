@@ -469,13 +469,30 @@ export default function SetTargetByScope({ existingTarget, onComplete }: SetTarg
                   </Link>
                 </div>
               ) : (
-                <Input
-                  id={`${scope}-baselineYear`}
-                  type="number"
-                  value={emissionData?.startYear || ""}
-                  readOnly
-                  className="w-full bg-gray-50 cursor-not-allowed"
-                />
+                <>
+                  <Input
+                    id={`${scope}-baselineYear`}
+                    type="number"
+                    value={emissionData?.startYear || ""}
+                    readOnly
+                    className="w-full bg-gray-50 cursor-not-allowed"
+                  />
+                  {scope === "scope1" && (() => {
+                    const sel = baselineOptionsQuery.data?.find(
+                      (o: BaselineOption) => o.assessmentId === selectedBaselineId
+                    );
+                    if (!sel?.submittedAt && !sel?.approvedAt) return null;
+                    const fmt = (v: string) =>
+                      new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+                    return (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {sel.submittedAt && <>Submitted: {fmt(sel.submittedAt)}</>}
+                        {sel.submittedAt && sel.approvedAt && <> &middot; </>}
+                        {sel.approvedAt && <span className="text-green-600">Approved: {fmt(sel.approvedAt)}</span>}
+                      </p>
+                    );
+                  })()}
+                </>
               )}
             </div>
 

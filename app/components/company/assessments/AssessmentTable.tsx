@@ -28,6 +28,7 @@ import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { formatStatus } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { useDeleteAssessment, useSubmitForReview } from "@/services/hooks/assessment.hooks";
 import ReviewerSelectionModal from "./ReviewerSelectionModal";
 
@@ -48,6 +49,8 @@ export interface Assessment {
   rejection_reason?: string;
   progress?: number;
   lastUpdated?: string | Date;
+  submittedAt?: string | null;
+  approvedAt?: string | null;
   /** High-level ESG pillars that have data for this assessment. */
   pillars?: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[];
 }
@@ -406,7 +409,6 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
         }
       },
     }),
-
     columnHelper.display({
       id: "progress",
       header: "Progress",
@@ -481,11 +483,37 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
         const label = formatStatus(status);
         const variant = variantMap[status] || "outline";
 
+        const fmt = (val?: string | null) => {
+          if (!val) return null;
+          try {
+            return new Date(val).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+          } catch {
+            return null;
+          }
+        };
+        const sub = fmt(assessment.submittedAt);
+        const app = fmt(assessment.approvedAt);
+        const hasTimestamps = sub || app;
+
         return (
           <div className="flex items-center gap-2">
             <Badge variant={variant as any} className="capitalize">
               {label}
             </Badge>
+
+            {hasTimestamps && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-gray-400 hover:text-gray-600 cursor-help">
+                    <CircleHelp className="h-4 w-4" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="flex flex-col gap-0.5 text-white">
+                  {sub && <span>Submitted: {sub}</span>}
+                  {app && <span>Approved: {app}</span>}
+                </TooltipContent>
+              </Tooltip>
+            )}
 
             {(status === "unapproved_rejected" || status === "declined") && assessment.rejection_reason && (
               <button

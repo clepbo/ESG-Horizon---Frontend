@@ -1,7 +1,7 @@
 "use client";
 
 import { DataTable } from "@/app/components/ui/reusables/DataTable";
-import { useAllTargets } from "@/app/(company)/components/ranking/services";
+import { useAllTargets, useBaselineOptions } from "@/app/(company)/components/ranking/services";
 import { useAuth } from "@/context/AuthContext";
 import { Target, TargetType } from "@/app/(company)/components/types/target";
 import { ColumnDef } from "@tanstack/react-table";
@@ -246,6 +246,7 @@ export default function TargetLogsTable() {
   const { user } = useAuth();
   const companyId = user?.company?.id;
   const { data, isLoading } = useAllTargets(companyId);
+  const { data: baselineOptions } = useBaselineOptions(companyId);
 
   const sorted = [...(data ?? [])].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -253,9 +254,22 @@ export default function TargetLogsTable() {
 
   if (isLoading || !sorted.length) return null;
 
+  const latest = baselineOptions?.[0];
+  const fmt = (v: string) =>
+    new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
   return (
     <div className="mt-4">
-      <h6 className="font-semibold text-gray-900 mb-3">Recent Targets</h6>
+      <div className="flex items-baseline justify-between mb-3">
+        <h6 className="font-semibold text-gray-900">Recent Targets</h6>
+        {latest?.submittedAt || latest?.approvedAt ? (
+          <p className="text-xs text-gray-500">
+            Latest baseline ({latest.startYear})
+            {latest.submittedAt && <> &middot; Submitted: {fmt(latest.submittedAt)}</>}
+            {latest.approvedAt && <> &middot; <span className="text-green-600">Approved: {fmt(latest.approvedAt)}</span></>}
+          </p>
+        ) : null}
+      </div>
       <DataTable
         data={sorted}
         columns={columns}
