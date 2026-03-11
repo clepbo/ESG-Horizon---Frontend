@@ -25,7 +25,7 @@ import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
+import { AssessmentDetailsModal } from "./details/AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { formatStatus } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
@@ -150,10 +150,10 @@ function ActionDropdown({
             : "Continue"}
         </DropdownMenuItem>
 
-        {/* Review — view assessment details */}
+        {/* View Details — view assessment details */}
         <DropdownMenuItem onClick={onReview}>
           {getActionIcon("Review")}
-          Review
+          View Details
         </DropdownMenuItem>
 
         {/* Submit for Review / Submit — only for editable statuses */}
