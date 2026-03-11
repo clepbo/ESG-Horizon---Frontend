@@ -419,7 +419,7 @@ export function AssessmentDetailsModal({
                 </TabsList>
 
                 <TabsContent value="environmental" className="space-y-6">
-                  <Accordion type="multiple" defaultValue={["ghg-emissions"]} className="space-y-4">
+                  <Accordion type="multiple" defaultValue={[]} className="space-y-4">
                     {/* GHG EMISSIONS TAB */}
                     <AccordionItem
                       value="ghg-emissions"
@@ -1025,43 +1025,6 @@ export function AssessmentDetailsModal({
               </Tabs>
 
               <Separator />
-
-              {/* TOP 5 EMISSION SOURCES */}
-              {assessmentData.topEmissionSources?.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">Top 5 Emission Sources</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {assessmentData.topEmissionSources.map((s: any, i: number) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
-                              {i + 1}
-                            </div>
-                            <div>
-                              <p className="font-semibold">{s.source}</p>
-                              <p className="text-sm text-gray-600">
-                                {s.scope} → {s.group}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold">
-                              {formatNumberFull(s.emission)} tCO₂e
-                            </p>
-                            <p className="text-sm text-gray-600">{s.percentage}% of total</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
               {allFiles.length > 0 && (
                 <Card>
