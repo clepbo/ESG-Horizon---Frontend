@@ -33,10 +33,16 @@ export default function TargetHomePage() {
 
   const [activeView, setActiveView] = useState<ViewMode>("general");
 
-  // Sync activeView when pair data arrives
+  // Default to whichever target was most recently updated
   useEffect(() => {
     if (pair) {
-      setActiveView(pair.general ? "general" : "scope");
+      if (pair.general && pair.scope) {
+        const gTime = new Date(pair.general.updatedAt).getTime();
+        const sTime = new Date(pair.scope.updatedAt).getTime();
+        setActiveView(sTime > gTime ? "scope" : "general");
+      } else {
+        setActiveView(pair.general ? "general" : "scope");
+      }
     }
   }, [pair]);
 
