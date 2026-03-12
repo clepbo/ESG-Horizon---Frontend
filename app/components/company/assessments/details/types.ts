@@ -78,4 +78,6 @@ export interface AssessmentDetailsModalProps {
     status?: string;
     [key: string]: any;
   } | null;
+  /** Whether this company requires a reviewer to be selected before submitting */
+  requireAssessmentReview?: boolean;
 }

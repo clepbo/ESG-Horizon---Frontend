@@ -28,6 +28,7 @@ import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./details/AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
 import { formatStatus } from "@/lib/utils";
+import { formatPercent } from "@/lib/numberFormat";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { useDeleteAssessment, useSubmitForReview } from "@/services/hooks/assessment.hooks";
 import ReviewerSelectionModal from "./ReviewerSelectionModal";
@@ -415,22 +416,22 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
       cell: (info) => {
         const raw = info.row.original.progress;
         const percentage = raw != null ? Math.min(raw, 100) : null;
-        const radius = 22;
+        const radius = 26;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference - ((percentage ?? 0) / 100) * circumference;
         const index = info.row.index;
 
         return (
-          <div className="relative flex items-center justify-center w-14 h-14">
+          <div className="relative flex items-center justify-center w-16 h-16">
             <svg
-              width="56"
-              height="56"
+              width="64"
+              height="64"
               className="-rotate-90"
               style={{ position: "absolute", top: 0, left: 0 }}
             >
               <circle
-                cx="28"
-                cy="28"
+                cx="32"
+                cy="32"
                 r={radius}
                 stroke="#e5e7eb"
                 strokeWidth="4"
@@ -445,8 +446,8 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
                 </linearGradient>
               </defs>
               <circle
-                cx="28"
-                cy="28"
+                cx="32"
+                cy="32"
                 r={radius}
                 stroke={`url(#grad-${index})`}
                 strokeWidth="4"
@@ -458,7 +459,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
               />
             </svg>
             <span className="absolute text-[11px] font-semibold text-gray-800">
-              {percentage != null ? `${percentage}%` : "N/A"}
+              {percentage != null ? formatPercent(percentage) : "N/A"}
             </span>
           </div>
         );
@@ -594,6 +595,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
         open={!!selectedAssessment}
         onClose={() => setSelectedAssessment(null)}
         assessment={selectedAssessment}
+        requireAssessmentReview={requireAssessmentReview}
       />
 
       <DeclineReasonModal

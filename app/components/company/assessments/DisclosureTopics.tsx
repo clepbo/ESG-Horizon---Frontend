@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
-import { ArrowLeft, ChevronRight, Info, Search } from "lucide-react";
+import { ArrowLeft, ChevronRight, Info, Lock, Search } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -232,6 +232,10 @@ export function DisclosureTopics({
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
 
+  // Prevent editing when assessment has been submitted, approved, or is awaiting review
+  const lockedStatuses = ["approved", "submitted_approved", "awaiting_review"];
+  const isLocked = lockedStatuses.includes(state.assessmentData?.status || "");
+
   // Use the custom hook for topic completion status
   // const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
@@ -363,6 +367,7 @@ export function DisclosureTopics({
   };
 
   const handleCardClick = (cardTitle: string) => {
+    if (isLocked) return;
     switch (cardTitle) {
       case "Greenhouse Gas Emissions":
         setCurrentView("ghg");
@@ -628,6 +633,19 @@ export function DisclosureTopics({
             Back
           </Button>
 
+          {isLocked && (
+            <div className="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 mb-4">
+              <Lock className="h-4 w-4 text-amber-600 shrink-0" />
+              <p className="text-sm text-amber-800">
+                This assessment has been{" "}
+                {state.assessmentData?.status === "awaiting_review"
+                  ? "submitted for review"
+                  : "approved"}
+                . It is read-only and cannot be edited.
+              </p>
+            </div>
+          )}
+
           <Card className="bg-gray-50 p-8 rounded-xl shadow-none ">
             <CardContent className="p-0">
               <div className="flex items-center justify-between mb-8">
@@ -646,7 +664,7 @@ export function DisclosureTopics({
                     </p>
                   )}
                 </div>
-                {!assignedTask && (
+                {!assignedTask && !isLocked && (
                   <Button
                     className="bg-primary hover:bg-teal-600 text-white"
                     onClick={() => router.push("/assessments/tasks/assign?selectAll=true")}
@@ -695,7 +713,9 @@ export function DisclosureTopics({
                 </div>
                 {/* Status indication commented out - revisit later (was getActivityMetricsBorderClass()) */}
                 <Card
-                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
+                  className={`transition-all shadow-sm bg-white rounded-lg max-w-md ${
+                    isLocked ? "opacity-75 cursor-default" : "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                  }`}
                   style={{
                     borderLeftWidth: "4px",
                     borderLeftColor: (() => {
@@ -705,7 +725,7 @@ export function DisclosureTopics({
                       return "transparent";
                     })(),
                   }}
-                  onClick={() => setCurrentView("activity-metrics")}
+                  onClick={() => !isLocked && setCurrentView("activity-metrics")}
                 >
                   <CardContent className="p-4 flex justify-between items-center">
                     <div className="flex items-start justify-between gap-3">
@@ -778,10 +798,13 @@ export function DisclosureTopics({
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
-                                        ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                        : "cursor-default"
-                                      }`}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${
+                                      isLocked
+                                        ? "opacity-75 cursor-default"
+                                        : card.clickable
+                                          ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                          : "cursor-default"
+                                    }`}
                                     style={{
                                       borderLeftWidth: "4px",
                                       borderLeftColor: (() => {

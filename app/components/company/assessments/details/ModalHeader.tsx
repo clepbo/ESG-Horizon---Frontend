@@ -1,23 +1,32 @@
-import { X, UserPlus, CheckCircle } from "lucide-react";
+import { X, UserPlus, CheckCircle, Clock } from "lucide-react";
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
 import { STATUS_CONFIG } from "./constants";
 
 interface ModalHeaderProps {
   status: string;
+  requireAssessmentReview?: boolean;
+  isSubmitting?: boolean;
   onClose: () => void;
   onAssignTask?: () => void;
-  onSubmitForReview?: () => void;
+  onSubmitClick?: () => void;
 }
 
 export function ModalHeader({
   status,
+  requireAssessmentReview,
+  isSubmitting,
   onClose,
   onAssignTask,
-  onSubmitForReview,
+  onSubmitClick,
 }: ModalHeaderProps) {
   const config = STATUS_CONFIG[status] || STATUS_CONFIG.in_progress;
   const StatusIcon = config.icon;
+
+  const canSubmit = status === "in_progress" || status === "declined";
+  const isAwaitingReview = status === "awaiting_review";
+
+  const submitLabel = requireAssessmentReview ? "Submit for Review" : "Submit / Approve";
 
   return (
     <div className="sticky top-0 bg-white border-b z-10 px-6 py-4">
@@ -41,16 +50,32 @@ export function ModalHeader({
               Assign Task
             </Button>
           )}
-          {onSubmitForReview && (
+
+          {/* Submit button — dynamic by status */}
+          {canSubmit && onSubmitClick && (
             <Button
               size="sm"
               className="gap-2 bg-teal-600 hover:bg-teal-700 text-white"
-              onClick={onSubmitForReview}
+              onClick={onSubmitClick}
+              disabled={isSubmitting}
             >
               <CheckCircle className="w-4 h-4" />
-              Submit for Review
+              {isSubmitting ? "Submitting..." : submitLabel}
             </Button>
           )}
+          {isAwaitingReview && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 border-blue-400 text-blue-600 cursor-default"
+              disabled
+            >
+              <Clock className="w-4 h-4" />
+              Awaiting Review
+            </Button>
+          )}
+          {/* isFinalized → no submit button rendered */}
+
           <button
             onClick={onClose}
             className="hover:bg-gray-100 rounded-full p-1.5 transition-colors cursor-pointer"

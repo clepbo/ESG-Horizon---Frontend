@@ -172,8 +172,8 @@ export default function AssignTaskPage() {
   const { data: tasks } = useAllTasks();
   const assignTaskMutation = useAssignTask();
   const { data: companyDetails } = useCompanyDetails();
-  const companyId = Number(companyDetails?.id);
-  const { data: teamMembers } = useCompanyUsers(String(companyId));
+  const companyId = companyDetails?.id ?? 0;
+  const { data: teamMembers } = useCompanyUsers(companyId);
   const { data: departments } = useCompanyDepartments(companyId);
 
   const [taskName, setTaskName] = useState("");

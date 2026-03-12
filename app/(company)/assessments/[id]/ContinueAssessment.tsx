@@ -23,8 +23,16 @@ export default function ContinueAssessment() {
   useEffect(() => {
     if (!data) return;
 
+    // When forceDisclosure has view/step params, always re-process them even if the
+    // assessment is already loaded — the user navigated here from the details modal
+    // Edit button and expects to land on the specific form section.
+    const viewParam = searchParams?.get("view");
+    const stepParam = searchParams?.get("step");
+    const hasDeepLink = forceDisclosure && viewParam;
+
     // If we've already loaded this assessment and transitioned away from the initial hub view, don't re-run
-    if (state.assessmentId === assessmentId && state.currentView !== "hub") return;
+    // — unless we have a deep link that needs to override the current view
+    if (state.assessmentId === assessmentId && state.currentView !== "hub" && !hasDeepLink) return;
 
     const assessment = data;
     const lastSavedForm = assessment.assessmentData?.lastSavedForm;
@@ -140,7 +148,14 @@ export default function ContinueAssessment() {
     });
 
     if (forceDisclosure) {
-      dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+      if (viewParam) {
+        dispatch({ type: "SET_VIEW", payload: viewParam });
+        if (stepParam) {
+          dispatch({ type: "SET_TARGET_STEP", payload: stepParam });
+        }
+      } else {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+      }
       return;
     }
 

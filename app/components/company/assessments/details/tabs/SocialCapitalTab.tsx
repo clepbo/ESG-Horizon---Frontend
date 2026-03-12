@@ -14,6 +14,8 @@ interface SocialCapitalTabProps {
   assessmentData: any;
   submittedGroups: string[];
   onFileClick: (file: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }
 
 function hasData(obj: any) {
@@ -24,7 +26,7 @@ function hasData(obj: any) {
   });
 }
 
-export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick }: SocialCapitalTabProps) {
+export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: SocialCapitalTabProps) {
   const socialCapital = assessmentData.socialCapital || {};
   const communityRelations = socialCapital.communityRelations || {};
   const securityRights = socialCapital.securityRights || socialCapital.securityHumanRights || {};
@@ -98,8 +100,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={communityRiskStatus}
             documents={communityRiskFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("crs", "risk-&-opportunity-management"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.communityRisk"))}
           >
             {!hasData(communityRisk) ? (
               <EmptyState />
@@ -134,8 +136,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={hcdtStatus}
             documents={hcdtFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("crs", "host-community-development-(pia)"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.hcdtContribution"))}
           >
             {!hasData(hcdtContribution) ? (
               <EmptyState />
@@ -146,7 +148,7 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
                   <StatusDot status={hcdtStatus} />
                 </div>
                 <DataFieldGrid
-                  columns={4}
+                  columns={3}
                   fields={[
                     {
                       label: `Total OPEX (${hcdtContribution.opexUnit || "USD"})`,
@@ -154,17 +156,16 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
                       unit: hcdtContribution.opexUnit || "USD",
                     },
                     {
-                      label: "OPEX Unit",
-                      value: hcdtContribution.opexUnit,
-                    },
-                    {
                       label: `HCDT Amount (${hcdtContribution.hcdtUnit || "USD"})`,
                       value: hcdtContribution.hcdtAmount,
                       unit: hcdtContribution.hcdtUnit || "USD",
                     },
                     {
-                      label: "HCDT Unit",
-                      value: hcdtContribution.hcdtUnit,
+                      label: "% of OPEX",
+                      value:
+                        hcdtContribution.opexAmount && hcdtContribution.hcdtAmount && Number(hcdtContribution.opexAmount) > 0
+                          ? `${((Number(hcdtContribution.hcdtAmount) / Number(hcdtContribution.opexAmount)) * 100).toFixed(2)}%`
+                          : "N/A",
                     },
                   ]}
                 />
@@ -178,8 +179,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={disputeStatus}
             documents={disputeFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("crs", "community-dispute-resolution"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.disputeResolution"))}
           >
             {!hasData(disputeResolution) ? (
               <EmptyState />
@@ -206,8 +207,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={delaysStatus}
             documents={delaysFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("crs", "operational-delays"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.operationalDelays"))}
           >
             {!hasData(operationalDelays) ? (
               <EmptyState />
@@ -258,8 +259,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={conflictStatus}
             documents={conflictFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("security-human-rights", "reserves-in-conflict"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.securityRights.reservesAreaConflict"))}
           >
             {!hasData(reservesAreaConflict) ? (
               <EmptyState />
@@ -306,8 +307,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={indigenousStatus}
             documents={indigenousFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("security-human-rights", "reserves-indigenous-land"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.securityRights.reservesIndigenousLand"))}
           >
             {!hasData(reservesIndigenousLand) ? (
               <EmptyState />
@@ -354,8 +355,8 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick 
             status={humanRightsStatus}
             documents={humanRightsFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("security-human-rights", "human-rights-engagement"))}
+            onClear={onClearSection && (() => onClearSection("socialCapital.securityRights.humanRightEngagement"))}
           >
             {!hasData(humanRightEngagement) ? (
               <EmptyState />

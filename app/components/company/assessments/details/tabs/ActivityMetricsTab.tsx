@@ -13,6 +13,8 @@ interface ActivityMetricsTabProps {
   assessmentData: any;
   submittedGroups: string[];
   onFileClick: (file: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }
 
 function getOverallStatus(statuses: SectionStatus[]): SectionStatus {
@@ -21,7 +23,7 @@ function getOverallStatus(statuses: SectionStatus[]): SectionStatus {
   return "not-started";
 }
 
-export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClick }: ActivityMetricsTabProps) {
+export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: ActivityMetricsTabProps) {
   const activityMetrics = assessmentData.foundationalData?.activityMetrics || {};
   const productionVolume = activityMetrics.productionVolume || {};
   const offshore = activityMetrics.assetPortfolio?.offshoreSites || {};
@@ -53,8 +55,8 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
         <SubMetricSection
           title="Production Volumes"
           status={pvStatus}
-          onEdit={() => {}}
-          onClear={() => {}}
+          onEdit={onEditSection && (() => onEditSection("activity-metrics", "production-volume"))}
+          onClear={onClearSection && (() => onClearSection("foundationalData.activityMetrics.productionVolume"))}
           documents={pvFiles}
           onFileClick={onFileClick}
         >
@@ -96,8 +98,8 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
         <SubMetricSection
           title="Offshore Sites"
           status={offshoreStatus}
-          onEdit={() => {}}
-          onClear={() => {}}
+          onEdit={onEditSection && (() => onEditSection("activity-metrics", "offshore-sites"))}
+          onClear={onClearSection && (() => onClearSection("foundationalData.activityMetrics.assetPortfolio.offshoreSites"))}
           documents={offshoreFiles}
           onFileClick={onFileClick}
         >
@@ -123,8 +125,8 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
         <SubMetricSection
           title="Terrestrial Sites"
           status={terrestrialStatus}
-          onEdit={() => {}}
-          onClear={() => {}}
+          onEdit={onEditSection && (() => onEditSection("activity-metrics", "terrestrial-sites"))}
+          onClear={onClearSection && (() => onClearSection("foundationalData.activityMetrics.assetPortfolio.terrestrialSites"))}
           documents={terrestrialFiles}
           onFileClick={onFileClick}
         >
