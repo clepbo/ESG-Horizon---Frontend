@@ -300,6 +300,11 @@ export default function HCDTContribution({
                     {errors.hcdtUnit && <p className="text-sm text-red-500">{errors.hcdtUnit}</p>}
                   </div>
                 </div>
+                {opexAmount.rawValue && hcdtAmount.rawValue && Number(opexAmount.rawValue) > 0 && (
+                  <p className="text-sm text-gray-500 italic">
+                    ≈ {((Number(hcdtAmount.rawValue) / Number(opexAmount.rawValue)) * 100).toFixed(2)}% of OPEX
+                  </p>
+                )}
               </div>
             </div>
 

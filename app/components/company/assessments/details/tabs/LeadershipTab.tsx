@@ -14,6 +14,8 @@ interface LeadershipTabProps {
   assessmentData: any;
   submittedGroups: string[];
   onFileClick: (file: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }
 
 function hasData(obj: any) {
@@ -24,7 +26,7 @@ function hasData(obj: any) {
   });
 }
 
-export function LeadershipTab({ assessmentData, submittedGroups, onFileClick }: LeadershipTabProps) {
+export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: LeadershipTabProps) {
   const lg = assessmentData.leadershipGovernance || {};
   const criticalIncident = lg.criticalIncidentRiskManagement || {};
   const legalReg = lg.managementOfTheLegalAndRegulatoryEnvironment || {};
@@ -98,8 +100,8 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick }: 
             status={processStatus}
             documents={processFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("critical-incident-risk-management", "process-safety-events"))}
+            onClear={onClearSection && (() => onClearSection("leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents"))}
           >
             {!hasData(processSafety) ? (
               <EmptyState />
@@ -133,8 +135,8 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick }: 
             status={catastrophicStatus}
             documents={catastrophicFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("critical-incident-risk-management", "catastrophic-risk-management"))}
+            onClear={onClearSection && (() => onClearSection("leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems"))}
           >
             {!hasData(catastrophicRisk) ? (
               <EmptyState />
@@ -178,8 +180,8 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick }: 
             status={policyStatus}
             documents={policyFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("management-of-legal-and-regulatory-environment", "public-policy-engagement"))}
+            onClear={onClearSection && (() => onClearSection("leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.publicPolicyEngagement"))}
           >
             {!hasData(publicPolicy) ? (
               <EmptyState />
@@ -217,8 +219,8 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick }: 
             status={boardStatus}
             documents={boardFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("management-of-legal-and-regulatory-environment", "board-management-oversight"))}
+            onClear={onClearSection && (() => onClearSection("leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight"))}
           >
             {!hasData(boardOversight) ? (
               <EmptyState />

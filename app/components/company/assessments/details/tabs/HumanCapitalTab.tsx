@@ -14,6 +14,8 @@ interface HumanCapitalTabProps {
   assessmentData: any;
   submittedGroups: string[];
   onFileClick: (file: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }
 
 function hasData(obj: any) {
@@ -24,7 +26,7 @@ function hasData(obj: any) {
   });
 }
 
-export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick }: HumanCapitalTabProps) {
+export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: HumanCapitalTabProps) {
   const humanCapital = assessmentData.humanCapital || {};
   const hsp = humanCapital.riskAndOpportunityManagement?.healthAndSafetyPerformance || {};
   const directEmployees = hsp.direct || {};
@@ -86,8 +88,8 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick }
             status={hspStatus}
             documents={hspFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("workforce-health-and-safety", "health-safety-performance"))}
+            onClear={onClearSection && (() => onClearSection("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"))}
           >
             {!hasData(hsp) ? (
               <EmptyState />
@@ -189,8 +191,8 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick }
             status={safetyStatus}
             documents={safetyFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("workforce-health-and-safety", "safety-management-systems"))}
+            onClear={onClearSection && (() => onClearSection("humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"))}
           >
             {!hasData(safetyMgmt) ? (
               <EmptyState />

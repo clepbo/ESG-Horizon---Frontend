@@ -96,6 +96,17 @@ export function formatNumberShort(
 }
 
 /**
+ * Percentage formatting — value is already on the 0-100 scale (e.g. 90.8 → "90.80%").
+ * Defaults to 2 decimal places. Pass decimals=0 for a compact integer display.
+ */
+export function formatPercent(value: NumericInput, decimals = 2): string {
+  const num = toNumber(value);
+  if (num === null) return "0.00%";
+  const clamped = Math.min(Math.max(num, 0), 100);
+  return `${formatNumberFull(clamped, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}%`;
+}
+
+/**
  * Compact currency formatting that builds on formatNumberShort.
  * Defaults to Naira (₦) since that's the dominant usage in this app.
  */

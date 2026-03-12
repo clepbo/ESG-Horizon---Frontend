@@ -47,7 +47,7 @@ export function SourceEntryCard({ number, title, data, status }: SourceEntryCard
           label="Emission Factor"
           value={
             emissionFactor != null
-              ? `${emissionFactor} kgCO₂e/${unit || "unit"}${source ? ` (${source})` : ""}`
+              ? `${formatNumberShort(emissionFactor)} kgCO₂e/${unit || "unit"}${source ? ` (${source})` : ""}`
               : undefined
           }
         />
