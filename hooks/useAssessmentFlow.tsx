@@ -148,7 +148,7 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   const isAssignedTask = state.isAssignedTask || false;
 
   const assessmentStatus = state.assessmentData?.status || "";
-  const lockedStatuses = ["approved", "submitted_approved"];
+  const lockedStatuses = ["approved", "submitted_approved", "awaiting_review"];
   const isAssessmentLocked = lockedStatuses.includes(assessmentStatus);
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];

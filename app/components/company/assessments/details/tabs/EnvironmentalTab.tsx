@@ -19,6 +19,8 @@ interface EnvironmentalTabProps {
   assessmentData: any;
   submittedGroups?: string[];
   onFileClick: (file: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }
 
 /* ─────────────────────── helpers ─────────────────────── */
@@ -83,7 +85,7 @@ function DataEntryCard({
 
 /* ─────────────────────── MAIN COMPONENT ─────────────────────── */
 
-export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileClick }: EnvironmentalTabProps) {
+export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileClick, onEditSection, onClearSection }: EnvironmentalTabProps) {
   const env = assessmentData.environment || {};
   const ghg = env.ghg || {};
   const scope1 = ghg.scope1 || {};
@@ -176,16 +178,18 @@ export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileC
         submittedGroups={submittedGroups}
         incompleteCount={ghgIncompleteCount}
         onFileClick={onFileClick}
+        onEditSection={onEditSection}
+        onClearSection={onClearSection}
       />
 
       {/* ══════════════════ AIR QUALITY ══════════════════ */}
-      <AirQualitySection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} />
+      <AirQualitySection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
 
       {/* ══════════════════ WATER & WASTEWATER ══════════════════ */}
-      <WaterManagementSection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} />
+      <WaterManagementSection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
 
       {/* ══════════════════ BIODIVERSITY ══════════════════ */}
-      <BiodiversitySection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} />
+      <BiodiversitySection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
     </Accordion>
   );
 }
@@ -230,6 +234,8 @@ function GHGSection({
   submittedGroups,
   incompleteCount,
   onFileClick,
+  onEditSection,
+  onClearSection,
 }: {
   scope1: any;
   scope2: any;
@@ -242,6 +248,8 @@ function GHGSection({
   submittedGroups: string[];
   incompleteCount: number;
   onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }) {
   return (
     <MetricAccordion
@@ -272,7 +280,7 @@ function GHGSection({
           </AccordionTrigger>
           <AccordionContent className="px-5 pb-5 pt-0">
             <div className="space-y-6">
-              <Scope1Content scope1={scope1} submittedGroups={submittedGroups} onFileClick={onFileClick} />
+              <Scope1Content scope1={scope1} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -291,7 +299,7 @@ function GHGSection({
           </AccordionTrigger>
           <AccordionContent className="px-5 pb-5 pt-0">
             <div className="space-y-6">
-              <Scope2Content scope2={scope2} submittedGroups={submittedGroups} onFileClick={onFileClick} />
+              <Scope2Content scope2={scope2} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -310,7 +318,7 @@ function GHGSection({
           </AccordionTrigger>
           <AccordionContent className="px-5 pb-5 pt-0">
             <div className="space-y-6">
-              <Scope3Content scope3={scope3} submittedGroups={submittedGroups} onFileClick={onFileClick} />
+              <Scope3Content scope3={scope3} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -321,7 +329,7 @@ function GHGSection({
 
 /* ─── Scope 1 ─── */
 
-function Scope1Content({ scope1, submittedGroups, onFileClick }: { scope1: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void }) {
+function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, onClearSection }: { scope1: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
   const stationary = scope1.stationarySources || {};
   const mobile = scope1.mobileSources || {};
   const process = scope1.processEmissions || {};
@@ -379,8 +387,8 @@ function Scope1Content({ scope1, submittedGroups, onFileClick }: { scope1: any; 
         status={stationaryStatus}
         documents={stationaryFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-stationary-sources"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.stationarySources"))}
       >
         {!hasStationary ? (
           <EmptyState />
@@ -458,8 +466,8 @@ function Scope1Content({ scope1, submittedGroups, onFileClick }: { scope1: any; 
         status={mobileStatus}
         documents={mobileFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-mobile-sources"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.mobileSources"))}
       >
         {!hasMobile ? (
           <EmptyState />
@@ -522,8 +530,8 @@ function Scope1Content({ scope1, submittedGroups, onFileClick }: { scope1: any; 
         status={processStatus}
         documents={processEmissionFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-process-emissions"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.processEmissions"))}
       >
         {!hasData(process.cementManufacturing) && !hasData(process.gasFlaring) ? (
           <EmptyState />
@@ -573,8 +581,8 @@ function Scope1Content({ scope1, submittedGroups, onFileClick }: { scope1: any; 
         status={fugitiveStatus}
         documents={fugitiveFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-fugitive-emissions"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.fugitiveEmissions"))}
       >
         {!hasData(fugitive.ventingNaturalGas) && !hasData(fugitive.hfcLeaks) ? (
           <EmptyState />
@@ -632,7 +640,7 @@ function Scope1Content({ scope1, submittedGroups, onFileClick }: { scope1: any; 
 
 /* ─── Scope 2 ─── */
 
-function Scope2Content({ scope2, submittedGroups, onFileClick }: { scope2: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void }) {
+function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, onClearSection }: { scope2: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
   const location = scope2.locationBased || {};
   const market = scope2.marketBased || {};
 
@@ -675,8 +683,8 @@ function Scope2Content({ scope2, submittedGroups, onFileClick }: { scope2: any; 
         status={locationStatus}
         documents={locationFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-location-based"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope2.locationBased"))}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* 1. Purchased Electricity */}
@@ -760,8 +768,8 @@ function Scope2Content({ scope2, submittedGroups, onFileClick }: { scope2: any; 
         status={marketStatus}
         documents={marketFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-market-based"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope2.marketBased"))}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* 1. Purchased Electricity from IPPs */}
@@ -833,7 +841,7 @@ function Scope2Content({ scope2, submittedGroups, onFileClick }: { scope2: any; 
 
 /* ─── Scope 3 ─── */
 
-function Scope3Content({ scope3, submittedGroups, onFileClick }: { scope3: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void }) {
+function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, onClearSection }: { scope3: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
   const upstream = scope3.upstream || {};
   const downstream = scope3.downstream || {};
 
@@ -883,8 +891,8 @@ function Scope3Content({ scope3, submittedGroups, onFileClick }: { scope3: any; 
         status={upstreamStatus}
         documents={upstreamFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-upstream-emissions"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope3.upstream"))}
       >
         <div className="space-y-6">
 
@@ -1060,8 +1068,8 @@ function Scope3Content({ scope3, submittedGroups, onFileClick }: { scope3: any; 
         status={downstreamStatus}
         documents={downstreamFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("ghg-downstream-emissions"))}
+        onClear={onClearSection && (() => onClearSection("environment.ghg.scope3.downstream"))}
       >
         <div className="space-y-6">
 
@@ -1227,7 +1235,7 @@ function Scope3Content({ scope3, submittedGroups, onFileClick }: { scope3: any; 
    AIR QUALITY SECTION
    ═══════════════════════════════════════════════════════════════ */
 
-function AirQualitySection({ env, submittedGroups, onFileClick }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void }) {
+function AirQualitySection({ env, submittedGroups, onFileClick, onEditSection, onClearSection }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
   const aq = env.airQuality?.airPollutantEmissions || {};
   const calc = aq.calculated?.breakdown || {};
 
@@ -1260,8 +1268,8 @@ function AirQualitySection({ env, submittedGroups, onFileClick }: { env: any; su
         status={getFormSectionStatus(submittedGroups, "environment.airQuality.airPollutantEmissions", aq)}
         documents={files}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("air-quality"))}
+        onClear={onClearSection && (() => onClearSection("environment.airQuality.airPollutantEmissions"))}
       >
         {!hasAirData ? (
           <EmptyState />
@@ -1289,7 +1297,7 @@ function AirQualitySection({ env, submittedGroups, onFileClick }: { env: any; su
    WATER & WASTEWATER MANAGEMENT SECTION
    ═══════════════════════════════════════════════════════════════ */
 
-function WaterManagementSection({ env, submittedGroups, onFileClick }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void }) {
+function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSection, onClearSection }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
   const wm = env.waterManagement?.waterAndProducedWaterManagement || {};
   const fw = wm.freshwaterWithdrawals || {};
   const pw = wm.producedWaterManagement || {};
@@ -1347,8 +1355,8 @@ function WaterManagementSection({ env, submittedGroups, onFileClick }: { env: an
         status={fwStatus}
         documents={fwFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
+        onClear={onClearSection && (() => onClearSection("environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"))}
       >
         {!hasFw ? (
           <EmptyState />
@@ -1395,8 +1403,8 @@ function WaterManagementSection({ env, submittedGroups, onFileClick }: { env: an
         status={pwStatus}
         documents={pwFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
+        onClear={onClearSection && (() => onClearSection("environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement"))}
       >
         {!hasPw ? (
           <EmptyState />
@@ -1438,8 +1446,8 @@ function WaterManagementSection({ env, submittedGroups, onFileClick }: { env: an
         status={chemStatus}
         documents={chemFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
+        onClear={onClearSection && (() => onClearSection("environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure"))}
       >
         {!hasChem ? (
           <EmptyState />
@@ -1463,8 +1471,8 @@ function WaterManagementSection({ env, submittedGroups, onFileClick }: { env: an
         status={wqiStatus}
         documents={wqiFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
+        onClear={onClearSection && (() => onClearSection("environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts"))}
       >
         {!hasWqi ? (
           <EmptyState />
@@ -1488,7 +1496,7 @@ function WaterManagementSection({ env, submittedGroups, onFileClick }: { env: an
    BIODIVERSITY IMPACTS SECTION
    ═══════════════════════════════════════════════════════════════ */
 
-function BiodiversitySection({ env, submittedGroups, onFileClick }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void }) {
+function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection, onClearSection }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
   const bio = env.biodiversityImpact?.environmentalManagement || {};
   const policies = bio.environmentalManagementPolicies || {};
   const spills = bio.hydrocarbonSpills || {};
@@ -1543,8 +1551,8 @@ function BiodiversitySection({ env, submittedGroups, onFileClick }: { env: any; 
         status={policiesStatus}
         documents={policyFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("biodiversity", "environmental-management-policies"))}
+        onClear={onClearSection && (() => onClearSection("environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"))}
       >
         {!hasPolicies ? (
           <EmptyState />
@@ -1575,8 +1583,8 @@ function BiodiversitySection({ env, submittedGroups, onFileClick }: { env: any; 
         status={spillsStatus}
         documents={spillFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("biodiversity", "hydrocarbon-spills"))}
+        onClear={onClearSection && (() => onClearSection("environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills"))}
       >
         {!hasSpills ? (
           <EmptyState />
@@ -1625,8 +1633,8 @@ function BiodiversitySection({ env, submittedGroups, onFileClick }: { env: any; 
         status={reservesStatus}
         documents={reserveFiles}
         onFileClick={onFileClick}
-        onEdit={() => {}}
-        onClear={() => {}}
+        onEdit={onEditSection && (() => onEditSection("biodiversity", "reserves-in-sensitive-areas"))}
+        onClear={onClearSection && (() => onClearSection("environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas"))}
       >
         {!hasReserves ? (
           <EmptyState />

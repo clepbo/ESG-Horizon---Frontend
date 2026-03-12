@@ -14,6 +14,8 @@ interface BusinessModelTabProps {
   assessmentData: any;
   submittedGroups: string[];
   onFileClick: (file: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
 }
 
 function hasData(obj: any) {
@@ -24,7 +26,7 @@ function hasData(obj: any) {
   });
 }
 
-export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick }: BusinessModelTabProps) {
+export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: BusinessModelTabProps) {
   const biz = assessmentData.businessInnovation || {};
   const reserves = biz.reservesValuationAndCapitalExpenditures || {};
   const ethics = biz.businessEthicsAndTransparency || {};
@@ -92,8 +94,8 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick 
             status={carbonStatus}
             documents={carbonFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "reserves-sensitivity-carbon-pricing"))}
+            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"))}
           >
             {!hasData(carbonPricing) ? (
               <EmptyState />
@@ -133,8 +135,8 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick 
             status={embeddedStatus}
             documents={embeddedFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "embedded-carbon"))}
+            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"))}
           >
             {!hasData(embeddedCarbon) ? (
               <EmptyState />
@@ -170,8 +172,8 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick 
             status={renewableStatus}
             documents={renewableFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "renewable-energy-investment"))}
+            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment"))}
           >
             {!hasData(renewableEnergy) ? (
               <EmptyState />
@@ -210,8 +212,8 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick 
             status={capexStatus}
             documents={capexFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "capital-expenditure-strategy"))}
+            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy"))}
           >
             {!hasData(capexStrategy) ? (
               <EmptyState />
@@ -256,8 +258,8 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick 
             status={corruptionStatus}
             documents={corruptionFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("business-ethics-transparency", "reserves-countries-corruption-risk"))}
+            onClear={onClearSection && (() => onClearSection("businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk"))}
           >
             {!hasData(corruptionRisk) ? (
               <EmptyState />
@@ -304,8 +306,8 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick 
             status={antiCorruptionStatus}
             documents={antiCorruptionFiles}
             onFileClick={onFileClick}
-            onEdit={() => {}}
-            onClear={() => {}}
+            onEdit={onEditSection && (() => onEditSection("business-ethics-transparency", "anti-corruption-management"))}
+            onClear={onClearSection && (() => onClearSection("businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"))}
           >
             {!hasData(antiCorruption) ? (
               <EmptyState />

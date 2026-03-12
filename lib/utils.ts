@@ -78,13 +78,19 @@ export function computeProgressPercent({
   return Math.min(Math.round((overallProgress + inputProgress / totalSteps) * 100), 100);
 }
 
+const TOTAL_SUBMITTABLE_GROUPS = 38;
+
 export function getAssessmentProgressForTable(assessment: any): number {
   const { assessmentData } = assessment || {};
   if (!assessmentData) return 0;
 
+  // All sections submitted → report exactly 100
+  const submitted: string[] = assessmentData.submittedGroups || [];
+  if (submitted.length >= TOTAL_SUBMITTABLE_GROUPS) return 100;
+
   const progress = assessmentData.overallProgress;
   if (typeof progress === "number" && progress > 0) {
-    return Math.min(Math.round(progress), 100);
+    return Math.min(parseFloat(progress.toFixed(2)), 100);
   }
 
   return 0;
