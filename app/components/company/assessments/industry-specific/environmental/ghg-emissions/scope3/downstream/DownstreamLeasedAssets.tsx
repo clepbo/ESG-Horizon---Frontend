@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -26,6 +26,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface DownstreamLeasedAssetProps {
   onBack: () => void;
@@ -70,14 +71,14 @@ export function DownstreamLeasedAsset({
 
   // Input fields
   const [electricityConsumed, setElectricityConsumed] = useState("");
-  const [otherEnergyConsumed, setOtherEnergyConsumed] = useState("");
+  const [otherEnergyConsumed, setOtherEnergyConsumed] = useState("0");
 
   const [fieldErrors, setFieldErrors] = useState({
     electricityConsumed: false,
     otherEnergyConsumed: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-downstream-leased-assets");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-downstream-leased-assets");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -90,9 +91,10 @@ export function DownstreamLeasedAsset({
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.downstream?.downstreamLeasedAssets;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setElectricityConsumed(existingData.electricityConsumed || "");
-      setOtherEnergyConsumed(existingData.otherEnergyConsumed || "");
+      setElectricityConsumed(s(existingData.electricityConsumed));
+      setOtherEnergyConsumed(s(existingData.otherEnergyConsumed));
 
       // Files
       setFiles(
@@ -113,17 +115,13 @@ export function DownstreamLeasedAsset({
       otherEnergyConsumed.trim() !== "" &&
       !isNaN(Number(otherEnergyConsumed)) &&
       Number(otherEnergyConsumed) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasElectricityConsumed,
       hasOtherEnergyConsumed,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [electricityConsumed, otherEnergyConsumed, files, additionalFields]);
+  }, [electricityConsumed, otherEnergyConsumed]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -241,6 +239,7 @@ export function DownstreamLeasedAsset({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.downstreamLeasedAssets", payload).catch(() => {});
     onNext();
   };
 
@@ -338,7 +337,7 @@ export function DownstreamLeasedAsset({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Downstream Leased Assets" },
+    { label: "Category 13: Downstream Leased Assets" },
   ];
 
   return (
@@ -373,15 +372,16 @@ export function DownstreamLeasedAsset({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">5. Downstream Leased Assets</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 13: Downstream Leased Assets</h4>
               <p className="text-muted-foreground text-base">
                 Report energy consumption data for assets leased to tenants.
               </p>
             </div>
 
-            {/* 5.1 Downstream Leased Assets */}
+            {/* 13.1 Downstream Leased Assets */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -440,7 +440,7 @@ export function DownstreamLeasedAsset({
                   <div className="relative">
                     <div className="flex items-center gap-1 mb-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Other energy consumed (if applicable){" "}
+                        Other energy consumed by tenants{" "}
                         <span className="text-red-500">*</span>
                       </Label>
                       <TooltipProvider>
@@ -469,7 +469,7 @@ export function DownstreamLeasedAsset({
                       label=""
                       type="number"
                       required={false}
-                      placeholder="Enter fuel consumption in litres"
+                      placeholder="Enter energy consumption in kWh"
                       value={otherEnergyConsumed}
                       onChange={handleOtherEnergyConsumedChange}
                       errorTrigger={fieldErrors.otherEnergyConsumed}
@@ -477,7 +477,7 @@ export function DownstreamLeasedAsset({
                     />
                     <div className="absolute right-3 top-9">
                       <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
-                        litres
+                        kWh
                       </span>
                     </div>
                     {errors.otherEnergyConsumed && (
@@ -490,10 +490,10 @@ export function DownstreamLeasedAsset({
               </div>
             </div>
 
-            {/* 5.2 Document/Evidence Upload */}
+            {/* 13.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                5.2 Documents/Evidence Upload
+                13.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -533,19 +533,12 @@ export function DownstreamLeasedAsset({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

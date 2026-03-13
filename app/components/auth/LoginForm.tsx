@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { Checkmark } from "../ui/reusables/CheckMark";
 
 // const GoogleIcon = ({ className }: { className?: string }) => (
 //   <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -49,6 +50,7 @@ export default function LoginForm() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [_loadingSocialLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
 
   const {
     register,
@@ -60,9 +62,6 @@ export default function LoginForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  const awaitingApprovalMessage =
-    "To ensure platform security, your account is pending a final review by an ESG Horizon administrator. This is typically completed within one business day. You will be notified via your corporate email as soon as it's approved.";
-
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     setLoading(true);
     setIsTransitioning(true);
@@ -73,14 +72,14 @@ export default function LoginForm() {
     } catch (error) {
       const message = (error as Error).message || "Login failed";
       if (message && message.includes("awaiting approval")) {
-        toast.info(awaitingApprovalMessage, { autoClose: 15000 });
+        setShowApprovalModal(true);
       } else {
         toast.error(message);
+        setError("root", { message });
+        setTimeout(() => {
+          clearErrors("root");
+        }, 3000);
       }
-      setError("root", { message });
-      setTimeout(() => {
-        clearErrors("root");
-      }, 3000);
       setLoading(false);
       setIsTransitioning(false);
     }
@@ -111,6 +110,34 @@ export default function LoginForm() {
 
   return (
     <div className="relative mt-36">
+      {/* Awaiting Approval Modal */}
+      {showApprovalModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
+          <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-xl px-10 py-12 max-w-md w-full text-center mx-4">
+            <Checkmark />
+            <h1 className="text-2xl font-semibold text-esg-green mb-4">
+              Account Under Review
+            </h1>
+            <p className="text-gray-700 mb-3 text-sm leading-relaxed">
+              To ensure platform security, your account is pending a final review
+              by an ESG Horizon administrator.
+            </p>
+            <p className="text-gray-700 mb-8 text-sm leading-relaxed">
+              This is typically completed within one business day. You will be
+              notified via your corporate email as soon as it&apos;s approved. If you
+              have any urgent questions, please contact our support team
+              at <span className="font-medium">support@esghorizon.com</span>.
+            </p>
+            <button
+              onClick={() => setShowApprovalModal(false)}
+              className="w-full bg-[var(--color-primary)] hover:bg-teal-700 text-white py-3 text-sm rounded-md cursor-pointer font-semibold transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Transition Overlay */}
       {isTransitioning && (
         <div className="p-10 inset-0 z-50 flex items-center justify-start">
@@ -168,6 +195,7 @@ export default function LoginForm() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
+                  autoComplete="off"
                   {...register("password", {
                     required: "Password is required",
                     minLength: {

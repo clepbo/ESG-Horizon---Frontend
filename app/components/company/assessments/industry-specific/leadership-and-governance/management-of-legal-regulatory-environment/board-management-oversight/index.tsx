@@ -38,7 +38,8 @@ export default function BoardManagementOversight({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight";
-  const { saveNow } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight");
+  const hasExistingData = !!state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
   const [hasBoardCommittee, setHasBoardCommittee] = useState("");
   const [oversightDiscussion, setOversightDiscussion] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -55,8 +56,8 @@ export default function BoardManagementOversight({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance
-        ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
+      state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+        ?.boardAndManagementOversight;
 
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.hasBoardCommittee !== undefined) {
@@ -70,8 +71,8 @@ export default function BoardManagementOversight({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance
-      ?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight,
+    state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+      ?.boardAndManagementOversight,
   ]);
 
   const validateForm = () => {
@@ -92,10 +93,8 @@ export default function BoardManagementOversight({
   const { filled, total } = useMemo(() => {
     const hasCommittee = hasBoardCommittee !== "";
     const hasDiscussion = oversightDiscussion.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasCommittee, hasDiscussion, hasEvidence]);
-  }, [hasBoardCommittee, oversightDiscussion, filesAndLinks]);
+    return calculateProgress([hasCommittee, hasDiscussion]);
+  }, [hasBoardCommittee, oversightDiscussion]);
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
@@ -144,7 +143,7 @@ export default function BoardManagementOversight({
     };
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_LEADERSHIP_GOVERNANCE",
         payload: {
@@ -199,6 +198,7 @@ export default function BoardManagementOversight({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight"
             />
 
             {/* Board Committee Question */}
@@ -347,10 +347,10 @@ export default function BoardManagementOversight({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="border-primary text-primary bg-transparent hover:bg-green-50"
+                disabled={isSaving || isPreviouslySubmitted}
+                className="border-primary text-primary bg-transparent hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
+                {getSubmitLabel(hasExistingData)}
               </Button>
             </div>
           </CardContent>

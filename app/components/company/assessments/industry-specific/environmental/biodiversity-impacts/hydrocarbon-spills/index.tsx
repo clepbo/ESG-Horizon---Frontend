@@ -42,7 +42,7 @@ export default function HydrocarbonSpills({
   const volumeImpactingShorelines = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("hydrocarbon-spills");
+  const { saveNow, saveAndSubmit, isLoading: isActionLoading } = useAssessmentFlow("hydrocarbon-spills", "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -78,15 +78,12 @@ export default function HydrocarbonSpills({
     const hasVolumeRecovered = volumeRecovered.rawValue !== "";
     const hasVolumeInArctic = volumeInArctic.rawValue !== "";
     const hasVolumeImpactingShorelines = volumeImpactingShorelines.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasNumberOfSpills,
       hasTotalVolumeSpilled,
       hasVolumeRecovered,
       hasVolumeInArctic,
       hasVolumeImpactingShorelines,
-      hasEvidence,
     ]);
   }, [
     numberOfSpills.rawValue,
@@ -94,7 +91,6 @@ export default function HydrocarbonSpills({
     volumeRecovered.rawValue,
     volumeInArctic.rawValue,
     volumeImpactingShorelines.rawValue,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -144,7 +140,7 @@ export default function HydrocarbonSpills({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 
@@ -166,7 +162,7 @@ export default function HydrocarbonSpills({
     dispatch({ type: "UPDATE_BIODIVERSITY_SPILLS", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
         payload
       );
@@ -208,6 +204,7 @@ export default function HydrocarbonSpills({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills"
             />
 
             {/* Number of Spills */}
@@ -221,7 +218,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Number of Spills</h6>
                     <p className="text-sm">
@@ -274,7 +271,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Total Volume Spilled</h6>
                     <p className="text-sm">
@@ -326,7 +323,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Volume Recovered from Environment</h6>
                     <p className="text-sm">
@@ -377,7 +374,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Volume in Arctic</h6>
                     <p className="text-sm">
@@ -430,7 +427,7 @@ export default function HydrocarbonSpills({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">
                       Volume Impacting Sensitive Shorelines (ESI 8-10)

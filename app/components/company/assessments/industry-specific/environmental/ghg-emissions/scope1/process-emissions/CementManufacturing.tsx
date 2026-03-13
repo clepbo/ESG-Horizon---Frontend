@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -26,6 +26,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface CO2ReleaseProps {
   onBack: () => void;
@@ -118,7 +119,7 @@ export function CementManufacturing({
       !isNaN(Number(cementQuantity)) &&
       Number(cementQuantity) >= 0;
     const hasFiles = Object.values(files).some(Boolean) || additionalFields.some((f) => f.file);
-    return calculateProgress([hasCementData, hasFiles]);
+    return calculateProgress([hasCementData]);
   }, [cementQuantity, files, additionalFields]);
 
   const validateForm = () => {
@@ -298,6 +299,7 @@ export function CementManufacturing({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope1.processEmissions"
             />
 
             {/* Cement Quantity */}
@@ -394,19 +396,12 @@ export function CementManufacturing({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

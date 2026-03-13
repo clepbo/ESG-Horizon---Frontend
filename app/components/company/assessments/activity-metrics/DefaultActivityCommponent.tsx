@@ -54,7 +54,7 @@ export function DefaultActivityComponent({ handleClick }: Props) {
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1"> Production Data </h6>
                       <p>
@@ -99,7 +99,7 @@ export function DefaultActivityComponent({ handleClick }: Props) {
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1"> Asset Portfolio </h6>
                       <p>

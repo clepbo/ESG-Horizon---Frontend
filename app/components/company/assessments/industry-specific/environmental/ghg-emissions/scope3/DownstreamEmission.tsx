@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UpstreamProps } from "./UpstreamEmissionHome";
 import { DownstreamTransportationAndDistribution } from "./downstream/DownstreamTransportationAndDistribution";
 import { DocumentUpload } from "./downstream/Step2DocumentUpload";
@@ -17,66 +17,86 @@ export default function DownstreamEmission({
   handleBacktoAssessment,
   handleBacktoGHG,
   backToDisclossureTopic,
+  initialStep,
+  onContinueToNextAssessment,
 }: UpstreamProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    const parsed = Number(initialStep);
+    return !isNaN(parsed) && parsed >= 0 && parsed <= 6 ? parsed : 0;
+  });
+
+  useEffect(() => {
+    if (initialStep !== undefined) {
+      const parsed = Number(initialStep);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 6) {
+        setStep(parsed);
+      }
+    }
+  }, [initialStep]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-downstream");
+  const { saveQuiet, saveAndSubmit } = useAssessmentFlow("ghg-scope3-downstream", "environment.ghg.scope3.downstream");
 
   function handleNext(val: number) {
     setStep(val);
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(investmentsPayload?: any) {
+    if (submitting) return;
+    setSubmitting(true);
     const data = state.assessmentData.environment?.ghg?.scope3?.downstream;
 
     try {
-      // Bulk save all steps in the group before submitting
+      // Save all steps sequentially to avoid read-modify-write race conditions.
+      // Each save must complete before the next starts so the DB state is consistent.
       if (data?.downstreamTransportationDistribution) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
           data.downstreamTransportationDistribution
         );
       }
       if (data?.processingSoldProducts) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.downstream.processingSoldProducts",
           data.processingSoldProducts
         );
       }
       if (data?.useOfSoldProducts) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.downstream.useOfSoldProducts",
           data.useOfSoldProducts
         );
       }
       if (data?.endOfLifeTreatment) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.downstream.endOfLifeTreatment",
           data.endOfLifeTreatment
         );
       }
       if (data?.downstreamLeasedAssets) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.downstream.downstreamLeasedAssets",
           data.downstreamLeasedAssets
         );
       }
       if (data?.franchises) {
-        await saveNow("environment.ghg.scope3.downstream.franchises", data.franchises);
+        await saveQuiet("environment.ghg.scope3.downstream.franchises", data.franchises);
       }
-      if (data?.investments) {
-        await saveNow("environment.ghg.scope3.downstream.investments", data.investments);
-      }
-
-      const response = await submitGroup();
+      const investData = investmentsPayload || data?.investments;
+      const response = await saveAndSubmit(
+        "environment.ghg.scope3.downstream.investments",
+        investData || {}
+      );
       setTotals(response?.totals ?? null);
       setShowSuccess(true);
     } catch (err) {
       toast.error("Submission failed");
       console.error("Submission failed:", err);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -84,10 +104,11 @@ export default function DownstreamEmission({
     return (
       <SuccessScreen
         assessmentName="Downstream Emissions"
-        sectionKey="downstream"
+        sectionKey="downstreamEmissions"
         totals={totals ?? undefined}
+        nextAssessment={onContinueToNextAssessment ? "Air Quality" : undefined}
         onContinue={handleBacktoGHG}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment ?? (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))}
         onBackToHub={handleBacktoAssessment}
       />
     );
@@ -181,6 +202,7 @@ export default function DownstreamEmission({
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
         backToGHGEmissions={handleBacktoGHG}
+        parentSubmitting={submitting}
       />
     );
   }

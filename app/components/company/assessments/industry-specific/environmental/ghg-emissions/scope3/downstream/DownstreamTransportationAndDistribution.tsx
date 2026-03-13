@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -26,6 +26,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface DownstreamTransportationAndDistributionProps {
   onBack: () => void;
@@ -84,7 +85,7 @@ export function DownstreamTransportationAndDistribution({
     fuelConsumedByDistribution: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-downstream-transportation");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-downstream-transportation");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -98,10 +99,11 @@ export function DownstreamTransportationAndDistribution({
       state.assessmentData.environment?.ghg?.scope3?.downstream
         ?.downstreamTransportationDistribution;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setMassOfProductsSold(existingData.massOfProductsSold || "");
-      setAverageDistributionDistance(existingData.averageDistributionDistance || "");
-      setFuelConsumedByDistribution(existingData.fuelConsumedByDistribution || "");
+      setMassOfProductsSold(s(existingData.massOfProductsSold));
+      setAverageDistributionDistance(s(existingData.averageDistributionDistance));
+      setFuelConsumedByDistribution(s(existingData.fuelConsumedByDistribution));
 
       // Files
       setFiles(
@@ -125,14 +127,10 @@ export function DownstreamTransportationAndDistribution({
       fuelConsumedByDistribution.trim() !== "" &&
       !isNaN(Number(fuelConsumedByDistribution)) &&
       Number(fuelConsumedByDistribution) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasMassOfProductsSold,
       hasAverageDistributionDistance,
       hasFuelConsumedByDistribution,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
@@ -140,8 +138,6 @@ export function DownstreamTransportationAndDistribution({
     massOfProductsSold,
     averageDistributionDistance,
     fuelConsumedByDistribution,
-    files,
-    additionalFields,
   ]);
 
   // Clear error when user interacts with ANY field
@@ -276,6 +272,7 @@ export function DownstreamTransportationAndDistribution({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.downstreamTransportationDistribution", payload).catch(() => {});
     onNext();
   };
 
@@ -381,7 +378,7 @@ export function DownstreamTransportationAndDistribution({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Downstream Transportation & Distribution" },
+    { label: "Category 9: Downstream Transportation & Distribution" },
   ];
 
   return (
@@ -416,17 +413,18 @@ export function DownstreamTransportationAndDistribution({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
-                1.1 Downstream Transportation & Distribution
+                Category 9: Downstream Transportation & Distribution
               </h4>
               <p className="text-muted-foreground text-base">
                 Report transportation and distribution data for products sold to customers.
               </p>
             </div>
 
-            {/* 1.1 Downstream Transportation & Distribution */}
+            {/* Category 9: Downstream Transportation & Distribution */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -583,10 +581,10 @@ export function DownstreamTransportationAndDistribution({
               </div>
             </div>
 
-            {/* 1.2 Document/Evidence Upload */}
+            {/* 9.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                1.2 Documents/Evidence Upload
+                9.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -626,19 +624,12 @@ export function DownstreamTransportationAndDistribution({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

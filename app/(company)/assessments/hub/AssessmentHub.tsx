@@ -42,7 +42,13 @@ export default function AssessmentHub() {
 
   const { data: subsidiaries = [], isLoading, error } = useCompanySubsidiaries();
 
-  // const [targetStep, setTargetStep] = useState<string | null>(null);
+  // Reset state only for NEW assessments. When continuing an existing assessment,
+  // ContinueAssessment has already loaded data and set isContinueMode before this mounts.
+  useEffect(() => {
+    if (!state.isContinueMode) {
+      dispatch({ type: "RESET_ASSESSMENT" });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // useEffect(() => {
   //   if (state.targetStep) {
@@ -112,7 +118,15 @@ export default function AssessmentHub() {
     });
 
     // Check if user has assigned tasks - if yes, show tasks first, otherwise show all disclosure topics
-    dispatch({ type: "SET_VIEW", payload: "my-tasks" });
+    // Skip "My Tasks" for Company Admins as they don't have assigned tasks
+    console.log("AssessmentHub handleProceed - User:", user);
+    console.log("AssessmentHub handleProceed - Role:", user?.role?.name);
+
+    if (user?.role?.name === "company_esg_admin") {
+      dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+    } else {
+      dispatch({ type: "SET_VIEW", payload: "my-tasks" });
+    }
   };
 
   const handleBack = () => {
@@ -149,6 +163,8 @@ export default function AssessmentHub() {
       "fugitive-emissions",
       "location-based",
       "market-based",
+      "upstream-emissions",
+      "downstream-emissions",
     ];
 
     const currentForm = ghgForms.find((form) => state.currentView === `ghg-${form}`);
@@ -196,6 +212,30 @@ export default function AssessmentHub() {
         onBack={handleBack}
         initialView="activity-metrics"
         initialStep={state.targetStep as any}
+      />
+    );
+  }
+
+  // Handle all non-GHG disclosure topic views (social, human capital, business model, leadership, etc.)
+  const disclosureTopicViews = [
+    "biodiversity",
+    "crs",
+    "security-human-rights",
+    "air-quality",
+    "water-and-wastewater-management",
+    "workforce-health-and-safety",
+    "reserves-valuation-capital-expenditures",
+    "business-ethics-transparency",
+    "critical-incident-risk-management",
+    "management-of-legal-and-regulatory-environment",
+  ];
+
+  if (disclosureTopicViews.includes(state.currentView)) {
+    return (
+      <DisclosureTopics
+        onBack={handleBack}
+        initialView={state.currentView}
+        initialForm={state.targetStep as any}
       />
     );
   }
@@ -324,9 +364,11 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endMonth", value)}
                       >
                         <SelectTrigger
-                          className={`w-32 border ${dateError ? "border-red-500" : "border-slate-300"
-                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                            }`}
+                          className={`w-32 border ${
+                            dateError ? "border-red-500" : "border-slate-300"
+                          } hover:cursor-pointer focus:ring-2 ${
+                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                          }`}
                         >
                           <SelectValue placeholder="Month" />
                         </SelectTrigger>
@@ -344,9 +386,11 @@ export default function AssessmentHub() {
                         onValueChange={(value) => handleInputChange("endYear", value)}
                       >
                         <SelectTrigger
-                          className={`w-24 border ${dateError ? "border-red-500" : "border-slate-300"
-                            } hover:cursor-pointer focus:ring-2 ${dateError ? "focus:ring-red-500" : "focus:ring-green-500"
-                            }`}
+                          className={`w-24 border ${
+                            dateError ? "border-red-500" : "border-slate-300"
+                          } hover:cursor-pointer focus:ring-2 ${
+                            dateError ? "focus:ring-red-500" : "focus:ring-green-500"
+                          }`}
                         >
                           <SelectValue placeholder="Year" />
                         </SelectTrigger>

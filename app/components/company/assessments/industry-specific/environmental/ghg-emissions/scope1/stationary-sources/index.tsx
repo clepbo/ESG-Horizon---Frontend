@@ -59,8 +59,7 @@ export function StationarySourcesForm({
         sectionKey="stationarySources"
         nextAssessment="Mobile Sources"
         totals={totals ?? undefined}
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

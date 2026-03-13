@@ -1,7 +1,6 @@
-"use client";
-
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { BusinessModelPillar } from "@/types/report/reportResponse";
+import { formatNumberFull, formatCurrencyCompact } from "@/lib/numberFormat";
 
 interface BusinessEthicAndTransparencyProps {
   businessModel?: BusinessModelPillar;
@@ -15,31 +14,21 @@ export default function BusinessEthicAndTransparency({
   const strategicAllocation =
     businessModel?.reservesValuationAndCapitalExpenditure?.strategicCapitalAllocation;
 
-  // Calculate pie chart data from actual values
-  const gasProjects = strategicAllocation?.gasProjectsValueCount ?? 0;
-  const renewableProjects = strategicAllocation?.renewableProjectsValueCount ?? 0;
-  const maintenance = strategicAllocation?.maintenanceValueCount ?? 0;
-  const total = gasProjects + renewableProjects + maintenance;
+  // Calculate pie chart data — capexPercentage is the % of CAPEX on gas exploration
+  const gasPercent = strategicAllocation?.gasProjectsValueCount ?? 0;
+  const otherPercent = strategicAllocation?.maintenanceValueCount ?? 0;
+  const total = gasPercent + otherPercent;
 
   const capitalData =
     total > 0
       ? [
-          { name: "Gas Projects", value: gasProjects, color: "#3B82F6" },
-          { name: "Renewable Projects", value: renewableProjects, color: "#22C55E" },
-          { name: "Maintenance", value: maintenance, color: "#9CA3AF" },
+          { name: "Gas Exploration", value: gasPercent, color: "#3B82F6" },
+          { name: "Other CAPEX", value: otherPercent, color: "#9CA3AF" },
         ]
       : [
-          { name: "Gas Projects", value: 55, color: "#3B82F6" },
-          { name: "Renewable Projects", value: 25, color: "#22C55E" },
-          { name: "Maintenance", value: 20, color: "#9CA3AF" },
+          { name: "Gas Exploration", value: 0, color: "#3B82F6" },
+          { name: "Other CAPEX", value: 0, color: "#9CA3AF" },
         ];
-
-  const formatCurrency = (value: number | undefined) => {
-    if (!value) return "₦0";
-    if (value >= 1000000) return `₦${(value / 1000000).toFixed(0)}M`;
-    if (value >= 1000) return `₦${(value / 1000).toFixed(0)}K`;
-    return `₦${value.toLocaleString()}`;
-  };
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -52,7 +41,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Carbon Price Scenario</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">
-              ₦ {(climateImpact?.carbonPriceScenario ?? 0).toLocaleString()}
+              ₦ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               <span className="ml-1 text-sm font-normal text-gray-500">/tonne</span>
             </p>
           </div>
@@ -61,7 +50,7 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-red-50 p-4">
             <p className="text-sm font-medium text-red-500">Reserves at Risk</p>
             <p className="mt-2 text-3xl font-bold text-red-500">
-              {(climateImpact?.reservesAtRiskPercent ?? 0).toFixed(0)}%
+              {formatNumberFull(climateImpact?.reservesAtRiskPercent ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
             </p>
             <p className="text-sm text-red-400">Decrease in Proved Oil</p>
           </div>
@@ -71,13 +60,28 @@ export default function BusinessEthicAndTransparency({
           <div className="flex justify-between text-gray-600">
             <span>Total Proved Reserves</span>
             <span className="font-medium text-gray-900">
-              {(climateImpact?.totalProvedReserves ?? 0).toLocaleString()} MMboe
+              {formatNumberFull(climateImpact?.totalProvedReserves ?? 0, {
+                minimumFractionDigits: 2, maximumFractionDigits: 2,
+              })}{" "}
+              MMboe
+            </span>
+          </div>
+          <div className="flex justify-between text-gray-600">
+            <span>Estimated Decrease</span>
+            <span className="font-medium text-red-600">
+              {formatNumberFull(climateImpact?.totalProbableReserves ?? 0, {
+                minimumFractionDigits: 2, maximumFractionDigits: 2,
+              })}{" "}
+              MMboe
             </span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>Embedded Carbon</span>
             <span className="font-medium text-gray-900">
-              {(climateImpact?.embeddedCarbon ?? 0).toLocaleString()} MtCO₂e
+              {formatNumberFull(climateImpact?.embeddedCarbon ?? 0, {
+                minimumFractionDigits: 2, maximumFractionDigits: 2,
+              })}{" "}
+              MtCO₂e
             </span>
           </div>
         </div>
@@ -91,13 +95,13 @@ export default function BusinessEthicAndTransparency({
           <div>
             <p className="text-gray-500">Renewable Investment</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrency(strategicAllocation?.renewableInvestmentAmount)}
+              {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           <div className="text-right">
             <p className="text-gray-500">Renewable Revenue</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrency(strategicAllocation?.renewableRevenueAmount)}
+              {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
         </div>
@@ -116,6 +120,9 @@ export default function BusinessEthicAndTransparency({
                   <Cell key={index} fill={entry.color} />
                 ))}
               </Pie>
+              <Tooltip
+                formatter={(value) => `${formatNumberFull(Number(value) || 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -123,8 +130,8 @@ export default function BusinessEthicAndTransparency({
         <div className="mt-4 flex justify-center gap-2 text-sm">
           {capitalData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-              <span className="text-gray-600">{item.name}</span>
+              <span className="h-3 w-3" style={{ backgroundColor: item.color }} />
+              <span className="text-gray-900 font-medium">{item.name}</span>
             </div>
           ))}
         </div>

@@ -1,31 +1,35 @@
 "use client";
 
-import React from "react";
+import React, { useContext } from "react";
+import { AssessmentContext } from "@/hooks/useAssessment";
 
 interface AssessmentProgressBarProps {
   stepIndex: number; // current step (1-based, e.g., Section 1 of N)
   totalSteps: number; // total number of steps
-  isSubmitted: boolean;
-  fieldsCompleted: number; // new prop: number of fields completed in the current step
-  totalFields: number; // new prop: total number of fields in the current step
+  isSubmitted?: boolean;
+  groupKey?: string; // canonical group path — checked against submittedGroups
+  fieldsCompleted?: number; // fields completed in the current step
+  totalFields?: number; // total fields in the current step
 }
 
 export function AssessmentProgressBar({
   stepIndex,
   totalSteps,
-  isSubmitted,
   fieldsCompleted,
   totalFields,
+  isSubmitted,
+  groupKey,
 }: AssessmentProgressBarProps) {
-  // Calculate the overall progress based on completed steps.
-  const overallProgress = (stepIndex - 1) / totalSteps; // Calculate the progress within the current step.
+  const ctx = useContext(AssessmentContext);
+  const submittedGroups: string[] = (ctx?.state?.assessmentData as any)?.submittedGroups || [];
+  const groupSubmitted = groupKey ? submittedGroups.includes(groupKey) : false;
 
-  const inputProgress = totalFields > 0 ? fieldsCompleted / totalFields : 0; // Combine the two concepts for a single percentage value.
-
-  const rawPercent = (overallProgress + inputProgress / totalSteps) * 100; // Cap the percentage at 99% until the final submission.
-
-  const cappedPercent = isSubmitted ? 100 : Math.min(rawPercent, 99);
-  const percent = Math.round(cappedPercent);
+  // Progress = purely how many required fields are filled (0–99%), 100% only after submission.
+  const rawPercent =
+    fieldsCompleted != null && totalFields != null && totalFields > 0
+      ? (fieldsCompleted / totalFields) * 100
+      : 0;
+  const percent = isSubmitted || groupSubmitted ? 100 : Math.min(Math.round(rawPercent), 99);
 
   return (
     <div className="mb-6">

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { companyService } from "@/services/company.service";
+import { useOnboardingProgress } from "@/services/hooks/company.hooks";
 
 interface TourCardProps {
   title: string;
@@ -73,26 +73,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
   const { user } = useAuth();
 
-  const [onboardingData, setOnboardingData] = useState<{
-    progressPercent: number;
-    checklist: { title: string; isCompleted: boolean }[];
-  } | null>(null);
-  const [isDataLoading, setIsDataLoading] = useState(true);
-
-  const fetchProgress = async () => {
-    try {
-      const data = await companyService.getOnboardingProgress();
-      setOnboardingData(data);
-    } catch (err) {
-      console.error("Failed to fetch onboarding progress", err);
-    } finally {
-      setIsDataLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProgress();
-  }, []);
+  const { data: onboardingData, isLoading: isDataLoading } = useOnboardingProgress();
 
   const handleCardClick = (index: number, href: string, onAction?: () => void): void => {
     setLoadingIndex(index);
@@ -143,7 +124,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "Set up your company and personal details to personalize your dashboard and unlock all platform features.",
       buttonText: "Complete Profile",
       href: "/settings-esg/company",
-      isCompleted: onboardingData?.checklist[0]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[0]?.isCompleted ?? false,
     },
     {
       title: "Invite Your Teams, Set Up Departments & Subsidiaries",
@@ -151,7 +132,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "Add team members, assign roles, and structure your departments or subsidiaries for seamless collaboration.",
       buttonText: "Start Now",
       href: "/settings-esg/subsidiaries?setup=true",
-      isCompleted: onboardingData?.checklist[1]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[1]?.isCompleted ?? false,
     },
     {
       title: "Start First Assessment",
@@ -159,7 +140,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "Begin your ESG assessment and start capturing the data needed for reporting and performance tracking.",
       buttonText: "Start Now",
       href: "/assessments",
-      isCompleted: onboardingData?.checklist[2]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[2]?.isCompleted ?? false,
     },
     {
       title: "View ESG Dashboard",
@@ -167,7 +148,7 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
         "See your company's ESG performance, track progress, and access key insights from all your assessments.",
       buttonText: "View Dashboard",
       href: "/dashboard-esg",
-      isCompleted: onboardingData?.checklist[3]?.isCompleted ?? false,
+      isCompleted: onboardingData?.checklist?.[3]?.isCompleted ?? false,
       onAction: handleContinueToDashboard,
     },
   ];
@@ -222,12 +203,14 @@ const ESGTour: FC<ESGTourProps> = ({ firstName = "User", onComplete }: ESGTourPr
                 <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                   Set Up Progress
                 </span>
-                <span className="text-xs font-bold text-gray-600">{progressPercent}% Complete</span>
+                <span className="text-xs font-bold text-gray-600">
+                  {Math.min(progressPercent, 100)}% Complete
+                </span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
                 <div
                   className="h-full bg-[var(--color-primary)] transition-all duration-1000"
-                  style={{ width: `${progressPercent}%` }}
+                  style={{ width: `${Math.min(progressPercent, 100)}%` }}
                 />
               </div>
 

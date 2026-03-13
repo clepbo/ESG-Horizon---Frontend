@@ -13,6 +13,7 @@ import { Line } from "react-chartjs-2";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 
 import { Card, CardContent } from "@/app/components/ui/card";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 import {
   Select,
@@ -86,6 +87,14 @@ export default function ReportLineChart() {
           font: {
             family: "Poppins",
             size: 12,
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: { dataset: { label?: string }; raw: unknown }) => {
+            const val = context.raw as number;
+            return `${context.dataset.label}: ${formatNumberFull(val)}`;
           },
         },
       },

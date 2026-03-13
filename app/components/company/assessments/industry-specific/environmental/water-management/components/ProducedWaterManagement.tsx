@@ -41,9 +41,18 @@ export default function ProducedWaterManagement({
   const volumeDischargedToSurface = useFormattedNumber("");
   const volumeInjectedForDisposal = useFormattedNumber("");
   const volumeRecycledReused = useFormattedNumber("");
+  const averageHydrocarbonContent = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("produced-water-management");
+  const {
+    saveNow,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+  } = useAssessmentFlow("produced-water-management", "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement");
+  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -78,6 +87,7 @@ export default function ProducedWaterManagement({
     volumeDischargedToSurfaceUnit: "m³",
     volumeInjectedForDisposalUnit: "m³",
     volumeRecycledReusedUnit: "m³",
+    averageHydrocarbonContentUnit: "mg/L",
   });
 
   useEffect(() => {
@@ -91,22 +101,21 @@ export default function ProducedWaterManagement({
       volumeDischargedToSurface.handleChange(String(existingData.volumeDischargedToSurface || ""));
       volumeInjectedForDisposal.handleChange(String(existingData.volumeInjectedForDisposal || ""));
       volumeRecycledReused.handleChange(String(existingData.volumeRecycledReused || ""));
+      averageHydrocarbonContent.handleChange(String(existingData.averageHydrocarbonContent || ""));
 
       setFormData({
         totalProducedWaterGeneratedUnit: existingData.totalProducedWaterGeneratedUnit || "m³",
         volumeDischargedToSurfaceUnit: existingData.volumeDischargedToSurfaceUnit || "m³",
         volumeInjectedForDisposalUnit: existingData.volumeInjectedForDisposalUnit || "m³",
         volumeRecycledReusedUnit: existingData.volumeRecycledReusedUnit || "m³",
+        averageHydrocarbonContentUnit: existingData.averageHydrocarbonContentUnit || "mg/L",
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.producedWaterManagement,
-    totalProducedWaterGenerated,
-    volumeDischargedToSurface,
-    volumeInjectedForDisposal,
-    volumeRecycledReused,
   ]);
 
   // Calculate percentages based on total produced water
@@ -140,25 +149,25 @@ export default function ProducedWaterManagement({
     const hasVolumeRecycledReused =
       volumeRecycledReused.rawValue !== "" && formData.volumeRecycledReusedUnit !== "";
 
-    const hasEvidence = filesAndLinks.length > 0;
+    const hasAverageHydrocarbonContent = averageHydrocarbonContent.rawValue !== "";
 
     return calculateProgress([
       hasTotalProducedWaterGenerated,
       hasVolumeDischargedToSurface,
       hasVolumeInjectedForDisposal,
       hasVolumeRecycledReused,
-      hasEvidence,
+      hasAverageHydrocarbonContent,
     ]);
   }, [
     totalProducedWaterGenerated.rawValue,
     volumeDischargedToSurface.rawValue,
     volumeInjectedForDisposal.rawValue,
     volumeRecycledReused.rawValue,
+    averageHydrocarbonContent.rawValue,
     formData.totalProducedWaterGeneratedUnit,
     formData.volumeDischargedToSurfaceUnit,
     formData.volumeInjectedForDisposalUnit,
     formData.volumeRecycledReusedUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -192,6 +201,10 @@ export default function ProducedWaterManagement({
       newErrors.volumeRecycledReusedUnit = "Unit is required";
     }
 
+    if (!averageHydrocarbonContent.rawValue) {
+      newErrors.averageHydrocarbonContent = "Value is required";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -215,6 +228,8 @@ export default function ProducedWaterManagement({
       volumeInjectedForDisposalUnit: formData.volumeInjectedForDisposalUnit,
       volumeRecycledReused: Number(volumeRecycledReused.rawValue),
       volumeRecycledReusedUnit: formData.volumeRecycledReusedUnit,
+      averageHydrocarbonContent: Number(averageHydrocarbonContent.rawValue),
+      averageHydrocarbonContentUnit: formData.averageHydrocarbonContentUnit,
       percentages: {
         dischargedPercentage: percentages.discharged,
         injectedPercentage: percentages.injected,
@@ -237,7 +252,7 @@ export default function ProducedWaterManagement({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 
@@ -256,6 +271,8 @@ export default function ProducedWaterManagement({
       volumeInjectedForDisposalUnit: formData.volumeInjectedForDisposalUnit,
       volumeRecycledReused: Number(volumeRecycledReused.rawValue),
       volumeRecycledReusedUnit: formData.volumeRecycledReusedUnit,
+      averageHydrocarbonContent: Number(averageHydrocarbonContent.rawValue),
+      averageHydrocarbonContentUnit: formData.averageHydrocarbonContentUnit,
       percentages: {
         dischargedPercentage: percentages.discharged,
         injectedPercentage: percentages.injected,
@@ -267,7 +284,7 @@ export default function ProducedWaterManagement({
     dispatch({ type: "UPDATE_WATER_PRODUCED", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
         payload
       );
@@ -311,6 +328,7 @@ export default function ProducedWaterManagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement"
             />
 
             <ReusableInput
@@ -393,6 +411,25 @@ export default function ProducedWaterManagement({
               placeholder="e.g., 1300"
             />
 
+            <ReusableInput
+              label="Average Hydrocarbon Content in Discharged Water"
+              tooltipTitle="Average Hydrocarbon Content in Discharged Water"
+              tooltipBody="The average concentration of hydrocarbons present in produced water discharged to surface water bodies. Measured in milligrams per litre (mg/L). This metric indicates the quality of discharged water and compliance with environmental discharge limits."
+              inputValue={averageHydrocarbonContent.displayValue}
+              unitValue={formData.averageHydrocarbonContentUnit}
+              onInputChange={(num) => {
+                averageHydrocarbonContent.handleChange(String(num));
+                setErrors((prev) => ({ ...prev, averageHydrocarbonContent: "" }));
+              }}
+              onUnitChange={(unit) => {
+                handleInputChange("averageHydrocarbonContentUnit", unit);
+              }}
+              error={errors.averageHydrocarbonContent}
+              formatNumbers={false}
+              placeholder="e.g., 15"
+              customUnit="mg/L"
+            />
+
             {/* Document/Evidence Upload */}
             <div className="space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
               <h3 className="text-base font-semibold text-gray-900">Document/Evidence Upload</h3>
@@ -425,10 +462,10 @@ export default function ProducedWaterManagement({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -449,11 +486,11 @@ export default function ProducedWaterManagement({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData, isSubmitting)}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

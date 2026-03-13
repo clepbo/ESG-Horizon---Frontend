@@ -44,7 +44,15 @@ export default function ChemicalDisclosure({
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow("chemical-disclosure");
+  const {
+    saveNow,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+  } = useAssessmentFlow("chemical-disclosure", "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure");
+  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts?.chemicalDisclosure;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -102,11 +110,10 @@ export default function ChemicalDisclosure({
       }
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.chemicalDisclosure,
-    numberOfWellsWithPublicDisclosure,
-    totalNumberOfFracturedWells,
   ]);
 
   const { filled, total } = useMemo(() => {
@@ -125,16 +132,13 @@ export default function ChemicalDisclosure({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasEvidence = operatesHydraulicFracturingWells !== "" ? filesAndLinks.length > 0 : false;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields]);
   }, [
     operatesHydraulicFracturingWells,
     totalNumberOfFracturedWells.rawValue,
     numberOfWellsWithPublicDisclosure.rawValue,
     formData.totalNumberOfFracturedWellsUnit,
     formData.numberOfWellsWithPublicDisclosureUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -201,7 +205,7 @@ export default function ChemicalDisclosure({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 
@@ -225,7 +229,7 @@ export default function ChemicalDisclosure({
     dispatch({ type: "UPDATE_WATER_CHEMICAL", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
         payload
       );
@@ -276,6 +280,7 @@ export default function ChemicalDisclosure({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure"
             />
 
             {/* Radio Button Question */}
@@ -411,10 +416,10 @@ export default function ChemicalDisclosure({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -435,11 +440,11 @@ export default function ChemicalDisclosure({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData, isSubmitting)}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

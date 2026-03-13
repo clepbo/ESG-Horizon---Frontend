@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Textarea } from "@/app/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Info, Save } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 // import { useRouter } from "next/router";
 
@@ -37,12 +38,14 @@ export default function SafetyManagementSystem({
 }: SafetyManagementSystemProps) {
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<any[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { saveNow, submitGroup } = useAssessmentFlow(
-    "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
+    "humanCapital.workforceHealthSafety"
   );
+  const { state } = useAssessment();
+  const hasExistingData = !!(state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety?.riskAndOpportunityManagement?.safetyManagementSystems;
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -55,15 +58,31 @@ export default function SafetyManagementSystem({
     safetyDescription: "",
   });
 
+  // Rehydrate form data from saved assessment (e.g., when navigating back)
+  const hasRehydrated = useRef(false);
+  useEffect(() => {
+    if (hasRehydrated.current) return;
+    const saved = (state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety
+      ?.riskAndOpportunityManagement?.safetyManagementSystems;
+    if (!saved) return;
+    hasRehydrated.current = true;
+
+    setFormData({
+      executiveRemunerationLinked: saved.executiveRemunerationLinked || "",
+      safetyDescription: saved.safetyDescription || "",
+    });
+    if (saved.filesAndLinks?.length) {
+      setFilesAndLinks(saved.filesAndLinks);
+    }
+  }, [state.assessmentData]);
+
   // Fix: Move calculateProgress inside useMemo to avoid dependency issues
   const { filled, total } = useMemo(() => {
     const hasRemuneration = formData.executiveRemunerationLinked !== "";
     const hasDescription = formData.safetyDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    const filled = [hasRemuneration, hasDescription, hasEvidence].filter(Boolean).length;
-    return { filled, total: 3 };
-  }, [formData, filesAndLinks]);
+    const filled = [hasRemuneration, hasDescription].filter(Boolean).length;
+    return { filled, total: 2 };
+  }, [formData]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -109,11 +128,7 @@ export default function SafetyManagementSystem({
     } catch (_error: any) {
       console.error(_error);
       toast.error("Failed to save data", _error.message);
-    } finally {
-      setIsSaving(false);
     }
-
-    // console.log("DATA TO SAVE:", payload);
   };
 
   const handleSubmit = async () => {
@@ -122,21 +137,15 @@ export default function SafetyManagementSystem({
       return;
     }
 
-    setIsSaving(true);
     try {
-      // Save data first
-      await saveNow(
+      await saveAndSubmit(
         "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
         payload
       );
-      // Then submit the group
-      await submitGroup();
       toast.success("Assessment completed successfully!");
       onSubmit(null);
     } catch (_error: any) {
       toast.error("Failed to submit assessment", _error.message);
-    } finally {
-      setIsSaving(false);
     }
 
     // console.log("FINAL SUBMISSION:", payload);
@@ -176,7 +185,7 @@ export default function SafetyManagementSystem({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="humanCapital.workforceHealthSafety"
             />
 
             {/* Executive Remuneration Question */}
@@ -220,7 +229,7 @@ export default function SafetyManagementSystem({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <p>
                       Provide details on your Safety Management System (SMS) framework, including
@@ -301,11 +310,10 @@ export default function SafetyManagementSystem({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

@@ -1,25 +1,30 @@
 "use client";
 
-const SAFETY_CARDS = [
-  {
-    title: "Safety Management Systems",
-    description:
-      "Our safety management system is built on the 'Goal Zero' philosophy. Executive bonuses are directly tied to safety performance metrics (TRIR and Fatalities). We conduct regular safety audits and leadership safety walks to reinforce our safety culture.",
-    tag: "Executive Pay Linked to Safety",
-  },
-];
+import { ReportResponse } from "@/types/report/reportResponse";
 
-export default function HumanStepTwo() {
+interface HumanStepTwoProps {
+  reportData?: ReportResponse;
+}
+
+export default function HumanStepTwo({ reportData }: HumanStepTwoProps) {
+  const safetyCards = reportData?.humanCapital?.safetyManagementSystems || [];
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:gap-6">
-      {SAFETY_CARDS.map((card) => (
-        <SafetyCard
-          key={card.title}
-          title={card.title}
-          description={card.description}
-          tag={card.tag}
-        />
-      ))}
+      {safetyCards.length > 0 ? (
+        safetyCards.map((card, index) => (
+          <SafetyCard
+            key={index}
+            title={card.title}
+            description={card.description}
+            tag={card.tag}
+          />
+        ))
+      ) : (
+        <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-300">
+          <p className="text-gray-500 italic">No safety management information reported.</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -34,17 +39,9 @@ function SafetyCard({
   tag: string;
 }) {
   return (
-    <article
-      className="flex flex-col rounded-xl p-4 shadow-sm sm:p-5 md:p-6"
-      style={{ backgroundColor: "#FFF7ED" }}
-    >
-      <h3 className="text-base font-bold sm:text-lg md:text-xl" style={{ color: "#E0813D" }}>
-        {title}
-      </h3>
-      <p
-        className="mt-2 text-sm font-normal leading-relaxed sm:mt-3 sm:text-base md:mt-4"
-        style={{ color: "#E0813D" }}
-      >
+    <article className="flex flex-col rounded-xl bg-blue-50 p-4 shadow-sm sm:p-5 md:p-6">
+      <h3 className="text-base font-bold text-blue-700 sm:text-lg md:text-xl">{title}</h3>
+      <p className="mt-2 text-sm font-normal leading-relaxed text-blue-700 sm:mt-3 sm:text-base md:mt-4">
         {description}
       </p>
       <span

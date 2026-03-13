@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { FrontendTask } from "@/services/assignTask.service";
 import { Clock } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface TaskAssignmentDialogProps {
   open: boolean;
@@ -23,6 +24,12 @@ export default function TaskAssignmentDialog({
   tasks,
 }: TaskAssignmentDialogProps) {
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Don't show this dialog for company admins
+  if (user?.role?.name === "company_esg_admin") {
+    return null;
+  }
 
   const handleTaskClick = () => {
     onOpenChange(false);

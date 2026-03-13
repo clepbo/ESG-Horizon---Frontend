@@ -6,7 +6,7 @@ import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui
 import EmployeeForm from "./employees-form";
 import { AssessmentProgressBar } from "../../../../AssessmentProgressBar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
-import { defaultEmployeeFormData, type EmployeeFormData } from "./types";
+import { type EmployeeFormData } from "./types";
 
 interface HealthSafetyPerformanceProps {
   onBack: () => void;
@@ -14,6 +14,10 @@ interface HealthSafetyPerformanceProps {
   stepIndex?: number;
   totalSteps?: number;
   breadcrumb: BreadcrumbItemType[];
+  directFormData: EmployeeFormData;
+  onDirectFormChange: (data: EmployeeFormData) => void;
+  contractFormData: EmployeeFormData;
+  onContractFormChange: (data: EmployeeFormData) => void;
 }
 
 export default function HealthSafetyPerformance({
@@ -22,16 +26,14 @@ export default function HealthSafetyPerformance({
   stepIndex = 1,
   totalSteps = 2,
   breadcrumb,
+  directFormData,
+  onDirectFormChange,
+  contractFormData,
+  onContractFormChange,
 }: HealthSafetyPerformanceProps) {
+  // removed local state and getInitialFormData because data is now controlled by parent
   const [activeTab, setActiveTab] = useState<string>("direct");
   const formRef = useRef<HTMLDivElement>(null);
-
-  const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
-    ...defaultEmployeeFormData,
-  }));
-  const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
-    ...defaultEmployeeFormData,
-  }));
 
   const [directProgress, setDirectProgress] = useState({ filled: 0, total: 6 });
   const [contractProgress, setContractProgress] = useState({ filled: 0, total: 6 });
@@ -39,6 +41,10 @@ export default function HealthSafetyPerformance({
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [activeTab]);
 
   const combinedProgress = {
     filled: directProgress.filled + contractProgress.filled,
@@ -71,6 +77,7 @@ export default function HealthSafetyPerformance({
               fieldsCompleted={combinedProgress.filled}
               totalFields={combinedProgress.total}
               isSubmitted={false}
+              groupKey="humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
             />
 
             {/* Tabs */}
@@ -90,8 +97,8 @@ export default function HealthSafetyPerformance({
                     <EmployeeForm
                       employeeType="direct"
                       data={directFormData}
-                      onChange={setDirectFormData}
-                      onContinueToNextAssessment={onContinueToNextAssessment}
+                      onChange={onDirectFormChange}
+                      onContinueToNextAssessment={() => setActiveTab("contract")}
                       onBack={onBack}
                       onProgressChange={setDirectProgress}
                     />
@@ -101,9 +108,9 @@ export default function HealthSafetyPerformance({
                     <EmployeeForm
                       employeeType="contract"
                       data={contractFormData}
-                      onChange={setContractFormData}
+                      onChange={onContractFormChange}
                       onContinueToNextAssessment={onContinueToNextAssessment}
-                      onBack={onBack}
+                      onBack={() => setActiveTab("direct")}
                       onProgressChange={setContractProgress}
                     />
                   </TabsContent>

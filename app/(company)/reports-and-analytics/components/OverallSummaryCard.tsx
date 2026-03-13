@@ -11,6 +11,7 @@ import {
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
 import { exportPNG, generatePDF } from "./exportFiles";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface SummaryProps {
   report: any;
@@ -102,7 +103,9 @@ export function OverallSummary({ report }: SummaryProps) {
                   </div>
                   <div className="space-y-1">
                     <p className="text-2xl font-semibold">
-                      {item.value != null ? item.value.toLocaleString() : "0"}
+                      {item.value != null
+                        ? formatNumberFull(item.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : "0.00"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {index === 0 ? item.unit : `${item.percentage}% of total emissions`}

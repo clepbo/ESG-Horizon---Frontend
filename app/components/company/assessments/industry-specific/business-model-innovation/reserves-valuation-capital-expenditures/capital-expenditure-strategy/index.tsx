@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/app/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, Info } from "lucide-react";
 import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { calculateProgress } from "@/lib/utils";
@@ -40,7 +40,6 @@ export default function CapitalExpenditureStrategy({
   const capexPercentage = useFormattedNumber("");
 
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [capexDiscussion, setCapexDiscussion] = useState("");
@@ -50,11 +49,12 @@ export default function CapitalExpenditureStrategy({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy";
-  const { saveNow, submitGroup } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "businessModel.reservesValuation.capitalExpenditureStrategy");
+  const hasExistingData = !!state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures?.capitalExpenditureStrategy;
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.capitalExpenditureStrategy;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -69,7 +69,7 @@ export default function CapitalExpenditureStrategy({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.capitalExpenditureStrategy,
   ]);
 
@@ -99,10 +99,8 @@ export default function CapitalExpenditureStrategy({
   const { filled, total } = useMemo(() => {
     const hasCapexPercentage = capexPercentage.rawValue !== "";
     const hasCapexDiscussion = capexDiscussion.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasCapexPercentage, hasCapexDiscussion, hasEvidence]);
-  }, [capexPercentage.rawValue, capexDiscussion, filesAndLinks]);
+    return calculateProgress([hasCapexPercentage, hasCapexDiscussion]);
+  }, [capexPercentage.rawValue, capexDiscussion]);
 
   // const handleInputChange = (field: string, value: string) => {
   //   setFormData((prev) => ({ ...prev, [field]: value }));
@@ -116,11 +114,6 @@ export default function CapitalExpenditureStrategy({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     try {
       await saveNow(current, payload);
       dispatch({
@@ -133,11 +126,12 @@ export default function CapitalExpenditureStrategy({
       });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
+      setTimeout(() => {
+        _router.push("/assessments/new-assessment");
+      }, 1500);
     } catch (_error) {
       console.log(_error);
       toast.error("Failed to save data");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -146,10 +140,7 @@ export default function CapitalExpenditureStrategy({
       toast.error("Please fix the errors before submitting.");
       return;
     }
-    setIsSaving(true);
     try {
-      // Save data first
-      await saveNow(current, payload);
       dispatch({
         type: "UPDATE_BUSINESS_INNOVATION",
         payload: {
@@ -158,14 +149,11 @@ export default function CapitalExpenditureStrategy({
           data: payload,
         },
       });
-      // Then submit the group
-      await submitGroup();
+      await saveAndSubmit(current, payload);
       toast.success("Assessment completed successfully!");
-      if (onSubmit) onSubmit(null); // trigger parent success screen
+      if (onSubmit) onSubmit(null);
     } catch (error: any) {
       toast.error("Failed to submit assessment", error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -200,7 +188,7 @@ export default function CapitalExpenditureStrategy({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="businessModel.reservesValuation.capitalExpenditureStrategy"
             />
 
             {/* Percentage of current Capital Expenditure (CAPEX) allocated to Gas or Renewable projects */}
@@ -234,7 +222,7 @@ export default function CapitalExpenditureStrategy({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Discussion of CAPEX Strategy</h6>
                     <p>
@@ -296,7 +284,7 @@ export default function CapitalExpenditureStrategy({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
+                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2 cursor-pointer border-none"
               >
                 {isSaving ? (
                   <>
@@ -319,11 +307,10 @@ export default function CapitalExpenditureStrategy({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

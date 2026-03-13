@@ -11,7 +11,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LabelList,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
@@ -35,43 +34,38 @@ interface SocialStepOneProps {
 }
 
 export default function SocialStepOne({ reportData }: SocialStepOneProps) {
-  const totalProvedReserves =
-    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves?.totalProvedReserves || 0;
+  const indigenousLand =
+    reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.reservesInNearIndigenousLand;
 
-  const totalProbableReserves =
-    reportData?.businessModel?.reservesValuationAndCapitalExpenditure?.climateImpactOnReserves?.totalProbableReserves || 0;
+  const indigenousTotalProved = indigenousLand?.totalProvedReserves || 0;
+  const indigenousTotalProbable = indigenousLand?.totalProbableReserves || 0;
+
+  const conflictZones =
+    reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones;
 
   const conflictZonesData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total: totalProvedReserves,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
-          ?.provedReserves || 0,
+      total: conflictZones?.totalProvedReserves ?? 0,
+      specific: conflictZones?.provedReserves ?? 0,
     },
     {
       reserveType: "Probable Reserves",
-      total: totalProbableReserves,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople?.operationsInConflictZones
-          ?.probableReserves || 0,
+      total: conflictZones?.totalProbableReserves ?? 0,
+      specific: conflictZones?.probableReserves ?? 0,
     },
   ];
 
   const indigenousLandData: ReservesData[] = [
     {
       reserveType: "Proved Reserves",
-      total: totalProvedReserves,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
-          ?.reservesInNearIndigenousLand?.provedReserves || 0,
+      total: indigenousTotalProved,
+      specific: indigenousLand?.provedReserves || 0,
     },
     {
       reserveType: "Probable Reserves",
-      total: totalProbableReserves,
-      specific:
-        reportData?.socialCapital?.securityHumanRightsAndIndigenousPeople
-          ?.reservesInNearIndigenousLand?.probableReserves || 0,
+      total: indigenousTotalProbable,
+      specific: indigenousLand?.probableReserves || 0,
     },
   ];
 
@@ -89,7 +83,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
       totalLabel: "Total",
       specificLabel: "In/Near Indigenous",
       totalColor: "#9CA3AF", // grey
-      specificColor: "#F97316", // orange
+      specificColor: "#6366F1", // indigo
       data: indigenousLandData,
     },
   ];
@@ -97,11 +91,11 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const CustomLegend = ({ payload }: any) => {
     if (!payload) return null;
     return (
-      <div className="flex justify-center gap-6 mt-4">
+      <div className="flex flex-col gap-3 items-start pl-2">
         {payload.map((entry: any, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="text-sm text-gray-700">{entry.value}</span>
+            <div className="w-3 h-3" style={{ backgroundColor: entry.color }} />
+            <span className="text-[14px] font-medium text-gray-900">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -115,7 +109,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
           <p className="font-semibold text-sm mb-2">{payload[0].payload.reserveType}</p>
           {payload.map((entry: any, index: number) => (
             <p key={`tooltip-${index}`} className="text-sm" style={{ color: entry.color }}>
-              {`${entry.name}: ${entry.value}`}
+              {`${entry.name}: ${formatNumberFigures(Number(entry.value) || 0)}`}
             </p>
           ))}
         </div>
@@ -130,7 +124,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
         {chartsConfig.map((chart, chartIndex) => (
           <div
             key={chartIndex}
-            className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100"
+            className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 overflow-visible"
           >
             <h3 className="text-lg md:text-xl font-semibold mb-4 md:mb-6 text-gray-800">
               {chart.title}
@@ -139,48 +133,55 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
             <ResponsiveContainer width="100%" height={350}>
               <BarChart
                 data={chart.data}
-                margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+                margin={{ top: 20, right: 120, left: 10, bottom: 20 }}
                 barGap={8}
+                style={{ overflow: "visible" }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis
                   dataKey="reserveType"
-                  tick={{ fill: "#6B7280", fontSize: 12 }}
-                  axisLine={{ stroke: "#D1D5DB" }}
+                  tick={{ fill: "#111827", fontSize: 14 }}
+                  axisLine={false}
+                  tickLine={false}
                 />
                 <YAxis
-                  domain={[0, 600]}
-                  ticks={[0, 150, 300, 450, 600]}
-                  tick={{ fill: "#6B7280", fontSize: 12 }}
-                  axisLine={{ stroke: "#D1D5DB" }}
-                  width={40}
+                  axisLine={false}
+                  tickLine={false}
+                  width={65}
+                  tick={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      fill="#111827"
+                      fontSize={12}
+                      textAnchor="end"
+                      transform={`rotate(-35, ${props.x}, ${props.y})`}
+                    >
+                      {formatNumberFigures(Number(props.payload.value) || 0)}
+                    </text>
+                  )}
                 />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend content={<CustomLegend />} />
+                <Tooltip cursor={false} content={<CustomTooltip />} />
+                <Legend
+                  content={<CustomLegend />}
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                />
                 <Bar
                   dataKey="total"
                   name={chart.totalLabel}
                   fill={chart.totalColor}
                   radius={[4, 4, 0, 0]}
-                >
-                  <LabelList
-                    dataKey="specific"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                  maxBarSize={60}
+                />
                 <Bar
                   dataKey="specific"
                   name={chart.specificLabel}
                   fill={chart.specificColor}
                   radius={[4, 4, 0, 0]}
-                >
-                  <LabelList
-                    dataKey="specific"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                  maxBarSize={60}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>

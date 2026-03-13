@@ -3,6 +3,7 @@ import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
 import React from "react";
 import { formatNumberFigures } from "../../components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 export function generateAssessmentData(reportData: any) {
   const { report, percentage_emission_summary } = reportData;
@@ -170,11 +171,13 @@ export default function AssessmentAll({ reportData }: AssessmentAllProps) {
                   </div>
                   <div className="space-y-1">
                     <p className="text-2xl font-semibold">
-                      {" "}
-                      {formatNumberFigures(item?.value ?? 0)}{" "}
+                      {formatNumberFull(item?.value ?? 0, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {index === 0 ? item.unit : `${item.percentage}% of total emissions`}
+                      {index === 0 ? item.unit : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
                     </p>
                   </div>
                 </CardContent>
@@ -226,10 +229,13 @@ export function PillarAssessmentCard({
                   </div>
                   <div className="space-y-1">
                     <p className={`text-2xl font-semibold ${item.textColorClass}`}>
-                      {formatNumberFigures(item?.value ?? 0)}
+                      {formatNumberFull(item?.value ?? 0, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {index === 0 ? item.unit : `${item.percentage ?? 0}% of total emissions`}
+                      {index === 0 ? item.unit : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
                     </p>
                   </div>
                 </CardContent>

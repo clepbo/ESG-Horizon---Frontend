@@ -10,8 +10,10 @@ import {
   BarChart,
   Bar,
   LabelList,
+  Legend,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull } from "@/lib/numberFormat";
 import { useAssessment } from "@/hooks/useAssessment";
 import { Zap, TrendingDown, TrendingUp } from "lucide-react";
 
@@ -98,14 +100,16 @@ export function Scope2EmissionsChart() {
 
   const locationTrendValue =
     previousLocationBased > 0
-      ? Math.abs(
-          ((currentLocationBased - previousLocationBased) / previousLocationBased) * 100
-        ).toFixed(2)
+      ? formatNumberFull(
+          Math.abs(((currentLocationBased - previousLocationBased) / previousLocationBased) * 100),
+          { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+        )
       : "0.00";
   const marketTrendValue =
     previousMarketBased > 0
-      ? Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100).toFixed(
-          1
+      ? formatNumberFull(
+          Math.abs(((currentMarketBased - previousMarketBased) / previousMarketBased) * 100),
+          { maximumFractionDigits: 1 }
         )
       : "0.00";
 
@@ -169,36 +173,55 @@ export function Scope2EmissionsChart() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-lg font-bold text-blue-900">
-                  {currentLocationBased.toFixed(2)}
+                  {formatNumberFull(currentLocationBased, { minimumFractionDigits: 2 })}
                 </div>
                 <div className="text-xs text-blue-600">Location-based</div>
               </div>
               <div className="text-center p-3 bg-purple-50 rounded-lg">
                 <div className="text-lg font-bold text-purple-900">
-                  {currentMarketBased.toFixed(2)}
+                  {formatNumberFull(currentMarketBased, { minimumFractionDigits: 2 })}
                 </div>
                 <div className="text-xs text-purple-600">Market-based</div>
               </div>
             </div>
 
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={chartData}>
+              <BarChart data={chartData} margin={{ top: 10, right: 150, left: 0, bottom: 5 }} style={{ overflow: "visible" }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#6B7280" }}
+                  tick={{ fontSize: 14, fill: "#111827" }}
                 />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 14, fill: "#111827" }}
+                  width={60}
+                />
                 <Tooltip
-                  formatter={(value?: number) => [
-                    `${(value ?? 0).toFixed(2)} kg CO2e`,
+                  cursor={false}
+                  formatter={(value) => [
+                    `${formatNumberFull(Number(value ?? 0), { minimumFractionDigits: 2 })} kg CO2e`,
                     "Emissions",
                   ]}
                   labelStyle={{ color: "#374151" }}
                 />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={64} fill="#8B5CF6">
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                  iconType="rect"
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                />
+                <Bar
+                  dataKey="value"
+                  name="Emissions (kg CO₂e)"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={64}
+                  fill="#8B5CF6"
+                >
                   <LabelList
                     dataKey="value"
                     position="top"

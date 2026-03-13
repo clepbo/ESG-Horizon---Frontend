@@ -14,7 +14,9 @@ import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 
 interface Props {
   onBack: () => void;
@@ -32,7 +34,8 @@ export default function CommunityDisputeResolution({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.disputeResolution");
+  const { state } = useAssessment();
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.disputeResolution", "socialCapital.communityRelations.communityDisputeResolution");
 
   const disputesReferred = useFormattedNumber("");
   const disputesResolved = useFormattedNumber("");
@@ -46,6 +49,27 @@ export default function CommunityDisputeResolution({
     disputesReferredUnit: "Dispute",
     disputesResolvedUnit: "Dispute",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.disputeResolution;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.disputesReferred != null) {
+        disputesReferred.handleChange(String(existingData.disputesReferred));
+      }
+      if (existingData.disputesResolved != null) {
+        disputesResolved.handleChange(String(existingData.disputesResolved));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        disputesReferredUnit: existingData.disputesReferredUnit ?? prev.disputesReferredUnit,
+        disputesResolvedUnit: existingData.disputesResolvedUnit ?? prev.disputesResolvedUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.disputeResolution]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },
@@ -62,14 +86,12 @@ export default function CommunityDisputeResolution({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasDisputesReferred =
       disputesReferred.rawValue !== "" && formData.disputesReferredUnit !== "";
     const hasDisputesResolved =
       disputesResolved.rawValue !== "" && formData.disputesResolvedUnit !== "";
-
-    const completed = [hasDisputesReferred, hasDisputesResolved].filter(Boolean).length;
-    return completed;
+    return calculateProgress([hasDisputesReferred, hasDisputesResolved]);
   }, [
     disputesReferred.rawValue,
     disputesResolved.rawValue,
@@ -139,7 +161,7 @@ export default function CommunityDisputeResolution({
     };
 
     try {
-      await saveNow("socialCapital.communityRelations.disputeResolution", payload);
+      await saveAndSubmit("socialCapital.communityRelations.disputeResolution", payload);
       toast.success("Progress saved!");
       onNext();
     } catch (error) {
@@ -176,9 +198,10 @@ export default function CommunityDisputeResolution({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={2}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.communityRelations.communityDisputeResolution"
             />
 
             {/* Number of Disputes Referred to ADRC */}

@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import Spinner from "@/app/components/ui/reusables/Spinner";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 // ✅ shadcn/ui Select components
 import {
@@ -79,6 +80,14 @@ const chartOptions = {
           size: 12,
         },
         color: "#6B7280",
+      },
+    },
+    tooltip: {
+      callbacks: {
+        label: (context: { dataset: { label?: string }; raw: unknown }) => {
+          const val = context.raw as number;
+          return `${context.dataset.label}: ${formatNumberFull(val)}`;
+        },
       },
     },
   },

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface ProgressProps extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
   value?: number;
-  indicatorColor?: string; // can be Tailwind class or hex
+  indicatorColor?: string;
 }
 
 const Progress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.Root>, ProgressProps>(
@@ -24,7 +24,7 @@ const Progress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.Root
             isTailwindClass ? indicatorColor : ""
           )}
           style={{
-            transform: `translateX(-${100 - (value || 0)}%)`,
+            transform: `translateX(-${100 - Math.min(value || 0, 100)}%)`,
             backgroundColor: !indicatorColor
               ? "#119b95"
               : !isTailwindClass

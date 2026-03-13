@@ -21,12 +21,20 @@ export default function ContinueAssessment() {
   const { dispatch, state } = useAssessment();
 
   useEffect(() => {
-    if (!data?.data) return;
+    if (!data) return;
+
+    // When forceDisclosure has view/step params, always re-process them even if the
+    // assessment is already loaded — the user navigated here from the details modal
+    // Edit button and expects to land on the specific form section.
+    const viewParam = searchParams?.get("view");
+    const stepParam = searchParams?.get("step");
+    const hasDeepLink = forceDisclosure && viewParam;
 
     // If we've already loaded this assessment and transitioned away from the initial hub view, don't re-run
-    if (state.assessmentId === assessmentId && state.currentView !== "hub") return;
+    // — unless we have a deep link that needs to override the current view
+    if (state.assessmentId === assessmentId && state.currentView !== "hub" && !hasDeepLink) return;
 
-    const assessment = data.data;
+    const assessment = data;
     const lastSavedForm = assessment.assessmentData?.lastSavedForm;
 
     const getNestedData = (obj: any, path: string[]) => {
@@ -55,6 +63,12 @@ export default function ContinueAssessment() {
     dispatch({ type: "SET_CONTINUE_MODE", payload: true });
     dispatch({ type: "SET_ASSESSMENT_ID", payload: assessmentId });
 
+    const envBase = assessment.assessmentData?.environment || {};
+    const ghgBase = envBase?.ghg || {};
+    const scope1Base = ghgBase?.scope1 || {};
+    const scope2Base = ghgBase?.scope2 || {};
+    const scope3Base = ghgBase?.scope3 || {};
+
     const payload = {
       ...assessment.assessmentData,
       assessmentId,
@@ -64,14 +78,68 @@ export default function ContinueAssessment() {
       endMonth: assessment.endMonth,
       endYear: assessment.endYear,
       status: assessment.status,
-      stationarySources: mappedStationarySources || assessment.assessmentData?.stationarySources,
-      mobileSources: mobileSources || assessment.assessmentData?.mobileSources,
-      processEmissions: processEmissions || assessment.assessmentData?.processEmissions,
-      fugitiveEmissions: fugitiveEmissions || assessment.assessmentData?.fugitiveEmissions,
-      locationBased: scope2Data?.locationBased || assessment.assessmentData?.locationBased,
-      marketBased: scope2Data?.marketBased || assessment.assessmentData?.marketBased,
-      upstream: scope3Data?.upstream || assessment.assessmentData?.upstream,
-      downstream: scope3Data?.downstream || assessment.assessmentData?.downstream,
+      environment: {
+        ...envBase,
+        ghg: {
+          ...ghgBase,
+          scope1: {
+            ...scope1Base,
+            // Prefer nested path; fall back to legacy top-level keys for older assessments
+            stationarySources:
+              mappedStationarySources ||
+              scope1Base.stationarySources ||
+              assessment.assessmentData?.stationarySources,
+            mobileSources:
+              mobileSources ||
+              scope1Base.mobileSources ||
+              assessment.assessmentData?.mobileSources,
+            processEmissions:
+              processEmissions ||
+              scope1Base.processEmissions ||
+              assessment.assessmentData?.processEmissions,
+            fugitiveEmissions:
+              fugitiveEmissions ||
+              scope1Base.fugitiveEmissions ||
+              assessment.assessmentData?.fugitiveEmissions,
+          },
+          scope2: {
+            ...scope2Base,
+            locationBased:
+              scope2Data?.locationBased ||
+              scope2Base.locationBased ||
+              assessment.assessmentData?.locationBased,
+            marketBased:
+              scope2Data?.marketBased ||
+              scope2Base.marketBased ||
+              assessment.assessmentData?.marketBased,
+          },
+          scope3: {
+            ...scope3Base,
+            upstream:
+              scope3Data?.upstream ||
+              scope3Base.upstream ||
+              assessment.assessmentData?.upstream,
+            downstream:
+              scope3Data?.downstream ||
+              scope3Base.downstream ||
+              assessment.assessmentData?.downstream,
+          },
+        },
+      },
+      businessInnovation:
+        getNestedData(assessment.assessmentData, ["environment", "businessInnovation"]) ||
+        assessment.assessmentData?.environment?.businessInnovation ||
+        assessment.assessmentData?.businessInnovation ||
+        assessment.assessmentData?.businessModel ||
+        assessment.assessmentData?.businessModelAndInnovation,
+      leadershipGovernance:
+        getNestedData(assessment.assessmentData, ["environment", "leadershipGovernance"]) ||
+        assessment.assessmentData?.environment?.leadershipGovernance ||
+        assessment.assessmentData?.leadershipGovernance,
+      activityMetrics:
+        getNestedData(assessment.assessmentData, ["environment", "activityMetrics"]) ||
+        assessment.assessmentData?.environment?.activityMetrics ||
+        assessment.assessmentData?.activityMetrics,
     };
 
     dispatch({
@@ -80,7 +148,14 @@ export default function ContinueAssessment() {
     });
 
     if (forceDisclosure) {
-      dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+      if (viewParam) {
+        dispatch({ type: "SET_VIEW", payload: viewParam });
+        if (stepParam) {
+          dispatch({ type: "SET_TARGET_STEP", payload: stepParam });
+        }
+      } else {
+        dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
+      }
       return;
     }
 

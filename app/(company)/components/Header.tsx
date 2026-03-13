@@ -7,6 +7,7 @@ import { AutoBreadcrumb } from "@/app/components/ui/CustomBreadcrumb";
 import NotificationDropdown from "./NotificationDropdown";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 import { useBreadcrumb } from "../reports-and-analytics/context/ReportBreadcrumbContext";
+import { usePathname } from "next/navigation";
 
 export default function Header({
   showSearchBar = true,
@@ -16,7 +17,12 @@ export default function Header({
   customBreadcrumb?: React.ReactNode;
 }) {
   const { user } = useAuth();
-  const { data: allTasks = [], isLoading } = useMyTasks();
+  const pathname = usePathname();
+  const shouldFetch =
+    (pathname?.startsWith("/assessments") || pathname?.startsWith("/tasks")) &&
+    user?.role?.name !== "company_esg_admin";
+
+  const { data: allTasks = [], isLoading } = useMyTasks({ enabled: shouldFetch });
   const { lastLabelOverride } = useBreadcrumb();
 
   const myTasks = allTasks.filter((task) => task.assignedUserIds?.includes(user?.id || 0));

@@ -17,6 +17,7 @@ import {
 import { useState } from "react";
 import { formatLabel } from "./utils/dataTransfomer";
 import AssessmentEnvironmental from "./AssessmentEnvironmental";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 interface ReportSummaryProps {
   reportData?: {
@@ -103,14 +104,6 @@ interface ReportSummaryProps {
 
 const ReportSummary = (props: ReportSummaryProps) => {
   const [selected, setSelected] = useState<string | undefined>(undefined);
-
-  // Format number with commas and 2 decimals
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
-  };
 
   // Calculate progress percentage
   const calculateProgress = () => {
@@ -279,15 +272,21 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 1</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_one)} tCO₂e (
-                      {parseFloat(percentage_emission_summary.scope1_emission_summary.toFixed(2))}%)
+                      {formatNumberFull(report.ghg_scope_one, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      tCO₂e (
+                      {formatNumberFull(percentage_emission_summary.scope1_emission_summary, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
                     <Progress
-                      value={percentage_emission_summary.scope1_emission_summary}
+                      value={Math.min(percentage_emission_summary.scope1_emission_summary, 100)}
                       className="h-2 bg-orange-500 rounded-2xl"
-                      style={{ width: `${percentage_emission_summary.scope1_emission_summary}%` }}
+                      style={{
+                        width: `${Math.min(percentage_emission_summary.scope1_emission_summary, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -300,15 +299,21 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 2</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_two)} tCO₂e (
-                      {parseFloat(percentage_emission_summary.scope2_emission_summary.toFixed(2))}%)
+                      {formatNumberFull(report.ghg_scope_two, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      tCO₂e (
+                      {formatNumberFull(percentage_emission_summary.scope2_emission_summary, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
                     <Progress
-                      value={percentage_emission_summary.scope2_emission_summary}
+                      value={Math.min(percentage_emission_summary.scope2_emission_summary, 100)}
                       className="h-2 bg-blue-500 rounded-2xl"
-                      style={{ width: `${percentage_emission_summary.scope2_emission_summary}%` }}
+                      style={{
+                        width: `${Math.min(percentage_emission_summary.scope2_emission_summary, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -321,15 +326,21 @@ const ReportSummary = (props: ReportSummaryProps) => {
                       <span className="text-sm font-medium text-foreground">Scope 3</span>
                     </div>
                     <span className="text-sm font-medium text-foreground">
-                      {formatNumber(report.ghg_scope_three)} tCO₂e (
-                      {parseFloat(percentage_emission_summary.scope3_emission_summary.toFixed(2))}%)
+                      {formatNumberFull(report.ghg_scope_three, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      tCO₂e (
+                      {formatNumberFull(percentage_emission_summary.scope3_emission_summary, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 h-2 rounded-2xl">
                     <Progress
-                      value={percentage_emission_summary.scope3_emission_summary}
+                      value={Math.min(percentage_emission_summary.scope3_emission_summary, 100)}
                       className="h-2 bg-purple-500 rounded-2xl"
-                      style={{ width: `${percentage_emission_summary.scope3_emission_summary}%` }}
+                      style={{
+                        width: `${Math.min(percentage_emission_summary.scope3_emission_summary, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>

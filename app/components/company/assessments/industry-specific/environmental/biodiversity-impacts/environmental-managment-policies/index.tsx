@@ -37,8 +37,9 @@ export default function EnvironmentalManagementPolicies({
 }: EnvironmentalManagementPoliciesProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
-    "environmental-management-policies"
+  const { saveNow, saveAndSubmit, isSaving } = useAssessmentFlow(
+    "environmental-management-policies",
+    "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"
   );
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -75,10 +76,8 @@ export default function EnvironmentalManagementPolicies({
   const { filled, total } = useMemo(() => {
     const hasISO = formData.isISO14001Certified !== "";
     const hasDescription = formData.policiesDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasISO, hasDescription, hasEvidence]);
-  }, [formData.isISO14001Certified, formData.policiesDescription, filesAndLinks]);
+    return calculateProgress([hasISO, hasDescription]);
+  }, [formData.isISO14001Certified, formData.policiesDescription]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -125,11 +124,11 @@ export default function EnvironmentalManagementPolicies({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateForm()) {
       toast.error("Please fix the errors before continuing.");
       return;
@@ -142,7 +141,16 @@ export default function EnvironmentalManagementPolicies({
     };
 
     dispatch({ type: "UPDATE_BIODIVERSITY_POLICIES", payload });
-    onContinueToNextAssessment();
+
+    try {
+      await saveAndSubmit(
+        "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+        payload
+      );
+      onContinueToNextAssessment();
+    } catch {
+      toast.error("Failed to save data.");
+    }
   };
 
   const handlePrevious = () => {
@@ -177,6 +185,7 @@ export default function EnvironmentalManagementPolicies({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"
             />
             {/* ISO 14001 Certification Question */}
             <div className="space-y-4">
@@ -219,7 +228,7 @@ export default function EnvironmentalManagementPolicies({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6>Description of Environmental Management Policies and Practices </h6>
                     <p>
@@ -280,10 +289,10 @@ export default function EnvironmentalManagementPolicies({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -304,7 +313,6 @@ export default function EnvironmentalManagementPolicies({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading}
                 className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
               >
                 Next

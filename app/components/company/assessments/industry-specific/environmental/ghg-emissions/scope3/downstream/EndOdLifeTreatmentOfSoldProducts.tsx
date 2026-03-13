@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -22,6 +22,7 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { AddProduct, ProductData } from "@/app/components/company/assessments/AddProduct";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface EndOfLifeTreatmentProps {
   onBack: () => void;
@@ -99,7 +100,7 @@ export function EndOfLifeTreatment({
     otherDisposalMethod: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-end-of-life-treatment");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-end-of-life-treatment");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -120,7 +121,7 @@ export function EndOfLifeTreatment({
           others: false,
         }
       );
-      setOtherDisposalMethod(existingData.otherDisposalMethod || "");
+      setOtherDisposalMethod(existingData.otherDisposalMethod !== null && existingData.otherDisposalMethod !== undefined ? existingData.otherDisposalMethod.toString() : "");
       setProducts(existingData.products || []);
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -135,17 +136,13 @@ export function EndOfLifeTreatment({
       ? otherDisposalMethod.trim().length > 0
       : true;
     const hasProducts = products.length > 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasDisposalMethods && hasOtherMethodFilled,
       hasProducts,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [selectedMethods, otherDisposalMethod, products, files, additionalFields]);
+  }, [selectedMethods, otherDisposalMethod, products]);
 
   const clearAllErrors = () => {
     setErrors({});
@@ -241,6 +238,7 @@ export function EndOfLifeTreatment({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.endOfLifeTreatment", payload).catch(() => {});
     onNext();
   };
 
@@ -342,7 +340,7 @@ export function EndOfLifeTreatment({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 End-of-Life Treatment of Sold Products" },
+    { label: "Category 12: End-of-Life Treatment of Sold Products" },
   ];
 
   return (
@@ -377,20 +375,21 @@ export function EndOfLifeTreatment({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
-                4. End-of-Life Treatment of Sold Products
+                Category 12: End-of-Life Treatment of Sold Products
               </h4>
               <p className="text-muted-foreground text-base">
                 Report disposal methods and end-of-life treatment for products sold by your company.
               </p>
             </div>
 
-            {/* 4.1 Total mass of products sold */}
+            {/* 12.1 Total mass of products sold */}
             <div className="space-y-6">
               <Label className="text-base font-medium">
-                4.1 Total mass of products sold (by material type)
+                12.1 Total mass of products sold (by material type)
               </Label>
 
               <AddProduct
@@ -445,10 +444,10 @@ export function EndOfLifeTreatment({
               </div>
             </div>
 
-            {/* 4.2 Document/Evidence Upload */}
+            {/* 12.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                4.2 Documents/Evidence Upload
+                12.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -488,19 +487,12 @@ export function EndOfLifeTreatment({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

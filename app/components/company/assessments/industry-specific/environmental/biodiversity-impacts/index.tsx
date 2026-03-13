@@ -19,9 +19,7 @@ import EnvironmentalManagementPolicies from "./environmental-managment-policies"
 import HydrocarbonSpills from "./hydrocarbon-spills";
 import ReservesInSensitiveAreas from "./reserves-in-sensitive-areas";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 type SHRView =
   | "overview"
@@ -71,12 +69,14 @@ const scopeData = [
   },
 ];
 
-export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactProps) {
+export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinueToNextAssessment }: BioDiversityImpactProps) {
   const router = useRouter();
+  const { state } = useAssessment();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
+
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state } = useAssessment();
+
   const params = useParams();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
@@ -89,12 +89,19 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
     }
   };
 
-  // Use the reusable hook with checkSubComponentCompletion
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Environmental Management Policies": { groupKey: "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies", dataPath: ["environment", "biodiversityImpact", "environmentalManagement", "environmentalManagementPolicies"] },
+    "Hydrocarbon Spills": { groupKey: "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills", dataPath: ["environment", "biodiversityImpact", "environmentalManagement", "hydrocarbonSpills"] },
+    "Reserves in Sensitive Areas": { groupKey: "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas", dataPath: ["environment", "biodiversityImpact", "environmentalManagement", "reservesInSensitiveAreas"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -124,11 +131,11 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
       <SuccessScreen
         assessmentName="Biodiversity Impacts"
         nextAssessment="Social Capital &amp; Human Rights"
-        totals={totals ?? undefined}
+        totals={undefined}
         reportId={reportId}
         onContinue={handleViewReport}
-        // onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
-        onBackToHub={onBack}
+        onContinueAssessment={onContinueToNextAssessment}
+        onBackToHub={onBackToHub}
       />
     );
   }
@@ -221,7 +228,7 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
                           <TooltipContent
                             side="top"
                             align="start"
-                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                           >
                             {scope.id === "environmental-management" && (
                               <>
@@ -247,22 +254,18 @@ export function BioDiversityImpact({ onBack, initialForm }: BioDiversityImpactPr
                       {scope.cards.map((card) => (
                         <Card
                           key={card.title}
-                          className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
-                            card.title
-                          )} ${
+                          className={`transition-all bg-white shadow-sm rounded-lg ${
                             card.clickable
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
                           }`}
+                          style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between gap-3">
                               <div className="space-y-2 flex-1">
-                                <div className="flex items-center justify-between">
-                                  <h5 className="font-medium text-foreground">{card.title}</h5>
-                                  <CompletionIndicator status={getStatus(card.title)} />
-                                </div>
+                                <h5 className="font-medium text-foreground">{card.title}</h5>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
                               <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

@@ -181,13 +181,16 @@ export const useTaskComments = (taskId: number) =>
     enabled: !!taskId,
   });
 
-export const useMyTasks = () =>
+export const useMyTasks = (options?: { enabled?: boolean }) =>
   useQuery<FrontendTask[], Error>({
     queryKey: ["myTasks"],
     queryFn: async () => {
       const data = await taskAssignmentService.getMyTasks();
       return mapMyTasksResponseToFrontend(data);
     },
+    enabled: options?.enabled !== undefined ? options.enabled : true,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 export const useStartTask = () => {
   const queryClient = useQueryClient();

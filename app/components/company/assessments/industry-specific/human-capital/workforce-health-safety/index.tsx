@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -12,9 +12,8 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import HealthSafetyPerformance from "./health-safety-performance";
 import SafetyManagementSystems from "./safety-management-systems";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { defaultEmployeeFormData, type EmployeeFormData } from "./health-safety-performance/types";
 
 type WHSView = "overview" | "health-safety-performance" | "safety-management-systems";
 
@@ -59,13 +58,71 @@ export default function WorkforceHealthSafety({
   const [currentView, setCurrentView] = useState<WHSView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  // Persist Health & Safety Performance form data across next/back until after submission
+  const [directFormData, setDirectFormData] = useState<EmployeeFormData>(() => ({
+    ...defaultEmployeeFormData,
+  }));
+  const [contractFormData, setContractFormData] = useState<EmployeeFormData>(() => ({
+    ...defaultEmployeeFormData,
+  }));
+
+  // Rehydrate form data from saved assessment (e.g., when navigating back from Disclosure Topics)
+  const hasRehydrated = useRef(false);
+  useEffect(() => {
+    if (hasRehydrated.current) return;
+    const hsp = (state.assessmentData as any)?.humanCapital?.riskAndOpportunityManagement
+      ?.healthAndSafetyPerformance;
+    if (!hsp) return;
+    hasRehydrated.current = true;
+
+    const toStr = (v: any) => (v != null ? String(v) : "");
+
+    if (hsp.direct) {
+      setDirectFormData({
+        totalHoursWorked: toStr(hsp.direct.totalHoursWorked),
+        recordableIncidents: toStr(hsp.direct.recordableIncidents),
+        fatalities: toStr(hsp.direct.fatalities),
+        nearMisses: toStr(hsp.direct.nearMisses),
+        safetyTrainingHours: toStr(hsp.direct.safetyTrainingHours),
+        totalHoursWorkedUnit: hsp.direct.totalHoursWorkedUnit || "Hours",
+        recordableIncidentsUnit: hsp.direct.recordableIncidentsUnit || "Incidents",
+        fatalitiesUnit: hsp.direct.fatalitiesUnit || "Fatalities",
+        nearMissesUnit: hsp.direct.nearMissesUnit || "Near Misses",
+        safetyTrainingHoursUnit: hsp.direct.safetyTrainingHoursUnit || "Hours",
+        filesAndLinks: hsp.direct.filesAndLinks || [],
+      });
+    }
+    if (hsp.contract) {
+      setContractFormData({
+        totalHoursWorked: toStr(hsp.contract.totalHoursWorked),
+        recordableIncidents: toStr(hsp.contract.recordableIncidents),
+        fatalities: toStr(hsp.contract.fatalities),
+        nearMisses: toStr(hsp.contract.nearMisses),
+        safetyTrainingHours: toStr(hsp.contract.safetyTrainingHours),
+        totalHoursWorkedUnit: hsp.contract.totalHoursWorkedUnit || "Hours",
+        recordableIncidentsUnit: hsp.contract.recordableIncidentsUnit || "Incidents",
+        fatalitiesUnit: hsp.contract.fatalitiesUnit || "Fatalities",
+        nearMissesUnit: hsp.contract.nearMissesUnit || "Near Misses",
+        safetyTrainingHoursUnit: hsp.contract.safetyTrainingHoursUnit || "Hours",
+        filesAndLinks: hsp.contract.filesAndLinks || [],
+      });
+    }
+  }, [state.assessmentData]);
+
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Health & Safety Performance": { groupKey: "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", dataPath: ["humanCapital", "riskAndOpportunityManagement", "healthAndSafetyPerformance"] },
+    "Safety Management Systems": { groupKey: "humanCapital.workforceHealthSafety", dataPath: ["humanCapital", "workforceHealthAndSafety", "riskAndOpportunityManagement", "safetyManagementSystems"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -90,11 +147,14 @@ export default function WorkforceHealthSafety({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Safety Management Systems"
-        totals={totals ?? undefined}
-        nextAssessment="Reserves Valuation and Capital Expenditures"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        assessmentName="Workforce Health & Safety"
+        totals={undefined}
+        nextAssessment="Reserves Valuation & Capital Expenditures"
+        onContinueAssessment={() => {
+          setDirectFormData({ ...defaultEmployeeFormData });
+          setContractFormData({ ...defaultEmployeeFormData });
+          onContinueToNextAssessment();
+        }}
         onBackToHub={onBackToHub}
       />
     );
@@ -116,6 +176,10 @@ export default function WorkforceHealthSafety({
         stepIndex={1}
         totalSteps={steps.length}
         breadcrumb={healthSafetyBreadcrumb}
+        directFormData={directFormData}
+        onDirectFormChange={setDirectFormData}
+        contractFormData={contractFormData}
+        onContractFormChange={setContractFormData}
       />
     );
   }
@@ -189,7 +253,7 @@ export default function WorkforceHealthSafety({
                         <TooltipContent
                           side="top"
                           align="start"
-                          className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                          className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                         >
                           <h6 className="font-semibold mb-1">Risk & Opportunity Management</h6>
                           <p>
@@ -207,20 +271,16 @@ export default function WorkforceHealthSafety({
                     {scope.cards.map((card) => (
                       <Card
                         key={card.title}
-                        className={`transition-colors bg-white shadow-sm rounded-lg ${getCardBorderClass(
-                          card.title
-                        )} ${
+                        className={`transition-colors bg-white shadow-sm rounded-lg ${
                           card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
                         }`}
+                        style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-2 flex-1">
-                              <div className="flex items-center justify-between">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
-                                <CompletionIndicator status={getStatus(card.title)} />
-                              </div>
+                              <h5 className="font-medium text-foreground">{card.title}</h5>
                               <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                             </div>
                             <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />

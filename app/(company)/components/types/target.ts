@@ -2,6 +2,7 @@
 export enum TargetType {
   GENERAL = "GENERAL",
   SCOPE = "SCOPE",
+  BOTH = "BOTH",
 }
 
 export enum EmissionScope {
@@ -43,6 +44,7 @@ export interface Target {
   description: string;
   baselineYear: number;
   targetYear: number;
+  currentAssessmentYear?: number | null;
   createdAt: string;
   updatedAt: string;
   generalTarget?: GeneralTarget | null;

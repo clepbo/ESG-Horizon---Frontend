@@ -14,7 +14,7 @@ export const SCOPE_EMISSION_FACTORS: Record<string, ScopeEmissionFactor> = {
   },
   "gas-volume": {
     category: "gas-volume",
-    factor: 2.89,
+    factor: 2.6,
     unit: "m³ gas",
     isInTonnes: false,
   },

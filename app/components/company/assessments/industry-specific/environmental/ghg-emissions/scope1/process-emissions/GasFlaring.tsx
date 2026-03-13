@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, Info } from "lucide-react";
 import { useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import type { FileMetadata } from "@/hooks/useAssessment";
@@ -29,6 +29,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface GasFlaringProps {
   onBack: () => void;
@@ -90,9 +91,13 @@ export function GasFlaring({
   const router = useRouter();
   const {
     saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
-  } = useAssessmentFlow("ghg-process-emissions-gas-flaring");
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+  } = useAssessmentFlow("ghg-process-emissions-gas-flaring", "environment.ghg.scope1.processEmissions");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -150,7 +155,7 @@ export function GasFlaring({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasGasVolume, hasCarbonContent, hasFiles]);
+    return calculateProgress([hasGasVolume, hasCarbonContent]);
   }, [gasVolume, carbonContent, files, additionalFields]);
 
   // FIX: Accept 0 and any valid number >= 0
@@ -314,8 +319,7 @@ export function GasFlaring({
     });
 
     try {
-      await saveNow("environment.ghg.scope1.processEmissions.gasFlaring", payload);
-      const res = await submitGroup();
+      const res = await saveAndSubmit("environment.ghg.scope1.processEmissions.gasFlaring", payload);
       onSubmit(res?.totals ?? null);
       if (!assessmentId && res?.assessment?.id) {
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
@@ -359,6 +363,7 @@ export function GasFlaring({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope1.processEmissions"
             />
 
             {/* Gas Volume & Carbon Content */}
@@ -411,7 +416,7 @@ export function GasFlaring({
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 mb-2">
                     <Label htmlFor="carbon-content" className="text-sm font-medium text-gray-700">
-                      Carbon Content/Composition (% by volume)
+                      Methane/Carbon Composition (% by volume)
                     </Label>
                     <TooltipProvider>
                       <Tooltip>
@@ -494,19 +499,12 @@ export function GasFlaring({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>
@@ -536,10 +534,10 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -557,10 +555,10 @@ export function GasFlaring({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isActionLoading}
-                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isActionLoading ? "Submitting..." : "Submit"}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

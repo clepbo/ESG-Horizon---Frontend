@@ -38,9 +38,11 @@ export default function AntiCorruptionManagement({
   onSubmit,
 }: AntiCorruptionManagementProps) {
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
+    "businessModel.businessEthics.antiCorruptionManagement"
   );
+  const hasExistingData = !!state.assessmentData.businessInnovation?.businessEthicsAndTransparency?.antiCorruptionManagementSystem;
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -57,7 +59,7 @@ export default function AntiCorruptionManagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+      state.assessmentData.businessInnovation?.businessEthicsAndTransparency
         ?.antiCorruptionManagementSystem;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -72,7 +74,7 @@ export default function AntiCorruptionManagement({
       }
     }
   }, [
-    state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+    state.assessmentData.businessInnovation?.businessEthicsAndTransparency
       ?.antiCorruptionManagementSystem,
   ]);
 
@@ -105,10 +107,8 @@ export default function AntiCorruptionManagement({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
-  }, [hasWhistleblowerHotline, systemDescription, filesAndLinks]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields]);
+  }, [hasWhistleblowerHotline, systemDescription]);
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
@@ -164,7 +164,7 @@ export default function AntiCorruptionManagement({
     };
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
         payload
       );
@@ -224,6 +224,7 @@ export default function AntiCorruptionManagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.businessEthics.antiCorruptionManagement"
             />
 
             {/* Radio Button Question */}
@@ -418,11 +419,11 @@ export default function AntiCorruptionManagement({
                     type="button"
                     variant="outline"
                     onClick={handleSubmit}
-                    disabled={isSaving}
-                    className="border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                    disabled={isSaving || isPreviouslySubmitted}
+                    className="border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Submit
-                    <ArrowLeft className="h-4 w-4 rotate-180" />
+                    {getSubmitLabel(hasExistingData)}
+                    {!isPreviouslySubmitted && <ArrowLeft className="h-4 w-4 rotate-180" />}
                   </Button>
                 </div>
               )}

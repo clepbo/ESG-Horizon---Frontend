@@ -19,6 +19,7 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 type SHRView =
   | "overview"
@@ -70,6 +71,7 @@ const scopeData = [
 
 export function SecurityHumanRightsAssessment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: SecurityHumanRightsAssessmentProps) {
@@ -77,7 +79,21 @@ export function SecurityHumanRightsAssessment({
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { dispatch } = useAssessment();
+  const { state } = useAssessment();
+
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Reserves in or near Areas of Conflict": { groupKey: "socialCapital.securityHumanRights.operationsInConflictZones", dataPath: ["socialCapital", "securityRights", "operationsInConflictZones"] },
+    "Reserves in or near Indigenous Land": { groupKey: "socialCapital.securityHumanRights.reservesInNearIndigenousLand", dataPath: ["socialCapital", "securityRights", "reservesInNearIndigenousLand"] },
+    "Human Rights Engagement Processes": { groupKey: "socialCapital.securityHumanRights.humanRightsEngagementProcesses", dataPath: ["socialCapital", "securityRights", "humanRightEngagement"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -105,12 +121,11 @@ export function SecurityHumanRightsAssessment({
   if (showSuccess) {
     return (
       <SuccessScreen
-        assessmentName="Human Right Engagements"
-        totals={totals ?? undefined}
-        nextAssessment="Community Relations"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
-        onBackToHub={onBack}
+        assessmentName="Security, Human Rights & Rights of Indigenous Peoples"
+        totals={undefined}
+        nextAssessment="Workforce Health & Safety"
+        onContinueAssessment={onContinueToNextAssessment}
+        onBackToHub={onBackToHub}
       />
     );
   }
@@ -206,7 +221,7 @@ export function SecurityHumanRightsAssessment({
                           <TooltipContent
                             side="top"
                             align="start"
-                            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                           >
                             {scope.id === "operations-in-zone-conflict" && (
                               <>
@@ -238,6 +253,7 @@ export function SecurityHumanRightsAssessment({
                           className={`transition-colors bg-white shadow-sm rounded-lg ${
                             card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
                           }`}
+                          style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

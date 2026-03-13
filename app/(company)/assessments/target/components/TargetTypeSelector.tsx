@@ -10,13 +10,10 @@ interface TargetTypeSelectorProps {
 export function TargetTypeSelector({ selectedType, onTypeChange }: TargetTypeSelectorProps) {
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Select type of target:</h2>
+      <h2 className="text-lg font-semibold text-gray-900">Select type of target(GHG Emission):</h2>
 
       <div className="flex flex-col gap-6 items-start">
-        <div
-          className={`cursor-pointer transition-all  ${selectedType === "general" ? "" : ""}`}
-          onClick={() => onTypeChange("general")}
-        >
+        <div className="cursor-pointer transition-all" onClick={() => onTypeChange("general")}>
           <div className="flex items-center space-x-3">
             <Checkbox
               checked={selectedType === "general"}
@@ -26,25 +23,39 @@ export function TargetTypeSelector({ selectedType, onTypeChange }: TargetTypeSel
             <div>
               <h6 className="font-medium text-gray-900">Set general target</h6>
               <p className="text-sm text-gray-600 mt-1">
-                Set an overall emissions reduction goal for your company.
+                Set an overall emission reduction goal for your company.
               </p>
             </div>
           </div>
         </div>
-        <div
-          className={`cursor-pointer transition-all  ${selectedType === "general" ? "" : ""}`}
-          onClick={() => onTypeChange("scope")}
-        >
+
+        <div className="cursor-pointer transition-all" onClick={() => onTypeChange("scope")}>
           <div className="flex items-center space-x-3">
             <Checkbox
               checked={selectedType === "scope"}
-              onCheckedChange={() => onTypeChange("general")}
+              onCheckedChange={() => onTypeChange("scope")}
               className="text-white rounded-full"
             />
             <div>
               <h6 className="font-medium text-gray-900">Set target by scope</h6>
               <p className="text-sm text-gray-600 mt-1">
                 Set specific reduction goals for each emission scope.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="cursor-pointer transition-all" onClick={() => onTypeChange("both")}>
+          <div className="flex items-center space-x-3">
+            <Checkbox
+              checked={selectedType === "both"}
+              onCheckedChange={() => onTypeChange("both")}
+              className="text-white rounded-full"
+            />
+            <div>
+              <h6 className="font-medium text-gray-900">Set both targets</h6>
+              <p className="text-sm text-gray-600 mt-1">
+                Set an overall goal and scope-specific goals on one target record.
               </p>
             </div>
           </div>

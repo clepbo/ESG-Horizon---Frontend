@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -25,16 +25,18 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface LeasedAssetsProps {
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (leasedAssetsPayload?: any) => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   backToAssessment: () => void;
   backToDisclosureTopics: () => void;
   backToGHGEmissions: () => void;
+  parentSubmitting?: boolean;
 }
 
 interface LeasedAssetsErrors {
@@ -58,6 +60,7 @@ export function LeasedAssets({
   backToAssessment,
   backToDisclosureTopics,
   backToGHGEmissions,
+  parentSubmitting,
 }: LeasedAssetsProps) {
   const { state, dispatch } = useAssessment();
   const router = useRouter();
@@ -83,7 +86,8 @@ export function LeasedAssets({
     floorArea: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-leased-assets");
+  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-upstream-leased-assets", "environment.ghg.scope3.upstream");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -96,9 +100,21 @@ export function LeasedAssets({
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
     if (existingData) {
-      setElectricityConsumed(existingData.electricityConsumed || "");
-      setFuelConsumed(existingData.fuelConsumed || "");
-      setFloorArea(existingData.floorArea || "");
+      setElectricityConsumed(
+        existingData.electricityConsumed !== null && existingData.electricityConsumed !== undefined
+          ? existingData.electricityConsumed.toString()
+          : ""
+      );
+      setFuelConsumed(
+        existingData.fuelConsumed !== null && existingData.fuelConsumed !== undefined
+          ? existingData.fuelConsumed.toString()
+          : ""
+      );
+      setFloorArea(
+        existingData.floorArea !== null && existingData.floorArea !== undefined
+          ? existingData.floorArea.toString()
+          : ""
+      );
 
       // Files
       setFiles(
@@ -119,18 +135,14 @@ export function LeasedAssets({
       fuelConsumed.trim() !== "" && !isNaN(Number(fuelConsumed)) && Number(fuelConsumed) >= 0;
     const hasFloorArea =
       floorArea.trim() !== "" && !isNaN(Number(floorArea)) && Number(floorArea) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasElectricityConsumed,
       hasFuelConsumed,
       hasFloorArea,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [electricityConsumed, fuelConsumed, floorArea, files, additionalFields]);
+  }, [electricityConsumed, fuelConsumed, floorArea]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -253,8 +265,8 @@ export function LeasedAssets({
       payload,
     });
 
-    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
-    onSubmit();
+    // Pass payload to parent so it can save directly (dispatch is async, state won't be updated yet)
+    onSubmit(payload);
   };
 
   // Handle input changes with automatic error clearing
@@ -391,6 +403,7 @@ export function LeasedAssets({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Upstream Leased Assets</h4>
@@ -591,19 +604,12 @@ export function LeasedAssets({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>
@@ -658,12 +664,12 @@ export function LeasedAssets({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isLoading}
-                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
-                aria-label="Next step"
+                disabled={isLoading || isPreviouslySubmitted || parentSubmitting}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Submit form"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {parentSubmitting ? "Submitting..." : getSubmitLabel(hasExistingData)}
+                {!isPreviouslySubmitted && !parentSubmitting && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

@@ -35,10 +35,10 @@ export default function ProductionVolumesChart({
 
   const renderLegend = (_props: any) => {
     return (
-      <ul className="flex justify-center gap-4 mt-4 text-xs lg:text-sm text-gray-600">
+      <ul className="flex justify-center gap-4 mt-4 text-sm font-medium text-gray-900">
         {legendItems.map((entry, index) => (
           <li key={`item-${index}`} className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
+            <span className="w-3 h-3 " style={{ backgroundColor: entry.color }} />
             {entry.value}
           </li>
         ))}
@@ -64,10 +64,10 @@ export default function ProductionVolumesChart({
 
             return (
               <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: itemColor }} />
+                <span className="w-3 h-3 " style={{ backgroundColor: itemColor }} />
                 <span className="text-gray-600">{itemLabel}:</span>
                 <span className="font-medium text-gray-900">
-                  {Number(entry.value).toLocaleString()}
+                  {formatNumberFigures(Number(entry.value))}
                 </span>
               </div>
             );
@@ -79,23 +79,35 @@ export default function ProductionVolumesChart({
   };
 
   return (
-    <div className="w-full h-full bg-white rounded-lg p-6 shadow">
+    <div className="w-full h-full bg-white rounded-lg p-6 shadow overflow-visible">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
 
       {hasData ? (
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} barGap={4} barCategoryGap="30%">
+          <BarChart data={data} barGap={4} barCategoryGap="30%" margin={{ top: 20, left: 10 }} style={{ overflow: "visible" }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="name" />
-            <YAxis
-              width={70}
-              tickFormatter={(value) => {
-                if (value >= 1_000_000) return `${value / 1_000_000}M`;
-                if (value >= 1_000) return `${value / 1_000}K`;
-                return value;
-              }}
+            <XAxis
+              dataKey="name"
               axisLine={false}
               tickLine={false}
+              tick={{ fill: "#111827", fontSize: 14 }}
+            />
+            <YAxis
+              width={70}
+              axisLine={false}
+              tickLine={false}
+              tick={(props: any) => (
+                <text
+                  x={props.x}
+                  y={props.y}
+                  fill="#111827"
+                  fontSize={12}
+                  textAnchor="end"
+                  transform={`rotate(-35, ${props.x}, ${props.y})`}
+                >
+                  {formatNumberFigures(Number(props.payload.value) || 0)}
+                </text>
+              )}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: "transparent" }} />
             <Legend content={renderLegend} />

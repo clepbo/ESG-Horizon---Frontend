@@ -29,29 +29,55 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
       return new Date(yearPart, month, 1);
     };
 
-    const data = (esgJourney || []).map((d) => ({
-      ...d,
+    const rawData = (esgJourney || []).map((d) => ({
       _parsedStart: parsePeriodStart(d.period),
       _score: typeof d.score === "number" ? d.score : Number(d.score) || 0,
       _label: d.period,
     }));
 
-    data.sort((a, b) => {
+    rawData.sort((a, b) => {
       const aDate = a._parsedStart ? a._parsedStart.getTime() : 0;
       const bDate = b._parsedStart ? b._parsedStart.getTime() : 0;
       return aDate - bDate;
     });
 
-    const maxScore = Math.max(0, ...data.map((d) => d._score), 100);
-    const yMax = Math.ceil((maxScore * 1.1) / 10) * 10;
+    const groupAndAverage = (getKey: (d: Date) => string, getSortDate: (d: Date) => Date) => {
+      const groups = new Map<string, { scores: number[]; sortDate: Date }>();
+      rawData.forEach(({ _parsedStart, _score }) => {
+        if (!_parsedStart) return;
+        const key = getKey(_parsedStart);
+        if (!groups.has(key)) groups.set(key, { scores: [], sortDate: getSortDate(_parsedStart) });
+        groups.get(key)!.scores.push(_score);
+      });
+      return Array.from(groups.entries())
+        .sort((a, b) => a[1].sortDate.getTime() - b[1].sortDate.getTime())
+        .map(([label, { scores, sortDate }]) => ({
+          _label: label,
+          _score: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
+          _parsedStart: sortDate,
+        }));
+    };
 
-    return { data, yMax };
-  }, [esgJourney]);
+    const data =
+      timeRange === "quarterly"
+        ? groupAndAverage(
+            (d) => `Q${Math.floor(d.getMonth() / 3) + 1} ${d.getFullYear()}`,
+            (d) => new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1),
+          )
+        : timeRange === "yearly"
+          ? groupAndAverage(
+              (d) => String(d.getFullYear()),
+              (d) => new Date(d.getFullYear(), 0, 1),
+            )
+          : rawData;
+
+    return { data, yMax: 100 };
+  }, [esgJourney, timeRange]);
 
   const hasData = processed.data && processed.data.length > 0;
 
   return (
-    <Card className="bg-white border-none rounded-xl h-auto">
+    <Card className="bg-white border-none rounded-xl h-auto overflow-visible">
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium text-gray-900">Your ESG Journey</CardTitle>
@@ -94,17 +120,9 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
                 tick={{ fontSize: 10, fill: "#4B5563" }}
                 domain={[0, processed.yMax || 100]}
               />
-              {/* <Tooltip
-                cursor={{ fill: "rgba(0,0,0,0.05)" }}
-                formatter={(v: number | undefined) => {
-                  const value = Number(v);
-                  return [`${value % 1 === 0 ? value.toFixed(0) : value.toFixed(2)}`, "Score"];
-                }}
-                formatter={(v: number) => [`${v}%`, "Score"]}
-              /> */}
               <Tooltip
                 cursor={{ fill: "rgba(0,0,0,0.05)" }}
-                formatter={(v?: number) => [`${v ?? 0}%`, "Score"]}
+                formatter={(v) => [`${Math.round(Number(v ?? 0))}%`, "ESG Score"]}
               />
               <Bar
                 dataKey="_score"

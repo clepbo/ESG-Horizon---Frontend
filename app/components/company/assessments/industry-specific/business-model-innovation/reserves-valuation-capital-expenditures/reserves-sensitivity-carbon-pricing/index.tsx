@@ -45,13 +45,14 @@ export default function ReservesSensitivityForm({
 
   const _router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing",
+    "businessModel.reservesValuation.reservesSensitivity"
   );
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.reservesSensitivityToCarbonPricing;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -77,7 +78,7 @@ export default function ReservesSensitivityForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.reservesSensitivityToCarbonPricing,
   ]);
 
@@ -117,20 +118,16 @@ export default function ReservesSensitivityForm({
     const hasPercentageDecrease = percentageDecrease.rawValue !== "";
     const hasEstimatedDecrease =
       estimatedDecrease.rawValue !== "" && formData.estimatedDecreaseUnit !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasCarbonPriceScenario,
       hasPercentageDecrease,
       hasEstimatedDecrease,
-      hasEvidence,
     ]);
   }, [
     carbonPriceScenario.rawValue,
     percentageDecrease.rawValue,
     estimatedDecrease.rawValue,
     formData.estimatedDecreaseUnit,
-    filesAndLinks,
   ]);
 
   const handleInputChange = (field: string, value: string) => {
@@ -151,11 +148,6 @@ export default function ReservesSensitivityForm({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     setIsSaving(true);
     setShowSaveSuccess(false);
 
@@ -174,6 +166,9 @@ export default function ReservesSensitivityForm({
       });
       setShowSaveSuccess(true);
       toast.success("Data saved successfully!");
+      setTimeout(() => {
+        _router.push("/assessments/new-assessment");
+      }, 1500);
     } catch (_error: any) {
       console.error(_error);
       toast.error("Failed to save data");
@@ -189,7 +184,7 @@ export default function ReservesSensitivityForm({
     }
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing",
         payload
       );
@@ -245,6 +240,7 @@ export default function ReservesSensitivityForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.reservesValuation.reservesSensitivity"
             />
 
             {/* Carbon Price Scenario Used */}
@@ -302,6 +298,7 @@ export default function ReservesSensitivityForm({
               unitError={errors.estimatedDecreaseUnit}
               formatNumbers={false}
               placeholder="e.g., 120"
+              context="oil-gas"
             />
 
             {/* Document/Evidence Upload */}
@@ -341,7 +338,7 @@ export default function ReservesSensitivityForm({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isSaving}
-                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
+                className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2 cursor-pointer border-none"
               >
                 {isSaving ? (
                   <>

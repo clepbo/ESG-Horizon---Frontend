@@ -15,6 +15,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
+import { calculateProgress } from "@/lib/utils";
 
 interface ProcessSafetyEventsFormProps {
   onBack: () => void;
@@ -33,7 +34,7 @@ export default function ProcessSafetyEvents({
 }: ProcessSafetyEventsFormProps) {
   const { state, dispatch } = useAssessment();
   const current = "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents";
-  const { saveNow } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(current, "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents");
 
   const totalHoursWorked = useFormattedNumber("");
   const numberOfEvents = useFormattedNumber("");
@@ -52,7 +53,7 @@ export default function ProcessSafetyEvents({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
         ?.processSafetyEvents;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -68,20 +69,16 @@ export default function ProcessSafetyEvents({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
-      ?.processSafetyEvents,
+    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.processSafetyEvents,
   ]);
 
-  // Calculate progress
+  // Calculate progress (only required fields — file upload is optional)
   const { filled, total } = useMemo(() => {
-    const fields = [
-      totalHoursWorked.rawValue !== "",
-      numberOfEvents.rawValue !== "",
-      filesAndLinks.some((item) => item.name || item.link || item.file),
-    ];
-    const completed = fields.filter(Boolean).length;
-    return { filled: completed, total: fields.length };
-  }, [totalHoursWorked.rawValue, numberOfEvents.rawValue, filesAndLinks]);
+    return calculateProgress([
+      totalHoursWorked.rawValue !== "" ? true : undefined,
+      numberOfEvents.rawValue !== "" ? true : undefined,
+    ]);
+  }, [totalHoursWorked.rawValue, numberOfEvents.rawValue]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -152,7 +149,7 @@ export default function ProcessSafetyEvents({
     };
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_LEADERSHIP_GOVERNANCE",
         payload: {
@@ -198,6 +195,7 @@ export default function ProcessSafetyEvents({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents"
             />
 
             {/* Total Hours Worked */}

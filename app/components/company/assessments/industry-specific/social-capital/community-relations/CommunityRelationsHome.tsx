@@ -14,12 +14,15 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { FeatureCard } from "./components/ItemCards";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 interface Props {
   onBack?: () => void;
   backToAssessmentHub?: () => void;
   backToDisclosureTopics?: () => void;
   onContinue?: () => void;
+  initialForm?: string;
+  onContinueToNextAssessment?: () => void;
 }
 
 export default function CommunityRelationsHome({
@@ -27,11 +30,28 @@ export default function CommunityRelationsHome({
   backToAssessmentHub,
   onContinue: _onContinue,
   backToDisclosureTopics,
+  initialForm,
+  onContinueToNextAssessment,
 }: Props) {
   const router = useRouter();
-  const [currentView, setCurrentView] = useState<string>("");
-  const { dispatch } = useAssessment();
+  const [currentView, setCurrentView] = useState<string>(initialForm ?? "");
+  const { state, dispatch } = useAssessment();
   const [showSuccess, setShowSuccess] = React.useState(false);
+
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Risk & Opportunity Management": { groupKey: "socialCapital.communityRelations.communityRiskOpportunityManagement", dataPath: ["socialCapital", "communityRelations", "communityRiskOpportunityManagement"] },
+    "Host Community Development (PIA)": { groupKey: "socialCapital.communityRelations.hcdtContribution", dataPath: ["socialCapital", "communityRelations", "hcdtContribution"] },
+    "Community Dispute Resolution": { groupKey: "socialCapital.communityRelations.communityDisputeResolution", dataPath: ["socialCapital", "communityRelations", "communityDisputeResolution"] },
+    "Operational Delays": { groupKey: "socialCapital.communityRelations.operationalDelays", dataPath: ["socialCapital", "communityRelations", "operationalDelays"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   function handleForwardBack() {
     setCurrentView("");
@@ -48,16 +68,6 @@ export default function CommunityRelationsHome({
     setCurrentView("");
   }
 
-  // Handle success screen navigation
-  const handleSuccessContinue = () => {
-    if (backToDisclosureTopics) {
-      backToDisclosureTopics();
-    } else {
-      setShowSuccess(false);
-      setCurrentView("");
-    }
-  };
-
   const handleBackToHub = () => {
     if (backToAssessmentHub) {
       backToAssessmentHub();
@@ -72,9 +82,8 @@ export default function CommunityRelationsHome({
       <SuccessScreen
         assessmentName="Community Relations"
         totals={undefined}
-        nextAssessment="Workforce Health & Safety"
-        onContinue={handleSuccessContinue}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        nextAssessment="Security, Human Rights & Rights of Indigenous Peoples"
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={handleBackToHub}
       />
     );
@@ -171,7 +180,7 @@ export default function CommunityRelationsHome({
                 This disclosure topic assesses the company&apos;s framework for managing its
                 relationship with host communities, from proactive risk and opportunity management
                 to the operational impact of non-technical disruptions. IFRS codes: EM-EP-210b.1,
-                EM-EP-210b.2
+                EM-EP-210b.2, EM-EP-NGA.S1, EM-EP-NGA.S2
               </p>
             </div>
             <Button
@@ -195,6 +204,7 @@ export default function CommunityRelationsHome({
             body={communityItems[0].body}
             clickable={communityItems[0].clickable}
             onClick={() => communityItems[0].clickable && handleCardClick(communityItems[0].title)}
+            borderColor={getSectionBorderColor(getCardStatus(communityItems[0].title))}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -209,6 +219,7 @@ export default function CommunityRelationsHome({
               onClick={() =>
                 communityItems[1].clickable && handleCardClick(communityItems[1].title)
               }
+              borderColor={getSectionBorderColor(getCardStatus(communityItems[1].title))}
             />
             <FeatureCard
               key={communityItems[2].subtitle}
@@ -221,6 +232,7 @@ export default function CommunityRelationsHome({
               onClick={() =>
                 communityItems[2].clickable && handleCardClick(communityItems[2].title)
               }
+              borderColor={getSectionBorderColor(getCardStatus(communityItems[2].title))}
             />
           </div>
 
@@ -233,6 +245,7 @@ export default function CommunityRelationsHome({
             body={communityItems[3].body}
             clickable={communityItems[3].clickable}
             onClick={() => communityItems[3].clickable && handleCardClick(communityItems[3].title)}
+            borderColor={getSectionBorderColor(getCardStatus(communityItems[3].title))}
           />
         </Card>
       </div>

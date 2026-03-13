@@ -7,7 +7,6 @@ import {
   Legend,
   ResponsiveContainer,
   CartesianGrid,
-  LabelList,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { shortenPeriod } from "./GHGHistoryTransformer";
@@ -45,12 +44,19 @@ export function transformGHGData(ghg: any): ChartData {
     result[key].scope3 = item.score;
   });
 
-  return Object.values(result).map((item) => ({
-    name: item.name,
-    scope1: item.scope1 ?? 0,
-    scope2: item.scope2 ?? 0,
-    scope3: item.scope3 ?? 0,
-  }));
+  return Object.values(result)
+    .map((item) => ({
+      name: item.name,
+      scope1: item.scope1 ?? 0,
+      scope2: item.scope2 ?? 0,
+      scope3: item.scope3 ?? 0,
+    }))
+    .sort((a, b) => {
+      // Extract year (last 4-digit number in the name) for chronological ordering
+      const yearA = Number(a.name.match(/\d{4}/g)?.pop() ?? 0);
+      const yearB = Number(b.name.match(/\d{4}/g)?.pop() ?? 0);
+      return yearA - yearB;
+    });
 }
 
 export interface EmissionData {
@@ -65,20 +71,16 @@ interface EmissionByScopeProps {
 }
 
 const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
-  const enrichedData = data.map((d) => ({
-    ...d,
-    total: d.scope1 + d.scope2 + d.scope3,
-  }));
-
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={enrichedData}
+          data={data}
+          style={{ overflow: "visible" }}
           margin={{
-            top: 30, // Increased top margin for labels
-            right: 30,
-            left: 20,
+            top: 30,
+            right: 130,
+            left: 24,
             bottom: 5,
           }}
         >
@@ -87,46 +89,69 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#666", fontSize: 12 }}
+            tick={{ fill: "#111827", fontSize: 14 }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#666", fontSize: 12 }}
-            tickFormatter={(value) => formatNumberFigures(Number(value))}
+            tick={(props: any) => (
+              <text
+                x={props.x}
+                y={props.y}
+                fill="#111827"
+                fontSize={12}
+                textAnchor="end"
+                transform={`rotate(-35, ${props.x}, ${props.y})`}
+              >
+                {formatNumberFigures(Number(props.payload.value))}
+              </text>
+            )}
+            width={65}
           />
           <Tooltip
-            cursor={{ fill: "rgba(0,0,0,0.05)" }}
+            cursor={false}
             contentStyle={{
               borderRadius: "8px",
               border: "none",
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
               padding: "10px",
             }}
-            formatter={(value?: number, name?: string) => [
+            formatter={(value, name) => [
               formatNumberFigures(Number(value)),
               name ?? "",
             ]}
           />
           <Legend
-            verticalAlign="bottom"
-            align="center"
-            iconType="circle"
-            wrapperStyle={{ paddingTop: "20px" }}
+            layout="vertical"
+            align="right"
+            verticalAlign="middle"
+            iconType="rect"
+            wrapperStyle={{ paddingLeft: "16px", fontSize: 14, color: "#111827", fontWeight: 500 }}
           />
-          <Bar dataKey="scope1" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} name="Scope 1" />
-          <Bar dataKey="scope2" stackId="a" fill="#f9b232" radius={[0, 0, 0, 0]} name="Scope 2" />
-          <Bar dataKey="scope3" stackId="a" fill="#af57db" radius={[4, 4, 0, 0]} name="Scope 3">
-            <LabelList
-              dataKey="total"
-              position="top"
-              fill="#333"
-              fontSize={12}
-              fontWeight="bold"
-              offset={10}
-              formatter={(value) => formatNumberFigures(Number(value) || 0)}
-            />
-          </Bar>
+          <Bar
+            dataKey="scope1"
+            stackId="a"
+            fill="#3b82f6"
+            radius={[0, 0, 0, 0]}
+            name="Scope 1"
+            maxBarSize={60}
+          />
+          <Bar
+            dataKey="scope2"
+            stackId="a"
+            fill="#10B981"
+            radius={[0, 0, 0, 0]}
+            name="Scope 2"
+            maxBarSize={60}
+          />
+          <Bar
+            dataKey="scope3"
+            stackId="a"
+            fill="#af57db"
+            radius={[4, 4, 0, 0]}
+            name="Scope 3"
+            maxBarSize={60}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

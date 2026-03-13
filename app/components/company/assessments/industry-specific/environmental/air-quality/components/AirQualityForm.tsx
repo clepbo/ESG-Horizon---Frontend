@@ -11,14 +11,15 @@ import { ArrowLeft, CheckCircle2, Save } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { TotalsResponse } from "@/services/assessment.service";
 
 interface AirQualityFormProps {
   backToDisclosureTopics: () => void;
   backToAssessmentHub: () => void;
   backToAirQualityCard: () => void;
-  onSubmit: () => void;
+  onSubmit: (totals: TotalsResponse | null) => void;
 }
 
 export default function AirQualityForm({
@@ -46,11 +47,9 @@ export default function AirQualityForm({
     },
   ];
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
-  } = useAssessmentFlow("air-pollutant-emissions");
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow("air-pollutant-emissions", "environment.airQuality.airPollutantEmissions");
+  const hasExistingData = !!state.assessmentData.environment?.airQuality?.airPollutantEmissions;
 
   const [formData, setFormData] = React.useState({
     oxidesOfNitrogen: 0,
@@ -81,8 +80,22 @@ export default function AirQualityForm({
     }
   }, [state.assessmentData.environment?.airQuality?.airPollutantEmissions]);
 
+  const { filled, total } = useMemo(() => {
+    const fields = [
+      formData.oxidesOfNitrogen > 0,
+      formData.oxidesOfSulphur > 0,
+      formData.volatileOrganicCompound > 0,
+      formData.particulateMatter > 0,
+    ];
+    return { filled: fields.filter(Boolean).length, total: fields.length };
+  }, [
+    formData.oxidesOfNitrogen,
+    formData.oxidesOfSulphur,
+    formData.volatileOrganicCompound,
+    formData.particulateMatter,
+  ]);
+
   const [showSaveSuccess, setShowSaveSuccess] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   const setCount = (key: keyof typeof formData) => (value: number) => {
@@ -134,12 +147,12 @@ export default function AirQualityForm({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   }
 
   function handlePrevious() {
-    // Logic to go back to the previous step
+    backToAirQualityCard();
   }
 
   async function handleSubmit() {
@@ -148,17 +161,16 @@ export default function AirQualityForm({
       return;
     }
 
-    setIsSubmitting(true);
     try {
       dispatch({ type: "UPDATE_AIR_QUALITY", payload: formData });
-      await saveNow("environment.airQuality.airPollutantEmissions", formData);
-      await submitGroup();
-      onSubmit();
+      const response = await saveAndSubmit(
+        "environment.airQuality.airPollutantEmissions",
+        formData
+      );
+      onSubmit(response?.totals || null);
     } catch (error) {
       console.error(error);
-      // toast.error is already handled in useAssessmentFlow
-    } finally {
-      setIsSubmitting(false);
+      toast.error("Failed to submit air quality assessment.");
     }
   }
 
@@ -189,9 +201,9 @@ export default function AirQualityForm({
             <AssessmentProgressBar
               stepIndex={1}
               totalSteps={1}
-              fieldsCompleted={1}
-              totalFields={4}
-              isSubmitted={false}
+              fieldsCompleted={filled}
+              totalFields={total}
+              groupKey="environment.airQuality.airPollutantEmissions"
             />
 
             <OperationsDelayReusableInput
@@ -272,10 +284,10 @@ export default function AirQualityForm({
               <Button
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 transition-colors"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" /> Saving...
                   </>
@@ -291,18 +303,14 @@ export default function AirQualityForm({
               </Button>
 
               <Button
+                type="button"
                 variant="outline"
-                onClick={handleSubmit}
-                disabled={isActionLoading || isSubmitting || !isFormValid()}
+                onClick={() => handleSubmit()}
+                disabled={isSubmitting || isPreviouslySubmitted || !isFormValid()}
                 className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Submit form"
               >
-                {isSubmitting ? (
-                  <>
-                    <LoadingSpinner size="sm" className="mr-2" /> Submitting...
-                  </>
-                ) : (
-                  "Submit"
-                )}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </Card>

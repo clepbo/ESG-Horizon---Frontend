@@ -16,6 +16,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { uploadService } from "@/services/upload.service";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 
@@ -38,13 +39,15 @@ export default function HumanRightEngagement({
   onSubmit,
 }: HumanRightEngagementProps) {
   const router = useRouter();
-  const { saveNow, submitGroup } = useAssessmentFlow(
-    "socialCapital.securityRights.humanRightEngagement"
+  const { state } = useAssessment();
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "socialCapital.securityRights.humanRightEngagement",
+    "socialCapital.securityHumanRights.humanRightsEngagementProcesses"
   );
+  const hasExistingData = !!state.assessmentData.socialCapital?.securityRights?.humanRightEngagement;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -58,13 +61,26 @@ export default function HumanRightEngagement({
     engagementDescription: "",
   });
 
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.securityRights?.humanRightEngagement;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        hasGrievanceMechanism: existingData.hasGrievanceMechanism ?? prev.hasGrievanceMechanism,
+        engagementDescription: existingData.engagementDescription ?? prev.engagementDescription,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.securityRights?.humanRightEngagement]);
+
   const { filled, total } = useMemo(() => {
     const hasGrievanceMechanism = formData.hasGrievanceMechanism !== "";
     const hasDescription = formData.engagementDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasGrievanceMechanism, hasDescription, hasEvidence]);
-  }, [formData.hasGrievanceMechanism, formData.engagementDescription, filesAndLinks]);
+    return calculateProgress([hasGrievanceMechanism, hasDescription]);
+  }, [formData.hasGrievanceMechanism, formData.engagementDescription]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -86,8 +102,6 @@ export default function HumanRightEngagement({
   };
 
   const handleSaveAndContinue = async () => {
-    setIsSaving(true);
-
     const payload = {
       hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
@@ -104,8 +118,6 @@ export default function HumanRightEngagement({
     } catch (_error: any) {
       console.error(_error);
       toast.error("Failed to save data", _error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -115,8 +127,6 @@ export default function HumanRightEngagement({
       return;
     }
 
-    setIsSaving(true);
-
     const payload = {
       hasGrievanceMechanism: formData.hasGrievanceMechanism,
       engagementDescription: formData.engagementDescription,
@@ -124,16 +134,11 @@ export default function HumanRightEngagement({
     };
 
     try {
-      // Save data first
-      await saveNow("socialCapital.securityRights.humanRightEngagement", payload);
-      // Then submit the group
-      await submitGroup();
+      await saveAndSubmit("socialCapital.securityRights.humanRightEngagement", payload);
       toast.success("Assessment completed successfully!");
       onSubmit(null);
     } catch (_error: any) {
       toast.error("Failed to submit assessment", _error.message);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -168,7 +173,7 @@ export default function HumanRightEngagement({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="socialCapital.securityHumanRights.humanRightsEngagementProcesses"
             />
 
             {/* Third-Party Grievance Mechanism Radio Button */}
@@ -214,7 +219,7 @@ export default function HumanRightEngagement({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <p>
                           Provide details on how your company engages with local communities,
@@ -300,10 +305,10 @@ export default function HumanRightEngagement({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

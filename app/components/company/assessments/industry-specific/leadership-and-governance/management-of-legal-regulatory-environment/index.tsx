@@ -10,6 +10,7 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import PublicPolicyEngagement from "./public-policy-engagement";
 import BoardManagementOversight from "./board-management-oversight";
 
@@ -28,6 +29,7 @@ const steps = ["public-policy-engagement", "board-management-oversight"] as cons
 
 export default function LegalRegulatoryEnvironment({
   onBack,
+  onBackToHub,
   initialForm,
   onContinueToNextAssessment,
 }: LegalRegulatoryEnvironmentProps) {
@@ -35,7 +37,20 @@ export default function LegalRegulatoryEnvironment({
   const [currentView, setCurrentView] = useState<LREView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { dispatch } = useAssessment();
+  const { state } = useAssessment();
+
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Public Policy Engagement": { groupKey: "leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement", dataPath: ["leadershipGovernance", "managementOfTheLegalAndRegulatoryEnvironment", "publicPolicyEngagement"] },
+    "Board & Management Oversight of Sustainability": { groupKey: "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight", dataPath: ["leadershipGovernance", "managementOfTheLegalAndRegulatoryEnvironment", "boardAndManagementOversight"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -61,11 +76,9 @@ export default function LegalRegulatoryEnvironment({
     return (
       <SuccessScreen
         assessmentName="Management of the Legal & Regulatory Environment"
-        totals={totals ?? undefined}
-        nextAssessment="Next Assessment"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
-        onBackToHub={onBack}
+        totals={undefined}
+        nextAssessment={null}
+        onBackToHub={onBackToHub}
       />
     );
   }
@@ -146,7 +159,7 @@ export default function LegalRegulatoryEnvironment({
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1">Public Policy & Lobbying</h6>
                       <p>
@@ -162,6 +175,7 @@ export default function LegalRegulatoryEnvironment({
                 <div className="max-w-2xl">
                   <Card
                     className="transition-colors bg-white border shadow-sm rounded-lg cursor-pointer hover:bg-accent/50"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus("Public Policy Engagement")) }}
                     onClick={() => handleCardClick("Public Policy Engagement")}
                   >
                     <CardContent className="p-4">
@@ -194,7 +208,7 @@ export default function LegalRegulatoryEnvironment({
                     <TooltipContent
                       side="top"
                       align="start"
-                      className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                      className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                     >
                       <h6 className="font-semibold mb-1">
                         Sustainability Governance & Reporting (Nigeria)
@@ -212,6 +226,7 @@ export default function LegalRegulatoryEnvironment({
                 <div className="max-w-2xl">
                   <Card
                     className="transition-colors bg-white border shadow-sm rounded-lg cursor-pointer hover:bg-accent/50"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus("Board & Management Oversight of Sustainability")) }}
                     onClick={() =>
                       handleCardClick("Board & Management Oversight of Sustainability")
                     }
@@ -220,8 +235,8 @@ export default function LegalRegulatoryEnvironment({
                       <div className="flex items-center justify-between">
                         <div className="space-y-1 flex-1">
                           <h5 className="font-medium text-foreground">
-                            Board & Management Oversight of Sustainability
-                          </h5>
+                              Board & Management Oversight of Sustainability
+                            </h5>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-NGA.G1, which discusses the board&apos;s
                             oversight and management&apos;s role in assessing sustainability risks,

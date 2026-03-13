@@ -12,9 +12,8 @@ import {
 } from "@/app/components/ui/dropdown-menu";
 import {
   Eye,
-  BadgeAlert,
   SquarePen,
-  SquareArrowOutUpRight,
+  Send,
   Trash2,
   CircleHelp,
   FileText,
@@ -26,11 +25,13 @@ import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { AssessmentDetailsModal } from "./AssessmentDetailsModal";
+import { AssessmentDetailsModal } from "./details/AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
-import { SuccessScreen } from "@/app/components/company/assessments/SuccessScreen";
 import { formatStatus } from "@/lib/utils";
-import { useDeleteAssessment, useGenerateReport } from "@/services/hooks/assessment.hooks";
+import { formatPercent } from "@/lib/numberFormat";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
+import { useDeleteAssessment, useSubmitForReview } from "@/services/hooks/assessment.hooks";
+import ReviewerSelectionModal from "./ReviewerSelectionModal";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -49,10 +50,15 @@ export interface Assessment {
   rejection_reason?: string;
   progress?: number;
   lastUpdated?: string | Date;
+  submittedAt?: string | null;
+  approvedAt?: string | null;
+  /** High-level ESG pillars that have data for this assessment. */
+  pillars?: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[];
 }
 
 interface AssessmentTableProps {
   data: Assessment[];
+  requireAssessmentReview?: boolean;
 }
 
 const columnHelper = createColumnHelper<Assessment>();
@@ -84,10 +90,12 @@ function DeclineReasonModal({
 
 interface ActionDropdownProps {
   status: AssessmentStatus;
+  requireAssessmentReview?: boolean;
   getActionIcon: (label: string) => ReactNode;
-  onView: () => void;
   onContinue: () => void;
-  onReview?: () => void;
+  onReview: () => void;
+  onSubmitForReview?: () => void;
+  onSubmitDirect?: () => void;
   onGenerateReport?: () => void;
   onDelete?: () => void;
   deletePending?: boolean;
@@ -95,10 +103,12 @@ interface ActionDropdownProps {
 
 function ActionDropdown({
   status,
+  requireAssessmentReview,
   getActionIcon,
-  onView,
   onContinue,
   onReview,
+  onSubmitForReview,
+  onSubmitDirect,
   onGenerateReport,
   onDelete,
   deletePending,
@@ -123,35 +133,47 @@ function ActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
-        {/* Show View unless it's awaiting_review — Review doubles as the view in that case */}
-        {status !== "awaiting_review" && (
-          <DropdownMenuItem onClick={onView}>
-            {getActionIcon("View")}
-            View
-          </DropdownMenuItem>
-        )}
-
+        {/* Continue / Update — primary action */}
         <DropdownMenuItem
           onClick={onContinue}
-          disabled={status === "approved" || status === "submitted_approved"}
+          disabled={
+            status === "approved" ||
+            status === "submitted_approved"
+          }
         >
-          {getActionIcon("Continue")}
-          Continue
+          {getActionIcon(
+            status === "declined" || status === "unapproved_rejected" || status === "awaiting_review"
+              ? "Update"
+              : "Continue",
+          )}
+          {status === "declined" || status === "unapproved_rejected" || status === "awaiting_review"
+            ? "Update"
+            : "Continue"}
         </DropdownMenuItem>
 
-        {/* Show Review when awaiting_review */}
-        {status === "awaiting_review" && (
-          <DropdownMenuItem onClick={onReview}>
-            {getActionIcon("Review")}
-            Review
+        {/* View Details — view assessment details */}
+        <DropdownMenuItem onClick={onReview}>
+          {getActionIcon("Review")}
+          View Details
+        </DropdownMenuItem>
+
+        {/* Submit for Review / Submit — only for editable statuses */}
+        {(status === "in_progress" || status === "declined") && (
+          <DropdownMenuItem
+            onClick={requireAssessmentReview ? onSubmitForReview : onSubmitDirect}
+          >
+            {getActionIcon("Submit")}
+            {requireAssessmentReview ? "Submit for Review" : "Submit/Approve"}
           </DropdownMenuItem>
         )}
 
+        {/* View Report */}
         <DropdownMenuItem onClick={onGenerateReport}>
-          <FileText className="mr-2 h-4 w-4" />
-          Generate Report
+          {getActionIcon("View Report")}
+          View Report
         </DropdownMenuItem>
 
+        {/* Delete — destructive, always last */}
         {status !== "awaiting_review" &&
           status !== "submitted_approved" &&
           status !== "approved" && (
@@ -168,7 +190,7 @@ function ActionDropdown({
   );
 }
 
-export default function AssessmentTable({ data }: AssessmentTableProps) {
+export default function AssessmentTable({ data, requireAssessmentReview }: AssessmentTableProps) {
   const router = useRouter();
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [modalData, setModalData] = useState({
@@ -178,25 +200,38 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
-  const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [dateRange, setDateRange] = useState<
     { startMonth: string; endMonth: string } | undefined
   >();
+  const [reviewerModalData, setReviewerModalData] = useState({
+    open: false,
+    assessmentId: null as number | null,
+  });
+  const [submitConfirmData, setSubmitConfirmData] = useState({
+    open: false,
+    assessmentId: null as number | null,
+  });
 
   const deleteMutation = useDeleteAssessment();
-  const generateReportMutation = useGenerateReport();
+  const submitForReviewMutation = useSubmitForReview();
 
   const filteredData = dateRange
     ? data.filter((a) => {
-        const startDate = new Date(a.startPeriod);
-        const endDate = new Date(a.endPeriod);
-        const rangeStart = new Date(dateRange.startMonth);
-        const rangeEnd = new Date(dateRange.endMonth);
-        return startDate >= rangeStart && endDate <= rangeEnd;
-      })
+      const startDate = new Date(a.startPeriod);
+      const endDate = new Date(a.endPeriod);
+      const rangeStart = new Date(dateRange.startMonth);
+      const rangeEnd = new Date(dateRange.endMonth);
+      return startDate >= rangeStart && endDate <= rangeEnd;
+    })
     : data;
 
-  const validData = filteredData.filter((a) => a.startPeriod && a.endPeriod && a.subsidiary);
+  const validData = filteredData
+    .filter((a) => a.startPeriod && a.endPeriod && a.subsidiary)
+    .sort((a, b) => {
+      const dateA = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0;
+      const dateB = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0;
+      return dateB - dateA;
+    });
 
   const handleOpenModal = (assessmentId: number) => setModalData({ open: true, assessmentId });
 
@@ -225,52 +260,129 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
 
   const getActionIcon = (label: string) => {
     switch (label) {
-      case "View":
-        return <Eye className="mr-2 h-4 w-4 " />;
-      case "Review":
-        return <BadgeAlert className="mr-2 h-4 w-4" />;
-      case "Update":
-        return <SquarePen className="mr-2 h-4 w-4 " />;
       case "Continue":
-        return <SquareArrowOutUpRight className="mr-2 h-4 w-4 " />;
+      case "Update":
+        return <SquarePen className="mr-2 h-4 w-4" />;
+      case "Review":
+        return <Eye className="mr-2 h-4 w-4" />;
+      case "Submit":
+        return <Send className="mr-2 h-4 w-4" />;
+      case "View Report":
+        return <FileText className="mr-2 h-4 w-4" />;
       default:
         return null;
     }
   };
 
   const handleGenerateReport = (id: number) => {
-    generateReportMutation.mutate(id, {
-      onSuccess: () => {
-        const assessment = data.find((a) => a.id === id);
-        if (assessment) {
-          setSelectedAssessment(assessment);
-        }
-        setTimeout(() => {
-          setShowReportSuccess(true);
-        }, 500);
-      },
-    });
+    if (!id) return;
+    router.push(`/reports-and-analytics/${id}`);
   };
 
   const handleContinue = (assessment: Assessment) => {
     if (!assessment?.id) return;
-
-    if (assessment.status === "in_progress") {
-      router.push(`/assessments/${assessment.id}`);
-      return;
-    }
-
     router.push(`/assessments/${assessment.id}?forceDisclosure=1`);
   };
 
-  const handleView = (assessment: Assessment) => {
-    setSelectedAssessment(assessment);
+  const handleSubmitForReview = (assessmentId: number) => {
+    setReviewerModalData({ open: true, assessmentId });
+  };
+
+  const handleReviewerSelected = (reviewerId?: number) => {
+    if (!reviewerModalData.assessmentId) return;
+    submitForReviewMutation.mutate(
+      { assessmentId: reviewerModalData.assessmentId, reviewerId },
+      {
+        onSettled: () => setReviewerModalData({ open: false, assessmentId: null }),
+      },
+    );
+  };
+
+  const handleSubmitDirect = (assessmentId: number) => {
+    setSubmitConfirmData({ open: true, assessmentId });
+  };
+
+  const handleDirectSubmitConfirm = () => {
+    if (!submitConfirmData.assessmentId) return;
+    submitForReviewMutation.mutate(
+      { assessmentId: submitConfirmData.assessmentId },
+      {
+        onSettled: () => setSubmitConfirmData({ open: false, assessmentId: null }),
+      },
+    );
+  };
+
+  const formatShortMonthYear = (value: string | undefined) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      const month = date.toLocaleString("en-US", { month: "short" });
+      const year = date.getFullYear();
+      return `${month}, ${year}`;
+    } catch {
+      return value;
+    }
   };
 
   const columns = [
-    columnHelper.accessor("startPeriod", { header: "Starting Period" }),
-    columnHelper.accessor("endPeriod", { header: "Ending Period" }),
+    columnHelper.display({
+      id: "period",
+      header: "Period",
+      cell: (info) => {
+        const { startPeriod, endPeriod } = info.row.original;
+        const startLabel = formatShortMonthYear(startPeriod);
+        const endLabel = formatShortMonthYear(endPeriod);
+        if (startLabel && endLabel) return `${startLabel} - ${endLabel}`;
+        return startLabel || endLabel || "—";
+      },
+    }),
     columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
+    columnHelper.display({
+      id: "pillars",
+      header: "Pillar(s)",
+      cell: (info) => {
+        const pillars = info.row.original.pillars ?? [];
+        if (!pillars.length) {
+          return <span className="text-xs text-gray-400">—</span>;
+        }
+
+        const labelMap: Record<"A" | "E" | "S" | "H" | "B" | "L" | "G", string> = {
+          A: "Activity Metrics",
+          E: "Environmental",
+          S: "Social Capital",
+          H: "Human Capital",
+          B: "Business Model & Innovation",
+          L: "Leadership",
+          G: "Governance",
+        };
+
+        const colorMap: Record<"A" | "E" | "S" | "H" | "B" | "L" | "G", string> = {
+          A: "border-purple-200 bg-purple-50 text-purple-700",
+          E: "border-emerald-200 bg-emerald-50 text-emerald-700",
+          S: "border-sky-200 bg-sky-50 text-sky-700",
+          H: "border-orange-200 bg-orange-50 text-orange-700",
+          B: "border-indigo-200 bg-indigo-50 text-indigo-700",
+          L: "border-amber-200 bg-amber-50 text-amber-700",
+          G: "border-rose-200 bg-rose-50 text-rose-700",
+        };
+
+        return (
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 max-w-[180px]">
+            {pillars.map((p) => (
+              <Badge
+                key={p}
+                variant="outline"
+                className={`px-2.5 py-1 text-xs font-bold rounded-md ${colorMap[p]}`}
+                title={labelMap[p]}
+              >
+                {p}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    }),
     columnHelper.accessor("lastUpdated", {
       header: "Last Updated",
       cell: (info) => {
@@ -298,28 +410,28 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
         }
       },
     }),
-
     columnHelper.display({
       id: "progress",
       header: "Progress",
       cell: (info) => {
-        const percentage = info.row.original.progress ?? 0;
-        const radius = 16;
+        const raw = info.row.original.progress;
+        const percentage = raw != null ? Math.min(raw, 100) : null;
+        const radius = 26;
         const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (percentage / 100) * circumference;
+        const offset = circumference - ((percentage ?? 0) / 100) * circumference;
         const index = info.row.index;
 
         return (
-          <div className="relative flex items-center justify-center w-10 h-10">
+          <div className="relative flex items-center justify-center w-16 h-16">
             <svg
-              width="40"
-              height="40"
-              className="-rotate-90deg"
+              width="64"
+              height="64"
+              className="-rotate-90"
               style={{ position: "absolute", top: 0, left: 0 }}
             >
               <circle
-                cx="20"
-                cy="20"
+                cx="32"
+                cy="32"
                 r={radius}
                 stroke="#e5e7eb"
                 strokeWidth="4"
@@ -334,8 +446,8 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
                 </linearGradient>
               </defs>
               <circle
-                cx="20"
-                cy="20"
+                cx="32"
+                cy="32"
                 r={radius}
                 stroke={`url(#grad-${index})`}
                 strokeWidth="4"
@@ -346,8 +458,8 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
                 className="transition-all duration-700 ease-in-out"
               />
             </svg>
-            <span className="absolute text-xs font-semibold text-gray-800">
-              {percentage > 0 ? `${percentage}%` : "N/A"}
+            <span className="absolute text-[11px] font-semibold text-gray-800">
+              {percentage != null ? formatPercent(percentage) : "N/A"}
             </span>
           </div>
         );
@@ -372,13 +484,39 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
         const label = formatStatus(status);
         const variant = variantMap[status] || "outline";
 
+        const fmt = (val?: string | null) => {
+          if (!val) return null;
+          try {
+            return new Date(val).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+          } catch {
+            return null;
+          }
+        };
+        const sub = fmt(assessment.submittedAt);
+        const app = fmt(assessment.approvedAt);
+        const hasTimestamps = sub || app;
+
         return (
           <div className="flex items-center gap-2">
             <Badge variant={variant as any} className="capitalize">
               {label}
             </Badge>
 
-            {status === "unapproved_rejected" && assessment.rejection_reason && (
+            {hasTimestamps && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-gray-400 hover:text-gray-600 cursor-help">
+                    <CircleHelp className="h-4 w-4" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="flex flex-col gap-0.5 text-white">
+                  {sub && <span>Submitted: {sub}</span>}
+                  {app && <span>Approved: {app}</span>}
+                </TooltipContent>
+              </Tooltip>
+            )}
+
+            {(status === "unapproved_rejected" || status === "declined") && assessment.rejection_reason && (
               <button
                 onClick={() => handleOpenReason(assessment.rejection_reason)}
                 className="text-gray-500 hover:text-gray-700 cursor-pointer"
@@ -401,10 +539,12 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
             {/* Put actions back into the dropdown (always show View & Continue) */}
             <ActionDropdown
               status={assessment.status}
+              requireAssessmentReview={requireAssessmentReview}
               getActionIcon={getActionIcon}
-              onView={() => handleOpenDetails(assessment)}
               onContinue={() => handleContinue(assessment)}
               onReview={() => handleOpenDetails(assessment)}
+              onSubmitForReview={() => handleSubmitForReview(assessment.id)}
+              onSubmitDirect={() => handleSubmitDirect(assessment.id)}
               onGenerateReport={() => handleGenerateReport(assessment.id)}
               onDelete={() => handleOpenModal(assessment.id)}
               deletePending={deleteMutation.isPending}
@@ -455,6 +595,7 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
         open={!!selectedAssessment}
         onClose={() => setSelectedAssessment(null)}
         assessment={selectedAssessment}
+        requireAssessmentReview={requireAssessmentReview}
       />
 
       <DeclineReasonModal
@@ -463,24 +604,21 @@ export default function AssessmentTable({ data }: AssessmentTableProps) {
         reason={selectedReason}
       />
 
-      {showReportSuccess && selectedAssessment && (
-        <SuccessScreen
-          assessmentName="report"
-          type="report"
-          reportId={selectedAssessment.id}
-          onContinue={() => {
-            setShowReportSuccess(false);
-            router.push(`/reports-and-analytics/${selectedAssessment.id}`);
-          }}
-          onBackToHub={() => {
-            setShowReportSuccess(false);
-            router.push("/assessments");
-          }}
-          totals={undefined}
-          sectionKey={undefined}
-          nextAssessment={null}
-        />
-      )}
+      <ReviewerSelectionModal
+        open={reviewerModalData.open}
+        onClose={() => setReviewerModalData({ open: false, assessmentId: null })}
+        onSubmit={handleReviewerSelected}
+        loading={submitForReviewMutation.isPending}
+      />
+
+      <ConfirmModal
+        open={submitConfirmData.open}
+        title="Submit Assessment"
+        message="Are you sure you want to submit this assessment? Once submitted, you will not be able to edit it further."
+        onCancel={() => setSubmitConfirmData({ open: false, assessmentId: null })}
+        onConfirm={handleDirectSubmitConfirm}
+        loading={submitForReviewMutation.isPending}
+      />
     </div>
   );
 }

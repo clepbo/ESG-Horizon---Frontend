@@ -7,7 +7,7 @@ import { FaArrowDown, FaLeaf, FaSeedling } from "react-icons/fa";
 import EsgAssignmrntReportCard from "./overview/EsgAssignmrntReportCard";
 import { PiUsersFill } from "react-icons/pi";
 import { GiHumanPyramid } from "react-icons/gi";
-import { formatNumberWithCommas } from "../utils/helpers";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 import { ReportResponse } from "@/types/report/reportResponse";
 
 interface ReportOverviewProps {
@@ -27,13 +27,13 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       title: "Crude Oil",
       amount: activityMetrics?.productionData?.oilProduction?.crudeOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#F28B0D",
+      borderColor: "#EF4444",
     },
     {
       title: "Synthetic Oil",
       amount: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
       sub: "kbbl/day",
-      borderColor: "#FCDC8B",
+      borderColor: "#FCA5A5",
     },
     {
       title: "Natural Gas",
@@ -81,7 +81,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
     {
       name: "Other Sites",
       value: activityMetrics?.assetPortfolio?.terrestrialSites?.otherSites ?? 0,
-      color: "#f59e0b",
+      color: "#14b8a6",
     },
   ];
 
@@ -92,8 +92,8 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
       secondary: activityMetrics?.productionData?.oilProduction?.syntheticOil ?? 0,
       primaryLabel: "Crude Oil",
       secondaryLabel: "Synthetic Oil",
-      fillPrimary: "#f7931a",
-      fillSecondary: "#fcd88b",
+      fillPrimary: "#EF4444",
+      fillSecondary: "#FCA5A5",
     },
   ];
 
@@ -110,8 +110,8 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
   ];
 
   const oilLegendItems = [
-    { value: "Crude Oil", color: "#f7931a" },
-    { value: "Synthetic Oil", color: "#fcd88b" },
+    { value: "Crude Oil", color: "#EF4444" },
+    { value: "Synthetic Oil", color: "#FCA5A5" },
   ];
 
   const gasLegendItems = [
@@ -121,39 +121,51 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
 
   const environmentalAmount = (
     <p className="font-bold">
-      {formatNumberWithCommas(environmental?.total_emission ?? 0)}{" "}
+      {formatNumberFull(environmental?.total_emission ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
       <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
     </p>
   );
 
-  const environmentalScore = (
+  const environmentalScore = environmental?.changePercentage != null ? (
     <small className="flex items-center gap-2">
       <FaArrowDown
-        className={`${environmental?.changePercentage && environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        className={`${environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {Math.abs(environmental?.changePercentage ?? 0).toFixed(1)}%
+      {formatNumberFull(Math.abs(environmental.changePercentage), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+      %
     </small>
-  );
+  ) : null;
 
   const socialCapitalScore = socialCapital?.operationalDelaysLevel ?? "N/A";
 
-  const humanCapitalScore = (
+  const humanCapitalScore = humanCapital?.changePercentage != null ? (
     <small className="flex items-center gap-2">
       <FaArrowDown
-        className={`${humanCapital?.changePercentage && humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        className={`${humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {Math.abs(humanCapital?.changePercentage ?? 0).toFixed(1)}%
+      {formatNumberFull(Math.abs(humanCapital.changePercentage), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+      %
     </small>
-  );
+  ) : null;
 
-  const businessModelScore = (
+  const businessModelScore = businessModel?.changePercentage != null ? (
     <small className="flex items-center gap-2">
       <FaArrowDown
-        className={`${businessModel?.changePercentage && businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        className={`${businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
       />
-      {Math.abs(businessModel?.changePercentage ?? 0).toFixed(1)}%
+      {formatNumberFull(Math.abs(businessModel.changePercentage), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+      %
     </small>
-  );
+  ) : null;
 
   return (
     <div className="flex flex-col gap-4 lg:gap-10">
@@ -169,32 +181,28 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
 
       <div className="">
         <h5 className=" border-b w-full border-gray-400 text-gray-700">Production Data</h5>
-        <div className="grid gap-3 grid-cols-1 lg:grid-cols-3 mt-3">
-          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ProductionVolumesChart
-              data={oilChartData}
-              title="Oil Production"
-              legendItems={oilLegendItems}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+          {productionCards.map((card) => (
+            <OilRenderCard
+              key={card.title}
+              borderColor={card.borderColor}
+              title={card.title}
+              amount={card.amount}
+              sub={card.sub}
             />
-            <ProductionVolumesChart
-              data={gasChartData}
-              title="Gas Production"
-              legendItems={gasLegendItems}
-            />
-          </div>
-          <div className="flex flex-col gap-2 lg:gap-4">
-            {productionCards.map((card) => {
-              return (
-                <OilRenderCard
-                  key={card.title}
-                  borderColor={card.borderColor}
-                  title={card.title}
-                  amount={card.amount}
-                  sub={card.sub}
-                />
-              );
-            })}
-          </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <ProductionVolumesChart
+            data={oilChartData}
+            title="Oil Production"
+            legendItems={oilLegendItems}
+          />
+          <ProductionVolumesChart
+            data={gasChartData}
+            title="Gas Production"
+            legendItems={gasLegendItems}
+          />
         </div>
       </div>
 
@@ -249,7 +257,9 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           score={environmentalScore}
           amount={environmentalAmount}
           footer={
-            "On track to meet 2030 reduction targets. Scope 2 emissions show significant improvement."
+            environmental?.changePercentage != null
+              ? `Total emissions ${environmental.changePercentage > 0 ? 'increased' : 'decreased'} by ${formatNumberShort(Math.abs(environmental.changePercentage))}% YoY.`
+              : "On track to meet reduction targets." // A safe generic fallback if no previous data
           }
           icon={<FaLeaf />}
           iconBg={"#f1fcf4"}
@@ -262,55 +272,55 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Operational Delays"}
           pillar={"Social Capital"}
           score={socialCapitalScore}
-          amount={`${socialCapital?.totalNumberOfIncidents ?? 0} incidents`}
+          amount={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} incidents`}
           footer={
-            "Community engagement efforts increased in conflict zones. Protests remain a key operational risk."
+            `${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0)} incidents recorded. ${socialCapital?.operationalDelaysLevel || 'Low Risk'} observed.`
           }
           icon={<PiUsersFill />}
           iconBg={"#eff5ff"}
           iconText={"#2570eb"}
           borderColor={"#2570eb"}
-          scoreColor="#e8ab73"
+          scoreColor="#93BBFD"
         />
         <EsgAssignmrntReportCard
           title={"Total recordable incident rate"}
           pillar={"Human Capital"}
           score={humanCapitalScore}
-          amount={`${humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0} per 200k hrs`}
+          amount={`${formatNumberFull(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hrs`}
           footer={
-            "Safety performance improved by 10% YoY. Zero fatalities recorded in the reporting period."
+            `Safety performance ${humanCapital?.changePercentage && humanCapital.changePercentage < 0 ? 'improved' : 'tracked'} YoY. ${humanCapital?.fatalities ?? 0} fatalities recorded.`
           }
           icon={<GiHumanPyramid />}
-          iconBg={"#fcf8ee"}
-          iconText={"#dca54b"}
-          borderColor={"#dca54b"}
-          scoreColor="#e8ab73"
+          iconBg={"#ECFDF5"}
+          iconText={"#0D9488"}
+          borderColor={"#0D9488"}
+          scoreColor="#5EEAD4"
         />
         <EsgAssignmrntReportCard
           title={"Reserves at risk"}
           pillar={"Business Model"}
           score={businessModelScore}
-          amount={`${businessModel?.totalReservesAmountAtRisk ?? 0} bbl`}
+          amount={`${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl`}
           footer={
-            "Strategic shift towards renewables accelerating. Carbon pricing impact on reserves modeled"
+            `Strategic shift towards renewables. ${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0)} bbl reserves modeled at risk.`
           }
           icon={<GiHumanPyramid />}
           iconBg={"#f5e2ff"}
           iconText={"#af57db"}
           borderColor={"#af57db"}
-          scoreColor="#e8ab73"
+          scoreColor="#D8B4FE"
         />
         <EsgAssignmrntReportCard
           title={"Process safety"}
           pillar={"Leadership and Governance"}
-          score={`${leadership?.processSafetyPercentage ?? 0}%`}
-          amount={leadership?.numberOfTierEventsAndWhatTier ?? "N/A"}
-          footer={"Sustainability committee established. Whistleblower system active and verified"}
+          score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
+          amount={leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}
+          footer={`Sustainability oversight ${leadership?.managementOfLegalAndRegulatoryEnvironment?.sustainabilityGovernance === "yes" ? "active" : "needs attention"}. Process safety events rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })}%.`}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}
           iconText={"#4a4a4a"}
           borderColor={"#4a4a4a"}
-          scoreColor="#e8ab73"
+          scoreColor="#D1D5DB"
         />
       </div>
     </div>

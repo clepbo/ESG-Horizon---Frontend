@@ -38,23 +38,13 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import { allFuels } from "@/lib/fuelDataFile";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 interface FileWithMeta {
   name: string;
   url?: string;
   section: string;
 }
-
-// Helper function to format numbers
-const formatNumber = (value: any): string => {
-  if (value === undefined || value === null || value === "") return "";
-  const num = Number(value);
-  if (isNaN(num)) return String(value);
-  return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(num);
-};
 
 const DataField = ({ label, value, unit }: { label: string; value: any; unit?: string }) => {
   const isEmpty = value === undefined || value === null || value === "";
@@ -69,7 +59,7 @@ const DataField = ({ label, value, unit }: { label: string; value: any; unit?: s
         ) : (
           <>
             <span className="text-sm font-semibold text-gray-800">
-              {isNumeric ? formatNumber(value) : value}
+              {isNumeric ? formatNumberShort(value) : value}
             </span>
             {unit && <span className="text-[10px] text-gray-500 font-normal">{unit}</span>}
           </>
@@ -92,7 +82,7 @@ const DataList = ({ data, label }: { data: any[]; label: string }) => {
           const fuelLabel = allFuels.find((f) => f.value === item.fuelType)?.label || item.fuelType;
           return (
             <div
-              key={item.id || idx}
+              key={`${item.id ?? "item"}-${idx}`}
               className="p-3 bg-gray-50/50 rounded-md border border-gray-100 space-y-2"
             >
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
@@ -115,7 +105,7 @@ const DataList = ({ data, label }: { data: any[]; label: string }) => {
                         {displayLabel}
                       </span>
                       <span className="text-xs font-semibold text-gray-700 truncate">
-                        {isNumericValue ? formatNumber(displayValue) : displayValue}
+                        {isNumericValue ? formatNumberShort(displayValue) : displayValue}
                         {key === "volume" && item.unit ? ` ${item.unit}` : ""}
                       </span>
                     </div>
@@ -184,7 +174,7 @@ export function AssessmentDetailsModal({
 
   if (!open || !assessment) return null;
 
-  if (isLoading || !fullAssessment?.data) {
+  if (isLoading || !fullAssessment) {
     return (
       <div className="fixed inset-0 z-999 flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <Card className="w-full max-w-4xl p-12 ">
@@ -197,8 +187,7 @@ export function AssessmentDetailsModal({
     );
   }
 
-  const data = fullAssessment.data;
-  const assessmentData = data.assessmentData || {};
+  const assessmentData = fullAssessment.assessmentData || {};
   const env = assessmentData.environment || {};
   const ghg = env.ghg || {};
   const scope1 = ghg.scope1 || {};
@@ -288,12 +277,12 @@ export function AssessmentDetailsModal({
   };
 
   const statusInfo =
-    statusConfig[data.status as keyof typeof statusConfig] || statusConfig.in_progress;
+    statusConfig[fullAssessment.status as keyof typeof statusConfig] || statusConfig.in_progress;
 
   const isActionLoading = approveMutation.isPending || declineMutation.isPending;
 
   const isAwaitingApproval =
-    (data.status && data.status === "awaiting_review") || assessment?.status === "awaiting_review";
+    (fullAssessment.status && fullAssessment.status === "awaiting_review") || assessment?.status === "awaiting_review";
 
   const handleApprove = () => {
     if (!assessment?.id || isActionLoading) return;
@@ -370,14 +359,17 @@ export function AssessmentDetailsModal({
                     <p className="text-teal-100 text-sm">Total Emissions</p>
 
                     <p
-                      className={`font-bold whitespace-normal wrap-break-word ${String(formatNumber(assessmentData.totalEmission) || "0.00").length > 10
+                      className={`font-bold whitespace-normal wrap-break-word ${
+                        String(formatNumberShort(assessmentData.totalEmission) || "0.00").length >
+                        10
                           ? "text-2xl"
-                          : String(formatNumber(assessmentData.totalEmission) || "0.00").length > 7
+                          : String(formatNumberShort(assessmentData.totalEmission) || "0.00")
+                                .length > 7
                             ? "text-3xl"
                             : "text-4xl"
-                        }`}
+                      }`}
                     >
-                      {formatNumber(assessmentData.totalEmission) || "0.00"} tCO₂e
+                      {formatNumberShort(assessmentData.totalEmission) || "0.00"} tCO₂e
                     </p>
                   </CardContent>
                 </Card>
@@ -397,7 +389,7 @@ export function AssessmentDetailsModal({
                 <Card>
                   <CardContent className="p-6">
                     <p className="text-gray-500 text-sm">Subsidiary</p>
-                    <p className="text-xl font-semibold">{data.subsidiary}</p>
+                    <p className="text-xl font-semibold">{fullAssessment.subsidiary}</p>
                   </CardContent>
                 </Card>
 
@@ -405,7 +397,7 @@ export function AssessmentDetailsModal({
                   <CardContent className="p-6">
                     <p className="text-gray-500 text-sm">Reporting Period</p>
                     <p className="text-xl font-semibold">
-                      {data.startMonth} {data.startYear} – {data.endMonth} {data.endYear}
+                      {fullAssessment.startMonth} {fullAssessment.startYear} – {fullAssessment.endMonth} {fullAssessment.endYear}
                     </p>
                   </CardContent>
                 </Card>
@@ -427,7 +419,7 @@ export function AssessmentDetailsModal({
                 </TabsList>
 
                 <TabsContent value="environmental" className="space-y-6">
-                  <Accordion type="multiple" defaultValue={["ghg-emissions"]} className="space-y-4">
+                  <Accordion type="multiple" defaultValue={[]} className="space-y-4">
                     {/* GHG EMISSIONS TAB */}
                     <AccordionItem
                       value="ghg-emissions"
@@ -438,7 +430,7 @@ export function AssessmentDetailsModal({
                           <Zap className="w-5 h-5 text-yellow-600" />
                           <span className="text-lg font-bold">GHG Emissions</span>
                           <Badge variant="outline" className="ml-2">
-                            {formatNumber(assessmentData.totalEmission) || "0.00"} tCO₂e
+                            {formatNumberShort(assessmentData.totalEmission) || "0.00"} tCO₂e
                           </Badge>
                         </div>
                       </AccordionTrigger>
@@ -953,9 +945,9 @@ export function AssessmentDetailsModal({
                               label="Sensitive Area Reserves"
                               value={
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.reservesInSensitiveAreas?.totalProvedReservesVolume ??
+                                  ?.reservesInSensitiveAreas?.provedReservesSensitiveVolume ??
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.reservesInSensitiveAreas?.calculated?.total_reserves
+                                  ?.reservesInSensitiveAreas?.calculated?.provedReservesInSensitiveAreas?.volume
                               }
                               unit="BOE"
                             />
@@ -972,14 +964,23 @@ export function AssessmentDetailsModal({
                               label="Spills in Sensitive Areas"
                               value={
                                 env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
-                                  ?.spillsInSensitiveAreas
+                                  ?.volumeImpactingSensitiveShorelines ??
+                                env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
+                                  ?.volumeImpactingShorelines ??
+                                env.biodiversityImpact?.environmentalManagement?.hydrocarbonSpills
+                                  ?.calculated?.volumeImpactingSensitiveShorelines?.volume
                               }
+                              unit="bbl"
                             />
                             <DataField
                               label="ISO 14001 Certified"
                               value={
+                                (env.biodiversityImpact?.environmentalManagement
+                                  ?.environmentalManagementPolicies?.isISO14001Certified ??
                                 env.biodiversityImpact?.environmentalManagement
-                                  ?.environmentalManagementPolicies?.isISO14001Certified
+                                  ?.environmentalManagementPolicies?.calculated?.isISO14001Certified ??
+                                env.biodiversityImpact?.environmentalManagement
+                                  ?.environmentalManagementPolicies?.calculated?.iso14001Certified)
                                   ? "Yes"
                                   : "No"
                               }
@@ -1025,41 +1026,6 @@ export function AssessmentDetailsModal({
 
               <Separator />
 
-              {/* TOP 5 EMISSION SOURCES */}
-              {assessmentData.topEmissionSources?.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl">Top 5 Emission Sources</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {assessmentData.topEmissionSources.map((s: any, i: number) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold">
-                              {i + 1}
-                            </div>
-                            <div>
-                              <p className="font-semibold">{s.source}</p>
-                              <p className="text-sm text-gray-600">
-                                {s.scope} → {s.group}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold">{formatNumber(s.emission)} tCO₂e</p>
-                            <p className="text-sm text-gray-600">{s.percentage}% of total</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
               {allFiles.length > 0 && (
                 <Card>
                   <CardHeader>
@@ -1085,11 +1051,11 @@ export function AssessmentDetailsModal({
                 </Card>
               )}
 
-              {data.rejection_reason && (
+              {fullAssessment.rejection_reason && (
                 <Alert className="border-red-300 bg-red-50">
                   <XCircle className=" h-5 text-red-600" />
                   <AlertDescription className="text-red-700 font-medium">
-                    Assessment Declined: {data.rejection_reason}
+                    Assessment Declined: {fullAssessment.rejection_reason}
                   </AlertDescription>
                 </Alert>
               )}

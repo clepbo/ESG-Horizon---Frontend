@@ -25,8 +25,7 @@ import { FrontendTask } from "@/services/assignTask.service";
 import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
 import DownstreamEmission from "./scope3/DownstreamEmission";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 type GHGView =
   | "overview"
@@ -47,6 +46,7 @@ interface GhgEmissionsAssessmentProps {
   initialStep?: string;
   assignedTask?: FrontendTask | null;
   assignedTopics?: string[];
+  onContinueToNextAssessment?: () => void;
 }
 
 interface ScopeCard {
@@ -163,6 +163,7 @@ export function GhgEmissionsAssessment({
   initialStep,
   assignedTask,
   assignedTopics,
+  onContinueToNextAssessment,
 }: GhgEmissionsAssessmentProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<GHGView>(initialForm ?? "overview");
@@ -174,12 +175,26 @@ export function GhgEmissionsAssessment({
   }, [initialForm]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
-  const { state } = useAssessment();
 
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData
-  );
+  const { state } = useAssessment();
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Stationary Sources": { groupKey: "environment.ghg.scope1.stationarySources", dataPath: ["environment", "ghg", "scope1", "stationarySources"] },
+    "Mobile Sources": { groupKey: "environment.ghg.scope1.mobileSources", dataPath: ["environment", "ghg", "scope1", "mobileSources"] },
+    "Process Emissions": { groupKey: "environment.ghg.scope1.processEmissions", dataPath: ["environment", "ghg", "scope1", "processEmissions"] },
+    "Fugitive Emissions": { groupKey: "environment.ghg.scope1.fugitiveEmissions", dataPath: ["environment", "ghg", "scope1", "fugitiveEmissions"] },
+    "Location-Based Scope 2 Emissions": { groupKey: "environment.ghg.scope2.locationBased", dataPath: ["environment", "ghg", "scope2", "locationBased"] },
+    "Market-Based Scope 2 Emissions": { groupKey: "environment.ghg.scope2.marketBased", dataPath: ["environment", "ghg", "scope2", "marketBased"] },
+    "Upstream Emissions (Categories 1-8)": { groupKey: "environment.ghg.scope3.upstream", dataPath: ["environment", "ghg", "scope3", "upstream"] },
+    "Downstream Emissions (Categories 9-15)": { groupKey: "environment.ghg.scope3.downstream", dataPath: ["environment", "ghg", "scope3", "downstream"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   const handleBackToOverview = () => {
     setCurrentView("overview");
@@ -319,6 +334,8 @@ export function GhgEmissionsAssessment({
         handleBacktoAssessment={onBackToHub}
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => setCurrentView("downstream-emissions")}
       />
     );
   }
@@ -329,6 +346,8 @@ export function GhgEmissionsAssessment({
         handleBacktoAssessment={onBackToHub}
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
+        initialStep={initialStep}
+        onContinueToNextAssessment={() => setCurrentView("downstream-emissions")}
       />
     );
   }
@@ -338,6 +357,8 @@ export function GhgEmissionsAssessment({
         handleBacktoAssessment={onBackToHub}
         handleBacktoGHG={handleBackToOverview}
         backToDisclossureTopic={onBack}
+        initialStep={initialStep}
+        onContinueToNextAssessment={onContinueToNextAssessment}
       />
     );
   }
@@ -399,7 +420,7 @@ export function GhgEmissionsAssessment({
             {filteredScopes.length > 0 ? (
               <Accordion
                 type="multiple"
-                defaultValue={["scope-1", "scope-2"]}
+                defaultValue={["scope-1", "scope-2", "scope-3"]}
                 className="space-y-4"
               >
                 {filteredScopes.map((scope) => (
@@ -407,7 +428,10 @@ export function GhgEmissionsAssessment({
                     <AccordionTrigger className="py-4 px-2 rounded-lg bg-transparent hover:no-underline hover:cursor-pointer">
                       <div className="flex items-center w-full relative">
                         <span className="text-lg font-semibold flex items-center gap-2">
-                          {scope.title}
+                          {scope.title}{" "}
+                          <span className="text-sm font-normal text-muted-foreground">
+                            (GHG Emission)
+                          </span>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
@@ -415,11 +439,11 @@ export function GhgEmissionsAssessment({
                             <TooltipContent
                               side="top"
                               align="start"
-                              className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                              className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                             >
                               {scope.id === "scope-1" && (
                                 <>
-                                  <h6 className="font-semibold mb-1">Scope 1 - Direct Emissions</h6>
+                                  <h6 className="font-semibold mb-1">Scope 1 (Direct Emissions)</h6>
                                   <p>
                                     Emissions from sources your company owns or directly controls
                                     (e.g., fuel combustion, company vehicles, generators).
@@ -430,7 +454,7 @@ export function GhgEmissionsAssessment({
                               {scope.id === "scope-2" && (
                                 <>
                                   <h6 className="font-semibold mb-1">
-                                    Scope 2 - Indirect Energy Emissions
+                                    Scope 2 (Indirect Energy Emissions)
                                   </h6>
                                   <p>
                                     Emissions from purchased electricity, steam, heating, or cooling
@@ -442,7 +466,7 @@ export function GhgEmissionsAssessment({
                               {scope.id === "scope-3" && (
                                 <>
                                   <h6 className="font-semibold mb-1">
-                                    Scope 3 - Value Chain Emissions
+                                    Scope 3 (Value Chain Emissions)
                                   </h6>
                                   <p>
                                     All other indirect emissions outside your direct control - such
@@ -462,21 +486,18 @@ export function GhgEmissionsAssessment({
                         {scope.cards.map((card) => (
                           <Card
                             key={card.title}
-                            className={`transition-all bg-white shadow-sm rounded-lg ${getCardBorderClass(
-                              card.title
-                            )} ${card.clickable
+                            className={`transition-all bg-white shadow-sm rounded-lg ${
+                              card.clickable
                                 ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
-                              }`}
+                            }`}
+                            style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between gap-3">
                                 <div className="space-y-2 flex-1">
-                                  <div className="flex items-center justify-between">
-                                    <h5 className="font-medium text-foreground">{card.title}</h5>
-                                    <CompletionIndicator status={getStatus(card.title)} />
-                                  </div>
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
                                   <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                                 </div>
                                 <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

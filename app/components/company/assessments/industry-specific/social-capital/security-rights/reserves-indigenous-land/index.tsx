@@ -17,6 +17,7 @@ import { UnitSelect } from "../../../../UnitSelect";
 import { uploadService } from "@/services/upload.service";
 import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables/AddMoreFilesLinks";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
 
 interface ReservesIndigenousLandProps {
@@ -35,7 +36,8 @@ export default function ReservesIndigenousLand({
   breadcrumb,
 }: ReservesIndigenousLandProps) {
   const router = useRouter();
-  const { saveNow } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand");
+  const { state } = useAssessment();
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand", "socialCapital.securityHumanRights.reservesInNearIndigenousLand");
 
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedIndigenousVolume = useFormattedNumber("");
@@ -63,6 +65,35 @@ export default function ReservesIndigenousLand({
     probableIndigenousUnit: "",
   });
 
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.totalProvedReservesVolume != null) {
+        totalProvedReservesVolume.handleChange(String(existingData.totalProvedReservesVolume));
+      }
+      if (existingData.provedIndigenousVolume != null) {
+        provedIndigenousVolume.handleChange(String(existingData.provedIndigenousVolume));
+      }
+      if (existingData.totalProbableReservesVolume != null) {
+        totalProbableReservesVolume.handleChange(String(existingData.totalProbableReservesVolume));
+      }
+      if (existingData.probableIndigenousVolume != null) {
+        probableIndigenousVolume.handleChange(String(existingData.probableIndigenousVolume));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        totalProvedReservesUnit: existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
+        provedIndigenousUnit: existingData.provedIndigenousUnit ?? prev.provedIndigenousUnit,
+        totalProbableReservesUnit: existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
+        probableIndigenousUnit: existingData.probableIndigenousUnit ?? prev.probableIndigenousUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand]);
+
   const { filled, total } = useMemo(() => {
     const hasTotalProvedReserves =
       totalProvedReservesVolume.rawValue !== "" && formData.totalProvedReservesUnit !== "";
@@ -76,14 +107,11 @@ export default function ReservesIndigenousLand({
     const hasProbableIndigenous =
       probableIndigenousVolume.rawValue !== "" && formData.probableIndigenousUnit !== "";
 
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalProvedReserves,
       hasProvedIndigenous,
       hasTotalProbableReserves,
       hasProbableIndigenous,
-      hasEvidence,
     ]);
   }, [
     totalProvedReservesVolume.rawValue,
@@ -94,7 +122,6 @@ export default function ReservesIndigenousLand({
     formData.provedIndigenousUnit,
     formData.totalProbableReservesUnit,
     formData.probableIndigenousUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -183,7 +210,7 @@ export default function ReservesIndigenousLand({
     };
 
     try {
-      await saveNow("socialCapital.securityRights.reservesIndigenousLand", payload);
+      await saveAndSubmit("socialCapital.securityRights.reservesIndigenousLand", payload);
       toast.success("Progress saved!");
       onContinueToNextAssessment();
     } catch (error) {
@@ -223,6 +250,7 @@ export default function ReservesIndigenousLand({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.securityHumanRights.reservesInNearIndigenousLand"
             />
 
             {/* Total Proved Reserves */}
@@ -240,7 +268,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Total Proved Reserves </h6>
                         <p>
@@ -301,7 +329,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Proved Reserves in/near Indigenous Land </h6>
                         <p>
@@ -362,7 +390,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Total Probable Reserves </h6>
                         <p>
@@ -423,7 +451,7 @@ export default function ReservesIndigenousLand({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                       >
                         <h6>Probable Reserves in/near Indigenous Land </h6>
                         <p>

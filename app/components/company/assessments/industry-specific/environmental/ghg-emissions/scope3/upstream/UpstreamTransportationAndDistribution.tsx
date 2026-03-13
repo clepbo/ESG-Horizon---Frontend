@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface UpstreamTransportationProps {
   onBack: () => void;
@@ -83,7 +84,7 @@ export function UpstreamTransportationAndDistribution({
     logisticsSpend: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-transportation");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-transportation");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -142,18 +143,14 @@ export function UpstreamTransportationAndDistribution({
       !isNaN(Number(logisticsSpend)) &&
       Number(logisticsSpend) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasMassTransported,
       hasDistanceTravelled,
       hasLogisticsSpend,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [massTransported, distanceTravelled, logisticsSpend, files, additionalFields]);
+  }, [massTransported, distanceTravelled, logisticsSpend]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -285,6 +282,7 @@ export function UpstreamTransportationAndDistribution({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.upstreamTransportationDistribution", payload).catch(() => {});
     onNext();
   };
 
@@ -426,6 +424,7 @@ export function UpstreamTransportationAndDistribution({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
@@ -629,19 +628,12 @@ export function UpstreamTransportationAndDistribution({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

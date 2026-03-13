@@ -19,7 +19,7 @@ export function RecentActivities() {
       <div className="rounded-xl border border-gray-200 bg-white px-6 py-4 shadow-sm">
         <div className="relative">
           {/* Vertical line connecting dots */}
-          <div className="absolute top-0 left-[5.5rem] h-full w-px bg-gray-300" />
+          <div className="absolute top-0 left-22 h-full w-px bg-gray-300" />
 
           {/* Header row with select */}
           <div className="flex items-center gap-2 mb-4 relative ml-[5.25rem] z-10">

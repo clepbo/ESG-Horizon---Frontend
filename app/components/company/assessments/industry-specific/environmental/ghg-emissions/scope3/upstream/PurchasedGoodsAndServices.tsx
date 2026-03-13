@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -12,6 +12,7 @@ import {
   AdditionalFileUpload,
   FileData,
 } from "@/app/components/company/assessments/AdditionalFileUpload";
+import { FilePreview } from "@/app/components/common/FilePreview";
 import { Input } from "@/app/components/ui/input";
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
@@ -95,7 +96,7 @@ export function PurchasedGoodsAndServices({
     goodsCategories: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-purchasedgoodsandservices");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-purchasedgoodsandservices");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -155,19 +156,16 @@ export function PurchasedGoodsAndServices({
       !isNaN(Number(purchasedGoods)) &&
       Number(purchasedGoods) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
     const hasSelectedCategories = selectedCategories.length > 0;
 
     const progressChecks = [
       hasSpendingData,
       hasMassData,
-      hasFileUploaded || hasAdditionalFields,
       hasSelectedCategories,
     ];
 
     return calculateProgress(progressChecks);
-  }, [electricity, purchasedGoods, files, additionalFields, selectedCategories]);
+  }, [electricity, purchasedGoods, selectedCategories]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -320,6 +318,7 @@ export function PurchasedGoodsAndServices({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.purchasedGoodsAndServices", payload).catch(() => {});
     onNext();
   };
 
@@ -463,6 +462,7 @@ export function PurchasedGoodsAndServices({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
@@ -507,7 +507,7 @@ export function PurchasedGoodsAndServices({
                 <SmartInput
                   label=""
                   type="number"
-                  unit="kWh"
+                  unit="₦"
                   required
                   value={electricity}
                   onChange={(value) => {
@@ -570,7 +570,7 @@ export function PurchasedGoodsAndServices({
             {/* CHECKBOX FIELD */}
             <div className="space-y-4">
               <Label className="text-md font-medium block">
-                Type of manure management system used (e.g., liquid slurry, solid storage, pasture).
+                Select Categories of purchases
               </Label>
 
               {errors.goodsCategories && (
@@ -658,19 +658,12 @@ export function PurchasedGoodsAndServices({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

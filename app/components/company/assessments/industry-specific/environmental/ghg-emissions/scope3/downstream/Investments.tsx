@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -26,16 +26,18 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface InvestmentsProps {
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (investmentsPayload?: any) => void;
   onBackToHub?: () => void;
   stepIndex: number;
   totalSteps: number;
   backToAssessment: () => void;
   backToDisclosureTopics: () => void;
   backToGHGEmissions: () => void;
+  parentSubmitting?: boolean;
 }
 
 interface InvestmentsErrors {
@@ -58,6 +60,7 @@ export function Investments({
   backToAssessment,
   backToDisclosureTopics,
   backToGHGEmissions,
+  parentSubmitting,
 }: InvestmentsProps) {
   const { state, dispatch } = useAssessment();
   const router = useRouter();
@@ -81,7 +84,8 @@ export function Investments({
     portfolioEmissions: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-investments");
+  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-investments", "environment.ghg.scope3.downstream");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope3?.downstream?.investments;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -93,9 +97,10 @@ export function Investments({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.investments;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setInvestmentAmount(existingData.investmentAmount || "");
-      setPortfolioEmissions(existingData.portfolioEmissions || "");
+      setInvestmentAmount(s(existingData.investmentAmount));
+      setPortfolioEmissions(s(existingData.portfolioEmissions));
 
       // Files
       setFiles(
@@ -116,17 +121,13 @@ export function Investments({
       portfolioEmissions.trim() !== "" &&
       !isNaN(Number(portfolioEmissions)) &&
       Number(portfolioEmissions) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasInvestmentAmount,
       hasPortfolioEmissions,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [investmentAmount, portfolioEmissions, files, additionalFields]);
+  }, [investmentAmount, portfolioEmissions]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -244,8 +245,8 @@ export function Investments({
       payload,
     });
 
-    // Call onSubmit to trigger parent's submission logic (which includes bulk save)
-    onSubmit();
+    // Pass payload to parent so it can save directly (dispatch is async, state won't be updated yet)
+    onSubmit(payload);
   };
 
   // Handle input changes with automatic error clearing
@@ -338,7 +339,7 @@ export function Investments({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Investments" },
+    { label: "Category 15: Investments" },
   ];
 
   return (
@@ -373,15 +374,16 @@ export function Investments({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">7. Investments</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 15: Investments</h4>
               <p className="text-muted-foreground text-base">
                 Report investment data and emissions from portfolio companies.
               </p>
             </div>
 
-            {/* 7.1 Investments */}
+            {/* 15.1 Investments */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -479,10 +481,10 @@ export function Investments({
               </div>
             </div>
 
-            {/* 7.2 Document/Evidence Upload */}
+            {/* 15.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                7.2 Documents/Evidence Upload
+                15.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -522,19 +524,12 @@ export function Investments({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>
@@ -589,12 +584,12 @@ export function Investments({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isLoading}
-                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isLoading || isPreviouslySubmitted || parentSubmitting}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Submit form"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {parentSubmitting ? "Submitting..." : getSubmitLabel(hasExistingData)}
+                {!isPreviouslySubmitted && !parentSubmitting && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

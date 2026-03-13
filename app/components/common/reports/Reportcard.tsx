@@ -38,7 +38,6 @@ export default function Reportcard({
     }
   }
 
-  console.log("DOne:", done, "Overall:", overall);
   return (
     <Card className="w-full h-64 flex flex-col p-4 gap-2 md:gap-4 justify-center">
       <CardTitle className=""> {subsidiary} </CardTitle>
@@ -52,10 +51,10 @@ export default function Reportcard({
       </div>
       <div className="flex flex-col gap-1">
         <CustomProgressWithoutUnit
-          value={progress}
+          value={Math.min(progress, 100)}
           title="Progress"
-          total={Number(progress)}
-          percent={progress}
+          total={Math.min(Number(progress), 100)}
+          percent={Math.min(progress, 100)}
           unit="%"
           done={done}
           overall={overall}

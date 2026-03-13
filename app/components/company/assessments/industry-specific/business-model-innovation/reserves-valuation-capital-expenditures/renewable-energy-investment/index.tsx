@@ -48,11 +48,11 @@ export default function RenewableEnergyInvestment({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment";
-  const { saveNow } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(current, "businessModel.reservesValuation.renewableEnergyInvestment");
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.renewableEnergyInvestment;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -70,7 +70,7 @@ export default function RenewableEnergyInvestment({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.renewableEnergyInvestment,
   ]);
 
@@ -104,15 +104,12 @@ export default function RenewableEnergyInvestment({
     const hasInvestmentAmount = investmentAmount.rawValue !== "";
     const hasRevenueAmount = revenueAmount.rawValue !== "";
     const hasProjectDescription = projectDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasInvestmentAmount,
       hasRevenueAmount,
       hasProjectDescription,
-      hasEvidence,
     ]);
-  }, [investmentAmount.rawValue, revenueAmount.rawValue, projectDescription, filesAndLinks]);
+  }, [investmentAmount.rawValue, revenueAmount.rawValue, projectDescription]);
 
   // const handleInputChange = (field: string, value: string) => {
   //   setFormData((prev) => ({ ...prev, [field]: value }));
@@ -131,11 +128,6 @@ export default function RenewableEnergyInvestment({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     try {
       await saveNow(current, payload);
       dispatch({
@@ -163,7 +155,7 @@ export default function RenewableEnergyInvestment({
     }
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_BUSINESS_INNOVATION",
         payload: {
@@ -212,6 +204,7 @@ export default function RenewableEnergyInvestment({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.reservesValuation.renewableEnergyInvestment"
             />
 
             {/* Investment in Renewable Energy */}
@@ -263,7 +256,7 @@ export default function RenewableEnergyInvestment({
                   <TooltipContent
                     side="top"
                     align="center"
-                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                   >
                     <h6 className="font-semibold mb-1">Brief Description of Investment/Project</h6>
                     <p>

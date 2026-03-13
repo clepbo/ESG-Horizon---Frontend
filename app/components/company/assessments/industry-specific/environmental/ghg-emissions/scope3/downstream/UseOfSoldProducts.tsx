@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -26,6 +26,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface UseOfSoldProductsProps {
   onBack: () => void;
@@ -76,7 +77,7 @@ export function UseOfSoldProducts({
   // Input fields
   const [unitsSold, setUnitsSold] = useState("");
   const [productLifetime, setProductLifetime] = useState("");
-  const [averageAnnualConsumption, setAverageAnnualConsumption] = useState("");
+  const [averageAnnualConsumption, setAverageAnnualConsumption] = useState("0");
 
   const [fieldErrors, setFieldErrors] = useState({
     unitsSold: false,
@@ -84,7 +85,7 @@ export function UseOfSoldProducts({
     averageAnnualConsumption: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-use-of-sold-products");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-use-of-sold-products");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -97,10 +98,11 @@ export function UseOfSoldProducts({
     const existingData =
       state.assessmentData.environment?.ghg?.scope3?.downstream?.useOfSoldProducts;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setUnitsSold(existingData.unitsSold || "");
-      setProductLifetime(existingData.productLifetime || "");
-      setAverageAnnualConsumption(existingData.averageAnnualConsumption || "");
+      setUnitsSold(s(existingData.unitsSold));
+      setProductLifetime(s(existingData.productLifetime));
+      setAverageAnnualConsumption(s(existingData.averageAnnualConsumption));
 
       // Files
       setFiles(
@@ -122,18 +124,14 @@ export function UseOfSoldProducts({
       averageAnnualConsumption.trim() !== "" &&
       !isNaN(Number(averageAnnualConsumption)) &&
       Number(averageAnnualConsumption) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasUnitsSold,
       hasProductLifetime,
       hasAverageAnnualConsumption,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [unitsSold, productLifetime, averageAnnualConsumption, files, additionalFields]);
+  }, [unitsSold, productLifetime, averageAnnualConsumption]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -256,6 +254,7 @@ export function UseOfSoldProducts({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.useOfSoldProducts", payload).catch(() => {});
     onNext();
   };
 
@@ -361,7 +360,7 @@ export function UseOfSoldProducts({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Use of Sold Products" },
+    { label: "Category 11: Use of Sold Products" },
   ];
 
   return (
@@ -396,15 +395,16 @@ export function UseOfSoldProducts({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">3. Use of Sold Products</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 11: Use of Sold Products</h4>
               <p className="text-muted-foreground text-base">
                 Report emissions from the use of products and services sold by your company.
               </p>
             </div>
 
-            {/* 3.1 Use of Sold Products */}
+            {/* 11.1 Use of Sold Products */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -498,7 +498,7 @@ export function UseOfSoldProducts({
                   <div className="relative">
                     <div className="flex items-center gap-1 mb-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Average annual fuel/energy consumption of product (if applicable){" "}
+                        Average annual fuel/energy consumption of product{" "}
                         <span className="text-red-500">*</span>
                       </Label>
                       <TooltipProvider>
@@ -543,10 +543,10 @@ export function UseOfSoldProducts({
               </div>
             </div>
 
-            {/* 3.2 Document/Evidence Upload */}
+            {/* 11.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                3.2 Documents/Evidence Upload
+                11.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -586,19 +586,12 @@ export function UseOfSoldProducts({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

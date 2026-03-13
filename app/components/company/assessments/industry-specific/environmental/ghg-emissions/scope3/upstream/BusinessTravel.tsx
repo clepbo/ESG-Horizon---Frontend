@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface BusinessTravelProps {
   onBack: () => void;
@@ -109,7 +110,7 @@ export function BusinessTravel({
     hotelNights: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-businesstravel");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-businesstravel");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -121,21 +122,22 @@ export function BusinessTravel({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.businessTravel;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Air Travel
-      setTotalFlights(existingData.totalFlights || "");
-      setAirDistance(existingData.airDistance || "");
-      setAirEmployees(existingData.airEmployees || "");
-      setEconomyPercent(existingData.economyPercent || "");
-      setBusinessPercent(existingData.businessPercent || "");
-      setFirstClassPercent(existingData.firstClassPercent || "");
+      setTotalFlights(s(existingData.totalFlights));
+      setAirDistance(s(existingData.airDistance));
+      setAirEmployees(s(existingData.airEmployees));
+      setEconomyPercent(s(existingData.economyPercent));
+      setBusinessPercent(s(existingData.businessPercent));
+      setFirstClassPercent(s(existingData.firstClassPercent));
 
       // Ground Travel
-      setGroundDistance(existingData.groundDistance || "");
-      setGroundEmployees(existingData.groundEmployees || "");
-      setFuelConsumed(existingData.fuelConsumed || "");
+      setGroundDistance(s(existingData.groundDistance));
+      setGroundEmployees(s(existingData.groundEmployees));
+      setFuelConsumed(s(existingData.fuelConsumed));
 
       // Accommodation
-      setHotelNights(existingData.hotelNights || "");
+      setHotelNights(s(existingData.hotelNights));
 
       // Files
       setFiles(
@@ -184,15 +186,11 @@ export function BusinessTravel({
     const hasAccommodationData =
       hotelNights.trim() !== "" && !isNaN(Number(hotelNights)) && Number(hotelNights) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasAirTravelData,
       hasClassDistribution,
       hasGroundTravelData,
       hasAccommodationData,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
@@ -207,8 +205,6 @@ export function BusinessTravel({
     groundEmployees,
     fuelConsumed,
     hotelNights,
-    files,
-    additionalFields,
   ]);
 
   // Clear error when user interacts with ANY field
@@ -405,6 +401,7 @@ export function BusinessTravel({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.businessTravel", payload).catch(() => {});
     onNext();
   };
 
@@ -577,6 +574,7 @@ export function BusinessTravel({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Business Travel</h4>
@@ -849,7 +847,7 @@ export function BusinessTravel({
                     type="number"
                     required={false}
                     value={hotelNights}
-                    placeholder="Enter cummulative number of nights stayed"
+                    placeholder="Enter cumulative number of nights stayed"
                     onChange={handleAccommodationChange}
                     errorTrigger={fieldErrors.hotelNights}
                     errorMessage="Please enter the total number of hotel nights (0 or greater)."
@@ -902,19 +900,12 @@ export function BusinessTravel({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

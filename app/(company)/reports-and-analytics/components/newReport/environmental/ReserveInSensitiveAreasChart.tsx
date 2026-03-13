@@ -1,4 +1,12 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LabelList } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 // #region Sample data
@@ -30,37 +38,45 @@ function ReserveInSensitiveAreasChart({
   ];
 
   return (
-    <BarChart
-      style={{ width: "100%", height: "100%", minHeight: "400px", aspectRatio: 1.618 }}
-      responsive
-      data={data}
-      margin={{
-        top: 5,
-        right: 0,
-        left: 0,
-        bottom: 5,
-      }}
-    >
-      {/* <CartesianGrid strokeDasharray="3 3" /> */}
-      <XAxis dataKey="name" />
-      <YAxis width="auto" tickFormatter={(value) => formatNumberFigures(Number(value) || 0)} />
-      <Tooltip />
-      <Legend type="circle" />
-      <Bar dataKey="total" fill="#0000FF" radius={[10, 10, 0, 0]}>
-        <LabelList
-          dataKey="total"
-          position="top"
-          formatter={(value) => formatNumberFigures(Number(value) || 0)}
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart
+        data={data}
+        margin={{ top: 10, right: 10, left: 10, bottom: 5 }}
+        barCategoryGap="30%"
+        style={{ overflow: "visible" }}
+      >
+        <XAxis
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: "#111827", fontSize: 14, fontWeight: 500 }}
+          padding={{ left: 30, right: 30 }}
         />
-      </Bar>
-      <Bar dataKey="sensitive" fill="#f9b232" radius={[10, 10, 0, 0]}>
-        <LabelList
+        <YAxis
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: "#111827", fontSize: 12 }}
+          width={80}
+          tickFormatter={(value) => formatNumberFigures(Number(value))}
+        />
+        <Tooltip cursor={false} formatter={(value) => formatNumberFigures(Number(value) || 0)} />
+        <Legend
+          layout="horizontal"
+          align="center"
+          verticalAlign="bottom"
+          iconType="rect"
+          wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingTop: "12px" }}
+        />
+        <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[10, 10, 0, 0]} maxBarSize={60} />
+        <Bar
           dataKey="sensitive"
-          position="top"
-          formatter={(value) => formatNumberFigures(Number(value) || 0)}
+          name="Sensitive Area"
+          fill="#EF4444"
+          radius={[10, 10, 0, 0]}
+          maxBarSize={60}
         />
-      </Bar>
-    </BarChart>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
 

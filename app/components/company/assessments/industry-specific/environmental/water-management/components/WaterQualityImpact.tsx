@@ -46,9 +46,13 @@ export default function WaterQualityImpact({
   const { state, dispatch } = useAssessment();
   const {
     saveNow,
-    submitGroup,
-    isLoading: isActionLoading,
-  } = useAssessmentFlow("water-quality-impacts");
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+  } = useAssessmentFlow("water-quality-impacts", "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts");
+  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts?.waterQualityImpacts;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -103,11 +107,10 @@ export default function WaterQualityImpact({
       }
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,
-    sitesWithDeterioratedQuality,
-    totalMonitoredSites,
   ]);
 
   const { filled, total } = useMemo(() => {
@@ -125,16 +128,13 @@ export default function WaterQualityImpact({
       hasAdditionalFields = true; // No additional fields needed for "No"
     }
 
-    const hasEvidence = operatesFrackedWells !== "" ? filesAndLinks.length > 0 : false;
-
-    return calculateProgress([hasRadioSelection, hasAdditionalFields, hasEvidence]);
+    return calculateProgress([hasRadioSelection, hasAdditionalFields]);
   }, [
     operatesFrackedWells,
     totalMonitoredSites.rawValue,
     sitesWithDeterioratedQuality.rawValue,
     formData.totalMonitoredSitesUnit,
     formData.sitesWithDeterioratedQualityUnit,
-    filesAndLinks,
   ]);
 
   const validateForm = () => {
@@ -201,7 +201,7 @@ export default function WaterQualityImpact({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 
@@ -225,11 +225,10 @@ export default function WaterQualityImpact({
     dispatch({ type: "UPDATE_WATER_QUALITY", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts",
         payload
       );
-      await submitGroup();
       toast.success("Water management assessment submitted successfully");
       onContinueToNextAssessment();
     } catch {
@@ -276,14 +275,15 @@ export default function WaterQualityImpact({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts"
             />
 
             {/* Radio Button Question */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Label className="text-base font-medium">
-                  Does your company operate hydraulically fractured wells during the reporting
-                  period?
+                  Does your company conduct baseline and ongoing water quality monitoring at
+                  hydraulic fracturing sites?
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -291,9 +291,9 @@ export default function WaterQualityImpact({
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
                     <p>
-                      Indicate whether your company operated any hydraulically fractured (fracking)
-                      wells during the reporting period. This helps determine if reporting on
-                      chemical use and water quality impacts is required.
+                      Indicate whether your company conducts baseline and ongoing water quality
+                      monitoring at hydraulic fracturing sites. This helps assess the impact of
+                      fracturing operations on local water sources.
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -413,10 +413,10 @@ export default function WaterQualityImpact({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -437,11 +437,11 @@ export default function WaterQualityImpact({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData, isSubmitting)}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

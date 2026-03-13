@@ -7,7 +7,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { Textarea } from "@/app/components/ui/textarea";
-import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, ArrowRight, CloudUpload, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -29,6 +29,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface PurchasedSteamFormProps {
   onBack: () => void;
@@ -48,6 +49,7 @@ const uploadFields = [
 const steamSources = [
   { id: "industrial-supplier", label: "Industrial Supplier" },
   { id: "district-heating", label: "District Heating/Steam Plant" },
+  { id: "not-applicable", label: "Not Applicable / No Steam Source" },
 ];
 
 export function PurchasedSteamForm({
@@ -127,7 +129,6 @@ export function PurchasedSteamForm({
       !isNaN(Number(steamConsumedRaw)) &&
       Number(steamConsumedRaw) >= 0,
     Array.isArray(selectedSources) && selectedSources.length > 0,
-    Object.values(files).some(Boolean) || additionalFields.some((f) => f.file),
   ]);
 
   const handleSourceChange = (sourceId: string, checked: boolean) => {
@@ -339,7 +340,7 @@ export function PurchasedSteamForm({
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
           <div>
-            <h3 className="text-2xl font-semibold text-foreground">Scope 2: Purchased Steam</h3>
+            <h3 className="text-2xl font-semibold text-foreground">Scope 2 (Purchased Steam)</h3>
             <p className="text-muted-foreground text-base">
               Emissions from steam purchased for your facilities
             </p>
@@ -355,6 +356,7 @@ export function PurchasedSteamForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope2.locationBased"
             />
             {/* Steam Consumed */}
             <div>
@@ -475,19 +477,12 @@ export function PurchasedSteamForm({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
+                              disabled={deleting[field]}
+                            />
                           </div>
                         ) : null}
                       </Card>

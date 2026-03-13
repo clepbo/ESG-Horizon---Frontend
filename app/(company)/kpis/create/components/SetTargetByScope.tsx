@@ -1,24 +1,46 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import Link from "next/link";
+import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import {
+  useBaselineByScope,
+  useBaselineOptions,
+  useCompanyTargets,
+} from "@/app/(company)/components/ranking/services";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { Textarea } from "@/app/components/ui/textarea";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
-import { GeneralTargetData } from "@/types/target";
-import { useEffect, useState } from "react";
-import { FaCaretRight } from "react-icons/fa";
-import { years } from "./GeneralSetTarget";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+import { Textarea } from "@/app/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import { GeneralTargetData } from "@/types/target";
+import { BaselineOption, CompanyTargetSummary, targetRangesOverlap } from "@/types/target/index";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FaCaretRight } from "react-icons/fa";
 import { EmissionDataResponse, ScopeTargetData } from "../type";
+import { calculateTimelineYear, toShortMonth } from "../utils";
 import CustomTooltip from "./CustomTooltip";
+import { years } from "./GeneralSetTarget";
 import { TooltipMessage } from "./TooltipMessage";
-import { calculateTimelineYear } from "../utils";
-import { useBaseline, useBaselineByScope } from "@/app/(company)/components/ranking/services";
-import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { Target } from "@/app/(company)/components/types/target";
+import { Info } from "lucide-react";
 
-export default function SetTargetByScope() {
+interface SetTargetByScopeProps {
+  existingTarget?: Target | null;
+  onComplete?: (data: any) => void;
+}
+
+export default function SetTargetByScope({ existingTarget, onComplete }: SetTargetByScopeProps) {
+  const isEdit = !!existingTarget;
+  const didPrepopulate = useRef(false);
+
   const [scopeTargetData, setScopeTargetData] = useState<ScopeTargetData>({
     scope1: {
       reductionPercentage: null,
@@ -46,6 +68,8 @@ export default function SetTargetByScope() {
     },
   });
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [selectedBaselineId, setSelectedBaselineId] = useState<number | null>(null);
+  const [showPrerequisiteModal, setShowPrerequisiteModal] = useState(false);
   const [emissionData, setEmissionData] = useState<EmissionDataResponse>({
     startYear: 0,
     endYear: 0,
@@ -59,15 +83,106 @@ export default function SetTargetByScope() {
   const { user } = useAuth();
   const companyId = user?.company?.id;
 
-  const baseline = useBaselineByScope(companyId);
-  const base: EmissionDataResponse = baseline?.data;
-  console.log("Baseline by scope data:", baseline?.data);
+  const baselineOptionsQuery = useBaselineOptions(companyId);
+  const baselineByScope = useBaselineByScope(companyId, selectedBaselineId ?? undefined);
+  const companyTargetsQuery = useCompanyTargets(companyId);
+  const base: EmissionDataResponse | undefined = baselineByScope?.data;
+  const existingTargets = useMemo(() => companyTargetsQuery.data ?? [], [companyTargetsQuery.data]);
+
+  // Prepopulate scope data from existing target when editing
+  useEffect(() => {
+    if (!existingTarget || !existingTarget.scopeTargets?.length || didPrepopulate.current) return;
+    didPrepopulate.current = true;
+
+    const findScope = (name: string) =>
+      existingTarget.scopeTargets.find((st) => st.scope === name);
+
+    const s1 = findScope("SCOPE1");
+    const s2 = findScope("SCOPE2");
+    const s3 = findScope("SCOPE3");
+
+    setScopeTargetData({
+      scope1: {
+        reductionPercentage: s1?.reductionPercentage ?? null,
+        baselineYear: existingTarget.baselineYear ?? null,
+        targetYear: existingTarget.targetYear ?? null,
+        description: existingTarget.description ?? "",
+        targetEmission: s1?.targetEmission ?? null,
+        totalReduction: (s1?.baselineYearEmission ?? 0) - (s1?.targetEmission ?? 0),
+      },
+      scope2: {
+        reductionPercentage: s2?.reductionPercentage ?? null,
+        baselineYear: existingTarget.baselineYear ?? null,
+        targetYear: existingTarget.targetYear ?? null,
+        description: "",
+        targetEmission: s2?.targetEmission ?? null,
+        totalReduction: (s2?.baselineYearEmission ?? 0) - (s2?.targetEmission ?? 0),
+      },
+      scope3: {
+        reductionPercentage: s3?.reductionPercentage ?? null,
+        baselineYear: existingTarget.baselineYear ?? null,
+        targetYear: existingTarget.targetYear ?? null,
+        description: "",
+        targetEmission: s3?.targetEmission ?? null,
+        totalReduction: (s3?.baselineYearEmission ?? 0) - (s3?.targetEmission ?? 0),
+      },
+    });
+  }, [existingTarget]);
+
+  const scope1TargetYear = scopeTargetData.scope1.targetYear ?? null;
+  const isOptionDisabled = useCallback(
+    (option: BaselineOption): boolean => {
+      if (scope1TargetYear == null || typeof scope1TargetYear !== "number") return false;
+      const baselineYear = Number(option.startYear) || 0;
+      // Only check overlap against other SCOPE targets — GENERAL and SCOPE are independent
+      return existingTargets
+        .filter((t: CompanyTargetSummary) => t.type === "SCOPE")
+        .some((t: CompanyTargetSummary) => {
+          if (isEdit && t.id === existingTarget?.id) return false;
+          return targetRangesOverlap(baselineYear, scope1TargetYear, t.baselineYear, t.targetYear);
+        });
+    },
+    [scope1TargetYear, existingTargets, isEdit, existingTarget?.id]
+  );
+  const getOverlapLabel = useCallback(
+    (option: BaselineOption): string => {
+      if (scope1TargetYear == null || typeof scope1TargetYear !== "number") return "";
+      const baselineYear = Number(option.startYear) || 0;
+      const overlapping = existingTargets.find((t: CompanyTargetSummary) => {
+        if (isEdit && t.id === existingTarget?.id) return false;
+        return targetRangesOverlap(baselineYear, scope1TargetYear, t.baselineYear, t.targetYear);
+      });
+      return overlapping ? ` (overlaps ${overlapping.baselineYear}–${overlapping.targetYear})` : "";
+    },
+    [scope1TargetYear, existingTargets, isEdit, existingTarget?.id]
+  );
 
   useEffect(() => {
-    if (baseline.isSuccess) {
+    if (!baselineOptionsQuery.isSuccess || !baselineOptionsQuery.data?.length) return;
+    const options = baselineOptionsQuery.data;
+    const firstEnabled = options.find((o) => !isOptionDisabled(o));
+    setSelectedBaselineId((current) => {
+      if (current !== null) {
+        const selected = options.find((o) => o.assessmentId === current);
+        if (selected && isOptionDisabled(selected)) return firstEnabled?.assessmentId ?? null;
+        return current;
+      }
+      return firstEnabled?.assessmentId ?? options[0]?.assessmentId ?? null;
+    });
+  }, [
+    baselineOptionsQuery.isSuccess,
+    baselineOptionsQuery.data,
+    scope1TargetYear,
+    companyTargetsQuery.data,
+    isOptionDisabled,
+  ]);
+
+  // Update scoped emissions when the selected baseline changes
+  useEffect(() => {
+    if (baselineByScope.isSuccess && base) {
       setEmissionData(base);
     }
-  }, [baseline.isSuccess, base]);
+  }, [baselineByScope.isSuccess, base]);
 
   // Set default baseline year from API if available for all scopes
   useEffect(() => {
@@ -88,6 +203,34 @@ export default function SetTargetByScope() {
       }));
     }
   }, [emissionData?.startYear]);
+
+  // Show prerequisite modal when baseline data cannot support target creation
+  useEffect(() => {
+    if (!baselineOptionsQuery.isSuccess) return;
+
+    // No baseline options available at all
+    if (!baselineOptionsQuery.data?.length) {
+      setShowPrerequisiteModal(true);
+      return;
+    }
+
+    // Baseline loaded but has no scoped emissions (startYear > 0 ensures sync completed)
+    if (
+      selectedBaselineId &&
+      baselineByScope.isSuccess &&
+      emissionData.startYear > 0 &&
+      !emissionData.ghg_total_emissions
+    ) {
+      setShowPrerequisiteModal(true);
+    }
+  }, [
+    baselineOptionsQuery.isSuccess,
+    baselineOptionsQuery.data,
+    selectedBaselineId,
+    baselineByScope.isSuccess,
+    emissionData.startYear,
+    emissionData.ghg_total_emissions,
+  ]);
 
   const handleScopeInputChange = (
     scope: keyof ScopeTargetData,
@@ -163,7 +306,28 @@ export default function SetTargetByScope() {
       // Calculate all scope data for storage
       const scopeSummaryData = {
         scopeTargetData,
-        emissionData,
+        emissionData: {
+          startYear: emissionData?.startYear,
+          endYear: emissionData?.endYear,
+          totals: {
+            total: emissionData?.ghg_total_emissions || 0,
+            scope1: emissionData?.ghg_scope_one || 0,
+            scope2: emissionData?.ghg_scope_two || 0,
+            scope3: emissionData?.ghg_scope_three || 0,
+          },
+        },
+        baselineSelection: (() => {
+          const selected =
+            baselineOptionsQuery.data?.find(
+              (option: BaselineOption) => option.assessmentId === selectedBaselineId
+            ) ?? null;
+          if (!selected) return null;
+          return {
+            baselineAssessmentId: selected.assessmentId,
+            baselineYear: Number(selected.startYear) || emissionData?.startYear,
+            baselinePeriodLabel: `${toShortMonth(selected.startMonth)} ${selected.startYear} – ${toShortMonth(selected.endMonth)} ${selected.endYear}`,
+          };
+        })(),
         calculations: {
           scope1: {
             targetEmission: calculateScopeTargetEmission("scope1"),
@@ -193,13 +357,17 @@ export default function SetTargetByScope() {
             annualRate: calculateScopeAnnualRate("scope3"),
           },
         },
+        // Pass edit info so scope summary page knows to PATCH
+        ...(isEdit && existingTarget ? { targetId: existingTarget.id } : {}),
       };
 
-      // Save to localStorage
-      localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
-
-      // Navigate to scope summary page
-      router.push("/kpis/create/scope-summary");
+      if (onComplete) {
+        // BOTH mode — pass data up to TargetSetting, skip navigation
+        onComplete(scopeSummaryData);
+      } else {
+        localStorage.setItem("scopeTargetSummary", JSON.stringify(scopeSummaryData));
+        router.push("/kpis/create/scope-summary");
+      }
     }
   };
 
@@ -267,6 +435,7 @@ export default function SetTargetByScope() {
                 onChange={(e) =>
                   handleScopeInputChange(scope, "reductionPercentage", e.target.value)
                 }
+                onWheel={(e) => e.currentTarget.blur()}
                 className="w-full"
               />
             </div>
@@ -279,25 +448,52 @@ export default function SetTargetByScope() {
                     <TooltipMessage
                       title={"Baseline Year"}
                       message={
-                        "The reference year used to measure progress — typically the year you first started tracking emissions."
+                        "The reference year from your most recent completed assessment. This is automatically set."
                       }
                     />
                   }
-                />{" "}
+                />
               </Label>
-              <select
-                id={`${scope}-baselineYear`}
-                value={emissionData?.startYear || ""}
-                disabled
-                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select year</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+              {baselineOptionsQuery.isLoading ? (
+                <div className="flex h-10 items-center text-sm text-gray-500">
+                  Loading baseline options...
+                </div>
+              ) : !baselineOptionsQuery.data || baselineOptionsQuery.data.length === 0 ? (
+                <div className="text-xs text-red-600 space-y-1">
+                  <p>No completed assessments with emissions data were found.</p>
+                  <Link
+                    href="/assessments/new-assessment"
+                    className="text-teal-600 underline font-medium hover:text-teal-700"
+                  >
+                    Go to Assessments
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    id={`${scope}-baselineYear`}
+                    type="number"
+                    value={emissionData?.startYear || ""}
+                    readOnly
+                    className="w-full bg-gray-50 cursor-not-allowed"
+                  />
+                  {scope === "scope1" && (() => {
+                    const sel = baselineOptionsQuery.data?.find(
+                      (o: BaselineOption) => o.assessmentId === selectedBaselineId
+                    );
+                    if (!sel?.submittedAt && !sel?.approvedAt) return null;
+                    const fmt = (v: string) =>
+                      new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+                    return (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {sel.submittedAt && <>Submitted: {fmt(sel.submittedAt)}</>}
+                        {sel.submittedAt && sel.approvedAt && <> &middot; </>}
+                        {sel.approvedAt && <span className="text-green-600">Approved: {fmt(sel.approvedAt)}</span>}
+                      </p>
+                    );
+                  })()}
+                </>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -314,21 +510,23 @@ export default function SetTargetByScope() {
                   }
                 />{" "}
               </Label>
-              <select
-                id={`${scope}-targetYear`}
-                value={scopeData.targetYear ?? ""}
-                onChange={(e) => handleScopeInputChange(scope, "targetYear", e.target.value)}
-                className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              <Select
+                value={scopeData.targetYear?.toString() ?? ""}
+                onValueChange={(val) => handleScopeInputChange(scope, "targetYear", val)}
               >
-                <option value="">Select year</option>
-                {years
-                  .filter((year) => year >= Number(emissionData?.startYear))
-                  .map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-              </select>
+                <SelectTrigger id={`${scope}-targetYear`} className="w-full">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years
+                    .filter((year) => year >= Number(emissionData?.startYear))
+                    .map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -402,8 +600,10 @@ export default function SetTargetByScope() {
 
   return (
     <div className="space-y-6 text-left">
-      {baseline.isLoading && <div className="text-center py-4">Loading baseline data...</div>}
-      {baseline.isError && (
+      {baselineByScope.isLoading && (
+        <div className="text-center py-4">Loading baseline data...</div>
+      )}
+      {baselineByScope.isError && (
         <div className="text-center py-4 text-red-500">Error loading baseline data</div>
       )}
 
@@ -427,12 +627,40 @@ export default function SetTargetByScope() {
             !scopeTargetData.scope2.reductionPercentage ||
             !scopeTargetData.scope2.baselineYear ||
             !scopeTargetData.scope2.targetYear ||
-            baseline.isLoading
+            !selectedBaselineId ||
+            baselineByScope.isLoading
           }
         >
-          {baseline.isLoading ? "Loading Baseline..." : "Continue"}
+          {baselineByScope.isLoading ? "Loading Baseline..." : "Continue"}
         </CustomButton>
       </div>
+
+      {/* Prerequisite modal — shown when baseline data is missing or has no emissions */}
+      {showPrerequisiteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4 space-y-4 text-center">
+            <Info className="h-12 w-12 text-amber-500 mx-auto" />
+            <h2 className="text-xl font-semibold text-gray-900">Baseline Data Required</h2>
+            <p className="text-gray-600 text-sm">
+              To set scope-based reduction targets, you need a completed baseline assessment
+              with calculated emissions data. Please ensure the following are in place:
+            </p>
+            <ul className="text-left text-sm text-gray-600 space-y-1 pl-4">
+              <li>&#x2022; At least one approved assessment</li>
+              <li>&#x2022; Emissions data calculated per scope (total &gt; 0 tCO₂e)</li>
+              <li>&#x2022; A valid reporting period (baseline year)</li>
+            </ul>
+            <div className="flex gap-3 justify-center pt-2">
+              <CustomButton variant="outlined" onClick={() => setShowPrerequisiteModal(false)}>
+                Dismiss
+              </CustomButton>
+              <CustomButton onClick={() => router.push("/assessments/new-assessment")}>
+                Go to Assessments
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

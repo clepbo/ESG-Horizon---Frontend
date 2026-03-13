@@ -43,7 +43,6 @@ export default function EmployeeForm({
   const safetyTrainingHours = useFormattedNumber(data.safetyTrainingHours);
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filesAndLinks = data.filesAndLinks;
@@ -65,7 +64,8 @@ export default function EmployeeForm({
   }, [data.safetyTrainingHours, safetyTrainingHours]);
 
   const router = useRouter();
-  const { saveNow } = useAssessmentFlow(
+  const { saveNow, saveAndSubmit, isSaving } = useAssessmentFlow(
+    "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
     "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
   );
 
@@ -98,15 +98,12 @@ export default function EmployeeForm({
     const hasFatalities = (data.fatalities ?? "").trim() !== "";
     const hasNearMisses = (data.nearMisses ?? "").trim() !== "";
     const hasSafetyTrainingHours = (data.safetyTrainingHours ?? "").trim() !== "";
-    const hasEvidence = data.filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalHoursWorked,
       hasRecordableIncidents,
       hasFatalities,
       hasNearMisses,
       hasSafetyTrainingHours,
-      hasEvidence,
     ]);
   }, [
     data.totalHoursWorked,
@@ -114,7 +111,6 @@ export default function EmployeeForm({
     data.fatalities,
     data.nearMisses,
     data.safetyTrainingHours,
-    data.filesAndLinks,
   ]);
 
   useEffect(() => {
@@ -144,12 +140,9 @@ export default function EmployeeForm({
       toast.error("Please fix the errors before saving.");
       return;
     }
-    // setShowSaveSuccess(true);
-    setIsSaving(true);
-
     try {
       await saveNow(
-        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        `humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance.${employeeType}`,
         payload
       );
       setShowSaveSuccess(true);
@@ -160,17 +153,7 @@ export default function EmployeeForm({
     } catch (error) {
       console.log(error);
       toast.error("Failed to save data");
-    } finally {
-      setIsSaving(false);
     }
-
-    // console.log(`${employeeType.toUpperCase()} EMPLOYEES DATA:`, payload);
-    // toast.success("Data saved successfully.");
-
-    // setTimeout(() => {
-    //   setIsSaving(false);
-    //   setShowSaveSuccess(false);
-    // }, 2000);
   };
 
   const handleNext = async () => {
@@ -178,10 +161,10 @@ export default function EmployeeForm({
       toast.error("Please fix the errors before continuing.");
       return;
     }
-    setIsSaving(true);
     try {
-      await saveNow(
-        "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+      const saveFn = employeeType === "contract" ? saveAndSubmit : saveNow;
+      await saveFn(
+        `humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance.${employeeType}`,
         payload
       );
       toast.success("Progress saved!");
@@ -189,8 +172,6 @@ export default function EmployeeForm({
     } catch (error) {
       console.log(error);
       toast.error("Failed to save data");
-    } finally {
-      setIsSaving(false);
     }
   };
 

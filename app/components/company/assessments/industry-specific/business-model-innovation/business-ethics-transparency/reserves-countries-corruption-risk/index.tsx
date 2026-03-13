@@ -32,8 +32,9 @@ export default function ReservesCountriesCorruptionRisk({
   breadcrumb,
 }: ReservesCorruptionRiskFormProps) {
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk"
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk",
+    "businessModel.businessEthics.reservesCountriesCorruptionRisk"
   );
   const totalProvedReserves = useFormattedNumber("");
   const provedReservesHighRisk = useFormattedNumber("");
@@ -61,7 +62,7 @@ export default function ReservesCountriesCorruptionRisk({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+      state.assessmentData.businessInnovation?.businessEthicsAndTransparency
         ?.reservesInCountriesWithHighCorruptionRisk;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -91,7 +92,7 @@ export default function ReservesCountriesCorruptionRisk({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.businessEthicsAndTransparency
+    state.assessmentData.businessInnovation?.businessEthicsAndTransparency
       ?.reservesInCountriesWithHighCorruptionRisk,
   ]);
 
@@ -139,14 +140,11 @@ export default function ReservesCountriesCorruptionRisk({
       totalProbableReserves.rawValue !== "" && formData.totalProbableReservesUnit !== "";
     const hasProbableReservesHighRisk =
       probableReservesHighRisk.rawValue !== "" && formData.probableReservesHighRiskUnit !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasTotalProvedReserves,
       hasProvedReservesHighRisk,
       hasTotalProbableReserves,
       hasProbableReservesHighRisk,
-      hasEvidence,
     ]);
   }, [
     totalProvedReserves.rawValue,
@@ -157,7 +155,6 @@ export default function ReservesCountriesCorruptionRisk({
     formData.totalProbableReservesUnit,
     probableReservesHighRisk.rawValue,
     formData.probableReservesHighRiskUnit,
-    filesAndLinks,
   ]);
 
   const handleInputChange = (field: string, value: string) => {
@@ -230,7 +227,7 @@ export default function ReservesCountriesCorruptionRisk({
     };
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk",
         payload
       );
@@ -288,6 +285,7 @@ export default function ReservesCountriesCorruptionRisk({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.businessEthics.reservesCountriesCorruptionRisk"
             />
 
             {/* Total Proved Reserves */}

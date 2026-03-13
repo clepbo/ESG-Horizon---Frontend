@@ -12,6 +12,7 @@ const UNIT_OPTIONS_BY_CONTEXT: Record<UnitContext, Array<{ value: string; label:
   "oil-gas": [
     { value: "MMbbls", label: "MMbbls (Million Barrels)" },
     { value: "MMBOE", label: "MMBOE (Million Barrels of Oil Equivalent)" },
+    { value: "BOE", label: "BOE (Barrels of Oil Equivalent)" },
     { value: "barrels", label: "Barrels" },
   ],
   water: [

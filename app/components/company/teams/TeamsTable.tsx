@@ -12,15 +12,17 @@ import { useDeleteInvitation, useDeleteUser } from "@/services/hooks/company.hoo
 import { toast } from "react-toastify";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
+import ParentCompanyBadge from "../../ui/reusables/ParentCompanyBadge";
 
 type Props = {
   users: User[];
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
   onStatusUpdate: (id: number, newStatus: TeamUserStatus) => void;
   onUserUpdate?: (user: User) => void;
+  companyName?: string;
 };
 
-export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
+export default function TeamsTable({ users, setUsers, onStatusUpdate, companyName }: Props) {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);
@@ -253,7 +255,10 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate }: Props) {
                       {user.subsidiary?.name ? (
                         user.subsidiary?.name
                       ) : (
-                        <span className="text-gray-400 text-sm italic">Main (HQ)</span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-gray-900">{companyName || "—"}</span>
+                          <ParentCompanyBadge />
+                        </div>
                       )}
                     </td>
 

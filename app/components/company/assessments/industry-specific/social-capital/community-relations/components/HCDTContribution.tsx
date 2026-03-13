@@ -14,7 +14,9 @@ import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 
 interface Props {
   onBack: () => void;
@@ -32,7 +34,8 @@ export default function HCDTContribution({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution");
+  const { state } = useAssessment();
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution", "socialCapital.communityRelations.hcdtContribution");
 
   const opexAmount = useFormattedNumber("");
   const hcdtAmount = useFormattedNumber("");
@@ -46,6 +49,27 @@ export default function HCDTContribution({
     opexUnit: "NGN",
     hcdtUnit: "NGN",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.hcdtContribution;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.opexAmount != null) {
+        opexAmount.handleChange(String(existingData.opexAmount));
+      }
+      if (existingData.hcdtAmount != null) {
+        hcdtAmount.handleChange(String(existingData.hcdtAmount));
+      }
+      setFormData((prev) => ({
+        ...prev,
+        opexUnit: existingData.opexUnit ?? prev.opexUnit,
+        hcdtUnit: existingData.hcdtUnit ?? prev.hcdtUnit,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.hcdtContribution]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },
@@ -62,12 +86,10 @@ export default function HCDTContribution({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasOpexAmount = opexAmount.rawValue !== "" && formData.opexUnit !== "";
     const hasHcdtAmount = hcdtAmount.rawValue !== "" && formData.hcdtUnit !== "";
-
-    const completed = [hasOpexAmount, hasHcdtAmount].filter(Boolean).length;
-    return completed;
+    return calculateProgress([hasOpexAmount, hasHcdtAmount]);
   }, [opexAmount.rawValue, hcdtAmount.rawValue, formData.opexUnit, formData.hcdtUnit]);
 
   const validateForm = () => {
@@ -131,7 +153,7 @@ export default function HCDTContribution({
     };
 
     try {
-      await saveNow("socialCapital.communityRelations.hcdtContribution", payload);
+      await saveAndSubmit("socialCapital.communityRelations.hcdtContribution", payload);
       toast.success("Progress saved!");
       onNext();
     } catch (error: any) {
@@ -167,9 +189,10 @@ export default function HCDTContribution({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={2}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.communityRelations.hcdtContribution"
             />
 
             {/* Prior Year's Actual Operating Expenditure */}
@@ -277,6 +300,11 @@ export default function HCDTContribution({
                     {errors.hcdtUnit && <p className="text-sm text-red-500">{errors.hcdtUnit}</p>}
                   </div>
                 </div>
+                {opexAmount.rawValue && hcdtAmount.rawValue && Number(opexAmount.rawValue) > 0 && (
+                  <p className="text-sm text-gray-500 italic">
+                    ≈ {((Number(hcdtAmount.rawValue) / Number(opexAmount.rawValue)) * 100).toFixed(2)}% of OPEX
+                  </p>
+                )}
               </div>
             </div>
 

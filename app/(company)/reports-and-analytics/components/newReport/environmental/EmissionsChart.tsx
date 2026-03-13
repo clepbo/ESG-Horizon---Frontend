@@ -1,14 +1,8 @@
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+"use client";
+import { useId, useState, useRef, useCallback } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
-import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 interface EmissionPoint {
   period: string; // label for X-axis
@@ -24,52 +18,55 @@ interface EmissionsChartProps {
   height?: number;
   width?: string;
   borderColor?: string;
+  chartColor?: string;
   rotateIcon?: string;
   bgColor?: string;
   color?: string;
+  period?: string;
 }
-// Sample data for emissions over time (replace with your actual data)
 
-// function transformHistory(ghg: any): EmissionPoint[] {
-//   if (!ghg?.ghg_history) return [];
-
-//   return ghg.ghg_history.map((item: any) => ({
-//     period: item.period,
-//     emissions: item.score, // use "score" as the value
-//   }));
-// }
-
-// Sample data for emissions over time (replace with your actual data)
-
-// const emissionsData = [
-//   { month: "Jan", emissions: 13000 },
-//   { month: "Feb", emissions: 16500 },
-//   { month: "Mar", emissions: 14800 },
-//   { month: "Apr", emissions: 19000 },
-//   { month: "May", emissions: 17000 },
-//   { month: "Jun", emissions: 15400 },
-//   { month: "Jul", emissions: 18000 },
-//   { month: "Aug", emissions: 16000 },
-//   { month: "Sep", emissions: 17500 },
-//   { month: "Oct", emissions: 14000 },
-//   { month: "Nov", emissions: 16500 },
-//   { month: "Dec", emissions: 15400 },
-// ];
-
-// #region Reusable EmissionsChart Component
 const EmissionsChart = ({
   data,
   title = "Total Emissions",
   value = "0",
-  change = "0.0%",
+  change,
   unit = "tCO₂e",
   height = 100,
   width = "100%",
   borderColor = "",
+  chartColor = "#10b981",
   rotateIcon = "",
   bgColor = "",
   color = "",
+  period,
 }: EmissionsChartProps) => {
+  const gradientId = `colorEmissions-${useId().replace(/:/g, "")}`;
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [tooltipData, setTooltipData] = useState<{
+    x: number;
+    point: EmissionPoint;
+  } | null>(null);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!chartRef.current || data.length === 0) return;
+      const rect = chartRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const chartWidth = rect.width;
+
+      // Map mouse X position to the nearest data point
+      const index = Math.round((x / chartWidth) * (data.length - 1));
+      const clampedIndex = Math.max(0, Math.min(data.length - 1, index));
+
+      setTooltipData({ x, point: data[clampedIndex] });
+    },
+    [data]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltipData(null);
+  }, []);
+
   return (
     <div
       className="emissions-card border-l-4 p-4 w-full"
@@ -80,6 +77,8 @@ const EmissionsChart = ({
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
         backgroundColor: "white",
         margin: "0 auto",
+        overflow: "visible",
+        position: "relative",
       }}
     >
       {/* Header Section */}
@@ -102,23 +101,24 @@ const EmissionsChart = ({
           >
             {title}
           </h3>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: bgColor,
-              padding: "4px 8px",
-              borderRadius: "12px",
-              fontSize: "14px",
-              color: color,
-            }}
-          >
-            <span className={`text-green-600`} style={{ marginRight: "4px", rotate: rotateIcon }}>
-              {" "}
-              <FaArrowDown />{" "}
-            </span>
-            {change}
-          </div>
+          {change && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: bgColor,
+                padding: "4px 8px",
+                borderRadius: "12px",
+                fontSize: "14px",
+                color: color,
+              }}
+            >
+              <span style={{ marginRight: "4px", rotate: rotateIcon, display: "flex" }}>
+                <FaArrowDown />
+              </span>
+              {change}
+            </div>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div
@@ -129,11 +129,11 @@ const EmissionsChart = ({
               marginRight: "0px",
             }}
           >
-            {formatNumberFigures(Number(value))}
+            {formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div
             style={{
-              fontSize: "14px",
+              fontSize: "16px",
               color: "#666",
               fontWeight: 500,
             }}
@@ -141,11 +141,24 @@ const EmissionsChart = ({
             {unit}
           </div>
         </div>
+        {period && (
+          <div style={{ fontSize: "12px", color: "#999", marginTop: "2px" }}>{period}</div>
+        )}
       </div>
 
-      {/* Chart Section */}
-      <div style={{ width, height }}>
-        <ResponsiveContainer width="100%" height="50%">
+      {/* Chart Section — custom tooltip via native mouse events */}
+      <div
+        ref={chartRef}
+        style={{
+          width,
+          height,
+          position: "relative",
+          cursor: data.length > 0 ? "crosshair" : "default",
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
             margin={{
@@ -156,39 +169,55 @@ const EmissionsChart = ({
             }}
           >
             <defs>
-              <linearGradient id="colorEmissions" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={chartColor} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
             <XAxis dataKey="period" axisLine={false} tickLine={false} hide />
-
             <YAxis
               axisLine={false}
               tickLine={false}
-              hide={true} // Hide Y-axis labels
-              domain={["dataMin - 1000", "dataMax + 1000"]} // Add some padding
-            />
-            <Tooltip
-              formatter={(value) => [`${value?.toLocaleString()} tCO₂e`, "Emissions"]}
-              labelFormatter={(label) => `Month: ${label}`}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-              }}
+              hide={true}
+              domain={["dataMin - 1000", "dataMax + 1000"]}
             />
             <Area
               type="monotone"
               dataKey="emissions"
-              stroke="#10b981"
-              strokeWidth={1}
-              fill="url(#colorEmissions)"
-              activeDot={{ r: 4, fill: "#10b981" }}
+              stroke={chartColor}
+              strokeWidth={2}
+              fill={`url(#${gradientId})`}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>
+
+        {/* Custom tooltip overlay */}
+        {tooltipData && (
+          <div
+            style={{
+              position: "absolute",
+              left: tooltipData.x,
+              top: 0,
+              transform: "translateX(-50%)",
+              pointerEvents: "none",
+              zIndex: 50,
+              backgroundColor: "white",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              padding: "6px 10px",
+              fontSize: "12px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <div style={{ color: "#6b7280", marginBottom: "2px" }}>{tooltipData.point.period}</div>
+            <div style={{ fontWeight: 600, color: "#111" }}>
+              {formatNumberFull(tooltipData.point.emissions, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO₂e
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

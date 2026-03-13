@@ -12,6 +12,7 @@ import {
 import { Bar } from "react-chartjs-2";
 import Spinner from "@/app/components/ui/reusables/Spinner";
 import { TimeRangeDropdown } from "../dashboard/TimeRangeDropdown";
+import { formatCurrencyCompact } from "@/lib/numberFormat";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -69,7 +70,7 @@ export default function ProfitBarChart() {
         callbacks: {
           label: (context) => {
             const val = context.raw as number;
-            return `₦${(val / 1000).toFixed(0)}k`;
+            return formatCurrencyCompact(val);
           },
         },
       },

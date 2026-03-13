@@ -36,7 +36,7 @@ export function OffshoreSites({
 }: OffshoreSitesProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites", "foundationalData.activityMetrics.offshoreSites");
 
   const productionPlatforms = useFormattedNumber("");
   const fpsos = useFormattedNumber("");
@@ -53,8 +53,7 @@ export function OffshoreSites({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData =
-      state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites;
+    const existingData = state.assessmentData.activityMetrics?.assetPortfolio?.offshoreSites;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.productionPlatforms !== undefined) {
         productionPlatforms.handleChange(String(existingData.productionPlatforms));
@@ -70,7 +69,7 @@ export function OffshoreSites({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.offshoreSites]);
+  }, [state.assessmentData.activityMetrics?.assetPortfolio?.offshoreSites]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -93,10 +92,8 @@ export function OffshoreSites({
     const hasProductionPlatforms = productionPlatforms.rawValue !== "";
     const hasFpsos = fpsos.rawValue !== "";
     const hasOtherSites = otherOffshoreSites.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasProductionPlatforms, hasFpsos, hasOtherSites, hasEvidence]);
-  }, [productionPlatforms.rawValue, fpsos.rawValue, otherOffshoreSites.rawValue, filesAndLinks]);
+    return calculateProgress([hasProductionPlatforms, hasFpsos, hasOtherSites]);
+  }, [productionPlatforms.rawValue, fpsos.rawValue, otherOffshoreSites.rawValue]);
 
   const getPayload = () => {
     const platforms = Number(productionPlatforms.rawValue) || 0;
@@ -143,7 +140,7 @@ export function OffshoreSites({
     const payload = getPayload();
 
     try {
-      await saveNow("activityMetrics.assetPortfolio.offshoreSites", payload);
+      await saveAndSubmit("activityMetrics.assetPortfolio.offshoreSites", payload);
       dispatch({
         type: "UPDATE_ASSET_PORTFOLIO",
         payload: { section: "offshoreSites", data: payload },
@@ -183,7 +180,7 @@ export function OffshoreSites({
           <TooltipContent
             side="top"
             align="center"
-            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
           >
             <h6>{tooltipTitle}</h6>
             <p>{tooltipContent}</p>
@@ -240,6 +237,7 @@ export function OffshoreSites({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.offshoreSites"
             />
 
             {renderCountField(

@@ -33,7 +33,7 @@ export function AssignSuccessModal({
       open={open}
       onOpenChange={onClose}
       title=""
-      className="p-10 rounded-2xl max-w-4xl bg-white"
+      className="p-10 rounded-2xl max-w-4xl bg-white max-h-[90vh] overflow-y-auto"
       offsetX={250}
     >
       <div className="grid md:grid-cols-2 gap-10 items-start">

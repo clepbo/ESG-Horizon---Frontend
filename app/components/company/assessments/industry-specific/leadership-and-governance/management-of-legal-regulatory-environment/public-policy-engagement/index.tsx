@@ -33,7 +33,7 @@ export default function PublicPolicyEngagement({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.publicPolicyEngagement";
-  const { saveNow } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(current, "leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement");
   const [disclosesContributions, setDisclosesContributions] = useState("");
   const [policyPositions, setPolicyPositions] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -50,8 +50,8 @@ export default function PublicPolicyEngagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance
-        ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement;
+      state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+        ?.publicPolicyEngagement;
 
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.disclosesContributions !== undefined) {
@@ -65,8 +65,8 @@ export default function PublicPolicyEngagement({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance
-      ?.managementOfTheLegalAndRegulatoryEnvironment?.publicPolicyEngagement,
+    state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+      ?.publicPolicyEngagement,
   ]);
 
   // Calculate progress
@@ -149,7 +149,7 @@ export default function PublicPolicyEngagement({
     };
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_LEADERSHIP_GOVERNANCE",
         payload: {
@@ -194,6 +194,7 @@ export default function PublicPolicyEngagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement"
             />
 
             {/* Question 1: Disclosure */}

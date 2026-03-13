@@ -1,10 +1,8 @@
 "use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ArrowLeft, ArrowRight, CheckCircle2, Info, Save } from "lucide-react";
-
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -40,9 +38,12 @@ export function TerrestialSites({
 
   const {
     saveNow,
-    submitGroup,
+    saveAndSubmit,
     isLoading: isActionLoading,
-  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites");
+    isPreviouslySubmitted,
+    getSubmitLabel,
+  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites", "foundationalData.activityMetrics.terrestrialSites");
+  const hasExistingData = !!state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
 
   const flowStations = useFormattedNumber("");
   const gasProcessingPlants = useFormattedNumber("");
@@ -60,8 +61,7 @@ export function TerrestialSites({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData =
-      state.assessmentData.environment?.activityMetrics?.assetPortfolio?.terrestrialSites;
+    const existingData = state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.flowStations !== undefined) {
         flowStations.handleChange(String(existingData.flowStations));
@@ -77,7 +77,7 @@ export function TerrestialSites({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.assessmentData.environment?.activityMetrics?.assetPortfolio?.terrestrialSites]);
+  }, [state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -94,14 +94,11 @@ export function TerrestialSites({
     const hasFlowStations = flowStations.rawValue !== "";
     const hasGasProcessing = gasProcessingPlants.rawValue !== "";
     const hasOtherSites = otherTerrestrialSites.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasFlowStations, hasGasProcessing, hasOtherSites, hasEvidence]);
+    return calculateProgress([hasFlowStations, hasGasProcessing, hasOtherSites]);
   }, [
     flowStations.rawValue,
     gasProcessingPlants.rawValue,
     otherTerrestrialSites.rawValue,
-    filesAndLinks,
   ]);
 
   const getPayload = () => {
@@ -148,12 +145,11 @@ export function TerrestialSites({
 
     const payload = getPayload();
     try {
-      await saveNow("activityMetrics.assetPortfolio.terrestrialSites", payload);
+      await saveAndSubmit("activityMetrics.assetPortfolio.terrestrialSites", payload);
       dispatch({
         type: "UPDATE_ASSET_PORTFOLIO",
         payload: { section: "terrestrialSites", data: payload },
       });
-      await submitGroup();
       toast.success("Activity metrics submitted successfully");
       setShowSuccess(true);
     } catch (err) {
@@ -189,7 +185,7 @@ export function TerrestialSites({
           <TooltipContent
             side="top"
             align="center"
-            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
           >
             <h6>{tooltipTitle}</h6>
             <p>{tooltipContent}</p>
@@ -261,7 +257,7 @@ export function TerrestialSites({
               totalSteps={totalSteps}
               fieldsCompleted={filled}
               totalFields={total}
-              isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.terrestrialSites"
             />
 
             {renderCountField(
@@ -347,11 +343,11 @@ export function TerrestialSites({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isActionLoading || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData)}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

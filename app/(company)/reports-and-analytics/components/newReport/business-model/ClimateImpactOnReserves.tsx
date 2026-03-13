@@ -7,7 +7,8 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  LabelList,
+  Legend,
+  Tooltip,
 } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ShieldCheck } from "lucide-react";
@@ -44,35 +45,68 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* LEFT CARD - Geopolitical & Corruption Risk */}
-      <div className="rounded-xl bg-white p-6 shadow-sm">
+      <div className="rounded-xl bg-white p-6 shadow-sm overflow-visible">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Geopolitical & Corruption Risk</h3>
 
         <div className="h-64 w-full">
           {hasRiskData ? (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={riskData} barGap={12} barCategoryGap={32}>
+              <BarChart
+                data={riskData}
+                barGap={12}
+                barCategoryGap={32}
+                margin={{ top: 10, right: 110, left: 0, bottom: 5 }}
+                style={{ overflow: "visible" }}
+              >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis
                   dataKey="name"
-                  tick={{ fill: "#6B7280", fontSize: 12 }}
+                  tick={{ fill: "#111827", fontSize: 14 }}
                   axisLine={false}
                   tickLine={false}
                 />
-                <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Bar dataKey="total" fill="#BDBDBD" radius={[6, 6, 0, 0]}>
-                  <LabelList
-                    dataKey="total"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
-                <Bar dataKey="highRisk" fill="#EF4444" radius={[6, 6, 0, 0]}>
-                  <LabelList
-                    dataKey="highRisk"
-                    position="top"
-                    formatter={(value) => formatNumberFigures(Number(value) || 0)}
-                  />
-                </Bar>
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  width={65}
+                  tick={(props: any) => (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      fill="#111827"
+                      fontSize={12}
+                      textAnchor="end"
+                      transform={`rotate(-35, ${props.x}, ${props.y})`}
+                    >
+                      {formatNumberFigures(Number(props.payload.value) || 0)}
+                    </text>
+                  )}
+                />
+                <Tooltip
+                  cursor={false}
+                  formatter={(value) => formatNumberFigures(Number(value) || 0)}
+                />
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                  iconType="rect"
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                />
+                <Bar
+                  dataKey="total"
+                  name="Total"
+                  fill="#BDBDBD"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={60}
+                />
+                <Bar
+                  dataKey="highRisk"
+                  name="High Risk"
+                  fill="#EF4444"
+                  radius={[6, 6, 0, 0]}
+                  maxBarSize={60}
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -80,17 +114,6 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
               No corruption risk data available
             </div>
           )}
-        </div>
-
-        <div className="mt-4 flex justify-center gap-6 text-sm">
-          <div className="flex items-center gap-2 text-gray-500">
-            <span className="h-3 w-3 rounded-full bg-gray-400" />
-            Total
-          </div>
-          <div className="flex items-center gap-2 text-red-500">
-            <span className="h-3 w-3 rounded-full bg-red-500" />
-            High Risk
-          </div>
         </div>
       </div>
 

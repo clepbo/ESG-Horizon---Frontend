@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -19,8 +19,6 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
-import { Fuel } from "lucide-react";
-import { Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/app/components/ui/tooltip";
 import { Info } from "lucide-react";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface EnergyRelatedActivitiesProps {
   onBack: () => void;
@@ -81,7 +80,7 @@ export function EnergyRelatedActivities({
     electricityConsumed: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-energyrelatedactivities");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-energyrelatedactivities");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -128,17 +127,13 @@ export function EnergyRelatedActivities({
       !isNaN(Number(electricityConsumed)) &&
       Number(electricityConsumed) >= 0;
 
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasFuelVolume,
       hasElectricityConsumed,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [fuelVolume, electricityConsumed, files, additionalFields]);
+  }, [fuelVolume, electricityConsumed]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -265,6 +260,7 @@ export function EnergyRelatedActivities({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.fuelEnergyRelatedActivities", payload).catch(() => {});
     onNext();
   };
 
@@ -398,6 +394,7 @@ export function EnergyRelatedActivities({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">
@@ -455,8 +452,7 @@ export function EnergyRelatedActivities({
                     errorTrigger={fieldErrors.fuelVolume}
                     errorMessage="Please enter the volume of fuel consumed."
                   />
-                  <div className="absolute right-3 top-2 flex items-center gap-2">
-                    <Fuel className="h-5 w-5 text-gray-600" />
+                  <div className="absolute right-3 top-2 flex items-center gap-1">
                     <span className="text-sm text-gray-600">litres</span>
                   </div>
                 </div>
@@ -505,8 +501,7 @@ export function EnergyRelatedActivities({
                     errorTrigger={fieldErrors.electricityConsumed}
                     errorMessage="Please enter the amount of electricity consumed."
                   />
-                  <div className="absolute right-3 top-2 flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-gray-600" />
+                  <div className="absolute right-3 top-2 flex items-center gap-1">
                     <span className="text-sm text-gray-600">kWh</span>
                   </div>
                 </div>
@@ -553,19 +548,12 @@ export function EnergyRelatedActivities({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

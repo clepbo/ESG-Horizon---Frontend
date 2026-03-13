@@ -9,10 +9,10 @@ import {
   CheckCircle2,
   CloudUpload,
   ArrowRight,
-  X,
   FileText,
   FileCheck,
   ClipboardList,
+  X,
 } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
@@ -91,7 +91,7 @@ export function DocumentUpload({
     Object.fromEntries(uploadFields.map((field) => [field.key, false]))
   );
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-document-upload");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-document-upload");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -200,12 +200,6 @@ export function DocumentUpload({
   };
 
   const handleNext = () => {
-    if (!validateForm()) {
-      // Auto-clear errors after 5 seconds
-      setTimeout(clearAllErrors, 5000);
-      return;
-    }
-
     const payload = {
       files,
       additionalFields: additionalFields.map((f) => ({
@@ -222,6 +216,7 @@ export function DocumentUpload({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.processingSoldProducts", payload).catch(() => {});
     onNext();
   };
 
@@ -306,7 +301,7 @@ export function DocumentUpload({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToParentSection },
-    { label: "2.2 Documents/Evidence Upload" },
+    { label: "9.2 Documents/Evidence Upload" },
   ];
 
   return (
@@ -325,7 +320,7 @@ export function DocumentUpload({
           </Button>
           <div>
             <h4 className="text-xl font-medium text-foreground">
-              1.1 Downstream Transportation & Distribution
+              Category 9: Downstream Transportation & Distribution
             </h4>
             <p className="text-muted-foreground text-base">
               Report transportation and distribution data for products sold to customers.
@@ -341,25 +336,17 @@ export function DocumentUpload({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">Required Documents</h4>
+              <h4 className="text-xl font-medium text-foreground">Documents/Evidence Upload</h4>
               <p className="text-muted-foreground text-base">
-                All documents must be uploaded before you can proceed to the next step.
+                Upload supporting documents for downstream transportation and distribution (optional).
               </p>
             </div>
 
             {/* Document Upload Section */}
             <div className="space-y-6">
-              {errors.files && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-600 font-medium">{errors.files}</p>
-                  <p className="text-red-500 text-sm mt-1">
-                    Please upload all three required documents to continue.
-                  </p>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {uploadFields.map((field) => {
                   const Icon = field.icon;
@@ -369,17 +356,14 @@ export function DocumentUpload({
                         {/* <Icon className={`h-5 w-5 ${field.color}`} /> */}
                         <Label className="text-sm font-medium text-gray-900">
                           {field.label}
-                          <span className="text-red-500 ml-1">*</span>
                         </Label>
                       </div>
 
                       <Card
                         className={`p-4 flex flex-col items-center justify-center border transition-all h-full flex-1 ${
-                          fieldErrors[field.key]
-                            ? "border-red-300 bg-red-50/50"
-                            : files[field.key]
-                              ? "border-green-300 bg-green-50/30"
-                              : "border-gray-200 hover:border-primary"
+                          files[field.key]
+                            ? "border-green-300 bg-green-50/30"
+                            : "border-gray-200 hover:border-primary"
                         }`}
                       >
                         <Label
@@ -439,11 +423,6 @@ export function DocumentUpload({
                           </div>
                         ) : null}
 
-                        {fieldErrors[field.key] && errors[field.key] && (
-                          <p className="text-red-500 text-xs mt-2 text-center">
-                            {errors[field.key]}
-                          </p>
-                        )}
                       </Card>
                     </div>
                   );
@@ -466,8 +445,8 @@ export function DocumentUpload({
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   {Object.values(files).filter(Boolean).length === 3
-                    ? "✅ All required documents uploaded. You can now proceed."
-                    : `${3 - Object.values(files).filter(Boolean).length} more document(s) required.`}
+                    ? "All documents uploaded."
+                    : `${Object.values(files).filter(Boolean).length} of 3 documents uploaded (optional).`}
                 </p>
               </div>
             </div>
@@ -523,20 +502,12 @@ export function DocumentUpload({
               <Button
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isLoading || Object.values(files).filter(Boolean).length < 3}
-                className={`justify-self-end hover:cursor-pointer flex items-center gap-2 ${
-                  Object.values(files).filter(Boolean).length < 3
-                    ? "bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed"
-                    : "border-primary text-primary bg-transparent hover:bg-green-50"
-                }`}
+                disabled={isLoading}
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
-                {Object.values(files).filter(Boolean).length < 3
-                  ? `Need ${3 - Object.values(files).filter(Boolean).length} more`
-                  : "Next"}
-                {Object.values(files).filter(Boolean).length === 3 && (
-                  <ArrowRight className="h-4 w-4" />
-                )}
+                Next
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </CardContent>

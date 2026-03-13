@@ -44,8 +44,9 @@ export default function EmbeddedCarbonInReserves({
 
   const _router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow(
-    "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves",
+    "businessModel.reservesValuation.embeddedCarbon"
   );
 
   const [formData, _setFormData] = useState({
@@ -55,7 +56,7 @@ export default function EmbeddedCarbonInReserves({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+      state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
         ?.embeddedCarbonInReserves;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -77,7 +78,7 @@ export default function EmbeddedCarbonInReserves({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    state.assessmentData.environment?.businessInnovation?.reservesValuationAndCapitalExpenditures
+    state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
       ?.embeddedCarbonInReserves,
   ]);
 
@@ -105,15 +106,12 @@ export default function EmbeddedCarbonInReserves({
       totalProvedReserves.rawValue !== "" && formData.totalProvedReservesUnit !== "";
     const hasEstimatedEmbeddedEmissions =
       estimatedEmbeddedEmissions.rawValue !== "" && formData.estimatedEmbeddedEmissionsUnit !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasTotalProvedReserves, hasEstimatedEmbeddedEmissions, hasEvidence]);
+    return calculateProgress([hasTotalProvedReserves, hasEstimatedEmbeddedEmissions]);
   }, [
     totalProvedReserves.rawValue,
     estimatedEmbeddedEmissions.rawValue,
     formData.totalProvedReservesUnit,
     formData.estimatedEmbeddedEmissionsUnit,
-    filesAndLinks,
   ]);
 
   // const handleInputChange = (field: string, value: string) => {
@@ -131,15 +129,8 @@ export default function EmbeddedCarbonInReserves({
   };
 
   const handleSaveAndContinue = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      return;
-    }
-
     setIsSaving(true);
     setShowSaveSuccess(false);
-
-    // businessModelAndInnovation.reserveValuation.climateImpact.embeddedCarbonInReserve
 
     try {
       await saveNow(
@@ -170,7 +161,7 @@ export default function EmbeddedCarbonInReserves({
       return;
     }
     try {
-      await saveNow(
+      await saveAndSubmit(
         "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves",
         payload
       );
@@ -226,6 +217,7 @@ export default function EmbeddedCarbonInReserves({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="businessModel.reservesValuation.embeddedCarbon"
             />
 
             {/* Total Proved Reserves */}

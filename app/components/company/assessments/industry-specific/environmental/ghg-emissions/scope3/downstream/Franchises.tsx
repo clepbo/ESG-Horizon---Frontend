@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -26,6 +26,7 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface FranchiseProps {
   onBack: () => void;
@@ -81,7 +82,7 @@ export function Franchise({
     electricityConsumption: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-franchises");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-franchises");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -93,9 +94,10 @@ export function Franchise({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.downstream?.franchises;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setFuelConsumption(existingData.fuelConsumption || "");
-      setElectricityConsumption(existingData.electricityConsumption || "");
+      setFuelConsumption(s(existingData.fuelConsumption));
+      setElectricityConsumption(s(existingData.electricityConsumption));
 
       // Files
       setFiles(
@@ -116,17 +118,13 @@ export function Franchise({
       electricityConsumption.trim() !== "" &&
       !isNaN(Number(electricityConsumption)) &&
       Number(electricityConsumption) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasFuelConsumption,
       hasElectricityConsumption,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
-  }, [fuelConsumption, electricityConsumption, files, additionalFields]);
+  }, [fuelConsumption, electricityConsumption]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -240,6 +238,7 @@ export function Franchise({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.downstream.franchises", payload).catch(() => {});
     onNext();
   };
 
@@ -337,7 +336,7 @@ export function Franchise({
     { label: "Assessments", onClick: backToAssessment },
     { label: "Disclosure Topics", onClick: backToDisclosureTopics },
     { label: "GHG Emissions", onClick: backToGHGEmissions },
-    { label: "Scope-3 Franchises" },
+    { label: "Category 14: Franchises" },
   ];
 
   return (
@@ -372,12 +371,13 @@ export function Franchise({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">6. Franchises</h4>
+              <h4 className="text-xl font-medium text-foreground">Category 14: Franchises</h4>
             </div>
 
-            {/* 6.1 Franchises */}
+            {/* 14.1 Franchises */}
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
@@ -486,10 +486,10 @@ export function Franchise({
               </div>
             </div>
 
-            {/* 6.2 Document/Evidence Upload */}
+            {/* 14.2 Document/Evidence Upload */}
             <div>
               <Label className="text-md font-medium mb-2 block">
-                6.2 Documents/Evidence Upload
+                14.2 Documents/Evidence Upload
               </Label>
               <div className="ml-6">
                 {errors.files && (
@@ -529,19 +529,12 @@ export function Franchise({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

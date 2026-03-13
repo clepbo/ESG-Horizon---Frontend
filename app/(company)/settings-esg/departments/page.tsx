@@ -15,6 +15,7 @@ import TableManagementControls from "@/app/components/company/TableManagementCon
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [companyName, setCompanyName] = useState<string>("");
   const [showAddDepartmentModal, setShowAddDepartmentModal] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Status");
@@ -45,6 +46,7 @@ export default function DepartmentsPage() {
       if (!yourCompany) {
         throw new Error("No company details found");
       }
+      setCompanyName(yourCompany.name);
       const data = await departmentService.getAll(yourCompany.id);
       setDepartments(data);
     } catch (error) {
@@ -79,6 +81,8 @@ export default function DepartmentsPage() {
     name: string;
     description?: string;
     lead?: Partial<User> | null;
+    leadName?: string;
+    leadEmail?: string;
     contact_email: string;
   }) => {
     try {
@@ -90,12 +94,22 @@ export default function DepartmentsPage() {
         name: newDept.name,
         description: newDept.description,
         contact_email: newDept.contact_email || currentUser?.email,
-        leadId: newDept.lead?.id ? Number(newDept.lead.id) : Number(currentUser?.id),
+        // If an existing user was selected, use their ID; otherwise pass
+        // the manually entered name/email so the backend creates a new user
+        ...(newDept.lead?.id
+          ? { leadId: Number(newDept.lead.id) }
+          : {
+              leadEmail: newDept.leadEmail,
+              leadName: newDept.leadName,
+            }),
       };
 
       const createdDepartment = await departmentService.create(yourCompany.id, createPayload);
       setDepartments((prev) => [createdDepartment, ...prev]);
-    } catch (error) {
+      toast.success(`Department "${newDept.name}" created successfully`);
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || "Failed to add department";
+      toast.error(msg);
       console.error("Failed to add department", error);
     } finally {
       setLoading(false);
@@ -162,7 +176,11 @@ export default function DepartmentsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow">
-            <DepartmentsTable departments={filteredDepartments} onUpdate={loadDepartments} />
+            <DepartmentsTable
+              departments={filteredDepartments}
+              onUpdate={loadDepartments}
+              companyName={companyName}
+            />
           </div>
         )}
       </motion.main>

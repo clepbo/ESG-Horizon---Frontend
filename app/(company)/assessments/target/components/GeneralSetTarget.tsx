@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -12,21 +12,36 @@ import { SuccessModal } from "./SuccessModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
-import { TargetPayload } from "@/types/target/index";
+import { GeneralTargetPayload } from "@/types/target/index";
 import { useRouter } from "next/navigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/app/components/ui/tooltip";
+import { Info } from "lucide-react";
+import { formatNumberFull } from "@/lib/numberFormat";
 
 export interface GeneralTargetFormProps {
   data: GeneralTargetData;
   onChange: (data: GeneralTargetData) => void;
   onComplete?: (data: GeneralTargetData) => void;
+  onSuccess?: () => void;
 }
 
 const currentYear = new Date().getFullYear();
-export const years = Array.from({ length: 30 }, (_, i) => currentYear - 10 + i);
+export const years = Array.from({ length: 2060 - (currentYear - 10) + 1 }, (_, i) => currentYear - 10 + i);
 
-export default function GeneralTargetForm({ data, onChange, onComplete }: GeneralTargetFormProps) {
+export default function GeneralTargetForm({
+  data,
+  onChange,
+  onComplete,
+  onSuccess,
+}: GeneralTargetFormProps) {
   const [step, setStep] = useState(0);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [showNoBaselineModal, setShowNoBaselineModal] = useState(false);
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -43,8 +58,22 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
   const router = useRouter();
 
+  // Auto-populate baselineYear from the API baseline data
+  useEffect(() => {
+    if (baseline.data?.startYear && !data.baselineYear) {
+      onChange({ ...data, baselineYear: baseline.data.startYear });
+    }
+  }, [baseline.data?.startYear, data, onChange]);
+
+  // Show redirect modal if baseline fetch is complete but no baseline exists
+  useEffect(() => {
+    if (!baseline.isLoading && !baseline.error && baseline.data && !baseline.data.totalSum) {
+      setShowNoBaselineModal(true);
+    }
+  }, [baseline.isLoading, baseline.error, baseline.data]);
+
   const createTarget = useMutation({
-    mutationFn: async (targetData: TargetPayload) => {
+    mutationFn: async (targetData: GeneralTargetPayload) => {
       return apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {
@@ -61,42 +90,39 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
 
     if (field === "reductionPercentage") {
       processedValue = value === "" ? null : Number(value);
-      // Auto-calculate target emission when percentage changes using actual baseline
-      if (processedValue !== null && data.baselineYear && data.targetYear) {
-        const baselineEmission = baseline?.data?.totalSum || 0; // Use actual baseline
-        const targetEmission = baselineEmission * (1 - processedValue / 100);
-        const totalReduction = baselineEmission * (processedValue / 100);
-
-        onChange({
-          ...data,
-          reductionPercentage: processedValue,
-          targetEmission: Math.round(targetEmission),
-          totalReduction: Math.round(totalReduction),
-        });
-        return;
-      }
     }
 
     if (field === "baselineYear" || field === "targetYear") {
       processedValue = value === "" ? null : Number(value);
     }
 
-    // Handle targetEmission changes from formatted input
     if (field === "targetEmission") {
       processedValue = value === "" ? null : Number(value);
     }
 
-    onChange({
-      ...data,
-      [field]: processedValue,
-    });
+    // Update the field, then recalculate if reduction percentage is available
+    const updated = { ...data, [field]: processedValue };
+    const reduction = updated.reductionPercentage;
+    if (reduction !== null && reduction !== undefined) {
+      const baseEmission = baseline?.data?.totalSum || 0;
+      const targetEmission = baseEmission * (1 - reduction / 100);
+      const totalReduction = baseEmission * (reduction / 100);
+      updated.targetEmission = Math.round(targetEmission);
+      updated.totalReduction = Math.round(totalReduction);
+    }
+
+    onChange(updated);
   };
 
   const handleContinue = () => {
     if (step === 0) {
-      // Validate required fields before proceeding
       if (data.reductionPercentage && data.baselineYear && data.targetYear) {
-        setStep(1);
+        if (onComplete) {
+          // BOTH mode — pass data up, skip inline summary step
+          onComplete(data);
+        } else {
+          setStep(1);
+        }
       }
     }
   };
@@ -109,16 +135,16 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
     const uniqueName = `Carbon Target ${data.baselineYear}-${data.targetYear}`;
     try {
       // Prepare the target payload
-      const targetPayload: TargetPayload = {
+      const targetPayload: GeneralTargetPayload = {
         name: data.name || uniqueName,
         type: "GENERAL",
         description: data.description || "General emissions reduction target",
-        baselineYear: data.baselineYear!,
-        targetYear: data.targetYear!,
+        baselineYear: Number(data.baselineYear!),
+        targetYear: Number(data.targetYear!),
         reductionPercentage: data.reductionPercentage || 0,
-        targetEmission: data.targetEmission || null,
+        targetEmission: calculatedTargetEmission,
         baselineYearEmission: baseline?.data?.totalSum,
-        currentEmission: null,
+        currentEmission: baseline?.data?.totalSum,
       };
 
       // Call the mutation
@@ -136,13 +162,12 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   };
 
   const handleModalContinue = () => {
-    // Close the modal
     setIsSuccessModalOpen(false);
-
-    // You can add additional logic here for what happens after modal "Continue"
-    // For example: reset the form, navigate away, etc.
-    router.push("/ranking");
-    console.log("Modal continue clicked - target setup complete!");
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      router.push("/assessments/target");
+    }
   };
 
   const handleModalClose = () => {
@@ -150,9 +175,9 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
   };
 
   // Calculate dynamic values for display
-  const baselineEmission = 26830; // Fixed baseline from image
+  const baselineEmission = baseline?.data?.totalSum || 0;
   const calculatedTargetEmission = data?.reductionPercentage
-    ? baseline?.data?.totalSum * (1 - data?.reductionPercentage / 100)
+    ? baselineEmission * (1 - data?.reductionPercentage / 100)
     : 0;
   const calculatedTotalReduction = data?.reductionPercentage
     ? baselineEmission * (data?.reductionPercentage / 100)
@@ -181,25 +206,20 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                     placeholder="e.g. 30"
                     value={data?.reductionPercentage ?? ""}
                     onChange={(e) => handleInputChange("reductionPercentage", e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className="w-full"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="baselineYear">Baseline Year</Label>
-                  <select
+                  <Input
                     id="baselineYear"
-                    value={data?.baselineYear ?? ""}
-                    onChange={(e) => handleInputChange("baselineYear", e.target.value)}
-                    className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select year</option>
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
+                    type="number"
+                    value={data?.baselineYear ?? baseline.data?.startYear ?? ""}
+                    readOnly
+                    className="w-full bg-gray-50 cursor-not-allowed"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -211,11 +231,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
                     className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select year</option>
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
+                    {years
+                      .filter((year) => !data?.baselineYear || year > data.baselineYear)
+                      .map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
@@ -240,23 +262,51 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
             <CardContent className="space-y-4 w-full">
               <div className="flex flex-col w-full gap-2">
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Baseline {baseline?.data?.startYear} :</Label>
+                  <Label className="flex items-center gap-1">
+                    Baseline {baseline?.data?.startYear} :
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-pointer" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p>Total GHG emissions recorded in the baseline year (tCO₂e)</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Label>
                   <div className="text-sm text-gray-900 font-semibold">
                     {" "}
-                    {baseline?.data?.totalSum} tCO₂e
+                    {formatNumberFull(baseline?.data?.totalSum ?? 0)} tCO₂e
                   </div>
                 </div>
                 <div className="space-y-2 flex items-center justify-between w-full">
-                  <Label>Target ({data?.targetYear || 0}):</Label>
+                  <Label className="flex items-center gap-1">
+                    Target ({data?.targetYear || 0}):
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-pointer" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p>Formula: Baseline × (1 − Reduction% ÷ 100)</p>
+                          <p className="text-xs text-gray-300 mt-1">
+                            e.g. {baseline?.data?.totalSum ?? 0} × (1 −{" "}
+                            {data?.reductionPercentage ?? 0} ÷ 100)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Label>
                   <div className="text-sm text-primary font-semibold">
-                    {calculatedTargetEmission.toLocaleString()} tCO₂e
+                    {formatNumberFull(calculatedTargetEmission)} tCO₂e
                   </div>
                 </div>
                 <hr className="text-gray-300" />
                 <div className="space-y-2 flex items-center justify-between w-full">
                   <Label>Total Reduction:</Label>
                   <div className="text-sm text-red-500 font-semibold">
-                    -{calculatedTotalReduction.toLocaleString()} tCO₂e
+                    -{formatNumberFull(calculatedTotalReduction)} tCO₂e
                   </div>
                 </div>
               </div>
@@ -316,6 +366,28 @@ export default function GeneralTargetForm({ data, onChange, onComplete }: Genera
         onClose={handleModalClose}
         onContinue={handleModalContinue}
       />
+
+      {/* No-baseline redirect modal */}
+      {showNoBaselineModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full mx-4 space-y-4 text-center">
+            <Info className="h-12 w-12 text-amber-500 mx-auto" />
+            <h2 className="text-xl font-semibold text-gray-900">No Baseline Found</h2>
+            <p className="text-gray-600 text-sm">
+              You need to complete a Baseline Assessment before setting a target. Your baseline
+              captures the emissions data used to calculate your reduction goal.
+            </p>
+            <div className="flex gap-3 justify-center pt-2">
+              <CustomButton variant="outlined" onClick={() => setShowNoBaselineModal(false)}>
+                Dismiss
+              </CustomButton>
+              <CustomButton onClick={() => router.push("/assessments/hub?setup=baseline")}>
+                Create Baseline
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

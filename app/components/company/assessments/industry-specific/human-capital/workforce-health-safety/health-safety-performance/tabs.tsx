@@ -66,6 +66,5 @@ export const TabsTrigger = ({ value, activeTab, onClick, children }: TabsTrigger
 );
 
 export const TabsContent = ({ value, activeTab, children }: TabsContentProps) => {
-  if (value !== activeTab) return null;
-  return <div>{children}</div>;
+  return <div className={value !== activeTab ? "hidden" : ""}>{children}</div>;
 };

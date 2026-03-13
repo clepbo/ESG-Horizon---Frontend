@@ -15,7 +15,9 @@ import { AddMoreFilesLinks, FileOrLinkData } from "@/app/components/ui/reusables
 import { uploadService } from "@/services/upload.service";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 
 interface Props {
   onBack: () => void;
@@ -33,7 +35,8 @@ export default function CommunityRisk({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow } = useAssessmentFlow("socialCapital.communityRelations.communityRisk");
+  const { state } = useAssessment();
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.communityRisk", "socialCapital.communityRelations.communityRiskOpportunityManagement");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);
@@ -44,6 +47,21 @@ export default function CommunityRisk({
     hcdtIncorporated: "",
     riskDescription: "",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.communityRisk;
+    if (existingData && Object.keys(existingData).length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        hcdtIncorporated: existingData.hcdtIncorporated ?? prev.hcdtIncorporated,
+        riskDescription: existingData.riskDescription ?? prev.riskDescription,
+      }));
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.communityRisk]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },
@@ -60,12 +78,10 @@ export default function CommunityRisk({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasHcdtAnswer = formData.hcdtIncorporated !== "";
     const hasDescription = formData.riskDescription.trim() !== "";
-
-    const completed = [hasHcdtAnswer, hasDescription].filter(Boolean).length;
-    return completed;
+    return calculateProgress([hasHcdtAnswer, hasDescription]);
   }, [formData.hcdtIncorporated, formData.riskDescription]);
 
   const validateForm = () => {
@@ -123,7 +139,7 @@ export default function CommunityRisk({
     };
 
     try {
-      await saveNow("socialCapital.communityRelations.communityRisk", payload);
+      await saveAndSubmit("socialCapital.communityRelations.communityRisk", payload);
       toast.success("Progress saved!");
       onNext();
     } catch (error) {
@@ -160,9 +176,10 @@ export default function CommunityRisk({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={2}
+              fieldsCompleted={filled}
+              totalFields={total}
               isSubmitted={false}
+              groupKey="socialCapital.communityRelations.communityRiskOpportunityManagement"
             />
 
             {/* HCDT Incorporation Question */}

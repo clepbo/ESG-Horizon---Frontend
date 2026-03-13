@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { TotalsResponse } from "@/services/assessment.service";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface CoolingSteamFormProps {
   onBack: () => void;
@@ -76,8 +77,9 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope2-market-coolingsteam");
+  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope2-market-coolingsteam", "environment.ghg.scope2.marketBased");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -127,7 +129,7 @@ export function CoolingSteamForm({
     const hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
-    return calculateProgress([hasEnergy, hasFactor, hasFiles]);
+    return calculateProgress([hasEnergy, hasFactor]);
   }, [energyConsumed.rawValue, emissionFactor.rawValue, files, additionalFields]);
 
   // FIX: Accept 0 and any valid number >= 0
@@ -291,17 +293,15 @@ export function CoolingSteamForm({
     try {
       // Bulk save all steps in the group before submitting
       if (ipps) {
-        await saveNow("environment.ghg.scope2.marketBased.ipps", ipps);
+        await saveQuiet("environment.ghg.scope2.marketBased.ipps", ipps);
       }
       if (eac) {
-        await saveNow("environment.ghg.scope2.marketBased.eac", eac);
+        await saveQuiet("environment.ghg.scope2.marketBased.eac", eac);
       }
       if (residual) {
-        await saveNow("environment.ghg.scope2.marketBased.residual", residual);
+        await saveQuiet("environment.ghg.scope2.marketBased.residual", residual);
       }
-      await saveNow("environment.ghg.scope2.marketBased.coolingSteam", payload);
-
-      const response = await submitGroup();
+      const response = await saveAndSubmit("environment.ghg.scope2.marketBased.coolingSteam", payload);
       onSubmit(response.totals);
       resetForm();
     } catch (err) {
@@ -368,7 +368,7 @@ export function CoolingSteamForm({
             <ArrowLeft className="h-4 w-4" /> Back
           </Button>
           <div>
-            <h3 className="text-2xl font-semibold text-foreground">Scope 2 – Cooling / Steam</h3>
+            <h3 className="text-2xl font-semibold text-foreground">Scope 2 (Cooling / Steam)</h3>
             <p className="text-muted-foreground text-base">
               Purchased cooling or steam energy consumption and supporting documents.
             </p>
@@ -384,6 +384,7 @@ export function CoolingSteamForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope2.marketBased"
             />
 
             {/* Energy Consumed */}
@@ -494,19 +495,12 @@ export function CoolingSteamForm({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>
@@ -537,11 +531,11 @@ export function CoolingSteamForm({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -561,10 +555,10 @@ export function CoolingSteamForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isLoading}
-                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? "Submitting..." : "Submit"}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

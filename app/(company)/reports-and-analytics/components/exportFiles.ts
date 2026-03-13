@@ -8,6 +8,7 @@ export async function generatePDF(id: string, fileName = "esg-report.pdf") {
   if (!element) return;
   const dataUrl = await toPng(element, {
     cacheBust: true,
+    pixelRatio: 2,
     filter: (domNode) => !domNode.classList?.contains("no-export"),
   });
 
@@ -44,7 +45,7 @@ export async function exportPNG(id: string, fileName = "esg-report.png") {
   try {
     const dataUrl = await toPng(element, {
       cacheBust: true,
-      pixelRatio: 1.5, // increase for sharper image
+      pixelRatio: 3, // Increased for sharper, high-resolution image
       filter: (domNode) => !domNode.classList?.contains("no-export"),
     });
 
@@ -61,7 +62,7 @@ export async function exportPNGs(id: string, fileName = "esg-report") {
   const element = document.getElementById(id);
   if (!element) return;
 
-  const canvas = await html2canvas(element, { scale: 2 });
+  const canvas = await html2canvas(element, { scale: 3, useCORS: true });
   const pageHeight = 1000; // pixels per "page"
   let y = 0;
   let page = 1;

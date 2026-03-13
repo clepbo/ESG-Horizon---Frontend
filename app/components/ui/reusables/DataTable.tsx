@@ -59,6 +59,14 @@ export function DataTable<TData>({
     },
     state: { globalFilter },
     onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const col = row.getAllCells().find((c) => c.column.id === columnId);
+      const meta = col?.column.columnDef.meta as { toSearchString?: (row: unknown) => string } | undefined;
+      const searchStr = meta?.toSearchString
+        ? meta.toSearchString(row.original)
+        : String(row.getValue(columnId) ?? "");
+      return searchStr.toLowerCase().includes(String(filterValue).toLowerCase());
+    },
   });
 
   return (
@@ -70,7 +78,7 @@ export function DataTable<TData>({
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
         />
-        <div className="flex  items-center gap-2">
+        <div className="flex items-center gap-2">
           {filterOptions.map((filter) => (
             <Select
               key={filter.columnId}

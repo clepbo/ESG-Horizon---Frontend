@@ -12,9 +12,9 @@ import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
 import { SuccessScreen } from "../../../../SuccessScreen";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useAssessmentCompletion } from "@/hooks/useAssessmentCompletion";
+import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+// import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
 import { useRouter, useParams } from "next/navigation";
 
 const cards1 = [
@@ -47,29 +47,15 @@ const cards2 = [
   },
 ];
 
-// Combine cards into sections for the hook
-const scopeData = [
-  {
-    id: "water-produced-water",
-    title: "Water and Produced Water Management",
-    cards: cards1,
-  },
-  {
-    id: "hydraulic-fracturing",
-    title: "Hydraulic Fracturing Impacts",
-    cards: cards2,
-  },
-];
-
 export default function WaterAndWastemanagementCards({
   backToAssessmentHub,
   backToDisclosureTopics,
+  onContinueToNextAssessment,
 }: AirQualityProps) {
   const router = useRouter();
   const [step, setStep] = React.useState<number>(0);
   const [showSuccess, setShowSuccess] = React.useState(false);
   const { state } = useAssessment();
-
   const params = useParams();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
@@ -83,11 +69,8 @@ export default function WaterAndWastemanagementCards({
   };
 
   useEffect(() => {
+    // Debugging completion status - keep or remove as needed for dev
     if (state.assessmentData) {
-      const waterMgmt = state.assessmentData?.environment?.waterManagement;
-      console.log("🔍 Water Management Structure:", waterMgmt);
-
-      // Test all completion checks
       const tests = [
         "Freshwater Withdrawal & Consumption",
         "Produced Water Management",
@@ -96,18 +79,25 @@ export default function WaterAndWastemanagementCards({
       ];
 
       tests.forEach((title) => {
-        const status = checkSubComponentCompletion(title, state.assessmentData);
-        console.log(`${title}:`, status);
+        checkSubComponentCompletion(title, state.assessmentData);
       });
     }
   }, [state.assessmentData]);
 
-  // Use the reusable hook with checkSubComponentCompletion
-  const { getStatus, getCardBorderClass } = useAssessmentCompletion(
-    scopeData,
-    state.assessmentData,
-    checkSubComponentCompletion
-  );
+  const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
+
+  const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
+    "Freshwater Withdrawal & Consumption": { groupKey: "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals", dataPath: ["environment", "waterManagement", "waterAndProducedWaterManagement", "freshwaterWithdrawals"] },
+    "Produced Water Management": { groupKey: "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement", dataPath: ["environment", "waterManagement", "waterAndProducedWaterManagement", "producedWaterManagement"] },
+    "Chemical Disclosure": { groupKey: "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure", dataPath: ["environment", "waterManagement", "hydraulicFracturingImpacts", "chemicalDisclosure"] },
+    "Water Quality Impacts": { groupKey: "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts", dataPath: ["environment", "waterManagement", "hydraulicFracturingImpacts", "waterQualityImpacts"] },
+  };
+
+  const getCardStatus = (cardTitle: string): SectionStatus => {
+    const info = cardStatusMap[cardTitle];
+    if (!info) return "not-started";
+    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+  };
 
   function backToWasteWaterManagement() {
     setStep(0);
@@ -154,6 +144,7 @@ export default function WaterAndWastemanagementCards({
         nextAssessment="Biodiversity Impact"
         reportId={reportId}
         onContinue={handleViewReport}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={backToDisclosureTopics}
       />
     );
@@ -209,17 +200,13 @@ export default function WaterAndWastemanagementCards({
                   <Card
                     key={i}
                     onClick={() => handleCardClick(card.title)}
-                    className={`cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow ${getCardBorderClass(
-                      card.title
-                    )}`}
+                    className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h5 className="font-medium text-foreground">{card.title}</h5>
-                            <CompletionIndicator status={getStatus(card.title)} />
-                          </div>
+                          <h5 className="font-medium text-foreground">{card.title}</h5>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -248,17 +235,13 @@ export default function WaterAndWastemanagementCards({
                   <Card
                     key={i}
                     onClick={() => handleCardClick(card.title)}
-                    className={`cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow ${getCardBorderClass(
-                      card.title
-                    )}`}
+                    className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
+                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-2 flex-1">
-                          <div className="flex items-center justify-between">
-                            <h5 className="font-medium text-foreground">{card.title}</h5>
-                            <CompletionIndicator status={getStatus(card.title)} />
-                          </div>
+                          <h5 className="font-medium text-foreground">{card.title}</h5>
                           <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

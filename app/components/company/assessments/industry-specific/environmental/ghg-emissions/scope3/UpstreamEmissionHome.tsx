@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PurchasedGoodsAndServices } from "./upstream/PurchasedGoodsAndServices";
 import { CapitalGoods } from "./upstream/CapitalGoods";
 import { EnergyRelatedActivities } from "./upstream/EnergyRelatedActivities";
@@ -17,74 +17,93 @@ export interface UpstreamProps {
   handleBacktoAssessment: () => void;
   handleBacktoGHG: () => void;
   backToDisclossureTopic: () => void;
+  initialStep?: string;
+  onContinueToNextAssessment?: () => void;
 }
 export default function UpstreamEmissionHome({
   handleBacktoAssessment,
   handleBacktoGHG,
   backToDisclossureTopic,
+  initialStep,
+  onContinueToNextAssessment,
 }: UpstreamProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    const parsed = Number(initialStep);
+    return !isNaN(parsed) && parsed >= 0 && parsed <= 7 ? parsed : 0;
+  });
+
+  useEffect(() => {
+    if (initialStep !== undefined) {
+      const parsed = Number(initialStep);
+      if (!isNaN(parsed) && parsed >= 0 && parsed <= 7) {
+        setStep(parsed);
+      }
+    }
+  }, [initialStep]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveNow, submitGroup } = useAssessmentFlow("ghg-scope3-upstream");
+  const { saveQuiet, saveAndSubmit } = useAssessmentFlow("ghg-scope3-upstream", "environment.ghg.scope3.upstream");
 
   function handleNext(val: number) {
     setStep(val);
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(leasedAssetsPayload?: any) {
+    if (submitting) return;
+    setSubmitting(true);
     const data = state.assessmentData.environment?.ghg?.scope3?.upstream;
 
     try {
-      // Bulk save all steps in the group before submitting
+      // Save all steps sequentially to avoid read-modify-write race conditions.
+      // Each save must complete before the next starts so the DB state is consistent.
       if (data?.purchasedGoodsAndServices) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.upstream.purchasedGoodsAndServices",
           data.purchasedGoodsAndServices
         );
       }
       if (data?.capitalGoods) {
-        await saveNow("environment.ghg.scope3.upstream.capitalGoods", data.capitalGoods);
+        await saveQuiet("environment.ghg.scope3.upstream.capitalGoods", data.capitalGoods);
       }
       if (data?.fuelEnergyRelatedActivities) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.upstream.fuelEnergyRelatedActivities",
           data.fuelEnergyRelatedActivities
         );
       }
       if (data?.upstreamTransportationDistribution) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.upstream.upstreamTransportationDistribution",
           data.upstreamTransportationDistribution
         );
       }
       if (data?.wasteGeneratedInOperations) {
-        await saveNow(
+        await saveQuiet(
           "environment.ghg.scope3.upstream.wasteGeneratedInOperations",
           data.wasteGeneratedInOperations
         );
       }
       if (data?.businessTravel) {
-        await saveNow("environment.ghg.scope3.upstream.businessTravel", data.businessTravel);
+        await saveQuiet("environment.ghg.scope3.upstream.businessTravel", data.businessTravel);
       }
       if (data?.employeeCommuting) {
-        await saveNow("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting);
+        await saveQuiet("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting);
       }
-      if (data?.upstreamLeasedAssets) {
-        await saveNow(
-          "environment.ghg.scope3.upstream.upstreamLeasedAssets",
-          data.upstreamLeasedAssets
-        );
-      }
-
-      const response = await submitGroup();
+      const leasedData = leasedAssetsPayload || data?.upstreamLeasedAssets;
+      const response = await saveAndSubmit(
+        "environment.ghg.scope3.upstream.upstreamLeasedAssets",
+        leasedData || {}
+      );
       setTotals(response?.totals ?? null);
       setShowSuccess(true);
     } catch (err) {
       toast.error("Submission failed");
       console.error("Submission failed:", err);
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -92,10 +111,11 @@ export default function UpstreamEmissionHome({
     return (
       <SuccessScreen
         assessmentName="Upstream Emissions"
-        sectionKey="upstream"
+        sectionKey="upstreamEmissions"
         totals={totals ?? undefined}
+        nextAssessment={onContinueToNextAssessment ? "Downstream Emissions" : undefined}
         onContinue={handleBacktoGHG}
-        onContinueAssessment={() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" })}
+        onContinueAssessment={onContinueToNextAssessment ?? (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))}
         onBackToHub={handleBacktoAssessment}
       />
     );
@@ -202,6 +222,7 @@ export default function UpstreamEmissionHome({
         backToAssessment={handleBacktoAssessment}
         backToDisclosureTopics={backToDisclossureTopic}
         backToGHGEmissions={handleBacktoGHG}
+        parentSubmitting={submitting}
       />
     );
   }

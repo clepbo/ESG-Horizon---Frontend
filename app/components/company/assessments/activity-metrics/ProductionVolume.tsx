@@ -40,7 +40,7 @@ export function ProductionVolume({
     router.push("/assessments/activity-metrics");
   };
   const { state, dispatch } = useAssessment();
-  const { saveNow } = useAssessmentFlow("activityMetrics.productionVolume");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow("activityMetrics.productionVolume", "foundationalData.activityMetrics.productionVolumes");
 
   const crudeOilProduction = useFormattedNumber("");
   const naturalGasProduction = useFormattedNumber("");
@@ -58,7 +58,7 @@ export function ProductionVolume({
   }, [stepIndex]);
 
   useEffect(() => {
-    const existingData = state.assessmentData.environment?.activityMetrics?.productionVolume;
+    const existingData = state.assessmentData.activityMetrics?.productionVolume;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.crudeOilProductionVolume !== undefined) {
         crudeOilProduction.handleChange(String(existingData.crudeOilProductionVolume));
@@ -77,7 +77,7 @@ export function ProductionVolume({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.assessmentData.environment?.activityMetrics?.productionVolume]);
+  }, [state.assessmentData.activityMetrics?.productionVolume]);
 
   const _breadcrumFeature = [
     { label: "Dashboard", href: "/dashboard-esg" },
@@ -111,21 +111,17 @@ export function ProductionVolume({
     const hasNaturalGas = naturalGasProduction.rawValue !== "";
     const hasSyntheticOil = syntheticOilProduction.rawValue !== "";
     const hasSyntheticGas = syntheticGasProduction.rawValue !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
     return calculateProgress([
       hasCrudeOil,
       hasNaturalGas,
       hasSyntheticOil,
       hasSyntheticGas,
-      hasEvidence,
     ]);
   }, [
     crudeOilProduction.rawValue,
     naturalGasProduction.rawValue,
     syntheticOilProduction.rawValue,
     syntheticGasProduction.rawValue,
-    filesAndLinks,
   ]);
 
   const handleSaveAndContinue = async () => {
@@ -181,7 +177,7 @@ export function ProductionVolume({
     };
 
     try {
-      await saveNow("activityMetrics.productionVolume", payload);
+      await saveAndSubmit("activityMetrics.productionVolume", payload);
       dispatch({
         type: "UPDATE_ACTIVITY_METRICS",
         payload: { section: "productionVolume", data: payload },
@@ -221,7 +217,7 @@ export function ProductionVolume({
           <TooltipContent
             side="top"
             align="center"
-            className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+            className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
           >
             <h6>{tooltipTitle}</h6>
             <p>{tooltipContent}</p>
@@ -278,6 +274,7 @@ export function ProductionVolume({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="foundationalData.activityMetrics.productionVolumes"
             />
 
             {renderProductionField(

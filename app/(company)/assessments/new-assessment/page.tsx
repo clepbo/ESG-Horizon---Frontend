@@ -12,6 +12,8 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
 import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
+import { useAuth } from "@/context/AuthContext";
+import { getAssessmentProgressForTable } from "@/lib/utils";
 
 function NewAssessmentPage() {
   const router = useRouter();
@@ -26,18 +28,30 @@ function NewAssessmentPage() {
   const hasAssignedTasks = userTasks && userTasks.length > 0;
   const hasAssessments = assessments && assessments.length > 0;
 
+  const { user } = useAuth();
+  const isCompanyAdmin = user?.role?.name === "company_esg_admin";
+
   // Auto-redirect to my-tasks view if user has assigned tasks (only on initial load)
   useEffect(() => {
     if (
       !tasksLoading &&
       hasAssignedTasks &&
       state.currentView === "hub" &&
-      !hasRedirected.current
+      !hasRedirected.current &&
+      !isCompanyAdmin // Prevent redirect for admin
     ) {
       hasRedirected.current = true;
       dispatch({ type: "SET_VIEW", payload: "my-tasks" });
     }
-  }, [hasAssignedTasks, tasksLoading, state.currentView, dispatch]);
+  }, [hasAssignedTasks, tasksLoading, state.currentView, dispatch, isCompanyAdmin]);
+
+  // Add safeguards to escape task view if admin
+  useEffect(() => {
+    if (isCompanyAdmin && (state.currentView === "my-tasks" || state.isAssignedTask)) {
+      dispatch({ type: "SET_VIEW", payload: "hub" });
+      dispatch({ type: "SET_ASSIGNED_TASK", payload: false });
+    }
+  }, [isCompanyAdmin, state.currentView, state.isAssignedTask, dispatch]);
   const isInTaskFlow = state.currentView === "my-tasks" || state.isAssignedTask;
 
   if (isInTaskFlow) {
@@ -68,17 +82,73 @@ function NewAssessmentPage() {
             ? `${a.endMonth ?? a.endYear}`
             : "";
 
+      const data = a.assessmentData ?? {};
+      const activity = data.activityMetrics;
+      const env = data.environment ?? data.environmental;
+      const social = data.socialCapital ?? data.social;
+      const human = data.humanCapital;
+      const business = data.businessInnovation ?? data.businessModel;
+      const leadership = data.leadershipGovernance;
+
+      // Calculator auto-adds these keys to every object — filter them out
+      // to detect only real user-entered form data (mirrors countFilledFields ignoredKeys)
+      const CALC_KEYS = new Set(["totalEmission", "totalEmissions", "progress", "calculated", "dataCount", "status", "breakdown"]);
+      const hasUserData = (obj: any): boolean =>
+        !!obj && Object.keys(obj).some((k) => !CALC_KEYS.has(k));
+
+      const hasActivity = hasUserData(activity);
+
+      // Environment: the calculator scaffolds the full GHG tree on every save
+      // (scope1.stationarySources = { totalEmission: 0, progress: 0 }, etc.)
+      // so we must check each group for keys beyond totalEmission/progress.
+      const hasEnv = (() => {
+        if (!env) return false;
+        if (hasUserData(env.airQuality)) return true;
+        if (hasUserData(env.waterManagement)) return true;
+        if (hasUserData(env.biodiversityImpact)) return true;
+        const ghg = env.ghg;
+        if (!ghg) return false;
+        const hasScopeData = (scope: any, groups: string[]) =>
+          scope && groups.some((g: string) => hasUserData(scope[g]));
+        if (hasScopeData(ghg.scope1, ["stationarySources", "mobileSources", "processEmissions", "fugitiveEmissions"])) return true;
+        if (hasScopeData(ghg.scope2, ["locationBased", "marketBased"])) return true;
+        if (hasScopeData(ghg.scope3, ["upstream", "downstream"])) return true;
+        return false;
+      })();
+
+      const hasSocial = hasUserData(social);
+      const hasHuman = hasUserData(human);
+      const hasBusiness = hasUserData(business);
+      const hasLeadership = hasUserData(leadership?.criticalIncidentRiskManagement);
+      const hasGovernance = hasUserData(leadership?.managementOfTheLegalAndRegulatoryEnvironment);
+
+      const pillars: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[] = [];
+      if (hasActivity) pillars.push("A");
+      if (hasEnv) pillars.push("E");
+      if (hasSocial) pillars.push("S");
+      if (hasHuman) pillars.push("H");
+      if (hasBusiness) pillars.push("B");
+      if (hasLeadership) pillars.push("L");
+      if (hasGovernance) pillars.push("G");
+
       return {
         id: a.id,
         startPeriod,
         endPeriod,
         subsidiary: a.subsidiary || "—",
         status: a.status || "in_progress",
-        progress: a.assessmentData?.overallProgress ?? 0,
+        progress: getAssessmentProgressForTable(a),
         rejection_reason: (a as any).rejection_reason,
         lastUpdated: a.updatedAt,
+        submittedAt: a.submittedAt ?? null,
+        approvedAt: a.approvedAt ?? null,
+        pillars,
       };
     }) ?? [];
+
+  // Extract the company's review toggle from the first assessment (same for all)
+  const requireAssessmentReview =
+    (assessments as any[])?.[0]?.company?.requireAssessmentReview ?? true;
 
   if (isLoading || tasksLoading) {
     return (
@@ -181,7 +251,7 @@ function NewAssessmentPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="max-w-6xl w-full">
+          <div className="w-full">
             <div className="flex justify-between items-center mb-6">
               <h4 className="font-semibold text-neutral-1000">Recent Assessments</h4>
               <Button
@@ -191,7 +261,7 @@ function NewAssessmentPage() {
                 Start New Assessment
               </Button>
             </div>
-            <AssessmentTable data={tableData} />
+            <AssessmentTable data={tableData} requireAssessmentReview={requireAssessmentReview} />
           </div>
         )}
       </motion.main>

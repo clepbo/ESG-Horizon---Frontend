@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProgressBar } from "@/app/components/company/assessments/AssessmentProgressBar";
@@ -29,6 +29,7 @@ import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface PurchasedHeatingFormProps {
   onBack: () => void;
@@ -85,16 +86,15 @@ export function PurchasedHeatingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, submitGroup, isLoading, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope2-location-purchasedheating");
+  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
+    useAssessmentFlow("ghg-scope2-location-purchasedheating", "environment.ghg.scope2.locationBased");
+  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.locationBased?.heating;
 
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [stepIndex]);
-
-  const isPending = isLoading;
 
   // FIX: Check for null/undefined instead of truthiness to handle 0 values correctly
   useEffect(() => {
@@ -126,7 +126,6 @@ export function PurchasedHeatingForm({
       !isNaN(Number(heatingConsumedRaw)) &&
       Number(heatingConsumedRaw) >= 0,
     supplierName !== "",
-    Object.values(files).some(Boolean) || additionalFields.some((field) => field.file),
   ]);
 
   const handleFileChange = async (field: string, event: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,17 +250,15 @@ export function PurchasedHeatingForm({
     try {
       // Bulk save all steps in the group before submitting
       if (electricity) {
-        await saveNow("environment.ghg.scope2.locationBased.electricity", electricity);
+        await saveQuiet("environment.ghg.scope2.locationBased.electricity", electricity);
       }
       if (cooling) {
-        await saveNow("environment.ghg.scope2.locationBased.cooling", cooling);
+        await saveQuiet("environment.ghg.scope2.locationBased.cooling", cooling);
       }
       if (steam) {
-        await saveNow("environment.ghg.scope2.locationBased.steam", steam);
+        await saveQuiet("environment.ghg.scope2.locationBased.steam", steam);
       }
-      await saveNow("environment.ghg.scope2.locationBased.heating", payload);
-
-      const response = await submitGroup();
+      const response = await saveAndSubmit("environment.ghg.scope2.locationBased.heating", payload);
       onSubmit(response.totals);
     } catch (err) {
       toast.error("Failed to submit");
@@ -327,7 +324,7 @@ export function PurchasedHeatingForm({
             Back
           </Button>
           <div>
-            <h3 className="text-2xl font-semibold text-foreground">Scope 2 – Heating</h3>
+            <h3 className="text-2xl font-semibold text-foreground">Scope 2 (Heating)</h3>
             <p className="text-muted-foreground text-base">
               Purchased heating energy consumption and supporting evidence.
             </p>
@@ -343,6 +340,7 @@ export function PurchasedHeatingForm({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={isSubmitted}
+              groupKey="environment.ghg.scope2.locationBased"
             />
             <div className="flex justify-between mb-2">
               <span className="text-sm text-gray-500">
@@ -353,7 +351,7 @@ export function PurchasedHeatingForm({
             {/* 4.1 Purchased Heating */}
             <div className="ml-6">
               <Label className="text-md font-medium mb-2 block">
-                4.1 Purchased Heating <span className="text-red-500">*</span>
+                Do you use purchased heating? <span className="text-red-500">*</span>
               </Label>
               <RadioGroup
                 value={heatingPurchased}
@@ -382,10 +380,12 @@ export function PurchasedHeatingForm({
               )}
             </div>
 
+            {heatingPurchased === "yes" && (
+            <>
             <div className="ml-6">
               <div className="flex items-center gap-1 mb-2">
                 <Label htmlFor="heating-consumed" className="text-sm font-medium text-gray-700">
-                  If yes, what was the total heating energy consumed in Gigajoules (GJ)
+                  What was the total heating energy consumed in Gigajoules (GJ)?
                 </Label>
                 <TooltipProvider>
                   <Tooltip>
@@ -486,19 +486,12 @@ export function PurchasedHeatingForm({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-green-600 wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
-                              disabled={deleting[field]} // Disable button while deleting
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
+                              disabled={deleting[field]}
+                            />
                           </div>
                         ) : null}
                       </Card>
@@ -513,6 +506,8 @@ export function PurchasedHeatingForm({
                 />
               </div>
             </div>
+            </>
+            )}
 
             {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-4 pt-8">
@@ -529,11 +524,11 @@ export function PurchasedHeatingForm({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-primary transition-colors"
                 aria-label="Save and continue later"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -554,10 +549,10 @@ export function PurchasedHeatingForm({
               <Button
                 variant="outline"
                 onClick={() => handleSubmit()}
-                disabled={isPending}
-                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="cursor-pointer justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isPending ? "Submitting..." : "Submit"}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

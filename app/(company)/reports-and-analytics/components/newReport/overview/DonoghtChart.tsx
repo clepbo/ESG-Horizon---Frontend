@@ -3,6 +3,7 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import NotAvailablePlaceholder from "../components/NotAvailablePlaceholder";
+import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 
 // Sample data (replace with your real data or props)
 const data = [
@@ -39,17 +40,21 @@ export default function DonutChart({
               outerRadius={100}
               paddingAngle={4} // spacing between arcs
               cornerRadius={5} // rounded edges
-              label={({ value }) => `${value}`}
+              label={({ value }) => formatNumberFigures(Number(value ?? 0))}
+              labelLine={false}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              formatter={(value) => formatNumberFigures(Number(value ?? 0))}
+              labelStyle={{ color: "#374151" }}
+            />
             <Legend
               verticalAlign="bottom"
               height={36}
-              iconType="circle"
+              iconType="rect"
               wrapperStyle={{ fontSize: 14 }}
             />
           </PieChart>

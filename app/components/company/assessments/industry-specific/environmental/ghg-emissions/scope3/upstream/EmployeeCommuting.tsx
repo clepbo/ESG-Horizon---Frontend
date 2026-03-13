@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
 import { Label } from "@/app/components/ui/label";
-import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, X, Info } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, CloudUpload, ArrowRight, Info } from "lucide-react";
 import { FileMetadata, useAssessment } from "@/hooks/useAssessment";
 import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { calculateProgress } from "@/lib/utils";
@@ -26,6 +26,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface EmployeeCommutingProps {
   onBack: () => void;
@@ -101,7 +102,7 @@ export function EmployeeCommuting({
     workdaysPerYear: false,
   });
 
-  const { saveNow, isLoading } = useAssessmentFlow("ghg-scope3-upstream-employee-commuting");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-employee-commuting");
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -113,10 +114,11 @@ export function EmployeeCommuting({
   useEffect(() => {
     const existingData = state.assessmentData.environment?.ghg?.scope3?.upstream?.employeeCommuting;
     if (existingData) {
+      const s = (v: any) => (v !== null && v !== undefined ? v.toString() : "");
       // Input fields
-      setNumberOfEmployees(existingData.numberOfEmployees || "");
-      setAverageDistance(existingData.averageDistance || "");
-      setWorkdaysPerYear(existingData.workdaysPerYear || "");
+      setNumberOfEmployees(s(existingData.numberOfEmployees));
+      setAverageDistance(s(existingData.averageDistance));
+      setWorkdaysPerYear(s(existingData.workdaysPerYear));
 
       // Checkbox fields
       const savedMethods = existingData.selectedMethods;
@@ -155,15 +157,11 @@ export function EmployeeCommuting({
       workdaysPerYear.trim() !== "" &&
       !isNaN(Number(workdaysPerYear)) &&
       Number(workdaysPerYear) >= 0;
-    const hasAdditionalFields = additionalFields.length > 0;
-    const hasFileUploaded = Object.values(files).some(Boolean);
-
     const progressChecks = [
       hasNumberOfEmployees,
       hasAverageDistance,
       hasSelectedMethods,
       hasWorkdaysPerYear,
-      hasFileUploaded || hasAdditionalFields,
     ];
 
     return calculateProgress(progressChecks);
@@ -172,8 +170,6 @@ export function EmployeeCommuting({
     averageDistance,
     selectedMethods,
     workdaysPerYear,
-    files,
-    additionalFields,
   ]);
 
   // Clear error when user interacts with ANY field
@@ -339,6 +335,7 @@ export function EmployeeCommuting({
       payload,
     });
 
+    saveQuiet("environment.ghg.scope3.upstream.employeeCommuting", payload).catch(() => {});
     onNext();
   };
 
@@ -489,6 +486,7 @@ export function EmployeeCommuting({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.ghg.scope3.upstream"
             />
             <div>
               <h4 className="text-xl font-medium text-foreground">Employee Commuting</h4>
@@ -721,19 +719,12 @@ export function EmployeeCommuting({
                             <LoadingSpinner size="sm" /> Deleting...
                           </div>
                         ) : files[field] ? (
-                          <div className="flex items-center gap-2 mt-2">
-                            <p className="text-sm text-primary wrap-break-word max-w-full text-center">
-                              Uploaded: {files[field]!.name}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveFile(field)}
+                          <div className="w-full mt-2">
+                            <FilePreview
+                              file={files[field]!}
+                              onRemove={() => handleRemoveFile(field)}
                               disabled={deleting[field]}
-                              className="ml-2 text-red-500 hover:text-red-700 cursor-pointer"
-                              aria-label={`Remove ${field}`}
-                            >
-                              <X />
-                            </button>
+                            />
                           </div>
                         ) : null}
                       </Card>

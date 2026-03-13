@@ -46,6 +46,33 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  async headers() {
+    return [
+      {
+        // version.json must never be cached
+        source: "/version.json",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
+          { key: "Pragma", value: "no-cache" },
+        ],
+      },
+      {
+        // Immutable hashed assets (_next/static) — cache aggressively
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // HTML pages — revalidate on every request
+        source: "/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+    ];
+  },
+
   webpack(config, { isServer, dev }) {
     config.module.rules.push({
       test: /\.svg$/,

@@ -42,7 +42,7 @@ export function ProcessEmissionsForm({
   const overviewBreadcrumb: BreadcrumbItemType[] = [
     { label: "Dashboard", href: "/dashboard-esg" },
     { label: "Assessments", href: "/assessments/hub" },
-    { label: "Stationary Sources", onClick: handleBackToOverview },
+    { label: "Process Emissions", onClick: handleBackToOverview },
   ];
 
   if (showSuccess) {
@@ -51,8 +51,8 @@ export function ProcessEmissionsForm({
         assessmentName="Process Emissions"
         sectionKey="processEmissions"
         totals={_totals ?? undefined}
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        nextAssessment="Fugitive Emissions"
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

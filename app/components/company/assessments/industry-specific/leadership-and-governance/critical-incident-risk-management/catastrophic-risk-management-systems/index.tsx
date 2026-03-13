@@ -38,7 +38,8 @@ export default function CatastrophicRiskManagement({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems";
-  const { saveNow } = useAssessmentFlow(current);
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems");
+  const hasExistingData = !!state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.catastrophicRiskManagementSystems;
   const [auditDate, setAuditDate] = useState("");
   const [systemDescription, setSystemDescription] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -55,7 +56,7 @@ export default function CatastrophicRiskManagement({
 
   useEffect(() => {
     const existingData =
-      state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+      state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
         ?.catastrophicRiskManagementSystems;
 
     if (existingData && Object.keys(existingData).length > 0) {
@@ -70,7 +71,7 @@ export default function CatastrophicRiskManagement({
       }
     }
   }, [
-    state.assessmentData.environment?.leadershipGovernance?.criticalIncidentRiskManagement
+    state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
       ?.catastrophicRiskManagementSystems,
   ]);
 
@@ -92,10 +93,8 @@ export default function CatastrophicRiskManagement({
   const { filled, total } = useMemo(() => {
     const hasAuditDate = auditDate !== "";
     const hasDescription = systemDescription.trim() !== "";
-    const hasEvidence = filesAndLinks.length > 0;
-
-    return calculateProgress([hasAuditDate, hasDescription, hasEvidence]);
-  }, [auditDate, systemDescription, filesAndLinks]);
+    return calculateProgress([hasAuditDate, hasDescription]);
+  }, [auditDate, systemDescription]);
 
   const handleSaveAndContinue = async () => {
     if (!validateForm()) {
@@ -144,7 +143,7 @@ export default function CatastrophicRiskManagement({
     };
 
     try {
-      await saveNow(current, payload);
+      await saveAndSubmit(current, payload);
       dispatch({
         type: "UPDATE_LEADERSHIP_GOVERNANCE",
         payload: {
@@ -197,6 +196,7 @@ export default function CatastrophicRiskManagement({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems"
             />
 
             {/* Date of Audit */}
@@ -315,10 +315,10 @@ export default function CatastrophicRiskManagement({
                 type="button"
                 variant="outline"
                 onClick={handleSubmit}
-                disabled={isSaving}
-                className="border-primary text-primary bg-transparent hover:bg-green-50"
+                disabled={isSaving || isPreviouslySubmitted}
+                className="border-primary text-primary bg-transparent hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
+                {getSubmitLabel(hasExistingData)}
               </Button>
             </div>
           </CardContent>

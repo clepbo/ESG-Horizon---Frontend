@@ -9,13 +9,15 @@ import { useRouter } from "next/navigation";
 import { Department } from "@/services/department.service";
 import { Card } from "../../ui/card";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
+import ParentCompanyBadge from "../../ui/reusables/ParentCompanyBadge";
 
 type Props = {
   departments: Department[];
   onUpdate?: () => void;
+  companyName?: string;
 };
 
-export default function DepartmentsTable({ departments, onUpdate }: Props) {
+export default function DepartmentsTable({ departments, onUpdate, companyName }: Props) {
   const router = useRouter();
 
   // Pagination
@@ -49,7 +51,6 @@ export default function DepartmentsTable({ departments, onUpdate }: Props) {
                 <tr>
                   <th className="px-4 py-3">Department Name</th>
                   <th className="px-4 py-3">Subsidiary</th>
-                  <th className="px-4 py-3">Description</th>
                   <th className="px-4 py-3">Lead</th>
                   <th className="px-4 py-3">Team Size</th>
                   <th className="px-4 py-3">Actions</th>
@@ -62,14 +63,10 @@ export default function DepartmentsTable({ departments, onUpdate }: Props) {
                       <td className="px-4 py-3">{dept.name}</td>
                       <td className="px-4 py-3">
                         {dept.subsidiary?.name || (
-                          <span className="text-gray-400 font-medium text-sm italic">
-                            Main (HQ)
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {dept.description || (
-                          <span className="text-gray-400 font-medium text-sm italic">no desc.</span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-medium text-gray-900">{companyName || "—"}</span>
+                            <ParentCompanyBadge />
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -77,7 +74,9 @@ export default function DepartmentsTable({ departments, onUpdate }: Props) {
                           <span className="font-medium text-gray-900">
                             {dept?.lead?.first_name || ""} {dept?.lead?.last_name || ""}
                           </span>
-                          <span className="text-xs text-gray-500">{dept?.lead?.email || ""}</span>
+                          <span className="text-xs text-gray-500">
+                            {dept?.contact_email || dept?.lead?.email || ""}
+                          </span>
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-500">

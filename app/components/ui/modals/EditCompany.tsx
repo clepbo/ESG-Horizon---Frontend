@@ -286,10 +286,10 @@ export default function EditCompanyModal({
                   <PhoneInput
                     {...field}
                     defaultCountry={countryCode}
-                    className={`rounded-md border px-3 py-2 w-full focus:outline-none focus:ring-2 ${
+                    className={`rounded-md border px-3 py-2 w-full focus-within:ring-2 [&_input]:border-none [&_input]:outline-none [&_input]:shadow-none [&_input]:bg-transparent ${
                       errors.contact_phone
                         ? "border-red-500"
-                        : "border-gray-300 focus:ring-green-500"
+                        : "border-gray-300 focus-within:ring-green-500"
                     }`}
                     labels={en}
                   />

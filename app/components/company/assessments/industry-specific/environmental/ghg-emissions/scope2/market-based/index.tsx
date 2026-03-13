@@ -56,11 +56,10 @@ export function MarketBasedForm({
     return (
       <SuccessScreen
         assessmentName="Market Based"
-        sectionKey="marketBased"
+        sectionKey="scope2Market"
         totals={totals ?? undefined}
         nextAssessment="Scope3"
-        onContinue={onContinueToNextAssessment}
-        onContinueAssessment={onBackToDisclosureTopics}
+        onContinueAssessment={onContinueToNextAssessment}
         onBackToHub={() => router.push("/assessments/new-assessment")}
       />
     );

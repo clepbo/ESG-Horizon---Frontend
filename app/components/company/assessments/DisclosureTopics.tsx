@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
-import { ArrowLeft, ChevronRight, Info, Search } from "lucide-react";
+import { ArrowLeft, ChevronRight, Info, Lock, Search } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -21,7 +21,7 @@ import {
 import { GhgEmissionsAssessment } from "./industry-specific/environmental/ghg-emissions";
 import CommunityRelationsHome from "./industry-specific/social-capital/community-relations/CommunityRelationsHome";
 import { SecurityHumanRightsAssessment } from "./industry-specific/social-capital/security-rights";
-import AirQiality from "./industry-specific/environmental/air-quality/components/AirQiality";
+import AirQuality from "./industry-specific/environmental/air-quality/components/AirQuality";
 import { useDebounce } from "use-debounce";
 import { Input } from "../../ui/input";
 import { FrontendTask } from "@/services/assignTask.service";
@@ -31,12 +31,10 @@ import ReservesValuationAndCapitalExpenditures from "./industry-specific/busines
 import BusinessEthicsAndTransparency from "./industry-specific/business-model-innovation/business-ethics-transparency";
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
-import { useTopicCompletion } from "@/hooks/useAssessmentCompletion";
-import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
+import { resolveDataPath, hasUserData, type SectionStatus } from "@/lib/assessmentStatusUtils";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
-import { checkTopicCompletion } from "@/lib/assessmentCompletionUtils";
 
 interface DisclosureTopicsProps {
   onBack: () => void;
@@ -213,8 +211,6 @@ const industrySpecificMetrics: MetricSection[] = [
   },
 ];
 
-const allMetrics: MetricSection[] = [...industrySpecificMetrics];
-
 export function DisclosureTopics({
   onBack,
   initialView = "topics",
@@ -236,28 +232,142 @@ export function DisclosureTopics({
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const { state } = useAssessment();
 
+  // Prevent editing when assessment has been submitted, approved, or is awaiting review
+  const lockedStatuses = ["approved", "submitted_approved", "awaiting_review"];
+  const isLocked = lockedStatuses.includes(state.assessmentData?.status || "");
+
   // Use the custom hook for topic completion status
-  const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
+  // const { getStatus, getCardBorderClass } = useTopicCompletion(allMetrics, state.assessmentData);
 
-  // Activity Metrics completion helpers
-  const getActivityMetricsStatus = () => {
-    return checkTopicCompletion("Activity Metrics", state.assessmentData);
-  };
-
-  const getActivityMetricsBorderClass = () => {
-    const status = getActivityMetricsStatus();
-    switch (status.status) {
-      case "completed":
-        return "border-l-4 border-l-green-500";
-      case "in-progress":
-        return "border-l-4 border-l-yellow-500";
-      case "not-started":
+  /** Map each disclosure topic to its exact sub-group paths (mirrors backend PILLAR_GROUPS) */
+  const getTopicSubGroups = (title: string): string[] => {
+    switch (title) {
+      case "Greenhouse Gas Emissions":
+        return [
+          "environment.ghg.scope1.stationarySources",
+          "environment.ghg.scope1.mobileSources",
+          "environment.ghg.scope1.processEmissions",
+          "environment.ghg.scope1.fugitiveEmissions",
+          "environment.ghg.scope2.locationBased",
+          "environment.ghg.scope2.marketBased",
+          "environment.ghg.scope3.upstream",
+          "environment.ghg.scope3.downstream",
+        ];
+      case "Air Quality":
+        return ["environment.airQuality.airPollutantEmissions"];
+      case "Water and Wastewater Management":
+        return [
+          "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
+          "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
+        ];
+      case "Biodiversity Impact":
+        return [
+          "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
+          "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+          "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
+        ];
+      case "Community Relations":
+        return [
+          "socialCapital.communityRelations.communityRiskOpportunityManagement",
+          "socialCapital.communityRelations.hcdtContribution",
+          "socialCapital.communityRelations.communityDisputeResolution",
+          "socialCapital.communityRelations.operationalDelays",
+        ];
+      case "Security, Human Rights & Rights of Indigenous Peoples":
+        return [
+          "socialCapital.securityHumanRights.operationsInConflictZones",
+          "socialCapital.securityHumanRights.reservesInNearIndigenousLand",
+          "socialCapital.securityHumanRights.humanRightsEngagementProcesses",
+        ];
+      case "Workforce Health & Safety":
+        return [
+          "humanCapital.workforceHealthSafety",
+          "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+        ];
+      case "Reserves Valuation & Capital Expenditures":
+        return [
+          "businessModel.reservesValuation.reservesSensitivity",
+          "businessModel.reservesValuation.embeddedCarbon",
+          "businessModel.reservesValuation.renewableEnergyInvestment",
+          "businessModel.reservesValuation.capitalExpenditureStrategy",
+        ];
+      case "Business Ethics & Transparency":
+        return [
+          "businessModel.businessEthics.reservesCountriesCorruptionRisk",
+          "businessModel.businessEthics.antiCorruptionManagement",
+        ];
+      case "Critical Incident Risk Management":
+        return [
+          "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents",
+          "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems",
+        ];
+      case "Management of the Legal & Regulatory Environment":
+        return [
+          "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight",
+          "leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement",
+        ];
+      case "Activity Metrics":
+        return [
+          "foundationalData.activityMetrics.productionVolumes",
+          "foundationalData.activityMetrics.offshoreSites",
+          "foundationalData.activityMetrics.terrestrialSites",
+        ];
       default:
-        return "border-l-4 border-l-gray-300";
+        return [];
     }
   };
 
+  /** Map each topic to its data root in assessmentData for "in-progress" detection */
+  const topicDataRoots: Record<string, string[]> = {
+    "Greenhouse Gas Emissions": ["environment", "ghg"],
+    "Air Quality": ["environment", "airQuality"],
+    "Water and Wastewater Management": ["environment", "waterManagement"],
+    "Biodiversity Impact": ["environment", "biodiversityImpact"],
+    "Community Relations": ["socialCapital", "communityRelations"],
+    "Security, Human Rights & Rights of Indigenous Peoples": ["socialCapital", "securityHumanRights"],
+    "Workforce Health & Safety": ["humanCapital"],
+    "Reserves Valuation & Capital Expenditures": ["businessModel", "reservesValuation"],
+    "Business Ethics & Transparency": ["businessModel", "businessEthics"],
+    "Critical Incident Risk Management": ["leadershipGovernance", "criticalIncidentRiskManagement"],
+    "Management of the Legal & Regulatory Environment": ["leadershipGovernance", "legalRegulatoryEnvironment"],
+    "Activity Metrics": ["activityMetrics"],
+  };
+
+  const getStatusFromData = (title: string, data: any): { status: SectionStatus } => {
+    if (!data) return { status: "not-started" };
+
+    const submittedGroups: string[] = data?.submittedGroups || [];
+    const topicSubGroups = getTopicSubGroups(title);
+    const submittedCount = topicSubGroups.filter((g) => submittedGroups.includes(g)).length;
+
+    // All sub-groups submitted → submitted
+    if (topicSubGroups.length > 0 && submittedCount === topicSubGroups.length) {
+      return { status: "submitted" };
+    }
+
+    // Some sub-groups submitted → in-progress
+    if (submittedCount > 0) {
+      return { status: "in-progress" };
+    }
+
+    // No submissions but real user data exists at topic root → in-progress
+    const dataPath = topicDataRoots[title];
+    if (dataPath) {
+      const topicData = resolveDataPath(data, dataPath);
+      if (topicData && hasUserData(topicData)) {
+        return { status: "in-progress" };
+      }
+    }
+
+    return { status: "not-started" };
+  };
+
+  const getActivityMetricsStatus = () => {
+    return getStatusFromData("Activity Metrics", state.assessmentData);
+  };
+
   const handleCardClick = (cardTitle: string) => {
+    if (isLocked) return;
     switch (cardTitle) {
       case "Greenhouse Gas Emissions":
         setCurrentView("ghg");
@@ -337,12 +447,16 @@ export function DisclosureTopics({
     return (
       <ActivityMetricHome
         onBack={() => setCurrentView("topics")}
-        initialView={(initialStep && typeof initialStep === 'string')
-          ? (initialStep.includes('production') ? 'production-volume'
-            : initialStep.includes('offshore') ? 'offshore-sites'
-              : initialStep.includes('terrestrial') ? 'terrestrial-sites'
-                : 'overview') as any
-          : 'overview'
+        initialView={
+          initialStep && typeof initialStep === "string"
+            ? ((initialStep.includes("production")
+              ? "production-volume"
+              : initialStep.includes("offshore")
+                ? "offshore-sites"
+                : initialStep.includes("terrestrial")
+                  ? "terrestrial-sites"
+                  : "overview") as any)
+            : "overview"
         }
       />
     );
@@ -356,6 +470,7 @@ export function DisclosureTopics({
         initialStep={initialStep}
         assignedTask={assignedTask}
         assignedTopics={assignedTopics}
+        onContinueToNextAssessment={() => setCurrentView("air-quality")}
       />
     );
   }
@@ -367,7 +482,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("workforce-health-and-safety");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -384,7 +499,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("crs");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -394,13 +509,21 @@ export function DisclosureTopics({
     );
   }
   if (currentView === "crs") {
-    return <CommunityRelationsHome onBack={() => setCurrentView("topics")} />;
+    return (
+      <CommunityRelationsHome
+        onBack={() => setCurrentView("topics")}
+        backToAssessmentHub={handleBackToHub}
+        initialForm={initialForm as any}
+        onContinueToNextAssessment={() => setCurrentView("security-human-rights")}
+      />
+    );
   }
   if (currentView === "air-quality") {
     return (
-      <AirQiality
+      <AirQuality
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
+        onContinueToNextAssessment={() => setCurrentView("water-and-wastewater-management")}
       />
     );
   }
@@ -409,6 +532,7 @@ export function DisclosureTopics({
       <WaterAndWastewaterManagement
         backToDisclosureTopics={() => setCurrentView("topics")}
         backToAssessmentHub={handleBackToHub}
+        onContinueToNextAssessment={() => setCurrentView("biodiversity")}
       />
     );
   }
@@ -420,7 +544,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("business-ethics-transparency");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -438,7 +562,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("reserves-valuation-capital-expenditures");
         }}
       />
     );
@@ -452,7 +576,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("critical-incident-risk-management");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -469,7 +593,7 @@ export function DisclosureTopics({
         initialForm={initialForm as any}
         initialStep={initialStep}
         onContinueToNextAssessment={() => {
-          setCurrentView("topics");
+          setCurrentView("management-of-legal-and-regulatory-environment");
         }}
         onSubmit={(data) => {
           console.info(data);
@@ -509,6 +633,19 @@ export function DisclosureTopics({
             Back
           </Button>
 
+          {isLocked && (
+            <div className="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 mb-4">
+              <Lock className="h-4 w-4 text-amber-600 shrink-0" />
+              <p className="text-sm text-amber-800">
+                This assessment has been{" "}
+                {state.assessmentData?.status === "awaiting_review"
+                  ? "submitted for review"
+                  : "approved"}
+                . It is read-only and cannot be edited.
+              </p>
+            </div>
+          )}
+
           <Card className="bg-gray-50 p-8 rounded-xl shadow-none ">
             <CardContent className="p-0">
               <div className="flex items-center justify-between mb-8">
@@ -527,7 +664,7 @@ export function DisclosureTopics({
                     </p>
                   )}
                 </div>
-                {!assignedTask && (
+                {!assignedTask && !isLocked && (
                   <Button
                     className="bg-primary hover:bg-teal-600 text-white"
                     onClick={() => router.push("/assessments/tasks/assign?selectAll=true")}
@@ -558,7 +695,7 @@ export function DisclosureTopics({
                       <TooltipContent
                         side="top"
                         align="center"
-                        className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl  border-none"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl  border-none"
                       >
                         <h6 className="underline">Foundational Data</h6>
                         <p>
@@ -574,27 +711,26 @@ export function DisclosureTopics({
                     </Tooltip>
                   </span>
                 </div>
+                {/* Status indication commented out - revisit later (was getActivityMetricsBorderClass()) */}
                 <Card
-                  className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md`}
-                  // className={`transition-all shadow-sm bg-white rounded-lg cursor-pointer hover:bg-accent/50 hover:shadow-md max-w-md ${getActivityMetricsBorderClass()}`}
+                  className={`transition-all shadow-sm bg-white rounded-lg max-w-md ${
+                    isLocked ? "opacity-75 cursor-default" : "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                  }`}
                   style={{
                     borderLeftWidth: "4px",
-                    // borderLeftColor:
-                    //   getActivityMetricsStatus().status === "completed"
-                    //     ? "#22c55e"
-                    //     : getActivityMetricsStatus().status === "in-progress"
-                    //       ? "#eab308"
-                    //       : "#d1d5db",
+                    borderLeftColor: (() => {
+                      const status = getActivityMetricsStatus();
+                      if (status.status === "submitted") return "#2dd4bf"; // teal-400
+                      if (status.status === "in-progress") return "#facc15"; // yellow-400
+                      return "transparent";
+                    })(),
                   }}
-                  onClick={() => setCurrentView("activity-metrics")}
+                  onClick={() => !isLocked && setCurrentView("activity-metrics")}
                 >
                   <CardContent className="p-4 flex justify-between items-center">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-2 flex-1">
-                        <div className="flex items-center justify-between">
-                          <h5 className="font-medium text-foreground">Activity Metrics</h5>
-                          {/* <CompletionIndicator status={getActivityMetricsStatus()} /> */}
-                        </div>
+                        <h5 className="font-medium text-foreground">Activity Metrics</h5>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
                         </p>
@@ -619,7 +755,7 @@ export function DisclosureTopics({
                             <TooltipContent
                               side="top"
                               align="center"
-                              className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl  border-none"
+                              className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl  border-none"
                             >
                               <h6>Industry-Specific Metrics</h6>
                               <p>
@@ -647,7 +783,7 @@ export function DisclosureTopics({
                                   <TooltipContent
                                     side="top"
                                     align="start"
-                                    className="max-w-xs bg-gray-800 text-white p-3 rounded-lg shadow-xl border-none"
+                                    className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                                   >
                                     <h6 className="font-semibold mb-1">{section.tooltip.title}</h6>
                                     <p>{section.tooltip.description}</p>
@@ -657,45 +793,34 @@ export function DisclosureTopics({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {section.cards.map((card) => {
-                                const status = getStatus(card.title);
-                                const borderClass = getCardBorderClass(card.title);
-
-                                // Get border color based on status - handle undefined case
-                                const getBorderColor = () => {
-                                  if (!status) return "#d1d5db"; // gray-300 for undefined
-
-                                  // switch (status.status) {
-                                  //   case "completed":
-                                  //     return "#22c55e"; // green-500
-                                  //   case "in-progress":
-                                  //     return "#eab308"; // yellow-500
-                                  //   default:
-                                  //     return "#d1d5db"; // gray-300
-                                  // }
-                                };
+                                const cardStatus = getStatusFromData(card.title, state.assessmentData);
 
                                 return (
                                   <Card
                                     key={card.title}
-                                    className={`transition-all shadow-sm bg-white rounded-lg ${card.clickable
-                                      ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
-                                      : "cursor-default"
-                                      }`}
+                                    className={`transition-all shadow-sm bg-white rounded-lg ${
+                                      isLocked
+                                        ? "opacity-75 cursor-default"
+                                        : card.clickable
+                                          ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                                          : "cursor-default"
+                                    }`}
                                     style={{
                                       borderLeftWidth: "4px",
-                                      borderLeftColor: getBorderColor(),
+                                      borderLeftColor: (() => {
+                                        if (cardStatus.status === "submitted") return "#2dd4bf";
+                                        if (cardStatus.status === "in-progress") return "#facc15";
+                                        return "transparent";
+                                      })(),
                                     }}
                                     onClick={() => card.clickable && handleCardClick(card.title)}
                                   >
                                     <CardContent className="p-4 flex justify-between items-center">
                                       <div className="flex items-start justify-between gap-3 flex-1">
                                         <div className="space-y-2 flex-1">
-                                          <div className="flex items-center justify-between">
-                                            <h5 className="font-medium text-foreground">
+                                          <h5 className="font-medium text-foreground">
                                               {card.title}
-                                            </h5>
-                                            {/* <CompletionIndicator status={status} /> */}
-                                          </div>
+                                          </h5>
                                           <p className="text-sm text-muted-foreground">
                                             {card.subtitle}
                                           </p>

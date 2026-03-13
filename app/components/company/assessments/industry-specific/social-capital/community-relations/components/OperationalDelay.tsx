@@ -15,7 +15,9 @@ import { uploadService } from "@/services/upload.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { toast } from "react-toastify";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
+import { useAssessment } from "@/hooks/useAssessment";
 import { useRouter } from "next/navigation";
+import { calculateProgress } from "@/lib/utils";
 import CustomTooltip from "@/app/(company)/kpis/create/components/CustomTooltip";
 import { TooltipMessage } from "@/app/(company)/kpis/create/components/TooltipMessage";
 
@@ -35,9 +37,12 @@ export default function OperationalDelay({
   totalSteps,
 }: Props) {
   const router = useRouter();
-  const { saveNow, submitGroup } = useAssessmentFlow(
+  const { state } = useAssessment();
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "socialCapital.communityRelations.operationalDelays",
     "socialCapital.communityRelations.operationalDelays"
   );
+  const hasExistingData = !!state.assessmentData.socialCapital?.communityRelations?.operationalDelays;
 
   const numberOfDelaysCommunityProtests = useFormattedNumber("");
   const durationDelaysCommunityProtests = useFormattedNumber("");
@@ -45,7 +50,6 @@ export default function OperationalDelay({
   const durationDelaysOtherIssues = useFormattedNumber("");
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-  const [isActionLoading, setIsActionLoading] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -55,6 +59,28 @@ export default function OperationalDelay({
     numberOfDelaysOtherStakeholderUnit: "Delays",
     durationDelaysOtherIssuesUnit: "Days",
   });
+
+  // Pre-fill form from saved assessment data
+  useEffect(() => {
+    const existingData = state.assessmentData?.socialCapital?.communityRelations?.operationalDelays;
+    if (existingData && Object.keys(existingData).length > 0) {
+      if (existingData.numberOfDelaysCommunityProtests != null) {
+        numberOfDelaysCommunityProtests.handleChange(String(existingData.numberOfDelaysCommunityProtests));
+      }
+      if (existingData.durationDelaysCommunityProtests != null) {
+        durationDelaysCommunityProtests.handleChange(String(existingData.durationDelaysCommunityProtests));
+      }
+      if (existingData.numberOfDelaysOtherStakeholder != null) {
+        numberOfDelaysOtherStakeholder.handleChange(String(existingData.numberOfDelaysOtherStakeholder));
+      }
+      if (existingData.durationDelaysOtherIssues != null) {
+        durationDelaysOtherIssues.handleChange(String(existingData.durationDelaysOtherIssues));
+      }
+      if (existingData.filesAndLinks) {
+        setFilesAndLinks(existingData.filesAndLinks);
+      }
+    }
+  }, [state.assessmentData?.socialCapital?.communityRelations?.operationalDelays]);
 
   const features = [
     { label: "Dashboard", href: "/dashboard-esg" },
@@ -71,7 +97,7 @@ export default function OperationalDelay({
   }, [stepIndex]);
 
   // Calculate progress
-  const progress = useMemo(() => {
+  const { filled, total } = useMemo(() => {
     const hasNumberOfDelaysCommunity =
       numberOfDelaysCommunityProtests.rawValue !== "" &&
       formData.numberOfDelaysCommunityProtestsUnit !== "";
@@ -83,14 +109,12 @@ export default function OperationalDelay({
       formData.numberOfDelaysOtherStakeholderUnit !== "";
     const hasDurationDelaysOther =
       durationDelaysOtherIssues.rawValue !== "" && formData.durationDelaysOtherIssuesUnit !== "";
-
-    const completed = [
+    return calculateProgress([
       hasNumberOfDelaysCommunity,
       hasDurationDelaysCommunity,
       hasNumberOfDelaysOther,
       hasDurationDelaysOther,
-    ].filter(Boolean).length;
-    return completed;
+    ]);
   }, [
     numberOfDelaysCommunityProtests.rawValue,
     formData.numberOfDelaysCommunityProtestsUnit,
@@ -135,8 +159,6 @@ export default function OperationalDelay({
       filesAndLinks: filesAndLinks,
     };
 
-    setIsActionLoading(true);
-
     try {
       await saveNow("socialCapital.communityRelations.operationalDelays", payload);
       setShowSaveSuccess(true);
@@ -146,8 +168,6 @@ export default function OperationalDelay({
       }, 1000);
     } catch (_error: any) {
       toast.error("Failed to save data", _error.message);
-    } finally {
-      setIsActionLoading(false);
     }
   };
 
@@ -169,17 +189,12 @@ export default function OperationalDelay({
       filesAndLinks: filesAndLinks,
     };
 
-    setIsActionLoading(true);
-
     try {
-      await saveNow("socialCapital.communityRelations.operationalDelays", payload);
-      await submitGroup();
+      await saveAndSubmit("socialCapital.communityRelations.operationalDelays", payload);
       toast.success("Assessment completed successfully!");
       onNext();
     } catch (_error: any) {
       toast.error("Failed to submit assessment", _error.message);
-    } finally {
-      setIsActionLoading(false);
     }
   };
 
@@ -212,9 +227,9 @@ export default function OperationalDelay({
             <AssessmentProgressBar
               stepIndex={stepIndex}
               totalSteps={totalSteps}
-              fieldsCompleted={progress}
-              totalFields={4}
-              isSubmitted={false}
+              fieldsCompleted={filled}
+              totalFields={total}
+              groupKey="socialCapital.communityRelations.operationalDelays"
             />
 
             {/* Number of Delays (Community Protests) */}
@@ -462,10 +477,10 @@ export default function OperationalDelay({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -484,18 +499,12 @@ export default function OperationalDelay({
               </Button>
               <Button
                 type="button"
+                variant="outline"
                 onClick={handleSubmit}
-                disabled={isActionLoading}
-                className="justify-self-end border border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 cursor-pointer"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isActionLoading ? (
-                  <>
-                    <LoadingSpinner size="sm" className="mr-2" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>Submit</>
-                )}
+                {getSubmitLabel(hasExistingData, isSubmitting)}
               </Button>
             </div>
           </CardContent>

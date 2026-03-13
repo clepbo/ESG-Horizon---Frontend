@@ -44,9 +44,18 @@ export default function FreshWaterWithdrawalAndConsumption({
   const withdrawalfromSurfaceWater = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, isLoading: isActionLoading } = useAssessmentFlow(
-    "freshwater-withdrawal-consumption"
+  const {
+    saveNow,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+  } = useAssessmentFlow(
+    "freshwater-withdrawal-consumption",
+    "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
   );
+  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -255,7 +264,7 @@ export default function FreshWaterWithdrawalAndConsumption({
         router.push("/assessments/new-assessment");
       }, 1500);
     } catch {
-      // toast.error is already handled in useAssessmentFlow
+      toast.error("Failed to save data.");
     }
   };
 
@@ -288,7 +297,7 @@ export default function FreshWaterWithdrawalAndConsumption({
     dispatch({ type: "UPDATE_WATER_FRESHWATER", payload });
 
     try {
-      await saveNow(
+      await saveAndSubmit(
         "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
         payload
       );
@@ -331,6 +340,7 @@ export default function FreshWaterWithdrawalAndConsumption({
               fieldsCompleted={filled}
               totalFields={total}
               isSubmitted={false}
+              groupKey="environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
             />
 
             <ReusableInput
@@ -471,10 +481,10 @@ export default function FreshWaterWithdrawalAndConsumption({
                 type="button"
                 variant="outline"
                 onClick={handleSaveAndContinue}
-                disabled={isActionLoading}
+                disabled={isSaving}
                 className="justify-self-center bg-primary text-white hover:bg-teal-300 flex items-center gap-2"
               >
-                {isActionLoading ? (
+                {isSaving ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
                     Saving...
@@ -495,11 +505,11 @@ export default function FreshWaterWithdrawalAndConsumption({
                 type="button"
                 variant="outline"
                 onClick={handleNext}
-                disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                disabled={isSubmitting || isPreviouslySubmitted}
+                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Next
-                <ArrowRight className="h-4 w-4" />
+                {getSubmitLabel(hasExistingData, isSubmitting)}
+                {!isPreviouslySubmitted && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
           </CardContent>

@@ -61,12 +61,16 @@ export interface EnvironmentalPillar {
   changePercentage?: number;
   greenhouseGasEmission?: {
     totalEmissions: number;
+    totalChange: number | null;
     totalHistory: EmissionHistory[];
     scope1Emissions: number;
+    scope1Change: number | null;
     scope1History: EmissionHistory[];
     scope2Emissions: number;
+    scope2Change: number | null;
     scope2History: EmissionHistory[];
     scope3Emissions: number;
+    scope3Change: number | null;
     scope3History: EmissionHistory[];
   };
   ghg?: GHGData;
@@ -82,11 +86,15 @@ export interface SocialCapitalPillar {
   totalNumberOfIncidents?: number;
   securityHumanRightsAndIndigenousPeople?: {
     operationsInConflictZones?: {
+      totalProvedReserves: number;
       provedReserves: number;
+      totalProbableReserves: number;
       probableReserves: number;
     };
     reservesInNearIndigenousLand?: {
+      totalProvedReserves: number;
       provedReserves: number;
+      totalProbableReserves: number;
       probableReserves: number;
     };
   };
@@ -97,9 +105,8 @@ export interface SocialCapitalPillar {
       percentage: number;
     };
     communityDisputeResolution?: {
-      resolvedDisputes: number;
-      pending: number;
-      total: number;
+      disputesReferred: number;
+      disputesResolved: number;
     };
     operationalDelays?: {
       protests?: {
@@ -122,6 +129,21 @@ export interface HumanCapitalPillar {
   fatalities?: number;
   nearMisses?: number;
   averageSafetyTrainingHoursPerEmployee?: number;
+  direct?: HumanCapitalMetrics;
+  contract?: HumanCapitalMetrics;
+  safetyManagementSystems?: {
+    title: string;
+    tag: string;
+    description: string;
+  }[];
+}
+
+export interface HumanCapitalMetrics {
+  recordableIncidents?: number;
+  fatalities?: number;
+  nearMisses?: number;
+  totalHoursWorked?: number;
+  trir?: number;
 }
 
 export interface BusinessModelPillar {
@@ -130,7 +152,7 @@ export interface BusinessModelPillar {
   changePercentage?: number;
   reservesValuationAndCapitalExpenditure?: {
     climateImpactOnReserves?: {
-      carbonPriceScenario: string;
+      carbonPriceScenario: number;
       reservesAtRiskPercent: number;
       totalProvedReserves: number;
       totalProbableReserves: number;
@@ -168,6 +190,7 @@ export interface LeadershipAndGovernancePillar {
     policyPosition?: string;
     sustainabilityGovernance?: string;
     sustainabilityPosition?: string;
+    hasBoardCommittee?: string;
   };
   criticalIncidenceRiskManagement?: {
     processSafetyEvents?: {
@@ -247,6 +270,7 @@ export interface WaterManagementData {
   recycledWater: number;
   injectedForDisposal?: number;
   dischargedToSurface?: number;
+  averageHydrocarbonContent?: number;
   freshwaterWithdrawals?: {
     surfaceWater: number;
     groundwater: number;
@@ -317,9 +341,11 @@ export interface BiodiversityImpactsData {
     volumeImpactingSensitiveShorelines?: number;
   };
   reservesInSensitiveAreas?: {
+    totalProvedReserves?: number;
     proved?: number;
     probable?: number;
     provedReserves?: number;
+    totalProbableReserves?: number;
     probableReserves?: number;
   };
   volumeInArctic?: number;

@@ -13,11 +13,9 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
-  LabelList,
 } from "recharts";
-import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { ReportResponse } from "@/types/report/reportResponse";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrencyCompact, formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 const COUNT_COLOR = "#9CA3AF";
 const DURATION_COLOR = "#F97316";
@@ -41,13 +39,13 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
         <div>
           <p className="text-sm pt-4 text-gray-500">Prior Year OPEX</p>
           <p className="text-lg md:text-xl font-bold text-gray-800">
-            {formatCurrency(priorYearOpex)}
+            {formatCurrencyCompact(priorYearOpex, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Annual Contribution ({percentage}%)</p>
+          <p className="text-sm text-gray-500">Annual Contribution ({formatNumberFull(percentage, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)</p>
           <p className="text-xl md:text-2xl font-bold text-gray-800">
-            {formatCurrency(annualContribution)}
+            {formatCurrencyCompact(annualContribution, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       </div>
@@ -81,7 +79,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className="w-3 h-3 rounded-full shrink-0"
+              className="w-3 h-3 shrink-0"
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-sm text-gray-700">{entry.value}</span>
@@ -98,31 +96,49 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
       </h3>
       <hr className="text-gray-200" />
       <div className="border-b border-gray-200 pb-4 flex-1 min-h-[200px]">
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={260}>
           <PieChart>
             <Pie
               data={DISPUTE_DATA}
               dataKey="value"
               nameKey="name"
               cx="50%"
-              cy="50%"
+              cy="45%"
               innerRadius={55}
               outerRadius={75}
-              paddingAngle={0}
+              paddingAngle={2}
               stroke="none"
-              label={({ value }) => `${value}`}
-            // labelLine={false}
+              label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
+                const RADIAN = Math.PI / 180;
+                const radius = (outerRadius ?? 75) + 18;
+                const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
+                const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    fill="#374151"
+                    textAnchor={x > cx ? "start" : "end"}
+                    dominantBaseline="central"
+                    fontSize={12}
+                    fontWeight={600}
+                  >
+                    {name}: {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </text>
+                );
+              }}
+              labelLine={false}
             >
               {DISPUTE_DATA.map((entry, i) => (
                 <Cell key={i} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip formatter={(value) => formatNumberShort(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
             <Legend content={<CustomLegend />} />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {total}</p>
+      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {formatNumberFull(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
     </div>
   );
 }
@@ -147,7 +163,7 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className="w-3 h-3 rounded-full shrink-0"
+              className="w-3 h-3 shrink-0"
               style={{ backgroundColor: entry.color }}
             />
             <span
@@ -165,14 +181,15 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col">
+    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col overflow-visible">
       <h3 className="text-sm 2xl:text-base font-semibold text-gray-800 mb-3">Operational Delays</h3>
       <hr className="text-gray-200" />
       <div className="border-b border-gray-200 pb-2 flex-1 min-h-[200px]">
         <ResponsiveContainer width="100%" height={260}>
           <BarChart
             data={DELAYS_DATA}
-            margin={{ top: 12, right: 12, left: -8, bottom: 8 }}
+            margin={{ top: 12, right: 12, left: 10, bottom: 8 }}
+            style={{ overflow: "visible" }}
             barGap={6}
             barCategoryGap="25%"
           >
@@ -186,29 +203,21 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
               domain={[0, maxDuration]}
               tick={{ fill: "#6B7280", fontSize: 12 }}
               axisLine={{ stroke: "#D1D5DB" }}
-              width={32}
+              width={48}
+              tickFormatter={(value) => formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             />
-            <Tooltip />
+            <Tooltip
+              cursor={false}
+              formatter={(value) => formatNumberShort(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            />
             <Legend content={<CustomLegend />} />
-            <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]}>
-              <LabelList
-                dataKey="count"
-                position="top"
-                formatter={(value) => formatNumberFigures(Number(value) || 0)}
-              />
-            </Bar>
+            <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} />
             <Bar
               dataKey="duration"
               name="Duration (Days)"
               fill={DURATION_COLOR}
               radius={[4, 4, 0, 0]}
-            >
-              <LabelList
-                dataKey="duration"
-                position="top"
-                formatter={(value) => formatNumberFigures(Number(value) || 0)}
-              />
-            </Bar>
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
