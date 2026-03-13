@@ -31,27 +31,27 @@ export const STATUS_CONFIG: Record<
 > = {
   in_progress: {
     label: "In Progress",
-    color: "bg-yellow-100 text-yellow-800",
+    color: "bg-yellow-400 text-black",
     icon: Clock,
   },
   awaiting_review: {
     label: "Awaiting Review",
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-blue-600 text-white",
     icon: AlertCircle,
   },
   submitted_approved: {
     label: "Submitted-Approved",
-    color: "bg-green-100 text-green-800",
+    color: "bg-green-500 text-white",
     icon: CheckCircle2,
   },
   approved: {
     label: "Approved",
-    color: "bg-green-100 text-green-800",
+    color: "bg-green-500 text-white",
     icon: CheckCircle2,
   },
   declined: {
     label: "Declined",
-    color: "bg-red-100 text-red-800",
+    color: "bg-destructive text-white",
     icon: XCircle,
   },
 };
