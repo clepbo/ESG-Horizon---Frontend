@@ -22,9 +22,9 @@ interface MetricAccordionProps {
 }
 
 const statusBadge: Record<SectionStatus, { label: string; className: string }> = {
-  submitted: { label: "Complete", className: "border-teal-300 text-teal-700 bg-teal-50" },
-  "in-progress": { label: "In Progress", className: "border-amber-300 text-amber-700 bg-amber-50" },
-  "not-started": { label: "Not Started", className: "border-gray-300 text-gray-500 bg-gray-50" },
+  submitted: { label: "Complete", className: "bg-green-500 text-white border-transparent" },
+  "in-progress": { label: "In Progress", className: "bg-yellow-400 text-black border-transparent" },
+  "not-started": { label: "Not Started", className: "bg-gray-400 text-white border-transparent" },
 };
 
 export function MetricAccordion({
