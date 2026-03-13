@@ -47,7 +47,8 @@ export const useDeleteAssessment = () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       toast.info("Draft assessment has been deleted.");
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      if (error._toastShown) return;
       const errorMessage =
         error.message ||
         "Failed to delete assessment. Only 'draft' status assessments can be deleted.";
@@ -65,7 +66,8 @@ export const useApproveAssessment = () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       toast.success("Assessment approved. Report generation started.");
     },
-    onError: () => {
+    onError: (error: any) => {
+      if (error._toastShown) return;
       toast.error("Failed to approve assessment.");
     },
   });
@@ -85,7 +87,8 @@ export const useDeclineAssessment = () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       toast.success("Assessment rejected successfully.");
     },
-    onError: () => {
+    onError: (error: any) => {
+      if (error._toastShown) return;
       toast.error("Failed to reject assessment.");
     },
   });
@@ -110,7 +113,8 @@ export const useSubmitForReview = () => {
           : "Assessment submitted for review.",
       );
     },
-    onError: () => {
+    onError: (error: any) => {
+      if (error._toastShown) return;
       toast.error("Failed to submit assessment.");
     },
   });
@@ -126,7 +130,8 @@ export const useGenerateReport = () => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
       toast.success("Report generated successfully.");
     },
-    onError: () => {
+    onError: (error: any) => {
+      if (error._toastShown) return;
       toast.error("Failed to generate report.");
     },
   });

@@ -78,6 +78,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 429) {
       const message = error.response.data?.message || "Too many requests. Please slow down.";
       toast.error(message, { autoClose: 4000 });
+      error._toastShown = true;
     }
     return Promise.reject(error);
   }

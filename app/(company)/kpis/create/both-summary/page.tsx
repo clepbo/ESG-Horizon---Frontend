@@ -64,11 +64,12 @@ export default function BothSummaryPage() {
       localStorage.removeItem("generalTargetSummary");
       localStorage.removeItem("scopeTargetSummary");
     },
-    onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+    onError: (error: any) => {
+      if (error._toastShown) return;
+      const status = error?.response?.status;
       const serverMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (error as Error)?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
         "Something went wrong.";
       const isOverlapError =
         status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
