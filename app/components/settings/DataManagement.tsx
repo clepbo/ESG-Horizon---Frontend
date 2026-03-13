@@ -10,9 +10,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import { Download } from "lucide-react";
+import { Download, Lock } from "lucide-react";
+import { usePermissions } from "@/lib/permissions";
 
 export default function DataManagement() {
+  const { can } = usePermissions();
+  const canExport = can("exportData");
+  const canDownload = can("downloadReports");
+  const canRetention = can("manageDataRetention");
+  const canBackup = can("manageAutoBackup");
+  const canSave = canRetention || canBackup;
+
   const [autoBackup, setAutoBackup] = useState(true);
   const [retention, setRetention] = useState("Indefinite");
   const [saving, setSaving] = useState(false);
@@ -27,7 +35,6 @@ export default function DataManagement() {
 
   const handleSave = async () => {
     setSaving(true);
-    // simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
     toast.success("Settings saved (settings will take effect soon).");
     setSaving(false);
@@ -41,24 +48,38 @@ export default function DataManagement() {
       {/* Export Buttons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Export All Data */}
-        <button
-          onClick={handleExportAll}
-          className="flex flex-col items-center justify-center gap-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50 py-6 cursor-pointer"
-          title="Feature will be available soon"
-        >
-          <Download className="w-5 h-5" />
-          <span className="text-sm font-medium">Export All Data</span>
-        </button>
+        <div className="relative group">
+          <button
+            onClick={canExport ? handleExportAll : undefined}
+            disabled={!canExport}
+            className={`w-full flex flex-col items-center justify-center gap-2 border rounded py-6 ${
+              canExport
+                ? "border-teal-500 text-teal-500 hover:bg-teal-50 cursor-pointer"
+                : "border-gray-300 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            <Download className="w-5 h-5" />
+            <span className="text-sm font-medium">Export All Data</span>
+          </button>
+          {!canExport && <PermissionTooltip message="Requires Data Officer or Admin role" />}
+        </div>
 
         {/* Download Reports */}
-        <button
-          onClick={handleDownloadReports}
-          className="flex flex-col items-center justify-center gap-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50 py-6 cursor-pointer"
-          title="Requires subscription"
-        >
-          <Image src="/icons/Assessment.svg" alt="File download icon" width={20} height={20} />
-          <span className="text-sm font-medium">Download Reports</span>
-        </button>
+        <div className="relative group">
+          <button
+            onClick={canDownload ? handleDownloadReports : undefined}
+            disabled={!canDownload}
+            className={`w-full flex flex-col items-center justify-center gap-2 border rounded py-6 ${
+              canDownload
+                ? "border-teal-500 text-teal-500 hover:bg-teal-50 cursor-pointer"
+                : "border-gray-300 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            <Image src="/icons/Assessment.svg" alt="File download icon" width={20} height={20} />
+            <span className="text-sm font-medium">Download Reports</span>
+          </button>
+          {!canDownload && <PermissionTooltip message="Requires Data Officer or Admin role" />}
+        </div>
       </div>
 
       {/* Data Retention */}
@@ -67,9 +88,13 @@ export default function DataManagement() {
           <p className="font-medium">Data Retention</p>
           <p className="text-sm text-gray-500">How long to keep historical ESG data</p>
         </div>
-        <div title="Retention policy feature requires subscription">
-          <Select value={retention} onValueChange={setRetention}>
-            <SelectTrigger className="w-[180px]">
+        <div className="relative group">
+          <Select
+            value={retention}
+            onValueChange={canRetention ? setRetention : undefined}
+            disabled={!canRetention}
+          >
+            <SelectTrigger className={`w-[180px] ${!canRetention ? "opacity-60" : ""}`}>
               <SelectValue placeholder="Select duration" />
             </SelectTrigger>
             <SelectContent>
@@ -79,6 +104,7 @@ export default function DataManagement() {
               <SelectItem value="5 Years">5 Years</SelectItem>
             </SelectContent>
           </Select>
+          {!canRetention && <PermissionTooltip message="Only Admin can change this" align="right" />}
         </div>
       </div>
 
@@ -88,14 +114,18 @@ export default function DataManagement() {
           <p className="font-medium">Auto-Backup</p>
           <p className="text-sm text-gray-500">Automatically backup data to secure storage</p>
         </div>
-        <ToggleSwitch
-          checked={autoBackup}
-          onChange={() => {
-            setAutoBackup(!autoBackup);
-            toast.info("Auto-backup feature will be available soon.");
-          }}
-          title="Feature will be available soon"
-        />
+        <div className="relative group">
+          <ToggleSwitch
+            checked={autoBackup}
+            disabled={!canBackup}
+            onChange={() => {
+              if (!canBackup) return;
+              setAutoBackup(!autoBackup);
+              toast.info("Auto-backup feature will be available soon.");
+            }}
+          />
+          {!canBackup && <PermissionTooltip message="Only Admin can change this" align="right" />}
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -103,18 +133,32 @@ export default function DataManagement() {
         <button className="px-5 py-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50">
           Close
         </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className={`px-5 py-2 rounded text-white cursor-pointer ${
-            saving
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-[var(--color-primary)] hover:bg-teal-600"
-          }`}
-        >
-          {saving ? "Saving..." : "Save"}
-        </button>
+        {canSave && (
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className={`px-5 py-2 rounded text-white cursor-pointer ${
+              saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[var(--color-primary)] hover:bg-teal-600"
+            }`}
+          >
+            {saving ? "Saving..." : "Save"}
+          </button>
+        )}
       </div>
+    </div>
+  );
+}
+
+function PermissionTooltip({ message, align = "center" }: { message: string; align?: "center" | "right" }) {
+  const pos = align === "right"
+    ? "right-0"
+    : "left-1/2 -translate-x-1/2";
+  return (
+    <div className={`absolute ${pos} bottom-full mb-2 w-48 p-2 bg-teal-600 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center pointer-events-none`}>
+      <Lock className="w-3 h-3 inline mr-1" />
+      {message}
     </div>
   );
 }
@@ -122,16 +166,16 @@ export default function DataManagement() {
 function ToggleSwitch({
   checked,
   onChange,
-  title,
+  disabled,
 }: {
   checked: boolean;
   onChange: () => void;
-  title?: string;
+  disabled?: boolean;
 }) {
   return (
-    <label className="inline-flex items-center cursor-pointer" title={title}>
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
-      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-teal-500 relative transition-all">
+    <label className={`inline-flex items-center ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} disabled={disabled} />
+      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-teal-500 relative transition-all ${disabled ? "" : ""}`}>
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
             checked ? "translate-x-5" : ""

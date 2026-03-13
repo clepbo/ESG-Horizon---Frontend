@@ -4,7 +4,7 @@ import Header from "@/app/(company)/components/Header";
 import EditUserModal from "@/app/components/ui/modals/EditUser";
 import SettingsAndPassword from "@/app/components/settings/SettingsAndPassword";
 import NotificationsSettings from "@/app/components/settings/NotificationsSettings";
-// import DataManagement from "@/app/components/settings/DataManagement";
+import DataManagement from "@/app/components/settings/DataManagement";
 import TabBar from "@/app/components/settings/accounts/TopBar";
 import ProfileTab from "@/app/components/settings/accounts/ProfileTab";
 import { useAuth } from "@/context/AuthContext";
@@ -19,7 +19,7 @@ import { User } from "@/services/user.service";
 import { motion } from "framer-motion";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 
-const TABS = ["Profile", "Security & Password", "Notifications" /*"Data"*/];
+const TABS = ["Profile", "Security & Password", "Notifications", "Data"];
 
 export default function AccountPage() {
   const { user: authUser } = useAuth();
@@ -102,7 +102,7 @@ export default function AccountPage() {
 
           {activeTab === "Security & Password" && <SettingsAndPassword />}
           {activeTab === "Notifications" && <NotificationsSettings />}
-          {/* {activeTab === "Data" && <DataManagement />} */}
+          {activeTab === "Data" && <DataManagement />}
         </div>
       )}
 

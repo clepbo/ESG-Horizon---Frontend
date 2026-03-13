@@ -1,5 +1,6 @@
 import { Accordion } from "@/app/components/ui/accordion";
 import { BarChart3 } from "lucide-react";
+import { formatNumberShort } from "@/lib/numberFormat";
 import { MetricAccordion } from "../MetricAccordion";
 import { SubMetricSection } from "../SubMetricSection";
 import { DataFieldGrid } from "../DataFieldGrid";
@@ -34,6 +35,21 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
   const terrestrialStatus = getFormSectionStatus(submittedGroups, "foundationalData.activityMetrics.terrestrialSites", terrestrial);
   const overallStatus = getOverallStatus([pvStatus, offshoreStatus, terrestrialStatus]);
 
+  // Badge: total sites
+  const totalSites = (Number(offshore.totalNumber) || 0) + (Number(terrestrial.totalNumber) || 0);
+  const hasSiteData = offshore.totalNumber != null || terrestrial.totalNumber != null;
+
+  // Badge: crude oil production
+  const crudeOil = Number(productionVolume.crudeOilProductionVolume) || 0;
+  const hasProdData = productionVolume.crudeOilProductionVolume != null;
+
+  const badgeParts: string[] = [];
+  if (hasProdData && crudeOil > 0) badgeParts.push(`${formatNumberShort(crudeOil)} ${productionVolume.crudeOilProductionUnit || "kbl/day"}`);
+  if (hasSiteData && totalSites > 0) badgeParts.push(`${totalSites} sites`);
+
+  // Incomplete count
+  const incompleteCount = [pvStatus, offshoreStatus, terrestrialStatus].filter((s) => s !== "submitted").length;
+
   // Collect documents
   const pvFiles: FileWithMeta[] = [];
   const offshoreFiles: FileWithMeta[] = [];
@@ -49,7 +65,9 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
         icon={BarChart3}
         title="Activity Metrics"
         description="3 form · IFRS: EM-EP-000.A – 000.C · Production data and portfolio"
+        badge={badgeParts.length > 0 ? badgeParts.join(" · ") : undefined}
         status={overallStatus}
+        incompleteCount={incompleteCount > 0 ? incompleteCount : undefined}
       >
         {/* ── Production Volumes ── */}
         <SubMetricSection

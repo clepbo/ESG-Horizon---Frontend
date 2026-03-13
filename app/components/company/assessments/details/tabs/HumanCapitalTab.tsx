@@ -1,5 +1,6 @@
 import { Accordion } from "@/app/components/ui/accordion";
 import { HardHat } from "lucide-react";
+import { formatNumberShort } from "@/lib/numberFormat";
 import { MetricAccordion } from "../MetricAccordion";
 import { SubMetricSection } from "../SubMetricSection";
 import { DataFieldGrid } from "../DataFieldGrid";
@@ -65,6 +66,23 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
     ? "in-progress"
     : "not-started";
 
+  // Badge: total recordable incidents (direct + contract)
+  const directIncidents = Number(directEmployees.recordableIncidents) || 0;
+  const contractIncidents = Number(contractEmployees.recordableIncidents) || 0;
+  const totalIncidents = directIncidents + contractIncidents;
+  const hasIncidentData = directEmployees.recordableIncidents != null || contractEmployees.recordableIncidents != null;
+
+  // Badge: total fatalities
+  const directFatalities = Number(directEmployees.fatalities) || 0;
+  const contractFatalities = Number(contractEmployees.fatalities) || 0;
+  const totalFatalities = directFatalities + contractFatalities;
+
+  const badgeParts: string[] = [];
+  if (hasIncidentData) badgeParts.push(`${formatNumberShort(totalIncidents)} incidents`);
+  if (totalFatalities > 0) badgeParts.push(`${totalFatalities} fatalities`);
+
+  const hcIncomplete = hcStatuses.filter((s) => s !== "submitted").length;
+
   // Files
   const hspFiles: FileWithMeta[] = [];
   const safetyFiles: FileWithMeta[] = [];
@@ -79,7 +97,9 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
         icon={HardHat}
         title="Workforce Health & Safety"
         description="2 form · IFRS: EM-EP-320a.1, 320a.2"
+        badge={badgeParts.length > 0 ? badgeParts.join(" · ") : undefined}
         status={hcStatus}
+        incompleteCount={hcIncomplete > 0 ? hcIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Health & Safety Performance ── */}
