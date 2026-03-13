@@ -48,8 +48,10 @@ export default function EditUserModal({
         onUpdate(freshUser);
       }
       toast.success("Profile Updated Successfully!");
-    } catch (error) {
-      console.error("Error updating user profile:", error);
+    } catch (error: any) {
+      if (!error._toastShown) {
+        toast.error("Failed to update profile. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -93,16 +95,11 @@ export default function EditUserModal({
                       const uploaded = await uploadService.uploadImage(file);
 
                       if (uploaded) {
-                        // Save Cloudinary URL in state
                         setUserImage(uploaded.url);
-
-                        // Update formData so payload has correct image
                         setFormData((prev) => ({
                           ...prev,
                           profile_photo_url: uploaded.url,
                         }));
-
-                        toast.success("Image Added, Click Update to Continue");
                       } else {
                         toast.error("Failed to upload profile photo. Please try again.");
                       }

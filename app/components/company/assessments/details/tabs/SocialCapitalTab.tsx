@@ -1,5 +1,6 @@
 import { Accordion } from "@/app/components/ui/accordion";
 import { Users, Shield } from "lucide-react";
+import { formatNumberShort } from "@/lib/numberFormat";
 import { MetricAccordion } from "../MetricAccordion";
 import { SubMetricSection } from "../SubMetricSection";
 import { DataFieldGrid } from "../DataFieldGrid";
@@ -67,6 +68,21 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
     ? "in-progress"
     : "not-started";
 
+  // Community Relations badge — HCDT % of OPEX
+  const opex = Number(hcdtContribution.opexAmount) || 0;
+  const hcdt = Number(hcdtContribution.hcdtAmount) || 0;
+  const communityBadge = opex > 0 && hcdt > 0
+    ? `${((hcdt / opex) * 100).toFixed(2)}% HCDT/OPEX`
+    : undefined;
+  const communityIncomplete = communityStatuses.filter((s) => s !== "submitted").length;
+
+  // Security badge — proved reserves in conflict areas
+  const conflictReserves = Number(reservesAreaConflict.provedReservesInConflictVolume) || 0;
+  const securityBadge = conflictReserves > 0
+    ? `${formatNumberShort(conflictReserves)} ${reservesAreaConflict.provedReservesInConflictUnit || "MMbbls"} in conflict zones`
+    : undefined;
+  const securityIncomplete = securityStatuses.filter((s) => s !== "submitted").length;
+
   // Files
   const communityRiskFiles: FileWithMeta[] = [];
   const hcdtFiles: FileWithMeta[] = [];
@@ -91,7 +107,9 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
         icon={Users}
         title="Community Relations"
         description="4 forms · SASB: EM-EP-210a"
+        badge={communityBadge}
         status={communityStatus}
+        incompleteCount={communityIncomplete > 0 ? communityIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Community Risk & Opportunity Management ── */}
@@ -250,7 +268,9 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
         icon={Shield}
         title="Security, Human Rights & Indigenous Peoples"
         description="3 forms · SASB: EM-EP-210b"
+        badge={securityBadge}
         status={securityStatus}
+        incompleteCount={securityIncomplete > 0 ? securityIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Reserves in/near Areas of Conflict ── */}

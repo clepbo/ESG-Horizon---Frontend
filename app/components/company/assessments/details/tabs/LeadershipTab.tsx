@@ -1,5 +1,6 @@
 import { Accordion } from "@/app/components/ui/accordion";
 import { Shield, Gavel } from "lucide-react";
+import { formatNumberShort } from "@/lib/numberFormat";
 import { MetricAccordion } from "../MetricAccordion";
 import { SubMetricSection } from "../SubMetricSection";
 import { DataFieldGrid } from "../DataFieldGrid";
@@ -73,6 +74,24 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
     ? "in-progress"
     : "not-started";
 
+  // Critical Incident badge — Tier 1 events + total hours
+  const tier1Events = Number(processSafety.numberOfEvents) || 0;
+  const totalHours = Number(processSafety.totalHoursWorked) || 0;
+  const criticalBadgeParts: string[] = [];
+  if (processSafety.numberOfEvents != null) criticalBadgeParts.push(`${tier1Events} Tier 1 events`);
+  if (totalHours > 0) criticalBadgeParts.push(`${formatNumberShort(totalHours)} hrs worked`);
+  const criticalIncomplete = criticalStatuses.filter((s) => s !== "submitted").length;
+
+  // Legal badge — surface yes/no answers
+  const legalBadgeParts: string[] = [];
+  const discloses = publicPolicy.disclosesContributions;
+  if (discloses === true || discloses === "yes") legalBadgeParts.push("Discloses contributions");
+  else if (discloses === false || discloses === "no") legalBadgeParts.push("No disclosure");
+  const hasBoard = boardOversight.hasBoardCommittee;
+  if (hasBoard === true || hasBoard === "yes") legalBadgeParts.push("Board committee");
+  else if (hasBoard === false || hasBoard === "no") legalBadgeParts.push("No board committee");
+  const legalIncomplete = legalStatuses.filter((s) => s !== "submitted").length;
+
   // Docs
   const processFiles: FileWithMeta[] = [];
   const catastrophicFiles: FileWithMeta[] = [];
@@ -91,7 +110,9 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
         icon={Shield}
         title="Critical Incident Risk Management"
         description="2 form · IFRS: EM-EP-540a.1, 540a.2"
+        badge={criticalBadgeParts.length > 0 ? criticalBadgeParts.join(" · ") : undefined}
         status={criticalStatus}
+        incompleteCount={criticalIncomplete > 0 ? criticalIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Process Safety Events (Tier 1) ── */}
@@ -171,7 +192,9 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
         icon={Gavel}
         title="Management of Legal & Regulatory Environment"
         description="2 form · IFRS: EM-EP-530a.1, NGA.G1"
+        badge={legalBadgeParts.length > 0 ? legalBadgeParts.join(" · ") : undefined}
         status={legalStatus}
+        incompleteCount={legalIncomplete > 0 ? legalIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Public Policy Engagement ── */}

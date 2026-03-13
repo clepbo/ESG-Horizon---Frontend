@@ -1536,12 +1536,21 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
     policies.calculated?.isISO14001Certified ??
     policies.calculated?.iso14001Certified;
 
+  // Badge: spill count + total volume
+  const spillCount = Number(spills.numberOfSpills ?? spills.calculated?.total_spills) || 0;
+  const spillVolume = Number(spills.totalVolumeSpilled ?? spills.calculated?.totalVolumeSpilled?.volume) || 0;
+  const hasSpillCount = (spills.numberOfSpills ?? spills.calculated?.total_spills) != null;
+  const badgeParts: string[] = [];
+  if (hasSpillCount) badgeParts.push(`${spillCount} spills`);
+  if (spillVolume > 0) badgeParts.push(`${formatNumberShort(spillVolume)} bbls spilled`);
+
   return (
     <MetricAccordion
       value="biodiversity"
       icon={Sprout}
       title="Biodiversity Impacts"
       description="3 form · IFRS: EM-EP-160a.1 – 160a.3"
+      badge={badgeParts.length > 0 ? badgeParts.join(" · ") : undefined}
       status={biodiversityStatus}
       incompleteCount={incompleteCount > 0 ? incompleteCount : undefined}
     >

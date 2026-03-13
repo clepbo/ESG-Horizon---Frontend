@@ -56,6 +56,6 @@ export const STATUS_CONFIG: Record<
   },
 };
 
-/* ─── Default tab per status (Environmental is most data-rich) ─── */
+/* ─── Default tab ─── */
 
-export const DEFAULT_TAB: PillarTabId = "environmental";
+export const DEFAULT_TAB: PillarTabId = "activity-metrics";

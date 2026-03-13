@@ -1,5 +1,6 @@
 import { Accordion } from "@/app/components/ui/accordion";
 import { Lightbulb, Scale } from "lucide-react";
+import { formatNumberShort } from "@/lib/numberFormat";
 import { MetricAccordion } from "../MetricAccordion";
 import { SubMetricSection } from "../SubMetricSection";
 import { DataFieldGrid } from "../DataFieldGrid";
@@ -63,6 +64,20 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
     ? "in-progress"
     : "not-started";
 
+  // Reserves badge — embedded CO₂ emissions
+  const embeddedEmissions = Number(embeddedCarbon.estimatedEmbeddedEmissions) || 0;
+  const reservesBadge = embeddedEmissions > 0
+    ? `${formatNumberShort(embeddedEmissions)} ${embeddedCarbon.estimatedEmbeddedEmissionsUnit || "MtCO₂e"} embedded`
+    : undefined;
+  const reservesIncomplete = reservesStatuses.filter((s) => s !== "submitted").length;
+
+  // Ethics badge — reserves in high-risk countries
+  const highRiskReserves = Number(corruptionRisk.provedReservesHighRisk) || 0;
+  const ethicsBadge = highRiskReserves > 0
+    ? `${formatNumberShort(highRiskReserves)} ${corruptionRisk.provedReservesHighRiskUnit || "MMbbls"} high-risk`
+    : undefined;
+  const ethicsIncomplete = ethicsStatuses.filter((s) => s !== "submitted").length;
+
   // Docs
   const carbonFiles: FileWithMeta[] = [];
   const embeddedFiles: FileWithMeta[] = [];
@@ -85,7 +100,9 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
         icon={Lightbulb}
         title="Reserves Valuation & Capital Expenditures"
         description="4 form · IFRS: EM-EP-420a.1 – 420a.4"
+        badge={reservesBadge}
         status={reservesStatus}
+        incompleteCount={reservesIncomplete > 0 ? reservesIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Reserves Sensitivity to Carbon Pricing ── */}
@@ -249,7 +266,9 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
         icon={Scale}
         title="Business Ethics & Transparency"
         description="2 form · IFRS: EM-EP-510a.1, 510a.2"
+        badge={ethicsBadge}
         status={ethicsStatus}
+        incompleteCount={ethicsIncomplete > 0 ? ethicsIncomplete : undefined}
       >
         <div className="space-y-6">
           {/* ── Reserves in Countries with High Corruption Risk ── */}

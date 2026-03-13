@@ -108,21 +108,21 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
     <div className={`grid grid-cols-1 gap-4 ${showEmissionsCard ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
       {/* ── Total Emissions — Environmental tab only ── */}
       {showEmissionsCard && (
-        <Card className="bg-linear-to-br from-teal-500 to-emerald-600 text-white">
-          <CardContent className="p-5">
-            <p className="text-teal-100 text-xs font-semibold uppercase tracking-wider">Total Emission</p>
-            <p className="text-3xl font-bold mt-1">
+        <Card className="bg-[#109b95]/15 border border-[#109b95]/30 shadow-md">
+          <CardContent className="px-3.5 py-4">
+            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Emission</p>
+            <p className="text-3xl font-bold mt-1.5 text-gray-800">
               {formatNumberShort(assessmentData.totalEmission) || "0.00"}
             </p>
-            <p className="text-teal-200 text-sm">tCO₂e</p>
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              <Badge className="bg-teal-400/30 text-white border-0 text-[10px] px-2 py-0.5">
+            <p className="text-gray-500 text-sm mt-0.5">tCO₂e</p>
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              <Badge className="bg-[#109b95]/15 text-gray-600 border-0 text-xs px-2 py-0.5">
                 Scope 1: {formatNumberShort(scope1Total)}
               </Badge>
-              <Badge className="bg-teal-400/30 text-white border-0 text-[10px] px-2 py-0.5">
+              <Badge className="bg-[#109b95]/15 text-gray-600 border-0 text-xs px-2 py-0.5">
                 Scope 2: {formatNumberShort(scope2Total)}
               </Badge>
-              <Badge className="bg-teal-400/30 text-white border-0 text-[10px] px-2 py-0.5">
+              <Badge className="bg-[#109b95]/15 text-gray-600 border-0 text-xs px-2 py-0.5">
                 Scope 3: {formatNumberShort(scope3Total)}
               </Badge>
             </div>
@@ -131,62 +131,62 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
       )}
 
       {/* ── Overall Progress ── */}
-      <Card>
-        <CardContent className="p-5">
-          <p className="text-gray-900 text-xs font-semibold uppercase tracking-wider">Overall Progress</p>
-          <div className="flex items-center gap-3 mt-2">
-            <Progress value={progressPct} className="flex-1" />
-            <span className="text-xl font-bold">{formatPercent(progressPct)}</span>
+      <Card className="bg-[#3d9f56]/15 border border-[#3d9f56]/30 shadow-md">
+        <CardContent className="px-3.5 py-4">
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Overall Progress</p>
+          <div className="flex items-center gap-3 mt-1.5">
+            <Progress value={progressPct} className="flex-1 [&>div]:bg-[#3d9f56] bg-gray-200" />
+            <span className="text-xl font-bold text-gray-800">{formatPercent(progressPct)}</span>
           </div>
-          <p className="text-xs text-gray-800 mt-2">
+          <p className="text-sm text-gray-500 mt-1.5">
             {completedCount} of {totalGroups} sections completed
           </p>
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-5 mt-2.5">
             <div className="text-center">
-              <p className="text-lg font-bold text-teal-600">{completedCount}</p>
-              <p className="text-[10px] text-gray-800">Complete</p>
+              <p className="text-lg font-bold text-[#3d9f56]">{completedCount}</p>
+              <p className="text-xs text-gray-500">Complete</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-amber-500">{inProgressCount}</p>
-              <p className="text-[10px] text-gray-800">In Progress</p>
+              <p className="text-lg font-bold text-[#f9b233]">{inProgressCount}</p>
+              <p className="text-xs text-gray-500">In Progress</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-gray-700">{notStartedCount}</p>
-              <p className="text-[10px] text-gray-800">Not Started</p>
+              <p className="text-lg font-bold text-gray-400">{notStartedCount}</p>
+              <p className="text-xs text-gray-500">Not Started</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* ── Subsidiary ── */}
-      <Card>
-        <CardContent className="p-5">
-          <p className="text-gray-900 text-xs font-semibold uppercase tracking-wider">Subsidiary</p>
-          <p className="text-lg font-bold mt-1">{fullAssessment.subsidiary}</p>
-          <Badge className={`${statusConfig.color} text-[10px] mt-1`}>{statusConfig.label}</Badge>
+      <Card className="bg-[#f9b233]/15 border border-[#f9b233]/30 shadow-md">
+        <CardContent className="px-3.5 py-4">
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Subsidiary</p>
+          <p className="text-lg font-bold mt-1.5 text-gray-800">{fullAssessment.subsidiary}</p>
+          <Badge className="bg-[#f9b233]/20 text-gray-600 border-0 text-xs mt-1.5">{statusConfig.label}</Badge>
           {fullAssessment.reportingLead && (
-            <p className="text-xs text-gray-800 mt-2">
-              Reporting Lead: {fullAssessment.reportingLead}
+            <p className="text-sm text-gray-500 mt-2.5">
+              Reporting Lead: <span className="font-medium text-gray-700">{fullAssessment.reportingLead}</span>
             </p>
           )}
         </CardContent>
       </Card>
 
       {/* ── Reporting Period ── */}
-      <Card>
-        <CardContent className="p-5">
-          <p className="text-gray-900 text-xs font-semibold uppercase tracking-wider">Reporting Period</p>
-          <p className="text-lg font-bold mt-1">
+      <Card className="bg-[#82898c] text-white border-0 shadow-md">
+        <CardContent className="px-3.5 py-4">
+          <p className="text-white/80 text-sm font-semibold uppercase tracking-wider">Reporting Period</p>
+          <p className="text-lg font-bold mt-1.5">
             {abbr(fullAssessment.startMonth)} {fullAssessment.startYear} –{" "}
             {abbr(fullAssessment.endMonth)} {fullAssessment.endYear}
           </p>
           {fullAssessment.quarter && (
-            <p className="text-xs text-gray-800 mt-1">{fullAssessment.quarter}</p>
+            <p className="text-sm text-white/80 mt-1.5">{fullAssessment.quarter}</p>
           )}
           {fullAssessment.submissionDeadline && (
-            <p className="text-xs text-gray-800 mt-1">
+            <p className="text-sm text-white/80 mt-1.5">
               Submission Deadline{" "}
-              <span className="text-red-500 font-medium">{fullAssessment.submissionDeadline}</span>
+              <span className="text-yellow-200 font-medium">{fullAssessment.submissionDeadline}</span>
             </p>
           )}
         </CardContent>
