@@ -163,7 +163,7 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
         <CardContent className="px-3.5 py-4">
           <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Subsidiary</p>
           <p className="text-lg font-bold mt-1.5 text-gray-800">{fullAssessment.subsidiary}</p>
-          <Badge className="bg-[#f9b233]/20 text-gray-600 border-0 text-xs mt-1.5">{statusConfig.label}</Badge>
+          <Badge className={`${statusConfig.color} border-0 text-xs mt-1.5`}>{statusConfig.label}</Badge>
           {fullAssessment.reportingLead && (
             <p className="text-sm text-gray-500 mt-2.5">
               Reporting Lead: <span className="font-medium text-gray-700">{fullAssessment.reportingLead}</span>
