@@ -5,6 +5,8 @@ import { Card } from "@/app/components/ui/card";
 import { Plus, Edit } from "lucide-react";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 import { useRouter } from "next/navigation";
+import { usePermissions } from "@/lib/permissions";
+import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 interface ScopeData {
   name: string;
@@ -15,6 +17,9 @@ interface ScopeData {
 
 const ESGPerformance = () => {
   const router = useRouter();
+  const { can } = usePermissions();
+  const canCreate = can("createTarget");
+  const canEdit = can("editTarget");
 
   // Main gauge data
   const baseline = 26830;
@@ -84,17 +89,29 @@ const ESGPerformance = () => {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-foreground md:text-3xl">Targets and Performance</h1>
         <div className="flex flex-wrap gap-3">
-          <Button variant="outline" className="gap-2" onClick={() => router.push("/kpis/create")}>
-            <Plus className="h-4 w-4" />
-            Set New Target
-          </Button>
-          <Button
-            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => router.push("/kpis/create?edit=true")}
-          >
-            <Edit className="h-4 w-4" />
-            Edit Target
-          </Button>
+          <div className="relative group">
+            <Button
+              variant="outline"
+              className={`gap-2 ${!canCreate ? "opacity-60 cursor-not-allowed" : ""}`}
+              onClick={canCreate ? () => router.push("/kpis/create") : undefined}
+              disabled={!canCreate}
+            >
+              <Plus className="h-4 w-4" />
+              Set New Target
+            </Button>
+            {!canCreate && <PermissionTooltip message="Requires Data Officer or Admin role" />}
+          </div>
+          <div className="relative group">
+            <Button
+              className={`gap-2 bg-primary text-primary-foreground hover:bg-primary/90 ${!canEdit ? "opacity-60 cursor-not-allowed" : ""}`}
+              onClick={canEdit ? () => router.push("/kpis/create?edit=true") : undefined}
+              disabled={!canEdit}
+            >
+              <Edit className="h-4 w-4" />
+              Edit Target
+            </Button>
+            {!canEdit && <PermissionTooltip message="Requires Admin or SubAdmin role" />}
+          </div>
         </div>
       </div>
 
