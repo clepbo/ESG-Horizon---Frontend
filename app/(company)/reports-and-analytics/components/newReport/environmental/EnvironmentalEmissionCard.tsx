@@ -16,7 +16,7 @@ export default function EnvironmentalEmissionCard() {
       </div>
       <div className="">
         <text className="text-2xl font-bold">
-          15,000 <sub className="text-sm text-gray-400 font-normal"> tCO2e</sub>
+          15,000 <sub className="text-sm text-gray-600 font-normal"> tCO2e</sub>
         </text>
       </div>
       <div className="">

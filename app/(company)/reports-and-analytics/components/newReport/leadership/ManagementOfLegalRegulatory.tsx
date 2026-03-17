@@ -31,7 +31,7 @@ export default function ManagementOfLegalRegulatory({
             <VscLaw className="text-[#4185f6]" />
             Lobbying Disclosure
           </span>
-          <span className={`rounded-2xl px-2 py-1 ${legalData?.publicPolicyAndLobbying === "yes" ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-500"}`}>
+          <span className={`rounded-2xl px-2 py-1 ${legalData?.publicPolicyAndLobbying === "yes" ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-700"}`}>
             {legalData?.publicPolicyAndLobbying === "yes" ? "Disclosed" : "Not Disclosed"}
           </span>
         </div>
@@ -52,7 +52,7 @@ export default function ManagementOfLegalRegulatory({
             <IoMdCheckboxOutline className="text-[#b3d7bc]" />
             Board Oversight Committee
           </span>
-          <span className={`rounded-2xl px-2 py-1 ${legalData?.hasBoardCommittee === "yes" ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-500"}`}>
+          <span className={`rounded-2xl px-2 py-1 ${legalData?.hasBoardCommittee === "yes" ? "bg-success-200 text-[#388e4e]" : "bg-gray-100 text-gray-700"}`}>
             {legalData?.hasBoardCommittee === "yes" ? "Established" : "Not Established"}
           </span>
         </div>

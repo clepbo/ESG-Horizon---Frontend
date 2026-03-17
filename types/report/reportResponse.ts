@@ -1,5 +1,21 @@
 import { GeneralTarget } from "@/app/(company)/reports-and-analytics/components/newReport/environmental/ReductionTarget";
 
+export interface EvidenceFile {
+  name: string;
+  url: string;
+  section: string;
+  size?: number;
+  uploadedAt?: string;
+}
+
+export interface ReportEvidence {
+  environmental: EvidenceFile[];
+  socialCapital: EvidenceFile[];
+  humanCapital: EvidenceFile[];
+  businessModel: EvidenceFile[];
+  leadershipAndGovernance: EvidenceFile[];
+}
+
 export interface ReportResponse {
   report?: {
     subsidiary: string;
@@ -25,6 +41,7 @@ export interface ReportResponse {
   leadershipAndGovernance?: LeadershipAndGovernancePillar;
   targets?: Target | null;
   percentage_emission_summary?: PercentageEmissionSummary;
+  evidence?: ReportEvidence;
   summary?: any; // Legacy field
 }
 

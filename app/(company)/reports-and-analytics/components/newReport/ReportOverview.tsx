@@ -122,7 +122,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
   const environmentalAmount = (
     <p className="font-bold">
       {formatNumberFull(environmental?.total_emission ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
-      <sub className="text-xs font-normal text-gray-400"> tCO2e</sub>
+      <sub className="text-xs font-normal text-gray-600"> tCO2e</sub>
     </p>
   );
 
@@ -266,7 +266,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconText={"#1e8a3d"}
           borderColor={"#1e8a3d"}
           scoreBg="#e5f5ec"
-          scoreColor="#93c4a1"
+          scoreColor="#16a34a"
         />
         <EsgAssignmrntReportCard
           title={"Operational Delays"}
@@ -280,7 +280,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconBg={"#eff5ff"}
           iconText={"#2570eb"}
           borderColor={"#2570eb"}
-          scoreColor="#93BBFD"
+          scoreColor="#2563eb"
         />
         <EsgAssignmrntReportCard
           title={"Total recordable incident rate"}
@@ -294,7 +294,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconBg={"#ECFDF5"}
           iconText={"#0D9488"}
           borderColor={"#0D9488"}
-          scoreColor="#5EEAD4"
+          scoreColor="#0D9488"
         />
         <EsgAssignmrntReportCard
           title={"Reserves at risk"}
@@ -308,19 +308,19 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           iconBg={"#f5e2ff"}
           iconText={"#af57db"}
           borderColor={"#af57db"}
-          scoreColor="#D8B4FE"
+          scoreColor="#7c3aed"
         />
         <EsgAssignmrntReportCard
           title={"Process safety"}
           pillar={"Leadership and Governance"}
-          score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
-          amount={leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}
-          footer={`Sustainability oversight ${leadership?.managementOfLegalAndRegulatoryEnvironment?.sustainabilityGovernance === "yes" ? "active" : "needs attention"}. Process safety events rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })}%.`}
+          score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          amount={`${leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"} per 200k hrs`}
+          footer={`Sustainability oversight ${leadership?.managementOfLegalAndRegulatoryEnvironment?.sustainabilityGovernance === "yes" ? "active" : "needs attention"}. Process safety event rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })} per 200k hrs.`}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}
           iconText={"#4a4a4a"}
           borderColor={"#4a4a4a"}
-          scoreColor="#D1D5DB"
+          scoreColor="#4b5563"
         />
       </div>
     </div>
