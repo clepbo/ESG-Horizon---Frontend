@@ -110,7 +110,7 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-full items-center justify-center text-gray-400">
+            <div className="flex h-full items-center justify-center text-gray-600">
               No corruption risk data available
             </div>
           )}

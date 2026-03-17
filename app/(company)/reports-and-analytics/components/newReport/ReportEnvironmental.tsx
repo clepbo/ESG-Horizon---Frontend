@@ -1,4 +1,5 @@
 import React from "react";
+import { DocumentsSection } from "@/app/components/company/assessments/details/DocumentsSection";
 import { FaLeaf } from "react-icons/fa";
 // import EnvironmentalEmissionCard from "./environmental/EnvironmentalEmissionCard";
 import EmissionsChart from "./environmental/EmissionsChart";
@@ -87,7 +88,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </span>
           <div className="flex flex-col">
             <h6 className="text-base font-semibold"> Greenhouse Gas Emissions </h6>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-700">
               Scope 1, 2, and 3 emissions performance against targets
             </p>
           </div>
@@ -209,7 +210,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </span>
           <div className="flex flex-col">
             <h6 className="text-base font-semibold"> Air Quality </h6>
-            <p className="text-sm text-gray-600"> NOx, SOx, VOCs and PM10 emissions management </p>
+            <p className="text-sm text-gray-700"> NOx, SOx, VOCs and PM10 emissions management </p>
           </div>
         </div>
 
@@ -498,7 +499,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </span>
           <div className="flex flex-col">
             <h6 className="text-base font-semibold"> Biodiversity Impacts </h6>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-700">
               {" "}
               Spill management, sensitive area reserves, and environmental policies{" "}
             </p>
@@ -615,6 +616,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </div>
         </div>
       </div>
+
+      <DocumentsSection
+        files={reportData?.evidence?.environmental ?? []}
+        onFileClick={(file) => file.url && window.open(file.url, "_blank")}
+      />
     </div>
   );
 }

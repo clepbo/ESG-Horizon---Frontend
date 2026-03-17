@@ -96,7 +96,7 @@ const EmissionsChart = ({
               margin: 0,
               fontSize: "16px",
               fontWeight: 500,
-              color: "#666",
+              color: "#374151",
             }}
           >
             {title}
@@ -134,7 +134,7 @@ const EmissionsChart = ({
           <div
             style={{
               fontSize: "16px",
-              color: "#666",
+              color: "#374151",
               fontWeight: 500,
             }}
           >
@@ -142,7 +142,7 @@ const EmissionsChart = ({
           </div>
         </div>
         {period && (
-          <div style={{ fontSize: "12px", color: "#999", marginTop: "2px" }}>{period}</div>
+          <div style={{ fontSize: "12px", color: "#4b5563", marginTop: "2px" }}>{period}</div>
         )}
       </div>
 
@@ -212,7 +212,7 @@ const EmissionsChart = ({
               whiteSpace: "nowrap",
             }}
           >
-            <div style={{ color: "#6b7280", marginBottom: "2px" }}>{tooltipData.point.period}</div>
+            <div style={{ color: "#374151", marginBottom: "2px" }}>{tooltipData.point.period}</div>
             <div style={{ fontWeight: 600, color: "#111" }}>
               {formatNumberFull(tooltipData.point.emissions, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO₂e
             </div>

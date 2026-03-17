@@ -39,10 +39,10 @@ export default function BusinessEthicAndTransparency({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Carbon Price */}
           <div className="rounded-lg bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Carbon Price Scenario</p>
+            <p className="text-sm text-gray-600">Carbon Price Scenario</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">
               ₦ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              <span className="ml-1 text-sm font-normal text-gray-500">/tonne</span>
+              <span className="ml-1 text-sm font-normal text-gray-600">/tonne</span>
             </p>
           </div>
 
@@ -93,13 +93,13 @@ export default function BusinessEthicAndTransparency({
 
         <div className="mb-6 flex justify-between text-sm">
           <div>
-            <p className="text-gray-500">Renewable Investment</p>
+            <p className="text-gray-600">Renewable Investment</p>
             <p className="text-xl font-bold text-green-600">
               {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-gray-500">Renewable Revenue</p>
+            <p className="text-gray-600">Renewable Revenue</p>
             <p className="text-xl font-bold text-green-600">
               {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
