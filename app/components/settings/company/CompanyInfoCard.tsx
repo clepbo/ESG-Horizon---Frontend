@@ -8,7 +8,7 @@ export default function CompanyInfoCard({
   onEdit,
 }: {
   company: Company;
-  onEdit: () => void;
+  onEdit?: () => void;
 }) {
   const [companyUsersCount, setCompanyUsersCount] = useState<number>(0);
 
@@ -29,7 +29,10 @@ export default function CompanyInfoCard({
         <h2 className="text-xl font-semibold">Organization Information</h2>
         <button
           onClick={onEdit}
-          className="cursor-pointer flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50"
+          disabled={!onEdit}
+          className={`flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-md ${
+            onEdit ? "cursor-pointer hover:bg-gray-50" : "opacity-50 cursor-not-allowed"
+          }`}
         >
           <Edit className="w-4 h-4" />
           Edit

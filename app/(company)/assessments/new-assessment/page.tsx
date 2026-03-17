@@ -14,6 +14,8 @@ import { UserTasksCoordinator } from "@/app/components/company/assessments/UserT
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 import { useAuth } from "@/context/AuthContext";
 import { getAssessmentProgressForTable } from "@/lib/utils";
+import { usePermissions } from "@/lib/permissions";
+import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 function NewAssessmentPage() {
   const router = useRouter();
@@ -29,7 +31,9 @@ function NewAssessmentPage() {
   const hasAssessments = assessments && assessments.length > 0;
 
   const { user } = useAuth();
+  const { can } = usePermissions();
   const isCompanyAdmin = user?.role?.name === "company_esg_admin";
+  const canCreate = can("createAssessment");
 
   // Auto-redirect to my-tasks view if user has assigned tasks (only on initial load)
   useEffect(() => {
@@ -232,12 +236,16 @@ function NewAssessmentPage() {
                 button below to get started.
               </p>
 
-              <Button
-                onClick={() => router.push("/assessments/hub")}
-                className="bg-primary transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm"
-              >
-                Start New Assessment
-              </Button>
+              <div className="relative group">
+                <Button
+                  onClick={canCreate ? () => router.push("/assessments/hub") : undefined}
+                  disabled={!canCreate}
+                  className={`bg-primary transform hover:scale-[1.02] text-white px-8 py-4 text-sm rounded-sm ${!canCreate ? "opacity-60 cursor-not-allowed" : ""}`}
+                >
+                  Start New Assessment
+                </Button>
+                {!canCreate && <PermissionTooltip message="Requires Data Officer or Admin role" />}
+              </div>
               <p className="mt-6 text-sm text-gray-600 leading-relaxed text-center">
                 Or, have a lot of data? You can also{" "}
                 <strong
@@ -254,12 +262,16 @@ function NewAssessmentPage() {
           <div className="w-full">
             <div className="flex justify-between items-center mb-6">
               <h4 className="font-semibold text-neutral-1000">Recent Assessments</h4>
-              <Button
-                onClick={() => router.push("/assessments/hub")}
-                className="bg-primary text-white px-6 py-2 text-sm rounded-sm hover:scale-[1.02] transform"
-              >
-                Start New Assessment
-              </Button>
+              <div className="relative group">
+                <Button
+                  onClick={canCreate ? () => router.push("/assessments/hub") : undefined}
+                  disabled={!canCreate}
+                  className={`bg-primary text-white px-6 py-2 text-sm rounded-sm hover:scale-[1.02] transform ${!canCreate ? "opacity-60 cursor-not-allowed" : ""}`}
+                >
+                  Start New Assessment
+                </Button>
+                {!canCreate && <PermissionTooltip message="Requires Data Officer or Admin role" />}
+              </div>
             </div>
             <AssessmentTable data={tableData} requireAssessmentReview={requireAssessmentReview} />
           </div>

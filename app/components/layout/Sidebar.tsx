@@ -6,35 +6,38 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePermissions, type Permission } from "@/lib/permissions";
 
-const navLinks = [
+const navLinks: { name: string; icon: string; href: string; requiredAction?: Permission }[] = [
   { name: "Dashboard", icon: "/icons/Dashboard.svg", href: "/dashboard" },
-  { name: "Company", icon: "/icons/Company.svg", href: "/company" },
-  {
-    name: "Reports",
-    icon: "/icons/Analytics.svg",
-    href: "/reports",
-  },
-  {
-    name: "Subscription & Billing",
-    icon: "/icons/SubscriptionBilling.svg",
-    href: "/billing",
-  },
+  { name: "Company", icon: "/icons/Company.svg", href: "/company", requiredAction: "viewCompanyManagement" },
+  { name: "Reports", icon: "/icons/Analytics.svg", href: "/reports" },
+  { name: "Subscription & Billing", icon: "/icons/SubscriptionBilling.svg", href: "/billing" },
 ];
 
-const settingsSubLinks = [
+const settingsSubLinks: { name: string; href: string; requiredAction?: Permission }[] = [
   { name: "My Profile", href: "/settings/account" },
   { name: "Company Info", href: "/settings/company" },
-  { name: "Teams", href: "/settings/teams" },
-  { name: "Departments", href: "/settings/departments" },
+  { name: "Teams", href: "/settings/teams", requiredAction: "viewTeamsSettings" },
+  { name: "Departments", href: "/settings/departments", requiredAction: "viewDepartmentsSettings" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const { can } = usePermissions();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const visibleNavLinks = useMemo(
+    () => navLinks.filter((l) => !l.requiredAction || can(l.requiredAction)),
+    [can]
+  );
+  const visibleSettingsSubLinks = useMemo(
+    () => settingsSubLinks.filter((l) => !l.requiredAction || can(l.requiredAction)),
+    [can]
+  );
 
   useEffect(() => {
     setSettingsOpen(pathname.startsWith("/settings"));
@@ -83,7 +86,7 @@ export default function Sidebar() {
 
       {/* Main Links */}
       <nav className="flex flex-col gap-1">
-        {navLinks.map((link) => {
+        {visibleNavLinks.map((link) => {
           const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
 
           return (
@@ -136,7 +139,7 @@ export default function Sidebar() {
 
           {settingsOpen && (
             <div className="ml-6 mt-1 space-y-1">
-              {settingsSubLinks.map((sub) => {
+              {visibleSettingsSubLinks.map((sub) => {
                 const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                 return (
