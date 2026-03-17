@@ -22,7 +22,7 @@ export default function HumanStepTwo({ reportData }: HumanStepTwoProps) {
         ))
       ) : (
         <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-300">
-          <p className="text-gray-500 italic">No safety management information reported.</p>
+          <p className="text-gray-600 italic">No safety management information reported.</p>
         </div>
       )}
     </div>

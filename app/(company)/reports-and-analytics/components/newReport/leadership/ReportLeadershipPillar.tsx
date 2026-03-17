@@ -3,6 +3,7 @@ import { ReportResponse } from "@/types/report/reportResponse";
 import { VscLaw } from "react-icons/vsc";
 import ManagementOfLegalRegulatory from "./ManagementOfLegalRegulatory";
 import CriticalIncidentRiskManagement from "./CriticalIncidentRiskManagement";
+import { DocumentsSection } from "@/app/components/company/assessments/details/DocumentsSection";
 
 interface ReportLeadershipPillarProps {
   reportData?: ReportResponse;
@@ -24,7 +25,7 @@ export default function ReportLeadershipPillar({ reportData }: ReportLeadershipP
         </span>
         <div className="flex flex-col gap-0.5">
           <h2 className="text-lg font-bold text-gray-900 sm:text-xl"> Leadership & Governance</h2>
-          <p className="text-sm text-gray-500 sm:text-base">
+          <p className="text-sm text-gray-600 sm:text-base">
             Regulatory compliance, sustainability oversight, and critical risk management
           </p>
         </div>
@@ -43,6 +44,11 @@ export default function ReportLeadershipPillar({ reportData }: ReportLeadershipP
         </div>
         <CriticalIncidentRiskManagement leadershipData={leadershipData} />
       </div>
+
+      <DocumentsSection
+        files={reportData?.evidence?.leadershipAndGovernance ?? []}
+        onFileClick={(file) => file.url && window.open(file.url, "_blank")}
+      />
     </div>
   );
 }

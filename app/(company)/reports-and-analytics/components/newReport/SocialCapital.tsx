@@ -5,6 +5,7 @@ import SocialStepTwo from "../social/SocialStepTwo";
 import SocialStepThree from "../social/SocialStepThree";
 import SocialStepFour from "../social/SocialStepFour";
 import { ReportResponse } from "@/types/report/reportResponse";
+import { DocumentsSection } from "@/app/components/company/assessments/details/DocumentsSection";
 
 interface SocialCapitalProps {
   reportData?: ReportResponse;
@@ -35,6 +36,11 @@ export default function SocialCapital({ reportData }: SocialCapitalProps) {
         <SocialStepThree reportData={reportData} />
         <SocialStepFour />
       </div>
+
+      <DocumentsSection
+        files={reportData?.evidence?.socialCapital ?? []}
+        onFileClick={(file) => file.url && window.open(file.url, "_blank")}
+      />
     </div>
   );
 }

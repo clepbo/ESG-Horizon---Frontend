@@ -33,15 +33,19 @@ function formatUploadDate(dateStr?: string) {
 }
 
 export function DocumentsSection({ files, onFileClick }: DocumentsSectionProps) {
+  const isEmpty = files.length === 0;
+
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-5">
+    <div className={`rounded-xl border border-gray-100 bg-white p-5${isEmpty ? " no-export" : ""}`}>
       <h5 className="text-sm font-bold text-gray-900 mb-3">Supporting Documents</h5>
 
-      {files.length === 0 ? (
+      {isEmpty ? (
         <div className="rounded-lg border border-dashed border-gray-200 p-6 text-center">
-          <p className="text-sm text-gray-400">
-            No documents uploaded yet. Use <span className="font-semibold text-gray-500">Upload Document</span> to
-            attach supporting evidence.
+          <p className="text-sm text-gray-600">
+            No supporting documents have been uploaded for this section.
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Evidence can be attached during the assessment process via the assessment form.
           </p>
         </div>
       ) : (

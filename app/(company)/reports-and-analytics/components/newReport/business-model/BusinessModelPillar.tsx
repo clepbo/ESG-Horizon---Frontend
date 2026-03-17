@@ -3,6 +3,7 @@ import { ReportResponse } from "@/types/report/reportResponse";
 import { TbBriefcaseFilled } from "react-icons/tb";
 import BusinessEthicAndTransparency from "./BusinessEthicsAndTransparency";
 import ClimaticImpactOnReserves from "./ClimateImpactOnReserves";
+import { DocumentsSection } from "@/app/components/company/assessments/details/DocumentsSection";
 
 interface BusinessModelPillarProps {
   reportData?: ReportResponse;
@@ -27,7 +28,7 @@ export default function BusinessModelPillar({ reportData }: BusinessModelPillarP
             {" "}
             Business Model & Innovation
           </h2>
-          <p className="text-sm text-gray-500 sm:text-base">
+          <p className="text-sm text-gray-600 sm:text-base">
             Reserves resilience, capital allocation, and business ethics
           </p>
         </div>
@@ -46,6 +47,11 @@ export default function BusinessModelPillar({ reportData }: BusinessModelPillarP
         </div>
         <ClimaticImpactOnReserves businessModel={businessModel} />
       </div>
+
+      <DocumentsSection
+        files={reportData?.evidence?.businessModel ?? []}
+        onFileClick={(file) => file.url && window.open(file.url, "_blank")}
+      />
     </div>
   );
 }
