@@ -10,8 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import { Download, Lock } from "lucide-react";
+import { Download } from "lucide-react";
 import { usePermissions } from "@/lib/permissions";
+import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 export default function DataManagement() {
   const { can } = usePermissions();
@@ -147,18 +148,6 @@ export default function DataManagement() {
           </button>
         )}
       </div>
-    </div>
-  );
-}
-
-function PermissionTooltip({ message, align = "center" }: { message: string; align?: "center" | "right" }) {
-  const pos = align === "right"
-    ? "right-0"
-    : "left-1/2 -translate-x-1/2";
-  return (
-    <div className={`absolute ${pos} bottom-full mb-2 w-48 p-2 bg-teal-600 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center pointer-events-none`}>
-      <Lock className="w-3 h-3 inline mr-1" />
-      {message}
     </div>
   );
 }

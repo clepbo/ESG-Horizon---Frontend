@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import ParentCompanyBadge from "../../ui/reusables/ParentCompanyBadge";
+import { usePermissions } from "@/lib/permissions";
 
 type Props = {
   users: User[];
@@ -23,6 +24,10 @@ type Props = {
 };
 
 export default function TeamsTable({ users, setUsers, onStatusUpdate, companyName }: Props) {
+  const { can } = usePermissions();
+  const canEditUser = can("editUser");
+  const canDeactivateUser = can("deactivateUser");
+  const canInviteUser = can("inviteUser");
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);
@@ -292,7 +297,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate, companyNam
                       {user.role?.name !== "company_esg_admin" ? (
                         <ActionDropdown
                           actions={[
-                            ...(user.status !== "pending"
+                            ...(canEditUser && user.status !== "pending"
                               ? [
                                   {
                                     label: "Edit User",
@@ -301,7 +306,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate, companyNam
                                   },
                                 ]
                               : []),
-                            ...(user.status === "pending"
+                            ...(canInviteUser && user.status === "pending"
                               ? [
                                   {
                                     label: "Delete Invitation",
@@ -312,7 +317,7 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate, companyNam
                                   },
                                 ]
                               : []),
-                            ...(user.status !== "pending" && statusActions[user.status]
+                            ...(canDeactivateUser && user.status !== "pending" && statusActions[user.status]
                               ? [
                                   {
                                     label: statusActions[user.status]?.title || "Update Status",

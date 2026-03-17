@@ -32,6 +32,7 @@ import { formatPercent } from "@/lib/numberFormat";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { useDeleteAssessment, useSubmitForReview } from "@/services/hooks/assessment.hooks";
 import ReviewerSelectionModal from "./ReviewerSelectionModal";
+import { usePermissions } from "@/lib/permissions";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -99,6 +100,9 @@ interface ActionDropdownProps {
   onGenerateReport?: () => void;
   onDelete?: () => void;
   deletePending?: boolean;
+  canEdit: boolean;
+  canSubmit: boolean;
+  canDelete: boolean;
 }
 
 function ActionDropdown({
@@ -112,6 +116,9 @@ function ActionDropdown({
   onGenerateReport,
   onDelete,
   deletePending,
+  canEdit,
+  canSubmit,
+  canDelete,
 }: ActionDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -135,8 +142,9 @@ function ActionDropdown({
       <DropdownMenuContent align="end" className="w-44 border-teal-600 shadow-md">
         {/* Continue / Update — primary action */}
         <DropdownMenuItem
-          onClick={onContinue}
+          onClick={canEdit ? onContinue : undefined}
           disabled={
+            !canEdit ||
             status === "approved" ||
             status === "submitted_approved"
           }
@@ -160,7 +168,8 @@ function ActionDropdown({
         {/* Submit for Review / Submit — only for editable statuses */}
         {(status === "in_progress" || status === "declined") && (
           <DropdownMenuItem
-            onClick={requireAssessmentReview ? onSubmitForReview : onSubmitDirect}
+            onClick={canSubmit ? (requireAssessmentReview ? onSubmitForReview : onSubmitDirect) : undefined}
+            disabled={!canSubmit}
           >
             {getActionIcon("Submit")}
             {requireAssessmentReview ? "Submit for Review" : "Submit/Approve"}
@@ -174,7 +183,8 @@ function ActionDropdown({
         </DropdownMenuItem>
 
         {/* Delete — destructive, always last */}
-        {status !== "awaiting_review" &&
+        {canDelete &&
+          status !== "awaiting_review" &&
           status !== "submitted_approved" &&
           status !== "approved" && (
             <DropdownMenuItem
@@ -192,6 +202,7 @@ function ActionDropdown({
 
 export default function AssessmentTable({ data, requireAssessmentReview }: AssessmentTableProps) {
   const router = useRouter();
+  const { can } = usePermissions();
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [modalData, setModalData] = useState({
     open: false,
@@ -548,6 +559,9 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
               onGenerateReport={() => handleGenerateReport(assessment.id)}
               onDelete={() => handleOpenModal(assessment.id)}
               deletePending={deleteMutation.isPending}
+              canEdit={can("editAssessment")}
+              canSubmit={can("submitAssessment")}
+              canDelete={can("deleteAssessment")}
             />
           </div>
         );
