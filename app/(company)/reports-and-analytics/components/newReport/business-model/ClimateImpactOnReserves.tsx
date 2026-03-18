@@ -87,11 +87,8 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   formatter={(value) => formatNumberFigures(Number(value) || 0)}
                 />
                 <Legend
-                  layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
                   iconType="rect"
-                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingTop: 16 }}
                 />
                 <Bar
                   dataKey="total"
