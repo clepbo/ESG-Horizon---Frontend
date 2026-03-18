@@ -129,7 +129,7 @@ function MetricCard({
   const Icon = isPositive ? ArrowUp : isNegative ? ArrowDown : Minus;
 
   return (
-    <div className="flex flex-col justify-between gap-1 rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
+    <div className="flex flex-col justify-between gap-1 rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 overflow-hidden">
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-1.5">
           <p className="text-sm font-normal text-gray-700 sm:text-base">{title}</p>

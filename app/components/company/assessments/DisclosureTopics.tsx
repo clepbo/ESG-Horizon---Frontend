@@ -32,6 +32,7 @@ import BusinessEthicsAndTransparency from "./industry-specific/business-model-in
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
 import { resolveDataPath, hasUserData, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
@@ -360,20 +361,6 @@ export function DisclosureTopics({
     }
 
     return { status: "not-started" };
-  };
-
-  const StatusPill = ({ status }: { status: SectionStatus }) => {
-    const config = {
-      submitted: { label: "Completed", bg: "bg-teal-100", text: "text-teal-700" },
-      "in-progress": { label: "In Progress", bg: "bg-yellow-100", text: "text-yellow-700" },
-      "not-started": { label: "Not Started", bg: "bg-gray-100", text: "text-gray-500" },
-    };
-    const { label, bg, text } = config[status] || config["not-started"];
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bg} ${text}`}>
-        {label}
-      </span>
-    );
   };
 
   const getActivityMetricsStatus = () => {

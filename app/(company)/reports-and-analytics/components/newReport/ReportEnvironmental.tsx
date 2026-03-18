@@ -151,13 +151,13 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <div className="col-span-1 md:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-visible">
+          <div className="col-span-1 md:col-span-3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
             <h6 className="p-4 font-semibold border-b border-gray-300"> Emissions by Scope </h6>
             <div className="p-4 flex-1 flex items-center justify-center">
               {ghg && <EmissionsByScope data={transformGHGData(ghg)} />}
             </div>
           </div>
-          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+          <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
             <h6 className="p-4 font-semibold border-b border-gray-300">
               {" "}
               {target?.targetYear ? `${target.targetYear} ` : ""}Reduction Target{" "}
@@ -247,7 +247,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="col-span-1 lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-visible">
+          <div className="col-span-1 lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-hidden">
             <PollutantEmissionChart
               NOx={airQuality?.nox ?? 0}
               SOx={airQuality?.sox ?? 0}
@@ -255,7 +255,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               PM10={airQuality?.pm10 ?? 0}
             />
           </div>
-          <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+          <div className="col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-hidden">
             <EmissionDistributionChart
               NOx={airQuality?.nox ?? 0}
               SOx={airQuality?.sox ?? 0}
@@ -356,14 +356,14 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-hidden">
             <FreshWaterWithdrawalSource
               surfaceWater={waterManagement?.freshwaterWithdrawalBySource?.surfaceWater || 0}
               groundwater={waterManagement?.freshwaterWithdrawalBySource?.groundwater || 0}
               municipal={waterManagement?.freshwaterWithdrawalBySource?.municipalWater || 0}
             />
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 overflow-hidden">
             <ProducedWaterManagementChart
               recycled={waterManagement?.recycledWater || 0}
               injected={waterManagement?.injectedForDisposal || 0}
@@ -372,7 +372,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-hidden">
             <span className="">
               <h6 className="p-4 "> Hydraulic Fracturing - Chemical Disclosure </h6>
               <hr className="text-gray-200" />
@@ -461,7 +461,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-hidden">
             <span className="">
               <h6 className="p-4 ">Water Quality Impacts </h6>
               <hr className="text-gray-200" />
@@ -506,7 +506,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-hidden">
             <span className="">
               <h6 className="p-3 "> Hydraulic Spills </h6>
               <hr className="text-gray-200" />
@@ -570,7 +570,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-visible">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-hidden">
             <span className="">
               <h6 className="p-3 "> Reserves in Sensitive Areas </h6>
               <hr className="text-gray-200" />
@@ -584,7 +584,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               />
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 gap-2 flex flex-col overflow-hidden">
             <span className="">
               <h6 className="p-3 "> Management Policies </h6>
               <hr className="text-gray-200" />

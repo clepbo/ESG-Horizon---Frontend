@@ -15,14 +15,14 @@ interface Props {
 export default function OilRenderCard({ borderColor, title, sub, amount }: Props) {
   return (
     <div
-      className={`shadow rounded-md max-w-md border-l-2 p-4 flex flex-col hover:shadow-lg transition-shadow duration-300 bg-white`}
+      className={`shadow rounded-md max-w-md border-l-2 p-4 flex flex-col hover:shadow-lg transition-shadow duration-300 bg-white overflow-hidden`}
       style={{
         borderColor: borderColor,
       }}
     >
-      <p className="text-gray-800">{title}</p>
+      <p className="text-gray-800 break-words">{title}</p>
       {typeof amount === "number" && amount >= 0 && (
-        <p className="font-bold text-3xl">
+        <p className="font-bold text-3xl break-words">
           {formatNumberFull(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-gray-700 text-sm font-semibold">{sub}</sub>
         </p>
       )}
@@ -40,10 +40,10 @@ interface WaterQualityCardProps {
 }
 export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQualityCardProps) {
   return (
-    <div className="flex items-center justify-between w-full shadow rounded-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white">
+    <div className="flex items-center justify-between w-full shadow rounded-md p-4 hover:shadow-lg transition-shadow duration-300 bg-white overflow-hidden">
       <div className={``}>
-        <p className="text-gray-800">{title}</p>
-        <p className="font-bold text-3xl">
+        <p className="text-gray-800 break-words">{title}</p>
+        <p className="font-bold text-3xl break-words">
           {formatNumberFull(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-sm font-semibold">{sub}</sub>
         </p>
       </div>
