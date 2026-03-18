@@ -9,7 +9,7 @@ const STATUS_CONFIG: Record<SectionStatus, { label: string; bg: string; text: st
 export function StatusPill({ status }: { status: SectionStatus }) {
   const { label, bg, text } = STATUS_CONFIG[status] || STATUS_CONFIG["not-started"];
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bg} ${text}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 ${bg} ${text}`}>
       {label}
     </span>
   );
