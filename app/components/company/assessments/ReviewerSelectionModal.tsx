@@ -11,6 +11,13 @@ import {
 } from "@/app/components/ui/select";
 import { useAllUsers } from "@/services/hooks/user.hooks";
 
+const REVIEWER_ROLES = [
+  "super_admin",
+  "platform_subadmin",
+  "company_esg_admin",
+  "company_esg_subadmin",
+];
+
 interface ReviewerSelectionModalProps {
   open: boolean;
   onClose: () => void;
@@ -32,7 +39,10 @@ export default function ReviewerSelectionModal({
   if (!open) return null;
 
   const activeUsers =
-    (users as any[])?.filter((u: any) => u.status === "active") ?? [];
+    (users as any[])?.filter(
+      (u: any) =>
+        u.status === "active" && REVIEWER_ROLES.includes(u.role?.name),
+    ) ?? [];
 
   const handleSubmit = () => {
     onSubmit(selectedUserId);
@@ -51,12 +61,17 @@ export default function ReviewerSelectionModal({
           Submit for Review
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Select a reviewer for this assessment. The selected user
-          will be assigned as the reviewer.
+          Select an administrator to review this assessment. Only users
+          with approval permissions are shown.
         </p>
 
         {usersLoading ? (
           <p className="text-sm text-gray-400 py-4">Loading users...</p>
+        ) : activeUsers.length === 0 ? (
+          <p className="text-sm text-amber-600 py-4">
+            No eligible reviewers found. Only administrators can review
+            assessments.
+          </p>
         ) : (
           <Select
             value={selectedUserId?.toString() ?? ""}
