@@ -26,7 +26,7 @@ export default function CriticalIncidentRiskManagement({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="rounded-lg shadow-sm border-0 grid gap-3">
+      <Card className="rounded-lg shadow-sm border-0 grid gap-3 overflow-hidden">
         <span className="flex flex-col gap-2">
           <h3 className="p-4 text-lg font-semibold text-gray-900">
             {" "}
@@ -61,7 +61,7 @@ export default function CriticalIncidentRiskManagement({
           </div>
         </Card>
       </Card>
-      <Card className="rounded-lg shadow-sm border-0 grid gap-3">
+      <Card className="rounded-lg shadow-sm border-0 grid gap-3 overflow-hidden">
         <span className="flex flex-col gap-2">
           <h3 className="p-4 text-lg font-semibold text-gray-900">Catastrophic Risk Management</h3>
           <hr className="text-gray-300" />
@@ -75,7 +75,7 @@ export default function CriticalIncidentRiskManagement({
             {" "}
             System Description{" "}
           </CardTitle>
-          <p className="text-sm mt-2">{systemDescription}</p>
+          <p className="text-sm mt-2 break-words">{systemDescription}</p>
         </Card>
       </Card>
     </div>

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { EvidenceItem } from "./AddMoreFIles";
+import { StatusPill } from "@/app/components/ui/StatusPill";
+import { type SectionStatus } from "@/lib/assessmentStatusUtils";
 
 export interface FeatureCardProps {
   title: string;
@@ -18,6 +20,7 @@ export interface FeatureCardProps {
   clickable?: boolean;
   onClick?: () => void;
   borderColor?: string;
+  status?: SectionStatus;
 }
 
 export const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -29,6 +32,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   clickable = false,
   onClick,
   borderColor,
+  status,
 }) => {
   return (
     <div className="mb-2">
@@ -55,7 +59,10 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
           <div className="flex items-center justify-between">
             {/* Text Section */}
             <div className="space-y-1 flex-1">
-              <h5 className="font-medium text-foreground">{subtitle}</h5>
+              <div className="flex items-center gap-2">
+                <h5 className="font-medium text-foreground">{subtitle}</h5>
+                {status && <StatusPill status={status} />}
+              </div>
               <p className="text-sm text-muted-foreground">{body}</p>
             </div>
 

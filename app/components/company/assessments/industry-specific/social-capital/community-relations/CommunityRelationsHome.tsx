@@ -205,6 +205,7 @@ export default function CommunityRelationsHome({
             clickable={communityItems[0].clickable}
             onClick={() => communityItems[0].clickable && handleCardClick(communityItems[0].title)}
             borderColor={getSectionBorderColor(getCardStatus(communityItems[0].title))}
+            status={getCardStatus(communityItems[0].title)}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -220,6 +221,7 @@ export default function CommunityRelationsHome({
                 communityItems[1].clickable && handleCardClick(communityItems[1].title)
               }
               borderColor={getSectionBorderColor(getCardStatus(communityItems[1].title))}
+              status={getCardStatus(communityItems[1].title)}
             />
             <FeatureCard
               key={communityItems[2].subtitle}
@@ -233,6 +235,7 @@ export default function CommunityRelationsHome({
                 communityItems[2].clickable && handleCardClick(communityItems[2].title)
               }
               borderColor={getSectionBorderColor(getCardStatus(communityItems[2].title))}
+              status={getCardStatus(communityItems[2].title)}
             />
           </div>
 
@@ -246,6 +249,7 @@ export default function CommunityRelationsHome({
             clickable={communityItems[3].clickable}
             onClick={() => communityItems[3].clickable && handleCardClick(communityItems[3].title)}
             borderColor={getSectionBorderColor(getCardStatus(communityItems[3].title))}
+            status={getCardStatus(communityItems[3].title)}
           />
         </Card>
       </div>

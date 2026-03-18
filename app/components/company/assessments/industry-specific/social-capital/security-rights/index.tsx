@@ -20,6 +20,7 @@ import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type SHRView =
   | "overview"
@@ -259,7 +260,10 @@ export function SecurityHumanRightsAssessment({
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div className="space-y-1 flex-1">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
+                                <div className="flex items-center gap-2">
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
+                                  <StatusPill status={getCardStatus(card.title)} />
+                                </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
                               <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />

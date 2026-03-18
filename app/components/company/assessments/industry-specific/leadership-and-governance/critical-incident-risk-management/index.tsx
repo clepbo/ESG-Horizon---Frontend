@@ -11,6 +11,7 @@ import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 import ProcessSafetyEvents from "./process-safety-events";
 import CatastrophicRiskManagementSystems from "./catastrophic-risk-management-systems";
 
@@ -180,9 +181,12 @@ export default function CriticalIncidentRiskManagement({
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1 flex-1">
-                          <h5 className="font-medium text-foreground">
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-foreground">
                               Process Safety Events (Tier 1)
                             </h5>
+                            <StatusPill status={getCardStatus("Process Safety Events (Tier 1)")} />
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-540a.1, focusing on the rate of Tier 1
                             Process Safety Events, which are the most significant loss of
@@ -229,9 +233,12 @@ export default function CriticalIncidentRiskManagement({
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1 flex-1">
-                          <h5 className="font-medium text-foreground">
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-foreground">
                               Catastrophic Risk Management Systems
                             </h5>
+                            <StatusPill status={getCardStatus("Catastrophic Risk Management Systems")} />
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-540a.2, which is a qualitative discussion
                             of the management systems for identifying and mitigating catastrophic

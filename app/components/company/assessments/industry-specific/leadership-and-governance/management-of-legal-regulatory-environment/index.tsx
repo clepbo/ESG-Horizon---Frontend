@@ -11,6 +11,7 @@ import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 import PublicPolicyEngagement from "./public-policy-engagement";
 import BoardManagementOversight from "./board-management-oversight";
 
@@ -181,7 +182,10 @@ export default function LegalRegulatoryEnvironment({
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1 flex-1">
-                          <h5 className="font-medium text-foreground">Public Policy Engagement</h5>
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-foreground">Public Policy Engagement</h5>
+                            <StatusPill status={getCardStatus("Public Policy Engagement")} />
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-530a.1, which is a qualitative discussion
                             of the company&apos;s positions on key government regulations and
@@ -234,9 +238,12 @@ export default function LegalRegulatoryEnvironment({
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1 flex-1">
-                          <h5 className="font-medium text-foreground">
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-foreground">
                               Board & Management Oversight of Sustainability
                             </h5>
+                            <StatusPill status={getCardStatus("Board & Management Oversight of Sustainability")} />
+                          </div>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-NGA.G1, which discusses the board&apos;s
                             oversight and management&apos;s role in assessing sustainability risks,

@@ -33,7 +33,7 @@ export default function BusinessEthicAndTransparency({
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* LEFT CARD - Climate Impact on Reserves */}
-      <div className="rounded-xl bg-white p-6 shadow-sm">
+      <div className="rounded-xl bg-white p-6 shadow-sm overflow-hidden">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Climate Impact on Reserves</h3>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -88,7 +88,7 @@ export default function BusinessEthicAndTransparency({
       </div>
 
       {/* RIGHT CARD - Strategic Capital Allocation */}
-      <div className="rounded-xl bg-white p-6 shadow-sm">
+      <div className="rounded-xl bg-white p-6 shadow-sm overflow-hidden">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Strategic Capital Allocation</h3>
 
         <div className="mb-6 flex justify-between text-sm">

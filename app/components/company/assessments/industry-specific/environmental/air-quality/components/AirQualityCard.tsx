@@ -6,6 +6,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { useAssessment } from "@/hooks/useAssessment";
 import { getFormSectionStatus, getSectionBorderColor } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 
 export interface AirQualityProps {
   backToDisclosureTopics: () => void;
@@ -86,7 +87,7 @@ export default function AirQualityCard({
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center justify-between">
                         <h5 className="font-medium text-foreground">{card.title}</h5>
-                        {/* {renderCompletionIndicator()} */}
+                        <StatusPill status={status} />
                       </div>
                       <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                     </div>
