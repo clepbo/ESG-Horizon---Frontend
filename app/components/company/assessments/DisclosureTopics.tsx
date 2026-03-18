@@ -362,6 +362,20 @@ export function DisclosureTopics({
     return { status: "not-started" };
   };
 
+  const StatusPill = ({ status }: { status: SectionStatus }) => {
+    const config = {
+      submitted: { label: "Completed", bg: "bg-teal-100", text: "text-teal-700" },
+      "in-progress": { label: "In Progress", bg: "bg-yellow-100", text: "text-yellow-700" },
+      "not-started": { label: "Not Started", bg: "bg-gray-100", text: "text-gray-500" },
+    };
+    const { label, bg, text } = config[status] || config["not-started"];
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${bg} ${text}`}>
+        {label}
+      </span>
+    );
+  };
+
   const getActivityMetricsStatus = () => {
     return getStatusFromData("Activity Metrics", state.assessmentData);
   };
@@ -730,7 +744,10 @@ export function DisclosureTopics({
                   <CardContent className="p-4 flex justify-between items-center">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-2 flex-1">
-                        <h5 className="font-medium text-foreground">Activity Metrics</h5>
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-medium text-foreground">Activity Metrics</h5>
+                          <StatusPill status={getActivityMetricsStatus().status} />
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
                         </p>
@@ -818,9 +835,12 @@ export function DisclosureTopics({
                                     <CardContent className="p-4 flex justify-between items-center">
                                       <div className="flex items-start justify-between gap-3 flex-1">
                                         <div className="space-y-2 flex-1">
-                                          <h5 className="font-medium text-foreground">
+                                          <div className="flex items-center gap-2">
+                                            <h5 className="font-medium text-foreground">
                                               {card.title}
-                                          </h5>
+                                            </h5>
+                                            <StatusPill status={cardStatus.status} />
+                                          </div>
                                           <p className="text-sm text-muted-foreground">
                                             {card.subtitle}
                                           </p>

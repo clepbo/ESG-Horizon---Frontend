@@ -205,11 +205,8 @@ export function Scope1EmissionsChart() {
                   labelStyle={{ color: "#374151" }}
                 />
                 <Legend
-                  layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
                   iconType="rect"
-                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingTop: 16 }}
                 />
                 <Bar
                   dataKey="emissions"
