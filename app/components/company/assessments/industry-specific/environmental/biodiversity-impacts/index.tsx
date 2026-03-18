@@ -20,6 +20,7 @@ import HydrocarbonSpills from "./hydrocarbon-spills";
 import ReservesInSensitiveAreas from "./reserves-in-sensitive-areas";
 import { useAssessment } from "@/hooks/useAssessment";
 import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type SHRView =
   | "overview"
@@ -265,7 +266,10 @@ export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinu
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between gap-3">
                               <div className="space-y-2 flex-1">
-                                <h5 className="font-medium text-foreground">{card.title}</h5>
+                                <div className="flex items-center gap-2">
+                                  <h5 className="font-medium text-foreground">{card.title}</h5>
+                                  <StatusPill status={getCardStatus(card.title)} />
+                                </div>
                                 <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                               </div>
                               <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" />

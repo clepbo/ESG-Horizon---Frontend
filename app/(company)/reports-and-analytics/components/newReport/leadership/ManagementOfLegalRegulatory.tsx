@@ -21,7 +21,7 @@ export default function ManagementOfLegalRegulatory({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="rounded-lg shadow-sm border-0 grid gap-3">
+      <Card className="rounded-lg shadow-sm border-0 grid gap-3 overflow-hidden">
         <span className="flex flex-col gap-2">
           <h3 className="p-4 text-lg font-semibold text-gray-900"> Public Policy & Lobbying </h3>
           <hr className="text-gray-300" />
@@ -36,13 +36,13 @@ export default function ManagementOfLegalRegulatory({
           </span>
         </div>
         <Card className="p-4 m-4">
-          <p className="text-sm">
+          <p className="text-sm break-words">
             <span className="font-semibold">Policy Position: </span> {policyPosition}
           </p>
-          <p className="text-sm mt-2">{publicPolicyDescription}</p>
+          <p className="text-sm mt-2 break-words">{publicPolicyDescription}</p>
         </Card>
       </Card>
-      <Card className="rounded-lg shadow-sm border-0 grid gap-3">
+      <Card className="rounded-lg shadow-sm border-0 grid gap-3 overflow-hidden">
         <span className="flex flex-col gap-2">
           <h3 className="p-4 text-lg font-semibold text-gray-900"> Sustainability Governance </h3>
           <hr className="text-gray-300" />
@@ -57,7 +57,7 @@ export default function ManagementOfLegalRegulatory({
           </span>
         </div>
         <Card className="p-4 m-4">
-          <p className="text-sm">{sustainabilityDescription}</p>
+          <p className="text-sm break-words">{sustainabilityDescription}</p>
         </Card>
       </Card>
     </div>

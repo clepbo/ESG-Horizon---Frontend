@@ -45,7 +45,7 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* LEFT CARD - Geopolitical & Corruption Risk */}
-      <div className="rounded-xl bg-white p-6 shadow-sm overflow-visible">
+      <div className="rounded-xl bg-white p-6 shadow-sm overflow-hidden">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Geopolitical & Corruption Risk</h3>
 
         <div className="h-64 w-full">

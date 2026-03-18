@@ -32,7 +32,7 @@ export default function EsgAssignmrntReportCard({
 }: Props) {
   return (
     <Card
-      className={`p-4 grid gap-4 border-t-2`}
+      className={`p-4 grid gap-4 border-t-2 overflow-hidden`}
       style={{
         borderTopColor: borderColor,
       }}
@@ -72,8 +72,8 @@ export default function EsgAssignmrntReportCard({
 
       {amount !== "" && (
         <>
-          <h5 className="font-bold">{amount}</h5>
-          <small className="">{footer}</small>
+          <h5 className="font-bold break-words">{amount}</h5>
+          <small className="break-words">{footer}</small>
         </>
       )}
     </Card>
