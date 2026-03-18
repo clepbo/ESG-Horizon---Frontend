@@ -55,7 +55,7 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                 data={riskData}
                 barGap={12}
                 barCategoryGap={32}
-                margin={{ top: 10, right: 110, left: 0, bottom: 5 }}
+                margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
                 style={{ overflow: "visible" }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -87,11 +87,8 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
                   formatter={(value) => formatNumberFigures(Number(value) || 0)}
                 />
                 <Legend
-                  layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
                   iconType="rect"
-                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500 }}
+                  wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingTop: 16 }}
                 />
                 <Bar
                   dataKey="total"
@@ -127,15 +124,15 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
             <ShieldCheck className="h-5 w-5 text-green-600" />
             <p className="text-sm text-gray-700">Independent third party anonymous whistleblower</p>
           </div>
-          <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+          <span className="rounded-full px-3 py-1 text-xs font-medium text-white" style={{ backgroundColor: "#109b95" }}>
             Active
           </span>
         </div>
 
         {/* Description box */}
-        <div className="rounded-lg shadow-md border border-gray-200 p-5">
+        <div className="rounded-lg shadow-md border border-gray-200 p-5 overflow-hidden">
           <h4 className="mb-2 text-sm font-semibold text-gray-900">System Description</h4>
-          <p className="text-sm leading-relaxed text-gray-600">
+          <p className="text-sm leading-relaxed text-gray-600 break-words">
             {hasAntiCorruptionData
               ? antiCorruptionManagement
               : "No anti-corruption management system description available."}

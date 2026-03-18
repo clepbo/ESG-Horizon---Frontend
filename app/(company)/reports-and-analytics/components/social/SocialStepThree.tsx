@@ -110,7 +110,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               stroke="none"
               label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
                 const RADIAN = Math.PI / 180;
-                const radius = (outerRadius ?? 75) + 18;
+                const radius = (outerRadius ?? 75) + 10;
                 const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
                 const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
                 return (
@@ -123,7 +123,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
                     fontSize={12}
                     fontWeight={600}
                   >
-                    {name}: {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </text>
                 );
               }}

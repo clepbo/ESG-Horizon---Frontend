@@ -122,11 +122,8 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
             ]}
           />
           <Legend
-            layout="vertical"
-            align="right"
-            verticalAlign="middle"
             iconType="rect"
-            wrapperStyle={{ paddingLeft: "16px", fontSize: 14, color: "#111827", fontWeight: 500 }}
+            wrapperStyle={{ fontSize: 14, color: "#111827", fontWeight: 500, paddingTop: 16 }}
           />
           <Bar
             dataKey="scope1"

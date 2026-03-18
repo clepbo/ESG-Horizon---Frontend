@@ -91,7 +91,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
   const CustomLegend = ({ payload }: any) => {
     if (!payload) return null;
     return (
-      <div className="flex flex-col gap-3 items-start pl-2">
+      <div className="flex flex-row flex-wrap gap-4 items-center justify-center pt-4">
         {payload.map((entry: any, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
             <div className="w-3 h-3" style={{ backgroundColor: entry.color }} />
@@ -164,9 +164,6 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                 <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend
                   content={<CustomLegend />}
-                  layout="vertical"
-                  align="right"
-                  verticalAlign="middle"
                 />
                 <Bar
                   dataKey="total"
