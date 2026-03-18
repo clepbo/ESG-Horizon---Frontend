@@ -228,6 +228,13 @@ export async function generateReportPDF(params: ExportParams) {
       const imageDataUrl = images.get(name);
       if (!imageDataUrl) continue;
 
+      // Appendix always starts on its own page
+      if (name === "evidence-appendix") {
+        pdf.addPage();
+        cursorY = marginTop;
+        isFirstContentPage = false;
+      }
+
       const slices = await sliceImageForPages(imageDataUrl, usableWidth, usableHeight);
 
       for (let i = 0; i < slices.length; i++) {
