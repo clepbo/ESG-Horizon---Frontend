@@ -5,9 +5,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLatestTargetPair, useBaselineOptions } from "@/app/(company)/components/ranking/services";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { useState, useEffect } from "react";
-import { ChevronDown, Edit, Eye, Plus } from "lucide-react";
+import { ChevronDown, Edit, Plus } from "lucide-react";
 import InitialTargetPage from "./InitialTargetPage";
-import PerformanceOverview, { ViewMode } from "@/app/(company)/components/ranking/PerformanceOverview";
+import PerformanceOverview from "@/app/(company)/components/ranking/PerformanceOverview";
 import TargetLogsTable from "./TargetLogsTable";
 import { TargetSetting } from "@/app/(company)/kpis/create/components/TargetSetting";
 
@@ -30,21 +30,6 @@ export default function TargetHomePage() {
   const hasGeneral = !!pair?.general;
   const hasScope = !!pair?.scope;
   const hasAny = hasGeneral || hasScope;
-
-  const [activeView, setActiveView] = useState<ViewMode>("general");
-
-  // Default to whichever target was most recently updated
-  useEffect(() => {
-    if (pair) {
-      if (pair.general && pair.scope) {
-        const gTime = new Date(pair.general.updatedAt).getTime();
-        const sTime = new Date(pair.scope.updatedAt).getTime();
-        setActiveView(sTime > gTime ? "scope" : "general");
-      } else {
-        setActiveView(pair.general ? "general" : "scope");
-      }
-    }
-  }, [pair]);
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["latest-target-pair", companyId] });
@@ -148,28 +133,6 @@ export default function TargetHomePage() {
                       )}
                       {hasScope ? "Edit Scope Target" : "Add Scope Target"}
                     </button>
-
-                    {hasGeneral && hasScope && (
-                      <>
-                        <div className="my-1 border-t border-gray-100" />
-                        <button
-                          type="button"
-                          onClick={() => { setActiveView("general"); setDropdownOpen(false); }}
-                          className={`flex w-full items-center gap-2 px-4 py-2.5 text-sm hover:bg-gray-50 ${activeView === "general" ? "text-teal-700 font-medium" : "text-gray-700"}`}
-                        >
-                          <Eye className="h-3.5 w-3.5 text-teal-600" />
-                          View General Target
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setActiveView("scope"); setDropdownOpen(false); }}
-                          className={`flex w-full items-center gap-2 px-4 py-2.5 text-sm hover:bg-gray-50 ${activeView === "scope" ? "text-purple-700 font-medium" : "text-gray-700"}`}
-                        >
-                          <Eye className="h-3.5 w-3.5 text-purple-600" />
-                          View Scope Targets
-                        </button>
-                      </>
-                    )}
                   </div>
                 </div>
               </>
@@ -197,7 +160,6 @@ export default function TargetHomePage() {
         <>
           <PerformanceOverview
             pair={pair ?? { general: null, scope: null }}
-            activeView={activeView}
             baselineInfo={latestBaseline ? {
               startYear: latestBaseline.startYear,
               submittedAt: latestBaseline.submittedAt,

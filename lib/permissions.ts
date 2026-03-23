@@ -89,6 +89,9 @@ const PERMISSION_MAP = {
   invitePlatformUser: [SUPER_ADMIN],
   viewAllCompanies: [SUPER_ADMIN, PLATFORM_SUBADMIN, PLATFORM_DATA_OFFICER],
 
+  // ── Audit Logs ───────────────────────────────────────────────────────────
+  viewAuditLogs: [...COMPANY_ALL],
+
   // ── Sidebar nav visibility ────────────────────────────────────────────────
   viewCompanyManagement: [SUPER_ADMIN, PLATFORM_SUBADMIN, PLATFORM_DATA_OFFICER],
   viewTeamsSettings: [SUPER_ADMIN, ...COMPANY_ADMINS],

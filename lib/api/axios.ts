@@ -74,6 +74,13 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
+    // 🔹 Handle 403 (forbidden / access denied)
+    if (error.response && error.response.status === 403) {
+      if (typeof window !== "undefined") {
+        const msg = error.response.data?.message || "Access denied";
+        window.dispatchEvent(new CustomEvent("api:forbidden", { detail: msg }));
+      }
+    }
     // 🔹 Handle 429 (rate limit exceeded)
     if (error.response && error.response.status === 429) {
       const message = error.response.data?.message || "Too many requests. Please slow down.";
