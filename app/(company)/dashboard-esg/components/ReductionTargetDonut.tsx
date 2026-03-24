@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PieChart, Pie, Cell } from "recharts";
-import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
+import { formatNumberShort, formatNumberFull } from "@/lib/numberFormat";
 import type { Target } from "@/app/(company)/components/types/target";
 
 interface ReductionTargetDonutProps {
@@ -161,26 +161,29 @@ export default function ReductionTargetDonut({
       <div className="space-y-2 mt-2">
         <StatRow
           label={`Baseline (${baselineYear}):`}
-          value={`${formatNumberWithCommas(baseline)} tCO₂e`}
+          value={`${formatNumberShort(baseline)} tCO₂e`}
+          tooltip={`${formatNumberFull(baseline)} tCO₂e`}
         />
         <StatRow
           label={`Current${currentYear ? ` (${currentYear})` : ""}:`}
-          value={`${formatNumberWithCommas(current)} tCO₂e`}
+          value={`${formatNumberShort(current)} tCO₂e`}
+          tooltip={`${formatNumberFull(current)} tCO₂e`}
         />
         <StatRow
           label={`Target (${targetYear}):`}
-          value={`${formatNumberWithCommas(targetEmission)} tCO₂e`}
+          value={`${formatNumberShort(targetEmission)} tCO₂e`}
+          tooltip={`${formatNumberFull(targetEmission)} tCO₂e`}
         />
       </div>
     </div>
   );
 }
 
-function StatRow({ label, value }: { label: string; value: string }) {
+function StatRow({ label, value, tooltip }: { label: string; value: string; tooltip?: string }) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-gray-900">{label}</span>
-      <span className="font-semibold text-gray-900">{value}</span>
+      <span className="font-semibold text-gray-900" title={tooltip}>{value}</span>
     </div>
   );
 }

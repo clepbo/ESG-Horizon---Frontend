@@ -29,7 +29,7 @@ export default function ESGReportCard({ metric }: ESGReportCardProps) {
 
       <div className="flex items-end justify-between">
         <div>
-          <span className="text-2xl font-bold text-gray-900">{metric.metricValue}</span>
+          <span className="text-2xl font-bold text-gray-900" title={metric.metricTooltip}>{metric.metricValue}</span>
           {metric.metricUnit && (
             <span className="text-xs text-gray-900 ml-1">{metric.metricUnit}</span>
           )}
