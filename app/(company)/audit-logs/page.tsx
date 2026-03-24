@@ -8,6 +8,7 @@ import Header from "../components/Header";
 import { useActivities } from "@/services/hooks/activity.hooks";
 import type { ActivityItem } from "@/services/activity.service";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
+import Pagination from "@/app/components/ui/reusables/Pagination";
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   success: { bg: "bg-emerald-50", text: "text-emerald-700", label: "Success" },
@@ -56,11 +57,12 @@ function formatTime(dateStr: string): string {
   });
 }
 
-const ITEMS_PER_PAGE = 15;
+const DEFAULT_PER_PAGE = 10;
 
 export default function AuditLogsPage() {
   const { data: activities, isLoading, isError } = useActivities();
   const [search, setSearch] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_PER_PAGE);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
 
@@ -89,10 +91,9 @@ export default function AuditLogsPage() {
     return items;
   }, [activities, typeFilter, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
   );
 
   if (isLoading) return <PageSkeleton />;
@@ -183,37 +184,22 @@ export default function AuditLogsPage() {
             <ActivityRow
               key={activity.id}
               activity={activity}
-              colorIdx={(page - 1) * ITEMS_PER_PAGE + idx}
+              colorIdx={(page - 1) * itemsPerPage + idx}
             />
           ))}
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4 px-2">
-            <p className="text-sm text-gray-900">
-              Showing {(page - 1) * ITEMS_PER_PAGE + 1}–
-              {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of{" "}
-              {filtered.length}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 bg-white disabled:opacity-40 hover:bg-gray-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 bg-white disabled:opacity-40 hover:bg-gray-50"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          totalItems={filtered.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={page}
+          onPageChange={setPage}
+          onItemsPerPageChange={(n) => {
+            setItemsPerPage(n);
+            setPage(1);
+          }}
+        />
       </motion.main>
     </div>
   );
