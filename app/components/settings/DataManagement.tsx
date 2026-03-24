@@ -11,15 +11,15 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { Download } from "lucide-react";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 export default function DataManagement() {
-  const { can } = usePermissions();
-  const canExport = can("exportData");
-  const canDownload = can("downloadReports");
-  const canRetention = can("manageDataRetention");
-  const canBackup = can("manageAutoBackup");
+  const { canWriteData, isCompanyAdmin, isSuperAdmin } = useRoles();
+  const canExport = canWriteData;
+  const canDownload = canWriteData;
+  const canRetention = isCompanyAdmin || isSuperAdmin;
+  const canBackup = isCompanyAdmin || isSuperAdmin;
   const canSave = canRetention || canBackup;
 
   const [autoBackup, setAutoBackup] = useState(true);

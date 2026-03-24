@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import LayoutContentSkeleton from "../components/ui/reusables/LayoutContentSkeleton";
+import { ForbiddenProvider } from "@/context/ForbiddenContext";
 
 const companyEsgRoles = [
   USER_TYPES.COMPANY_ESG_ADMIN,
@@ -47,13 +48,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const roleName = user.role.name;
 
   return (
-    <MobileNavProvider>
-      <div className="flex h-screen overflow-hidden bg-grey-50">
-        <Sidebar />
-        <TaskNotificationProvider>
-          <LayoutContent role={roleName}>{children}</LayoutContent>
-        </TaskNotificationProvider>
-      </div>
-    </MobileNavProvider>
+    <ForbiddenProvider>
+      <MobileNavProvider>
+        <div className="flex h-screen overflow-hidden bg-grey-50">
+          <Sidebar />
+          <TaskNotificationProvider>
+            <LayoutContent role={roleName}>{children}</LayoutContent>
+          </TaskNotificationProvider>
+        </div>
+      </MobileNavProvider>
+    </ForbiddenProvider>
   );
 }

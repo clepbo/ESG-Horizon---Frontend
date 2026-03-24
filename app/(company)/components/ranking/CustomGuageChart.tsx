@@ -69,7 +69,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
   const isScope = !!sl;
   const chartHeight = compact ? 380 : 380;
   // In compact scope mode the title is rendered as HTML outside the chart (left-aligned)
-  const chartTitle = compact && isScope ? "" : isScope ? `${sl} Progress` : "Net Zero Progress (Carbon Footprint)";
+  const chartTitle = compact && isScope ? "" : isScope ? `${sl} Progress` : "";
   const chartTitleSize = compact ? "18px" : "22px";
 
   const options: Highcharts.Options = {
@@ -80,7 +80,7 @@ const SpeedometerGauge: React.FC<GuageProps> = ({
       plotBorderWidth: 0,
       plotShadow: false,
       height: chartHeight,
-      marginTop: compact && isScope ? 40 : undefined,
+      marginTop: compact ? 40 : undefined,
     },
     title: {
       text: chartTitle,

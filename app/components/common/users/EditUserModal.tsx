@@ -12,7 +12,7 @@ import { subsidiariesService, Subsidiary } from "@/services/subsidiaries.service
 import { toast } from "react-toastify";
 import { formatRoleName } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 interface EditUserModalProps {
   user: User;
@@ -37,9 +37,7 @@ export default function EditUserModal({ user, onClose, onSave }: EditUserModalPr
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
-  const { can } = usePermissions();
-  // Use permission system instead of hardcoded role check
-  const isCompanyAdmin = can("editUserRole");
+  const { isCompanyAdmin } = useRoles();
 
   // Format the role name for display
   const displayRoleName = roleName ? formatRoleName(roleName) : "";

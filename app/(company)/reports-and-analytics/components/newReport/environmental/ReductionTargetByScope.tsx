@@ -19,7 +19,7 @@ export default function ReductionTargetByScope({
   scope3value,
 }: ReductionTargetByScopeProps) {
   return (
-    <div className="flex flex-col gap-2 py-3">
+    <div className="flex flex-row flex-wrap gap-4 py-3 justify-center">
       <ScopeTargetDonutChart
         label="Scope 1"
         percentage={scope1percentage}

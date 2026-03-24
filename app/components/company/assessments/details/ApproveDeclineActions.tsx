@@ -5,7 +5,7 @@ import { Button } from "@/app/components/ui/button";
 import { Alert, AlertDescription } from "@/app/components/ui/alert";
 import { XCircle } from "lucide-react";
 import { useApproveAssessment, useDeclineAssessment } from "@/services/hooks/assessment.hooks";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 interface ApproveDeclineActionsProps {
@@ -27,9 +27,9 @@ export function ApproveDeclineActions({
   const [declineReason, setDeclineReason] = useState("");
   const [declineValidationError, setDeclineValidationError] = useState("");
 
-  const { can } = usePermissions();
-  const canApprove = can("approveAssessment");
-  const canDecline = can("declineAssessment");
+  const { isValidator } = useRoles();
+  const canApprove = isValidator;
+  const canDecline = isValidator;
   const isActionLoading = approveMutation.isPending || declineMutation.isPending;
 
   const handleApprove = () => {

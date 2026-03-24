@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { CreateDepartment, Department, departmentService } from "@/services/department.service";
 import { getCurrentUser } from "@/lib/utils";
 import { User } from "@/services/user.service";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 interface InviteUserModalProps {
   onClose: () => void;
@@ -38,8 +38,8 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
     { value: "company_esg_viewer", label: "Company Viewer" },
   ];
   const [role, setRole] = useState(ROLE_OPTIONS[0]?.value || "");
-  const { can } = usePermissions();
-  const canInvite = can("inviteUser");
+  const { canManageUsers } = useRoles();
+  const canInvite = canManageUsers;
 
   useEffect(() => {
     const loadSubsidiaries = async () => {
