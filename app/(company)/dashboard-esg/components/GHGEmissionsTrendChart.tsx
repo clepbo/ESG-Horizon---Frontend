@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
+import { formatNumberFull } from "@/lib/numberFormat";
 import type { EmissionTrendPoint } from "./types";
 
 interface GHGEmissionsTrendChartProps {
@@ -89,7 +89,7 @@ export default function GHGEmissionsTrendChart({ data }: GHGEmissionsTrendChartP
             formatter={(value: number | undefined) => {
               const v = value ?? 0;
               return [
-                `${formatNumberWithCommas(v)} tCO₂e`,
+                `${formatNumberFull(v)} tCO₂e`,
                 activeTab === "all" ? "Total" : activeTab.replace("scope", "Scope "),
               ];
             }}

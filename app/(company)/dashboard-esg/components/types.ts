@@ -39,6 +39,7 @@ export interface ESGReportMetric {
   icon: ReactNode;
   metricLabel: string;
   metricValue: string;
+  metricTooltip?: string;
   metricUnit?: string;
   changeText: string;
   changeDirection: "up" | "down" | "neutral";

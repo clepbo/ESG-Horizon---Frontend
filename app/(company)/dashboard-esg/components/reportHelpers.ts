@@ -1,5 +1,5 @@
 import React from "react";
-import { formatNumberFull, formatCurrencyCompact } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort, formatCurrencyCompact } from "@/lib/numberFormat";
 import { FaLeaf } from "react-icons/fa";
 import { PiUsersFill } from "react-icons/pi";
 import { TbBriefcaseFilled } from "react-icons/tb";
@@ -60,7 +60,8 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       iconBg: "#FEF2F2",
       icon: React.createElement(CiWavePulse1, { className: "w-5 h-5" }),
       metricLabel: "Total Production",
-      metricValue: totalProduction > 0 ? formatNumberFull(totalProduction) : "—",
+      metricValue: totalProduction > 0 ? formatNumberShort(totalProduction) : "—",
+      metricTooltip: totalProduction > 0 ? `${formatNumberFull(totalProduction)} kbbl/day` : undefined,
       metricUnit: "kbbl/day",
       changeText: "",
       changeDirection: "neutral",
@@ -73,9 +74,10 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       iconBg: "#f1fcf4",
       icon: React.createElement(FaLeaf, { className: "w-5 h-5" }),
       metricLabel: "Total Emissions",
-      metricValue: totalEmissions > 0 ? formatNumberFull(totalEmissions) : "—",
+      metricValue: totalEmissions > 0 ? formatNumberShort(totalEmissions) : "—",
+      metricTooltip: totalEmissions > 0 ? `${formatNumberFull(totalEmissions)} tCO₂e` : undefined,
       metricUnit: "tCO₂e",
-      changeText: envChange != null ? `${formatNumberFull(Math.abs(envChange), { maximumFractionDigits: 1 })}%` : "",
+      changeText: envChange != null ? `${formatNumberShort(Math.abs(envChange), { maximumFractionDigits: 1 })}%` : "",
       changeDirection:
         envChange == null ? "neutral" : envChange <= 0 ? "down" : "up",
       upIsBad: true,
@@ -100,9 +102,10 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       iconBg: "#FEF9C3",
       icon: React.createElement(HardHat, { className: "w-5 h-5" }),
       metricLabel: "Total Recordable Incident Rate",
-      metricValue: trir > 0 ? trir.toFixed(2) : "—",
+      metricValue: trir > 0 ? formatNumberShort(trir) : "—",
+      metricTooltip: trir > 0 ? `${formatNumberFull(trir)} per 200k hrs` : undefined,
       metricUnit: "per 200k hrs",
-      changeText: humanChange != null ? `${formatNumberFull(Math.abs(humanChange), { maximumFractionDigits: 1 })}%` : "",
+      changeText: humanChange != null ? `${formatNumberShort(Math.abs(humanChange), { maximumFractionDigits: 1 })}%` : "",
       changeDirection:
         humanChange == null ? "neutral" : humanChange <= 0 ? "down" : "up",
       upIsBad: true,
@@ -116,10 +119,11 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       metricLabel: "Reserves at Risk",
       metricValue:
         reservesAtRisk > 0
-          ? `${formatNumberFull(reservesAtRisk)} MMboe`
+          ? `${formatNumberShort(reservesAtRisk)} MMboe`
           : "—",
+      metricTooltip: reservesAtRisk > 0 ? `${formatNumberFull(reservesAtRisk)} MMboe` : undefined,
       metricUnit: renewableInv > 0 ? `${formatCurrencyCompact(renewableInv)} Renewable Inv.` : "",
-      changeText: businessChange != null ? `${formatNumberFull(Math.abs(businessChange), { maximumFractionDigits: 1 })}%` : "",
+      changeText: businessChange != null ? `${formatNumberShort(Math.abs(businessChange), { maximumFractionDigits: 1 })}%` : "",
       changeDirection:
         businessChange == null
           ? "neutral"
@@ -135,7 +139,8 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       iconBg: "#e8e8e8",
       icon: React.createElement(VscLaw, { className: "w-5 h-5" }),
       metricLabel: "Process Safety Event Rate",
-      metricValue: pser > 0 ? formatNumberFull(pser) : "—",
+      metricValue: pser > 0 ? formatNumberShort(pser) : "—",
+      metricTooltip: pser > 0 ? `${formatNumberFull(pser)} per 200k hrs` : undefined,
       metricUnit: "per 200k hrs",
       changeText: tierEvents !== "—" ? tierEvents : "",
       changeDirection: "neutral",
