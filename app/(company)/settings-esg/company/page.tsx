@@ -6,7 +6,7 @@ import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
 import { useAuth } from "@/context/AuthContext";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
 import { companyService } from "@/services/company.service";
@@ -24,12 +24,12 @@ export default function CompanyPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
-  const { can } = usePermissions();
+  const { isCompanyAdmin, isSuperAdmin } = useRoles();
   const [ifrsIssb] = useState(true);
 
   const [requireAssessmentReview, setRequireAssessmentReview] = useState(true);
-  const canEditProfile = can("editCompanyProfile");
-  const canToggleReview = can("toggleAssessmentReview");
+  const canEditProfile = isCompanyAdmin || isSuperAdmin;
+  const canToggleReview = isCompanyAdmin || isSuperAdmin;
 
   const handleUpdate = () => {
     queryClient.invalidateQueries({ queryKey: ["companyDetails"] });

@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import Header from "@/app/(company)/components/Header";
 import TableManagementControls from "@/app/components/company/TableManagementControls";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 const ROLE_OPTIONS = [
   { label: "Company Admin", value: "company_esg_admin" },
@@ -37,7 +37,7 @@ export default function TeamsPage() {
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
 
-  const { can } = usePermissions();
+  const { canManageUsers } = useRoles();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"subsidiary" | "department" | "user">("user");
 
@@ -133,8 +133,8 @@ export default function TeamsPage() {
           onSearchChange={setSearch}
           searchPlaceholder="Search by name or email"
           addButtonLabel="Invite User"
-          onAdd={can("inviteUser") ? () => openModalWithTab("user") : undefined}
-          addButtonDisabled={!can("inviteUser")}
+          onAdd={canManageUsers ? () => openModalWithTab("user") : undefined}
+          addButtonDisabled={!canManageUsers}
           filters={[
             {
               label: roleFilter === "All Roles" ? "All Roles" : "Filter Roles",

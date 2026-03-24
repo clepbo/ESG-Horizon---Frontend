@@ -1,19 +1,40 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Leaf, Users, Building } from "lucide-react";
 import Header from "../components/Header";
-import { ESGCard } from "../components/ESGScoreCard";
-import { ESGJourneyChart } from "../components/ESGJourneyChart";
-import RecentActivities from "../components/RecentActivities";
-import AssessmentHubCard from "@/app/(company)/components/AssessmentHubCard";
 import ESGTour from "@/app/components/company/ESGTour";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import { useCompanyDashboard, CompanyDashboardData } from "@/services/hooks/dashboard.hooks";
+import { useAssessments } from "@/services/hooks/assessment.hooks";
+import { useReport } from "@/services/hooks/report.hooks";
+import { useLatestTargetPair } from "@/app/(company)/components/ranking/services";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
-import { RecentReportsWidget } from "@/app/components/common/reports/table/RecentReports";
-import { ESG_SECTION_COUNTS } from "@/lib/esgSectionCounts";
+
+
+// Dashboard components
+import TotalEmissionCard from "./components/TotalEmissionCard";
+import ESGScoreGauge from "./components/ESGScoreGauge";
+import OverallProgressCard from "./components/OverallProgressCard";
+import PillarScoresRow from "./components/PillarScoresRow";
+import GHGEmissionsTrendChart from "./components/GHGEmissionsTrendChart";
+import ReductionTargetDonut from "./components/ReductionTargetDonut";
+import ESGReportGrid from "./components/ESGReportGrid";
+import AssessmentsList from "./components/AssessmentsList";
+import DashboardRecentActivity from "./components/DashboardRecentActivity";
+import { buildReportMetrics, buildEmissionTrend } from "./components/reportHelpers";
+
+// Mock data — only pillar scores still need mock (waiting on scoring backend)
+import { MOCK_PILLAR_SCORES } from "./components/mockData";
+
+const ROW_VARIANTS = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" as const },
+  }),
+};
 
 export default function DashboardPage() {
   const [showTour, setShowTour] = useState(() => {
@@ -23,6 +44,7 @@ export default function DashboardPage() {
 
   const { user } = useAuth();
   const { data, isLoading, isError } = useCompanyDashboard(!showTour);
+  const { data: assessments } = useAssessments();
 
   const dashboard: CompanyDashboardData | undefined = useMemo(() => {
     if (!data) return undefined;
@@ -53,12 +75,28 @@ export default function DashboardPage() {
     return normalized;
   }, [data]);
 
-  const esgJourney: { period: string; score: number }[] = (dashboard?.esgJourney || []).map(
-    (d) => ({
-      period: d.period || "",
-      score: Number(d.score ?? 0) || 0,
-    })
-  );
+  // Fetch the latest assessment's report for ESG Assessment Report cards
+  const { data: report } = useReport(dashboard?.latestAssessmentId);
+
+  // Fetch the latest targets for the Reduction Target donut
+  const { data: targetPair } = useLatestTargetPair(user?.company?.id);
+
+  // Build report metrics from real data
+  const reportMetrics = useMemo(() => buildReportMetrics(report), [report]);
+
+  // Total emissions from report
+  const totalEmission = useMemo(() => {
+    const ghg = report?.environmental?.greenhouseGasEmission;
+    return {
+      total: Number(ghg?.totalEmissions) || 0,
+      scope1: Number(ghg?.scope1Emissions) || 0,
+      scope2: Number(ghg?.scope2Emissions) || 0,
+      scope3: Number(ghg?.scope3Emissions) || 0,
+    };
+  }, [report]);
+
+  // GHG Emissions Trend from report history
+  const emissionTrend = useMemo(() => buildEmissionTrend(report), [report]);
 
   const handleTourComplete = () => setShowTour(false);
 
@@ -77,131 +115,94 @@ export default function DashboardPage() {
       </div>
     );
   }
-  // console.log("Dashboard overall", data);
+
+  const assessmentList = Array.isArray(assessments) ? assessments : [];
 
   return (
     <div className="flex h-screen bg-[#F2FBF3] overflow-hidden">
-      {/* Main Content */}
-
       <motion.main
-        className="flex-1 h-full overflow-y-auto p-6 mb-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 25,
-          duration: 0.5,
-        }}
+        className="flex-1 h-full overflow-y-auto p-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
       >
         {/* Header */}
-        <div className="flex gap-2">
-          <h1 className="hidden lg:block">Dashboard</h1>
+        <div className="flex gap-2 mb-6">
+          <h1 className="hidden lg:block text-2xl font-bold">Dashboard</h1>
           <Header showSearchBar={false} />
         </div>
 
-        {/* ESG Scores + Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 h-auto gap-4 justified-between items-stretch pt-10">
-          <div className="grid gap-4 h-auto">
-            <ESGCard
-              title="Overall ESG Score"
-              score={data.overallScore || 0}
-              trend="up"
-              maxScore={100}
-              trendValue="10%"
-              gradientClass="bg-gradient-to-b from-[#515451] to-[#303431] bg-fixed"
-              iconSrc={"/icons/overall-esg.svg"}
-              bottomBarColor="bg-[#333333]"
-              icon={undefined}
-              main={true}
+        <div className="space-y-6">
+          {/* Row 1: Summary Cards */}
+          <motion.div
+            className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+          >
+            <TotalEmissionCard
+              total={totalEmission.total}
+              scope1={totalEmission.scope1}
+              scope2={totalEmission.scope2}
+              scope3={totalEmission.scope3}
             />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-1">
-              <ESGCard
-                title="Environmental"
-                score={data.breakdown.environment || 0}
-                maxScore={100}
-                trend="down"
-                trendValue="7%"
-                icon={<Leaf className="w-5 h-5" />}
-                iconSrc={"/icons/leafgreen.svg"}
-                bottomBarColor="bg-[#228A3D]"
-                height="50px"
-                gradientClass="bg-gradient-to-b from-[#409E56] to-[#248F3A] bg-fixed"
-              />
-              <ESGCard
-                title="Social"
-                score={data.breakdown.social || 0}
-                maxScore={100}
-                trend="up"
-                trendValue="10%"
-                icon={<Users className="w-5 h-5" />}
-                gradientClass="bg-gradient-to-b from-[#D3B961] to-[#CBAA45] bg-fixed"
-                bottomBarColor="bg-[#DCA54B]"
-                iconSrc={"/icons/social.svg"}
-              />
-              <ESGCard
-                title="Governance"
-                score={data.breakdown.governance || 0}
-                maxScore={100}
-                trend="up"
-                trendValue="10%"
-                gradientClass="bg-gradient-to-b from-[var(--color-primary)] to-[var(--color-primary)] bg-fixed"
-                icon={<Building className="w-5 h-5" />}
-                bottomBarColor="bg-teal-600"
-                iconSrc={"/icons/governance.svg"}
-              />
+            <ESGScoreGauge score={dashboard?.overallScore ?? 0} />
+            <OverallProgressCard
+              hubStats={dashboard?.hubStats}
+            />
+          </motion.div>
+
+          {/* Row 2: Pillar Scores */}
+          <motion.div
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+          >
+            <PillarScoresRow pillars={MOCK_PILLAR_SCORES} />
+          </motion.div>
+
+          {/* Row 3: GHG Trend + Reduction Target */}
+          <motion.div
+            className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4"
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={2}
+          >
+            <GHGEmissionsTrendChart data={emissionTrend} />
+            <ReductionTargetDonut
+              generalTarget={targetPair?.general}
+              scopeTarget={targetPair?.scope}
+            />
+          </motion.div>
+
+          {/* Row 4: ESG Assessment Report */}
+          <motion.div
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+          >
+            <ESGReportGrid metrics={reportMetrics} />
+          </motion.div>
+
+          {/* Row 5: Assessments + Recent Activity */}
+          <motion.div
+            className="flex flex-col lg:flex-row gap-4 pb-6"
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={4}
+          >
+            <div className="w-full lg:w-[60%] min-w-0">
+              <AssessmentsList assessments={assessmentList} />
             </div>
-          </div>
-          <div className="">
-            <RecentActivities activities={data.recentActivities} />
-          </div>
-        </div>
-
-        {/* Recent Activities + Industry Leaderboard */}
-        <div className="w-full mt-6 mb-6">
-          <ESGJourneyChart esgJourney={esgJourney} />
-        </div>
-
-        {/* Assessment HUb CArd */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-3">Assessment Hub</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <AssessmentHubCard
-              type="Environmental"
-              description="Measure your environmental impact, resource usage and conservation efforts."
-              progress={dashboard?.hubStats?.environment?.progress ?? 0}
-              totalSections={ESG_SECTION_COUNTS.E}
-              pillarStatus={(dashboard?.hubStats?.environment?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
-              assessmentStatus={dashboard?.latestAssessmentStatus}
-              iconSrc={"/icons/leaftwo.svg"}
-              assessmentId={dashboard?.latestAssessmentId}
-            />
-            <AssessmentHubCard
-              type="Social"
-              description="Evaluate labor practices, human rights, community impact and product responsibility."
-              progress={dashboard?.hubStats?.social?.progress ?? 0}
-              totalSections={ESG_SECTION_COUNTS.S}
-              pillarStatus={(dashboard?.hubStats?.social?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
-              assessmentStatus={dashboard?.latestAssessmentStatus}
-              iconSrc={"/icons/userstwo.svg"}
-              assessmentId={dashboard?.latestAssessmentId}
-            />
-            <AssessmentHubCard
-              type="Governance"
-              description="Evaluate financial governance, market presence, procurement practices and more."
-              progress={dashboard?.hubStats?.governance?.progress ?? 0}
-              totalSections={ESG_SECTION_COUNTS.G}
-              pillarStatus={(dashboard?.hubStats?.governance?.status as "not-started" | "in-progress" | "completed") ?? "not-started"}
-              assessmentStatus={dashboard?.latestAssessmentStatus}
-              iconSrc={"/icons/injusticetwo.svg"}
-              assessmentId={dashboard?.latestAssessmentId}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Reports</h2>
-          <RecentReportsWidget />
+            <div className="w-full lg:w-[40%] min-w-0">
+              <DashboardRecentActivity activities={dashboard?.recentActivities ?? []} />
+            </div>
+          </motion.div>
         </div>
       </motion.main>
     </div>

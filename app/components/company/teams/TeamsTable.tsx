@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import ActionDropdown from "../../ui/reusables/ActionDropdown";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import ParentCompanyBadge from "../../ui/reusables/ParentCompanyBadge";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 type Props = {
   users: User[];
@@ -24,10 +24,10 @@ type Props = {
 };
 
 export default function TeamsTable({ users, setUsers, onStatusUpdate, companyName }: Props) {
-  const { can } = usePermissions();
-  const canEditUser = can("editUser");
-  const canDeactivateUser = can("deactivateUser");
-  const canInviteUser = can("inviteUser");
+  const { canManageUsers } = useRoles();
+  const canEditUser = canManageUsers;
+  const canDeactivateUser = canManageUsers;
+  const canInviteUser = canManageUsers;
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [targetStatus, setTargetStatus] = useState<TeamUserStatus | null>(null);

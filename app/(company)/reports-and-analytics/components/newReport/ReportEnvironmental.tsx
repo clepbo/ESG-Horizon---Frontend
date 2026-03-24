@@ -172,31 +172,44 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     Set target
                   </Link>
                 </div>
-              ) : reportData?.targets?.type === "GENERAL" ? (
-                <ReductionTarget
-                  percentage={target?.generalTarget?.reductionPercentage || 0}
-                  targetValue={target?.generalTarget?.targetEmission || 0}
-                  currentYear={getYear(new Date())}
-                  targetYear={target?.targetYear || 0}
-                  baselineEmission={target?.generalTarget?.baselineYearEmission || 0}
-                  baselineYear={target?.baselineYear}
-                  currentEmission={target?.generalTarget?.currentEmission || 0}
-                />
               ) : (
-                <ReductionTargetByScope
-                  scope1percentage={
-                    scopeTarget?.find((t: any) => t.scope === "SCOPE1")?.reductionPercentage ?? 0
-                  }
-                  scope1value={ghg?.scope1Emissions || 0}
-                  scope2percentage={
-                    scopeTarget?.find((t: any) => t.scope === "SCOPE2")?.reductionPercentage ?? 0
-                  }
-                  scope2value={ghg?.scope2Emissions || 0}
-                  scope3percentage={
-                    scopeTarget?.find((t: any) => t.scope === "SCOPE3")?.reductionPercentage ?? 0
-                  }
-                  scope3value={ghg?.scope3Emissions || 0}
-                />
+                <div className="flex flex-col gap-6">
+                  {/* General target */}
+                  {target?.generalTarget && (
+                    <div>
+                      <p className="text-sm font-semibold text-gray-700 mb-2">General Target</p>
+                      <ReductionTarget
+                        percentage={target.generalTarget.reductionPercentage || 0}
+                        targetValue={target.generalTarget.targetEmission || 0}
+                        currentYear={getYear(new Date())}
+                        targetYear={target.targetYear || 0}
+                        baselineEmission={target.generalTarget.baselineYearEmission || 0}
+                        baselineYear={target.baselineYear}
+                        currentEmission={target.generalTarget.currentEmission || 0}
+                      />
+                    </div>
+                  )}
+                  {/* Scope targets — horizontal row */}
+                  {scopeTarget && scopeTarget.length > 0 && (
+                    <div>
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Scope Targets</p>
+                      <ReductionTargetByScope
+                        scope1percentage={
+                          scopeTarget.find((t: any) => t.scope === "SCOPE1")?.reductionPercentage ?? 0
+                        }
+                        scope1value={ghg?.scope1Emissions || 0}
+                        scope2percentage={
+                          scopeTarget.find((t: any) => t.scope === "SCOPE2")?.reductionPercentage ?? 0
+                        }
+                        scope2value={ghg?.scope2Emissions || 0}
+                        scope3percentage={
+                          scopeTarget.find((t: any) => t.scope === "SCOPE3")?.reductionPercentage ?? 0
+                        }
+                        scope3value={ghg?.scope3Emissions || 0}
+                      />
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

@@ -5,7 +5,7 @@ import { Card } from "@/app/components/ui/card";
 import { Plus, Edit } from "lucide-react";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 import { useRouter } from "next/navigation";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 interface ScopeData {
@@ -17,9 +17,9 @@ interface ScopeData {
 
 const ESGPerformance = () => {
   const router = useRouter();
-  const { can } = usePermissions();
-  const canCreate = can("createTarget");
-  const canEdit = can("editTarget");
+  const { canWriteData, isCompanyLeader } = useRoles();
+  const canCreate = canWriteData;
+  const canEdit = isCompanyLeader;
 
   // Main gauge data
   const baseline = 26830;

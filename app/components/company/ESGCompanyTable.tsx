@@ -9,16 +9,16 @@ import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
 import { Company, companyService } from "@/services/company.service";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 type CompanyTableProps = { companies: Company[] };
 
 export default function ESGCompanyTable({ companies }: CompanyTableProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { can } = usePermissions();
-  const canApprove = can("approveCompany");
-  const canSuspend = can("suspendCompany");
+  const { isPlatformAdmin } = useRoles();
+  const canApprove = isPlatformAdmin;
+  const canSuspend = isPlatformAdmin;
 
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);

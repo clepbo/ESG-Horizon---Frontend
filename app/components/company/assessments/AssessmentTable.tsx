@@ -32,7 +32,7 @@ import { formatPercent } from "@/lib/numberFormat";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/app/components/ui/tooltip";
 import { useDeleteAssessment, useSubmitForReview } from "@/services/hooks/assessment.hooks";
 import ReviewerSelectionModal from "./ReviewerSelectionModal";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 export type AssessmentStatus =
   | "in_progress"
@@ -202,7 +202,7 @@ function ActionDropdown({
 
 export default function AssessmentTable({ data, requireAssessmentReview }: AssessmentTableProps) {
   const router = useRouter();
-  const { can } = usePermissions();
+  const { canWriteData, isCompanyAdmin } = useRoles();
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [modalData, setModalData] = useState({
     open: false,
@@ -559,9 +559,9 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
               onGenerateReport={() => handleGenerateReport(assessment.id)}
               onDelete={() => handleOpenModal(assessment.id)}
               deletePending={deleteMutation.isPending}
-              canEdit={can("editAssessment")}
-              canSubmit={can("submitAssessment")}
-              canDelete={can("deleteAssessment")}
+              canEdit={canWriteData}
+              canSubmit={canWriteData}
+              canDelete={isCompanyAdmin}
             />
           </div>
         );
