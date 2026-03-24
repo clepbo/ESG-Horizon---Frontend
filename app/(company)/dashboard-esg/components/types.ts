@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 // Dashboard-specific types for the redesigned company dashboard
 
 export interface PillarScore {
@@ -6,7 +8,8 @@ export interface PillarScore {
   score: number;
   maxScore: number;
   color: string; // left border color
-  iconSrc: string;
+  iconBg: string;
+  icon: ReactNode;
 }
 
 export interface EmissionTrendPoint {
@@ -32,12 +35,15 @@ export interface ESGReportMetric {
   id: string;
   title: string;
   borderColor: string;
-  iconSrc: string;
+  iconBg: string;
+  icon: ReactNode;
   metricLabel: string;
   metricValue: string;
   metricUnit?: string;
   changeText: string;
   changeDirection: "up" | "down" | "neutral";
+  /** When true, "up" is bad (red) and "down" is good (green). Default ESG behavior. */
+  upIsBad?: boolean;
 }
 
 export interface AssessmentListItem {

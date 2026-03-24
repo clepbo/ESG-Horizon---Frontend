@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { usePermissions } from "@/lib/permissions";
 
 interface Activity {
   id: string | number;
@@ -62,21 +61,18 @@ function formatTimeAgo(dateStr?: string): string {
 export default function DashboardRecentActivity({
   activities,
 }: DashboardRecentActivityProps) {
-  const { can } = usePermissions();
   const items = activities.slice(0, 5);
 
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-semibold text-gray-900">Recent Activity</h3>
-        {can("viewAuditLogs") && (
-          <Link
-            href="/audit-logs"
-            className="text-sm font-medium text-[#119B95] hover:underline inline-flex items-center gap-1"
-          >
-            View All <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        )}
+        <Link
+          href="/audit-logs"
+          className="text-sm font-medium text-[#119B95] hover:underline inline-flex items-center gap-1"
+        >
+          View All <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       <div className="flex-1 space-y-4 overflow-hidden">
@@ -103,9 +99,9 @@ export default function DashboardRecentActivity({
               </div>
 
               <div className="flex-1 min-w-0 overflow-hidden">
-                <p className="text-sm text-gray-700 break-words">
+                <p className="text-sm text-gray-700 truncate">
                   <span className="font-semibold">{userName}</span>{" "}
-                  <span className="break-all">{activity.description || activity.title}</span>
+                  {activity.description || activity.title}
                 </p>
                 <p className="text-xs text-gray-700 mt-0.5">
                   {formatTimeAgo(activity.date)}

@@ -8,12 +8,17 @@ interface HubStats {
 
 interface OverallProgressCardProps {
   hubStats?: HubStats | null;
-  totalSections: number;
+}
+
+/** Parse "X of Y sections completed" → { done: X, total: Y } */
+function parseSections(str?: string): { done: number; total: number } {
+  if (!str) return { done: 0, total: 0 };
+  const match = str.match(/(\d+)\s+of\s+(\d+)/);
+  return match ? { done: parseInt(match[1], 10), total: parseInt(match[2], 10) } : { done: 0, total: 0 };
 }
 
 export default function OverallProgressCard({
   hubStats,
-  totalSections,
 }: OverallProgressCardProps) {
   const pillars = [
     hubStats?.environment,
@@ -25,12 +30,14 @@ export default function OverallProgressCard({
   const inProgressCount = pillars.filter((p) => p?.status === "in-progress").length;
   const notStartedCount = pillars.filter((p) => p?.status === "not-started" || !p).length;
 
-  // Calculate total completed sections from the "X of Y" strings
-  const completedSections = pillars.reduce((sum, p) => {
-    if (!p?.completed) return sum;
-    const match = p.completed.match(/(\d+)/);
-    return sum + (match ? parseInt(match[1], 10) : 0);
-  }, 0);
+  // Sum both numerator and denominator from the backend's "X of Y" strings
+  const { completedSections, totalSections } = pillars.reduce(
+    (acc, p) => {
+      const { done, total } = parseSections(p?.completed);
+      return { completedSections: acc.completedSections + done, totalSections: acc.totalSections + total };
+    },
+    { completedSections: 0, totalSections: 0 }
+  );
 
   const progressPercent = totalSections > 0
     ? Math.round((completedSections / totalSections) * 100)

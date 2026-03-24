@@ -1,4 +1,11 @@
-import { formatNumberWithCommas } from "@/app/(company)/reports-and-analytics/components/utils/helpers";
+import React from "react";
+import { formatNumberFull, formatCurrencyCompact } from "@/lib/numberFormat";
+import { FaLeaf } from "react-icons/fa";
+import { PiUsersFill } from "react-icons/pi";
+import { TbBriefcaseFilled } from "react-icons/tb";
+import { CiWavePulse1 } from "react-icons/ci";
+import { HardHat } from "lucide-react";
+import { VscLaw } from "react-icons/vsc";
 import type { ESGReportMetric, EmissionTrendPoint } from "./types";
 
 /**
@@ -50,77 +57,89 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       id: "activity-metrics",
       title: "Activity Metrics",
       borderColor: "#EF4444",
-      iconSrc: "/icons/overall-esg.svg",
+      iconBg: "#FEF2F2",
+      icon: React.createElement(CiWavePulse1, { className: "w-5 h-5" }),
       metricLabel: "Total Production",
-      metricValue: totalProduction > 0 ? formatNumberWithCommas(totalProduction) : "—",
+      metricValue: totalProduction > 0 ? formatNumberFull(totalProduction) : "—",
       metricUnit: "kbbl/day",
       changeText: "",
       changeDirection: "neutral",
+      upIsBad: false,
     },
     {
       id: "environmental",
       title: "Environmental",
-      borderColor: "#22C55E",
-      iconSrc: "/icons/leafgreen.svg",
+      borderColor: "#1e8a3d",
+      iconBg: "#f1fcf4",
+      icon: React.createElement(FaLeaf, { className: "w-5 h-5" }),
       metricLabel: "Total Emissions",
-      metricValue: totalEmissions > 0 ? formatNumberWithCommas(totalEmissions) : "—",
+      metricValue: totalEmissions > 0 ? formatNumberFull(totalEmissions) : "—",
       metricUnit: "tCO₂e",
-      changeText: envChange != null ? `${Math.abs(envChange)}%` : "",
+      changeText: envChange != null ? `${formatNumberFull(Math.abs(envChange), { maximumFractionDigits: 1 })}%` : "",
       changeDirection:
         envChange == null ? "neutral" : envChange <= 0 ? "down" : "up",
+      upIsBad: true,
     },
     {
       id: "social-capital",
       title: "Social Capital",
-      borderColor: "#3B82F6",
-      iconSrc: "/icons/userstwo.svg",
+      borderColor: "#2570eb",
+      iconBg: "#eff5ff",
+      icon: React.createElement(PiUsersFill, { className: "w-5 h-5" }),
       metricLabel: "Operational Delays",
       metricValue: riskLevel,
       metricUnit: incidents > 0 ? `${incidents} Incidents` : "",
       changeText: "",
       changeDirection: "neutral",
+      upIsBad: true,
     },
     {
       id: "human-capital",
       title: "Human Capital",
       borderColor: "#F59E0B",
-      iconSrc: "/icons/userstwo.svg",
+      iconBg: "#FEF9C3",
+      icon: React.createElement(HardHat, { className: "w-5 h-5" }),
       metricLabel: "Total Recordable Incident Rate",
       metricValue: trir > 0 ? trir.toFixed(2) : "—",
       metricUnit: "per 200k hrs",
-      changeText: humanChange != null ? `${Math.abs(humanChange)}%` : "",
+      changeText: humanChange != null ? `${formatNumberFull(Math.abs(humanChange), { maximumFractionDigits: 1 })}%` : "",
       changeDirection:
         humanChange == null ? "neutral" : humanChange <= 0 ? "down" : "up",
+      upIsBad: true,
     },
     {
       id: "business-model",
       title: "Business Model",
-      borderColor: "#EF4444",
-      iconSrc: "/icons/injusticetwo.svg",
+      borderColor: "#af57db",
+      iconBg: "#f5e2ff",
+      icon: React.createElement(TbBriefcaseFilled, { className: "w-5 h-5" }),
       metricLabel: "Reserves at Risk",
       metricValue:
         reservesAtRisk > 0
-          ? `₦${formatNumberWithCommas(reservesAtRisk)}`
+          ? `${formatNumberFull(reservesAtRisk)} MMboe`
           : "—",
-      metricUnit: renewableInv > 0 ? `₦${formatNumberWithCommas(renewableInv)} Renewable Inv.` : "",
-      changeText: businessChange != null ? `${Math.abs(businessChange)}%` : "",
+      metricUnit: renewableInv > 0 ? `${formatCurrencyCompact(renewableInv)} Renewable Inv.` : "",
+      changeText: businessChange != null ? `${formatNumberFull(Math.abs(businessChange), { maximumFractionDigits: 1 })}%` : "",
       changeDirection:
         businessChange == null
           ? "neutral"
           : businessChange <= 0
             ? "down"
             : "up",
+      upIsBad: true,
     },
     {
       id: "leadership-governance",
       title: "Leadership & Governance",
-      borderColor: "#8B5CF6",
-      iconSrc: "/icons/injusticetwo.svg",
-      metricLabel: "Process Safety",
-      metricValue: `${Math.round(pser)}%`,
-      metricUnit: "Audit Compliance",
+      borderColor: "#4a4a4a",
+      iconBg: "#e8e8e8",
+      icon: React.createElement(VscLaw, { className: "w-5 h-5" }),
+      metricLabel: "Process Safety Event Rate",
+      metricValue: pser > 0 ? formatNumberFull(pser) : "—",
+      metricUnit: "per 200k hrs",
       changeText: tierEvents !== "—" ? tierEvents : "",
       changeDirection: "neutral",
+      upIsBad: true,
     },
   ];
 }

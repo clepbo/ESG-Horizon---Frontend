@@ -16,7 +16,12 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   submitted: { bg: "bg-teal-50", text: "text-teal-700", label: "Submitted" },
 };
 
-const TYPE_FILTERS = ["All", "Assessment", "Login", "General"] as const;
+const TYPE_FILTERS = [
+  { label: "All", value: "all" },
+  { label: "Assessment", value: "assessment" },
+  { label: "Login", value: "auth" },
+  { label: "General", value: "general" },
+] as const;
 
 const AVATAR_COLORS = [
   "bg-[#119B95]",
@@ -56,16 +61,16 @@ const ITEMS_PER_PAGE = 15;
 export default function AuditLogsPage() {
   const { data: activities, isLoading, isError } = useActivities();
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("All");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     if (!activities) return [];
     let items = [...activities];
 
-    if (typeFilter !== "All") {
+    if (typeFilter !== "all") {
       items = items.filter(
-        (a) => a.type?.toLowerCase() === typeFilter.toLowerCase()
+        (a) => a.type?.toLowerCase() === typeFilter
       );
     }
 
@@ -141,18 +146,18 @@ export default function AuditLogsPage() {
           <div className="flex gap-1 rounded-lg bg-white border border-gray-200 p-1">
             {TYPE_FILTERS.map((t) => (
               <button
-                key={t}
+                key={t.value}
                 onClick={() => {
-                  setTypeFilter(t);
+                  setTypeFilter(t.value);
                   setPage(1);
                 }}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                  typeFilter === t
+                  typeFilter === t.value
                     ? "bg-[#119B95] text-white"
                     : "text-gray-900 hover:bg-gray-100"
                 }`}
               >
-                {t}
+                {t.label}
               </button>
             ))}
           </div>

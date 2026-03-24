@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import type { ESGReportMetric } from "./types";
 
@@ -18,15 +17,15 @@ export default function ESGReportCard({ metric }: ESGReportCardProps) {
         <div className="flex items-center gap-2">
           <div
             className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: `${metric.borderColor}15` }}
+            style={{ backgroundColor: metric.iconBg, color: metric.borderColor }}
           >
-            <Image src={metric.iconSrc} alt={metric.title} width={32} height={32} />
+            {metric.icon}
           </div>
           <h4 className="text-base font-semibold text-gray-900">{metric.title}</h4>
         </div>
       </div>
 
-      <p className="text-xs text-gray-900 mb-1">{metric.metricLabel}</p>
+      <p className="text-sm text-gray-900 mb-1">{metric.metricLabel}</p>
 
       <div className="flex items-end justify-between">
         <div>
@@ -36,7 +35,7 @@ export default function ESGReportCard({ metric }: ESGReportCardProps) {
           )}
         </div>
 
-        <ChangeBadge text={metric.changeText} direction={metric.changeDirection} />
+        <ChangeBadge text={metric.changeText} direction={metric.changeDirection} upIsBad={metric.upIsBad} />
       </div>
     </div>
   );
@@ -45,16 +44,28 @@ export default function ESGReportCard({ metric }: ESGReportCardProps) {
 function ChangeBadge({
   text,
   direction,
+  upIsBad,
 }: {
   text: string;
   direction: "up" | "down" | "neutral";
+  upIsBad?: boolean;
 }) {
+  // Determine if this change is favorable:
+  // upIsBad=true (most ESG): up=red, down=green
+  // upIsBad=false (production): up=green, down=red
+  const isGood =
+    direction === "neutral"
+      ? null
+      : upIsBad
+        ? direction === "down"
+        : direction === "up";
+
   const colorClasses =
-    direction === "up"
-      ? "text-emerald-700 bg-emerald-50"
-      : direction === "down"
-        ? "text-red-600 bg-red-50"
-        : "text-amber-700 bg-amber-50";
+    isGood === null
+      ? "text-amber-700 bg-amber-50"
+      : isGood
+        ? "text-emerald-700 bg-emerald-50"
+        : "text-red-600 bg-red-50";
 
   return (
     <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${colorClasses}`}>

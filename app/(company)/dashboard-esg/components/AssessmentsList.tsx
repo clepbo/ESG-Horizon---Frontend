@@ -45,7 +45,7 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
         </Link>
       </div>
 
-      <div className="flex-1 space-y-3">
+      <div className="flex-1 divide-y divide-gray-100">
         {items.length === 0 && (
           <p className="text-sm text-gray-700 text-center py-8">No assessments yet</p>
         )}
@@ -62,31 +62,31 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
           return (
             <div
               key={assessment.id}
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-4 py-4"
             >
-              <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
-                <FileText className="w-4 h-4 text-gray-900" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-gray-500" />
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-sm font-semibold text-gray-900 truncate">
                   {assessment.subsidiary || "Assessment"}
                 </p>
-                <p className="text-xs text-gray-900 truncate">{period}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{period}</p>
               </div>
 
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
+              <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
                   {style.label}
                 </span>
-                <div className="w-16">
-                  <div className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <div className="w-20 h-1.5 rounded-full bg-gray-100 overflow-hidden">
                     <div
                       className="h-full rounded-full bg-[#119B95] transition-all"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <p className="text-[10px] text-gray-700 text-right mt-0.5">{progress}%</p>
+                  <span className="text-xs text-gray-500 w-8 text-right">{progress}%</span>
                 </div>
               </div>
             </div>

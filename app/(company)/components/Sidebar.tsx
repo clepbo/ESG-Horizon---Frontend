@@ -18,7 +18,7 @@ import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState, createContext, useContext, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { usePermissions, type Permission } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 
 // Create context for mobile nav visibility
 const MobileNavContext = createContext({
@@ -43,34 +43,36 @@ const navItems = [
   { name: "KPIs", href: "/kpis", icon: TrendingUp },
 ];
 
-const assessmentSubLinks: { name: string; href: string; requiredAction?: Permission }[] = [
-  { name: "New Assessment", href: "/assessments/new-assessment", requiredAction: "viewNewAssessment" },
+type RoleFlags = ReturnType<typeof useRoles>;
+
+const assessmentSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
+  { name: "New Assessment", href: "/assessments/new-assessment", roleCheck: (r) => r.canWriteData },
   { name: "Tasks", href: "/assessments/tasks" },
 ];
 
-const settingsSubLinks: { name: string; href: string; requiredAction?: Permission }[] = [
+const settingsSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "My Profile", href: "/settings-esg/account" },
   { name: "Company Info", href: "/settings-esg/company" },
   { name: "Subsidiaries", href: "/settings-esg/subsidiaries" },
-  { name: "Departments", href: "/settings-esg/departments", requiredAction: "viewDepartmentsSettings" },
-  { name: "Teams", href: "/settings-esg/teams", requiredAction: "viewTeamsSettings" },
+  { name: "Departments", href: "/settings-esg/departments", roleCheck: (r) => r.canManageUsers },
+  { name: "Teams", href: "/settings-esg/teams", roleCheck: (r) => r.canManageUsers },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
-  const { can } = usePermissions();
+  const roles = useRoles();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [assessmentsOpen, setAssessmentsOpen] = useState(false);
 
   const visibleAssessmentSubLinks = useMemo(
-    () => assessmentSubLinks.filter((l) => !l.requiredAction || can(l.requiredAction)),
-    [can]
+    () => assessmentSubLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
   );
   const visibleSettingsSubLinks = useMemo(
-    () => settingsSubLinks.filter((l) => !l.requiredAction || can(l.requiredAction)),
-    [can]
+    () => settingsSubLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
   );
 
   // Use the context for mobile nav visibility

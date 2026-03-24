@@ -273,6 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const companyPagePrefixes = [
       "/dashboard-esg",
       "/assessments",
+      "/audit-logs",
       "/kpis",
       "/settings-esg",
       "/reports-and-analytics",

@@ -10,7 +10,7 @@ import { useAssessments } from "@/services/hooks/assessment.hooks";
 import { useReport } from "@/services/hooks/report.hooks";
 import { useLatestTargetPair } from "@/app/(company)/components/ranking/services";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
-import { ESG_SECTION_COUNTS } from "@/lib/esgSectionCounts";
+
 
 // Dashboard components
 import TotalEmissionCard from "./components/TotalEmissionCard";
@@ -150,7 +150,6 @@ export default function DashboardPage() {
             <ESGScoreGauge score={dashboard?.overallScore ?? 0} />
             <OverallProgressCard
               hubStats={dashboard?.hubStats}
-              totalSections={ESG_SECTION_COUNTS.total}
             />
           </motion.div>
 

@@ -15,7 +15,7 @@ import { UserTasksCoordinator } from "@/app/components/company/assessments/UserT
 import Header from "../../components/Header";
 import { useCompanySubsidiaries } from "@/services/hooks/subsidiaries.hooks";
 import { useAuth } from "@/context/AuthContext";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -38,7 +38,7 @@ const months = [
 export default function AssessmentHub() {
   const { state, dispatch } = useAssessment();
   const { user } = useAuth();
-  const { can } = usePermissions();
+  const { isValidator } = useRoles();
   const router = useRouter();
   const [dateError, setDateError] = useState<string | null>(null);
 
@@ -124,7 +124,7 @@ export default function AssessmentHub() {
     console.log("AssessmentHub handleProceed - User:", user);
     console.log("AssessmentHub handleProceed - Role:", user?.role?.name);
 
-    if (can("approveAssessment")) {
+    if (isValidator) {
       // Admins/SubAdmins see all disclosure topics directly
       dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
     } else {

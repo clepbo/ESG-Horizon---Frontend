@@ -8,7 +8,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft, ShieldOff } from "lucide-react";
 
 interface ForbiddenContextValue {
@@ -55,6 +55,7 @@ function AccessDeniedScreen() {
 export function ForbiddenProvider({ children }: { children: ReactNode }) {
   const [isForbidden, setIsForbidden] = useState(false);
   const [message, setMessage] = useState<string | undefined>();
+  const pathname = usePathname();
 
   const setForbidden = useCallback((msg?: string) => {
     setMessage(msg);
@@ -65,6 +66,12 @@ export function ForbiddenProvider({ children }: { children: ReactNode }) {
     setIsForbidden(false);
     setMessage(undefined);
   }, []);
+
+  // Reset forbidden state on route change
+  useEffect(() => {
+    setIsForbidden(false);
+    setMessage(undefined);
+  }, [pathname]);
 
   // Listen for 403 events dispatched by the axios interceptor
   useEffect(() => {

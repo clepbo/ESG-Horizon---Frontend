@@ -1,8 +1,13 @@
+import React from "react";
+import { FaLeaf } from "react-icons/fa";
+import { PiUsersFill } from "react-icons/pi";
+import { TbBriefcaseFilled } from "react-icons/tb";
+import { HardHat } from "lucide-react";
+import { VscLaw } from "react-icons/vsc";
 import type {
   PillarScore,
   EmissionTrendPoint,
   ReductionTarget,
-  ESGReportMetric,
 } from "./types";
 
 // TODO: Wire to real endpoint when 5-pillar scoring backend is ready
@@ -12,16 +17,18 @@ export const MOCK_PILLAR_SCORES: PillarScore[] = [
     name: "Environmental",
     score: 78,
     maxScore: 100,
-    color: "#22C55E",
-    iconSrc: "/icons/leafgreen.svg",
+    color: "#1e8a3d",
+    iconBg: "#f1fcf4",
+    icon: React.createElement(FaLeaf, { className: "w-6 h-6" }),
   },
   {
     id: "social-capital",
     name: "Social Capital",
     score: 64,
     maxScore: 100,
-    color: "#3B82F6",
-    iconSrc: "/icons/userstwo.svg",
+    color: "#2570eb",
+    iconBg: "#eff5ff",
+    icon: React.createElement(PiUsersFill, { className: "w-6 h-6" }),
   },
   {
     id: "human-capital",
@@ -29,23 +36,26 @@ export const MOCK_PILLAR_SCORES: PillarScore[] = [
     score: 71,
     maxScore: 100,
     color: "#F59E0B",
-    iconSrc: "/icons/userstwo.svg",
+    iconBg: "#FEF9C3",
+    icon: React.createElement(HardHat, { className: "w-6 h-6" }),
   },
   {
     id: "business-model",
     name: "Business Model",
     score: 58,
     maxScore: 100,
-    color: "#EF4444",
-    iconSrc: "/icons/injusticetwo.svg",
+    color: "#af57db",
+    iconBg: "#f5e2ff",
+    icon: React.createElement(TbBriefcaseFilled, { className: "w-6 h-6" }),
   },
   {
     id: "leadership-governance",
     name: "Leadership & Governance",
     score: 82,
     maxScore: 100,
-    color: "#8B5CF6",
-    iconSrc: "/icons/injusticetwo.svg",
+    color: "#4a4a4a",
+    iconBg: "#e8e8e8",
+    icon: React.createElement(VscLaw, { className: "w-6 h-6" }),
   },
 ];
 
@@ -77,73 +87,3 @@ export const MOCK_TOTAL_EMISSION = {
   scope2: 7000,
   scope3: 422131,
 };
-
-// TODO: Wire to per-pillar summary endpoint when available
-export const MOCK_REPORT_METRICS: ESGReportMetric[] = [
-  {
-    id: "activity-metrics",
-    title: "Activity Metrics",
-    borderColor: "#EF4444",
-    iconSrc: "/icons/overall-esg.svg",
-    metricLabel: "Total Production",
-    metricValue: "538",
-    metricUnit: "kbbl/day",
-    changeText: "+3.2% MoM",
-    changeDirection: "up",
-  },
-  {
-    id: "environmental",
-    title: "Environmental",
-    borderColor: "#22C55E",
-    iconSrc: "/icons/leafgreen.svg",
-    metricLabel: "Total Emissions",
-    metricValue: "154,000",
-    metricUnit: "tCO₂e",
-    changeText: "0.0%",
-    changeDirection: "down",
-  },
-  {
-    id: "social-capital",
-    title: "Social Capital",
-    borderColor: "#3B82F6",
-    iconSrc: "/icons/userstwo.svg",
-    metricLabel: "Operational Delays",
-    metricValue: "High Risk",
-    metricUnit: "in 2 Regions",
-    changeText: "15 Incidents",
-    changeDirection: "neutral",
-  },
-  {
-    id: "human-capital",
-    title: "Human Capital",
-    borderColor: "#F59E0B",
-    iconSrc: "/icons/userstwo.svg",
-    metricLabel: "Total Recordable Incident Rate",
-    metricValue: "0.45",
-    metricUnit: "per 200k hrs",
-    changeText: "10%",
-    changeDirection: "down",
-  },
-  {
-    id: "business-model",
-    title: "Business Model",
-    borderColor: "#EF4444",
-    iconSrc: "/icons/injusticetwo.svg",
-    metricLabel: "Reserves at Risk",
-    metricValue: "₦150M",
-    metricUnit: "Renewable Inv.",
-    changeText: "12% Decrease",
-    changeDirection: "down",
-  },
-  {
-    id: "leadership-governance",
-    title: "Leadership & Governance",
-    borderColor: "#8B5CF6",
-    iconSrc: "/icons/injusticetwo.svg",
-    metricLabel: "Process Safety",
-    metricValue: "100%",
-    metricUnit: "Audit Compliance",
-    changeText: "2 Tier-1 Events",
-    changeDirection: "neutral",
-  },
-];

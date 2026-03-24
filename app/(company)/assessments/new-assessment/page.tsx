@@ -14,7 +14,7 @@ import { UserTasksCoordinator } from "@/app/components/company/assessments/UserT
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
 import { useAuth } from "@/context/AuthContext";
 import { getAssessmentProgressForTable } from "@/lib/utils";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 function NewAssessmentPage() {
@@ -31,9 +31,8 @@ function NewAssessmentPage() {
   const hasAssessments = assessments && assessments.length > 0;
 
   const { user } = useAuth();
-  const { can } = usePermissions();
-  const isCompanyAdmin = user?.role?.name === "company_esg_admin";
-  const canCreate = can("createAssessment");
+  const { canWriteData, isCompanyAdmin } = useRoles();
+  const canCreate = canWriteData;
 
   // Auto-redirect to my-tasks view if user has assigned tasks (only on initial load)
   useEffect(() => {

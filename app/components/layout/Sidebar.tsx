@@ -7,36 +7,39 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
-import { usePermissions, type Permission } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
+import { USER_TYPES } from "@/app/constants/userTypes";
 
-const navLinks: { name: string; icon: string; href: string; requiredAction?: Permission }[] = [
+type RoleFlags = ReturnType<typeof useRoles>;
+
+const navLinks: { name: string; icon: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "Dashboard", icon: "/icons/Dashboard.svg", href: "/dashboard" },
-  { name: "Company", icon: "/icons/Company.svg", href: "/company", requiredAction: "viewCompanyManagement" },
+  { name: "Company", icon: "/icons/Company.svg", href: "/company", roleCheck: (r) => r.isPlatformAdmin || r.role === USER_TYPES.PLATFORM_DATA_OFFICER },
   { name: "Reports", icon: "/icons/Analytics.svg", href: "/reports" },
   { name: "Subscription & Billing", icon: "/icons/SubscriptionBilling.svg", href: "/billing" },
 ];
 
-const settingsSubLinks: { name: string; href: string; requiredAction?: Permission }[] = [
+const settingsSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "My Profile", href: "/settings/account" },
   { name: "Company Info", href: "/settings/company" },
-  { name: "Teams", href: "/settings/teams", requiredAction: "viewTeamsSettings" },
-  { name: "Departments", href: "/settings/departments", requiredAction: "viewDepartmentsSettings" },
+  { name: "Teams", href: "/settings/teams", roleCheck: (r) => r.canManageUsers },
+  { name: "Departments", href: "/settings/departments", roleCheck: (r) => r.canManageUsers },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
-  const { can } = usePermissions();
+  const roles = useRoles();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const visibleNavLinks = useMemo(
-    () => navLinks.filter((l) => !l.requiredAction || can(l.requiredAction)),
-    [can]
+    () => navLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
   );
   const visibleSettingsSubLinks = useMemo(
-    () => settingsSubLinks.filter((l) => !l.requiredAction || can(l.requiredAction)),
-    [can]
+    () => settingsSubLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
   );
 
   useEffect(() => {

@@ -18,7 +18,7 @@ import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
-import { usePermissions } from "@/lib/permissions";
+import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 export default function TeamsPage() {
@@ -29,8 +29,8 @@ export default function TeamsPage() {
   const [roleFilter, setRoleFilter] = useState("Roles");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
-  const { can } = usePermissions();
-  const canInvite = can("invitePlatformUser");
+  const { isSuperAdmin } = useRoles();
+  const canInvite = isSuperAdmin;
 
   useEffect(() => {
     async function fetchUsers() {
