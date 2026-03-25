@@ -6,6 +6,7 @@ import { TargetTypeSelector } from "./TargetTypeSelector";
 import GeneralTargetForm from "./GeneralSetTarget";
 import SetTargetByScope from "./SetTargetByScope";
 import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
+import { invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -60,8 +61,7 @@ export function TargetSetting({ onSuccess }: TargetSettingProps) {
       return apiUtil.post(`/target`, payload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
+      invalidateAllTargetQueries(queryClient);
     },
   });
 

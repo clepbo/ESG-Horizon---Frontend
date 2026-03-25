@@ -115,18 +115,20 @@ export default function AuditLogsPage() {
         transition={{ duration: 0.3 }}
       >
         {/* Header */}
-        <div className="flex gap-2 mb-6">
-          <h1 className="hidden lg:block text-2xl font-bold">Audit Logs</h1>
-          <Header showSearchBar={false} />
-        </div>
+        <Header showSearchBar={false} />
 
-        {/* Back link */}
-        <Link
-          href="/dashboard-esg"
-          className="inline-flex items-center gap-1 text-sm font-medium text-[#119B95] hover:underline mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-        </Link>
+        <div className="flex items-center justify-between mb-6 mt-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Audit Logs</h1>
+            <p className="text-sm text-gray-500 mt-1">Track all user activity across your organization</p>
+          </div>
+          <Link
+            href="/dashboard-esg"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#119B95] hover:bg-[#119B95]/5 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </Link>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -167,11 +169,11 @@ export default function AuditLogsPage() {
         {/* Activity List */}
         <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
           {/* Table header */}
-          <div className="hidden sm:grid grid-cols-[1fr_2fr_1fr_1fr] gap-4 px-6 py-3 bg-gray-50 border-b border-gray-100">
+          <div className="hidden sm:grid grid-cols-[2fr_3fr_1fr_auto] gap-4 px-6 py-3 bg-gray-50 border-b border-gray-100">
             <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">User</span>
             <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Activity</span>
             <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</span>
-            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider text-right">Date & Time</span>
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider text-right w-28">Date & Time</span>
           </div>
 
           {paginated.length === 0 && (
@@ -224,7 +226,7 @@ function ActivityRow({
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_1fr_1fr] gap-2 sm:gap-4 px-6 py-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-[2fr_3fr_1fr_auto] gap-2 sm:gap-4 px-6 py-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors items-center">
       {/* User */}
       <div className="flex items-center gap-3">
         <div
@@ -254,7 +256,7 @@ function ActivityRow({
       </div>
 
       {/* Date */}
-      <div className="text-right">
+      <div className="text-right w-28 flex-shrink-0">
         <p className="text-sm text-gray-900">{formatDate(activity.date)}</p>
         <p className="text-xs text-gray-700">{formatTime(activity.date)}</p>
       </div>

@@ -9,6 +9,7 @@ import { FaCaretRight } from "react-icons/fa";
 import { years } from "./GeneralSetTarget";
 import { ScopeSummary } from "./scope/ScopeTargetSummary";
 import { SuccessModal } from "./SuccessModal";
+import { invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import apiUtil from "@/lib/api/axios";
 import { useAuth } from "@/context/AuthContext";
@@ -91,8 +92,7 @@ export default function SetTargetByScope({ onSuccess, onComplete }: SetTargetByS
       return await apiUtil.post(`/target`, targetData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
+      invalidateAllTargetQueries(queryClient);
     },
   });
 

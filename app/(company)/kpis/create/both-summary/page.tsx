@@ -6,6 +6,7 @@ import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/axios";
 import { BothTargetPayload } from "@/types/target/index";
+import { invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatWithCommas } from "@/app/(company)/components/ranking/FormatNumberFigures";
 import { AlertCircle, TrendingDown } from "lucide-react";
@@ -58,9 +59,7 @@ export default function BothSummaryPage() {
     },
     onSuccess: () => {
       setCreateError(null);
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
-      queryClient.invalidateQueries({ queryKey: ["latest-target"] });
+      invalidateAllTargetQueries(queryClient);
       localStorage.removeItem("generalTargetSummary");
       localStorage.removeItem("scopeTargetSummary");
     },

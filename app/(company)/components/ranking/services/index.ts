@@ -9,6 +9,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const BASELINE_STALE_MS = 2 * 60 * 1000; // 2 minutes – avoid refetch when navigating back
 
+/** Invalidate all target-related queries so every consumer stays fresh. */
+export function invalidateAllTargetQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: ["baseline"] });
+  queryClient.invalidateQueries({ queryKey: ["baseline-options"] });
+  queryClient.invalidateQueries({ queryKey: ["targets"] });
+  queryClient.invalidateQueries({ queryKey: ["latest-target"] });
+  queryClient.invalidateQueries({ queryKey: ["latest-target-pair"] });
+  queryClient.invalidateQueries({ queryKey: ["all-targets"] });
+}
+
 export type UseBaselineOptions = {
   /** When false, the baseline request is not sent (e.g. when summary already has local baseline). */
   enabled?: boolean;
@@ -75,8 +85,7 @@ export const useCreateTarget = (companyId?: string) => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
+      invalidateAllTargetQueries(queryClient);
     },
   });
 };

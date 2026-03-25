@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLatestTargetPair, useBaselineOptions } from "@/app/(company)/components/ranking/services";
+import { useLatestTargetPair, useBaselineOptions, invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { useState, useEffect } from "react";
 import { ChevronDown, Edit, Plus } from "lucide-react";
@@ -32,8 +32,7 @@ export default function TargetHomePage() {
   const hasAny = hasGeneral || hasScope;
 
   const handleSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["latest-target-pair", companyId] });
-    queryClient.invalidateQueries({ queryKey: ["all-targets", companyId] });
+    invalidateAllTargetQueries(queryClient);
     setShowForm(false);
   };
 
