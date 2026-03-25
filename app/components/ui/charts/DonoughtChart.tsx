@@ -52,7 +52,7 @@ export function MiniDonutChart({ label, percentage, value, color }: MiniDonutCha
   );
 }
 
-export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniDonutChartProps) {
+export function ScopeTargetDonutChart({ label, percentage, value, color, targetYear }: MiniDonutChartProps & { targetYear?: number | null }) {
   const data = [{ value: percentage }, { value: 100 - percentage }];
   return (
     <div className="flex items-center gap-3 text-center space-y-2">
@@ -86,6 +86,7 @@ export function ScopeTargetDonutChart({ label, percentage, value, color }: MiniD
       <div className="text-sm">
         <p className="font-semibold">{label}</p>
         <p className="text-gray-600">{formatNumberWithCommas(value)} tCO₂e</p>
+        {targetYear && <p className="text-gray-500 text-xs">Target: {targetYear}</p>}
       </div>
     </div>
   );

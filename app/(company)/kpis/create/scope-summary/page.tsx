@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/axios";
 import { ScopeTargetPayload } from "@/types/target/index";
+import { invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -71,9 +72,7 @@ export default function ScopeSummaryPage() {
     },
     onSuccess: () => {
       setCreateError(null);
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
-      queryClient.invalidateQueries({ queryKey: ["latest-target"] });
+      invalidateAllTargetQueries(queryClient);
       localStorage.removeItem("scopeTargetSummary");
     },
     onError: (error: any) => {
@@ -125,27 +124,40 @@ export default function ScopeSummaryPage() {
     }
 
     try {
+      const s1Year = Number(summaryData.scopeTargetData.scope1.baselineYear!);
+      const s2Year = Number(summaryData.scopeTargetData.scope2.baselineYear!);
+      const s3Year = Number(summaryData.scopeTargetData.scope3.baselineYear!);
+      const s1TYear = Number(summaryData.scopeTargetData.scope1.targetYear!);
+      const s2TYear = Number(summaryData.scopeTargetData.scope2.targetYear!);
+      const s3TYear = Number(summaryData.scopeTargetData.scope3.targetYear!);
+
       const targetPayload: ScopeTargetPayload = {
         name: uniqueName,
         type: "SCOPE",
         description: "Scope-based emissions reduction target",
-        baselineYear: Number(summaryData.scopeTargetData.scope1.baselineYear!),
-        targetYear: Number(summaryData.scopeTargetData.scope1.targetYear!),
+        baselineYear: Math.min(s1Year, s2Year, s3Year),
+        targetYear: Math.max(s1TYear, s2TYear, s3TYear),
         scopes: {
           scope1: {
             reductionPercentage: summaryData.scopeTargetData.scope1.reductionPercentage || 0,
             targetEmission: summaryData.calculations.scope1.targetEmission,
             baselineYearEmission: summaryData.emissionData?.totals?.scope1,
+            baselineYear: s1Year,
+            targetYear: s1TYear,
           },
           scope2: {
             reductionPercentage: summaryData.scopeTargetData.scope2.reductionPercentage || 0,
             targetEmission: summaryData.calculations.scope2.targetEmission,
             baselineYearEmission: summaryData.emissionData?.totals?.scope2,
+            baselineYear: s2Year,
+            targetYear: s2TYear,
           },
           scope3: {
             reductionPercentage: summaryData.scopeTargetData.scope3.reductionPercentage || 0,
             targetEmission: summaryData.calculations.scope3.targetEmission,
             baselineYearEmission: summaryData.emissionData?.totals?.scope3,
+            baselineYear: s3Year,
+            targetYear: s3TYear,
           },
         },
         ...(typeof summaryData.baselineSelection?.baselineAssessmentId === "number" && {

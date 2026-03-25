@@ -72,7 +72,7 @@ export default function PerformanceOverview({ pair, baselineInfo }: PerformanceO
     const score = gap > 0
       ? Math.min(100, Math.max(0, Math.round(((bl - cur) / gap) * 100)))
       : 0;
-    return { label, description, score, baseline: bl, current: cur, target: tgt, reductionPct: st?.reductionPercentage };
+    return { label, description, score, baseline: bl, current: cur, target: tgt, reductionPct: st?.reductionPercentage, baselineYear: st?.baselineYear, targetYear: st?.targetYear };
   });
 
   return (
@@ -145,9 +145,9 @@ export default function PerformanceOverview({ pair, baselineInfo }: PerformanceO
               currentEmission={formatNumberWithCommas(activeData.current)}
               targetEmission={formatNumberWithCommas(activeData.target)}
               reductionPercentage={activeData.reductionPct}
-              baselineYear={scopeTarget!.baselineYear}
+              baselineYear={activeData.baselineYear ?? scopeTarget!.baselineYear}
               currentYear={scopeTarget!.currentAssessmentYear ?? undefined}
-              targetYear={scopeTarget!.targetYear}
+              targetYear={activeData.targetYear ?? scopeTarget!.targetYear}
             />
           </div>
         );

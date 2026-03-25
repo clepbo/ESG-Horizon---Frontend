@@ -30,6 +30,8 @@ export interface ScopeTarget {
   targetEmission: number;
   baselineYearEmission: number;
   currentEmission: number | null;
+  baselineYear?: number | null;
+  targetYear?: number | null;
   createdAt?: string;
   updatedAt?: string;
 }
