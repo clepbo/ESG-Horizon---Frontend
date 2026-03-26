@@ -1,6 +1,7 @@
 "use client";
 
 import { formatNumberShort, formatNumberFull } from "@/lib/numberFormat";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/app/components/ui/tooltip";
 
 interface TotalEmissionCardProps {
   total: number;
@@ -16,22 +17,29 @@ export default function TotalEmissionCard({
   scope3,
 }: TotalEmissionCardProps) {
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-[#0d3b3b] to-[#1a5c5c] p-6 text-white flex flex-col justify-between h-full min-h-[180px]">
-      <p className="text-sm font-semibold tracking-widest uppercase text-emerald-300">
-        Total Emission
-      </p>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="rounded-2xl bg-gradient-to-br from-[#0d3b3b] to-[#1a5c5c] p-6 text-white flex flex-col justify-between h-full min-h-[180px] cursor-default">
+          <p className="text-sm font-semibold tracking-widest uppercase text-emerald-300 break-words">
+            Total Emission
+          </p>
 
-      <div className="mt-3">
-        <span className="text-4xl font-bold" title={`${formatNumberFull(total)} tCO₂e`}>{formatNumberShort(total)}</span>
-        <span className="text-lg ml-2 text-white">tCO₂e</span>
-      </div>
+          <div className="mt-3">
+            <span className="text-4xl font-bold" title={`${formatNumberFull(total)} tCO₂e`}>{formatNumberShort(total)}</span>
+            <span className="text-lg ml-2 text-white">tCO₂e</span>
+          </div>
 
-      <div className="flex flex-wrap gap-2 mt-4">
-        <ScopeChip label="Scope 1" value={formatNumberShort(scope1)} tooltip={formatNumberFull(scope1)} />
-        <ScopeChip label="Scope 2" value={formatNumberShort(scope2)} tooltip={formatNumberFull(scope2)} />
-        <ScopeChip label="Scope 3" value={formatNumberShort(scope3)} tooltip={formatNumberFull(scope3)} />
-      </div>
-    </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <ScopeChip label="Scope 1" value={formatNumberShort(scope1)} tooltip={formatNumberFull(scope1)} />
+            <ScopeChip label="Scope 2" value={formatNumberShort(scope2)} tooltip={formatNumberFull(scope2)} />
+            <ScopeChip label="Scope 3" value={formatNumberShort(scope3)} tooltip={formatNumberFull(scope3)} />
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={8} className="max-w-xs">
+        Total GHG emissions (Scope 1 + 2 + 3) from the latest assessment report.
+      </TooltipContent>
+    </Tooltip>
   );
 }
 

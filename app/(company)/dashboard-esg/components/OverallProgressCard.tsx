@@ -1,5 +1,7 @@
 "use client";
 
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/app/components/ui/tooltip";
+
 interface HubStats {
   environment?: { progress: number; completed: string; status: string };
   social?: { progress: number; completed: string; status: string };
@@ -44,35 +46,44 @@ export default function OverallProgressCard({
     : 0;
 
   return (
-    <div className="rounded-2xl bg-white p-6 flex flex-col justify-between h-full min-h-[180px] shadow-sm">
-      <div>
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold tracking-widest uppercase text-gray-900">
-            Overall Progress
-          </p>
-          <span className="text-sm font-bold text-gray-900">{progressPercent}%</span>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="rounded-2xl bg-white p-6 flex flex-col justify-between h-full min-h-[180px] shadow-sm cursor-default">
+          <div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold tracking-widest uppercase text-gray-900">
+                Overall Progress
+              </p>
+              <span className="text-sm font-bold text-gray-900">{progressPercent}%</span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-2 h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[#119B95] transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+
+            <p className="mt-2 text-xs text-gray-900">
+              {completedSections} of {totalSections} sections completed
+            </p>
+          </div>
+
+          {/* Status counters — tracks 3 ESG hubs (E, S, G) */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <StatusCounter label="Complete" count={completedCount} color="text-[#119B95]" />
+            <StatusCounter label="In Progress" count={inProgressCount} color="text-amber-500" />
+            <StatusCounter label="Not Started" count={notStartedCount} color="text-gray-700" />
+          </div>
         </div>
-
-        {/* Progress bar */}
-        <div className="mt-2 h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-[#119B95] transition-all duration-500"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-
-        <p className="mt-2 text-xs text-gray-900">
-          {completedSections} of {totalSections} sections completed
-        </p>
-      </div>
-
-      {/* Status counters */}
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        <StatusCounter label="Complete" count={completedCount} color="text-[#119B95]" />
-        <StatusCounter label="In Progress" count={inProgressCount} color="text-amber-500" />
-        <StatusCounter label="Not Started" count={notStartedCount} color="text-gray-700" />
-      </div>
-    </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={8} className="max-w-xs">
+        <p>Tracks {totalSections} sections across 3 ESG hubs:</p>
+        <p>Environment (8), Social (2), Governance (4).</p>
+        <p className="mt-1">A hub is marked complete when all its sections are submitted.</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
