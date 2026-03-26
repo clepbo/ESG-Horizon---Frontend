@@ -9,7 +9,14 @@ export interface ESGJourneyItem {
 }
 
 export interface CompanyDashboardData {
-  overallScore: number | null;
+  esgScore: number | null;
+  pillars: {
+    environmental: number;
+    socialCapital: number;
+    humanCapital: number;
+    businessModel: number;
+    leadership: number;
+  } | null;
   breakdown: { environment: number; social: number; governance: number };
   recentActivities: any[];
   esgJourney: ESGJourneyItem[];

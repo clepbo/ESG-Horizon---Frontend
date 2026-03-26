@@ -10,6 +10,11 @@ import { useAssessments } from "@/services/hooks/assessment.hooks";
 import { useReport } from "@/services/hooks/report.hooks";
 import { useLatestTargetPair } from "@/app/(company)/components/ranking/services";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
+import { FaLeaf } from "react-icons/fa";
+import { PiUsersFill } from "react-icons/pi";
+import { TbBriefcaseFilled } from "react-icons/tb";
+import { HardHat } from "lucide-react";
+import { VscLaw } from "react-icons/vsc";
 
 
 // Dashboard components
@@ -52,7 +57,8 @@ export default function DashboardPage() {
     const raw: any = "data" in data && typeof data.data !== "undefined" ? data.data : data;
 
     const normalized: CompanyDashboardData = {
-      overallScore: raw.overallScore ?? null,
+      esgScore: raw.esgScore ?? null,
+      pillars: raw.pillars ?? null,
       breakdown: {
         environment: Number(raw.breakdown?.environment ?? 0),
         social: Number(raw.breakdown?.social ?? 0),
@@ -97,6 +103,57 @@ export default function DashboardPage() {
 
   // GHG Emissions Trend from report history
   const emissionTrend = useMemo(() => buildEmissionTrend(report), [report]);
+
+  const pillarScores = useMemo(() => {
+    const p = dashboard?.pillars;
+    return [
+      {
+        id: "environmental",
+        name: "Environmental",
+        score: p?.environmental ?? 0,
+        maxScore: 100,
+        color: "#1e8a3d",
+        iconBg: "#f1fcf4",
+        icon: <FaLeaf className="w-6 h-6" />,
+      },
+      {
+        id: "social-capital",
+        name: "Social Capital",
+        score: p?.socialCapital ?? 0,
+        maxScore: 100,
+        color: "#2570eb",
+        iconBg: "#eff5ff",
+        icon: <PiUsersFill className="w-6 h-6" />,
+      },
+      {
+        id: "human-capital",
+        name: "Human Capital",
+        score: p?.humanCapital ?? 0,
+        maxScore: 100,
+        color: "#F59E0B",
+        iconBg: "#FEF9C3",
+        icon: <HardHat className="w-6 h-6" />,
+      },
+      {
+        id: "business-model",
+        name: "Business Model",
+        score: p?.businessModel ?? 0,
+        maxScore: 100,
+        color: "#af57db",
+        iconBg: "#f5e2ff",
+        icon: <TbBriefcaseFilled className="w-6 h-6" />,
+      },
+      {
+        id: "leadership-governance",
+        name: "Leadership & Governance",
+        score: p?.leadership ?? 0,
+        maxScore: 100,
+        color: "#4a4a4a",
+        iconBg: "#e8e8e8",
+        icon: <VscLaw className="w-6 h-6" />,
+      },
+    ];
+  }, [dashboard?.pillars]);
 
   const handleTourComplete = () => setShowTour(false);
 
@@ -147,7 +204,7 @@ export default function DashboardPage() {
               scope2={totalEmission.scope2}
               scope3={totalEmission.scope3}
             />
-            <ESGScoreGauge score={dashboard?.overallScore ?? 0} />
+            <ESGScoreGauge score={dashboard?.esgScore ?? 0} />
             <OverallProgressCard
               hubStats={dashboard?.hubStats}
             />
@@ -160,7 +217,7 @@ export default function DashboardPage() {
             animate="visible"
             custom={1}
           >
-            <PillarScoresRow pillars={MOCK_PILLAR_SCORES} />
+            <PillarScoresRow pillars={pillarScores} />
           </motion.div>
 
           {/* Row 3: GHG Trend + Reduction Target */}
