@@ -2083,6 +2083,20 @@ export function AssessmentProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_LOADING", payload: false });
   }, []);
 
+  // Persist assessmentId to localStorage so it survives form chain navigation
+  React.useEffect(() => {
+    if (state.assessmentId) {
+      try {
+        const existing = localStorage.getItem("esg-assessment-data");
+        const data = existing ? JSON.parse(existing) : {};
+        data.assessmentId = state.assessmentId;
+        localStorage.setItem("esg-assessment-data", JSON.stringify(data));
+      } catch {
+        // Silent fail — localStorage write is best-effort
+      }
+    }
+  }, [state.assessmentId]);
+
   return (
     <AssessmentContext.Provider value={{ state, dispatch }}>
       {children}
