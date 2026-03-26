@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUp, ArrowDown } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/app/components/ui/tooltip";
 import type { ESGReportMetric } from "./types";
 
 interface ESGReportCardProps {
@@ -9,35 +10,44 @@ interface ESGReportCardProps {
 
 export default function ESGReportCard({ metric }: ESGReportCardProps) {
   return (
-    <div
-      className="rounded-2xl bg-white p-5 shadow-sm"
-      style={{ borderTop: `3px solid ${metric.borderColor}` }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: metric.iconBg, color: metric.borderColor }}
-          >
-            {metric.icon}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className="rounded-2xl bg-white p-5 shadow-sm cursor-default overflow-hidden"
+          style={{ borderTop: `3px solid ${metric.borderColor}` }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <div
+                className="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center"
+                style={{ backgroundColor: metric.iconBg, color: metric.borderColor }}
+              >
+                {metric.icon}
+              </div>
+              <h4 className="text-base font-semibold text-gray-900 break-words">{metric.title}</h4>
+            </div>
           </div>
-          <h4 className="text-base font-semibold text-gray-900">{metric.title}</h4>
+
+          <p className="text-sm text-gray-900 mb-1 break-words">{metric.metricLabel}</p>
+
+          <div className="flex items-end justify-between gap-2">
+            <div className="min-w-0">
+              <span className="text-2xl font-bold text-gray-900" title={metric.metricTooltip}>{metric.metricValue}</span>
+              {metric.metricUnit && (
+                <span className="text-xs text-gray-900 ml-1">{metric.metricUnit}</span>
+              )}
+            </div>
+
+            <ChangeBadge text={metric.changeText} direction={metric.changeDirection} upIsBad={metric.upIsBad} />
+          </div>
         </div>
-      </div>
-
-      <p className="text-sm text-gray-900 mb-1">{metric.metricLabel}</p>
-
-      <div className="flex items-end justify-between">
-        <div>
-          <span className="text-2xl font-bold text-gray-900" title={metric.metricTooltip}>{metric.metricValue}</span>
-          {metric.metricUnit && (
-            <span className="text-xs text-gray-900 ml-1">{metric.metricUnit}</span>
-          )}
-        </div>
-
-        <ChangeBadge text={metric.changeText} direction={metric.changeDirection} upIsBad={metric.upIsBad} />
-      </div>
-    </div>
+      </TooltipTrigger>
+      {metric.tooltip && (
+        <TooltipContent side="bottom" sideOffset={8} className="max-w-xs">
+          {metric.tooltip}
+        </TooltipContent>
+      )}
+    </Tooltip>
   );
 }
 
