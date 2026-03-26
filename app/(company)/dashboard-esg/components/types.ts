@@ -45,6 +45,8 @@ export interface ESGReportMetric {
   changeDirection: "up" | "down" | "neutral";
   /** When true, "up" is bad (red) and "down" is good (green). Default ESG behavior. */
   upIsBad?: boolean;
+  /** Tooltip text shown on card hover. */
+  tooltip?: string;
 }
 
 export interface AssessmentListItem {

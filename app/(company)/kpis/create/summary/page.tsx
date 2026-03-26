@@ -1,6 +1,6 @@
 "use client";
 
-import { useBaseline } from "@/app/(company)/components/ranking/services";
+import { useBaseline, invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/axios";
@@ -150,9 +150,7 @@ export default function SummaryPage() {
     },
     onSuccess: () => {
       setCreateError(null);
-      queryClient.invalidateQueries({ queryKey: ["baseline"] });
-      queryClient.invalidateQueries({ queryKey: ["targets"] });
-      queryClient.invalidateQueries({ queryKey: ["latest-target"] });
+      invalidateAllTargetQueries(queryClient);
       localStorage.removeItem("generalTargetSummary");
     },
     onError: (error: any) => {

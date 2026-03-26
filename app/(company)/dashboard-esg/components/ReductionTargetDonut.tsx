@@ -85,8 +85,8 @@ export default function ReductionTargetDonut({
       targetEmission = s.targetEmission || 0;
       reductionPct = s.reductionPercentage || 0;
     }
-    baselineYear = scopeTarget!.baselineYear;
-    targetYear = scopeTarget!.targetYear;
+    baselineYear = s?.baselineYear ?? scopeTarget!.baselineYear;
+    targetYear = s?.targetYear ?? scopeTarget!.targetYear;
     currentYear = scopeTarget!.currentAssessmentYear;
   }
 

@@ -66,6 +66,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeText: "",
       changeDirection: "neutral",
       upIsBad: false,
+      tooltip: "Total crude + synthetic oil production from the latest assessment.",
     },
     {
       id: "environmental",
@@ -81,6 +82,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeDirection:
         envChange == null ? "neutral" : envChange <= 0 ? "down" : "up",
       upIsBad: true,
+      tooltip: "Combined Scope 1, 2, and 3 greenhouse gas emissions (tCO₂e). Change is year-over-year.",
     },
     {
       id: "social-capital",
@@ -94,6 +96,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeText: "",
       changeDirection: "neutral",
       upIsBad: true,
+      tooltip: "Community operational delay risk level and total incidents from community relations data.",
     },
     {
       id: "human-capital",
@@ -109,6 +112,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeDirection:
         humanChange == null ? "neutral" : humanChange <= 0 ? "down" : "up",
       upIsBad: true,
+      tooltip: "Total Recordable Incident Rate per 200,000 work hours. Lower is better.",
     },
     {
       id: "business-model",
@@ -131,6 +135,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
             ? "down"
             : "up",
       upIsBad: true,
+      tooltip: "Total reserves at risk (MMboe) and renewable energy investment from capital expenditure strategy.",
     },
     {
       id: "leadership-governance",
@@ -145,6 +150,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeText: tierEvents !== "—" ? tierEvents : "",
       changeDirection: "neutral",
       upIsBad: true,
+      tooltip: "Process safety event rate and tier classification from critical incident risk management.",
     },
   ];
 }

@@ -198,14 +198,17 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                           scopeTarget.find((t: any) => t.scope === "SCOPE1")?.reductionPercentage ?? 0
                         }
                         scope1value={ghg?.scope1Emissions || 0}
+                        scope1targetYear={scopeTarget.find((t: any) => t.scope === "SCOPE1")?.targetYear}
                         scope2percentage={
                           scopeTarget.find((t: any) => t.scope === "SCOPE2")?.reductionPercentage ?? 0
                         }
                         scope2value={ghg?.scope2Emissions || 0}
+                        scope2targetYear={scopeTarget.find((t: any) => t.scope === "SCOPE2")?.targetYear}
                         scope3percentage={
                           scopeTarget.find((t: any) => t.scope === "SCOPE3")?.reductionPercentage ?? 0
                         }
                         scope3value={ghg?.scope3Emissions || 0}
+                        scope3targetYear={scopeTarget.find((t: any) => t.scope === "SCOPE3")?.targetYear}
                       />
                     </div>
                   )}
