@@ -129,6 +129,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       toast.dark("Logged out", { autoClose: 1000 });
+
+      const marketingUrl = process.env.NEXT_PUBLIC_MARKETING_URL || "https://esghorizon.africa";
+      window.location.href = marketingUrl;
     } finally {
       isLoggingOutRef.current = false;
     }
