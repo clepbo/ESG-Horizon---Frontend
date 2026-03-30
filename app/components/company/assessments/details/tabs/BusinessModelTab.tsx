@@ -28,7 +28,7 @@ function hasData(obj: any) {
 }
 
 export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: BusinessModelTabProps) {
-  const biz = assessmentData.businessInnovation || {};
+  const biz = assessmentData.businessInnovation || assessmentData.environment?.businessInnovation || {};
   const reserves = biz.reservesValuationAndCapitalExpenditures || {};
   const ethics = biz.businessEthicsAndTransparency || {};
 

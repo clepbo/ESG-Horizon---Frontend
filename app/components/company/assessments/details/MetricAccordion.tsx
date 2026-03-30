@@ -42,12 +42,12 @@ export function MetricAccordion({
       <AccordionTrigger className="hover:no-underline py-5">
         <div className="flex items-center gap-3 flex-1">
           <div className="p-2 bg-gray-100 rounded-lg shrink-0">
-            <Icon className="w-5 h-5 text-teal-600" />
+            <Icon className="w-5 h-5 text-teal-700" />
           </div>
           <div className="text-left min-w-0">
             <span className="text-base font-bold text-gray-900">{title}</span>
             {description && (
-              <p className="text-xs text-gray-700 font-normal mt-0.5">{description}</p>
+              <p className="text-sm text-gray-700 font-normal mt-0.5">{description}</p>
             )}
           </div>
           <div className="flex items-center gap-2 ml-auto mr-2 shrink-0">

@@ -29,8 +29,6 @@ import AssessmentsList from "./components/AssessmentsList";
 import DashboardRecentActivity from "./components/DashboardRecentActivity";
 import { buildReportMetrics, buildEmissionTrend } from "./components/reportHelpers";
 
-// Mock data — only pillar scores still need mock (waiting on scoring backend)
-import { MOCK_PILLAR_SCORES } from "./components/mockData";
 
 const ROW_VARIANTS = {
   hidden: { opacity: 0, y: 16 },

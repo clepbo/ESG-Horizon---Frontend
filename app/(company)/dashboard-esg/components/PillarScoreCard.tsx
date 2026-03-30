@@ -23,7 +23,7 @@ export default function PillarScoreCard({ pillar }: PillarScoreCardProps) {
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-900 break-words">{pillar.name}</p>
+            <p className="text-sm font-semibold text-gray-900 break-keep hyphens-auto">{pillar.name}</p>
             <div className="mt-1">
               <span className="text-3xl font-bold text-gray-900">{pillar.score}</span>
               <span className="text-base text-gray-700">/{pillar.maxScore}</span>
