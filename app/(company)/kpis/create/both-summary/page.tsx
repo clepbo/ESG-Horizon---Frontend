@@ -215,7 +215,7 @@ export default function BothSummaryPage() {
       {/* General section */}
       <Card className="shadow-md border border-gray-100">
         <CardHeader className="pb-2 border-b border-gray-100">
-          <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          <p className="text-sm font-bold tracking-wide text-gray-800 uppercase">
             General Target Summary
           </p>
         </CardHeader>
@@ -226,7 +226,7 @@ export default function BothSummaryPage() {
               {formatWithCommas(generalData.reductionPercentage)}% Reduction Target
             </h6>
             {generalData.baselinePeriodLabel && (
-              <p className="text-xs text-gray-500">
+              <p className="text-sm text-gray-700">
                 Baseline period:{" "}
                 <span className="font-semibold">{generalData.baselinePeriodLabel}</span>
               </p>
@@ -268,7 +268,7 @@ export default function BothSummaryPage() {
       {/* Scope section */}
       <Card className="shadow-md border border-gray-100">
         <CardHeader className="pb-2 border-b border-gray-100">
-          <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          <p className="text-sm font-bold tracking-wide text-gray-800 uppercase">
             Scope Targets Summary
           </p>
         </CardHeader>

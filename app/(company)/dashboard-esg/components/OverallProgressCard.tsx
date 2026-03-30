@@ -79,9 +79,8 @@ export default function OverallProgressCard({
         </div>
       </TooltipTrigger>
       <TooltipContent side="bottom" sideOffset={8} className="max-w-xs">
-        <p>Tracks {totalSections} sections across 3 ESG hubs:</p>
-        <p>Environment (8), Social (2), Governance (4).</p>
-        <p className="mt-1">A hub is marked complete when all its sections are submitted.</p>
+        <p>Tracks {totalSections} form groups across 3 ESG hubs.</p>
+        <p className="mt-1">Each form you submit counts as one completed section.</p>
       </TooltipContent>
     </Tooltip>
   );

@@ -92,20 +92,20 @@ export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileC
   const scope2 = ghg.scope2 || {};
   const scope3 = ghg.scope3 || {};
 
-  // Totals
+  // Totals — backend stores at ghg.scopeX.totalEmission
   const scope1Total =
-    assessmentData.scope1TotalEmission ??
+    scope1.totalEmission ??
     scope1.calculated?.totalScope1Emission ??
     0;
   const scope2Total =
-    assessmentData.scope2TotalEmission ??
+    scope2.totalEmission ??
     scope2.calculated?.totalScope2Emission ??
     0;
   const scope3Total =
-    assessmentData.scope3TotalEmission ??
+    scope3.totalEmission ??
     scope3.calculated?.totalScope3Emission ??
     0;
-  const totalEmission = assessmentData.totalEmission ?? scope1Total + scope2Total + scope3Total;
+  const totalEmission = assessmentData.totalEmission ?? env.totalEmission ?? scope1Total + scope2Total + scope3Total;
 
   // GHG incomplete count — count major sub-sections with no data
   const ghgHasStationary = !!(
