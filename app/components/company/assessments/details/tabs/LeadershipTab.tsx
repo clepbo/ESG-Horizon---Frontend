@@ -30,7 +30,7 @@ function hasData(obj: any) {
 export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: LeadershipTabProps) {
   const lg = assessmentData.leadershipGovernance || {};
   const criticalIncident = lg.criticalIncidentRiskManagement || {};
-  const legalReg = lg.managementOfTheLegalAndRegulatoryEnvironment || {};
+  const legalReg = lg.managementOfTheLegalAndRegulatoryEnvironment || lg.legalRegulatoryEnvironment || {};
 
   // Subtopics
   const processSafety = criticalIncident.processSafetyEvents || {};
