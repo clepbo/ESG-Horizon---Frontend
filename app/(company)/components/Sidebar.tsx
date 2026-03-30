@@ -16,8 +16,9 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useState, createContext, useContext, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRoles } from "@/lib/roles";
 
 // Create context for mobile nav visibility
 const MobileNavContext = createContext({
@@ -42,25 +43,37 @@ const navItems = [
   { name: "KPIs", href: "/kpis", icon: TrendingUp },
 ];
 
-const assessmentSubLinks = [
-  { name: "New Assessment", href: "/assessments/new-assessment" },
+type RoleFlags = ReturnType<typeof useRoles>;
+
+const assessmentSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
+  { name: "New Assessment", href: "/assessments/new-assessment", roleCheck: (r) => r.canWriteData },
   { name: "Tasks", href: "/assessments/tasks" },
 ];
 
-const settingsSubLinks = [
+const settingsSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "My Profile", href: "/settings-esg/account" },
   { name: "Company Info", href: "/settings-esg/company" },
   { name: "Subsidiaries", href: "/settings-esg/subsidiaries" },
-  { name: "Departments", href: "/settings-esg/departments" },
-  { name: "Teams", href: "/settings-esg/teams" },
+  { name: "Departments", href: "/settings-esg/departments", roleCheck: (r) => r.canManageUsers },
+  { name: "Teams", href: "/settings-esg/teams", roleCheck: (r) => r.canManageUsers },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
+  const roles = useRoles();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [assessmentsOpen, setAssessmentsOpen] = useState(false);
+
+  const visibleAssessmentSubLinks = useMemo(
+    () => assessmentSubLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
+  );
+  const visibleSettingsSubLinks = useMemo(
+    () => settingsSubLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
+  );
 
   // Use the context for mobile nav visibility
   const { showMobileNav, setShowMobileNav } = useMobileNav();
@@ -243,7 +256,7 @@ export default function Sidebar() {
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="ml-6 mt-1 space-y-1 overflow-hidden"
                   >
-                    {assessmentSubLinks.map((sub) => {
+                    {visibleAssessmentSubLinks.map((sub) => {
                       const isSubActive =
                         pathname === sub.href || pathname.startsWith(sub.href + "/");
                       return (
@@ -337,7 +350,7 @@ export default function Sidebar() {
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="ml-6 mt-1 space-y-1 overflow-hidden"
                   >
-                    {settingsSubLinks.map((sub) => {
+                    {visibleSettingsSubLinks.map((sub) => {
                       const isSubActive =
                         pathname === sub.href || pathname.startsWith(sub.href + "/");
                       return (
@@ -427,7 +440,7 @@ export default function Sidebar() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {assessmentSubLinks.map((sub) => {
+                  {visibleAssessmentSubLinks.map((sub) => {
                     const isSubActive =
                       pathname === sub.href || pathname.startsWith(sub.href + "/");
                     return (
@@ -481,7 +494,7 @@ export default function Sidebar() {
                   </button>
                 </div>
                 <div className="space-y-2">
-                  {settingsSubLinks.map((sub) => {
+                  {visibleSettingsSubLinks.map((sub) => {
                     const isSubActive =
                       pathname === sub.href || pathname.startsWith(sub.href + "/");
                     return (

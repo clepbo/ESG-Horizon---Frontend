@@ -30,7 +30,7 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
   const percentage = hcdtData?.percentage || 0;
 
   return (
-    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col">
+    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col overflow-hidden">
       <h3 className="text-sm 2xl:text-base font-semibold text-gray-800 mb-3">
         HCDT Contribution (PIA 2021)
       </h3>
@@ -90,7 +90,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col">
+    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col overflow-hidden">
       <h3 className="text-sm 2xl:text-base font-semibold text-gray-800 mb-3">
         Community Dispute Resolution
       </h3>
@@ -110,7 +110,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               stroke="none"
               label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
                 const RADIAN = Math.PI / 180;
-                const radius = (outerRadius ?? 75) + 18;
+                const radius = (outerRadius ?? 75) + 10;
                 const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
                 const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
                 return (
@@ -123,7 +123,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
                     fontSize={12}
                     fontWeight={600}
                   >
-                    {name}: {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </text>
                 );
               }}
@@ -181,7 +181,7 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col overflow-visible">
+    <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm border border-gray-100 flex flex-col overflow-hidden">
       <h3 className="text-sm 2xl:text-base font-semibold text-gray-800 mb-3">Operational Delays</h3>
       <hr className="text-gray-200" />
       <div className="border-b border-gray-200 pb-2 flex-1 min-h-[200px]">

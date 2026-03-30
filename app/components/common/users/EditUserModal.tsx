@@ -12,6 +12,7 @@ import { subsidiariesService, Subsidiary } from "@/services/subsidiaries.service
 import { toast } from "react-toastify";
 import { formatRoleName } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { useRoles } from "@/lib/roles";
 
 interface EditUserModalProps {
   user: User;
@@ -36,8 +37,7 @@ export default function EditUserModal({ user, onClose, onSave }: EditUserModalPr
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
-  // Check if current user is a Company Admin
-  const isCompanyAdmin = currentUser?.role?.name === "company_esg_admin";
+  const { isCompanyAdmin } = useRoles();
 
   // Format the role name for display
   const displayRoleName = roleName ? formatRoleName(roleName) : "";

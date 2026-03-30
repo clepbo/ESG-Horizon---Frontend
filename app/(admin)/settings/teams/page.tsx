@@ -18,6 +18,8 @@ import { TeamUserStatus, User } from "@/services/user.service";
 import { Department, departmentService } from "@/services/department.service";
 import { motion } from "framer-motion";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
+import { useRoles } from "@/lib/roles";
+import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 export default function TeamsPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -27,6 +29,8 @@ export default function TeamsPage() {
   const [roleFilter, setRoleFilter] = useState("Roles");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(false);
+  const { isSuperAdmin } = useRoles();
+  const canInvite = isSuperAdmin;
 
   useEffect(() => {
     async function fetchUsers() {
@@ -98,13 +102,21 @@ export default function TeamsPage() {
           </div>
 
           <div className="flex justify-between items-center mb-6 mt-4">
-            <button
-              className="text-white bg-green-400 hover:bg-green-500 px-4 py-2 rounded-sm text-sm flex items-center cursor-pointer"
-              onClick={() => setShowInviteModal(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Invite User
-            </button>
+            <div className="relative group">
+              <button
+                className={`text-white px-4 py-2 rounded-sm text-sm flex items-center ${
+                  canInvite
+                    ? "bg-green-400 hover:bg-green-500 cursor-pointer"
+                    : "bg-gray-400 cursor-not-allowed opacity-60"
+                }`}
+                onClick={canInvite ? () => setShowInviteModal(true) : undefined}
+                disabled={!canInvite}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Invite User
+              </button>
+              {!canInvite && <PermissionTooltip message="Only Super Admin can invite platform users" />}
+            </div>
           </div>
         </div>
 

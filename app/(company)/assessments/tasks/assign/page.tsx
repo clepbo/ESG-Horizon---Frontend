@@ -176,6 +176,20 @@ export default function AssignTaskPage() {
   const { data: teamMembers } = useCompanyUsers(companyId);
   const { data: departments } = useCompanyDepartments(companyId);
 
+  // Only show users who can contribute to assessments (exclude viewers)
+  const ASSIGNABLE_ROLES = [
+    "company_esg_admin",
+    "company_esg_subadmin",
+    "company_esg_data_officer",
+  ];
+  const assignableMembers = useMemo(
+    () =>
+      teamMembers?.filter(
+        (m: any) => ASSIGNABLE_ROLES.includes(m.role?.name),
+      ) ?? [],
+    [teamMembers],
+  );
+
   const [taskName, setTaskName] = useState("");
   const [selectedMember, setSelectedMember] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -511,9 +525,8 @@ export default function AssignTaskPage() {
               className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm"
             >
               <option value="">Select a member</option>
-              {teamMembers &&
-                teamMembers.length > 0 &&
-                teamMembers.map((member) => (
+              {assignableMembers.length > 0 &&
+                assignableMembers.map((member: any) => (
                   <option key={member.id} value={String(member.id)}>
                     {member.first_name} {member.last_name} ({member.email})
                   </option>

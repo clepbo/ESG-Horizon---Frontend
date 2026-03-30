@@ -74,6 +74,8 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
+    // 403 errors are handled per-page via TanStack Query error state,
+    // not globally — a background 403 should not block the entire UI.
     // 🔹 Handle 429 (rate limit exceeded)
     if (error.response && error.response.status === 429) {
       const message = error.response.data?.message || "Too many requests. Please slow down.";

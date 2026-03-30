@@ -22,7 +22,7 @@ export default function HumanStepTwo({ reportData }: HumanStepTwoProps) {
         ))
       ) : (
         <div className="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-300">
-          <p className="text-gray-500 italic">No safety management information reported.</p>
+          <p className="text-gray-600 italic">No safety management information reported.</p>
         </div>
       )}
     </div>
@@ -39,7 +39,7 @@ function SafetyCard({
   tag: string;
 }) {
   return (
-    <article className="flex flex-col rounded-xl bg-blue-50 p-4 shadow-sm sm:p-5 md:p-6">
+    <article className="flex flex-col rounded-xl bg-blue-50 p-4 shadow-sm sm:p-5 md:p-6 overflow-hidden">
       <h3 className="text-base font-bold text-blue-700 sm:text-lg md:text-xl">{title}</h3>
       <p className="mt-2 text-sm font-normal leading-relaxed text-blue-700 sm:mt-3 sm:text-base md:mt-4">
         {description}

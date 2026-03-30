@@ -9,12 +9,16 @@ import ConfirmModal from "@/app/components/ui/modals/ConfirmModal";
 import { Company, companyService } from "@/services/company.service";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRoles } from "@/lib/roles";
 
 type CompanyTableProps = { companies: Company[] };
 
 export default function ESGCompanyTable({ companies }: CompanyTableProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { isPlatformAdmin } = useRoles();
+  const canApprove = isPlatformAdmin;
+  const canSuspend = isPlatformAdmin;
 
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -143,12 +147,19 @@ export default function ESGCompanyTable({ companies }: CompanyTableProps) {
                 >
                   <Eye className="w-4 h-4 text-gray-600" />
                 </button>
-                {statusActions[company.status] && (
+                {statusActions[company.status] && (canApprove || canSuspend) && (
                   <button
-                    className={`rounded-md border p-2 cursor-pointer ${
-                      statusActions[company.status].color
-                    }`}
+                    className={`rounded-md border p-2 ${
+                      (statusActions[company.status].newStatus === "suspended" && !canSuspend) ||
+                      (statusActions[company.status].newStatus !== "suspended" && !canApprove)
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-pointer"
+                    } ${statusActions[company.status].color}`}
                     title={statusActions[company.status].title}
+                    disabled={
+                      (statusActions[company.status].newStatus === "suspended" && !canSuspend) ||
+                      (statusActions[company.status].newStatus !== "suspended" && !canApprove)
+                    }
                     onClick={() => openModal(company.id, statusActions[company.status].newStatus)}
                   >
                     {statusActions[company.status].icon}

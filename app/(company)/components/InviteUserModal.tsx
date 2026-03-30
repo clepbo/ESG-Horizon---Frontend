@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { CreateDepartment, Department, departmentService } from "@/services/department.service";
 import { getCurrentUser } from "@/lib/utils";
 import { User } from "@/services/user.service";
+import { useRoles } from "@/lib/roles";
 
 interface InviteUserModalProps {
   onClose: () => void;
@@ -37,6 +38,8 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
     { value: "company_esg_viewer", label: "Company Viewer" },
   ];
   const [role, setRole] = useState(ROLE_OPTIONS[0]?.value || "");
+  const { canManageUsers } = useRoles();
+  const canInvite = canManageUsers;
 
   useEffect(() => {
     const loadSubsidiaries = async () => {
@@ -243,7 +246,7 @@ export default function InviteUserModal({ onClose, onInvite, departments }: Invi
 
             <button
               type="submit"
-              disabled={!isFormValid || loading || addingDept}
+              disabled={!isFormValid || loading || addingDept || !canInvite}
               className="px-4 py-2 text-sm rounded-md bg-[var(--color-primary)] transform hover:scale-[1.02] text-white  disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? "Sending..." : "Send Invite"}

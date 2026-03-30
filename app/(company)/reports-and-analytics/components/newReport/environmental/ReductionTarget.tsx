@@ -62,10 +62,10 @@ export default function ReductionTarget({
               <span className="text-3xl font-bold text-gray-800">
                 {formatNumberFull(achievedPercentage, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
               </span>
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mt-1">
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-600 mt-1">
                 Reduction Achieved
               </span>
-              <span className="text-[10px] text-gray-400 mt-0.5">
+              <span className="text-[10px] text-gray-600 mt-0.5">
                 Target: {formatNumberFull(percentage, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% by {targetYear}
               </span>
             </div>
@@ -75,17 +75,17 @@ export default function ReductionTarget({
 
       <div className="flex flex-col gap-3 mt-auto p-4 border-t border-gray-50">
         <div className="flex justify-between items-center text-base">
-          <span className="text-gray-500">Baseline{baselineYear ? ` (${baselineYear})` : ""}:</span>
+          <span className="text-gray-600">Baseline{baselineYear ? ` (${baselineYear})` : ""}:</span>
           <span className="font-bold text-gray-700">{formatNumberFigures(safeBaseline)} tCO₂e</span>
         </div>
 
         <div className="flex justify-between items-center text-base">
-          <span className="text-gray-500">Current ({currentYear}):</span>
+          <span className="text-gray-600">Current ({currentYear}):</span>
           <span className="font-bold text-gray-700">{formatNumberFigures(safeCurrent)} tCO₂e</span>
         </div>
 
         <div className="flex justify-between items-center text-base">
-          <span className="text-gray-500">Target ({targetYear}):</span>
+          <span className="text-gray-600">Target ({targetYear}):</span>
           <span className="font-bold text-gray-700">{formatNumberFigures(safeTarget)} tCO₂e</span>
         </div>
       </div>

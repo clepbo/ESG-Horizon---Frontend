@@ -75,7 +75,7 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
         </span>
         <div className="flex flex-col gap-0.5">
           <h2 className="text-lg font-bold text-gray-900 sm:text-xl">Human Capital</h2>
-          <p className="text-sm text-gray-500 sm:text-base">
+          <p className="text-sm text-gray-600 sm:text-base">
             Workforce Health & Safety Performance
           </p>
         </div>
@@ -123,13 +123,13 @@ function MetricCard({
       ? "text-red-600"
       : isNegative
         ? "text-green-600"
-        : "text-gray-500"
-    : "text-gray-500";
+        : "text-gray-600"
+    : "text-gray-600";
 
   const Icon = isPositive ? ArrowUp : isNegative ? ArrowDown : Minus;
 
   return (
-    <div className="flex flex-col justify-between gap-1 rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5">
+    <div className="flex flex-col justify-between gap-1 rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5 overflow-hidden">
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-1.5">
           <p className="text-sm font-normal text-gray-700 sm:text-base">{title}</p>
@@ -137,7 +137,7 @@ function MetricCard({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors cursor-help" />
+                  <Info className="h-4 w-4 text-gray-500 hover:text-gray-700 transition-colors cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
@@ -153,13 +153,13 @@ function MetricCard({
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
-            {formatNumberFull(Math.abs(change), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%<span className="ml-1 text-gray-400 font-normal">vs last year</span>
+            {formatNumberFull(Math.abs(change), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%<span className="ml-1 text-gray-600 font-normal">vs last year</span>
           </div>
         )}
       </div>
       <p className="mt-1 flex flex-wrap items-baseline gap-1.5">
         <span className="text-2xl font-bold text-gray-900 sm:text-3xl">{value}</span>
-        <span className="text-sm text-gray-400 sm:text-base">{unit}</span>
+        <span className="text-sm text-gray-600 sm:text-base">{unit}</span>
       </p>
     </div>
   );

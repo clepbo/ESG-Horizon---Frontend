@@ -3,6 +3,8 @@ export interface ScopeTarget {
   targetEmission?: number;
   baselineYearEmission?: number;
   currentEmission?: number | null;
+  baselineYear?: number;
+  targetYear?: number;
 }
 
 // Payload used when creating a general (aggregate) target

@@ -6,6 +6,8 @@ import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
 import { useAuth } from "@/context/AuthContext";
+import { useRoles } from "@/lib/roles";
+import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
 import { companyService } from "@/services/company.service";
 import { toast } from "react-toastify";
@@ -22,14 +24,12 @@ export default function CompanyPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
+  const { isCompanyAdmin, isSuperAdmin } = useRoles();
   const [ifrsIssb] = useState(true);
 
-  // const [gri, setGri] = useState(false);
-  // const [requireAssessmentReview, setRequireAssessmentReview] = useState(
-  //   companyData?.requireAssessmentReview || false
-  // );
   const [requireAssessmentReview, setRequireAssessmentReview] = useState(true);
-  const isCompanyAdmin = user?.role?.name === "company_esg_admin";
+  const canEditProfile = isCompanyAdmin || isSuperAdmin;
+  const canToggleReview = isCompanyAdmin || isSuperAdmin;
 
   const handleUpdate = () => {
     queryClient.invalidateQueries({ queryKey: ["companyDetails"] });
@@ -45,7 +45,7 @@ export default function CompanyPage() {
   }, [companyData]);
 
   const handleAssessmentReviewToggle = async () => {
-    if (!isCompanyAdmin || !companyData?.id) return;
+    if (!canToggleReview || !companyData?.id) return;
 
     const newValue = !requireAssessmentReview;
     setRequireAssessmentReview(newValue);
@@ -96,7 +96,7 @@ export default function CompanyPage() {
     >
       <Header />
 
-      <CompanyInfoCard company={companyData} onEdit={() => setIsModalOpen(true)} />
+      <CompanyInfoCard company={companyData} onEdit={canEditProfile ? () => setIsModalOpen(true) : undefined} />
 
       {/* ESG Frameworks */}
       <div className="bg-white p-6 shadow rounded-lg">
@@ -167,12 +167,10 @@ export default function CompanyPage() {
             <ToggleSwitch
               checked={requireAssessmentReview}
               onChange={handleAssessmentReviewToggle}
-              disabled={!isCompanyAdmin}
+              disabled={!canToggleReview}
             />
-            {!isCompanyAdmin && (
-              <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                Only Company Admin can switch this
-              </div>
+            {!canToggleReview && (
+              <PermissionTooltip message="Only Admin can change this" align="right" />
             )}
           </div>
         </div>

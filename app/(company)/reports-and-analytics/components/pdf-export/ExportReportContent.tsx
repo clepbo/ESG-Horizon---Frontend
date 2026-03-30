@@ -8,6 +8,7 @@ import SocialCapital from "../newReport/SocialCapital";
 import ReportHumanCapital from "../newReport/ReportHumanCapital";
 import BusinessModelPillar from "../newReport/business-model/BusinessModelPillar";
 import ReportLeadershipPillar from "../newReport/leadership/ReportLeadershipPillar";
+import EvidenceAppendix from "./EvidenceAppendix";
 
 interface ExportReportContentProps {
   reportData?: ReportResponse;
@@ -20,6 +21,7 @@ const sectionNames = [
   "human-capital",
   "business-model",
   "leadership",
+  "evidence-appendix",
 ] as const;
 
 const sectionLabels: Record<string, string> = {
@@ -29,6 +31,7 @@ const sectionLabels: Record<string, string> = {
   "human-capital": "Human Capital",
   "business-model": "Business Model & Innovation",
   leadership: "Leadership & Governance",
+  "evidence-appendix": "Appendix: Supporting Evidence",
 };
 
 /**
@@ -55,6 +58,9 @@ export default function ExportReportContent({ reportData }: ExportReportContentP
       </div>
       <div data-export-section="leadership" style={{ marginBottom: 24 }}>
         <ReportLeadershipPillar reportData={reportData} />
+      </div>
+      <div data-export-section="evidence-appendix" style={{ marginBottom: 24 }}>
+        <EvidenceAppendix evidence={reportData?.evidence} />
       </div>
     </div>
   );

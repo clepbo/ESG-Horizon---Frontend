@@ -4,7 +4,14 @@ import api from "@/lib/api/axios";
  * Dashboard data structure (matches backend endpoint)
  */
 export interface DashboardData {
-  overallScore: number;
+  esgScore: number;
+  pillars: {
+    environmental: number;
+    socialCapital: number;
+    humanCapital: number;
+    businessModel: number;
+    leadership: number;
+  };
   breakdown: {
     environment: number;
     social: number;

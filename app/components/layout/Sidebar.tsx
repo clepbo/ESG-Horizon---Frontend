@@ -6,35 +6,41 @@ import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRoles } from "@/lib/roles";
+import { USER_TYPES } from "@/app/constants/userTypes";
 
-const navLinks = [
+type RoleFlags = ReturnType<typeof useRoles>;
+
+const navLinks: { name: string; icon: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "Dashboard", icon: "/icons/Dashboard.svg", href: "/dashboard" },
-  { name: "Company", icon: "/icons/Company.svg", href: "/company" },
-  {
-    name: "Reports",
-    icon: "/icons/Analytics.svg",
-    href: "/reports",
-  },
-  {
-    name: "Subscription & Billing",
-    icon: "/icons/SubscriptionBilling.svg",
-    href: "/billing",
-  },
+  { name: "Company", icon: "/icons/Company.svg", href: "/company", roleCheck: (r) => r.isPlatformAdmin || r.role === USER_TYPES.PLATFORM_DATA_OFFICER },
+  { name: "Reports", icon: "/icons/Analytics.svg", href: "/reports" },
+  { name: "Subscription & Billing", icon: "/icons/SubscriptionBilling.svg", href: "/billing" },
 ];
 
-const settingsSubLinks = [
+const settingsSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "My Profile", href: "/settings/account" },
   { name: "Company Info", href: "/settings/company" },
-  { name: "Teams", href: "/settings/teams" },
-  { name: "Departments", href: "/settings/departments" },
+  { name: "Teams", href: "/settings/teams", roleCheck: (r) => r.canManageUsers },
+  { name: "Departments", href: "/settings/departments", roleCheck: (r) => r.canManageUsers },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const roles = useRoles();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const visibleNavLinks = useMemo(
+    () => navLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
+  );
+  const visibleSettingsSubLinks = useMemo(
+    () => settingsSubLinks.filter((l) => !l.roleCheck || l.roleCheck(roles)),
+    [roles]
+  );
 
   useEffect(() => {
     setSettingsOpen(pathname.startsWith("/settings"));
@@ -83,7 +89,7 @@ export default function Sidebar() {
 
       {/* Main Links */}
       <nav className="flex flex-col gap-1">
-        {navLinks.map((link) => {
+        {visibleNavLinks.map((link) => {
           const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
 
           return (
@@ -136,7 +142,7 @@ export default function Sidebar() {
 
           {settingsOpen && (
             <div className="ml-6 mt-1 space-y-1">
-              {settingsSubLinks.map((sub) => {
+              {visibleSettingsSubLinks.map((sub) => {
                 const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                 return (

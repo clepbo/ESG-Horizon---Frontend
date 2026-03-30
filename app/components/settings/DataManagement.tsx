@@ -10,15 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
-import { Download, Lock } from "lucide-react";
-import { usePermissions } from "@/lib/permissions";
+import { Download } from "lucide-react";
+import { useRoles } from "@/lib/roles";
+import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 
 export default function DataManagement() {
-  const { can } = usePermissions();
-  const canExport = can("exportData");
-  const canDownload = can("downloadReports");
-  const canRetention = can("manageDataRetention");
-  const canBackup = can("manageAutoBackup");
+  const { canWriteData, isCompanyAdmin, isSuperAdmin } = useRoles();
+  const canExport = canWriteData;
+  const canDownload = canWriteData;
+  const canRetention = isCompanyAdmin || isSuperAdmin;
+  const canBackup = isCompanyAdmin || isSuperAdmin;
   const canSave = canRetention || canBackup;
 
   const [autoBackup, setAutoBackup] = useState(true);
@@ -147,18 +148,6 @@ export default function DataManagement() {
           </button>
         )}
       </div>
-    </div>
-  );
-}
-
-function PermissionTooltip({ message, align = "center" }: { message: string; align?: "center" | "right" }) {
-  const pos = align === "right"
-    ? "right-0"
-    : "left-1/2 -translate-x-1/2";
-  return (
-    <div className={`absolute ${pos} bottom-full mb-2 w-48 p-2 bg-teal-600 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center pointer-events-none`}>
-      <Lock className="w-3 h-3 inline mr-1" />
-      {message}
     </div>
   );
 }

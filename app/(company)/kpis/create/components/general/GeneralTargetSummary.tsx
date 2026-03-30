@@ -62,7 +62,7 @@ export function GeneralTargetSummary({
         {/* Target Summary Card */}
         <Card className="shadow-md border border-gray-100">
           <CardHeader className="pb-2 border-b border-gray-100">
-            <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            <p className="text-sm font-bold tracking-wide text-gray-800 uppercase">
               Target Summary
             </p>
           </CardHeader>
@@ -74,7 +74,7 @@ export function GeneralTargetSummary({
                 {formatWithCommas(reductionPercentage)}% Reduction Target
               </h6>
               {baselinePeriodLabel && (
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-700">
                   Baseline period: <span className="font-semibold">{baselinePeriodLabel}</span>
                 </p>
               )}

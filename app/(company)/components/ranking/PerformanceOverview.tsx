@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { KpiCard } from "@/app/components/ui/charts/DonoughtChart";
 import SpeedometerGauge from "./CustomGuageChart";
 import { formatNumberWithCommas } from "../../reports-and-analytics/components/utils/helpers";
 
 import { TargetPair } from "./services";
 
+// ViewMode kept for backwards compatibility if referenced elsewhere
 export type ViewMode = "general" | "scope";
 
 export interface BaselineInfo {
@@ -16,13 +18,26 @@ export interface BaselineInfo {
 
 interface PerformanceOverviewProps {
   pair: TargetPair;
-  activeView: ViewMode;
   baselineInfo?: BaselineInfo | null;
 }
 
-export default function PerformanceOverview({ pair, activeView, baselineInfo }: PerformanceOverviewProps) {
+const TAB_COLOR = "#119B95";
+
+export default function PerformanceOverview({ pair, baselineInfo }: PerformanceOverviewProps) {
   const hasGeneral = !!pair.general;
   const hasScope = !!pair.scope;
+
+  // Build available tabs dynamically
+  const tabs: { key: string; label: string }[] = [];
+  if (hasGeneral) tabs.push({ key: "general", label: "General" });
+  if (hasScope) {
+    const scopes = pair.scope!.scopeTargets ?? [];
+    if (scopes.find((s) => s.scope === "SCOPE1")) tabs.push({ key: "scope1", label: "Scope 1" });
+    if (scopes.find((s) => s.scope === "SCOPE2")) tabs.push({ key: "scope2", label: "Scope 2" });
+    if (scopes.find((s) => s.scope === "SCOPE3")) tabs.push({ key: "scope3", label: "Scope 3" });
+  }
+
+  const [activeTab, setActiveTab] = useState<string>(tabs[0]?.key ?? "general");
 
   const generalTarget = pair.general;
   const scopeTarget = pair.scope;
@@ -57,7 +72,7 @@ export default function PerformanceOverview({ pair, activeView, baselineInfo }: 
     const score = gap > 0
       ? Math.min(100, Math.max(0, Math.round(((bl - cur) / gap) * 100)))
       : 0;
-    return { label, description, score, baseline: bl, current: cur, target: tgt, reductionPct: st?.reductionPercentage };
+    return { label, description, score, baseline: bl, current: cur, target: tgt, reductionPct: st?.reductionPercentage, baselineYear: st?.baselineYear, targetYear: st?.targetYear };
   });
 
   return (
@@ -69,10 +84,38 @@ export default function PerformanceOverview({ pair, activeView, baselineInfo }: 
           {baselineInfo.approvedAt && <> &middot; <span className="text-green-600">Approved: {new Date(baselineInfo.approvedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span></>}
         </p>
       )}
-      {/* General view — single speedometer */}
-      {activeView === "general" && hasGeneral && general && (
-        <div className="mt-4 flex items-center justify-center">
+      {/* Tab bar */}
+      {tabs.length > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-lg font-semibold text-gray-800">Net Zero Progress (Carbon Footprint)</p>
+          <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? "text-white"
+                    : "text-gray-900 hover:bg-gray-200"
+                }`}
+                style={activeTab === tab.key ? { backgroundColor: TAB_COLOR } : {}}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tabs.length === 1 && (
+        <p className="text-lg font-semibold text-gray-800">Net Zero Progress (Carbon Footprint)</p>
+      )}
+
+      {/* General gauge */}
+      {activeTab === "general" && hasGeneral && general && (
+        <div className="flex items-center justify-center">
           <SpeedometerGauge
+            compact
             score={generalScore}
             initialEmission={formatNumberWithCommas(general.baselineYearEmission ?? 0)}
             currentEmission={formatNumberWithCommas(general.currentEmission ?? 0)}
@@ -85,30 +128,30 @@ export default function PerformanceOverview({ pair, activeView, baselineInfo }: 
         </div>
       )}
 
-      {/* Scope view — one gauge per scope, stacked */}
-      {activeView === "scope" && hasScope && (
-        <div className="flex flex-col divide-y divide-gray-100">
-          <p className="text-lg font-semibold text-gray-800 pb-4">Net Zero Progress (Carbon Footprint)</p>
-          {scopeGaugeData.map(({ label, description, score, baseline, current, target, reductionPct }) => (
-            <div key={label} className="py-6 first:pt-2">
-              <p className="text-base font-semibold text-gray-700 mb-1">{label} Progress</p>
-              <SpeedometerGauge
-                compact
-                scopeLabel={label as "Scope 1" | "Scope 2" | "Scope 3"}
-                scopeDescription={description}
-                score={score}
-                initialEmission={formatNumberWithCommas(baseline)}
-                currentEmission={formatNumberWithCommas(current)}
-                targetEmission={formatNumberWithCommas(target)}
-                reductionPercentage={reductionPct}
-                baselineYear={scopeTarget!.baselineYear}
-                currentYear={scopeTarget!.currentAssessmentYear ?? undefined}
-                targetYear={scopeTarget!.targetYear}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Scope gauges */}
+      {activeTab.startsWith("scope") && hasScope && (() => {
+        const activeData = scopeGaugeData.find(
+          (d) => d.label.toLowerCase().replace(" ", "") === activeTab
+        );
+        if (!activeData) return null;
+        return (
+          <div className="flex items-center justify-center">
+            <SpeedometerGauge
+              compact
+              scopeLabel={activeData.label as "Scope 1" | "Scope 2" | "Scope 3"}
+              scopeDescription={activeData.description}
+              score={activeData.score}
+              initialEmission={formatNumberWithCommas(activeData.baseline)}
+              currentEmission={formatNumberWithCommas(activeData.current)}
+              targetEmission={formatNumberWithCommas(activeData.target)}
+              reductionPercentage={activeData.reductionPct}
+              baselineYear={activeData.baselineYear ?? scopeTarget!.baselineYear}
+              currentYear={scopeTarget!.currentAssessmentYear ?? undefined}
+              targetYear={activeData.targetYear ?? scopeTarget!.targetYear}
+            />
+          </div>
+        );
+      })()}
 
       {!hasGeneral && !hasScope && (
         <div className="text-center py-8">

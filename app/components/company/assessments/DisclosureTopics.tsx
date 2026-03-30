@@ -32,6 +32,7 @@ import BusinessEthicsAndTransparency from "./industry-specific/business-model-in
 import WorkForceHealthAndSafety from "./industry-specific/human-capital/workforce-health-safety";
 import { useAssessment } from "@/hooks/useAssessment";
 import { resolveDataPath, hasUserData, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import { StatusPill } from "@/app/components/ui/StatusPill";
 import CriticalIncidentRiskManagement from "./industry-specific/leadership-and-governance/critical-incident-risk-management";
 import ManagementOfLegalAndRegulatoryEnvironment from "./industry-specific/leadership-and-governance/management-of-legal-regulatory-environment";
 import { ActivityMetricHome } from "./activity-metrics/ActivityMetricsHome";
@@ -730,7 +731,10 @@ export function DisclosureTopics({
                   <CardContent className="p-4 flex justify-between items-center">
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-2 flex-1">
-                        <h5 className="font-medium text-foreground">Activity Metrics</h5>
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-medium text-foreground">Activity Metrics</h5>
+                          <StatusPill status={getActivityMetricsStatus().status} />
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           Report production volumes and the number of operational sites.
                         </p>
@@ -818,9 +822,12 @@ export function DisclosureTopics({
                                     <CardContent className="p-4 flex justify-between items-center">
                                       <div className="flex items-start justify-between gap-3 flex-1">
                                         <div className="space-y-2 flex-1">
-                                          <h5 className="font-medium text-foreground">
+                                          <div className="flex items-center gap-2">
+                                            <h5 className="font-medium text-foreground">
                                               {card.title}
-                                          </h5>
+                                            </h5>
+                                            <StatusPill status={cardStatus.status} />
+                                          </div>
                                           <p className="text-sm text-muted-foreground">
                                             {card.subtitle}
                                           </p>

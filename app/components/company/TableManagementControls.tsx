@@ -24,7 +24,8 @@ interface ManagementControlsProps {
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
   addButtonLabel: string;
-  onAdd: () => void;
+  onAdd?: () => void;
+  addButtonDisabled?: boolean;
   filters?: FilterOption[];
 }
 
@@ -36,6 +37,7 @@ export default function TableManagementControls({
   searchPlaceholder,
   addButtonLabel,
   onAdd,
+  addButtonDisabled,
   filters = [],
 }: ManagementControlsProps) {
   return (
@@ -74,8 +76,13 @@ export default function TableManagementControls({
         </div>
 
         <button
-          onClick={onAdd}
-          className="flex items-center gap-1 rounded-md bg-[var(--color-primary)] hover:bg-teal-700 text-white text-sm px-4 py-2 transition whitespace-nowrap cursor-pointer"
+          onClick={addButtonDisabled ? undefined : onAdd}
+          disabled={addButtonDisabled}
+          className={`flex items-center gap-1 rounded-md text-white text-sm px-4 py-2 transition whitespace-nowrap ${
+            addButtonDisabled
+              ? "bg-gray-400 cursor-not-allowed opacity-60"
+              : "bg-[var(--color-primary)] hover:bg-teal-700 cursor-pointer"
+          }`}
         >
           <Plus className="w-4 h-4" />
           {addButtonLabel}

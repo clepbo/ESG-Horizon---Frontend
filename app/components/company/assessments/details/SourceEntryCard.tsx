@@ -74,8 +74,8 @@ function Field({ label, value }: { label: string; value?: string | null }) {
 function HighlightField({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1 p-2.5 rounded-md border border-teal-200 bg-teal-50/50 min-w-[140px] flex-1">
-      <span className="text-[10px] text-teal-600 font-medium">{label}</span>
-      <span className="text-xs font-bold text-teal-700">{value || "—"}</span>
+      <span className="text-[10px] text-teal-800 font-medium">{label}</span>
+      <span className="text-xs font-bold text-teal-900">{value || "—"}</span>
     </div>
   );
 }

@@ -30,7 +30,7 @@ export function FreshWaterWithdrawalSource({
           <p className="text-xl font-bold text-blue-600 leading-tight">
             {formatNumberFigures(total)}
           </p>
-          <p className="text-xs text-gray-500 font-medium">Total m³</p>
+          <p className="text-xs text-gray-600 font-medium">Total m³</p>
         </div>
       </div>
 
@@ -53,7 +53,7 @@ export function FreshWaterWithdrawalSource({
                 </div>
                 <span className="text-sm font-bold text-gray-900">
                   {formatNumberFigures(value)}
-                  <span className="text-xs font-normal text-gray-500 ml-0.5">m³</span>
+                  <span className="text-xs font-normal text-gray-600 ml-0.5">m³</span>
                 </span>
               </div>
 
@@ -83,7 +83,7 @@ export function FreshWaterWithdrawalSource({
 
       {/* Empty state */}
       {total === 0 && (
-        <p className="text-center text-sm text-gray-400 mt-4">No withdrawal data recorded</p>
+        <p className="text-center text-sm text-gray-600 mt-4">No withdrawal data recorded</p>
       )}
     </div>
   );
