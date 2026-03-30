@@ -2,6 +2,11 @@ import type { ReactNode } from "react";
 
 // Dashboard-specific types for the redesigned company dashboard
 
+export interface PillarIndicator {
+  label: string;
+  score: number;
+}
+
 export interface PillarScore {
   id: string;
   name: string;
@@ -10,6 +15,8 @@ export interface PillarScore {
   color: string; // left border color
   iconBg: string;
   icon: ReactNode;
+  grade?: string;
+  indicators?: PillarIndicator[];
 }
 
 export interface EmissionTrendPoint {
