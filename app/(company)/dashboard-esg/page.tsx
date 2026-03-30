@@ -56,6 +56,7 @@ export default function DashboardPage() {
 
     const normalized: CompanyDashboardData = {
       esgScore: raw.esgScore ?? null,
+      esgGrade: raw.esgGrade ?? null,
       pillars: raw.pillars ?? null,
       breakdown: {
         environment: Number(raw.breakdown?.environment ?? 0),
@@ -108,47 +109,57 @@ export default function DashboardPage() {
       {
         id: "environmental",
         name: "Environmental",
-        score: p?.environmental ?? 0,
+        score: Number(p?.environmental?.score ?? 0),
         maxScore: 100,
         color: "#1e8a3d",
         iconBg: "#f1fcf4",
         icon: <FaLeaf className="w-6 h-6" />,
+        grade: p?.environmental?.grade,
+        indicators: p?.environmental?.indicators,
       },
       {
         id: "social-capital",
         name: "Social Capital",
-        score: p?.socialCapital ?? 0,
+        score: Number(p?.socialCapital?.score ?? 0),
         maxScore: 100,
         color: "#2570eb",
         iconBg: "#eff5ff",
         icon: <PiUsersFill className="w-6 h-6" />,
+        grade: p?.socialCapital?.grade,
+        indicators: p?.socialCapital?.indicators,
       },
       {
         id: "human-capital",
         name: "Human Capital",
-        score: p?.humanCapital ?? 0,
+        score: Number(p?.humanCapital?.score ?? 0),
         maxScore: 100,
         color: "#F59E0B",
         iconBg: "#FEF9C3",
         icon: <HardHat className="w-6 h-6" />,
+        grade: p?.humanCapital?.grade,
+        indicators: p?.humanCapital?.indicators,
       },
       {
         id: "business-model",
         name: "Business Model",
-        score: p?.businessModel ?? 0,
+        score: Number(p?.businessModel?.score ?? 0),
         maxScore: 100,
         color: "#af57db",
         iconBg: "#f5e2ff",
         icon: <TbBriefcaseFilled className="w-6 h-6" />,
+        grade: p?.businessModel?.grade,
+        indicators: p?.businessModel?.indicators,
       },
       {
         id: "leadership-governance",
         name: "Leadership & Governance",
-        score: p?.leadership ?? 0,
+        score: Number(p?.leadership?.score ?? 0),
         maxScore: 100,
         color: "#4a4a4a",
         iconBg: "#e8e8e8",
         icon: <VscLaw className="w-6 h-6" />,
+        grade: p?.leadership?.grade,
+        indicators: p?.leadership?.indicators,
       },
     ];
   }, [dashboard?.pillars]);
@@ -202,7 +213,7 @@ export default function DashboardPage() {
               scope2={totalEmission.scope2}
               scope3={totalEmission.scope3}
             />
-            <ESGScoreGauge score={dashboard?.esgScore ?? 0} />
+            <ESGScoreGauge score={dashboard?.esgScore ?? 0} grade={dashboard?.esgGrade} />
             <OverallProgressCard
               hubStats={dashboard?.hubStats}
             />
