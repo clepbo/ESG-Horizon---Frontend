@@ -28,7 +28,7 @@ export function DataField({ label, value, unit, highlight, isBoolean }: DataFiel
     >
       <span
         className={`text-xs font-medium ${
-          highlight ? "text-teal-600" : "text-gray-900"
+          highlight ? "text-teal-800" : "text-gray-900"
         }`}
       >
         {label}
@@ -51,7 +51,7 @@ export function DataField({ label, value, unit, highlight, isBoolean }: DataFiel
           <>
             <span
               className={`text-sm font-bold ${
-                highlight ? "text-teal-700" : "text-gray-800"
+                highlight ? "text-teal-900" : "text-gray-800"
               }`}
             >
               {isNumeric ? formatNumberShort(value) : value}
@@ -59,7 +59,7 @@ export function DataField({ label, value, unit, highlight, isBoolean }: DataFiel
             {unit && (
               <span
                 className={`text-[10px] font-normal ${
-                  highlight ? "text-teal-500" : "text-gray-700"
+                  highlight ? "text-teal-700" : "text-gray-700"
                 }`}
               >
                 {unit}

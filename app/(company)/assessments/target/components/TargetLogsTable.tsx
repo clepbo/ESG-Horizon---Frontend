@@ -184,55 +184,47 @@ const columns: ColumnDef<Target, any>[] = [
     cell: ({ row }) => {
       const { type, targetYear, generalTarget, scopeTargets } = row.original;
 
-      if (type === TargetType.GENERAL && generalTarget?.reductionPercentage != null) {
+      if (type === TargetType.GENERAL) {
         return (
           <div>
             <span className="text-sm text-gray-700">{targetYear}</span>
-            <p className="text-xs font-bold text-amber-600">
-              Goal: -{generalTarget.reductionPercentage}%
-            </p>
+            {generalTarget?.reductionPercentage != null && (
+              <p className="text-xs font-bold text-amber-600">
+                Goal: -{generalTarget.reductionPercentage}%
+              </p>
+            )}
           </div>
         );
       }
 
-      if (type === TargetType.BOTH && generalTarget?.reductionPercentage != null) {
-        const s1 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE1");
-        const s2 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE2");
-        const s3 = scopeTargets?.find((s) => s.scope.toString() === "SCOPE3");
-        const scopeParts = [
-          s1 ? `S1: -${s1.reductionPercentage}%` : null,
-          s2 ? `S2: -${s2.reductionPercentage}%` : null,
-          s3 ? `S3: -${s3.reductionPercentage}%` : null,
-        ]
-          .filter(Boolean)
-          .join(" / ");
-        return (
-          <div>
-            <span className="text-sm text-gray-700">{targetYear}</span>
-            <p className="text-xs font-bold text-amber-600">
-              Goal: -{generalTarget.reductionPercentage}%{scopeParts ? ` / ${scopeParts}` : ""}
-            </p>
-          </div>
-        );
-      }
-
-      if (type === TargetType.SCOPE && scopeTargets?.length) {
+      if ((type === TargetType.SCOPE || type === TargetType.BOTH) && scopeTargets?.length) {
         const s1 = scopeTargets.find((s) => s.scope.toString() === "SCOPE1");
         const s2 = scopeTargets.find((s) => s.scope.toString() === "SCOPE2");
         const s3 = scopeTargets.find((s) => s.scope.toString() === "SCOPE3");
-        const parts = [
-          s1 ? `S1: -${s1.reductionPercentage}%` : null,
-          s2 ? `S2: -${s2.reductionPercentage}%` : null,
-          s3 ? `S3: -${s3.reductionPercentage}%` : null,
-        ]
-          .filter(Boolean)
-          .join(" / ");
+
+        const scopeLines = [
+          s1 ? { label: "S1", year: s1.targetYear ?? targetYear, reduction: s1.reductionPercentage } : null,
+          s2 ? { label: "S2", year: s2.targetYear ?? targetYear, reduction: s2.reductionPercentage } : null,
+          s3 ? { label: "S3", year: s3.targetYear ?? targetYear, reduction: s3.reductionPercentage } : null,
+        ].filter(Boolean) as { label: string; year: number; reduction: number }[];
+
         return (
-          <div>
-            <span className="text-sm text-gray-700">{targetYear}</span>
-            {parts && (
-              <p className="text-xs font-bold text-amber-600">{parts}</p>
+          <div className="flex flex-col gap-0.5">
+            {type === TargetType.BOTH && generalTarget?.reductionPercentage != null && (
+              <div>
+                <span className="text-sm text-gray-700">{targetYear}</span>
+                <span className="text-xs font-bold text-amber-600 ml-1">
+                  (-{generalTarget.reductionPercentage}%)
+                </span>
+              </div>
             )}
+            {scopeLines.map(({ label, year, reduction }) => (
+              <p key={label} className="text-xs text-gray-600">
+                <span className="font-medium text-gray-700">{label}:</span>{" "}
+                <span className="text-gray-700">{year}</span>{" "}
+                <span className="font-bold text-amber-600">(-{reduction}%)</span>
+              </p>
+            ))}
           </div>
         );
       }

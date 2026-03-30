@@ -41,7 +41,7 @@ function ScopeSectionSummary({ scope }: { scope: ScopeData }) {
   return (
     <div className="space-y-4">
       {/* Scope label */}
-      <h6 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
+      <h6 className="text-sm font-bold tracking-wide text-gray-800 uppercase">
         {scope.scope}
       </h6>
 
@@ -219,13 +219,13 @@ export function ScopeSummary({
       <div className="space-y-6 max-w-3xl mx-auto px-4">
         <Card className="shadow-md border border-gray-100">
           <CardHeader className="pb-2 border-b border-gray-100">
-            <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            <p className="text-sm font-bold tracking-wide text-gray-800 uppercase">
               Target Summary
             </p>
           </CardHeader>
           <CardContent className="space-y-8 pt-6">
             {baselinePeriodLabel && (
-              <p className="text-xs text-gray-500">
+              <p className="text-sm text-gray-700">
                 Baseline period:{" "}
                 <span className="font-semibold">{baselinePeriodLabel}</span>
               </p>

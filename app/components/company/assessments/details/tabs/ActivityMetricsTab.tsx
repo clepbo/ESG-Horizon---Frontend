@@ -25,10 +25,24 @@ function getOverallStatus(statuses: SectionStatus[]): SectionStatus {
 }
 
 export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: ActivityMetricsTabProps) {
-  const activityMetrics = assessmentData.foundationalData?.activityMetrics || {};
-  const productionVolume = activityMetrics.productionVolume || {};
-  const offshore = activityMetrics.assetPortfolio?.offshoreSites || {};
-  const terrestrial = activityMetrics.assetPortfolio?.terrestrialSites || {};
+  // Activity metrics may live at foundationalData.activityMetrics (post-migration)
+  // or at root activityMetrics (pre-migration / subsequent saves)
+  const foundationalAm = assessmentData.foundationalData?.activityMetrics || {};
+  const rootAm = assessmentData.activityMetrics || {};
+  const productionVolume = foundationalAm.productionVolume || rootAm.productionVolume || {};
+  // Offshore/terrestrial: check flattened path, then nested assetPortfolio, then root-level
+  const offshore =
+    foundationalAm.offshoreSites ||
+    foundationalAm.assetPortfolio?.offshoreSites ||
+    rootAm.assetPortfolio?.offshoreSites ||
+    rootAm.offshoreSites ||
+    {};
+  const terrestrial =
+    foundationalAm.terrestrialSites ||
+    foundationalAm.assetPortfolio?.terrestrialSites ||
+    rootAm.assetPortfolio?.terrestrialSites ||
+    rootAm.terrestrialSites ||
+    {};
 
   const pvStatus = getFormSectionStatus(submittedGroups, "foundationalData.activityMetrics.productionVolumes", productionVolume);
   const offshoreStatus = getFormSectionStatus(submittedGroups, "foundationalData.activityMetrics.offshoreSites", offshore);
