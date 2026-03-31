@@ -25,7 +25,7 @@ jobs:
       - name: Set Marketing URL
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "NEXT_PUBLIC_MARKETING_URL=https://marketing.esghorizon.africa" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_MARKETING_URL=https://esghorizon.africa" >> $GITHUB_ENV
           else
             echo "NEXT_PUBLIC_MARKETING_URL=https://staging-marketing.esghorizon.africa" >> $GITHUB_ENV
           fi
