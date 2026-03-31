@@ -1,0 +1,173 @@
+import api from "@/lib/api/axios";
+
+export const adminDisclosureService = {
+  // Sectors
+  getSectors: async () => {
+    const { data } = await api.get("/admin/disclosure/sectors");
+    return data;
+  },
+  getSector: async (id: number) => {
+    const { data } = await api.get(`/admin/disclosure/sectors/${id}`);
+    return data;
+  },
+  getIndustriesBySector: async (sectorId: number) => {
+    const { data } = await api.get(`/admin/disclosure/sectors/${sectorId}/industries`);
+    return data;
+  },
+  createSector: async (payload: { name: string; description?: string; code?: string }) => {
+    const { data } = await api.post("/admin/disclosure/sectors", payload);
+    return data;
+  },
+  updateSector: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/sectors/${id}`, payload);
+    return data;
+  },
+  deleteSector: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/sectors/${id}`);
+    return data;
+  },
+
+  // Industries
+  createIndustry: async (payload: { name: string; sectorId: number; description?: string }) => {
+    const { data } = await api.post("/admin/disclosure/industries", payload);
+    return data;
+  },
+  updateIndustry: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/industries/${id}`, payload);
+    return data;
+  },
+  deleteIndustry: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/industries/${id}`);
+    return data;
+  },
+
+  // Pillars
+  getPillars: async () => {
+    const { data } = await api.get("/admin/disclosure/pillars");
+    return data;
+  },
+  createPillar: async (payload: any) => {
+    const { data } = await api.post("/admin/disclosure/pillars", payload);
+    return data;
+  },
+  updatePillar: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/pillars/${id}`, payload);
+    return data;
+  },
+  deletePillar: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/pillars/${id}`);
+    return data;
+  },
+
+  // Topics
+  getTopics: async (industryId: number, pillarId?: number) => {
+    const { data } = await api.get("/admin/disclosure/topics", {
+      params: { industryId, pillarId },
+    });
+    return data;
+  },
+  createTopic: async (payload: any) => {
+    const { data } = await api.post("/admin/disclosure/topics", payload);
+    return data;
+  },
+  updateTopic: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/topics/${id}`, payload);
+    return data;
+  },
+  deleteTopic: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/topics/${id}`);
+    return data;
+  },
+
+  // Subtopics
+  getSubtopics: async (topicId: number) => {
+    const { data } = await api.get("/admin/disclosure/subtopics", {
+      params: { topicId },
+    });
+    return data;
+  },
+  createSubtopic: async (payload: any) => {
+    const { data } = await api.post("/admin/disclosure/subtopics", payload);
+    return data;
+  },
+  updateSubtopic: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/subtopics/${id}`, payload);
+    return data;
+  },
+  deleteSubtopic: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/subtopics/${id}`);
+    return data;
+  },
+
+  // Metrics
+  getMetrics: async (subtopicId: number) => {
+    const { data } = await api.get("/admin/disclosure/metrics", {
+      params: { subtopicId },
+    });
+    return data;
+  },
+  createMetric: async (payload: any) => {
+    const { data } = await api.post("/admin/disclosure/metrics", payload);
+    return data;
+  },
+  updateMetric: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/metrics/${id}`, payload);
+    return data;
+  },
+  deleteMetric: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/metrics/${id}`);
+    return data;
+  },
+
+  // Submetrics
+  getSubmetrics: async (metricId: number) => {
+    const { data } = await api.get("/admin/disclosure/submetrics", {
+      params: { metricId },
+    });
+    return data;
+  },
+  createSubmetric: async (payload: any) => {
+    const { data } = await api.post("/admin/disclosure/submetrics", payload);
+    return data;
+  },
+  updateSubmetric: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/submetrics/${id}`, payload);
+    return data;
+  },
+  deleteSubmetric: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/submetrics/${id}`);
+    return data;
+  },
+
+  // Submetric Details
+  getSubmetricDetails: async (submetricId: number) => {
+    const { data } = await api.get("/admin/disclosure/submetric-details", {
+      params: { submetricId },
+    });
+    return data;
+  },
+  createSubmetricDetail: async (payload: any) => {
+    const { data } = await api.post("/admin/disclosure/submetric-details", payload);
+    return data;
+  },
+  updateSubmetricDetail: async (id: number, payload: any) => {
+    const { data } = await api.patch(`/admin/disclosure/submetric-details/${id}`, payload);
+    return data;
+  },
+  deleteSubmetricDetail: async (id: number) => {
+    const { data } = await api.delete(`/admin/disclosure/submetric-details/${id}`);
+    return data;
+  },
+
+  // Full Hierarchy
+  getIndustryHierarchy: async (industryId: number) => {
+    const { data } = await api.get(`/admin/disclosure/industry-hierarchy/${industryId}`);
+    return data;
+  },
+  getAuditLogs: async (entityType?: string, entityId?: number) => {
+    const { data } = await api.get("/admin/disclosure/audit-logs", {
+      params: { entityType, entityId },
+    });
+    return data;
+  },
+};

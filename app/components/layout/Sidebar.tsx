@@ -17,6 +17,7 @@ const navLinks: { name: string; icon: string; href: string; roleCheck?: (r: Role
   { name: "Company", icon: "/icons/Company.svg", href: "/company", roleCheck: (r) => r.isPlatformAdmin || r.role === USER_TYPES.PLATFORM_DATA_OFFICER },
   { name: "Reports", icon: "/icons/Analytics.svg", href: "/reports" },
   { name: "Subscription & Billing", icon: "/icons/SubscriptionBilling.svg", href: "/billing" },
+  { name: "Assessment Structure", icon: "/icons/Assessment.svg", href: "/assessment-structure", roleCheck: (r) => r.isPlatformAdmin },
 ];
 
 const settingsSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [

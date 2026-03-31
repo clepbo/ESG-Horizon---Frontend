@@ -14,7 +14,12 @@ import {
   FileCheck,
 } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
-import Dialog from "@/app/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/app/components/ui/dialog";
 
 interface ActivityIconProps {
   color: string;
@@ -199,36 +204,39 @@ export default function RecentActivities({ activities = [] }: RecentActivitiesPr
       <Dialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="All Recent Activities"
-        className="max-w-[min(100vw-2rem,42rem)]"
       >
-        <div className="space-y-3 min-w-0">
-          <ActivityList items={paginated} />
+        <DialogContent className="max-w-[min(100vw-2rem,42rem)]">
+          <DialogHeader>
+            <DialogTitle>All Recent Activities</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 min-w-0">
+            <ActivityList items={paginated} />
 
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-4 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                disabled={page === 1}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-sm text-gray-600">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-        </div>
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-4 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                  disabled={page === 1}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-sm text-gray-600">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                  disabled={page === totalPages}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
       </Dialog>
     </div>
   );
