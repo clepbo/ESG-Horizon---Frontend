@@ -2,13 +2,20 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import jsPDF from "jspdf";
 import ExportReportContent from "./ExportReportContent";
-import { sectionNames } from "./ExportReportContent";
+import { sectionNames, sectionLabels } from "./ExportReportContent";
 import { drawCoverPage, CoverPageData } from "./coverPage";
 import { waitForCharts, captureSection, addFooter, loadImage, fetchImageAsDataUrl } from "./pdfUtils";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { formatStatus } from "@/lib/utils";
 
 const PLATFORM_LOGO_PATH = "/logo-new.png";
+
+export interface ExportProgress {
+  /** 0–100 */
+  percent: number;
+  /** Human-readable stage label */
+  stage: string;
+}
 
 export interface ExportParams {
   reportData: ReportResponse;
@@ -18,6 +25,7 @@ export interface ExportParams {
     address: string;
     country: string;
   };
+  onProgress?: (progress: ExportProgress) => void;
 }
 
 /**
@@ -26,7 +34,8 @@ export interface ExportParams {
  * Returns the captured images and cleans up the container.
  */
 async function renderAndCaptureSections(
-  reportData: ReportResponse
+  reportData: ReportResponse,
+  onProgress?: (progress: ExportProgress) => void
 ): Promise<{ images: Map<string, string>; cleanup: () => void }> {
   // Create hidden offscreen container
   const container = document.createElement("div");
@@ -38,6 +47,8 @@ async function renderAndCaptureSections(
   container.style.background = "#fff";
   document.body.appendChild(container);
 
+  onProgress?.({ percent: 5, stage: "Rendering report content…" });
+
   // Render all tabs simultaneously
   const root = ReactDOM.createRoot(container);
   root.render(
@@ -45,11 +56,20 @@ async function renderAndCaptureSections(
   );
 
   // Wait for charts to paint
+  onProgress?.({ percent: 10, stage: "Waiting for charts to render…" });
   await waitForCharts(container);
 
-  // Capture each section
+  // Capture each section — progress spans 15% to 75%
   const images = new Map<string, string>();
-  for (const name of sectionNames) {
+  const progressStart = 15;
+  const progressEnd = 75;
+  const step = (progressEnd - progressStart) / sectionNames.length;
+
+  for (let i = 0; i < sectionNames.length; i++) {
+    const name = sectionNames[i];
+    const label = sectionLabels[name] ?? name;
+    onProgress?.({ percent: Math.round(progressStart + step * i), stage: `Capturing ${label}…` });
+
     const sectionEl = container.querySelector(
       `[data-export-section="${name}"]`
     ) as HTMLElement | null;
@@ -62,6 +82,8 @@ async function renderAndCaptureSections(
       }
     }
   }
+
+  onProgress?.({ percent: 75, stage: "All sections captured" });
 
   const cleanup = () => {
     root.unmount();
@@ -193,10 +215,11 @@ async function sliceImageForPages(
  * Generates a multi-page PDF with cover page, all ESG pillar sections, and footers.
  */
 export async function generateReportPDF(params: ExportParams) {
-  const { reportData, company } = params;
-  const { images, cleanup } = await renderAndCaptureSections(reportData);
+  const { reportData, company, onProgress } = params;
+  const { images, cleanup } = await renderAndCaptureSections(reportData, onProgress);
 
   try {
+    onProgress?.({ percent: 78, stage: "Building cover page…" });
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
@@ -218,6 +241,8 @@ export async function generateReportPDF(params: ExportParams) {
       status: formatStatus(reportData.status ?? ""),
     };
     await drawCoverPage(pdf, coverData);
+
+    onProgress?.({ percent: 82, stage: "Assembling PDF pages…" });
 
     // Flow all section slices continuously across pages using a Y cursor
     const sectionGap = 8; // mm gap between sections
@@ -262,6 +287,8 @@ export async function generateReportPDF(params: ExportParams) {
       isFirstContentPage = false;
     }
 
+    onProgress?.({ percent: 90, stage: "Adding footers…" });
+
     // Pre-fetch platform logo for footers
     let footerLogoDataUrl: string | null = null;
     try {
@@ -279,9 +306,11 @@ export async function generateReportPDF(params: ExportParams) {
       addFooter(pdf, i - 1, totalPages - 1, footerLogoDataUrl);
     }
 
+    onProgress?.({ percent: 98, stage: "Downloading…" });
     const subsidiary = reportData.subsidiary ?? "ESG";
     const fileName = `${subsidiary}-Report-${reportData.startYear ?? ""}.pdf`;
     pdf.save(fileName);
+    onProgress?.({ percent: 100, stage: "Done!" });
   } finally {
     cleanup();
   }
@@ -469,10 +498,11 @@ function drawPngFooter(
  * Generates a full PNG of all sections stitched vertically, with cover page and footer.
  */
 export async function generateReportPNG(params: ExportParams) {
-  const { reportData, company } = params;
-  const { images, cleanup } = await renderAndCaptureSections(reportData);
+  const { reportData, company, onProgress } = params;
+  const { images, cleanup } = await renderAndCaptureSections(reportData, onProgress);
 
   try {
+    onProgress?.({ percent: 78, stage: "Loading captured images…" });
     // Load all section images to get dimensions
     const loadedImages: HTMLImageElement[] = [];
     for (const name of sectionNames) {
@@ -493,6 +523,7 @@ export async function generateReportPNG(params: ExportParams) {
     const footerHeight = 60;
     const totalHeight = coverPageHeight + sectionsHeight + footerHeight;
 
+    onProgress?.({ percent: 82, stage: "Stitching image…" });
     // Create the stitching canvas
     const canvas = document.createElement("canvas");
     canvas.width = maxWidth;
@@ -536,6 +567,7 @@ export async function generateReportPNG(params: ExportParams) {
     if (!finalCtx) return;
     finalCtx.drawImage(canvas, 0, 0);
 
+    onProgress?.({ percent: 95, stage: "Downloading…" });
     // Export and download
     const pngDataUrl = finalCanvas.toDataURL("image/png");
     const link = document.createElement("a");
@@ -543,6 +575,7 @@ export async function generateReportPNG(params: ExportParams) {
     link.download = `${subsidiary}-Report-${reportData.startYear ?? ""}.png`;
     link.href = pngDataUrl;
     link.click();
+    onProgress?.({ percent: 100, stage: "Done!" });
   } finally {
     cleanup();
   }

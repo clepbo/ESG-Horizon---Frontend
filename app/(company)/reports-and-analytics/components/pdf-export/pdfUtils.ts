@@ -23,13 +23,23 @@ export async function fetchImageAsDataUrl(url: string): Promise<string | null> {
 
 /**
  * Waits for Recharts SVGs and images to render inside a container.
- * Uses a combination of requestAnimationFrame and setTimeout.
+ * Polls for SVG elements up to a deadline instead of a blind 2.5s sleep.
+ * Resolves as soon as SVGs are found (or after 1.5s max).
  */
-export function waitForCharts(_container: HTMLElement): Promise<void> {
+export function waitForCharts(container: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      setTimeout(resolve, 2500);
-    });
+    const deadline = Date.now() + 1500;
+    function check() {
+      const svgs = container.querySelectorAll("svg");
+      if (svgs.length > 0 || Date.now() >= deadline) {
+        // Give one extra frame for final paint
+        requestAnimationFrame(() => resolve());
+      } else {
+        setTimeout(check, 100);
+      }
+    }
+    // Initial delay for React to mount
+    requestAnimationFrame(() => setTimeout(check, 200));
   });
 }
 
@@ -39,7 +49,7 @@ export function waitForCharts(_container: HTMLElement): Promise<void> {
 export async function captureSection(element: HTMLElement): Promise<string> {
   return toPng(element, {
     cacheBust: true,
-    pixelRatio: 2,
+    pixelRatio: 1.5,
     filter: (node) => !node.classList?.contains("no-export"),
   });
 }
