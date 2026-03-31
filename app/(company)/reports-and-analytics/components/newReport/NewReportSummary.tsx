@@ -17,7 +17,7 @@ import { useSingleReport } from "../service/useReport";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
-import { generateReportPDF, generateReportPNG } from "../pdf-export/generateReportExport";
+import { generateReportPDF, generateReportPNG, ExportProgress } from "../pdf-export/generateReportExport";
 import { useCompanyDetails } from "@/services/hooks/company.hooks";
 import {
   Select,
@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { shortenMonth, useBreadcrumb } from "../../context/ReportBreadcrumbContext";
-import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
+
 
 export default function NewReportSummary() {
   // const [view, setView] = useState("overview");
@@ -40,6 +40,7 @@ export default function NewReportSummary() {
   const [reportData, setReportData] = React.useState<ReportResponse | undefined>(undefined);
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<ExportProgress>({ percent: 0, stage: "" });
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
@@ -117,6 +118,7 @@ export default function NewReportSummary() {
 
   async function exportfile(value: string) {
     setExporting(true);
+    setExportProgress({ percent: 0, stage: "Starting…" });
     try {
       const companyInfo = {
         name: company?.name ?? "",
@@ -124,13 +126,15 @@ export default function NewReportSummary() {
         address: company?.address ?? "",
         country: company?.country ?? "",
       };
+      const onProgress = (p: ExportProgress) => setExportProgress(p);
       if (value === "pdf") {
-        await generateReportPDF({ reportData: reportData!, company: companyInfo });
+        await generateReportPDF({ reportData: reportData!, company: companyInfo, onProgress });
       } else if (value === "png") {
-        await generateReportPNG({ reportData: reportData!, company: companyInfo });
+        await generateReportPNG({ reportData: reportData!, company: companyInfo, onProgress });
       }
     } finally {
       setExporting(false);
+      setExportProgress({ percent: 0, stage: "" });
       setSelected(undefined);
     }
   }
@@ -139,11 +143,23 @@ export default function NewReportSummary() {
     <div className="min-h-screen flex flex-col gap-4 w-full overflow-auto" id="section">
       {exporting && (
         <div className="no-export fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl px-8 py-6 flex flex-col items-center gap-4">
-            <LoadingSpinner size="lg" />
-            <p className="text-sm font-medium text-gray-700">
-              Generating your report, please wait...
+          <div className="bg-white rounded-xl shadow-xl px-10 py-8 flex flex-col items-center gap-5 w-[380px]">
+            <p className="text-base font-semibold text-gray-800">
+              Generating Report
             </p>
+            {/* Progress bar */}
+            <div className="w-full">
+              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${exportProgress.percent}%` }}
+                />
+              </div>
+              <div className="flex justify-between items-start mt-2 h-5">
+                <p className="text-sm text-gray-600 truncate mr-2">{exportProgress.stage}</p>
+                <p className="text-sm font-medium text-gray-700 shrink-0">{exportProgress.percent}%</p>
+              </div>
+            </div>
           </div>
         </div>
       )}
