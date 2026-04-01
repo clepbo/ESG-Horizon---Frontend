@@ -34,6 +34,74 @@ interface BaseModalProps {
   initialData?: any;
 }
 
+// ── Pillar Modal ─────────────────────────────────────────────────────────────
+
+export function PillarModal({ isOpen, onClose, onSuccess, parentId, initialData }: BaseModalProps) {
+  const [formData, setFormData] = useState({
+    name: "",
+    code: "",
+    description: "",
+    sortOrder: 0,
+    industryId: parentId || 0,
+    isActive: true,
+  });
+
+  useEffect(() => {
+    if (initialData) setFormData(initialData);
+    else setFormData(prev => ({ ...prev, industryId: parentId || 0 }));
+  }, [initialData, parentId]);
+
+  const handleSubmit = async () => {
+    try {
+      if (initialData) {
+        await adminDisclosureService.updatePillar(initialData.id, formData);
+        toast.success("Pillar updated");
+      } else {
+        await adminDisclosureService.createPillar(formData);
+        toast.success("Pillar created and linked to industry");
+      }
+      onSuccess();
+      onClose();
+    } catch (error) {
+      toast.error("Failed to save pillar");
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Edit Pillar" : "Add Pillar"}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label>Name</Label>
+            <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Environmental" />
+          </div>
+          <div className="grid gap-2">
+            <Label>Code</Label>
+            <Input value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} placeholder="e.g. ENV" />
+          </div>
+          <div className="flex items-center gap-4">
+             <div className="grid gap-2 flex-1">
+                <Label>Sort Order</Label>
+                <Input type="number" value={formData.sortOrder} onChange={(e) => setFormData({ ...formData, sortOrder: +e.target.value })} />
+             </div>
+             <div className="flex items-center space-x-2 pt-6">
+                <Checkbox id="pillar-active" checked={formData.isActive} onCheckedChange={(checked) => setFormData({ ...formData, isActive: !!checked })} />
+                <Label htmlFor="pillar-active">Active</Label>
+             </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button className="bg-emerald-600" onClick={handleSubmit}>Save Pillar</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ── Topic Modal ──────────────────────────────────────────────────────────────
 
 export function TopicModal({ isOpen, onClose, onSuccess, parentId, initialData }: BaseModalProps) {
@@ -166,21 +234,34 @@ export function MetricModal({ isOpen, onClose, onSuccess, parentId, initialData 
     name: "",
     sortOrder: 0,
     subtopicId: parentId || 0,
+    topicId: 0,
     isActive: true,
   });
 
+  const [parentType, setParentType] = useState<"subtopic" | "topic">("subtopic");
+
   useEffect(() => {
-    if (initialData) setFormData(initialData);
-    else setFormData(prev => ({ ...prev, subtopicId: parentId || 0 }));
+    if (initialData) {
+      setFormData(initialData);
+      setParentType(initialData.topicId ? "topic" : "subtopic");
+    } else {
+      setFormData(prev => ({ ...prev, subtopicId: parentId || 0 }));
+    }
   }, [initialData, parentId]);
 
   const handleSubmit = async () => {
     try {
+      const payload = {
+        ...formData,
+        subtopicId: parentType === "subtopic" ? formData.subtopicId : undefined,
+        topicId: parentType === "topic" ? formData.topicId : undefined,
+      };
+
       if (initialData) {
-        await adminDisclosureService.updateMetric(initialData.id, formData);
+        await adminDisclosureService.updateMetric(initialData.id, payload);
         toast.success("Metric updated");
       } else {
-        await adminDisclosureService.createMetric(formData);
+        await adminDisclosureService.createMetric(payload);
         toast.success("Metric created");
       }
       onSuccess();
@@ -201,6 +282,22 @@ export function MetricModal({ isOpen, onClose, onSuccess, parentId, initialData 
             <Label>Name</Label>
             <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
           </div>
+          
+          {!initialData && (
+            <div className="grid gap-2">
+              <Label>Attach to</Label>
+              <Select value={parentType} onValueChange={(v: any) => setParentType(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="subtopic">Subtopic</SelectItem>
+                  <SelectItem value="topic">Topic (Skip Subtopic level)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="flex items-center gap-4">
              <div className="grid gap-2 flex-1">
                 <Label>Sort Order</Label>
@@ -296,9 +393,25 @@ export function DetailModal({ isOpen, onClose, onSuccess, parentId, initialData 
     unitOptions: [] as string[],
     sortOrder: 0,
     submetricId: parentId || 0,
+    isActive: true,
+    mappingKey: "",
+    emissionFactor: null as any,
   });
 
   const [unitOptionInput, setUnitOptionInput] = useState("");
+
+  const inputTypes = [
+    { label: "Number", value: "number" },
+    { label: "Text", value: "text" },
+    { label: "Select (Dropdown)", value: "select" },
+    { label: "Radio Group", value: "radio" },
+    { label: "Boolean (Yes/No)", value: "boolean" },
+    { label: "Date", value: "date" },
+    { label: "File Upload (Simple)", value: "file" },
+    { label: "File Upload (with URL)", value: "file_url" },
+    { label: "3-Field Input (Type/Value/Unit)", value: "triple_input" },
+    { label: "Number with Unit", value: "number_unit" },
+  ];
 
   useEffect(() => {
     if (initialData) setFormData({ ...initialData, unitOptions: initialData.unitOptions || [] });
@@ -307,11 +420,16 @@ export function DetailModal({ isOpen, onClose, onSuccess, parentId, initialData 
 
   const handleSubmit = async () => {
     try {
+      const payload = {
+        ...formData,
+        inputType: formData.type.toUpperCase(), // Map to enum
+      };
+      
       if (initialData) {
-        await adminDisclosureService.updateSubmetricDetail(initialData.id, formData);
+        await adminDisclosureService.updateSubmetricDetail(initialData.id, payload);
         toast.success("Field updated");
       } else {
-        await adminDisclosureService.createSubmetricDetail(formData);
+        await adminDisclosureService.createSubmetricDetail(payload);
         toast.success("Field created");
       }
       onSuccess();
@@ -349,11 +467,9 @@ export function DetailModal({ isOpen, onClose, onSuccess, parentId, initialData 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="number">Number</SelectItem>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="select">Select</SelectItem>
-                  <SelectItem value="radio">Radio</SelectItem>
-                  <SelectItem value="boolean">Yes/No</SelectItem>
+                  {inputTypes.map(t => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -380,6 +496,28 @@ export function DetailModal({ isOpen, onClose, onSuccess, parentId, initialData 
                </div>
             </div>
           )}
+
+          {formData.type === 'triple_input' && (
+            <div className="grid gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
+               <Label className="text-[10px] uppercase font-bold text-blue-500 italic"> GHG / Triple Input Support</Label>
+               <p className="text-[10px] text-blue-400">This field will automatically include Type, Volume, and Unit selectors.</p>
+               <div className="grid gap-2 mt-2">
+                  <Label className="text-[9px]">Default Mapping / Emission Key</Label>
+                  <Input value={formData.mappingKey} onChange={(e) => setFormData({ ...formData, mappingKey: e.target.value })} placeholder="e.g. diesel_gen_factor" className="h-7 text-xs" />
+               </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+             <div className="grid gap-2">
+                <Label>Mapping Key</Label>
+                <Input value={formData.mappingKey} onChange={(e) => setFormData({ ...formData, mappingKey: e.target.value })} placeholder="Integration key..." />
+             </div>
+             <div className="grid gap-2">
+                <Label>Sort Order</Label>
+                <Input type="number" value={formData.sortOrder} onChange={(e) => setFormData({ ...formData, sortOrder: +e.target.value })} />
+             </div>
+          </div>
 
           <div className="grid gap-2">
             <Label>Help Text (Optional)</Label>

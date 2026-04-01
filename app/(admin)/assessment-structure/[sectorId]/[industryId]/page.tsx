@@ -30,11 +30,12 @@ import {
 } from "@/app/components/ui/accordion";
 
 import { 
-  TopicModal, 
-  SubtopicModal, 
+  TopicModal,
+  SubtopicModal,
   MetricModal, 
   SubmetricModal, 
-  DetailModal 
+  DetailModal,
+  PillarModal
 } from "../../components/HierarchyModals";
 import { AuditLogModal } from "../../components/AuditLogModal";
 
@@ -107,7 +108,7 @@ export default function HierarchyBuilderPage() {
   
   // Modal State
   const [modalState, setModalState] = useState<{
-    type: 'topic' | 'subtopic' | 'metric' | 'submetric' | 'detail' | null;
+    type: 'pillar' | 'topic' | 'subtopic' | 'metric' | 'submetric' | 'detail' | null;
     isOpen: boolean;
     parentId?: number;
     initialData?: any;
@@ -139,7 +140,7 @@ export default function HierarchyBuilderPage() {
     fetchHierarchy();
   }, [fetchHierarchy]);
 
-  const openModal = (type: 'topic' | 'subtopic' | 'metric' | 'submetric' | 'detail', parentId?: number, initialData?: any) => {
+  const openModal = (type: 'pillar' | 'topic' | 'subtopic' | 'metric' | 'submetric' | 'detail', parentId?: number, initialData?: any) => {
     setModalState({ type, isOpen: true, parentId, initialData });
   };
 
@@ -149,6 +150,7 @@ export default function HierarchyBuilderPage() {
     if (!confirm(`Are you sure you want to delete this ${type}? This action cannot be undone.`)) return;
     try {
       switch (type) {
+        case 'pillar': await adminDisclosureService.deletePillar(id); break;
         case 'topic': await adminDisclosureService.deleteTopic(id); break;
         case 'subtopic': await adminDisclosureService.deleteSubtopic(id); break;
         case 'metric': await adminDisclosureService.deleteMetric(id); break;
@@ -187,6 +189,11 @@ export default function HierarchyBuilderPage() {
             <div>
               <h2 className="text-3xl font-bold tracking-tight">Hierarchy Builder</h2>
               <p className="text-muted-foreground">{industry?.name} Assessment Tree</p>
+            </div>
+            <div className="ml-auto">
+              <Button className="bg-emerald-600" onClick={() => openModal('pillar', +industryId)}>
+                <Plus className="h-4 w-4 mr-2" /> Link New Pillar
+              </Button>
             </div>
           </div>
         </div>
@@ -228,6 +235,7 @@ export default function HierarchyBuilderPage() {
         </div>
 
         {/* Modals */}
+        {modalState.type === 'pillar' && <PillarModal isOpen={modalState.isOpen} onClose={closeModal} onSuccess={fetchHierarchy} parentId={modalState.parentId} initialData={modalState.initialData} />}
         {modalState.type === 'topic' && <TopicModal isOpen={modalState.isOpen} onClose={closeModal} onSuccess={fetchHierarchy} parentId={modalState.parentId} initialData={modalState.initialData} />}
         {modalState.type === 'subtopic' && <SubtopicModal isOpen={modalState.isOpen} onClose={closeModal} onSuccess={fetchHierarchy} parentId={modalState.parentId} initialData={modalState.initialData} />}
         {modalState.type === 'metric' && <MetricModal isOpen={modalState.isOpen} onClose={closeModal} onSuccess={fetchHierarchy} parentId={modalState.parentId} initialData={modalState.initialData} />}
@@ -266,13 +274,25 @@ function TopicItem({ topic, onEdit, onDelete, onAddSubtopic, openModal, handleDe
       </div>
       <AccordionContent className="pl-6 pb-4">
         <div className="flex justify-between items-center mb-4 pr-4">
-          <div className="text-xs text-muted-foreground font-medium uppercase tracking-widest">Subtopics</div>
-          <Button size="xs" variant="ghost" className="h-7 text-xs text-emerald-600" onClick={() => onAddSubtopic(topic.id)}>
-            <Plus className="h-3 w-3 mr-1" /> Add Subtopic
-          </Button>
+          <div className="text-xs text-muted-foreground font-medium uppercase tracking-widest flex items-center gap-4">
+             <span>Subtopics</span>
+             <span className="text-neutral-300">/</span>
+             <span className="text-blue-600">Direct Metrics</span>
+          </div>
+          <div className="flex gap-2">
+            <Button size="xs" variant="ghost" className="h-7 text-xs text-blue-600" onClick={() => openModal('metric', topic.id)}>
+              <Plus className="h-3 w-3 mr-1" /> Add Direct Metric
+            </Button>
+            <Button size="xs" variant="ghost" className="h-7 text-xs text-emerald-600" onClick={() => onAddSubtopic(topic.id)}>
+              <Plus className="h-3 w-3 mr-1" /> Add Subtopic
+            </Button>
+          </div>
         </div>
         <Accordion type="multiple" className="space-y-2 border-l-2 border-emerald-100 pl-4">
-          {topic.subtopics.map((sub: any) => (
+          {topic.metrics?.map((m: any) => (
+             <MetricItem key={m.id} metric={m} openModal={openModal} handleDelete={handleDelete} openAuditLog={openAuditLog} isDirect />
+          ))}
+          {topic.subtopics?.map((sub: any) => (
             <SubtopicItem key={sub.id} subtopic={sub} openModal={openModal} handleDelete={handleDelete} openAuditLog={openAuditLog} />
           ))}
         </Accordion>
@@ -313,13 +333,16 @@ function SubtopicItem({ subtopic, openModal, handleDelete, openAuditLog }: any) 
   );
 }
 
-function MetricItem({ metric, openModal, handleDelete, openAuditLog }: any) {
+function MetricItem({ metric, openModal, handleDelete, openAuditLog, isDirect }: any) {
   return (
-    <AccordionItem value={`metric-${metric.id}`} className="border-0">
+    <AccordionItem value={`metric-${metric.id}`} className={isDirect ? "border-b border-blue-50/50" : "border-0"}>
       <div className="flex items-center group">
         <AccordionTrigger className="hover:no-underline py-1.5 flex-1">
           <div className="flex items-center gap-2 text-left">
-            <Database className="h-3 w-3 text-orange-500" /><span className="text-xs font-medium text-neutral-600">{metric.name}</span>
+            <Database className={`h-3 w-3 ${isDirect ? 'text-blue-500' : 'text-orange-500'}`} />
+            <span className={`text-xs font-medium ${isDirect ? 'text-blue-700' : 'text-neutral-600'}`}>
+              {metric.name} {isDirect && <span className="text-[9px] bg-blue-50 px-1 rounded ml-1 text-blue-400 font-bold uppercase">Direct</span>}
+            </span>
           </div>
         </AccordionTrigger>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pr-4">
