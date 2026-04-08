@@ -18,6 +18,7 @@ import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
 import { generateReportPDF, generateReportPNG, ExportProgress } from "../pdf-export/generateReportExport";
+import { AlertTriangle } from "lucide-react";
 import { useCompanyDetails } from "@/services/hooks/company.hooks";
 import {
   Select,
@@ -41,6 +42,7 @@ export default function NewReportSummary() {
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<ExportProgress>({ percent: 0, stage: "" });
+  const [exportError, setExportError] = useState<{ stage: string; format: "pdf" | "png" } | null>(null);
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
@@ -117,8 +119,11 @@ export default function NewReportSummary() {
   }
 
   async function exportfile(value: string) {
+    if (value !== "pdf" && value !== "png") return;
     setExporting(true);
+    setExportError(null);
     setExportProgress({ percent: 0, stage: "Starting…" });
+    let lastStage = "Preparing report";
     try {
       const companyInfo = {
         name: company?.name ?? "",
@@ -126,17 +131,36 @@ export default function NewReportSummary() {
         address: company?.address ?? "",
         country: company?.country ?? "",
       };
-      const onProgress = (p: ExportProgress) => setExportProgress(p);
+      const onProgress = (p: ExportProgress) => {
+        lastStage = p.stage || lastStage;
+        setExportProgress(p);
+      };
       if (value === "pdf") {
         await generateReportPDF({ reportData: reportData!, company: companyInfo, onProgress });
-      } else if (value === "png") {
+      } else {
         await generateReportPNG({ reportData: reportData!, company: companyInfo, onProgress });
       }
-    } finally {
+      // Success — close the modal
       setExporting(false);
       setExportProgress({ percent: 0, stage: "" });
       setSelected(undefined);
+    } catch (err) {
+      console.error("Report export failed:", err);
+      // Keep the modal open and swap to the error state — user can retry
+      setExportError({ stage: lastStage, format: value });
     }
+  }
+
+  function dismissExportError() {
+    setExportError(null);
+    setExporting(false);
+    setExportProgress({ percent: 0, stage: "" });
+    setSelected(undefined);
+  }
+
+  function retryExport() {
+    if (!exportError) return;
+    exportfile(exportError.format);
   }
 
   return (
@@ -144,22 +168,63 @@ export default function NewReportSummary() {
       {exporting && (
         <div className="no-export fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl px-10 py-8 flex flex-col items-center gap-5 w-[380px]">
-            <p className="text-base font-semibold text-gray-800">
-              Generating Report
-            </p>
-            {/* Progress bar */}
-            <div className="w-full">
-              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${exportProgress.percent}%` }}
-                />
-              </div>
-              <div className="flex justify-between items-start mt-2 h-5">
-                <p className="text-sm text-gray-600 truncate mr-2">{exportProgress.stage}</p>
-                <p className="text-sm font-medium text-gray-700 shrink-0">{exportProgress.percent}%</p>
-              </div>
-            </div>
+            {exportError ? (
+              <>
+                <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-red-500" />
+                </div>
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <p className="text-base font-semibold text-gray-800">
+                    Report Generation Failed
+                  </p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    We couldn&apos;t generate your report. This is usually a
+                    temporary issue — please try again. If it keeps happening,
+                    contact support.
+                  </p>
+                  {exportError.stage && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      Failed during: {exportError.stage}
+                    </p>
+                  )}
+                </div>
+                <div className="flex w-full gap-3 mt-1">
+                  <button
+                    type="button"
+                    onClick={dismissExportError}
+                    className="flex-1 px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={retryExport}
+                    className="flex-1 px-4 py-2 rounded-md text-sm font-medium text-white bg-primary hover:opacity-90 transition"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-base font-semibold text-gray-800">
+                  Generating Report
+                </p>
+                {/* Progress bar */}
+                <div className="w-full">
+                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${exportProgress.percent}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-start mt-2 h-5">
+                    <p className="text-sm text-gray-600 truncate mr-2">{exportProgress.stage}</p>
+                    <p className="text-sm font-medium text-gray-700 shrink-0">{exportProgress.percent}%</p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

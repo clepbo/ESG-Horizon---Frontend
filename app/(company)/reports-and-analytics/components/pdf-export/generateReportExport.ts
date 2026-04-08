@@ -74,11 +74,11 @@ async function renderAndCaptureSections(
       `[data-export-section="${name}"]`
     ) as HTMLElement | null;
     if (sectionEl) {
-      try {
-        const dataUrl = await captureSection(sectionEl);
+      const dataUrl = await captureSection(sectionEl);
+      if (dataUrl) {
         images.set(name, dataUrl);
-      } catch (err) {
-        console.warn(`Failed to capture section "${name}":`, err);
+      } else {
+        console.warn(`Section "${name}" produced no image — skipping.`);
       }
     }
   }
@@ -98,6 +98,9 @@ async function renderAndCaptureSections(
  * Samples every 10th pixel for performance.
  * Threshold of 240 accommodates light gray card backgrounds.
  */
+// Note: callers must create the source canvas with
+// `getContext("2d", { willReadFrequently: true })` so the repeated
+// getImageData() calls below don't trip Chrome's GPU readback warning.
 function isWhiteRow(ctx: CanvasRenderingContext2D, y: number, width: number, threshold = 240): boolean {
   const step = 10;
   const samples = Math.ceil(width / step);
@@ -170,11 +173,13 @@ async function sliceImageForPages(
     return [imageDataUrl];
   }
 
-  // Draw full image onto a canvas for pixel inspection
+  // Draw full image onto a canvas for pixel inspection.
+  // willReadFrequently: true keeps the buffer on the CPU side so the many
+  // getImageData() calls below stay fast and don't spam the console.
   const scanCanvas = document.createElement("canvas");
   scanCanvas.width = srcW;
   scanCanvas.height = srcH;
-  const scanCtx = scanCanvas.getContext("2d");
+  const scanCtx = scanCanvas.getContext("2d", { willReadFrequently: true });
   if (!scanCtx) return [imageDataUrl];
   scanCtx.drawImage(img, 0, 0);
 
@@ -260,7 +265,13 @@ export async function generateReportPDF(params: ExportParams) {
         isFirstContentPage = false;
       }
 
-      const slices = await sliceImageForPages(imageDataUrl, usableWidth, usableHeight);
+      let slices: string[];
+      try {
+        slices = await sliceImageForPages(imageDataUrl, usableWidth, usableHeight);
+      } catch (err) {
+        console.warn(`PDF export: skipping section "${name}" — slice failed:`, err);
+        continue;
+      }
 
       for (let i = 0; i < slices.length; i++) {
         const sliceDataUrl = slices[i];
@@ -503,13 +514,16 @@ export async function generateReportPNG(params: ExportParams) {
 
   try {
     onProgress?.({ percent: 78, stage: "Loading captured images…" });
-    // Load all section images to get dimensions
+    // Load all section images to get dimensions. A single bad section must
+    // not abort the whole export — log and skip it.
     const loadedImages: HTMLImageElement[] = [];
     for (const name of sectionNames) {
       const dataUrl = images.get(name);
-      if (dataUrl) {
-        const img = await loadImage(dataUrl);
-        loadedImages.push(img);
+      if (!dataUrl) continue;
+      try {
+        loadedImages.push(await loadImage(dataUrl));
+      } catch (err) {
+        console.warn(`PNG export: skipping section "${name}":`, err);
       }
     }
 
