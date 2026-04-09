@@ -247,7 +247,6 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
 
   const handleOpenDetails = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
-    setDetailsOpen(true);
   };
 
   const handleOpenReason = (reason: string | undefined) => {

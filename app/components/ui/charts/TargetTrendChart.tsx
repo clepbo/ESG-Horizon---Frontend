@@ -457,7 +457,6 @@ export default function TargetTrendChart({
       y++;
     }
     const ticks: number[] = [];
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const t = Date.UTC(y, quarterMonths[qIdx], 1);
       if (t > maxTime + 90 * 86400000) break;
