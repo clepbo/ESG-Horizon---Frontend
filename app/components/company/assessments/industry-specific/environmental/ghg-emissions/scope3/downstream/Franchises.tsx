@@ -118,10 +118,7 @@ export function Franchise({
       electricityConsumption.trim() !== "" &&
       !isNaN(Number(electricityConsumption)) &&
       Number(electricityConsumption) >= 0;
-    const progressChecks = [
-      hasFuelConsumption,
-      hasElectricityConsumption,
-    ];
+    const progressChecks = [hasFuelConsumption, hasElectricityConsumption];
 
     return calculateProgress(progressChecks);
   }, [fuelConsumption, electricityConsumption]);

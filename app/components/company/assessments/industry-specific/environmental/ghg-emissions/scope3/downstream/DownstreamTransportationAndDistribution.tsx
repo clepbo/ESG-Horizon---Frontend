@@ -85,7 +85,9 @@ export function DownstreamTransportationAndDistribution({
     fuelConsumedByDistribution: false,
   });
 
-  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-downstream-transportation");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow(
+    "ghg-scope3-downstream-transportation"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -134,11 +136,7 @@ export function DownstreamTransportationAndDistribution({
     ];
 
     return calculateProgress(progressChecks);
-  }, [
-    massOfProductsSold,
-    averageDistributionDistance,
-    fuelConsumedByDistribution,
-  ]);
+  }, [massOfProductsSold, averageDistributionDistance, fuelConsumedByDistribution]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {
@@ -272,7 +270,10 @@ export function DownstreamTransportationAndDistribution({
       payload,
     });
 
-    saveQuiet("environment.ghg.scope3.downstream.downstreamTransportationDistribution", payload).catch(() => {});
+    saveQuiet(
+      "environment.ghg.scope3.downstream.downstreamTransportationDistribution",
+      payload
+    ).catch(() => {});
     onNext();
   };
 

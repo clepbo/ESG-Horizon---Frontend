@@ -12,7 +12,12 @@ import ChemicalDisclosure from "./ChemicalDisclosure";
 import WaterQualityImpact from "./WaterQualityImpact";
 import { SuccessScreen } from "../../../../SuccessScreen";
 import { useAssessment } from "@/hooks/useAssessment";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 import { checkSubComponentCompletion } from "@/lib/assessmentCompletionUtils";
 // import { CompletionIndicator } from "@/app/components/ui/reusables/CompletionIndication";
@@ -88,16 +93,53 @@ export default function WaterAndWastemanagementCards({
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Freshwater Withdrawal & Consumption": { groupKey: "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals", dataPath: ["environment", "waterManagement", "waterAndProducedWaterManagement", "freshwaterWithdrawals"] },
-    "Produced Water Management": { groupKey: "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement", dataPath: ["environment", "waterManagement", "waterAndProducedWaterManagement", "producedWaterManagement"] },
-    "Chemical Disclosure": { groupKey: "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure", dataPath: ["environment", "waterManagement", "hydraulicFracturingImpacts", "chemicalDisclosure"] },
-    "Water Quality Impacts": { groupKey: "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts", dataPath: ["environment", "waterManagement", "hydraulicFracturingImpacts", "waterQualityImpacts"] },
+    "Freshwater Withdrawal & Consumption": {
+      groupKey: "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
+      dataPath: [
+        "environment",
+        "waterManagement",
+        "waterAndProducedWaterManagement",
+        "freshwaterWithdrawals",
+      ],
+    },
+    "Produced Water Management": {
+      groupKey:
+        "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
+      dataPath: [
+        "environment",
+        "waterManagement",
+        "waterAndProducedWaterManagement",
+        "producedWaterManagement",
+      ],
+    },
+    "Chemical Disclosure": {
+      groupKey: "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
+      dataPath: [
+        "environment",
+        "waterManagement",
+        "hydraulicFracturingImpacts",
+        "chemicalDisclosure",
+      ],
+    },
+    "Water Quality Impacts": {
+      groupKey: "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts",
+      dataPath: [
+        "environment",
+        "waterManagement",
+        "hydraulicFracturingImpacts",
+        "waterQualityImpacts",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   function backToWasteWaterManagement() {
@@ -202,7 +244,10 @@ export default function WaterAndWastemanagementCards({
                     key={i}
                     onClick={() => handleCardClick(card.title)}
                     className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
-                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                    style={{
+                      borderLeftWidth: "4px",
+                      borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                    }}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
@@ -240,7 +285,10 @@ export default function WaterAndWastemanagementCards({
                     key={i}
                     onClick={() => handleCardClick(card.title)}
                     className="cursor-pointer hover:bg-accent/50 hover:shadow-md transition-all shadow"
-                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                    style={{
+                      borderLeftWidth: "4px",
+                      borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                    }}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">

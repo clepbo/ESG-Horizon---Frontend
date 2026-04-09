@@ -96,7 +96,9 @@ export function PurchasedGoodsAndServices({
     goodsCategories: false,
   });
 
-  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-purchasedgoodsandservices");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow(
+    "ghg-scope3-upstream-purchasedgoodsandservices"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -158,11 +160,7 @@ export function PurchasedGoodsAndServices({
 
     const hasSelectedCategories = selectedCategories.length > 0;
 
-    const progressChecks = [
-      hasSpendingData,
-      hasMassData,
-      hasSelectedCategories,
-    ];
+    const progressChecks = [hasSpendingData, hasMassData, hasSelectedCategories];
 
     return calculateProgress(progressChecks);
   }, [electricity, purchasedGoods, selectedCategories]);
@@ -569,9 +567,7 @@ export function PurchasedGoodsAndServices({
 
             {/* CHECKBOX FIELD */}
             <div className="space-y-4">
-              <Label className="text-md font-medium block">
-                Select Categories of purchases
-              </Label>
+              <Label className="text-md font-medium block">Select Categories of purchases</Label>
 
               {errors.goodsCategories && (
                 <p className="text-sm text-red-500 animate-pulse">{errors.goodsCategories}</p>

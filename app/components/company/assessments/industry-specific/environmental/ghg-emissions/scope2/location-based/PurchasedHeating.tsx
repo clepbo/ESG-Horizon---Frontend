@@ -86,8 +86,20 @@ export function PurchasedHeatingForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope2-location-purchasedheating", "environment.ghg.scope2.locationBased");
+  const {
+    saveNow,
+    saveQuiet,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow(
+    "ghg-scope2-location-purchasedheating",
+    "environment.ghg.scope2.locationBased"
+  );
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.locationBased?.heating;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -381,132 +393,138 @@ export function PurchasedHeatingForm({
             </div>
 
             {heatingPurchased === "yes" && (
-            <>
-            <div className="ml-6">
-              <div className="flex items-center gap-1 mb-2">
-                <Label htmlFor="heating-consumed" className="text-sm font-medium text-gray-700">
-                  What was the total heating energy consumed in Gigajoules (GJ)?
-                </Label>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <p className="font-semibold mb-1">Heating Energy Input Guide</p>
-                      <p className="text-xs">
-                        Enter the total heating energy consumed during the reporting period.
-                      </p>
-                      <p className="text-xs mt-1">
-                        • You can enter 0 if no heating energy was consumed
-                      </p>
-                      <p className="text-xs">• Negative values are not allowed</p>
-                      <p className="text-xs">
-                        • Use decimals for precise measurements (e.g., 1250.5)
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <ScopeInput
-                category="heating"
-                formattedValue={{
-                  rawValue: heatingConsumedRaw,
-                  displayValue: heatingConsumedDisplay,
-                  handleChange: handleHeatingConsumedChange,
-                  setRawValue: setHeatingConsumedRaw,
-                }}
-                label=""
-                placeholder="Enter heating energy in GJ"
-                required={heatingPurchased === "yes"}
-                error={errors.heatingConsumed}
-                showEmissionFactor={heatingPurchased === "yes"}
-                onErrorClear={() => setErrors((prev) => ({ ...prev, heatingConsumed: undefined }))}
-              />
-              <div className="space-y-2 mt-4">
-                <Label htmlFor="supplier">Supplier</Label>
-                <Input
-                  id="supplier"
-                  placeholder="Enter supplier name"
-                  value={supplierName}
-                  onChange={(e) => {
-                    setSupplierName(e.target.value);
-                    if (errors.supplierName) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        supplierName: undefined,
-                      }));
+              <>
+                <div className="ml-6">
+                  <div className="flex items-center gap-1 mb-2">
+                    <Label htmlFor="heating-consumed" className="text-sm font-medium text-gray-700">
+                      What was the total heating energy consumed in Gigajoules (GJ)?
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">Heating Energy Input Guide</p>
+                          <p className="text-xs">
+                            Enter the total heating energy consumed during the reporting period.
+                          </p>
+                          <p className="text-xs mt-1">
+                            • You can enter 0 if no heating energy was consumed
+                          </p>
+                          <p className="text-xs">• Negative values are not allowed</p>
+                          <p className="text-xs">
+                            • Use decimals for precise measurements (e.g., 1250.5)
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <ScopeInput
+                    category="heating"
+                    formattedValue={{
+                      rawValue: heatingConsumedRaw,
+                      displayValue: heatingConsumedDisplay,
+                      handleChange: handleHeatingConsumedChange,
+                      setRawValue: setHeatingConsumedRaw,
+                    }}
+                    label=""
+                    placeholder="Enter heating energy in GJ"
+                    required={heatingPurchased === "yes"}
+                    error={errors.heatingConsumed}
+                    showEmissionFactor={heatingPurchased === "yes"}
+                    onErrorClear={() =>
+                      setErrors((prev) => ({ ...prev, heatingConsumed: undefined }))
                     }
-                  }}
-                  className={`w-full border-gray-400 ${
-                    errors.supplierName ? "border-red-500" : ""
-                  }`}
-                />
-                {errors.supplierName && (
-                  <p className="text-sm text-red-500 mt-1">{errors.supplierName}</p>
-                )}
-              </div>
-            </div>
-            {/* 4.2 File Uploads */}
-            <div>
-              <Label className="text-md font-medium mb-2 block">4.2 Document/Evidence Upload</Label>
-              <div className="ml-6">
-                {errors.files && <p className="text-sm text-red-500">{errors.files}</p>}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {uploadFields.map((field) => (
-                    <div key={field} className="flex flex-col gap-2">
-                      <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">{field}</Label>
-                      <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
-                        <Label
-                          htmlFor={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
-                          className="cursor-pointer flex flex-col items-center gap-2"
-                        >
-                          <CloudUpload className="h-6 w-6 text-muted-foreground" />
-                          <span className="text-xs text-gray-400 text-center">
-                            Upload {field} (Max. 10MB)
-                          </span>
-                        </Label>
-                        <Input
-                          id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
-                          type="file"
-                          ref={(el) => {
-                            inputRefs.current[field] = el;
-                          }}
-                          className="hidden"
-                          onChange={(e) => handleFileChange(field, e)}
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          aria-label={`Upload ${field}`}
-                        />
-                        {uploading[field] ? (
-                          <div className="flex items-center gap-2 mt-2 text-gray-500">
-                            <LoadingSpinner size="sm" /> Uploading...
-                          </div>
-                        ) : deleting[field] ? (
-                          <div className="flex items-center gap-2 mt-2 text-red-500">
-                            <LoadingSpinner size="sm" /> Deleting...
-                          </div>
-                        ) : files[field] ? (
-                          <div className="w-full mt-2">
-                            <FilePreview
-                              file={files[field]!}
-                              onRemove={() => handleRemoveFile(field)}
-                              disabled={deleting[field]}
-                            />
-                          </div>
-                        ) : null}
-                      </Card>
-                    </div>
-                  ))}
+                  />
+                  <div className="space-y-2 mt-4">
+                    <Label htmlFor="supplier">Supplier</Label>
+                    <Input
+                      id="supplier"
+                      placeholder="Enter supplier name"
+                      value={supplierName}
+                      onChange={(e) => {
+                        setSupplierName(e.target.value);
+                        if (errors.supplierName) {
+                          setErrors((prev) => ({
+                            ...prev,
+                            supplierName: undefined,
+                          }));
+                        }
+                      }}
+                      className={`w-full border-gray-400 ${
+                        errors.supplierName ? "border-red-500" : ""
+                      }`}
+                    />
+                    {errors.supplierName && (
+                      <p className="text-sm text-red-500 mt-1">{errors.supplierName}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="mt-6">
-                <AdditionalFileUpload
-                  onFieldsChange={handleAdditionalFieldsChange}
-                  initialData={additionalFields}
-                />
-              </div>
-            </div>
-            </>
+                {/* 4.2 File Uploads */}
+                <div>
+                  <Label className="text-md font-medium mb-2 block">
+                    4.2 Document/Evidence Upload
+                  </Label>
+                  <div className="ml-6">
+                    {errors.files && <p className="text-sm text-red-500">{errors.files}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {uploadFields.map((field) => (
+                        <div key={field} className="flex flex-col gap-2">
+                          <Label className="text-sm font-medium mb-1 ml-1 text-gray-700">
+                            {field}
+                          </Label>
+                          <Card className="p-4 flex flex-col items-center justify-center border  hover:border-solid hover:border-primary transition-all">
+                            <Label
+                              htmlFor={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
+                              className="cursor-pointer flex flex-col items-center gap-2"
+                            >
+                              <CloudUpload className="h-6 w-6 text-muted-foreground" />
+                              <span className="text-xs text-gray-400 text-center">
+                                Upload {field} (Max. 10MB)
+                              </span>
+                            </Label>
+                            <Input
+                              id={`upload-${field.replace(/\s/g, "-").toLowerCase()}`}
+                              type="file"
+                              ref={(el) => {
+                                inputRefs.current[field] = el;
+                              }}
+                              className="hidden"
+                              onChange={(e) => handleFileChange(field, e)}
+                              accept=".pdf,.jpg,.jpeg,.png"
+                              aria-label={`Upload ${field}`}
+                            />
+                            {uploading[field] ? (
+                              <div className="flex items-center gap-2 mt-2 text-gray-500">
+                                <LoadingSpinner size="sm" /> Uploading...
+                              </div>
+                            ) : deleting[field] ? (
+                              <div className="flex items-center gap-2 mt-2 text-red-500">
+                                <LoadingSpinner size="sm" /> Deleting...
+                              </div>
+                            ) : files[field] ? (
+                              <div className="w-full mt-2">
+                                <FilePreview
+                                  file={files[field]!}
+                                  onRemove={() => handleRemoveFile(field)}
+                                  disabled={deleting[field]}
+                                />
+                              </div>
+                            ) : null}
+                          </Card>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <AdditionalFileUpload
+                      onFieldsChange={handleAdditionalFieldsChange}
+                      initialData={additionalFields}
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             {/* Action Buttons */}

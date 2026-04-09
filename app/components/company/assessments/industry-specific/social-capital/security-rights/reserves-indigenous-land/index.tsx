@@ -37,7 +37,10 @@ export default function ReservesIndigenousLand({
 }: ReservesIndigenousLandProps) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.securityRights.reservesIndigenousLand", "socialCapital.securityHumanRights.reservesInNearIndigenousLand");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "socialCapital.securityRights.reservesIndigenousLand",
+    "socialCapital.securityHumanRights.reservesInNearIndigenousLand"
+  );
 
   const totalProvedReservesVolume = useFormattedNumber("");
   const provedIndigenousVolume = useFormattedNumber("");
@@ -67,7 +70,8 @@ export default function ReservesIndigenousLand({
 
   // Pre-fill form from saved assessment data
   useEffect(() => {
-    const existingData = state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand;
+    const existingData =
+      state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.totalProvedReservesVolume != null) {
         totalProvedReservesVolume.handleChange(String(existingData.totalProvedReservesVolume));
@@ -83,9 +87,11 @@ export default function ReservesIndigenousLand({
       }
       setFormData((prev) => ({
         ...prev,
-        totalProvedReservesUnit: existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
+        totalProvedReservesUnit:
+          existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
         provedIndigenousUnit: existingData.provedIndigenousUnit ?? prev.provedIndigenousUnit,
-        totalProbableReservesUnit: existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
+        totalProbableReservesUnit:
+          existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
         probableIndigenousUnit: existingData.probableIndigenousUnit ?? prev.probableIndigenousUnit,
       }));
       if (existingData.filesAndLinks) {

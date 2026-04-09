@@ -78,7 +78,9 @@ export function DownstreamLeasedAsset({
     otherEnergyConsumed: false,
   });
 
-  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-downstream-leased-assets");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow(
+    "ghg-scope3-downstream-leased-assets"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -115,10 +117,7 @@ export function DownstreamLeasedAsset({
       otherEnergyConsumed.trim() !== "" &&
       !isNaN(Number(otherEnergyConsumed)) &&
       Number(otherEnergyConsumed) >= 0;
-    const progressChecks = [
-      hasElectricityConsumed,
-      hasOtherEnergyConsumed,
-    ];
+    const progressChecks = [hasElectricityConsumed, hasOtherEnergyConsumed];
 
     return calculateProgress(progressChecks);
   }, [electricityConsumed, otherEnergyConsumed]);
@@ -375,7 +374,9 @@ export function DownstreamLeasedAsset({
               groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">Category 13: Downstream Leased Assets</h4>
+              <h4 className="text-xl font-medium text-foreground">
+                Category 13: Downstream Leased Assets
+              </h4>
               <p className="text-muted-foreground text-base">
                 Report energy consumption data for assets leased to tenants.
               </p>
@@ -440,8 +441,7 @@ export function DownstreamLeasedAsset({
                   <div className="relative">
                     <div className="flex items-center gap-1 mb-2">
                       <Label className="text-sm font-medium text-gray-700">
-                        Other energy consumed by tenants{" "}
-                        <span className="text-red-500">*</span>
+                        Other energy consumed by tenants <span className="text-red-500">*</span>
                       </Label>
                       <TooltipProvider>
                         <Tooltip>

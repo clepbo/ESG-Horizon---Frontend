@@ -102,7 +102,9 @@ export function EmployeeCommuting({
     workdaysPerYear: false,
   });
 
-  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-employee-commuting");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow(
+    "ghg-scope3-upstream-employee-commuting"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -165,12 +167,7 @@ export function EmployeeCommuting({
     ];
 
     return calculateProgress(progressChecks);
-  }, [
-    numberOfEmployees,
-    averageDistance,
-    selectedMethods,
-    workdaysPerYear,
-  ]);
+  }, [numberOfEmployees, averageDistance, selectedMethods, workdaysPerYear]);
 
   // Clear error when user interacts with ANY field
   const clearAllErrors = () => {

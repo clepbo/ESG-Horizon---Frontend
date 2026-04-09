@@ -1,15 +1,22 @@
 "use client";
 
 const notifications = [
-  { title: "Data Collection Reminders", desc: "Get notified when data entry deadlines approach", enabled: true },
-  { title: "Report Generation", desc: "Notifications when reports are ready for review", enabled: false },
+  {
+    title: "Data Collection Reminders",
+    desc: "Get notified when data entry deadlines approach",
+    enabled: true,
+  },
+  {
+    title: "Report Generation",
+    desc: "Notifications when reports are ready for review",
+    enabled: false,
+  },
   { title: "Compliance Updates", desc: "Stay informed about regulatory changes", enabled: true },
   { title: "Team Activity", desc: "Updates when team members complete tasks", enabled: true },
   { title: "Weekly Summary", desc: "Weekly progress reports and insights", enabled: false },
 ];
 
 export default function NotificationsSettings() {
-
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
       <h2 className="text-2xl font-semibold">Notifications</h2>
@@ -59,10 +66,26 @@ export default function NotificationsSettings() {
   );
 }
 
-function ToggleSwitch({ checked, onChange, disabled = false }: { checked: boolean; onChange: () => void; disabled?: boolean }) {
+function ToggleSwitch({
+  checked,
+  onChange,
+  disabled = false,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
   return (
-    <label className={`inline-flex items-center ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}>
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} disabled={disabled} />
+    <label
+      className={`inline-flex items-center ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+    >
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+      />
       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-green-500 relative transition-all">
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${

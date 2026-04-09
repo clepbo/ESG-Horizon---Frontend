@@ -86,8 +86,12 @@ export function LeasedAssets({
     floorArea: false,
   });
 
-  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-upstream-leased-assets", "environment.ghg.scope3.upstream");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
+  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "ghg-scope3-upstream-leased-assets",
+    "environment.ghg.scope3.upstream"
+  );
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope3?.upstream?.upstreamLeasedAssets;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -135,11 +139,7 @@ export function LeasedAssets({
       fuelConsumed.trim() !== "" && !isNaN(Number(fuelConsumed)) && Number(fuelConsumed) >= 0;
     const hasFloorArea =
       floorArea.trim() !== "" && !isNaN(Number(floorArea)) && Number(floorArea) >= 0;
-    const progressChecks = [
-      hasElectricityConsumed,
-      hasFuelConsumed,
-      hasFloorArea,
-    ];
+    const progressChecks = [hasElectricityConsumed, hasFuelConsumed, hasFloorArea];
 
     return calculateProgress(progressChecks);
   }, [electricityConsumed, fuelConsumed, floorArea]);

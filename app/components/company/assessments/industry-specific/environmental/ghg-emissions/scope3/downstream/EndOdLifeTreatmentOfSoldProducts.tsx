@@ -121,7 +121,11 @@ export function EndOfLifeTreatment({
           others: false,
         }
       );
-      setOtherDisposalMethod(existingData.otherDisposalMethod !== null && existingData.otherDisposalMethod !== undefined ? existingData.otherDisposalMethod.toString() : "");
+      setOtherDisposalMethod(
+        existingData.otherDisposalMethod !== null && existingData.otherDisposalMethod !== undefined
+          ? existingData.otherDisposalMethod.toString()
+          : ""
+      );
       setProducts(existingData.products || []);
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -136,10 +140,7 @@ export function EndOfLifeTreatment({
       ? otherDisposalMethod.trim().length > 0
       : true;
     const hasProducts = products.length > 0;
-    const progressChecks = [
-      hasDisposalMethods && hasOtherMethodFilled,
-      hasProducts,
-    ];
+    const progressChecks = [hasDisposalMethods && hasOtherMethodFilled, hasProducts];
 
     return calculateProgress(progressChecks);
   }, [selectedMethods, otherDisposalMethod, products]);

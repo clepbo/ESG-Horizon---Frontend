@@ -14,7 +14,12 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { FeatureCard } from "./components/ItemCards";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 
 interface Props {
   onBack?: () => void;
@@ -29,7 +34,7 @@ export default function CommunityRelationsHome({
   onBack,
   backToAssessmentHub,
   onContinue: _onContinue,
-  backToDisclosureTopics,
+  backToDisclosureTopics: _backToDisclosureTopics,
   initialForm,
   onContinueToNextAssessment,
 }: Props) {
@@ -41,16 +46,32 @@ export default function CommunityRelationsHome({
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Risk & Opportunity Management": { groupKey: "socialCapital.communityRelations.communityRiskOpportunityManagement", dataPath: ["socialCapital", "communityRelations", "communityRiskOpportunityManagement"] },
-    "Host Community Development (PIA)": { groupKey: "socialCapital.communityRelations.hcdtContribution", dataPath: ["socialCapital", "communityRelations", "hcdtContribution"] },
-    "Community Dispute Resolution": { groupKey: "socialCapital.communityRelations.communityDisputeResolution", dataPath: ["socialCapital", "communityRelations", "communityDisputeResolution"] },
-    "Operational Delays": { groupKey: "socialCapital.communityRelations.operationalDelays", dataPath: ["socialCapital", "communityRelations", "operationalDelays"] },
+    "Risk & Opportunity Management": {
+      groupKey: "socialCapital.communityRelations.communityRiskOpportunityManagement",
+      dataPath: ["socialCapital", "communityRelations", "communityRiskOpportunityManagement"],
+    },
+    "Host Community Development (PIA)": {
+      groupKey: "socialCapital.communityRelations.hcdtContribution",
+      dataPath: ["socialCapital", "communityRelations", "hcdtContribution"],
+    },
+    "Community Dispute Resolution": {
+      groupKey: "socialCapital.communityRelations.communityDisputeResolution",
+      dataPath: ["socialCapital", "communityRelations", "communityDisputeResolution"],
+    },
+    "Operational Delays": {
+      groupKey: "socialCapital.communityRelations.operationalDelays",
+      dataPath: ["socialCapital", "communityRelations", "operationalDelays"],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   function handleForwardBack() {

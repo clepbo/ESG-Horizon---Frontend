@@ -127,10 +127,7 @@ export function CapitalGoods({
       !isNaN(Number(materialWeight)) &&
       Number(materialWeight) >= 0;
 
-    const progressChecks = [
-      hasTotalCost,
-      hasMaterialWeight,
-    ];
+    const progressChecks = [hasTotalCost, hasMaterialWeight];
 
     return calculateProgress(progressChecks);
   }, [totalCost, materialWeight]);

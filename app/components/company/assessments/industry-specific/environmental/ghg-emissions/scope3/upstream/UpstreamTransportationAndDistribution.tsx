@@ -143,11 +143,7 @@ export function UpstreamTransportationAndDistribution({
       !isNaN(Number(logisticsSpend)) &&
       Number(logisticsSpend) >= 0;
 
-    const progressChecks = [
-      hasMassTransported,
-      hasDistanceTravelled,
-      hasLogisticsSpend,
-    ];
+    const progressChecks = [hasMassTransported, hasDistanceTravelled, hasLogisticsSpend];
 
     return calculateProgress(progressChecks);
   }, [massTransported, distanceTravelled, logisticsSpend]);
@@ -282,7 +278,9 @@ export function UpstreamTransportationAndDistribution({
       payload,
     });
 
-    saveQuiet("environment.ghg.scope3.upstream.upstreamTransportationDistribution", payload).catch(() => {});
+    saveQuiet("environment.ghg.scope3.upstream.upstreamTransportationDistribution", payload).catch(
+      () => {}
+    );
     onNext();
   };
 
