@@ -77,9 +77,19 @@ export function CoolingSteamForm({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope2-market-coolingsteam", "environment.ghg.scope2.marketBased");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
+  const {
+    saveNow,
+    saveQuiet,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow("ghg-scope2-market-coolingsteam", "environment.ghg.scope2.marketBased");
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope2?.marketBased?.coolingSteam;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -126,7 +136,7 @@ export function CoolingSteamForm({
       !isNaN(Number(emissionFactor.rawValue)) &&
       Number(emissionFactor.rawValue) >= 0;
 
-    const hasFiles =
+    const _hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
     return calculateProgress([hasEnergy, hasFactor]);
@@ -301,7 +311,10 @@ export function CoolingSteamForm({
       if (residual) {
         await saveQuiet("environment.ghg.scope2.marketBased.residual", residual);
       }
-      const response = await saveAndSubmit("environment.ghg.scope2.marketBased.coolingSteam", payload);
+      const response = await saveAndSubmit(
+        "environment.ghg.scope2.marketBased.coolingSteam",
+        payload
+      );
       onSubmit(response.totals);
       resetForm();
     } catch (err) {

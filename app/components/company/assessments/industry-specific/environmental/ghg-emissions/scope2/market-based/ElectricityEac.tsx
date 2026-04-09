@@ -126,7 +126,7 @@ export function ElectricityEACForm({
       !isNaN(Number(emissionFactor.rawValue)) &&
       Number(emissionFactor.rawValue) >= 0;
 
-    const hasFiles =
+    const _hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
     return calculateProgress([hasElectricity, hasFactor]);

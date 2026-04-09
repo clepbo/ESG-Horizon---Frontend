@@ -37,7 +37,10 @@ export default function ReservesAreaConflict({
 }: ReservesAreaConflictProps) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.securityRights.reservesAreaConflict", "socialCapital.securityHumanRights.operationsInConflictZones");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "socialCapital.securityRights.reservesAreaConflict",
+    "socialCapital.securityHumanRights.operationsInConflictZones"
+  );
 
   const totalProvedReservesVolume = useFormattedNumber("");
   const totalProbableReservesVolume = useFormattedNumber("");
@@ -73,17 +76,25 @@ export default function ReservesAreaConflict({
         totalProbableReservesVolume.handleChange(String(existingData.totalProbableReservesVolume));
       }
       if (existingData.provedReservesInConflictVolume != null) {
-        provedReservesInConflictVolume.handleChange(String(existingData.provedReservesInConflictVolume));
+        provedReservesInConflictVolume.handleChange(
+          String(existingData.provedReservesInConflictVolume)
+        );
       }
       if (existingData.probableReservesInConflictVolume != null) {
-        probableReservesInConflictVolume.handleChange(String(existingData.probableReservesInConflictVolume));
+        probableReservesInConflictVolume.handleChange(
+          String(existingData.probableReservesInConflictVolume)
+        );
       }
       setFormData((prev) => ({
         ...prev,
-        totalProvedReservesUnit: existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
-        totalProbableReservesUnit: existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
-        provedReservesInConflictUnit: existingData.provedReservesInConflictUnit ?? prev.provedReservesInConflictUnit,
-        probableReservesInConflictUnit: existingData.probableReservesInConflictUnit ?? prev.probableReservesInConflictUnit,
+        totalProvedReservesUnit:
+          existingData.totalProvedReservesUnit ?? prev.totalProvedReservesUnit,
+        totalProbableReservesUnit:
+          existingData.totalProbableReservesUnit ?? prev.totalProbableReservesUnit,
+        provedReservesInConflictUnit:
+          existingData.provedReservesInConflictUnit ?? prev.provedReservesInConflictUnit,
+        probableReservesInConflictUnit:
+          existingData.probableReservesInConflictUnit ?? prev.probableReservesInConflictUnit,
       }));
       if (existingData.filesAndLinks) {
         setFilesAndLinks(existingData.filesAndLinks);

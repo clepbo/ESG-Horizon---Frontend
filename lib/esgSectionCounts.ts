@@ -8,9 +8,9 @@
  * A (Activity Metrics): Production Volume + Offshore Sites + Terrestrial Sites = 3
  */
 export const ESG_SECTION_COUNTS = {
-    E: 39,
-    S: 9,
-    G: 10,
-    activityMetrics: 3,
-    total: 61, // E + S + G + activityMetrics
+  E: 39,
+  S: 9,
+  G: 10,
+  activityMetrics: 3,
+  total: 61, // E + S + G + activityMetrics
 } as const;

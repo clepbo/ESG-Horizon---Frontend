@@ -31,7 +31,7 @@ export function MarketBasedForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
-  onBackToDisclosureTopics,
+  onBackToDisclosureTopics: _onBackToDisclosureTopics,
 }: MarketBasedFormProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();

@@ -80,7 +80,9 @@ export function EnergyRelatedActivities({
     electricityConsumed: false,
   });
 
-  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow("ghg-scope3-upstream-energyrelatedactivities");
+  const { saveNow, saveQuiet, isLoading } = useAssessmentFlow(
+    "ghg-scope3-upstream-energyrelatedactivities"
+  );
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -127,10 +129,7 @@ export function EnergyRelatedActivities({
       !isNaN(Number(electricityConsumed)) &&
       Number(electricityConsumed) >= 0;
 
-    const progressChecks = [
-      hasFuelVolume,
-      hasElectricityConsumed,
-    ];
+    const progressChecks = [hasFuelVolume, hasElectricityConsumed];
 
     return calculateProgress(progressChecks);
   }, [fuelVolume, electricityConsumed]);
@@ -260,7 +259,9 @@ export function EnergyRelatedActivities({
       payload,
     });
 
-    saveQuiet("environment.ghg.scope3.upstream.fuelEnergyRelatedActivities", payload).catch(() => {});
+    saveQuiet("environment.ghg.scope3.upstream.fuelEnergyRelatedActivities", payload).catch(
+      () => {}
+    );
     onNext();
   };
 

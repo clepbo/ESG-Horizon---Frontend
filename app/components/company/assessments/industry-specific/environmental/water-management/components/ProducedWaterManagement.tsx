@@ -44,15 +44,14 @@ export default function ProducedWaterManagement({
   const averageHydrocarbonContent = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    saveAndSubmit,
-    isSaving,
-    isSubmitting,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("produced-water-management", "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement");
-  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement?.producedWaterManagement;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "produced-water-management",
+      "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
+      ?.producedWaterManagement;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -112,7 +111,7 @@ export default function ProducedWaterManagement({
       });
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
       ?.producedWaterManagement,

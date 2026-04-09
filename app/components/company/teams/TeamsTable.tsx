@@ -317,7 +317,9 @@ export default function TeamsTable({ users, setUsers, onStatusUpdate, companyNam
                                   },
                                 ]
                               : []),
-                            ...(canDeactivateUser && user.status !== "pending" && statusActions[user.status]
+                            ...(canDeactivateUser &&
+                            user.status !== "pending" &&
+                            statusActions[user.status]
                               ? [
                                   {
                                     label: statusActions[user.status]?.title || "Update Status",

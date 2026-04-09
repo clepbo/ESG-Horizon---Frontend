@@ -44,15 +44,14 @@ export default function ChemicalDisclosure({
   const numberOfWellsWithPublicDisclosure = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    saveAndSubmit,
-    isSaving,
-    isSubmitting,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("chemical-disclosure", "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure");
-  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts?.chemicalDisclosure;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "chemical-disclosure",
+      "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
+      ?.chemicalDisclosure;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -110,7 +109,7 @@ export default function ChemicalDisclosure({
       }
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.chemicalDisclosure,

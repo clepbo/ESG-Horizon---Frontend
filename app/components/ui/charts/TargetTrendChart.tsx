@@ -123,9 +123,9 @@ interface LineConfig {
 
 const COLORS: Record<LineConfig["key"], string> = {
   general: "#119B95", // teal — brand
-  scope1: "#EF4444",  // red
-  scope2: "#F59E0B",  // amber — was blue, changed to avoid blue/purple blend
-  scope3: "#3B82F6",  // blue — was purple, swapped with S2 for max separation
+  scope1: "#EF4444", // red
+  scope2: "#F59E0B", // amber — was blue, changed to avoid blue/purple blend
+  scope3: "#3B82F6", // blue — was purple, swapped with S2 for max separation
 };
 
 const LABELS: Record<LineConfig["key"], string> = {
@@ -170,10 +170,7 @@ function formatMonthYear(ts: number): string {
 
 /* ─────────────────────── data derivation ─────────────────────── */
 
-function buildLines(
-  general?: TargetLike | null,
-  scope?: TargetLike | null
-): LineConfig[] {
+function buildLines(general?: TargetLike | null, scope?: TargetLike | null): LineConfig[] {
   const lines: LineConfig[] = [];
 
   // ── General target ──
@@ -186,13 +183,10 @@ function buildLines(
     // AND current are all zero/null. Otherwise render the line; the
     // noBaseline branch handles 0-baseline cases.
     if (baseline > 0 || target > 0 || (current ?? 0) > 0) {
-      const baselineTime =
-        parseDate(general.baselineDate) ?? midYear(general.baselineYear);
+      const baselineTime = parseDate(general.baselineDate) ?? midYear(general.baselineYear);
       const currentTime =
         parseDate(general.currentDate) ??
-        (general.currentAssessmentYear
-          ? midYear(general.currentAssessmentYear)
-          : null);
+        (general.currentAssessmentYear ? midYear(general.currentAssessmentYear) : null);
       lines.push({
         key: "general",
         label: LABELS.general,
@@ -222,16 +216,15 @@ function buildLines(
         s.scope === "SCOPE1"
           ? "scope1"
           : s.scope === "SCOPE2"
-          ? "scope2"
-          : s.scope === "SCOPE3"
-          ? "scope3"
-          : null;
+            ? "scope2"
+            : s.scope === "SCOPE3"
+              ? "scope3"
+              : null;
       if (!key) continue;
 
       const sBaselineYear = s.baselineYear ?? scope.baselineYear;
       const sTargetYear = s.targetYear ?? scope.targetYear;
-      const baselineTime =
-        parseDate(scope.baselineDate) ?? midYear(sBaselineYear);
+      const baselineTime = parseDate(scope.baselineDate) ?? midYear(sBaselineYear);
       const currentTime =
         parseDate(scope.currentDate) ??
         (scope.currentAssessmentYear ? midYear(scope.currentAssessmentYear) : null);
@@ -376,10 +369,8 @@ function CustomTooltip({
         const realPctKey = key ? `${key}_realPct` : null;
         const noBaselineKey = key ? `${key}_noBaseline` : null;
         const raw = rawKey && entry.payload ? entry.payload[rawKey] : null;
-        const realPct =
-          realPctKey && entry.payload ? entry.payload[realPctKey] : null;
-        const noBaseline =
-          noBaselineKey && entry.payload ? entry.payload[noBaselineKey] : false;
+        const realPct = realPctKey && entry.payload ? entry.payload[realPctKey] : null;
+        const noBaseline = noBaselineKey && entry.payload ? entry.payload[noBaselineKey] : false;
 
         // Display rules:
         //   • If the line was clamped, show the REAL % from realPct, not
@@ -389,16 +380,14 @@ function CustomTooltip({
         //   • Negative % = backsliding (bad, red, ↑)
         const visiblePct = Number(entry.value);
         const displayPct =
-          typeof realPct === "number" && Number.isFinite(realPct)
-            ? realPct
-            : visiblePct;
+          typeof realPct === "number" && Number.isFinite(realPct) ? realPct : visiblePct;
         const isReduction = displayPct > 0;
         const isBacksliding = displayPct < 0;
         const pctColor = isReduction
           ? "text-emerald-600"
           : isBacksliding
-          ? "text-red-600"
-          : "text-gray-900";
+            ? "text-red-600"
+            : "text-gray-900";
         const arrow = isReduction ? "↓" : isBacksliding ? "↑" : "";
 
         return (
@@ -411,9 +400,7 @@ function CustomTooltip({
               <span className="text-gray-600">{entry.name}:</span>
               <span className={`font-semibold ${pctColor}`}>
                 {arrow && <span className="mr-0.5">{arrow}</span>}
-                {Number.isFinite(displayPct)
-                  ? `${Math.abs(displayPct).toFixed(2)}%`
-                  : "—"}
+                {Number.isFinite(displayPct) ? `${Math.abs(displayPct).toFixed(2)}%` : "—"}
               </span>
               {raw != null && (
                 <span className="text-gray-500">
@@ -448,13 +435,43 @@ export default function TargetTrendChart({
   const scopeSource = target ?? scope ?? null;
 
   const lines = buildLines(generalSource, scopeSource);
+  const data = buildChartData(lines);
 
-  // Track which line the user is hovering so the tooltip only shows that
-  // line's data (per-line tooltips instead of a cluttered shared crosshair).
+  // All hooks MUST be called before any early return (Rules of Hooks).
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const clearHovered = useCallback(() => setHoveredKey(null), []);
 
-  // Empty state
+  // Quarterly tick positions (Jan, Apr, Jul, Oct) spanning the full data
+  // range so the X axis reads like a proper time series.
+  const quarterlyTicks = useMemo(() => {
+    if (data.length === 0) return [];
+    const times = data.map((r) => r.time as number);
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
+    const startDate = new Date(minTime);
+    const quarterMonths = [0, 3, 6, 9];
+    let y = startDate.getUTCFullYear();
+    let qIdx = quarterMonths.findIndex((m) => m >= startDate.getUTCMonth());
+    if (qIdx === -1) {
+      qIdx = 0;
+      y++;
+    }
+    const ticks: number[] = [];
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const t = Date.UTC(y, quarterMonths[qIdx], 1);
+      if (t > maxTime + 90 * 86400000) break;
+      if (t >= minTime - 30 * 86400000) ticks.push(t);
+      qIdx++;
+      if (qIdx >= 4) {
+        qIdx = 0;
+        y++;
+      }
+    }
+    return ticks;
+  }, [data]);
+
+  // Empty state — after all hooks
   if (lines.length === 0) {
     return (
       <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-2 rounded-2xl bg-white p-6 text-center">
@@ -466,45 +483,15 @@ export default function TargetTrendChart({
     );
   }
 
-  const data = buildChartData(lines);
-
-  // Build quarterly tick positions (Jan, Apr, Jul, Oct) spanning the full
-  // data range so the X axis reads like a proper time series.
-  const quarterlyTicks = useMemo(() => {
-    if (data.length === 0) return [];
-    const times = data.map((r) => r.time as number);
-    const minTime = Math.min(...times);
-    const maxTime = Math.max(...times);
-    const startDate = new Date(minTime);
-    // Align to the preceding quarter boundary (Jan/Apr/Jul/Oct 1)
-    const quarterMonths = [0, 3, 6, 9]; // Jan, Apr, Jul, Oct
-    let y = startDate.getUTCFullYear();
-    let qIdx = quarterMonths.findIndex((m) => m >= startDate.getUTCMonth());
-    if (qIdx === -1) { qIdx = 0; y++; }
-    const ticks: number[] = [];
-    while (true) {
-      const t = Date.UTC(y, quarterMonths[qIdx], 1);
-      if (t > maxTime + 90 * 86400000) break; // stop ~1 quarter past end
-      if (t >= minTime - 30 * 86400000) ticks.push(t); // include ~1 month before start
-      qIdx++;
-      if (qIdx >= 4) { qIdx = 0; y++; }
-    }
-    return ticks;
-  }, [data]);
-
   return (
     <div className="flex w-full flex-col gap-2">
       <p className="text-xs font-medium text-gray-700">
-        Each line shows % reduction from its own baseline
-        {" "}(0% = baseline, 100% = fully achieved). Clamped at -100% when
-        backsliding badly. Hover for absolute tCO₂e values.
+        Each line shows % reduction from its own baseline (0% = baseline, 100% = fully achieved).
+        Clamped at -100% when backsliding badly. Hover for absolute tCO₂e values.
       </p>
       <div className="w-full" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 16, right: 24, left: 8, bottom: 8 }}
-          >
+          <LineChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
             <XAxis
               dataKey="time"

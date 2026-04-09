@@ -38,8 +38,13 @@ export default function CatastrophicRiskManagement({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems";
-  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems");
-  const hasExistingData = !!state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement?.catastrophicRiskManagementSystems;
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    current,
+    "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems"
+  );
+  const hasExistingData =
+    !!state.assessmentData.leadershipGovernance?.criticalIncidentRiskManagement
+      ?.catastrophicRiskManagementSystems;
   const [auditDate, setAuditDate] = useState("");
   const [systemDescription, setSystemDescription] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);

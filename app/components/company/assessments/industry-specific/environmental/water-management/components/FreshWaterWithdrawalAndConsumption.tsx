@@ -44,18 +44,14 @@ export default function FreshWaterWithdrawalAndConsumption({
   const withdrawalfromSurfaceWater = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    saveAndSubmit,
-    isSaving,
-    isSubmitting,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow(
-    "freshwater-withdrawal-consumption",
-    "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
-  );
-  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement?.freshwaterWithdrawals;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "freshwater-withdrawal-consumption",
+      "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.waterManagement?.waterAndProducedWaterManagement
+      ?.freshwaterWithdrawals;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);

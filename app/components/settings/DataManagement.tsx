@@ -105,7 +105,9 @@ export default function DataManagement() {
               <SelectItem value="5 Years">5 Years</SelectItem>
             </SelectContent>
           </Select>
-          {!canRetention && <PermissionTooltip message="Only Admin can change this" align="right" />}
+          {!canRetention && (
+            <PermissionTooltip message="Only Admin can change this" align="right" />
+          )}
         </div>
       </div>
 
@@ -167,9 +169,19 @@ function ToggleSwitch({
   disabled?: boolean;
 }) {
   return (
-    <label className={`inline-flex items-center ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} disabled={disabled} />
-      <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-teal-500 relative transition-all ${disabled ? "" : ""}`}>
+    <label
+      className={`inline-flex items-center ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+    >
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+      />
+      <div
+        className={`w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-teal-500 relative transition-all ${disabled ? "" : ""}`}
+      >
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
             checked ? "translate-x-5" : ""

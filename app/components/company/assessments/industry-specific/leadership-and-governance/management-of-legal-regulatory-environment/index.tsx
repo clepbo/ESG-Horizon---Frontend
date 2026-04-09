@@ -10,7 +10,12 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 import PublicPolicyEngagement from "./public-policy-engagement";
 import BoardManagementOversight from "./board-management-oversight";
@@ -32,25 +37,43 @@ export default function LegalRegulatoryEnvironment({
   onBack,
   onBackToHub,
   initialForm,
-  onContinueToNextAssessment,
+  onContinueToNextAssessment: _onContinueToNextAssessment,
 }: LegalRegulatoryEnvironmentProps) {
   const router = useRouter();
   const [currentView, setCurrentView] = useState<LREView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const [_totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state } = useAssessment();
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Public Policy Engagement": { groupKey: "leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement", dataPath: ["leadershipGovernance", "managementOfTheLegalAndRegulatoryEnvironment", "publicPolicyEngagement"] },
-    "Board & Management Oversight of Sustainability": { groupKey: "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight", dataPath: ["leadershipGovernance", "managementOfTheLegalAndRegulatoryEnvironment", "boardAndManagementOversight"] },
+    "Public Policy Engagement": {
+      groupKey: "leadershipGovernance.legalRegulatoryEnvironment.publicPolicyEngagement",
+      dataPath: [
+        "leadershipGovernance",
+        "managementOfTheLegalAndRegulatoryEnvironment",
+        "publicPolicyEngagement",
+      ],
+    },
+    "Board & Management Oversight of Sustainability": {
+      groupKey: "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight",
+      dataPath: [
+        "leadershipGovernance",
+        "managementOfTheLegalAndRegulatoryEnvironment",
+        "boardAndManagementOversight",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -176,14 +199,21 @@ export default function LegalRegulatoryEnvironment({
                 <div className="max-w-2xl">
                   <Card
                     className="transition-colors bg-white border shadow-sm rounded-lg cursor-pointer hover:bg-accent/50"
-                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus("Public Policy Engagement")) }}
+                    style={{
+                      borderLeftWidth: "4px",
+                      borderLeftColor: getSectionBorderColor(
+                        getCardStatus("Public Policy Engagement")
+                      ),
+                    }}
                     onClick={() => handleCardClick("Public Policy Engagement")}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2">
-                            <h5 className="font-medium text-foreground">Public Policy Engagement</h5>
+                            <h5 className="font-medium text-foreground">
+                              Public Policy Engagement
+                            </h5>
                             <StatusPill status={getCardStatus("Public Policy Engagement")} />
                           </div>
                           <p className="text-sm text-muted-foreground">
@@ -230,7 +260,12 @@ export default function LegalRegulatoryEnvironment({
                 <div className="max-w-2xl">
                   <Card
                     className="transition-colors bg-white border shadow-sm rounded-lg cursor-pointer hover:bg-accent/50"
-                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus("Board & Management Oversight of Sustainability")) }}
+                    style={{
+                      borderLeftWidth: "4px",
+                      borderLeftColor: getSectionBorderColor(
+                        getCardStatus("Board & Management Oversight of Sustainability")
+                      ),
+                    }}
                     onClick={() =>
                       handleCardClick("Board & Management Oversight of Sustainability")
                     }
@@ -242,7 +277,11 @@ export default function LegalRegulatoryEnvironment({
                             <h5 className="font-medium text-foreground">
                               Board & Management Oversight of Sustainability
                             </h5>
-                            <StatusPill status={getCardStatus("Board & Management Oversight of Sustainability")} />
+                            <StatusPill
+                              status={getCardStatus(
+                                "Board & Management Oversight of Sustainability"
+                              )}
+                            />
                           </div>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-NGA.G1, which discusses the board&apos;s
