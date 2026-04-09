@@ -62,19 +62,28 @@ function DataEntryCard({
       </div>
       <div className="p-4 flex flex-wrap gap-3">
         {fields.map((f, i) => {
+          // Form fields persist as strings ("150000"), so a strict
+          // typeof === "number" check would skip formatting and render the
+          // raw string. Detect numeric-ish values (after stripping any
+          // existing commas) the same way DataField/DataList do, so every
+          // numeric value gets the thousands separators consistently.
+          const isNumericLike =
+            f.value != null &&
+            f.value !== "" &&
+            !isNaN(Number(String(f.value).replace(/,/g, "")));
           const displayVal =
             f.value != null && f.value !== ""
-              ? `${typeof f.value === "number" ? formatNumberShort(f.value) : f.value}${f.unit ? ` ${f.unit}` : ""}`
+              ? `${isNumericLike ? formatNumberShort(f.value) : f.value}${f.unit ? ` ${f.unit}` : ""}`
               : undefined;
           return f.highlight ? (
             <div key={i} className="flex flex-col gap-1 p-2.5 rounded-md border border-teal-200 bg-teal-50/50 min-w-[160px] flex-1">
-              <span className="text-[10px] text-teal-600 font-medium">{f.label}</span>
-              <span className="text-xs font-bold text-teal-700">{displayVal || "—"}</span>
+              <span className="text-xs text-teal-700 font-semibold">{f.label}</span>
+              <span className="text-sm font-bold text-teal-800">{displayVal || "—"}</span>
             </div>
           ) : (
             <div key={i} className="flex flex-col gap-1 p-2.5 rounded-md border border-gray-100 bg-gray-50/50 min-w-[160px] flex-1">
-              <span className="text-[10px] text-gray-400 font-medium">{f.label}</span>
-              <span className="text-xs font-bold text-gray-800">{displayVal || "—"}</span>
+              <span className="text-xs text-gray-600 font-semibold">{f.label}</span>
+              <span className="text-sm font-bold text-gray-900">{displayVal || "—"}</span>
             </div>
           );
         })}
@@ -1482,7 +1491,7 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
               columns={2}
               fields={[
                 { label: "Operates Near Water Sources", value: wqi.operatesNearWaterSources },
-                { label: "Water Quality Details", value: wqi.description || wqi.waterQualityDescription },
+                { label: "Water Quality Details", value: wqi.description || wqi.waterQualityDescription, paragraph: true },
               ]}
             />
           </div>
@@ -1541,7 +1550,7 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
   const spillVolume = Number(spills.totalVolumeSpilled ?? spills.calculated?.totalVolumeSpilled?.volume) || 0;
   const hasSpillCount = (spills.numberOfSpills ?? spills.calculated?.total_spills) != null;
   const badgeParts: string[] = [];
-  if (hasSpillCount) badgeParts.push(`${spillCount} spills`);
+  if (hasSpillCount) badgeParts.push(`${formatNumberShort(spillCount)} spills`);
   if (spillVolume > 0) badgeParts.push(`${formatNumberShort(spillVolume)} bbls spilled`);
 
   return (
@@ -1579,6 +1588,7 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
                 {
                   label: "Description of Environmental Management Policies and Practices",
                   value: policies.policiesDescription || policies.description,
+                  paragraph: true,
                 },
               ]}
             />

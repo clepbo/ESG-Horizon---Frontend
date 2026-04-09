@@ -53,7 +53,7 @@ export interface Assessment {
   lastUpdated?: string | Date;
   submittedAt?: string | null;
   approvedAt?: string | null;
-  /** High-level ESG pillars that have data for this assessment. */
+  /** Assessment sections that have data for this assessment. */
   pillars?: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[];
 }
 
@@ -208,7 +208,6 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
     open: false,
     assessmentId: null as number | null,
   });
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const [reasonOpen, setReasonOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string | undefined>(undefined);
   const [dateRange, setDateRange] = useState<
@@ -351,7 +350,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
     columnHelper.accessor("subsidiary", { header: "Subsidiaries" }),
     columnHelper.display({
       id: "pillars",
-      header: "Pillar(s)",
+      header: "Section(s)",
       cell: (info) => {
         const pillars = info.row.original.pillars ?? [];
         if (!pillars.length) {
@@ -360,7 +359,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
 
         const labelMap: Record<"A" | "E" | "S" | "H" | "B" | "L" | "G", string> = {
           A: "Activity Metrics",
-          E: "Environmental",
+          E: "Environment",
           S: "Social Capital",
           H: "Human Capital",
           B: "Business Model & Innovation",
@@ -379,16 +378,21 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
         };
 
         return (
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 max-w-[180px]">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 max-w-[200px]">
             {pillars.map((p) => (
-              <Badge
-                key={p}
-                variant="outline"
-                className={`px-2.5 py-1 text-xs font-bold rounded-md ${colorMap[p]}`}
-                title={labelMap[p]}
-              >
-                {p}
-              </Badge>
+              <Tooltip key={p}>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className={`px-2.5 py-1 text-xs font-bold rounded-md cursor-default ${colorMap[p]}`}
+                  >
+                    {p}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-white text-xs">
+                  {labelMap[p]}
+                </TooltipContent>
+              </Tooltip>
             ))}
           </div>
         );

@@ -141,7 +141,7 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                           ? "No"
                           : communityRisk.hcdtIncorporated,
                     },
-                    { label: "Risk Description", value: communityRisk.riskDescription },
+                    { label: "Risk Description", value: communityRisk.riskDescription, paragraph: true },
                   ]}
                 />
               </div>
@@ -398,7 +398,7 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                           ? "No"
                           : humanRightEngagement.hasGrievanceMechanism,
                     },
-                    { label: "Engagement & Due Diligence Description", value: humanRightEngagement.engagementDescription },
+                    { label: "Engagement & Due Diligence Description", value: humanRightEngagement.engagementDescription, paragraph: true },
                   ]}
                 />
               </div>

@@ -2,7 +2,7 @@
 import { useId, useState, useRef, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { FaArrowDown } from "react-icons/fa";
-import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
+import { formatNumberShort } from "@/lib/numberFormat";
 
 interface EmissionPoint {
   period: string; // label for X-axis
@@ -214,7 +214,7 @@ const EmissionsChart = ({
           >
             <div style={{ color: "#374151", marginBottom: "2px" }}>{tooltipData.point.period}</div>
             <div style={{ fontWeight: 600, color: "#111" }}>
-              {formatNumberFull(tooltipData.point.emissions, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO₂e
+              {formatNumberShort(tooltipData.point.emissions, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO₂e
             </div>
           </div>
         )}

@@ -138,7 +138,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {formatNumberFull(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {formatNumberShort(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
     </div>
   );
 }

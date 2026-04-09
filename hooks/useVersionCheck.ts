@@ -14,6 +14,17 @@ export function useVersionCheck() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const initialBuildId = useRef<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
+  // If version.json is missing on the deploy (e.g. older build that
+  // predates the prebuild script), give up after the first failed fetch
+  // instead of spamming the network tab every 2 minutes.
+  const disabledRef = useRef(false);
+
+  const stopPolling = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
   const fetchVersion = useCallback(async (): Promise<VersionInfo | null> => {
     try {
@@ -28,8 +39,17 @@ export function useVersionCheck() {
   }, []);
 
   const checkForUpdate = useCallback(async () => {
+    if (disabledRef.current) return;
     const version = await fetchVersion();
-    if (!version) return;
+    if (!version) {
+      // First fetch failed — version.json isn't deployed. Disable polling
+      // so we don't keep hitting the network with 404s.
+      if (initialBuildId.current === null) {
+        disabledRef.current = true;
+        stopPolling();
+      }
+      return;
+    }
 
     if (initialBuildId.current === null) {
       // First load — store current build ID
@@ -40,12 +60,9 @@ export function useVersionCheck() {
     if (version.buildId !== initialBuildId.current) {
       setUpdateAvailable(true);
       // Stop polling once we've detected an update
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+      stopPolling();
     }
-  }, [fetchVersion]);
+  }, [fetchVersion, stopPolling]);
 
   const hardRefresh = useCallback(() => {
     // Clear all caches we can, then reload

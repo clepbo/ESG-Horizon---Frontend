@@ -79,7 +79,7 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
 
   const badgeParts: string[] = [];
   if (hasIncidentData) badgeParts.push(`${formatNumberShort(totalIncidents)} incidents`);
-  if (totalFatalities > 0) badgeParts.push(`${totalFatalities} fatalities`);
+  if (totalFatalities > 0) badgeParts.push(`${formatNumberShort(totalFatalities)} fatalities`);
 
   const hcIncomplete = hcStatuses.filter((s) => s !== "submitted").length;
 
@@ -237,6 +237,7 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
                     {
                       label: "Description of Safety Management Systems",
                       value: safetyMgmt.safetyDescription,
+                      paragraph: true,
                     },
                   ]}
                 />

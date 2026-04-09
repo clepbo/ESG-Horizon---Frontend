@@ -4,7 +4,7 @@ import { FaLeaf } from "react-icons/fa";
 // import EnvironmentalEmissionCard from "./environmental/EnvironmentalEmissionCard";
 import EmissionsChart from "./environmental/EmissionsChart";
 import EmissionsByScope, { transformGHGData } from "./environmental/EmissionByScope";
-import ReductionTarget from "./environmental/ReductionTarget";
+import TargetTrendChart from "@/app/components/ui/charts/TargetTrendChart";
 import { IoWaterSharp } from "react-icons/io5";
 import { MdAir } from "react-icons/md";
 import OilRenderCard, { WaterQualityCard } from "./overview/OilRenderCard";
@@ -17,12 +17,10 @@ import { CustomProgressWithoutSections } from "../charts/ProgressBar";
 import { FaSeedling } from "react-icons/fa6";
 import ReserveInSensitiveAreasChart from "./environmental/ReserveInSensitiveAreasChart";
 import { ReportResponse } from "@/types/report/reportResponse";
-import ReductionTargetByScope from "./environmental/ReductionTargetByScope";
 import { GHGHistoryTransformer } from "./environmental/GHGHistoryTransformer";
-import { getYear } from "date-fns";
 import Link from "next/link";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 
 interface ReportEnvironmentalProps {
   reportData?: ReportResponse;
@@ -33,13 +31,17 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   const waterManagement = reportData?.environmental?.waterManagement;
   const bioDiversity = reportData?.environmental?.biodiversityImpact;
   const ghg = reportData?.environmental?.greenhouseGasEmission;
-  const target = reportData?.targets;
-
-  let scopeTarget = null;
-  if (reportData?.targets && reportData?.targets?.scopeTargets !== undefined) {
-    scopeTarget = reportData?.targets?.scopeTargets;
-  }
-
+  // The report response now packages targets as { general, scope } so a
+  // company with both kinds of target rows shows both lines on the trend
+  // chart instead of only the most-recently-created one.
+  const targetPair = reportData?.targets;
+  const generalTarget = targetPair?.general ?? null;
+  const scopeTarget = targetPair?.scope ?? null;
+  const hasAnyTarget = !!generalTarget || !!scopeTarget;
+  // Derive a sensible card-title year — prefer the latest targetYear
+  // across whichever rows exist.
+  const cardTitleYear =
+    Math.max(generalTarget?.targetYear ?? 0, scopeTarget?.targetYear ?? 0) || null;
 
   const emissionData = GHGHistoryTransformer(ghg?.totalHistory || []);
   const emissionDataScope1 = GHGHistoryTransformer(ghg?.scope1History || []);
@@ -160,10 +162,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
           <div className="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
             <h6 className="p-4 font-semibold border-b border-gray-300">
               {" "}
-              {target?.targetYear ? `${target.targetYear} ` : ""}Reduction Target{" "}
+              {cardTitleYear ? `${cardTitleYear} ` : ""}Reduction Target{" "}
             </h6>
             <div className="p-4 flex-1">
-              {reportData?.targets === undefined || reportData?.targets === null ? (
+              {!hasAnyTarget ? (
                 <div className="p-4 flex flex-col gap-4 items-center justify-center h-full">
                   <p className="text-gray-700 text-center">
                     You have not set any target yet, click below to set a target
@@ -173,46 +175,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   </Link>
                 </div>
               ) : (
-                <div className="flex flex-col gap-6">
-                  {/* General target */}
-                  {target?.generalTarget && (
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700 mb-2">General Target</p>
-                      <ReductionTarget
-                        percentage={target.generalTarget.reductionPercentage || 0}
-                        targetValue={target.generalTarget.targetEmission || 0}
-                        currentYear={getYear(new Date())}
-                        targetYear={target.targetYear || 0}
-                        baselineEmission={target.generalTarget.baselineYearEmission || 0}
-                        baselineYear={target.baselineYear}
-                        currentEmission={target.generalTarget.currentEmission || 0}
-                      />
-                    </div>
-                  )}
-                  {/* Scope targets — horizontal row */}
-                  {scopeTarget && scopeTarget.length > 0 && (
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700 mb-2">Scope Targets</p>
-                      <ReductionTargetByScope
-                        scope1percentage={
-                          scopeTarget.find((t: any) => t.scope === "SCOPE1")?.reductionPercentage ?? 0
-                        }
-                        scope1value={ghg?.scope1Emissions || 0}
-                        scope1targetYear={scopeTarget.find((t: any) => t.scope === "SCOPE1")?.targetYear}
-                        scope2percentage={
-                          scopeTarget.find((t: any) => t.scope === "SCOPE2")?.reductionPercentage ?? 0
-                        }
-                        scope2value={ghg?.scope2Emissions || 0}
-                        scope2targetYear={scopeTarget.find((t: any) => t.scope === "SCOPE2")?.targetYear}
-                        scope3percentage={
-                          scopeTarget.find((t: any) => t.scope === "SCOPE3")?.reductionPercentage ?? 0
-                        }
-                        scope3value={ghg?.scope3Emissions || 0}
-                        scope3targetYear={scopeTarget.find((t: any) => t.scope === "SCOPE3")?.targetYear}
-                      />
-                    </div>
-                  )}
-                </div>
+                // Single trend chart shows all available targets (General +
+                // up to three Scopes) on one shared year axis. Companies with
+                // BOTH a General row and a Scope row now see both rendered.
+                <TargetTrendChart general={generalTarget} scope={scopeTarget} />
               )}
             </div>
           </div>
@@ -282,7 +248,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         </div>
       </div>
 
-      <div className="grid gap-3">
+      {/* PDF export hint: force a page break before this section so the
+          dense water management cards don't get sliced across the
+          Air Quality / Water boundary in the printed report. The marker
+          is read by renderAndCaptureSections in the export pipeline. */}
+      <div className="grid gap-3" data-pdf-page-break-before="true">
         <div className="flex items-center gap-2">
           <span className="p-2 bg-[#dff9e6]">
             <IoWaterSharp className="text-primary rounded-md" />
@@ -437,7 +407,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     </strong>
                     <p className="font-thin">Disclosure Rate </p>
                     <p className="">
-                      {formatNumberFull(
+                      {formatNumberShort(
                         waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
                           ?.numberOfWellsWithPublicDisclosure ?? 0,
                         { minimumFractionDigits: 0, maximumFractionDigits: 0 }
@@ -508,7 +478,12 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
         </div>
       </div>
 
-      <div className="grid gap-3">
+      {/* PDF export hint: Biodiversity Impacts has tall reserve charts and
+          a long management policies block — letting it flow naturally
+          across page boundaries was producing nasty mid-chart cuts.
+          Force a fresh page so the section renders cleanly in the printed
+          report. Read by renderAndCaptureSections in the export pipeline. */}
+      <div className="grid gap-3" data-pdf-page-break-before="true">
         <div className="flex items-center gap-2">
           <span className="p-2 bg-[#e2f6e7]">
             <FaSeedling className="text-[#308947] rounded-md" />
@@ -531,7 +506,7 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center justify-center text-sm">
                 <p className="font-thin">Number of Spills (&gt;1 bbl)</p>
                 <p className="font-semibold text-3xl ml-4">
-                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                 </p>
               </div>
 
@@ -574,13 +549,13 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Volume in Arctic </span>
                 <span className="font-semibold text-2xl">
-                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl{" "}
+                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl{" "}
                 </span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
                 <span className="font-semibold text-red-500 text-2xl">
-                  {formatNumberFull(bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                   bbl{" "}
                 </span>
               </div>

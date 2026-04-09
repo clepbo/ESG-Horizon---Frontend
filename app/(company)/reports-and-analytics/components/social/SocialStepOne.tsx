@@ -118,6 +118,10 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
     return null;
   };
 
+  // Surface absolute BOE figures as text alongside the charts so users don't
+  // have to read them off the Y-axis (QA #6).
+  const formatBoe = (n: number) => `${formatNumberFigures(n)} BOE`;
+
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
@@ -130,6 +134,30 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
               {chart.title}
             </h3>
             <hr className="text-gray-200" />
+
+            {/* Absolute-value strip — Proved + Probable totals and the
+                in-scope subset, as plain text so they're readable directly. */}
+            <div className="grid grid-cols-2 gap-3 mt-4 mb-2 text-sm">
+              <div className="rounded-md bg-gray-50 px-3 py-2">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Proved Reserves</p>
+                <p className="font-semibold text-gray-900">
+                  {formatBoe(chart.data[0]?.total ?? 0)}
+                </p>
+                <p className="text-xs" style={{ color: chart.specificColor }}>
+                  {chart.specificLabel}: {formatBoe(chart.data[0]?.specific ?? 0)}
+                </p>
+              </div>
+              <div className="rounded-md bg-gray-50 px-3 py-2">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Probable Reserves</p>
+                <p className="font-semibold text-gray-900">
+                  {formatBoe(chart.data[1]?.total ?? 0)}
+                </p>
+                <p className="text-xs" style={{ color: chart.specificColor }}>
+                  {chart.specificLabel}: {formatBoe(chart.data[1]?.specific ?? 0)}
+                </p>
+              </div>
+            </div>
+
             <ResponsiveContainer width="100%" height={350}>
               <BarChart
                 data={chart.data}

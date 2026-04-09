@@ -3,7 +3,7 @@
 import { HardHat, ArrowDown, ArrowUp, Minus, Info } from "lucide-react";
 import { ReportResponse } from "@/types/report/reportResponse";
 import { cn } from "@/lib/utils";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort } from "@/lib/numberFormat";
 import {
   Tooltip,
   TooltipContent,
@@ -16,11 +16,30 @@ interface HumanStepOneProps {
 }
 
 export default function HumanStepOne({ reportData }: HumanStepOneProps) {
-  const change = reportData?.humanCapital?.changePercentage;
+  const hc = reportData?.humanCapital;
+  const change = hc?.changePercentage;
+  const direct = hc?.direct;
+  const contract = hc?.contract;
+
+  // Per-bucket subline helper — only render when at least one side has data so
+  // we don't litter zeros everywhere on legacy reports.
+  // formatNumberShort handles M/B/T suffixes for very large counts while
+  // keeping commas for sub-1M values.
+  const breakdown = (d?: number, c?: number) => {
+    if (!d && !c) return undefined;
+    const fmt = (n?: number) =>
+      formatNumberShort(n ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return `Direct: ${fmt(d)} · Contract: ${fmt(c)}`;
+  };
+
+  // TRIR rates are inherently small (per 200k hours, typically 0-10) so the
+  // M/B/T branch never fires for them — formatNumberShort just behaves as
+  // formatNumberFull. Using Short consistently makes the file uniform with
+  // the count fields below where M/B/T does matter.
   const metrics = [
     {
       title: "Total TRIR",
-      value: formatNumberFull(reportData?.humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
       change: change,
       isTrir: true,
@@ -28,37 +47,40 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
     },
     {
       title: "Direct TRIR",
-      value: formatNumberFull(reportData?.humanCapital?.direct?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(direct?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
       tooltip: "(Direct Employee Recordable Incidents × 200,000) / Direct employee hours worked",
     },
     {
       title: "Contract TRIR",
-      value: formatNumberFull(reportData?.humanCapital?.contract?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(contract?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "per 200k hours",
       tooltip: "(Contract Employee Recordable Incidents × 200,000) / Contract employee hours worked",
     },
     {
       title: "Recordable Incidents",
-      value: formatNumberFull(reportData?.humanCapital?.recordableIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.recordableIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "incidents",
-      tooltip: "Total number of work-related injuries or illnesses",
+      tooltip: "Total number of work-related injuries or illnesses (direct + contract)",
+      subline: breakdown(direct?.recordableIncidents, contract?.recordableIncidents),
     },
     {
       title: "Fatalities",
-      value: formatNumberFull(reportData?.humanCapital?.fatalities ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.fatalities ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "fatalities",
-      tooltip: "Total number of work-related fatalities",
+      tooltip: "Total number of work-related fatalities (direct + contract)",
+      subline: breakdown(direct?.fatalities, contract?.fatalities),
     },
     {
       title: "Near Misses",
-      value: formatNumberFull(reportData?.humanCapital?.nearMisses ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.nearMisses ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "misses",
-      tooltip: "Total number of near miss incidents",
+      tooltip: "Total number of near miss incidents (direct + contract)",
+      subline: breakdown(direct?.nearMisses, contract?.nearMisses),
     },
     {
       title: "Avg Safety Training",
-      value: formatNumberFull(reportData?.humanCapital?.averageSafetyTrainingHoursPerEmployee ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.averageSafetyTrainingHoursPerEmployee ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       unit: "hours/employee",
       tooltip: "Total safety training hours / Total number of employees",
     },
@@ -92,6 +114,7 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
             change={card.change}
             isTrir={card.isTrir}
             tooltip={card.tooltip}
+            subline={card.subline}
           />
         ))}
       </div>
@@ -106,6 +129,7 @@ function MetricCard({
   change,
   isTrir,
   tooltip,
+  subline,
 }: {
   title: string;
   value: string;
@@ -113,6 +137,7 @@ function MetricCard({
   change?: number;
   isTrir?: boolean;
   tooltip?: string;
+  subline?: string;
 }) {
   const isPositive = change && change > 0;
   const isNegative = change && change < 0;
@@ -161,6 +186,9 @@ function MetricCard({
         <span className="text-2xl font-bold text-gray-900 sm:text-3xl">{value}</span>
         <span className="text-sm text-gray-600 sm:text-base">{unit}</span>
       </p>
+      {subline && (
+        <p className="mt-1 text-xs text-gray-500">{subline}</p>
+      )}
     </div>
   );
 }
