@@ -38,10 +38,10 @@ export function DataList({ data, label }: DataListProps) {
 
                   return (
                     <div key={key} className="flex flex-col gap-0.5">
-                      <span className="text-[9px] text-gray-700 font-bold uppercase tracking-tighter">
+                      <span className="text-xs text-gray-600 font-semibold uppercase tracking-wide">
                         {displayLabel}
                       </span>
-                      <span className="text-xs font-semibold text-gray-700 truncate">
+                      <span className="text-sm font-bold text-gray-900 truncate">
                         {isNumericValue ? formatNumberShort(displayValue) : displayValue}
                         {key === "volume" && item.unit ? ` ${item.unit}` : ""}
                       </span>

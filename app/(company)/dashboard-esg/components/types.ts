@@ -27,17 +27,6 @@ export interface EmissionTrendPoint {
   total: number;
 }
 
-export interface ReductionTarget {
-  reductionAchieved: number; // percentage
-  targetReduction: number; // percentage
-  targetYear: number;
-  baselineYear: number;
-  baselineEmission: number;
-  currentYear: number;
-  currentEmission: number;
-  targetEmission: number;
-}
-
 export interface ESGReportMetric {
   id: string;
   title: string;

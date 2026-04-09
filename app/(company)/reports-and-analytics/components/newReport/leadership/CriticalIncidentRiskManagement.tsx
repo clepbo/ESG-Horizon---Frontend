@@ -3,7 +3,7 @@ import React from "react";
 import { RxDividerVertical } from "react-icons/rx";
 import { IoMdAlert } from "react-icons/io";
 import { LeadershipAndGovernancePillar } from "@/types/report/reportResponse";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberShort } from "@/lib/numberFormat";
 
 interface CriticalIncidentRiskManagementProps {
   leadershipData?: LeadershipAndGovernancePillar;
@@ -37,7 +37,7 @@ export default function CriticalIncidentRiskManagement({
         <div className=" items-center flex p-4 justify-between">
           <span className="fflex flex-col items-center">
             <p className="text-center"> Tier 1 Events</p>
-            <p className="text-red-600 text-center font-semibold"> {formatNumberFull(tierOneEvents, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} </p>
+            <p className="text-red-600 text-center font-semibold"> {formatNumberShort(tierOneEvents, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} </p>
           </span>
           <span>
             <RxDividerVertical className="" />
@@ -46,7 +46,7 @@ export default function CriticalIncidentRiskManagement({
             <p className="text-center"> Total Hours Worked </p>
             <p className="text-green-600 text-center font-semibold">
               {" "}
-              {formatNumberFull(totalHoursWorked, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+              {formatNumberShort(totalHoursWorked, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
             </p>
           </span>
         </div>
@@ -55,7 +55,7 @@ export default function CriticalIncidentRiskManagement({
             <IoMdAlert className="text-lg" />
             <p className="text-xs">
               <span className="font-semibold">Rate: </span>{" "}
-              {formatNumberFull(rate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per
+              {formatNumberShort(rate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per
               200k hours, investigations closed for all events.
             </p>
           </div>

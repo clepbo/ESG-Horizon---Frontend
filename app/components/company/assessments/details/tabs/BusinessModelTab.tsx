@@ -216,6 +216,7 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "Project Description",
                       value: renewableEnergy.projectDescription,
+                      paragraph: true,
                     },
                   ]}
                 />
@@ -251,6 +252,7 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "Discussion of CAPEX Strategy",
                       value: capexStrategy.capexDiscussion,
+                      paragraph: true,
                     },
                   ]}
                 />
@@ -351,6 +353,7 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "Description of Anti-Corruption Management System",
                       value: antiCorruption.systemDescription,
+                      paragraph: true,
                     },
                   ]}
                 />

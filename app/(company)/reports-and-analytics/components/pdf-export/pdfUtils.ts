@@ -22,36 +22,91 @@ export async function fetchImageAsDataUrl(url: string): Promise<string | null> {
 }
 
 /**
- * Waits for Recharts SVGs and images to render inside a container.
- * Polls for SVG elements up to a deadline instead of a blind 2.5s sleep.
- * Resolves as soon as SVGs are found (or after 1.5s max).
+ * Waits for Recharts SVGs and images to render — AND for their entry
+ * animations to finish — inside a container.
+ *
+ * Two phases:
+ *   1. Poll until every chart wrapper has resolved its dimensions
+ *      (Recharts' ResponsiveContainer reports width(-1) until ResizeObserver
+ *      fires, which crashes the capture step in production builds).
+ *   2. Once layout settles, wait for the Recharts entry animation to
+ *      complete. By default Recharts animates Pie/Bar/Area in over 1500ms,
+ *      so html-to-image was snapshotting mid-animation frames — pies looked
+ *      like incomplete arcs and bars were short. We wait the full animation
+ *      duration plus a small safety margin so the captured image shows the
+ *      final rendered state.
  */
+const RECHARTS_ANIMATION_DURATION_MS = 1500;
+const ANIMATION_SAFETY_MARGIN_MS = 200;
+
 export function waitForCharts(container: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
-    const deadline = Date.now() + 1500;
-    function check() {
+    // Hard cap covers worst case: 5s for layout + 1.7s for animation settle
+    const deadline = Date.now() + 5000 + RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS;
+
+    // Force a synchronous layout pass so ResizeObservers fire on mount
+    // (offscreen containers don't always trigger them otherwise).
+    void container.offsetHeight;
+
+    const allChartsSized = () => {
+      const wrappers = container.querySelectorAll(".recharts-wrapper, .recharts-responsive-container");
+      if (wrappers.length === 0) return false;
+      for (const w of Array.from(wrappers)) {
+        const rect = (w as HTMLElement).getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) return false;
+      }
+      // Also require at least one rendered SVG (non-empty)
       const svgs = container.querySelectorAll("svg");
-      if (svgs.length > 0 || Date.now() >= deadline) {
-        // Give one extra frame for final paint
+      return svgs.length > 0;
+    };
+
+    /** Final settle: wait for animations to finish + 2 frames for paint. */
+    const finishWithAnimationSettle = () => {
+      setTimeout(() => {
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => resolve())
+        );
+      }, RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS);
+    };
+
+    function check() {
+      if (allChartsSized()) {
+        finishWithAnimationSettle();
+      } else if (Date.now() >= deadline) {
+        // Hard cap reached — resolve anyway, animations may be incomplete
         requestAnimationFrame(() => resolve());
       } else {
+        // Force layout each tick in case the offscreen container isn't being measured
+        void container.offsetHeight;
         setTimeout(check, 100);
       }
     }
-    // Initial delay for React to mount
-    requestAnimationFrame(() => setTimeout(check, 200));
+
+    // Initial delay for React to mount + first layout pass
+    requestAnimationFrame(() => setTimeout(check, 300));
   });
 }
 
 /**
- * Captures an HTML element as a PNG data URL.
+ * Captures an HTML element as a PNG data URL. Returns null instead of
+ * throwing if the section can't be captured (e.g. tainted canvas, missing
+ * font) so a single bad section never aborts the whole export.
  */
-export async function captureSection(element: HTMLElement): Promise<string> {
-  return toPng(element, {
-    cacheBust: true,
-    pixelRatio: 1.5,
-    filter: (node) => !node.classList?.contains("no-export"),
-  });
+export async function captureSection(element: HTMLElement): Promise<string | null> {
+  try {
+    const dataUrl = await toPng(element, {
+      cacheBust: true,
+      pixelRatio: 1.5,
+      filter: (node) => !node.classList?.contains("no-export"),
+    });
+    // Reject empty/sentinel data URLs ("data:," etc.) — html-to-image can
+    // hand these back when an inner element fails to serialise.
+    if (!dataUrl || dataUrl.length < 32 || dataUrl === "data:,") return null;
+    return dataUrl;
+  } catch (err) {
+    console.warn("captureSection failed:", err);
+    return null;
+  }
 }
 
 const PLATFORM_ADDRESS = "43 Oghosa Crescent, Off Ihama Road, GRA, Benin City, 300001";
@@ -149,12 +204,19 @@ export function addSectionToPDF(
 
 /**
  * Loads an image from a data URL and returns an HTMLImageElement.
+ * Rejects with a real Error so the failure surfaces with a useful message
+ * instead of an opaque DOM Event ("Uncaught (in promise) Event").
  */
 export function loadImage(dataUrl: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
+    if (!dataUrl) {
+      reject(new Error("loadImage: empty source"));
+      return;
+    }
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = reject;
+    img.onerror = () =>
+      reject(new Error(`loadImage: failed to decode image (${dataUrl.slice(0, 32)}…)`));
     img.src = dataUrl;
   });
 }

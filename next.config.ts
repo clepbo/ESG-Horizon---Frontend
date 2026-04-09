@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
 
   // Development optimizations
   experimental: {
-    optimizePackageImports: ["lucide-react", "recharts", "highcharts-react-official"],
+    optimizePackageImports: ["lucide-react", "recharts"],
   },
   turbopack: {
     rules: {

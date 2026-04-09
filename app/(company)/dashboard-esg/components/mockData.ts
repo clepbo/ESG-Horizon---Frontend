@@ -7,7 +7,6 @@ import { VscLaw } from "react-icons/vsc";
 import type {
   PillarScore,
   EmissionTrendPoint,
-  ReductionTarget,
 } from "./types";
 
 // TODO: Wire to real endpoint when 5-pillar scoring backend is ready
@@ -67,18 +66,6 @@ export const MOCK_EMISSION_TREND: EmissionTrendPoint[] = [
   { year: 2025, scope1: 32000, scope2: 7000, scope3: 130000, total: 169000 },
   { year: 2026, scope1: 30000, scope2: 6500, scope3: 125000, total: 161500 },
 ];
-
-// TODO: Wire to useLatestTargetPair general target when available
-export const MOCK_REDUCTION_TARGET: ReductionTarget = {
-  reductionAchieved: 65,
-  targetReduction: 50,
-  targetYear: 2030,
-  baselineYear: 2024,
-  baselineEmission: 154000,
-  currentYear: 2025,
-  currentEmission: 126830,
-  targetEmission: 5000,
-};
 
 // TODO: Wire to real scope breakdown from report endpoint
 export const MOCK_TOTAL_EMISSION = {

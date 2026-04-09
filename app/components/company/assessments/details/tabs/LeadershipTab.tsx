@@ -78,7 +78,7 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
   const tier1Events = Number(processSafety.numberOfEvents) || 0;
   const totalHours = Number(processSafety.totalHoursWorked) || 0;
   const criticalBadgeParts: string[] = [];
-  if (processSafety.numberOfEvents != null) criticalBadgeParts.push(`${tier1Events} Tier 1 events`);
+  if (processSafety.numberOfEvents != null) criticalBadgeParts.push(`${formatNumberShort(tier1Events)} Tier 1 events`);
   if (totalHours > 0) criticalBadgeParts.push(`${formatNumberShort(totalHours)} hrs worked`);
   const criticalIncomplete = criticalStatuses.filter((s) => s !== "submitted").length;
 
@@ -177,6 +177,7 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
                     {
                       label: "Description of Catastrophic Risk Management Systems",
                       value: catastrophicRisk.systemDescription,
+                      paragraph: true,
                     },
                   ]}
                 />
@@ -229,6 +230,7 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
                     {
                       label: "Discussion of Corporate Positions on Policy and Regulation",
                       value: publicPolicy.policyPositions,
+                      paragraph: true,
                     },
                   ]}
                 />
@@ -268,6 +270,7 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
                     {
                       label: "Discussion of Board Oversight and Management's Role",
                       value: boardOversight.oversightDiscussion,
+                      paragraph: true,
                     },
                   ]}
                 />

@@ -274,7 +274,12 @@ export default function DepartmentTeamUsersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)]  hover:bg-teal-700 px-3 py-1.5 text-xs text-white">
+          <button
+            type="button"
+            disabled
+            title="Coming soon"
+            className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 rounded-md bg-[var(--color-primary)] hover:bg-teal-700 px-3 py-1.5 text-xs text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Search className="h-3.5 w-3.5" />
             Search
           </button>

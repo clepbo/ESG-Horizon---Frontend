@@ -65,8 +65,8 @@ export function SourceEntryCard({ number, title, data, status }: SourceEntryCard
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1 p-2.5 rounded-md border border-gray-100 bg-gray-50/50 min-w-[140px] flex-1">
-      <span className="text-[10px] text-gray-700 font-medium">{label}</span>
-      <span className="text-xs font-bold text-gray-900">{value || "—"}</span>
+      <span className="text-xs text-gray-600 font-semibold">{label}</span>
+      <span className="text-sm font-bold text-gray-900">{value || "—"}</span>
     </div>
   );
 }
@@ -74,8 +74,8 @@ function Field({ label, value }: { label: string; value?: string | null }) {
 function HighlightField({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1 p-2.5 rounded-md border border-teal-200 bg-teal-50/50 min-w-[140px] flex-1">
-      <span className="text-[10px] text-teal-800 font-medium">{label}</span>
-      <span className="text-xs font-bold text-teal-900">{value || "—"}</span>
+      <span className="text-xs text-teal-700 font-semibold">{label}</span>
+      <span className="text-sm font-bold text-teal-800">{value || "—"}</span>
     </div>
   );
 }
