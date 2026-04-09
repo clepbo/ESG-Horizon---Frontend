@@ -131,7 +131,12 @@ export default function DataManagement() {
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-3 pt-4">
-        <button className="px-5 py-2 border border-teal-500 text-teal-500 rounded hover:bg-teal-50">
+        <button
+          type="button"
+          disabled
+          title="Coming soon"
+          className="px-5 py-2 border border-teal-500 text-teal-500 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           Close
         </button>
         {canSave && (

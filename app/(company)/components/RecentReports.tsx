@@ -109,6 +109,8 @@ export function RecentReports() {
                 key={tab}
                 variant={index === 0 ? "default" : "outline"}
                 size="sm"
+                disabled={index !== 0}
+                title={index === 0 ? undefined : "Coming soon"}
                 className={index === 0 ? "bg-esg-green hover:bg-esg-green/90" : ""}
               >
                 {tab}
@@ -117,37 +119,43 @@ export function RecentReports() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <div className="relative flex-1 max-w-sm">
+            <div className="relative flex-1 max-w-sm" title="Coming soon">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Search by name or company" className="pl-10" />
+              <Input placeholder="Search by name or company" className="pl-10" disabled />
             </div>
             <div className="flex gap-2">
-              <Select>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="annual">Annual</SelectItem>
-                  <SelectItem value="bi-annual">Bi-Annual</SelectItem>
-                  <SelectItem value="sustainability">Sustainability</SelectItem>
-                  <SelectItem value="compliance">Compliance</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="under-review">Under Review</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
+              <div title="Coming soon">
+                <Select disabled>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="annual">Annual</SelectItem>
+                    <SelectItem value="bi-annual">Bi-Annual</SelectItem>
+                    <SelectItem value="sustainability">Sustainability</SelectItem>
+                    <SelectItem value="compliance">Compliance</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div title="Coming soon">
+                <Select disabled>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="under-review">Under Review</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button
                 variant="outline"
+                disabled
+                title="Coming soon"
                 className="bg-esg-green text-white border-esg-green hover:bg-esg-green/90"
               >
                 Search
@@ -186,6 +194,8 @@ export function RecentReports() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      disabled
+                      title="Coming soon"
                       className="w-8 h-8 text-muted-foreground hover:text-foreground"
                     >
                       <Eye className="w-4 h-4" />
@@ -200,22 +210,24 @@ export function RecentReports() {
           <div className="flex items-center justify-between px-6 py-4 border-t border-border">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Rows per page</span>
-              <Select defaultValue="10">
-                <SelectTrigger className="w-16 h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
+              <div title="Coming soon">
+                <Select defaultValue="10" disabled>
+                  <SelectTrigger className="w-16 h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">1 - 10 of 25</span>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="w-8 h-8">
+                <Button variant="outline" size="icon" disabled title="Coming soon" className="w-8 h-8">
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 {[1, 2, 3, 4, 5].map((page) => (
@@ -223,12 +235,14 @@ export function RecentReports() {
                     key={page}
                     variant={page === 1 ? "default" : "outline"}
                     size="icon"
+                    disabled={page !== 1}
+                    title={page === 1 ? undefined : "Coming soon"}
                     className={`w-8 h-8 ${page === 1 ? "bg-esg-green hover:bg-esg-green/90" : ""}`}
                   >
                     {page}
                   </Button>
                 ))}
-                <Button variant="outline" size="icon" className="w-8 h-8">
+                <Button variant="outline" size="icon" disabled title="Coming soon" className="w-8 h-8">
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>

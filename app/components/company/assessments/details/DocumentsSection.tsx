@@ -35,8 +35,16 @@ function formatUploadDate(dateStr?: string) {
 export function DocumentsSection({ files, onFileClick }: DocumentsSectionProps) {
   const isEmpty = files.length === 0;
 
+  // The `no-export` class is always applied. The class itself has no
+  // visual effect (no CSS rule targets it), so the live report viewer
+  // and the assessment details modal both keep showing this section
+  // normally. But the html-to-image filter in pdfUtils.captureSection
+  // checks for it and skips any matching subtree during PDF/PNG export
+  // — the per-section supporting docs are redundant in the export
+  // because the PDF appendix already lists every uploaded file as a
+  // clickable link, and the empty placeholder shouldn't appear at all.
   return (
-    <div className={`rounded-xl border border-gray-100 bg-white p-5${isEmpty ? " no-export" : ""}`}>
+    <div className="no-export rounded-xl border border-gray-100 bg-white p-5">
       <h5 className="text-sm font-bold text-gray-900 mb-3">Supporting Documents</h5>
 
       {isEmpty ? (

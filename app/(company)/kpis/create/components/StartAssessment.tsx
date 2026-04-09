@@ -28,8 +28,8 @@ export default function StartAssessment() {
           <p className="mt-6 text-sm text-gray-600 mb-10 leading-relaxed text-center">
             Or, have a lot of data? You can also{" "}
             <strong
-              onClick={() => alert("Coming soon!")}
-              style={{ cursor: "pointer", color: "black", textDecoration: "none" }}
+              title="Coming soon"
+              style={{ cursor: "not-allowed", color: "gray", textDecoration: "none" }}
             >
               Bulk Upload
             </strong>{" "}

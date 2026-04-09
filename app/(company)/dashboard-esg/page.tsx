@@ -23,7 +23,7 @@ import ESGScoreGauge from "./components/ESGScoreGauge";
 import OverallProgressCard from "./components/OverallProgressCard";
 import PillarScoresRow from "./components/PillarScoresRow";
 import GHGEmissionsTrendChart from "./components/GHGEmissionsTrendChart";
-import ReductionTargetDonut from "./components/ReductionTargetDonut";
+import TargetTrendChart from "@/app/components/ui/charts/TargetTrendChart";
 import ESGReportGrid from "./components/ESGReportGrid";
 import AssessmentsList from "./components/AssessmentsList";
 import DashboardRecentActivity from "./components/DashboardRecentActivity";
@@ -238,10 +238,17 @@ export default function DashboardPage() {
             custom={2}
           >
             <GHGEmissionsTrendChart data={emissionTrend} />
-            <ReductionTargetDonut
-              generalTarget={targetPair?.general}
-              scopeTarget={targetPair?.scope}
-            />
+            <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Reduction Target Trajectory
+              </h3>
+              <div className="flex-1">
+                <TargetTrendChart
+                  general={targetPair?.general}
+                  scope={targetPair?.scope}
+                />
+              </div>
+            </div>
           </motion.div>
 
           {/* Row 4: ESG Assessment Report */}

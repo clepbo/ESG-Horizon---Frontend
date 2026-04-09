@@ -28,6 +28,10 @@ export interface DataFieldItem {
   unit?: string;
   highlight?: boolean;
   isBoolean?: boolean;
+  /** Render the value as natural-flow paragraph text rather than a bold
+   *  numeric/short value. Used for narrative fields ("Description of …",
+   *  "Discussion of …"). Spans the full grid width. */
+  paragraph?: boolean;
 }
 
 /* ─── Pillar tab types ─── */

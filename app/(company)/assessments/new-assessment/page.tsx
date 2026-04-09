@@ -86,7 +86,7 @@ function NewAssessmentPage() {
             : "";
 
       const data = a.assessmentData ?? {};
-      const activity = data.activityMetrics;
+      const activity = data.foundationalData?.activityMetrics ?? data.activityMetrics;
       const env = data.environment ?? data.environmental;
       const social = data.socialCapital ?? data.social;
       const human = data.humanCapital;
@@ -248,8 +248,8 @@ function NewAssessmentPage() {
               <p className="mt-6 text-sm text-gray-600 leading-relaxed text-center">
                 Or, have a lot of data? You can also{" "}
                 <strong
-                  onClick={() => alert("Coming soon!")}
-                  style={{ cursor: "pointer", color: "black", textDecoration: "none" }}
+                  title="Coming soon"
+                  style={{ cursor: "not-allowed", color: "gray", textDecoration: "none" }}
                 >
                   Bulk Upload
                 </strong>{" "}

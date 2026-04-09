@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import { Card } from "@/app/components/ui/card";
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { Separator } from "@/app/components/ui/separator";
@@ -13,14 +14,46 @@ import ReviewerSelectionModal from "@/app/components/company/assessments/Reviewe
 
 import type { AssessmentDetailsModalProps, FileWithMeta, PillarTabId } from "./types";
 import { DEFAULT_TAB } from "./constants";
-import { collectAllFiles } from "./utils";
+
+/**
+ * Download a file by fetching it as a blob and triggering a synthetic anchor
+ * click. Going through a blob avoids the cross-origin caveat where the native
+ * `download` attribute is silently ignored, and lets us preserve the original
+ * filename even when the server's Content-Disposition header doesn't.
+ *
+ * Replaces the old in-modal preview overlay, which tried to iframe-render PDFs
+ * (often blocked by CORS / X-Frame-Options) and pipe everything else through
+ * next/image (which fails for office docs and any host outside the configured
+ * remotePatterns). Office formats can't be previewed natively without an
+ * external viewer service, so a consistent download-on-click is the right call.
+ */
+async function downloadFile(file: FileWithMeta) {
+  if (!file.url) {
+    toast.error("This file has no download link.");
+    return;
+  }
+  try {
+    const res = await fetch(file.url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = file.name || "download";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    console.error("Download failed:", err);
+    toast.error("Failed to download file. Please try again.");
+  }
+}
 
 import { ModalHeader } from "./ModalHeader";
 import { InfoCardsRow } from "./InfoCardsRow";
 import { PillarTabs } from "./PillarTabs";
 import { ApproveDeclineActions } from "./ApproveDeclineActions";
-import { FilePreviewOverlay } from "./FilePreviewOverlay";
-import { DocumentsSection } from "./DocumentsSection";
 
 import { ActivityMetricsTab } from "./tabs/ActivityMetricsTab";
 import { EnvironmentalTab } from "./tabs/EnvironmentalTab";
@@ -38,7 +71,6 @@ export function AssessmentDetailsModal({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<PillarTabId>(DEFAULT_TAB);
-  const [selectedFile, setSelectedFile] = useState<FileWithMeta | null>(null);
   const [reviewerModalOpen, setReviewerModalOpen] = useState(false);
   const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
   const [clearConfirm, setClearConfirm] = useState<{ open: boolean; path: string }>({
@@ -146,7 +178,6 @@ export function AssessmentDetailsModal({
 
   const assessmentData = fullAssessment.assessmentData || {};
   const submittedGroups: string[] = assessmentData.submittedGroups || [];
-  const allFiles = collectAllFiles(assessmentData);
 
   const isAwaitingApproval =
     fullAssessment.status === "awaiting_review" || assessment?.status === "awaiting_review";
@@ -160,7 +191,7 @@ export function AssessmentDetailsModal({
       <ActivityMetricsTab
         assessmentData={assessmentData}
         submittedGroups={submittedGroups}
-        onFileClick={setSelectedFile}
+        onFileClick={downloadFile}
         onEditSection={isEditable ? handleEditSection : undefined}
         onClearSection={isEditable ? handleClearSection : undefined}
       />
@@ -169,7 +200,7 @@ export function AssessmentDetailsModal({
       <EnvironmentalTab
         assessmentData={assessmentData}
         submittedGroups={submittedGroups}
-        onFileClick={setSelectedFile}
+        onFileClick={downloadFile}
         onEditSection={isEditable ? handleEditSection : undefined}
         onClearSection={isEditable ? handleClearSection : undefined}
       />
@@ -178,7 +209,7 @@ export function AssessmentDetailsModal({
       <SocialCapitalTab
         assessmentData={assessmentData}
         submittedGroups={submittedGroups}
-        onFileClick={setSelectedFile}
+        onFileClick={downloadFile}
         onEditSection={isEditable ? handleEditSection : undefined}
         onClearSection={isEditable ? handleClearSection : undefined}
       />
@@ -187,7 +218,7 @@ export function AssessmentDetailsModal({
       <HumanCapitalTab
         assessmentData={assessmentData}
         submittedGroups={submittedGroups}
-        onFileClick={setSelectedFile}
+        onFileClick={downloadFile}
         onEditSection={isEditable ? handleEditSection : undefined}
         onClearSection={isEditable ? handleClearSection : undefined}
       />
@@ -196,7 +227,7 @@ export function AssessmentDetailsModal({
       <BusinessModelTab
         assessmentData={assessmentData}
         submittedGroups={submittedGroups}
-        onFileClick={setSelectedFile}
+        onFileClick={downloadFile}
         onEditSection={isEditable ? handleEditSection : undefined}
         onClearSection={isEditable ? handleClearSection : undefined}
       />
@@ -205,7 +236,7 @@ export function AssessmentDetailsModal({
       <LeadershipTab
         assessmentData={assessmentData}
         submittedGroups={submittedGroups}
-        onFileClick={setSelectedFile}
+        onFileClick={downloadFile}
         onEditSection={isEditable ? handleEditSection : undefined}
         onClearSection={isEditable ? handleClearSection : undefined}
       />
@@ -260,14 +291,9 @@ export function AssessmentDetailsModal({
             <PillarTabs activeTabId={activeTab} onChange={setActiveTab} />
 
             {/* Active Tab Content */}
+            {/* Per-section Supporting Documents are rendered inside each
+                SubMetricSection — no aggregate "all files" block needed here. */}
             <div className="min-h-[200px]">{tabContent[activeTab]}</div>
-
-            <Separator />
-
-            {/* Supporting Documents */}
-            {allFiles.length > 0 && (
-              <DocumentsSection files={allFiles} onFileClick={setSelectedFile} />
-            )}
 
             {/* Approve / Decline Actions */}
             <ApproveDeclineActions
@@ -278,11 +304,6 @@ export function AssessmentDetailsModal({
             />
           </div>
         </ScrollArea>
-
-        {/* File Preview Overlay */}
-        {selectedFile && (
-          <FilePreviewOverlay file={selectedFile} onClose={() => setSelectedFile(null)} />
-        )}
       </div>
 
       {/* Submit for Review — reviewer selection */}

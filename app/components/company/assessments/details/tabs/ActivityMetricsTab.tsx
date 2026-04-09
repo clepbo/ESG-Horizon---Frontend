@@ -59,7 +59,7 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
 
   const badgeParts: string[] = [];
   if (hasProdData && crudeOil > 0) badgeParts.push(`${formatNumberShort(crudeOil)} ${productionVolume.crudeOilProductionUnit || "kbl/day"}`);
-  if (hasSiteData && totalSites > 0) badgeParts.push(`${totalSites} sites`);
+  if (hasSiteData && totalSites > 0) badgeParts.push(`${formatNumberShort(totalSites)} sites`);
 
   // Incomplete count
   const incompleteCount = [pvStatus, offshoreStatus, terrestrialStatus].filter((s) => s !== "submitted").length;

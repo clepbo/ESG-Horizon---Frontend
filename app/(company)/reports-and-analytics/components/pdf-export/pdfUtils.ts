@@ -22,15 +22,27 @@ export async function fetchImageAsDataUrl(url: string): Promise<string | null> {
 }
 
 /**
- * Waits for Recharts SVGs and images to render inside a container.
- * Polls until every chart wrapper has resolved its dimensions (Recharts'
- * ResponsiveContainer reports width(-1) until ResizeObserver fires, which
- * crashes the capture step in production builds with code splitting).
+ * Waits for Recharts SVGs and images to render — AND for their entry
+ * animations to finish — inside a container.
+ *
+ * Two phases:
+ *   1. Poll until every chart wrapper has resolved its dimensions
+ *      (Recharts' ResponsiveContainer reports width(-1) until ResizeObserver
+ *      fires, which crashes the capture step in production builds).
+ *   2. Once layout settles, wait for the Recharts entry animation to
+ *      complete. By default Recharts animates Pie/Bar/Area in over 1500ms,
+ *      so html-to-image was snapshotting mid-animation frames — pies looked
+ *      like incomplete arcs and bars were short. We wait the full animation
+ *      duration plus a small safety margin so the captured image shows the
+ *      final rendered state.
  */
+const RECHARTS_ANIMATION_DURATION_MS = 1500;
+const ANIMATION_SAFETY_MARGIN_MS = 200;
+
 export function waitForCharts(container: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
-    // Hard cap so we never block the export indefinitely
-    const deadline = Date.now() + 5000;
+    // Hard cap covers worst case: 5s for layout + 1.7s for animation settle
+    const deadline = Date.now() + 5000 + RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS;
 
     // Force a synchronous layout pass so ResizeObservers fire on mount
     // (offscreen containers don't always trigger them otherwise).
@@ -48,12 +60,21 @@ export function waitForCharts(container: HTMLElement): Promise<void> {
       return svgs.length > 0;
     };
 
-    function check() {
-      if (allChartsSized() || Date.now() >= deadline) {
-        // Give two extra frames for final paint after layout settles
+    /** Final settle: wait for animations to finish + 2 frames for paint. */
+    const finishWithAnimationSettle = () => {
+      setTimeout(() => {
         requestAnimationFrame(() =>
           requestAnimationFrame(() => resolve())
         );
+      }, RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS);
+    };
+
+    function check() {
+      if (allChartsSized()) {
+        finishWithAnimationSettle();
+      } else if (Date.now() >= deadline) {
+        // Hard cap reached — resolve anyway, animations may be incomplete
+        requestAnimationFrame(() => resolve());
       } else {
         // Force layout each tick in case the offscreen container isn't being measured
         void container.offsetHeight;

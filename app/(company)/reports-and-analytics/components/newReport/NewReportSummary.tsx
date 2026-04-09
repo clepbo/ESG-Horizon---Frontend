@@ -1,7 +1,7 @@
 "use client";
 import { Card } from "@/app/components/ui/card";
 import { GoDotFill } from "react-icons/go";
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { useEffect, useRef, useState, lazy, Suspense } from "react";
 
 import ReportOverview from "./ReportOverview";
 import { ReportResponse } from "@/types/report/reportResponse";
@@ -18,7 +18,7 @@ import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
 import { generateReportPDF, generateReportPNG, ExportProgress } from "../pdf-export/generateReportExport";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
 import { useCompanyDetails } from "@/services/hooks/company.hooks";
 import {
   Select,
@@ -43,6 +43,10 @@ export default function NewReportSummary() {
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<ExportProgress>({ percent: 0, stage: "" });
   const [exportError, setExportError] = useState<{ stage: string; format: "pdf" | "png" } | null>(null);
+  // Cancellation flag — checked after each async step in the export flow.
+  // We use a ref (not state) so the running async function sees the
+  // latest value without needing a re-render.
+  const cancelledRef = useRef(false);
 
   const params = useParams();
   const { data, isError, isLoading } = useSingleReport(Number(params?.id));
@@ -118,8 +122,18 @@ export default function NewReportSummary() {
     return <Suspense fallback={<CardSkeleton />}>{tabContent}</Suspense>;
   }
 
+  /** Reset all export state back to idle — used on success, cancel, and
+   *  error dismissal so the Export dropdown returns to its default. */
+  function resetExportState() {
+    setExporting(false);
+    setExportError(null);
+    setExportProgress({ percent: 0, stage: "" });
+    setSelected(undefined);
+  }
+
   async function exportfile(value: string) {
     if (value !== "pdf" && value !== "png") return;
+    cancelledRef.current = false;
     setExporting(true);
     setExportError(null);
     setExportProgress({ percent: 0, stage: "Starting…" });
@@ -140,22 +154,27 @@ export default function NewReportSummary() {
       } else {
         await generateReportPNG({ reportData: reportData!, company: companyInfo, onProgress });
       }
-      // Success — close the modal
-      setExporting(false);
-      setExportProgress({ percent: 0, stage: "" });
-      setSelected(undefined);
+      // Success — reset everything so the dropdown returns to default
+      resetExportState();
     } catch (err) {
+      // If the user cancelled, silently reset instead of showing error
+      if (cancelledRef.current) {
+        resetExportState();
+        return;
+      }
       console.error("Report export failed:", err);
       // Keep the modal open and swap to the error state — user can retry
       setExportError({ stage: lastStage, format: value });
     }
   }
 
+  function cancelExport() {
+    cancelledRef.current = true;
+    resetExportState();
+  }
+
   function dismissExportError() {
-    setExportError(null);
-    setExporting(false);
-    setExportProgress({ percent: 0, stage: "" });
-    setSelected(undefined);
+    resetExportState();
   }
 
   function retryExport() {
@@ -207,9 +226,19 @@ export default function NewReportSummary() {
               </>
             ) : (
               <>
-                <p className="text-base font-semibold text-gray-800">
-                  Generating Report
-                </p>
+                <div className="flex w-full items-center justify-between">
+                  <p className="text-base font-semibold text-gray-800">
+                    Generating Report
+                  </p>
+                  <button
+                    type="button"
+                    onClick={cancelExport}
+                    className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+                    aria-label="Cancel export"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
                 {/* Progress bar */}
                 <div className="w-full">
                   <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
