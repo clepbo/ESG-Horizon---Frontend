@@ -141,10 +141,7 @@ export function WasteGeneratedInOperations({
 
     const hasSelectedMethods = selectedMethods.length > 0;
 
-    const progressChecks = [
-      hasWasteWeight,
-      hasSelectedMethods,
-    ];
+    const progressChecks = [hasWasteWeight, hasSelectedMethods];
 
     return calculateProgress(progressChecks);
   }, [wasteWeight, selectedMethods]);
@@ -284,7 +281,9 @@ export function WasteGeneratedInOperations({
       payload,
     });
 
-    saveQuiet("environment.ghg.scope3.upstream.wasteGeneratedInOperations", payload).catch(() => {});
+    saveQuiet("environment.ghg.scope3.upstream.wasteGeneratedInOperations", payload).catch(
+      () => {}
+    );
     onNext();
   };
 

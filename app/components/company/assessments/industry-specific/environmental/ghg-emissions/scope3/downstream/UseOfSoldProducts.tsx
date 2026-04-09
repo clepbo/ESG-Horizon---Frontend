@@ -124,11 +124,7 @@ export function UseOfSoldProducts({
       averageAnnualConsumption.trim() !== "" &&
       !isNaN(Number(averageAnnualConsumption)) &&
       Number(averageAnnualConsumption) >= 0;
-    const progressChecks = [
-      hasUnitsSold,
-      hasProductLifetime,
-      hasAverageAnnualConsumption,
-    ];
+    const progressChecks = [hasUnitsSold, hasProductLifetime, hasAverageAnnualConsumption];
 
     return calculateProgress(progressChecks);
   }, [unitsSold, productLifetime, averageAnnualConsumption]);
@@ -398,7 +394,9 @@ export function UseOfSoldProducts({
               groupKey="environment.ghg.scope3.downstream"
             />
             <div>
-              <h4 className="text-xl font-medium text-foreground">Category 11: Use of Sold Products</h4>
+              <h4 className="text-xl font-medium text-foreground">
+                Category 11: Use of Sold Products
+              </h4>
               <p className="text-muted-foreground text-base">
                 Report emissions from the use of products and services sold by your company.
               </p>

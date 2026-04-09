@@ -30,7 +30,7 @@ export function LocationBasedForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
-  onBackToDisclosureTopics,
+  onBackToDisclosureTopics: _onBackToDisclosureTopics,
 }: LocationBasedFormProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();

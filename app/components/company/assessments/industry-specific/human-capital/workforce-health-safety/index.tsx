@@ -12,7 +12,12 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import HealthSafetyPerformance from "./health-safety-performance";
 import SafetyManagementSystems from "./safety-management-systems";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 import { defaultEmployeeFormData, type EmployeeFormData } from "./health-safety-performance/types";
 
@@ -58,7 +63,7 @@ export default function WorkforceHealthSafety({
   const router = useRouter();
   const [currentView, setCurrentView] = useState<WHSView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const [_totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state } = useAssessment();
 
   // Persist Health & Safety Performance form data across next/back until after submission
@@ -115,14 +120,29 @@ export default function WorkforceHealthSafety({
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Health & Safety Performance": { groupKey: "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance", dataPath: ["humanCapital", "riskAndOpportunityManagement", "healthAndSafetyPerformance"] },
-    "Safety Management Systems": { groupKey: "humanCapital.workforceHealthSafety", dataPath: ["humanCapital", "workforceHealthAndSafety", "riskAndOpportunityManagement", "safetyManagementSystems"] },
+    "Health & Safety Performance": {
+      groupKey: "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance",
+      dataPath: ["humanCapital", "riskAndOpportunityManagement", "healthAndSafetyPerformance"],
+    },
+    "Safety Management Systems": {
+      groupKey: "humanCapital.workforceHealthSafety",
+      dataPath: [
+        "humanCapital",
+        "workforceHealthAndSafety",
+        "riskAndOpportunityManagement",
+        "safetyManagementSystems",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -275,7 +295,10 @@ export default function WorkforceHealthSafety({
                         className={`transition-colors bg-white shadow-sm rounded-lg ${
                           card.clickable ? "cursor-pointer hover:bg-accent/50" : "cursor-default"
                         }`}
-                        style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                        style={{
+                          borderLeftWidth: "4px",
+                          borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                        }}
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">

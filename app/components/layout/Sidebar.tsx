@@ -12,9 +12,19 @@ import { USER_TYPES } from "@/app/constants/userTypes";
 
 type RoleFlags = ReturnType<typeof useRoles>;
 
-const navLinks: { name: string; icon: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
+const navLinks: {
+  name: string;
+  icon: string;
+  href: string;
+  roleCheck?: (r: RoleFlags) => boolean;
+}[] = [
   { name: "Dashboard", icon: "/icons/Dashboard.svg", href: "/dashboard" },
-  { name: "Company", icon: "/icons/Company.svg", href: "/company", roleCheck: (r) => r.isPlatformAdmin || r.role === USER_TYPES.PLATFORM_DATA_OFFICER },
+  {
+    name: "Company",
+    icon: "/icons/Company.svg",
+    href: "/company",
+    roleCheck: (r) => r.isPlatformAdmin || r.role === USER_TYPES.PLATFORM_DATA_OFFICER,
+  },
   { name: "Reports", icon: "/icons/Analytics.svg", href: "/reports" },
   { name: "Subscription & Billing", icon: "/icons/SubscriptionBilling.svg", href: "/billing" },
 ];

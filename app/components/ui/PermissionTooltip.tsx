@@ -9,11 +9,7 @@ interface PermissionTooltipProps {
 
 export default function PermissionTooltip({ message, align = "center" }: PermissionTooltipProps) {
   const pos =
-    align === "right"
-      ? "right-0"
-      : align === "left"
-        ? "left-0"
-        : "left-1/2 -translate-x-1/2";
+    align === "right" ? "right-0" : align === "left" ? "left-0" : "left-1/2 -translate-x-1/2";
 
   return (
     <div

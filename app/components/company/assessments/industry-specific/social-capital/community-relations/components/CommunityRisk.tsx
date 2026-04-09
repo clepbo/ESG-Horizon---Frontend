@@ -36,7 +36,10 @@ export default function CommunityRisk({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.communityRisk", "socialCapital.communityRelations.communityRiskOpportunityManagement");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "socialCapital.communityRelations.communityRisk",
+    "socialCapital.communityRelations.communityRiskOpportunityManagement"
+  );
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState(false);

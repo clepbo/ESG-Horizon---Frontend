@@ -61,7 +61,9 @@ export function DataTable<TData>({
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, columnId, filterValue) => {
       const col = row.getAllCells().find((c) => c.column.id === columnId);
-      const meta = col?.column.columnDef.meta as { toSearchString?: (row: unknown) => string } | undefined;
+      const meta = col?.column.columnDef.meta as
+        | { toSearchString?: (row: unknown) => string }
+        | undefined;
       const searchStr = meta?.toSearchString
         ? meta.toSearchString(row.original)
         : String(row.getValue(columnId) ?? "");

@@ -15,6 +15,10 @@ export default function StatusBadge({ status }: StatusProps) {
   const badgeClass = statusStyles[status] || "bg-gray-300 text-gray-800";
 
   return (
-    <span className={`inline-flex w-fit px-1.5 py-0.5 text-[11px] rounded font-medium leading-tight ${badgeClass}`}>{status}</span>
+    <span
+      className={`inline-flex w-fit px-1.5 py-0.5 text-[11px] rounded font-medium leading-tight ${badgeClass}`}
+    >
+      {status}
+    </span>
   );
 }
