@@ -45,7 +45,10 @@ export default function UpstreamEmissionHome({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveQuiet, saveAndSubmit } = useAssessmentFlow("ghg-scope3-upstream", "environment.ghg.scope3.upstream");
+  const { saveQuiet, saveAndSubmit } = useAssessmentFlow(
+    "ghg-scope3-upstream",
+    "environment.ghg.scope3.upstream"
+  );
 
   function handleNext(val: number) {
     setStep(val);
@@ -90,7 +93,10 @@ export default function UpstreamEmissionHome({
         await saveQuiet("environment.ghg.scope3.upstream.businessTravel", data.businessTravel);
       }
       if (data?.employeeCommuting) {
-        await saveQuiet("environment.ghg.scope3.upstream.employeeCommuting", data.employeeCommuting);
+        await saveQuiet(
+          "environment.ghg.scope3.upstream.employeeCommuting",
+          data.employeeCommuting
+        );
       }
       const leasedData = leasedAssetsPayload || data?.upstreamLeasedAssets;
       const response = await saveAndSubmit(
@@ -115,7 +121,10 @@ export default function UpstreamEmissionHome({
         totals={totals ?? undefined}
         nextAssessment={onContinueToNextAssessment ? "Downstream Emissions" : undefined}
         onContinue={handleBacktoGHG}
-        onContinueAssessment={onContinueToNextAssessment ?? (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))}
+        onContinueAssessment={
+          onContinueToNextAssessment ??
+          (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))
+        }
         onBackToHub={handleBacktoAssessment}
       />
     );

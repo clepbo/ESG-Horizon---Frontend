@@ -38,11 +38,13 @@ export default function OperationalDelay({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
-    "socialCapital.communityRelations.operationalDelays",
-    "socialCapital.communityRelations.operationalDelays"
-  );
-  const hasExistingData = !!state.assessmentData.socialCapital?.communityRelations?.operationalDelays;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "socialCapital.communityRelations.operationalDelays",
+      "socialCapital.communityRelations.operationalDelays"
+    );
+  const hasExistingData =
+    !!state.assessmentData.socialCapital?.communityRelations?.operationalDelays;
 
   const numberOfDelaysCommunityProtests = useFormattedNumber("");
   const durationDelaysCommunityProtests = useFormattedNumber("");
@@ -65,13 +67,19 @@ export default function OperationalDelay({
     const existingData = state.assessmentData?.socialCapital?.communityRelations?.operationalDelays;
     if (existingData && Object.keys(existingData).length > 0) {
       if (existingData.numberOfDelaysCommunityProtests != null) {
-        numberOfDelaysCommunityProtests.handleChange(String(existingData.numberOfDelaysCommunityProtests));
+        numberOfDelaysCommunityProtests.handleChange(
+          String(existingData.numberOfDelaysCommunityProtests)
+        );
       }
       if (existingData.durationDelaysCommunityProtests != null) {
-        durationDelaysCommunityProtests.handleChange(String(existingData.durationDelaysCommunityProtests));
+        durationDelaysCommunityProtests.handleChange(
+          String(existingData.durationDelaysCommunityProtests)
+        );
       }
       if (existingData.numberOfDelaysOtherStakeholder != null) {
-        numberOfDelaysOtherStakeholder.handleChange(String(existingData.numberOfDelaysOtherStakeholder));
+        numberOfDelaysOtherStakeholder.handleChange(
+          String(existingData.numberOfDelaysOtherStakeholder)
+        );
       }
       if (existingData.durationDelaysOtherIssues != null) {
         durationDelaysOtherIssues.handleChange(String(existingData.durationDelaysOtherIssues));

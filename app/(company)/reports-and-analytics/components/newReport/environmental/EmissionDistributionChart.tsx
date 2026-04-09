@@ -1,7 +1,7 @@
 import { Pie, PieChart, Legend, Tooltip, ResponsiveContainer } from "recharts";
 import type { PieLabelRenderProps } from "recharts";
 import { formatNumberFigures } from "@/app/(company)/components/ranking/FormatNumberFigures";
-import { formatNumberFull } from "@/lib/numberFormat";
+import { formatNumberShort } from "@/lib/numberFormat";
 
 interface EmissionDistributionChartProps {
   isAnimationActive?: boolean;
@@ -77,7 +77,7 @@ export default function EmissionDistributionChart({
 
           <Tooltip
             formatter={(value) =>
-              value != null ? formatNumberFull(Number(value), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""
+              value != null ? formatNumberShort(Number(value), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""
             }
           />
 

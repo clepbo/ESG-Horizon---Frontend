@@ -40,11 +40,13 @@ export default function HumanRightEngagement({
 }: HumanRightEngagementProps) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
-    "socialCapital.securityRights.humanRightEngagement",
-    "socialCapital.securityHumanRights.humanRightsEngagementProcesses"
-  );
-  const hasExistingData = !!state.assessmentData.socialCapital?.securityRights?.humanRightEngagement;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "socialCapital.securityRights.humanRightEngagement",
+      "socialCapital.securityHumanRights.humanRightsEngagementProcesses"
+    );
+  const hasExistingData =
+    !!state.assessmentData.socialCapital?.securityRights?.humanRightEngagement;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);

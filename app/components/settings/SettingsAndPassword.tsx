@@ -98,7 +98,9 @@ export default function SecurityAndPassword() {
         <p className="text-sm text-gray-500 mb-6">Update your password</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField label="Current Password" type="password" required />
+          <div title="Coming soon">
+            <InputField label="Current Password" type="password" disabled />
+          </div>
           <br />
           <InputField
             label="New Password"
@@ -121,7 +123,12 @@ export default function SecurityAndPassword() {
 
         {/* Footer Buttons */}
         <div className="flex justify-end gap-3 mt-6">
-          <button className="border bg-[var(--color-primary)]   text-white px-6 py-2 rounded-md text-sm hover:bg-green-50">
+          <button
+            type="button"
+            disabled
+            title="Coming soon"
+            className="border bg-[var(--color-primary)] text-white px-6 py-2 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Close
           </button>
           <button
@@ -180,12 +187,14 @@ function InputField({
   label,
   type = "text",
   required = false,
+  disabled = false,
   value,
   onChange,
 }: {
   label: string;
   type?: string;
   required?: boolean;
+  disabled?: boolean;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
@@ -203,7 +212,8 @@ function InputField({
           placeholder={`Enter your ${label.toLowerCase()}`}
           value={value}
           onChange={onChange}
-          className="w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 pr-10"
+          disabled={disabled}
+          className={`w-full rounded-md bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300 pr-10 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         />
         {type === "password" && (
           <button

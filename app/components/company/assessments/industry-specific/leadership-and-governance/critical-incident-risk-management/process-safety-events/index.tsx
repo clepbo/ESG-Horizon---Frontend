@@ -34,7 +34,10 @@ export default function ProcessSafetyEvents({
 }: ProcessSafetyEventsFormProps) {
   const { state, dispatch } = useAssessment();
   const current = "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents";
-  const { saveNow, saveAndSubmit } = useAssessmentFlow(current, "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    current,
+    "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents"
+  );
 
   const totalHoursWorked = useFormattedNumber("");
   const numberOfEvents = useFormattedNumber("");

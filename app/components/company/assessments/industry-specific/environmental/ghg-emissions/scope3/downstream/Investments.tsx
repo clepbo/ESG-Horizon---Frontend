@@ -84,7 +84,10 @@ export function Investments({
     portfolioEmissions: false,
   });
 
-  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow("ghg-scope3-investments", "environment.ghg.scope3.downstream");
+  const { saveNow, isLoading, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    "ghg-scope3-investments",
+    "environment.ghg.scope3.downstream"
+  );
   const hasExistingData = !!state.assessmentData.environment?.ghg?.scope3?.downstream?.investments;
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -121,10 +124,7 @@ export function Investments({
       portfolioEmissions.trim() !== "" &&
       !isNaN(Number(portfolioEmissions)) &&
       Number(portfolioEmissions) >= 0;
-    const progressChecks = [
-      hasInvestmentAmount,
-      hasPortfolioEmissions,
-    ];
+    const progressChecks = [hasInvestmentAmount, hasPortfolioEmissions];
 
     return calculateProgress(progressChecks);
   }, [investmentAmount, portfolioEmissions]);

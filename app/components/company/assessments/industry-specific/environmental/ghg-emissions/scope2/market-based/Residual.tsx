@@ -124,7 +124,7 @@ export function ResidualForm({
       !isNaN(Number(residualMixFactor.rawValue)) &&
       Number(residualMixFactor.rawValue) >= 0;
 
-    const hasFiles =
+    const _hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
     return calculateProgress([hasElectricity, hasFactor]);

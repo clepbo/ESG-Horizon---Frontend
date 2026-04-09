@@ -47,6 +47,12 @@ export interface Target {
   baselineYear: number;
   targetYear: number;
   currentAssessmentYear?: number | null;
+  /** ISO date string of the baseline assessment, attached by
+   *  getLatestTargetPair on the backend. Used by TargetTrendChart to
+   *  plot points on a real elapsed-time X axis. */
+  baselineDate?: string | null;
+  /** ISO date string of the latest (current) assessment. Same source. */
+  currentDate?: string | null;
   createdAt: string;
   updatedAt: string;
   generalTarget?: GeneralTarget | null;

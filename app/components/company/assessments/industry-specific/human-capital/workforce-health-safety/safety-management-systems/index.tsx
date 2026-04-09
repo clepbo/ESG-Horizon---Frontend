@@ -40,12 +40,14 @@ export default function SafetyManagementSystem({
   const [filesAndLinks, setFilesAndLinks] = useState<any[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
-    "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
-    "humanCapital.workforceHealthSafety"
-  );
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems",
+      "humanCapital.workforceHealthSafety"
+    );
   const { state } = useAssessment();
-  const hasExistingData = !!(state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety?.riskAndOpportunityManagement?.safetyManagementSystems;
+  const hasExistingData = !!(state.assessmentData as any)?.humanCapital?.workforceHealthAndSafety
+    ?.riskAndOpportunityManagement?.safetyManagementSystems;
   const formRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 

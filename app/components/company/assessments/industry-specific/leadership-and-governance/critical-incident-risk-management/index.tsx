@@ -10,7 +10,12 @@ import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { SuccessScreen } from "../../../SuccessScreen";
 import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 import ProcessSafetyEvents from "./process-safety-events";
 import CatastrophicRiskManagementSystems from "./catastrophic-risk-management-systems";
@@ -37,20 +42,35 @@ export default function CriticalIncidentRiskManagement({
   const router = useRouter();
   const [currentView, setCurrentView] = useState<CIRMView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
+  const [_totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state } = useAssessment();
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Process Safety Events (Tier 1)": { groupKey: "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents", dataPath: ["leadershipGovernance", "criticalIncidentRiskManagement", "processSafetyEvents"] },
-    "Catastrophic Risk Management Systems": { groupKey: "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems", dataPath: ["leadershipGovernance", "criticalIncidentRiskManagement", "catastrophicRiskManagementSystems"] },
+    "Process Safety Events (Tier 1)": {
+      groupKey: "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents",
+      dataPath: ["leadershipGovernance", "criticalIncidentRiskManagement", "processSafetyEvents"],
+    },
+    "Catastrophic Risk Management Systems": {
+      groupKey:
+        "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems",
+      dataPath: [
+        "leadershipGovernance",
+        "criticalIncidentRiskManagement",
+        "catastrophicRiskManagementSystems",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -175,7 +195,12 @@ export default function CriticalIncidentRiskManagement({
                 <div className="max-w-2xl">
                   <Card
                     className="transition-colors bg-white border shadow-sm rounded-lg cursor-pointer hover:bg-accent/50"
-                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus("Process Safety Events (Tier 1)")) }}
+                    style={{
+                      borderLeftWidth: "4px",
+                      borderLeftColor: getSectionBorderColor(
+                        getCardStatus("Process Safety Events (Tier 1)")
+                      ),
+                    }}
                     onClick={() => handleCardClick("Process Safety Events (Tier 1)")}
                   >
                     <CardContent className="p-4">
@@ -227,7 +252,12 @@ export default function CriticalIncidentRiskManagement({
                 <div className="max-w-2xl">
                   <Card
                     className="transition-colors bg-white border shadow-sm rounded-lg cursor-pointer hover:bg-accent/50"
-                    style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus("Catastrophic Risk Management Systems")) }}
+                    style={{
+                      borderLeftWidth: "4px",
+                      borderLeftColor: getSectionBorderColor(
+                        getCardStatus("Catastrophic Risk Management Systems")
+                      ),
+                    }}
                     onClick={() => handleCardClick("Catastrophic Risk Management Systems")}
                   >
                     <CardContent className="p-4">
@@ -237,7 +267,9 @@ export default function CriticalIncidentRiskManagement({
                             <h5 className="font-medium text-foreground">
                               Catastrophic Risk Management Systems
                             </h5>
-                            <StatusPill status={getCardStatus("Catastrophic Risk Management Systems")} />
+                            <StatusPill
+                              status={getCardStatus("Catastrophic Risk Management Systems")}
+                            />
                           </div>
                           <p className="text-sm text-muted-foreground">
                             This form covers metric EM-EP-540a.2, which is a qualitative discussion

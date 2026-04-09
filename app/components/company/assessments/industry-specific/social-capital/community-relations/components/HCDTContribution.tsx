@@ -35,7 +35,10 @@ export default function HCDTContribution({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.hcdtContribution", "socialCapital.communityRelations.hcdtContribution");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "socialCapital.communityRelations.hcdtContribution",
+    "socialCapital.communityRelations.hcdtContribution"
+  );
 
   const opexAmount = useFormattedNumber("");
   const hcdtAmount = useFormattedNumber("");
@@ -302,7 +305,9 @@ export default function HCDTContribution({
                 </div>
                 {opexAmount.rawValue && hcdtAmount.rawValue && Number(opexAmount.rawValue) > 0 && (
                   <p className="text-sm text-gray-500 italic">
-                    ≈ {((Number(hcdtAmount.rawValue) / Number(opexAmount.rawValue)) * 100).toFixed(2)}% of OPEX
+                    ≈{" "}
+                    {((Number(hcdtAmount.rawValue) / Number(opexAmount.rawValue)) * 100).toFixed(2)}
+                    % of OPEX
                   </p>
                 )}
               </div>

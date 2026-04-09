@@ -121,7 +121,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
 
   const environmentalAmount = (
     <p className="font-bold">
-      {formatNumberFull(environmental?.total_emission ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+      {formatNumberShort(environmental?.total_emission ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
       <sub className="text-xs font-normal text-gray-600"> tCO2e</sub>
     </p>
   );
@@ -286,7 +286,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Total recordable incident rate"}
           pillar={"Human Capital"}
           score={humanCapitalScore}
-          amount={`${formatNumberFull(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hrs`}
+          amount={`${formatNumberShort(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hrs`}
           footer={
             `Safety performance ${humanCapital?.changePercentage && humanCapital.changePercentage < 0 ? 'improved' : 'tracked'} YoY. ${humanCapital?.fatalities ?? 0} fatalities recorded.`
           }
@@ -314,7 +314,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           title={"Process safety"}
           pillar={"Leadership and Governance"}
           score={`${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          amount={`${leadership?.numberOfTierEventsAndWhatTier ? formatNumberFull(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"} per 200k hrs`}
+          amount={`${leadership?.numberOfTierEventsAndWhatTier ? formatNumberShort(Number(leadership.numberOfTierEventsAndWhatTier) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"} per 200k hrs`}
           footer={`Sustainability oversight ${leadership?.managementOfLegalAndRegulatoryEnvironment?.sustainabilityGovernance === "yes" ? "active" : "needs attention"}. Process safety event rate at ${formatNumberFull(leadership?.processSafetyPercentage ?? 0, { maximumFractionDigits: 2 })} per 200k hrs.`}
           icon={<GiHumanPyramid />}
           iconBg={"#e8e8e8"}

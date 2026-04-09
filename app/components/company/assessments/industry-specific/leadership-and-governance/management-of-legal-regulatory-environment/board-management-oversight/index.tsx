@@ -38,8 +38,13 @@ export default function BoardManagementOversight({
   const { state, dispatch } = useAssessment();
   const current =
     "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight";
-  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight");
-  const hasExistingData = !!state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment?.boardAndManagementOversight;
+  const { saveNow, saveAndSubmit, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(
+    current,
+    "leadershipGovernance.legalRegulatoryEnvironment.boardManagementOversight"
+  );
+  const hasExistingData =
+    !!state.assessmentData.leadershipGovernance?.managementOfTheLegalAndRegulatoryEnvironment
+      ?.boardAndManagementOversight;
   const [hasBoardCommittee, setHasBoardCommittee] = useState("");
   const [oversightDiscussion, setOversightDiscussion] = useState("");
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);

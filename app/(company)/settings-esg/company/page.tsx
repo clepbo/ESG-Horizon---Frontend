@@ -122,7 +122,7 @@ export default function CompanyPage() {
               <ToggleSwitch checked={ifrsIssb} onChange={() => {}} disabled={true} />
             </div>
             <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-              This feature is currently disabled
+              Coming soon
             </div>
           </div>
         </div>

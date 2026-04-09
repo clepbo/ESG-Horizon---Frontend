@@ -35,7 +35,10 @@ export default function CommunityDisputeResolution({
 }: Props) {
   const router = useRouter();
   const { state } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("socialCapital.communityRelations.disputeResolution", "socialCapital.communityRelations.communityDisputeResolution");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "socialCapital.communityRelations.disputeResolution",
+    "socialCapital.communityRelations.communityDisputeResolution"
+  );
 
   const disputesReferred = useFormattedNumber("");
   const disputesResolved = useFormattedNumber("");

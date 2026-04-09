@@ -38,7 +38,10 @@ export default function DownstreamEmission({
   const [totals, setTotals] = useState<TotalsResponse | null>(null);
   const { state, dispatch } = useAssessment();
 
-  const { saveQuiet, saveAndSubmit } = useAssessmentFlow("ghg-scope3-downstream", "environment.ghg.scope3.downstream");
+  const { saveQuiet, saveAndSubmit } = useAssessmentFlow(
+    "ghg-scope3-downstream",
+    "environment.ghg.scope3.downstream"
+  );
 
   function handleNext(val: number) {
     setStep(val);
@@ -108,7 +111,10 @@ export default function DownstreamEmission({
         totals={totals ?? undefined}
         nextAssessment={onContinueToNextAssessment ? "Air Quality" : undefined}
         onContinue={handleBacktoGHG}
-        onContinueAssessment={onContinueToNextAssessment ?? (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))}
+        onContinueAssessment={
+          onContinueToNextAssessment ??
+          (() => dispatch({ type: "SET_VIEW", payload: "disclosure-topics" }))
+        }
         onBackToHub={handleBacktoAssessment}
       />
     );

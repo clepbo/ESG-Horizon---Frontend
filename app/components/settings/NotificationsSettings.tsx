@@ -1,59 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "react-toastify";
-
-interface NotificationItem {
-  title: string;
-  desc: string;
-  enabled: boolean;
-}
+const notifications = [
+  {
+    title: "Data Collection Reminders",
+    desc: "Get notified when data entry deadlines approach",
+    enabled: true,
+  },
+  {
+    title: "Report Generation",
+    desc: "Notifications when reports are ready for review",
+    enabled: false,
+  },
+  { title: "Compliance Updates", desc: "Stay informed about regulatory changes", enabled: true },
+  { title: "Team Activity", desc: "Updates when team members complete tasks", enabled: true },
+  { title: "Weekly Summary", desc: "Weekly progress reports and insights", enabled: false },
+];
 
 export default function NotificationsSettings() {
-  const [notifications, setNotifications] = useState<NotificationItem[]>([
-    {
-      title: "Data Collection Reminders",
-      desc: "Get notified when data entry deadlines approach",
-      enabled: true,
-    },
-    {
-      title: "Report Generation",
-      desc: "Notifications when reports are ready for review",
-      enabled: false,
-    },
-    {
-      title: "Compliance Updates",
-      desc: "Stay informed about regulatory changes",
-      enabled: true,
-    },
-    {
-      title: "Team Activity",
-      desc: "Updates when team members complete tasks",
-      enabled: true,
-    },
-    {
-      title: "Weekly Summary",
-      desc: "Weekly progress reports and insights",
-      enabled: false,
-    },
-  ]);
-
-  const [saving, setSaving] = useState(false);
-
-  const toggleNotification = (index: number) => {
-    setNotifications((prev) =>
-      prev.map((n, i) => (i === index ? { ...n, enabled: !n.enabled } : n))
-    );
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    // simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    toast.success("Notification preferences updated successfully");
-    setSaving(false);
-  };
-
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
       <h2 className="text-2xl font-semibold">Notifications</h2>
@@ -73,25 +36,29 @@ export default function NotificationsSettings() {
                 <p className="font-medium">{item.title}</p>
                 <p className="text-sm text-gray-500">{item.desc}</p>
               </div>
-              <ToggleSwitch checked={item.enabled} onChange={() => toggleNotification(index)} />
+              <div title="Coming soon">
+                <ToggleSwitch checked={item.enabled} onChange={() => {}} disabled />
+              </div>
             </div>
           ))}
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <button className="px-5 py-2 border border-green-500 text-green-500 rounded hover:bg-green-50">
+          <button
+            type="button"
+            disabled
+            title="Coming soon"
+            className="px-5 py-2 border border-green-500 text-green-500 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Close
           </button>
           <button
-            onClick={handleSave}
-            disabled={saving}
-            className={`px-5 py-2 rounded text-white ${
-              saving
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[var(--color-primary)] hover:bg-teal-600"
-            }`}
+            type="button"
+            disabled
+            title="Coming soon"
+            className="px-5 py-2 rounded text-white bg-[var(--color-primary)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? "Saving..." : "Save"}
+            Save
           </button>
         </div>
       </div>
@@ -99,10 +66,26 @@ export default function NotificationsSettings() {
   );
 }
 
-function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+function ToggleSwitch({
+  checked,
+  onChange,
+  disabled = false,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
   return (
-    <label className="inline-flex items-center cursor-pointer">
-      <input type="checkbox" className="sr-only peer" checked={checked} onChange={onChange} />
+    <label
+      className={`inline-flex items-center ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+    >
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+      />
       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:bg-green-500 relative transition-all">
         <span
           className={`absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full shadow transform transition-transform ${

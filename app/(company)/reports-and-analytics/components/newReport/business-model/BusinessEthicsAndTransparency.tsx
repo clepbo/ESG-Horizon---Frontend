@@ -1,6 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { BusinessModelPillar } from "@/types/report/reportResponse";
-import { formatNumberFull, formatCurrencyCompact } from "@/lib/numberFormat";
+import { formatNumberFull, formatNumberShort, formatCurrencyCompact } from "@/lib/numberFormat";
 
 interface BusinessEthicAndTransparencyProps {
   businessModel?: BusinessModelPillar;
@@ -14,19 +14,22 @@ export default function BusinessEthicAndTransparency({
   const strategicAllocation =
     businessModel?.reservesValuationAndCapitalExpenditure?.strategicCapitalAllocation;
 
-  // Calculate pie chart data — capexPercentage is the % of CAPEX on gas exploration
-  const gasPercent = strategicAllocation?.gasProjectsValueCount ?? 0;
+  // The form collects a single "Percentage of Current CAPEX Allocated to Gas
+  // or Renewable Projects" — i.e. the share going to the energy transition.
+  // Backend persists it as `gasProjectsValueCount` for legacy reasons, with
+  // `maintenanceValueCount = 100 - that`. Surface it as "% Capex to Transition".
+  const transitionPercent = strategicAllocation?.gasProjectsValueCount ?? 0;
   const otherPercent = strategicAllocation?.maintenanceValueCount ?? 0;
-  const total = gasPercent + otherPercent;
+  const total = transitionPercent + otherPercent;
 
   const capitalData =
     total > 0
       ? [
-          { name: "Gas Exploration", value: gasPercent, color: "#3B82F6" },
+          { name: "Transition Capex", value: transitionPercent, color: "#3B82F6" },
           { name: "Other CAPEX", value: otherPercent, color: "#9CA3AF" },
         ]
       : [
-          { name: "Gas Exploration", value: 0, color: "#3B82F6" },
+          { name: "Transition Capex", value: 0, color: "#3B82F6" },
           { name: "Other CAPEX", value: 0, color: "#9CA3AF" },
         ];
 
@@ -37,11 +40,11 @@ export default function BusinessEthicAndTransparency({
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Climate Impact on Reserves</h3>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Carbon Price */}
+          {/* Carbon Price — collected in USD per the form (carbonPriceScenarioUnit: "$/tonne CO₂-e") */}
           <div className="rounded-lg bg-gray-50 p-4">
             <p className="text-sm text-gray-600">Carbon Price Scenario</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">
-              ₦ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              $ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               <span className="ml-1 text-sm font-normal text-gray-600">/tonne</span>
             </p>
           </div>
@@ -60,28 +63,28 @@ export default function BusinessEthicAndTransparency({
           <div className="flex justify-between text-gray-600">
             <span>Total Proved Reserves</span>
             <span className="font-medium text-gray-900">
-              {formatNumberFull(climateImpact?.totalProvedReserves ?? 0, {
+              {formatNumberShort(climateImpact?.totalProvedReserves ?? 0, {
                 minimumFractionDigits: 2, maximumFractionDigits: 2,
               })}{" "}
-              MMboe
+              boe
             </span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>Estimated Decrease</span>
             <span className="font-medium text-red-600">
-              {formatNumberFull(climateImpact?.totalProbableReserves ?? 0, {
+              {formatNumberShort(climateImpact?.totalProbableReserves ?? 0, {
                 minimumFractionDigits: 2, maximumFractionDigits: 2,
               })}{" "}
-              MMboe
+              boe
             </span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>Embedded Carbon</span>
             <span className="font-medium text-gray-900">
-              {formatNumberFull(climateImpact?.embeddedCarbon ?? 0, {
+              {formatNumberShort(climateImpact?.embeddedCarbon ?? 0, {
                 minimumFractionDigits: 2, maximumFractionDigits: 2,
               })}{" "}
-              MtCO₂e
+              tCO₂e
             </span>
           </div>
         </div>
@@ -90,6 +93,17 @@ export default function BusinessEthicAndTransparency({
       {/* RIGHT CARD - Strategic Capital Allocation */}
       <div className="rounded-xl bg-white p-6 shadow-sm overflow-hidden">
         <h3 className="mb-6 text-lg font-semibold text-gray-900">Strategic Capital Allocation</h3>
+
+        {/* % Capex to Transition KPI — surfaced from gasProjectsValueCount */}
+        <div className="mb-6 rounded-lg bg-blue-50 p-4">
+          <p className="text-sm text-gray-600">% Capex to Transition</p>
+          <p className="mt-1 text-3xl font-bold text-blue-600">
+            {formatNumberFull(transitionPercent, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Share of current CAPEX allocated to gas, renewable, or other low-carbon projects
+          </p>
+        </div>
 
         <div className="mb-6 flex justify-between text-sm">
           <div>

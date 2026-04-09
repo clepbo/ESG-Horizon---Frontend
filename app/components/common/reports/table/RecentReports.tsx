@@ -203,7 +203,9 @@ export function RecentReportsWidget() {
           />
           <Button
             type="button"
-            className="rounded-md bg-primary hover:bg-teal-600 text-white font-medium shrink-0 h-10 px-4 inline-flex items-center gap-2"
+            disabled
+            title="Coming soon"
+            className="rounded-md bg-primary hover:bg-teal-600 text-white font-medium shrink-0 h-10 px-4 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Search"
           >
             <Search className="h-4 w-4" />

@@ -44,15 +44,14 @@ export default function WaterQualityImpact({
   const sitesWithDeterioratedQuality = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const {
-    saveNow,
-    saveAndSubmit,
-    isSaving,
-    isSubmitting,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("water-quality-impacts", "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts");
-  const hasExistingData = !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts?.waterQualityImpacts;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "water-quality-impacts",
+      "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
+      ?.waterQualityImpacts;
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
@@ -107,7 +106,7 @@ export default function WaterQualityImpact({
       }
       setFilesAndLinks(existingData.filesAndLinks || []);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     state.assessmentData.environment?.waterManagement?.hydraulicFracturingImpacts
       ?.waterQualityImpacts,

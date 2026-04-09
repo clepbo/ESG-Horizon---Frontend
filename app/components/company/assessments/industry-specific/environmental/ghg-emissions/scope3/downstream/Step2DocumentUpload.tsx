@@ -87,7 +87,7 @@ export function DocumentUpload({
   const [uploading, setUploading] = useState<{ [key: string]: boolean }>({});
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
   const [errors, setErrors] = useState<DocumentUploadErrors>({});
-  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: boolean }>(
+  const [_fieldErrors, setFieldErrors] = useState<{ [key: string]: boolean }>(
     Object.fromEntries(uploadFields.map((field) => [field.key, false]))
   );
 
@@ -128,7 +128,7 @@ export function DocumentUpload({
   }, [files, additionalFields]);
 
   // Clear error when user interacts with ANY field
-  const clearAllErrors = () => {
+  const _clearAllErrors = () => {
     setErrors({});
     const newFieldErrors: { [key: string]: boolean } = {};
     uploadFields.forEach((field) => {
@@ -137,7 +137,7 @@ export function DocumentUpload({
     setFieldErrors(newFieldErrors);
   };
 
-  const validateForm = () => {
+  const _validateForm = () => {
     const newErrors: DocumentUploadErrors = {};
     const newFieldErrors: { [key: string]: boolean } = {};
 
@@ -341,7 +341,8 @@ export function DocumentUpload({
             <div>
               <h4 className="text-xl font-medium text-foreground">Documents/Evidence Upload</h4>
               <p className="text-muted-foreground text-base">
-                Upload supporting documents for downstream transportation and distribution (optional).
+                Upload supporting documents for downstream transportation and distribution
+                (optional).
               </p>
             </div>
 
@@ -354,9 +355,7 @@ export function DocumentUpload({
                     <div key={field.key} className="flex flex-col h-full">
                       <div className="flex items-center gap-2 mb-3">
                         {/* <Icon className={`h-5 w-5 ${field.color}`} /> */}
-                        <Label className="text-sm font-medium text-gray-900">
-                          {field.label}
-                        </Label>
+                        <Label className="text-sm font-medium text-gray-900">{field.label}</Label>
                       </div>
 
                       <Card
@@ -422,7 +421,6 @@ export function DocumentUpload({
                             <div className="w-8 h-1 bg-green-500 rounded-full mt-1"></div>
                           </div>
                         ) : null}
-
                       </Card>
                     </div>
                   );
