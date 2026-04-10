@@ -143,16 +143,14 @@ function ActionDropdown({
         {/* Continue / Update — primary action */}
         <DropdownMenuItem
           onClick={canEdit ? onContinue : undefined}
-          disabled={
-            !canEdit ||
-            status === "approved" ||
-            status === "submitted_approved"
-          }
+          disabled={!canEdit || status === "approved" || status === "submitted_approved"}
         >
           {getActionIcon(
-            status === "declined" || status === "unapproved_rejected" || status === "awaiting_review"
+            status === "declined" ||
+              status === "unapproved_rejected" ||
+              status === "awaiting_review"
               ? "Update"
-              : "Continue",
+              : "Continue"
           )}
           {status === "declined" || status === "unapproved_rejected" || status === "awaiting_review"
             ? "Update"
@@ -168,7 +166,9 @@ function ActionDropdown({
         {/* Submit for Review / Submit — only for editable statuses */}
         {(status === "in_progress" || status === "declined") && (
           <DropdownMenuItem
-            onClick={canSubmit ? (requireAssessmentReview ? onSubmitForReview : onSubmitDirect) : undefined}
+            onClick={
+              canSubmit ? (requireAssessmentReview ? onSubmitForReview : onSubmitDirect) : undefined
+            }
             disabled={!canSubmit}
           >
             {getActionIcon("Submit")}
@@ -227,12 +227,12 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
 
   const filteredData = dateRange
     ? data.filter((a) => {
-      const startDate = new Date(a.startPeriod);
-      const endDate = new Date(a.endPeriod);
-      const rangeStart = new Date(dateRange.startMonth);
-      const rangeEnd = new Date(dateRange.endMonth);
-      return startDate >= rangeStart && endDate <= rangeEnd;
-    })
+        const startDate = new Date(a.startPeriod);
+        const endDate = new Date(a.endPeriod);
+        const rangeStart = new Date(dateRange.startMonth);
+        const rangeEnd = new Date(dateRange.endMonth);
+        return startDate >= rangeStart && endDate <= rangeEnd;
+      })
     : data;
 
   const validData = filteredData
@@ -303,7 +303,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
       { assessmentId: reviewerModalData.assessmentId, reviewerId },
       {
         onSettled: () => setReviewerModalData({ open: false, assessmentId: null }),
-      },
+      }
     );
   };
 
@@ -317,7 +317,7 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
       { assessmentId: submitConfirmData.assessmentId },
       {
         onSettled: () => setSubmitConfirmData({ open: false, assessmentId: null }),
-      },
+      }
     );
   };
 
@@ -501,7 +501,11 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
         const fmt = (val?: string | null) => {
           if (!val) return null;
           try {
-            return new Date(val).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+            return new Date(val).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            });
           } catch {
             return null;
           }
@@ -530,14 +534,15 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
               </Tooltip>
             )}
 
-            {(status === "unapproved_rejected" || status === "declined") && assessment.rejection_reason && (
-              <button
-                onClick={() => handleOpenReason(assessment.rejection_reason)}
-                className="text-gray-500 hover:text-gray-700 cursor-pointer"
-              >
-                <CircleHelp className="h-5 w-5" />
-              </button>
-            )}
+            {(status === "unapproved_rejected" || status === "declined") &&
+              assessment.rejection_reason && (
+                <button
+                  onClick={() => handleOpenReason(assessment.rejection_reason)}
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                >
+                  <CircleHelp className="h-5 w-5" />
+                </button>
+              )}
           </div>
         );
       },
