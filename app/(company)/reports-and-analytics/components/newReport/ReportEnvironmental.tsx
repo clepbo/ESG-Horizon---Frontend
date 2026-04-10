@@ -34,9 +34,28 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
   // The report response now packages targets as { general, scope } so a
   // company with both kinds of target rows shows both lines on the trend
   // chart instead of only the most-recently-created one.
-  const targetPair = reportData?.targets;
-  const generalTarget = targetPair?.general ?? null;
-  const scopeTarget = targetPair?.scope ?? null;
+  //
+  // BACKWARDS COMPAT: the OLD backend (pre-deploy) returns a flat
+  // `Target | null` at `reportData.targets`. The NEW backend returns
+  // `{ general: Target | null, scope: Target | null }`. Detect which
+  // shape we got and normalise to the pair format so the frontend works
+  // against both backend versions during the rollout window.
+  const rawTargets = reportData?.targets as any;
+  const isPairShape = rawTargets && ("general" in rawTargets || "scope" in rawTargets);
+  const generalTarget = isPairShape
+    ? (rawTargets.general ?? null)
+    : rawTargets?.type === "GENERAL"
+      ? rawTargets
+      : rawTargets?.generalTarget
+        ? rawTargets
+        : null;
+  const scopeTarget = isPairShape
+    ? (rawTargets.scope ?? null)
+    : rawTargets?.type === "SCOPE"
+      ? rawTargets
+      : rawTargets?.scopeTargets?.length
+        ? rawTargets
+        : null;
   const hasAnyTarget = !!generalTarget || !!scopeTarget;
   // Derive a sensible card-title year — prefer the latest targetYear
   // across whichever rows exist.
@@ -310,7 +329,15 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
             sub={"mg/L"}
             amount={waterManagement?.averageHydrocarbonContent || 0}
           />
-          <OilRenderCard borderColor={"#119b95"} title={"Total Wells"} sub={"wells"} amount={waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.totalFracturedWells || 0} />
+          <OilRenderCard
+            borderColor={"#119b95"}
+            title={"Total Wells"}
+            sub={"wells"}
+            amount={
+              waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.totalFracturedWells ||
+              0
+            }
+          />
           <OilRenderCard
             borderColor={"#2570eb"}
             title={"Wells with Public Disclosure"}
@@ -329,7 +356,15 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 ?.percentageWithDisclosure || 0
             }
           />
-          <OilRenderCard borderColor={"#f64c4c"} title={"Total Sites"} sub={"sites"} amount={waterManagement?.hydraulicFracturingWaterQualityImpacts?.sites?.totalFracturedSitesMonitored || 0} />
+          <OilRenderCard
+            borderColor={"#f64c4c"}
+            title={"Total Sites"}
+            sub={"sites"}
+            amount={
+              waterManagement?.hydraulicFracturingWaterQualityImpacts?.sites
+                ?.totalFracturedSitesMonitored || 0
+            }
+          />
           <OilRenderCard
             borderColor={"#1e8a3d"}
             title={"Sites with Deteriorated Water Quality"}
@@ -422,10 +457,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   value={
                     (waterManagement?.totalProducedWaterGenerated ?? 0) > 0
                       ? Math.round(
-                        ((waterManagement?.recycledWater ?? 0) /
-                          (waterManagement?.totalProducedWaterGenerated ?? 1)) *
-                        100
-                      )
+                          ((waterManagement?.recycledWater ?? 0) /
+                            (waterManagement?.totalProducedWaterGenerated ?? 1)) *
+                            100
+                        )
                       : (waterManagement?.recycledWater ?? 0) > 0
                         ? 100
                         : 0
@@ -437,10 +472,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   percent={
                     (waterManagement?.totalProducedWaterGenerated ?? 0) > 0
                       ? Math.round(
-                        ((waterManagement?.recycledWater ?? 0) /
-                          (waterManagement?.totalProducedWaterGenerated ?? 1)) *
-                        100
-                      )
+                          ((waterManagement?.recycledWater ?? 0) /
+                            (waterManagement?.totalProducedWaterGenerated ?? 1)) *
+                            100
+                        )
                       : 0
                   }
                 />
@@ -460,7 +495,8 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                     ?.numberOfWellsWithPublicDisclosure || 0
                 }
                 progress={
-                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells?.percentageWithDisclosure ?? 0
+                  waterManagement?.hydraulicFracturingChemicalDisclosure?.wells
+                    ?.percentageWithDisclosure ?? 0
                 }
               />
               <WaterQualityCard
@@ -468,7 +504,11 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 amount={waterManagement?.recycledWater || 0}
                 progress={
                   waterManagement?.totalProducedWaterGenerated
-                    ? Math.round(((waterManagement.recycledWater || 0) / waterManagement.totalProducedWaterGenerated) * 100)
+                    ? Math.round(
+                        ((waterManagement.recycledWater || 0) /
+                          waterManagement.totalProducedWaterGenerated) *
+                          100
+                      )
                     : 0
                 }
                 sub="m³"
@@ -506,7 +546,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center justify-center text-sm">
                 <p className="font-thin">Number of Spills (&gt;1 bbl)</p>
                 <p className="font-semibold text-3xl ml-4">
-                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.numberOfSpills || 0, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
                 </p>
               </div>
 
@@ -523,10 +566,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 value={
                   (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0
                     ? Math.round(
-                      ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
-                        (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
-                      100
-                    )
+                        ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
+                          (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
+                          100
+                      )
                     : 0
                 }
                 title="Volume Recovered"
@@ -536,10 +579,10 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                 percent={
                   (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 0) > 0
                     ? Math.round(
-                      ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
-                        (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
-                      100
-                    )
+                        ((bioDiversity?.hydrocarbonSpills?.volumeRecovered ?? 0) /
+                          (bioDiversity?.hydrocarbonSpills?.totalVolumeSpilled ?? 1)) *
+                          100
+                      )
                     : 0
                 }
               />
@@ -549,13 +592,20 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Volume in Arctic </span>
                 <span className="font-semibold text-2xl">
-                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl{" "}
+                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.volumeInArctic || 0, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  bbl{" "}
                 </span>
               </div>
               <div className="flex flex-col items-center gap-2 text-xs">
                 <span className="font-thin"> Sensitive Shorelines </span>
                 <span className="font-semibold text-red-500 text-2xl">
-                  {formatNumberShort(bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                  {formatNumberShort(
+                    bioDiversity?.hydrocarbonSpills?.volumeImpactingSensitiveShorelines || 0,
+                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                  )}{" "}
                   bbl{" "}
                 </span>
               </div>
