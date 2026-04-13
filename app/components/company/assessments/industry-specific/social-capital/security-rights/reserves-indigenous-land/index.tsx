@@ -98,6 +98,7 @@ export default function ReservesIndigenousLand({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData?.socialCapital?.securityRights?.reservesIndigenousLand]);
 
   const { filled, total } = useMemo(() => {

@@ -2,214 +2,197 @@
 
 import { useState, useCallback, useMemo } from "react";
 import {
+  BarChart,
+  Bar,
+  Cell,
   LineChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceLine,
   Legend,
   ResponsiveContainer,
 } from "recharts";
 import { formatNumberShort } from "@/lib/numberFormat";
 
 /**
- * A unified "trend" view of a company's reduction targets — replaces the
- * pie / donut / gauge per-target charts that were sprinkled across the
- * dashboard, the report viewer, and the assessments KPI hub.
+ * Unified target-progress chart with two toggleable views:
  *
- * Renders one line per available target (General + up to three Scope
- * targets) on a shared **date-based** X axis (Unix timestamps, formatted
- * as "Mon YYYY"). The Y axis plots **% reduction from each line's own
- * baseline** so trajectories of vastly different absolute magnitudes
- * (e.g. Scope 3 in tens of thousands vs Scope 2 in single digits) sit on
- * the same comparable 0–110% scale.
+ *   1. **Progress** (default) — bullet-style horizontal bars showing how
+ *      far each target has progressed toward its goal. Instant "are we
+ *      on track?" read. Best when there are few assessment data points.
  *
- * Three special-case behaviors:
+ *   2. **Trajectory** — time-series line chart (Baseline → Current →
+ *      Target) on a date X axis. Becomes richer as more assessments are
+ *      filed over time.
  *
- *   1. **Backsliding clamp** — when a line's actual reduction is < -100%
- *      (current > 2× baseline), it's clamped to -100% on the visual axis
- *      so it doesn't drag the entire chart's Y scale into the basement.
- *      The tooltip still shows the real percentage.
- *
- *   2. **No-baseline lines** — when baselineYearEmission == 0, normal
- *      "% reduction from baseline" math is undefined. Such lines are
- *      still rendered, but on a synthesized 0% baseline → -100% backslid
- *      scale (since any positive emission represents net new emissions
- *      above a zero baseline). Marked with `noBaseline: true` and a clear
- *      tooltip note.
- *
- *   3. **Same-year collisions are gone** — the X axis is in real dates
- *      (timestamps from `baselineDate` / `currentDate`), so a baseline
- *      assessment in March and a current assessment in December of the
- *      same year are naturally distinct points.
- *
- * Accepts data in two shapes:
- *   • `general` + `scope` — two separate Target rows (dashboard / KPI hub)
- *   • `target` — one combined Target row that has both `generalTarget` and
- *     `scopeTargets` populated (report viewer)
- *
- * Both shapes work; you can pass either or both. The component is
- * structurally typed against `TargetLike` so it accepts the slightly
- * different Target definitions in `components/types/target.ts` and
- * `types/report/reportResponse.ts` without forcing a unifying refactor.
+ * Both views use the same metric: **% progress toward target**
+ *   progress = (baseline - current) / (baseline - target) × 100
+ *     0%   = at baseline (haven't started)
+ *     100% = hit the target exactly
+ *     >100% = exceeded the target
+ *     <0%  = backsliding (current > baseline)
  */
 
-/** Minimum shape the trend chart needs from a target row. Structurally
- *  compatible with both `Target` definitions in the codebase. */
+// ─────────────────────── types ───────────────────────
+
 export interface TargetLike {
   baselineYear: number;
   targetYear: number;
   currentAssessmentYear?: number | null;
-  /** ISO date string of the baseline assessment. When supplied, the chart
-   *  uses this for the baseline X position; otherwise falls back to
-   *  Jul 1 of `baselineYear`. */
   baselineDate?: string | null;
-  /** ISO date string of the current assessment. When supplied, used for
-   *  the current X position; otherwise falls back to Jul 1 of
-   *  `currentAssessmentYear` if present, else "today". */
   currentDate?: string | null;
   generalTarget?: {
     baselineYearEmission?: number;
     targetEmission?: number;
     currentEmission?: number | null;
+    reductionPercentage?: number;
   } | null;
   scopeTargets?: Array<{
     scope: string;
     baselineYearEmission?: number;
     currentEmission?: number | null;
     targetEmission?: number;
+    reductionPercentage?: number;
     baselineYear?: number | null;
     targetYear?: number | null;
   }> | null;
 }
 
 export interface TargetTrendChartProps {
-  /** General target row (type === "GENERAL"). Optional. */
   general?: TargetLike | null;
-  /** Scope target row (type === "SCOPE", contains scopeTargets[]). Optional. */
   scope?: TargetLike | null;
-  /** Convenience for sources that have both `generalTarget` and
-   *  `scopeTargets` on a single row (e.g. the report response). When set,
-   *  overrides `general` / `scope`. */
   target?: TargetLike | null;
-  /** Override default chart height (px). */
   height?: number;
 }
 
-interface LineConfig {
-  key: "general" | "scope1" | "scope2" | "scope3";
-  label: string;
-  color: string;
-  /** Unix timestamp (ms) of the baseline assessment. */
-  baselineTime: number;
-  baseline: number;
-  /** Unix timestamp (ms) of the current assessment. May be null if no
-   *  current measurement exists yet (target newly created, no follow-up
-   *  assessment yet). */
-  currentTime: number | null;
-  current: number | null;
-  /** Unix timestamp (ms) of the target year — defaulted to Dec 31 of the
-   *  target year, since target rows only carry a year, not a month. */
-  targetTime: number;
-  target: number;
-  /** True when baselineYearEmission was 0/missing — normal % math is
-   *  undefined; the line still renders but on a synthetic backslide scale. */
-  noBaseline: boolean;
-  /** True when there's no `current` measurement yet (line is just
-   *  baseline → planned target, drawn dashed). */
-  dashed: boolean;
-}
+// ─────────────────────── constants ───────────────────────
 
-const COLORS: Record<LineConfig["key"], string> = {
-  general: "#119B95", // teal — brand
-  scope1: "#EF4444", // red
-  scope2: "#F59E0B", // amber — was blue, changed to avoid blue/purple blend
-  scope3: "#3B82F6", // blue — was purple, swapped with S2 for max separation
+type LineKey = "general" | "scope1" | "scope2" | "scope3";
+
+const COLORS: Record<LineKey, string> = {
+  general: "#119B95",
+  scope1: "#EF4444",
+  scope2: "#F59E0B",
+  scope3: "#3B82F6",
 };
 
-const LABELS: Record<LineConfig["key"], string> = {
+const LABELS: Record<LineKey, string> = {
   general: "General",
   scope1: "Scope 1",
   scope2: "Scope 2",
   scope3: "Scope 3",
 };
 
-/** When backsliding exceeds this magnitude on the % axis we clamp the
- *  visible point at this value so a single wildly off-track line doesn't
- *  squash all the others into a flat band at the top of the chart. */
 const BACKSLIDE_CLAMP = -100;
+const EXCEED_CLAMP = 150;
 
-/* ─────────────────────── helpers ─────────────────────── */
+// ─────────────────────── data model ───────────────────────
 
-/** Parse an ISO string (or null/undefined) into a Unix timestamp.
- *  Returns null when input can't be parsed. */
+interface TargetLine {
+  key: LineKey;
+  label: string;
+  color: string;
+  baseline: number;
+  current: number | null;
+  target: number;
+  /** % progress toward goal (unclamped). null when math is undefined. */
+  progress: number | null;
+  /** Clamped version for display on the chart axis. */
+  progressClamped: number;
+  noBaseline: boolean;
+  dashed: boolean;
+  // Date-based positions for the trajectory view
+  baselineTime: number;
+  currentTime: number | null;
+  targetTime: number;
+}
+
+// ─────────────────────── helpers ───────────────────────
+
 function parseDate(iso?: string | null): number | null {
   if (!iso) return null;
   const t = new Date(iso).getTime();
   return Number.isFinite(t) ? t : null;
 }
 
-/** Mid-year fallback (Jul 1) timestamp for a given year. Used when a
- *  target row doesn't carry an explicit baseline / current ISO date. */
 function midYear(year: number): number {
   return new Date(`${year}-07-01T00:00:00Z`).getTime();
 }
 
-/** End-of-year (Dec 31) timestamp for a given year. Used for the target
- *  point because target rows only carry a year, not a month. */
 function endOfYear(year: number): number {
   return new Date(`${year}-12-31T00:00:00Z`).getTime();
 }
 
-/** Format a timestamp as "Mon YYYY" for the X-axis tick labels. */
 function formatMonthYear(ts: number): string {
-  const d = new Date(ts);
-  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  return new Date(ts).toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
 }
 
-/* ─────────────────────── data derivation ─────────────────────── */
+/** Compute % progress toward target. 0% = at baseline, 100% = at target. */
+function computeProgress(baseline: number, current: number, target: number): number | null {
+  const denominator = baseline - target;
+  if (denominator === 0) return current <= target ? 100 : 0;
+  return ((baseline - current) / denominator) * 100;
+}
 
-function buildLines(general?: TargetLike | null, scope?: TargetLike | null): LineConfig[] {
-  const lines: LineConfig[] = [];
+function clamp(value: number): { clamped: number; wasClamped: boolean } {
+  if (value < BACKSLIDE_CLAMP) return { clamped: BACKSLIDE_CLAMP, wasClamped: true };
+  if (value > EXCEED_CLAMP) return { clamped: EXCEED_CLAMP, wasClamped: true };
+  return { clamped: Number(value.toFixed(1)), wasClamped: false };
+}
 
-  // ── General target ──
+/** Pick a bar color based on progress value. */
+function progressColor(pct: number | null): string {
+  if (pct == null || pct < 0) return "#EF4444"; // red — backsliding
+  if (pct < 50) return "#F59E0B"; // amber — behind
+  if (pct < 100) return "#3B82F6"; // blue — on track
+  return "#10B981"; // green — at or exceeded target
+}
+
+// ─────────────────────── data derivation ───────────────────────
+
+function buildLines(general?: TargetLike | null, scope?: TargetLike | null): TargetLine[] {
+  const lines: TargetLine[] = [];
+
   const g = general?.generalTarget;
   if (g && general) {
     const baseline = g.baselineYearEmission ?? 0;
     const target = g.targetEmission ?? 0;
     const current = g.currentEmission ?? null;
-    // Skip only if there's NO meaningful data at all — baseline AND target
-    // AND current are all zero/null. Otherwise render the line; the
-    // noBaseline branch handles 0-baseline cases.
     if (baseline > 0 || target > 0 || (current ?? 0) > 0) {
-      const baselineTime = parseDate(general.baselineDate) ?? midYear(general.baselineYear);
-      const currentTime =
-        parseDate(general.currentDate) ??
-        (general.currentAssessmentYear ? midYear(general.currentAssessmentYear) : null);
+      const raw =
+        baseline > 0 && current != null ? computeProgress(baseline, current, target) : null;
+      const { clamped } = raw != null ? clamp(raw) : { clamped: 0 };
       lines.push({
         key: "general",
         label: LABELS.general,
         color: COLORS.general,
-        baselineTime,
         baseline,
-        currentTime,
         current,
-        targetTime: endOfYear(general.targetYear),
         target,
+        progress: raw,
+        progressClamped: clamped,
         noBaseline: baseline <= 0,
         dashed: current == null,
+        baselineTime: parseDate(general.baselineDate) ?? midYear(general.baselineYear),
+        currentTime:
+          parseDate(general.currentDate) ??
+          (general.currentAssessmentYear ? midYear(general.currentAssessmentYear) : null),
+        targetTime: endOfYear(general.targetYear),
       });
     }
   }
 
-  // ── Scope targets ──
   if (scope?.scopeTargets?.length) {
     for (const s of scope.scopeTargets) {
       const baseline = s.baselineYearEmission ?? 0;
       const target = s.targetEmission ?? 0;
       const current = s.currentEmission ?? null;
-      // Same skip rule — only when there's truly no data
       if (baseline <= 0 && target <= 0 && (current ?? 0) <= 0) continue;
 
       const key =
@@ -222,173 +205,221 @@ function buildLines(general?: TargetLike | null, scope?: TargetLike | null): Lin
               : null;
       if (!key) continue;
 
+      const raw =
+        baseline > 0 && current != null ? computeProgress(baseline, current, target) : null;
+      const { clamped } = raw != null ? clamp(raw) : { clamped: 0 };
       const sBaselineYear = s.baselineYear ?? scope.baselineYear;
       const sTargetYear = s.targetYear ?? scope.targetYear;
-      const baselineTime = parseDate(scope.baselineDate) ?? midYear(sBaselineYear);
-      const currentTime =
-        parseDate(scope.currentDate) ??
-        (scope.currentAssessmentYear ? midYear(scope.currentAssessmentYear) : null);
 
       lines.push({
         key,
         label: LABELS[key],
         color: COLORS[key],
-        baselineTime,
         baseline,
-        currentTime,
         current,
-        targetTime: endOfYear(sTargetYear),
         target,
+        progress: raw,
+        progressClamped: clamped,
         noBaseline: baseline <= 0,
         dashed: current == null,
+        baselineTime: parseDate(scope.baselineDate) ?? midYear(sBaselineYear),
+        currentTime:
+          parseDate(scope.currentDate) ??
+          (scope.currentAssessmentYear ? midYear(scope.currentAssessmentYear) : null),
+        targetTime: endOfYear(sTargetYear),
       });
     }
   }
 
+  // Ensure consistent order: General → Scope 1 → Scope 2 → Scope 3
+  const ORDER: LineKey[] = ["general", "scope1", "scope2", "scope3"];
+  lines.sort((a, b) => ORDER.indexOf(a.key) - ORDER.indexOf(b.key));
+
   return lines;
 }
 
-/** Convert an absolute tCO₂e value into a "% reduction from baseline"
- *  for charting. Handles three cases:
- *
- *   1. Normal baseline > 0 → standard ((baseline - value) / baseline) * 100
- *   2. noBaseline (baseline == 0) → use a synthetic scale where the value
- *      represents % growth from zero: capped at the BACKSLIDE_CLAMP because
- *      "infinite growth from zero" is mathematically undefined. The chart
- *      treats any nonzero current as "off-baseline" (clamped) and the
- *      tooltip clearly labels it as a no-baseline line.
- *   3. Backsliding (value > 2× baseline → < -100% reduction) → clamp at
- *      BACKSLIDE_CLAMP so a single wild line doesn't dwarf the chart.
- */
-function toPctReduction(line: LineConfig, value: number): { pct: number; clamped: boolean } {
-  if (line.noBaseline) {
-    // Without a baseline, treat any positive value as backsliding from
-    // a zero starting point. Clamp at BACKSLIDE_CLAMP so the line is
-    // visible at the bottom of the chart.
-    return value > 0 ? { pct: BACKSLIDE_CLAMP, clamped: true } : { pct: 0, clamped: false };
-  }
-  const raw = ((line.baseline - value) / line.baseline) * 100;
-  if (raw < BACKSLIDE_CLAMP) {
-    return { pct: BACKSLIDE_CLAMP, clamped: true };
-  }
-  return { pct: Number(raw.toFixed(2)), clamped: false };
-}
+// ─────────────────────── BULLET CHART VIEW ───────────────────────
 
-/**
- * Builds the unified Recharts data array.
- *
- * Each row is keyed by a Unix timestamp (`time`). For each line, the row
- * carries:
- *   • `<key>`: the chart-visible % reduction value (clamped at -100)
- *   • `<key>_raw`: the raw absolute tCO₂e (for the tooltip)
- *   • `<key>_realPct`: the unclamped % (for the tooltip when clamped)
- *   • `<key>_noBaseline`: true if the line has no baseline (tooltip note)
- */
-function buildChartData(lines: LineConfig[]): Array<Record<string, number | boolean>> {
-  // Collect every distinct timestamp any line touches
-  const timeSet = new Set<number>();
-  for (const line of lines) {
-    timeSet.add(line.baselineTime);
-    if (line.currentTime != null) timeSet.add(line.currentTime);
-    timeSet.add(line.targetTime);
-  }
-
-  const times = Array.from(timeSet).sort((a, b) => a - b);
-
-  return times.map((time) => {
-    const row: Record<string, number | boolean> = { time };
-    for (const line of lines) {
-      let absolute: number | null = null;
-
-      if (time === line.baselineTime) {
-        absolute = line.baseline;
-      } else if (line.currentTime != null && time === line.currentTime) {
-        absolute = line.current ?? null;
-      } else if (time === line.targetTime) {
-        absolute = line.target;
-      }
-
-      if (absolute != null) {
-        const { pct, clamped } = toPctReduction(line, absolute);
-        row[line.key] = pct;
-        row[`${line.key}_raw`] = absolute;
-        if (clamped) {
-          // Stash the unclamped value for the tooltip
-          const realPct = line.noBaseline
-            ? Number.NEGATIVE_INFINITY
-            : ((line.baseline - absolute) / line.baseline) * 100;
-          row[`${line.key}_realPct`] = realPct;
-        }
-        if (line.noBaseline) row[`${line.key}_noBaseline`] = true;
-      }
-    }
-    return row;
-  });
-}
-
-/* ─────────────────────── tooltip ─────────────────────── */
-
-interface TooltipPayloadItem {
-  name?: string;
-  value?: number | string;
-  color?: string;
-  dataKey?: string;
-  payload?: Record<string, number | boolean>;
-}
-
-function CustomTooltip({
-  active,
-  payload,
-  label,
-  hoveredKey,
-}: {
+interface BulletTooltipProps {
   active?: boolean;
-  payload?: TooltipPayloadItem[];
-  label?: string | number;
-  /** When set, only show the entry matching this dataKey — gives
-   *  per-line tooltips instead of a cluttered shared crosshair. */
-  hoveredKey?: string | null;
-}) {
+  payload?: Array<{ payload?: TargetLine }>;
+}
+
+function BulletTooltip({ active, payload }: BulletTooltipProps) {
   if (!active || !payload?.length) return null;
-  // Filter to non-null entries, then narrow to the hovered line if set
+  const line = payload[0]?.payload;
+  if (!line) return null;
+
+  const pct = line.progress;
+  const isReduction = pct != null && pct > 0;
+  const isBacksliding = pct != null && pct < 0;
+  const pctColor = isReduction
+    ? "text-emerald-600"
+    : isBacksliding
+      ? "text-red-600"
+      : "text-gray-900";
+  const arrow = isReduction ? "↓" : isBacksliding ? "↑" : "";
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg min-w-[200px]">
+      <p className="mb-2 text-sm font-semibold text-gray-800">{line.label}</p>
+      <div className="space-y-1 text-xs">
+        <div className="flex justify-between">
+          <span className="text-gray-500">Baseline:</span>
+          <span className="font-medium text-gray-800">
+            {formatNumberShort(line.baseline)} tCO₂e
+          </span>
+        </div>
+        {line.current != null && (
+          <div className="flex justify-between">
+            <span className="text-gray-500">Current:</span>
+            <span className="font-medium text-gray-800">
+              {formatNumberShort(line.current)} tCO₂e
+            </span>
+          </div>
+        )}
+        <div className="flex justify-between">
+          <span className="text-gray-500">Target:</span>
+          <span className="font-medium text-gray-800">{formatNumberShort(line.target)} tCO₂e</span>
+        </div>
+        <hr className="my-1 border-gray-100" />
+        <div className="flex justify-between items-center">
+          <span className="text-gray-500">Progress:</span>
+          <span className={`font-semibold ${pctColor}`}>
+            {pct != null ? (
+              <>
+                {arrow && <span className="mr-0.5">{arrow}</span>}
+                {Math.abs(pct).toFixed(1)}%
+              </>
+            ) : (
+              "—"
+            )}
+          </span>
+        </div>
+        {line.noBaseline && (
+          <p className="text-[10px] italic text-amber-600 mt-1">
+            No baseline year data — emissions tracked from 0
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BulletView({ lines, height }: { lines: TargetLine[]; height: number }) {
+  return (
+    <div className="w-full">
+      <div className="overflow-hidden" style={{ height }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            layout="vertical"
+            data={lines}
+            margin={{ top: 8, right: 24, left: 8, bottom: 8 }}
+            barCategoryGap="25%"
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+            <XAxis
+              type="number"
+              domain={[
+                Math.min(BACKSLIDE_CLAMP, ...lines.map((l) => l.progressClamped)),
+                Math.max(EXCEED_CLAMP, ...lines.map((l) => l.progressClamped)),
+              ]}
+              ticks={[-100, -50, 0, 25, 50, 75, 100, 150]}
+              tick={{ fill: "#374151", fontSize: 12, fontWeight: 500 }}
+              tickFormatter={(v) => `${v}%`}
+              axisLine={{ stroke: "#D1D5DB" }}
+              tickLine={false}
+            />
+            <YAxis
+              type="category"
+              dataKey="label"
+              width={70}
+              tick={{ fill: "#374151", fontSize: 13, fontWeight: 600 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            {/* Target achieved line at 100% — no label (the 100% tick
+              on the X axis is enough; the old "Target" label was bleeding
+              above the chart bounds). */}
+            <ReferenceLine x={100} stroke="#374151" strokeWidth={2} strokeDasharray="4 4" />
+            {/* Baseline reference at 0% */}
+            <ReferenceLine x={0} stroke="#9CA3AF" strokeWidth={1} />
+            <Tooltip content={<BulletTooltip />} cursor={{ fill: "transparent" }} />
+            <Bar
+              dataKey="progressClamped"
+              radius={[0, 4, 4, 0]}
+              maxBarSize={32}
+              isAnimationActive={false}
+            >
+              {lines.map((line) => (
+                <Cell key={line.key} fill={progressColor(line.progress)} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Color legend */}
+      <div className="flex flex-wrap items-center gap-4 mt-2 ml-1 text-xs text-gray-600">
+        {[
+          { color: "#10B981", label: "Exceeded / On target" },
+          { color: "#3B82F6", label: "On track (50–99%)" },
+          { color: "#F59E0B", label: "Behind (0–49%)" },
+          { color: "#EF4444", label: "Backsliding" },
+        ].map((item) => (
+          <div key={item.label} className="flex items-center gap-1.5">
+            <span
+              className="inline-block h-2.5 w-4 rounded-sm"
+              style={{ backgroundColor: item.color }}
+            />
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────── TRAJECTORY CHART VIEW ───────────────────────
+
+interface TrajectoryTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name?: string;
+    value?: number;
+    color?: string;
+    dataKey?: string;
+    payload?: Record<string, number | boolean>;
+  }>;
+  label?: number;
+  hoveredKey?: string | null;
+}
+
+function TrajectoryTooltip({ active, payload, label, hoveredKey }: TrajectoryTooltipProps) {
+  if (!active || !payload?.length) return null;
   let visible = payload.filter((p) => p.value != null);
-  if (hoveredKey) {
-    visible = visible.filter((p) => p.dataKey === hoveredKey);
-  }
+  if (hoveredKey) visible = visible.filter((p) => p.dataKey === hoveredKey);
   if (!visible.length) return null;
 
-  // `label` here is the timestamp from the row's `time` key
-  const dateLabel = typeof label === "number" ? formatMonthYear(label) : String(label);
+  const dateLabel = typeof label === "number" ? formatMonthYear(label) : "";
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
       <p className="mb-1 text-xs font-semibold text-gray-700">{dateLabel}</p>
       {visible.map((entry, i) => {
-        const key = entry.dataKey;
-        const rawKey = key ? `${key}_raw` : null;
-        const realPctKey = key ? `${key}_realPct` : null;
-        const noBaselineKey = key ? `${key}_noBaseline` : null;
-        const raw = rawKey && entry.payload ? entry.payload[rawKey] : null;
-        const realPct = realPctKey && entry.payload ? entry.payload[realPctKey] : null;
-        const noBaseline = noBaselineKey && entry.payload ? entry.payload[noBaselineKey] : false;
+        const rawKey = `${entry.dataKey}_raw`;
+        const realPctKey = `${entry.dataKey}_realPct`;
+        const noBaselineKey = `${entry.dataKey}_noBaseline`;
+        const raw = entry.payload?.[rawKey] as number | undefined;
+        const realPct = entry.payload?.[realPctKey] as number | undefined;
+        const noBaseline = entry.payload?.[noBaselineKey] as boolean | undefined;
 
-        // Display rules:
-        //   • If the line was clamped, show the REAL % from realPct, not
-        //     the visible-clamped value
-        //   • Otherwise show the visible value
-        //   • Positive % = reduction (good, emerald, ↓)
-        //   • Negative % = backsliding (bad, red, ↑)
-        const visiblePct = Number(entry.value);
         const displayPct =
-          typeof realPct === "number" && Number.isFinite(realPct) ? realPct : visiblePct;
-        const isReduction = displayPct > 0;
-        const isBacksliding = displayPct < 0;
-        const pctColor = isReduction
-          ? "text-emerald-600"
-          : isBacksliding
-            ? "text-red-600"
-            : "text-gray-900";
-        const arrow = isReduction ? "↓" : isBacksliding ? "↑" : "";
+          realPct != null && Number.isFinite(realPct) ? realPct : Number(entry.value);
+        const isUp = displayPct > 0;
+        const isDown = displayPct < 0;
+        const color = isUp ? "text-emerald-600" : isDown ? "text-red-600" : "text-gray-900";
+        const arrow = isUp ? "↑" : isDown ? "↓" : "";
 
         return (
           <div key={i} className="flex flex-col gap-0.5">
@@ -398,14 +429,12 @@ function CustomTooltip({
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-gray-600">{entry.name}:</span>
-              <span className={`font-semibold ${pctColor}`}>
+              <span className={`font-semibold ${color}`}>
                 {arrow && <span className="mr-0.5">{arrow}</span>}
-                {Number.isFinite(displayPct) ? `${Math.abs(displayPct).toFixed(2)}%` : "—"}
+                {Number.isFinite(displayPct) ? `${Math.abs(displayPct).toFixed(1)}%` : "—"}
               </span>
               {raw != null && (
-                <span className="text-gray-500">
-                  ({formatNumberShort(Number(raw), { maximumFractionDigits: 2 })} tCO₂e)
-                </span>
+                <span className="text-gray-500">({formatNumberShort(raw)} tCO₂e)</span>
               )}
             </div>
             {noBaseline && (
@@ -420,29 +449,47 @@ function CustomTooltip({
   );
 }
 
-/* ─────────────────────── main component ─────────────────────── */
-
-export default function TargetTrendChart({
-  general,
-  scope,
-  target,
-  height = 320,
-}: TargetTrendChartProps) {
-  // When `target` is provided (single combined row from the report
-  // response), use it for both general and scope. Otherwise use the
-  // explicit `general` / `scope` props.
-  const generalSource = target ?? general ?? null;
-  const scopeSource = target ?? scope ?? null;
-
-  const lines = buildLines(generalSource, scopeSource);
-  const data = buildChartData(lines);
-
-  // All hooks MUST be called before any early return (Rules of Hooks).
+function TrajectoryView({ lines, height }: { lines: TargetLine[]; height: number }) {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const clearHovered = useCallback(() => setHoveredKey(null), []);
 
-  // Quarterly tick positions (Jan, Apr, Jul, Oct) spanning the full data
-  // range so the X axis reads like a proper time series.
+  // Build chart data — one row per distinct timestamp
+  const data = useMemo(() => {
+    const timeSet = new Set<number>();
+    for (const line of lines) {
+      timeSet.add(line.baselineTime);
+      if (line.currentTime != null) timeSet.add(line.currentTime);
+      timeSet.add(line.targetTime);
+    }
+    const times = Array.from(timeSet).sort((a, b) => a - b);
+
+    return times.map((time) => {
+      const row: Record<string, number | boolean> = { time };
+      for (const line of lines) {
+        let absolute: number | null = null;
+        if (time === line.baselineTime) absolute = line.baseline;
+        else if (line.currentTime != null && time === line.currentTime) absolute = line.current;
+        else if (time === line.targetTime) absolute = line.target;
+
+        if (absolute != null && line.baseline > 0) {
+          const raw = computeProgress(line.baseline, absolute, line.target);
+          if (raw != null) {
+            const { clamped, wasClamped } = clamp(raw);
+            row[line.key] = clamped;
+            row[`${line.key}_raw`] = absolute;
+            if (wasClamped) row[`${line.key}_realPct`] = raw;
+          }
+        } else if (absolute != null && line.noBaseline) {
+          row[line.key] = absolute > 0 ? BACKSLIDE_CLAMP : 0;
+          row[`${line.key}_raw`] = absolute;
+          row[`${line.key}_noBaseline`] = true;
+        }
+      }
+      return row;
+    });
+  }, [lines]);
+
+  // Quarterly ticks
   const quarterlyTicks = useMemo(() => {
     if (data.length === 0) return [];
     const times = data.map((r) => r.time as number);
@@ -470,104 +517,159 @@ export default function TargetTrendChart({
     return ticks;
   }, [data]);
 
-  // Empty state — after all hooks
+  return (
+    <div className="w-full overflow-hidden" style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+          <XAxis
+            dataKey="time"
+            type="number"
+            scale="time"
+            domain={["dataMin", "dataMax"]}
+            ticks={quarterlyTicks}
+            tick={{ fill: "#374151", fontSize: 12, fontWeight: 500 }}
+            tickLine={false}
+            axisLine={{ stroke: "#D1D5DB" }}
+            tickFormatter={(t) => formatMonthYear(Number(t))}
+          />
+          <YAxis
+            domain={[BACKSLIDE_CLAMP, EXCEED_CLAMP]}
+            ticks={[-100, -50, 0, 25, 50, 75, 100, 150]}
+            tick={{ fill: "#374151", fontSize: 12, fontWeight: 500 }}
+            tickLine={false}
+            axisLine={{ stroke: "#D1D5DB" }}
+            tickFormatter={(v) => `${v}%`}
+            width={48}
+            label={{
+              value: "Progress toward target",
+              angle: -90,
+              position: "insideLeft",
+              style: {
+                fontSize: 11,
+                fill: "#374151",
+                fontWeight: 500,
+                textAnchor: "middle",
+              },
+              offset: 8,
+            }}
+          />
+          {/* 100% = target achieved reference line */}
+          <ReferenceLine y={100} stroke="#10B981" strokeDasharray="4 4" strokeWidth={1.5} />
+          <Tooltip
+            content={<TrajectoryTooltip hoveredKey={hoveredKey} />}
+            cursor={{
+              stroke: hoveredKey ? "#D1D5DB" : "transparent",
+            }}
+          />
+          <Legend
+            iconType="rect"
+            iconSize={12}
+            wrapperStyle={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: "#374151",
+              paddingTop: 8,
+            }}
+          />
+          {lines.map((line) => (
+            <Line
+              key={line.key}
+              type="monotone"
+              dataKey={line.key}
+              name={line.label}
+              stroke={line.color}
+              strokeWidth={hoveredKey === line.key ? 3 : hoveredKey ? 1.5 : 2.5}
+              strokeOpacity={hoveredKey && hoveredKey !== line.key ? 0.3 : 1}
+              strokeDasharray={line.dashed ? "5 5" : undefined}
+              dot={{
+                r: 4,
+                fill: line.color,
+                strokeWidth: 0,
+                onMouseEnter: () => setHoveredKey(line.key),
+                onMouseLeave: clearHovered,
+              }}
+              activeDot={{
+                r: 6,
+                strokeWidth: 0,
+                onMouseEnter: () => setHoveredKey(line.key),
+                onMouseLeave: clearHovered,
+              }}
+              onMouseEnter={() => setHoveredKey(line.key)}
+              onMouseLeave={clearHovered}
+              connectNulls
+              isAnimationActive={false}
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+// ─────────────────────── MAIN COMPONENT ───────────────────────
+
+type ViewMode = "progress" | "trajectory";
+
+export default function TargetTrendChart({
+  general,
+  scope,
+  target,
+  height = 320,
+}: TargetTrendChartProps) {
+  const generalSource = target ?? general ?? null;
+  const scopeSource = target ?? scope ?? null;
+  const lines = buildLines(generalSource, scopeSource);
+  const [view, setView] = useState<ViewMode>("progress");
+
   if (lines.length === 0) {
     return (
       <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-2 rounded-2xl bg-white p-6 text-center">
         <p className="text-sm font-medium text-gray-700">No reduction targets set</p>
         <p className="text-xs text-gray-500">
-          Set a General or Scope target to see your reduction trajectory here.
+          Set a General or Scope target to see your reduction progress here.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex w-full flex-col gap-2">
-      <p className="text-xs font-medium text-gray-700">
-        Each line shows % reduction from its own baseline (0% = baseline, 100% = fully achieved).
-        Clamped at -100% when backsliding badly. Hover for absolute tCO₂e values.
-      </p>
-      <div className="w-full" style={{ height }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 16, right: 24, left: 8, bottom: 8 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-            <XAxis
-              dataKey="time"
-              type="number"
-              scale="time"
-              domain={["dataMin", "dataMax"]}
-              ticks={quarterlyTicks}
-              tick={{ fill: "#374151", fontSize: 12, fontWeight: 500 }}
-              tickLine={false}
-              axisLine={{ stroke: "#D1D5DB" }}
-              tickFormatter={(t) => formatMonthYear(Number(t))}
-            />
-            <YAxis
-              // Domain stays at [BACKSLIDE_CLAMP, 110]. The clamp at the
-              // bottom means a single wildly off-track line never drags
-              // the whole chart's scale into the basement (e.g. a line
-              // with current = 500× baseline would otherwise pin every
-              // other line to a flat band near the top).
-              domain={[BACKSLIDE_CLAMP, 110]}
-              ticks={[-100, -50, 0, 25, 50, 75, 100]}
-              tick={{ fill: "#374151", fontSize: 12, fontWeight: 500 }}
-              tickLine={false}
-              axisLine={{ stroke: "#D1D5DB" }}
-              tickFormatter={(v) => `${v}%`}
-              width={48}
-              label={{
-                value: "Reduction from baseline",
-                angle: -90,
-                position: "insideLeft",
-                style: { fontSize: 11, fill: "#374151", fontWeight: 500, textAnchor: "middle" },
-                offset: 8,
-              }}
-            />
-            <Tooltip
-              content={<CustomTooltip hoveredKey={hoveredKey} />}
-              cursor={{ stroke: hoveredKey ? "#D1D5DB" : "transparent" }}
-            />
-            <Legend
-              iconType="rect"
-              iconSize={12}
-              wrapperStyle={{ fontSize: 12, fontWeight: 500, color: "#374151", paddingTop: 8 }}
-            />
-
-            {lines.map((line) => (
-              <Line
-                key={line.key}
-                type="monotone"
-                dataKey={line.key}
-                name={line.label}
-                stroke={line.color}
-                // Dim non-hovered lines so the focused one pops
-                strokeWidth={hoveredKey === line.key ? 3 : hoveredKey ? 1.5 : 2.5}
-                strokeOpacity={hoveredKey && hoveredKey !== line.key ? 0.3 : 1}
-                strokeDasharray={line.dashed ? "5 5" : undefined}
-                dot={{
-                  r: 4,
-                  fill: line.color,
-                  strokeWidth: 0,
-                  onMouseEnter: () => setHoveredKey(line.key),
-                  onMouseLeave: clearHovered,
-                }}
-                activeDot={{
-                  r: 6,
-                  strokeWidth: 0,
-                  onMouseEnter: () => setHoveredKey(line.key),
-                  onMouseLeave: clearHovered,
-                }}
-                // Also detect hover on the line stroke itself (not just dots)
-                onMouseEnter={() => setHoveredKey(line.key)}
-                onMouseLeave={clearHovered}
-                connectNulls
-                isAnimationActive={false}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+    <div className="flex w-full flex-col gap-3">
+      {/* Header: caption + view toggle */}
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="text-xs font-medium text-gray-700 max-w-md">
+          {view === "progress"
+            ? "Each bar shows progress toward its own reduction target (0% = at baseline, 100% = target achieved)."
+            : "Each line tracks progress over time. Dashed lines have no current measurement yet."}
+        </p>
+        <div className="flex gap-0.5 rounded-lg bg-gray-100 p-0.5 shrink-0">
+          {(
+            [
+              { key: "progress" as const, label: "Progress" },
+              { key: "trajectory" as const, label: "Trajectory" },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setView(tab.key)}
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                view === tab.key
+                  ? "bg-teal-600 text-white shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Chart */}
+      {view === "progress" ? (
+        <BulletView lines={lines} height={height} />
+      ) : (
+        <TrajectoryView lines={lines} height={height} />
+      )}
     </div>
   );
 }
