@@ -26,7 +26,7 @@ export function StationarySourcesForm({
   onContinueToNextAssessment,
   onBackToHub,
   initialStep,
-  onBackToDisclosureTopics,
+  _onBackToDisclosureTopics,
 }: StationarySourcesFormProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();

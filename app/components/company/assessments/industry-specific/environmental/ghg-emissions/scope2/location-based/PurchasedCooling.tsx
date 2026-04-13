@@ -127,7 +127,7 @@ export function PurchasedCoolingForm({
       !isNaN(Number(coolingConsumed.rawValue)) &&
       Number(coolingConsumed.rawValue) >= 0;
 
-    const hasFiles =
+    const _hasFiles =
       Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
     return calculateProgress([hasCooling]);
