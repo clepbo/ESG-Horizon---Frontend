@@ -72,6 +72,7 @@ export default function CommunityDisputeResolution({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData?.socialCapital?.communityRelations?.disputeResolution]);
 
   const features = [

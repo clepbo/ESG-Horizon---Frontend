@@ -88,6 +88,7 @@ export default function OperationalDelay({
         setFilesAndLinks(existingData.filesAndLinks);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.assessmentData?.socialCapital?.communityRelations?.operationalDelays]);
 
   const features = [
