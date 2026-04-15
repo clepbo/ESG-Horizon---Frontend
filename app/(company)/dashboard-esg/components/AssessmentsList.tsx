@@ -12,6 +12,7 @@ interface Assessment {
   startYear?: string;
   endMonth?: string;
   endYear?: string;
+  progress?: number;
   assessmentData?: any;
 }
 
@@ -57,7 +58,9 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
             : "";
           const progress = COMPLETED_STATUSES.includes(assessment.status)
             ? 100
-            : getAssessmentProgressForTable(assessment);
+            : typeof assessment.progress === "number"
+              ? assessment.progress
+              : getAssessmentProgressForTable(assessment);
 
           return (
             <div
