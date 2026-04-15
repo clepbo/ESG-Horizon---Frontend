@@ -1,3 +1,5 @@
+import { COMPUTED_KEYS } from "./assessmentStatusUtils";
+
 export type CompletionStatusType = "completed" | "in-progress" | "not-started";
 
 export interface CompletionStatus {
@@ -534,19 +536,8 @@ class CompletionCalculator {
     let filled = 0;
     const details: any = {};
 
-    const excludedKeys = [
-      "id",
-      "createdAt",
-      "updatedAt",
-      "_id",
-      "status",
-      "lastUpdated",
-      "progress",
-      "totalEmission",
-    ];
-
     Object.entries(data).forEach(([key, value]) => {
-      if (excludedKeys.includes(key)) return;
+      if (COMPUTED_KEYS.has(key)) return;
 
       if (Array.isArray(value)) {
         total += 1;
@@ -593,17 +584,7 @@ class CompletionCalculator {
   private hasActualData(data: any): boolean {
     if (!data || typeof data !== "object") return false;
 
-    const excludedKeys = [
-      "status",
-      "lastUpdated",
-      "id",
-      "createdAt",
-      "updatedAt",
-      "_id",
-      "progress",
-      "totalEmission",
-    ];
-    const meaningfulKeys = Object.keys(data).filter((key) => !excludedKeys.includes(key));
+    const meaningfulKeys = Object.keys(data).filter((key) => !COMPUTED_KEYS.has(key));
 
     return meaningfulKeys.some((key) => this.isFilled(data[key]));
   }
