@@ -36,10 +36,16 @@ export function resolveDataPath(data: any, path: string[]): any {
 /**
  * Keys stamped by the backend calculator or system metadata — never entered by the user.
  * Excluding these prevents empty-but-computed sections from appearing "In Progress".
+ * Shared by hasUserData, countFields, and hasActualData to keep status/progress
+ * detection consistent.
  */
-const COMPUTED_KEYS = new Set([
+export const COMPUTED_KEYS = new Set([
   "progress",
   "totalEmission",
+  "totalEmissions",
+  "calculated",
+  "dataCount",
+  "breakdown",
   "status",
   "lastUpdated",
   "id",

@@ -23,7 +23,7 @@ import {
 import { DataTable, FilterOption } from "@/app/components/ui/reusables/DataTable";
 import ConfirmModal from "../../ui/modals/ConfirmModal";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { ReactNode } from "react";
 import { AssessmentDetailsModal } from "./details/AssessmentDetailsModal";
 import { DateRangePicker } from "@/app/components/ui/reusables/DateRangePicker";
@@ -200,7 +200,7 @@ function ActionDropdown({
   );
 }
 
-export default function AssessmentTable({ data, requireAssessmentReview }: AssessmentTableProps) {
+function AssessmentTableImpl({ data, requireAssessmentReview }: AssessmentTableProps) {
   const router = useRouter();
   const { canWriteData, isCompanyAdmin } = useRoles();
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
@@ -644,3 +644,6 @@ export default function AssessmentTable({ data, requireAssessmentReview }: Asses
     </div>
   );
 }
+
+const AssessmentTable = memo(AssessmentTableImpl);
+export default AssessmentTable;
