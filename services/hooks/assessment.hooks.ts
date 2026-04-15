@@ -8,6 +8,7 @@ export const useAssessments = () => {
   return useQuery({
     queryKey: ["assessments"],
     queryFn: assessmentService.getAssessments,
+    staleTime: 30_000,
   });
 };
 

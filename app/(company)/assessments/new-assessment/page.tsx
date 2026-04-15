@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import AssessmentTable from "@/app/components/company/assessments/AssessmentTable";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -55,6 +55,40 @@ function NewAssessmentPage() {
       dispatch({ type: "SET_ASSIGNED_TASK", payload: false });
     }
   }, [isCompanyAdmin, state.currentView, state.isAssignedTask, dispatch]);
+  const tableData = useMemo(
+    () =>
+      assessments?.map((a: any) => {
+        const startPeriod =
+          a.startMonth && a.startYear
+            ? `${a.startMonth}, ${a.startYear}`
+            : a.startMonth || a.startYear
+              ? `${a.startMonth ?? a.startYear}`
+              : "";
+
+        const endPeriod =
+          a.endMonth && a.endYear
+            ? `${a.endMonth}, ${a.endYear}`
+            : a.endMonth || a.endYear
+              ? `${a.endMonth ?? a.endYear}`
+              : "";
+
+        return {
+          id: a.id,
+          startPeriod,
+          endPeriod,
+          subsidiary: a.subsidiary || "—",
+          status: a.status || "in_progress",
+          progress: typeof a.progress === "number" ? a.progress : getAssessmentProgressForTable(a),
+          rejection_reason: a.rejection_reason,
+          lastUpdated: a.updatedAt,
+          submittedAt: a.submittedAt ?? null,
+          approvedAt: a.approvedAt ?? null,
+          pillars: a.pillars ?? [],
+        };
+      }) ?? [],
+    [assessments]
+  );
+
   const isInTaskFlow = state.currentView === "my-tasks" || state.isAssignedTask;
 
   if (isInTaskFlow) {
@@ -68,86 +102,6 @@ function NewAssessmentPage() {
       />
     );
   }
-
-  const tableData =
-    assessments?.map((a: any) => {
-      const startPeriod =
-        a.startMonth && a.startYear
-          ? `${a.startMonth}, ${a.startYear}`
-          : a.startMonth || a.startYear
-            ? `${a.startMonth ?? a.startYear}`
-            : "";
-
-      const endPeriod =
-        a.endMonth && a.endYear
-          ? `${a.endMonth}, ${a.endYear}`
-          : a.endMonth || a.endYear
-            ? `${a.endMonth ?? a.endYear}`
-            : "";
-
-      const data = a.assessmentData ?? {};
-      const activity = data.foundationalData?.activityMetrics ?? data.activityMetrics;
-      const env = data.environment ?? data.environmental;
-      const social = data.socialCapital ?? data.social;
-      const human = data.humanCapital;
-      const business = data.businessInnovation ?? data.businessModel;
-      const leadership = data.leadershipGovernance;
-
-      // Calculator auto-adds these keys to every object — filter them out
-      // to detect only real user-entered form data (mirrors countFilledFields ignoredKeys)
-      const CALC_KEYS = new Set(["totalEmission", "totalEmissions", "progress", "calculated", "dataCount", "status", "breakdown"]);
-      const hasUserData = (obj: any): boolean =>
-        !!obj && Object.keys(obj).some((k) => !CALC_KEYS.has(k));
-
-      const hasActivity = hasUserData(activity);
-
-      // Environment: the calculator scaffolds the full GHG tree on every save
-      // (scope1.stationarySources = { totalEmission: 0, progress: 0 }, etc.)
-      // so we must check each group for keys beyond totalEmission/progress.
-      const hasEnv = (() => {
-        if (!env) return false;
-        if (hasUserData(env.airQuality)) return true;
-        if (hasUserData(env.waterManagement)) return true;
-        if (hasUserData(env.biodiversityImpact)) return true;
-        const ghg = env.ghg;
-        if (!ghg) return false;
-        const hasScopeData = (scope: any, groups: string[]) =>
-          scope && groups.some((g: string) => hasUserData(scope[g]));
-        if (hasScopeData(ghg.scope1, ["stationarySources", "mobileSources", "processEmissions", "fugitiveEmissions"])) return true;
-        if (hasScopeData(ghg.scope2, ["locationBased", "marketBased"])) return true;
-        if (hasScopeData(ghg.scope3, ["upstream", "downstream"])) return true;
-        return false;
-      })();
-
-      const hasSocial = hasUserData(social);
-      const hasHuman = hasUserData(human);
-      const hasBusiness = hasUserData(business);
-      const hasLeadership = hasUserData(leadership?.criticalIncidentRiskManagement);
-      const hasGovernance = hasUserData(leadership?.managementOfTheLegalAndRegulatoryEnvironment);
-
-      const pillars: ("A" | "E" | "S" | "H" | "B" | "L" | "G")[] = [];
-      if (hasActivity) pillars.push("A");
-      if (hasEnv) pillars.push("E");
-      if (hasSocial) pillars.push("S");
-      if (hasHuman) pillars.push("H");
-      if (hasBusiness) pillars.push("B");
-      if (hasLeadership) pillars.push("L");
-      if (hasGovernance) pillars.push("G");
-
-      return {
-        id: a.id,
-        startPeriod,
-        endPeriod,
-        subsidiary: a.subsidiary || "—",
-        status: a.status || "in_progress",
-        progress: getAssessmentProgressForTable(a),
-        rejection_reason: (a as any).rejection_reason,
-        lastUpdated: a.updatedAt,
-        submittedAt: a.submittedAt ?? null,
-        approvedAt: a.approvedAt ?? null,
-        pillars,
-      };
-    }) ?? [];
 
   // Extract the company's review toggle from the first assessment (same for all)
   const requireAssessmentReview =

@@ -68,7 +68,7 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Production Volumes": { groupKey: "foundationalData.activityMetrics.productionVolumes", dataPath: ["activityMetrics", "productionData", "productionVolumes"] },
+    "Production Volumes": { groupKey: "foundationalData.activityMetrics.productionVolumes", dataPath: ["activityMetrics", "productionVolume"] },
     "Offshore Sites": { groupKey: "foundationalData.activityMetrics.offshoreSites", dataPath: ["activityMetrics", "assetPortfolio", "offshoreSites"] },
     "Terrestrial Sites": { groupKey: "foundationalData.activityMetrics.terrestrialSites", dataPath: ["activityMetrics", "assetPortfolio", "terrestrialSites"] },
   };

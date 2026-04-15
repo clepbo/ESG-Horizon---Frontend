@@ -137,6 +137,7 @@ export default function ContinueAssessment() {
         assessment.assessmentData?.environment?.leadershipGovernance ||
         assessment.assessmentData?.leadershipGovernance,
       activityMetrics:
+        assessment.assessmentData?.foundationalData?.activityMetrics ||
         getNestedData(assessment.assessmentData, ["environment", "activityMetrics"]) ||
         assessment.assessmentData?.environment?.activityMetrics ||
         assessment.assessmentData?.activityMetrics,
