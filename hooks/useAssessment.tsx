@@ -118,6 +118,7 @@ export interface AssessmentData {
         processEmissions?: {
           cementManufacturing?: {
             cementQuantity: number;
+            emissionFactor?: number | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -759,6 +760,7 @@ const initialState: AssessmentState = {
           processEmissions: {
             cementManufacturing: {
               cementQuantity: 0,
+              emissionFactor: null,
               files: {},
               additionalFields: [],
             },
