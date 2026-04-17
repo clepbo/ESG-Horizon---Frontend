@@ -60,6 +60,8 @@ export function CementManufacturing({
     setRawValue: setCementRaw,
   } = useFormattedNumber("");
 
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -98,6 +100,11 @@ export function CementManufacturing({
         existingData.cementQuantity !== null && existingData.cementQuantity !== undefined
           ? existingData.cementQuantity.toString()
           : ""
+      );
+      setCustomEmissionFactor(
+        existingData.emissionFactor !== null && existingData.emissionFactor !== undefined
+          ? existingData.emissionFactor
+          : null
       );
       setFiles(
         existingData.files || Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -191,6 +198,7 @@ export function CementManufacturing({
 
     const payload = {
       cementQuantity: Number(cementQuantity),
+      emissionFactor: customEmissionFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -224,6 +232,7 @@ export function CementManufacturing({
       type: "UPDATE_PROCESS_CEMENT_MANUFACTURING",
       payload: {
         cementQuantity: Number(cementQuantity),
+        emissionFactor: customEmissionFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -283,15 +292,15 @@ export function CementManufacturing({
             Back
           </Button>
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">Process Emissions</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-2xl font-bold text-foreground">Process Emissions</h3>
+            <p className="text-muted-foreground text-base">
               Greenhouse gases released during industrial or chemical processes, not from fuel
               combustion.
             </p>
           </div>
         </div>
 
-        <Card className="bg-gray-50 mt-6 mb-8 pt-6">
+        <Card className="animate-in slide-in-from-bottom-4 duration-500 bg-gray-50 mt-6 mb-8 pt-6">
           <CardContent className="space-y-8">
             <AssessmentProgressBar
               stepIndex={stepIndex}
@@ -304,11 +313,11 @@ export function CementManufacturing({
 
             {/* Cement Quantity */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-4 block">
+              <Label className="text-md font-semibold mb-2 block">
                 1.1 Cement Manufacturing <span className="text-red-500">*</span>
               </Label>
-              <div className="space-y-6 ml-6">
-                <div className="space-y-4">
+              <div className="space-y-4 ml-6">
+                <div className="space-y-2">
                   <div className="flex items-center gap-1 mb-2">
                     <Label htmlFor="cement-quantity" className="text-sm font-medium text-gray-700">
                       Quantity of Cement Produced (Tonnes)
@@ -347,6 +356,9 @@ export function CementManufacturing({
                     required={false}
                     error={errors.cementQuantity}
                     showEmissionFactor={true}
+                    editableFactor={true}
+                    customEmissionFactor={customEmissionFactor}
+                    onCustomFactorChange={setCustomEmissionFactor}
                     onErrorClear={() =>
                       setErrors((prev) => ({ ...prev, cementQuantity: undefined }))
                     }
@@ -357,7 +369,7 @@ export function CementManufacturing({
 
             {/* File Upload */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-4 block">
+              <Label className="text-md font-semibold mb-2 block">
                 1.2 Document/Evidence Upload
               </Label>
               <div className="ml-6">
@@ -423,7 +435,7 @@ export function CementManufacturing({
               <Button
                 variant="outline"
                 onClick={handlePrevious}
-                className="justify-self-start border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-start hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Previous step"
               >
                 <ArrowLeft className="h-4 w-4" /> Previous
@@ -433,7 +445,7 @@ export function CementManufacturing({
                 variant="outline"
                 onClick={handleSaveAndContinue}
                 disabled={isActionLoading}
-                className="justify-self-center bg-primary text-white hover:bg-primary transition-colors"
+                className="justify-self-center bg-primary hover:cursor-pointer text-white hover:bg-teal-300 transition-colors"
                 aria-label="Save and continue later"
               >
                 {isActionLoading ? (
@@ -455,7 +467,7 @@ export function CementManufacturing({
                 variant="outline"
                 onClick={handleNext}
                 disabled={isActionLoading}
-                className="justify-self-end border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
+                className="justify-self-end hover:cursor-pointer border-primary text-primary bg-transparent hover:bg-green-50 flex items-center gap-2"
                 aria-label="Next step"
               >
                 Next <ArrowRight className="h-4 w-4" />
