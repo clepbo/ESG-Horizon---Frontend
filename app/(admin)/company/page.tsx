@@ -1,33 +1,58 @@
 "use client";
-import Header from "@/app/components/layout/Header";
-import Users from "@/app/components/common/users/Users";
+
+import { useState } from "react";
 import { motion } from "framer-motion";
+import AdminNavbar from "../components/AdminNavbar";
+import KpiCard from "../dashboard/_components/KpiCard";
+import CompaniesTable from "./_components/CompaniesTable";
+import CompanyDetailsModal from "./_components/CompanyDetailsModal";
+import { companyKpis } from "./_fixtures/kpis";
+import type { CompanyRow } from "./_fixtures/companies";
 
-export default function UsersPage() {
+export default function CompanyManagementPage() {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selected, setSelected] = useState<CompanyRow | null>(null);
+
   return (
-    <section className="min-h-screen flex flex-col md:flex-row">
-      {/* <Sidebar /> */}
+    <>
+      <AdminNavbar
+        title="Company Management"
+        subtitle="Manage organisations and their access on the platform"
+      />
 
-      <motion.main
-        className="flex-1 p-4 space-y-6"
-        initial={{ opacity: 0, y: 20 }}
+      <motion.div
+        className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6"
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 25,
-          duration: 0.5,
-        }}
+        transition={{ duration: 0.3 }}
       >
-        <Header />
+        <section className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {companyKpis.map((kpi) => (
+            <KpiCard key={kpi.label} kpi={kpi} />
+          ))}
+        </section>
 
-        <header>
-          <h2 className="text-2xl font-semibold">Company</h2>
-          <p className="text-sm text-muted-foreground">Manage platform companies</p>
-        </header>
+        <CompaniesTable
+          onViewCompany={(c) => {
+            setSelected(c);
+            setDetailsOpen(true);
+          }}
+          onSuspendCompany={(c) => {
+            // TODO: wire suspend mutation once backend ready
+            setSelected(c);
+          }}
+        />
+      </motion.div>
 
-        <Users />
-      </motion.main>
-    </section>
+      <CompanyDetailsModal
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        companyId={selected?.id}
+        onSuspend={() => {
+          // TODO: real mutation; for now close the modal
+          setDetailsOpen(false);
+        }}
+      />
+    </>
   );
 }
