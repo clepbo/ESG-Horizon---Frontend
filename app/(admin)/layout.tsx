@@ -1,54 +1,53 @@
 "use client";
-import Sidebar from "@/app/components/layout/Sidebar";
-import LayoutContent from "../(company)/components/LayoutContent";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import AdminSidebar from "./components/AdminSidebar";
+import { AdminMobileNavProvider } from "./components/AdminMobileNavContext";
 import { USER_TYPES } from "../constants/userTypes";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import UpdateBanner from "@/app/components/ui/UpdateBanner";
 import LayoutContentSkeleton from "../components/ui/reusables/LayoutContentSkeleton";
 
-const companyAdminRoles = [
+const adminRoles: string[] = [
   USER_TYPES.SUPER_ADMIN,
   USER_TYPES.PLATFORM_SUBADMIN,
   USER_TYPES.PLATFORM_DATA_OFFICER,
   USER_TYPES.PLATFORM_VIEWER,
 ];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user || !companyAdminRoles.includes(user.role?.name || "")) {
-        router.push("/login");
-      }
+    if (!loading && (!user || !adminRoles.includes(user.role?.name || ""))) {
+      router.push("/login");
     }
   }, [loading, user, router]);
 
   if (loading) {
     return (
       <div className="flex h-screen overflow-hidden bg-gray-50">
-        <Sidebar />
+        <AdminSidebar />
         <LayoutContentSkeleton />
       </div>
     );
   }
 
-  if (!user || !companyAdminRoles.includes(user.role?.name || "")) {
+  if (!user || !adminRoles.includes(user.role?.name || "")) {
     return null;
   }
-
-  if (!user.role?.name) {
-    return null;
-  }
-
-  const roleName = user.role.name;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-grey-50">
-      <Sidebar />
-      <LayoutContent role={roleName}>{children}</LayoutContent>
-    </div>
+    <AdminMobileNavProvider>
+      <div className="flex h-screen overflow-hidden bg-gray-50">
+        <AdminSidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <UpdateBanner />
+          <main className="flex-1 overflow-y-auto">{children}</main>
+        </div>
+      </div>
+    </AdminMobileNavProvider>
   );
 }
