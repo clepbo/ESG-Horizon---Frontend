@@ -1,118 +1,71 @@
 "use client";
-import UserPieChart from "@/app/components/common/dashboard/UserPieChart";
-import MostRecentCompany from "../../components/common/dashboard/MostRecentCompany";
-import { RecentActivities } from "@/app/components/common/dashboard/RecentActivities";
-import Header from "@/app/components/layout/Header";
-import SubscriptionLineChart from "@/app/components/common/billing/SubscriptionLineChart";
-import { IndustryLeaderboard } from "@/app/(company)/components/IndustryLeaderboard";
-import { ReportSubmittedChart } from "@/app/components/common/dashboard/ReportSubmittedChart";
-import { StatCard } from "@/app/components/common/dashboard/StatCard";
-import Subscription from "@/app/components/common/dashboard/Subscription";
-import subscriptionData from "@/lib/mockData/subscriptionData";
+
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import AdminNavbar from "../components/AdminNavbar";
+import KpiCard from "./_components/KpiCard";
+import ReportSubmissionsChart from "./_components/ReportSubmissionsChart";
+import UserDistribution from "./_components/UserDistribution";
+import RecentActivityCard from "./_components/RecentActivityCard";
+import PendingActionsCard from "./_components/PendingActionsCard";
+import LeaderboardCard from "./_components/LeaderboardCard";
+import SystemHealthCard from "./_components/SystemHealthCard";
+import { adminKpis } from "./_fixtures/kpis";
 
-export default function DashboardPage() {
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+export default function AdminDashboardPage() {
+  const { user } = useAuth();
+  const firstName = user?.first_name || "there";
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* <Sidebar /> */}
+    <>
+      <AdminNavbar
+        title="Overview Dashboard"
+        subtitle="Platform health and key metrics at a glance"
+      />
 
-      <motion.main
-        className="flex-1 p-4 space-y-4"
-        initial={{ opacity: 0, y: 20 }}
+      <motion.div
+        className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6"
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 25,
-          duration: 0.5,
-        }}
+        transition={{ duration: 0.3 }}
       >
-        <Header />
-
-        <div>
-          <h3>Users</h3>
-          {/* StatCard + Chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <StatCard
-                title="Admins"
-                value={4}
-                trend="up"
-                trendValue="10%"
-                iconSrc="/icons/Admin.svg"
-                gradientClass="from-neutral-1000 to-neutral-800"
-                bottomBarColor="bg-neutral-1000"
-              />
-
-              <StatCard
-                title="ESG Company"
-                value={25}
-                trend="down"
-                trendValue="7%"
-                iconSrc="/icons/Company.svg"
-                gradientClass="from-green-700  to-green-500"
-                bottomBarColor="bg-green-800"
-              />
-
-              <StatCard
-                title="Regulators"
-                value={5}
-                trend="up"
-                trendValue="10%"
-                iconSrc="/icons/Regulator.svg"
-                gradientClass="from-[var(--color-gold-400)] to-[var(--color-gold-300)]"
-                bottomBarColor="bg-[var(--color-gold-400)]"
-              />
-
-              <StatCard
-                title="Investors"
-                value={10}
-                trend="up"
-                trendValue="10%"
-                iconSrc="/icons/Investor.svg"
-                gradientClass="from-blue-600 to-blue-500"
-                bottomBarColor="bg-blue-600"
-              />
-            </div>
-            <UserPieChart />
-          </div>
-        </div>
-        {/* Reports and Assessment */}
-        <div>
-          <h3>Reports and Assessment</h3>
-          <div className="mt-6">
-            <ReportSubmittedChart />
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <h3>Subscriptions</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-            <div className="">
-              {/* Subscription Card */}
-              <Subscription
-                monthlyRevenue={subscriptionData.monthlyRevenue}
-                stats={subscriptionData.stats}
-              />
-            </div>
-            <SubscriptionLineChart />
-          </div>
-        </div>
-        {/* Recent Activities and Industry Leaderboard */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-          {/* Recent Activities */}
-          <div className=" h-full">
-            <RecentActivities />
-          </div>
-
-          {/* Industry Leaderboard */}
-          <div className=" h-full">
-            <IndustryLeaderboard />
-          </div>
+        <section>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            {getGreeting()}, {firstName}
+          </h2>
+          <p className="text-sm text-gray-700 mt-0.5">
+            Here&apos;s what&apos;s happening across the platform today
+          </p>
         </section>
 
-        <MostRecentCompany />
-      </motion.main>
-    </div>
+        <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+          {adminKpis.map((kpi) => (
+            <KpiCard key={kpi.label} kpi={kpi} />
+          ))}
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+          <ReportSubmissionsChart />
+          <UserDistribution />
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+          <RecentActivityCard />
+          <PendingActionsCard />
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+          <LeaderboardCard />
+          <SystemHealthCard />
+        </section>
+      </motion.div>
+    </>
   );
 }

@@ -272,7 +272,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       "company_esg_data_officer",
       "company_esg_viewer",
     ];
-    const platformPagePrefixes = ["/dashboard", "/billing", "/company", "/reports", "/settings"];
+    const platformPagePrefixes = [
+      "/dashboard",
+      "/billing",
+      "/company",
+      "/users",
+      "/algorithm-config",
+      "/admin-assessments",
+      "/roles-permissions",
+      "/audit-trail",
+      "/reports",
+      "/settings",
+    ];
     const companyPagePrefixes = [
       "/dashboard-esg",
       "/assessments",
