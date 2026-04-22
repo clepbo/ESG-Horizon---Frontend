@@ -5,6 +5,13 @@ import { X } from "lucide-react";
 import UserAvatar from "./UserAvatar";
 import UserRolePill from "./UserRolePill";
 import UserStatusPill from "./UserStatusPill";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 import { userDetailsFixture, PERMISSIONS, type Permission } from "../_fixtures/userDetails";
 import type { UserRole } from "../_fixtures/users";
 
@@ -92,19 +99,18 @@ export default function UserDetailsModal({ open, onClose, onSave, onSuspend }: U
 
             <div>
               <label className="block text-xs text-gray-700 mb-1">Role</label>
-              <div className="relative">
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full h-10 pl-3 pr-9 text-sm bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#119B95]/20 text-gray-900"
-                >
+              <Select value={role} onValueChange={(v) => setRole(v as UserRole)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent className="z-[70]">
                   {ROLE_OPTIONS.map((r) => (
-                    <option key={r} value={r}>
+                    <SelectItem key={r} value={r}>
                       {r}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-              </div>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
