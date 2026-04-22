@@ -26,10 +26,12 @@ export default function KpiCard({ kpi }: { kpi: AdminKpi }) {
     <div className="bg-white rounded-xl border border-gray-100 p-5">
       <p className="text-xs text-gray-700 mb-1.5">{kpi.label}</p>
       <p className={`text-3xl font-bold leading-none ${valueClass}`}>{kpi.value}</p>
-      <div className={`mt-3 flex items-center gap-1 text-xs font-medium ${color}`}>
-        {Icon && <Icon className="w-3.5 h-3.5" />}
-        <span>{kpi.trend.text}</span>
-      </div>
+      {kpi.trend.text && (
+        <div className={`mt-3 flex items-center gap-1 text-xs font-medium ${color}`}>
+          {Icon && <Icon className="w-3.5 h-3.5" />}
+          <span>{kpi.trend.text}</span>
+        </div>
+      )}
     </div>
   );
 }
