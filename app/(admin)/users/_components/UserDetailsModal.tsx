@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/components/ui/select";
+import Checkbox from "../../components/Checkbox";
 import { userDetailsFixture, PERMISSIONS, type Permission } from "../_fixtures/userDetails";
 import type { UserRole } from "../_fixtures/users";
 
@@ -117,17 +118,12 @@ export default function UserDetailsModal({ open, onClose, onSave, onSuspend }: U
               <label className="block text-xs text-gray-700 mb-2">Permission</label>
               <ul className="space-y-1.5">
                 {PERMISSIONS.map((p) => (
-                  <li key={p} className="flex items-center gap-2">
-                    <input
-                      id={`perm-${p}`}
-                      type="checkbox"
+                  <li key={p}>
+                    <Checkbox
                       checked={permissions.includes(p)}
                       onChange={() => togglePermission(p)}
-                      className="w-4 h-4 rounded border-gray-300 text-[#119B95] focus:ring-[#119B95]/40"
+                      label={p}
                     />
-                    <label htmlFor={`perm-${p}`} className="text-sm text-gray-800 cursor-pointer">
-                      {p}
-                    </label>
                   </li>
                 ))}
               </ul>
