@@ -12,7 +12,11 @@ export interface Company {
   industry?: {
     id?: number;
     industry?: string;
-    sector?: string;
+    name: string;
+    sector?: {
+      name: string;
+      id: number;
+    }
   };
   address?: string;
   country?: string;

@@ -8,8 +8,12 @@ import { CustomButton } from "@/app/components/ui/reusables/CustomButton";
 interface Company {
   rank: string;
   company: string;
-  industry: string;
-  sector: string;
+  industry: {
+    name: string;
+    sector: {
+      name: string;
+    }
+  };
   region: string;
   reductionTarget: string;
   esgScore: string;

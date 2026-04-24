@@ -122,7 +122,7 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
               <tr key={id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{name}</td>
                 <td className="px-4 py-3">{registration_number || "N/A"}</td>
-                <td className="px-4 py-3">{industry?.sector || "N/A"}</td>
+                <td className="px-4 py-3">{industry?.sector?.name || "N/A"}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={status} />
                 </td>

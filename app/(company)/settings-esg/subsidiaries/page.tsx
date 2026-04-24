@@ -20,8 +20,12 @@ import TableManagementControls from "@/app/components/company/TableManagementCon
 interface IndustryOptionsProps {
   value: number;
   label: string;
-  industry: string;
-  sector: string;
+  industry: {
+    name: string;
+    sector: {
+      name: string;
+    }
+  }
 }
 
 export default function SubsidiariesPage() {
@@ -55,7 +59,7 @@ export default function SubsidiariesPage() {
       .then((c) => {
         if (c) setCompany({ id: c.id, name: c.name });
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -76,9 +80,9 @@ export default function SubsidiariesPage() {
         setIndustryOptions(
           data.map((i) => ({
             value: i.id,
-            label: `${i.industry} (${i.sector})`,
-            sector: i.sector,
-            industry: i.industry,
+            label: `${i.name} (${i.sector.name})`,
+            sector: i.sector.name,
+            industry: i,
           }))
         );
       } catch (error) {
@@ -160,7 +164,7 @@ export default function SubsidiariesPage() {
               onChange: setIndustryFilter,
               options: [
                 "All Industries",
-                ...industryOptions.map((opt) => `${opt.industry} (${opt.sector})`),
+                ...industryOptions.map((opt) => `${opt.industry.name} (${opt.industry.sector.name})`),
               ],
             },
           ]}

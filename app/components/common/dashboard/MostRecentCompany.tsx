@@ -54,7 +54,7 @@ export default function CompaniesTableSection() {
       statusFilter === "All Status" || company.status?.toLowerCase() === statusFilter.toLowerCase();
 
     const matchesIndustry =
-      industryFilter === "All Sectors" || company?.industry?.sector === industryFilter;
+      industryFilter === "All Sectors" || company?.industry?.sector?.name === industryFilter;
 
     return matchesSearch && matchesStatus && matchesIndustry;
   });
@@ -100,8 +100,8 @@ export default function CompaniesTableSection() {
               <SelectContent className="max-h-[200px] max-w-[250px] overflow-y-auto">
                 <SelectItem value="All Sectors">All Sectors</SelectItem>
                 {industryOptions.map((sector) => (
-                  <SelectItem key={sector} value={sector}>
-                    {sector}
+                  <SelectItem key={sector.id} value={sector.name}>
+                    {sector.name}
                   </SelectItem>
                 ))}
               </SelectContent>

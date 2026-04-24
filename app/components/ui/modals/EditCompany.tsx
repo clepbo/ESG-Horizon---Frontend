@@ -235,14 +235,14 @@ export default function EditCompanyModal({
                     placeholder="Select an industry"
                     options={industryOptions.map((i) => ({
                       value: i.id,
-                      label: `${i.industry} (${i.sector})`,
+                      label: `${i.name} (${i.sector.name})`,
                     }))}
                     value={
                       selectedOption
                         ? {
-                            value: selectedOption.id,
-                            label: `${selectedOption.industry} (${selectedOption.sector})`,
-                          }
+                          value: selectedOption.id,
+                          label: `${selectedOption.name} (${selectedOption.sector?.name})`,
+                        }
                         : null
                     }
                     onChange={(option) => field.onChange(option?.value || 0)}
@@ -286,11 +286,10 @@ export default function EditCompanyModal({
                   <PhoneInput
                     {...field}
                     defaultCountry={countryCode}
-                    className={`rounded-md border px-3 py-2 w-full focus-within:ring-2 [&_input]:border-none [&_input]:outline-none [&_input]:shadow-none [&_input]:bg-transparent ${
-                      errors.contact_phone
-                        ? "border-red-500"
-                        : "border-gray-300 focus-within:ring-green-500"
-                    }`}
+                    className={`rounded-md border px-3 py-2 w-full focus-within:ring-2 [&_input]:border-none [&_input]:outline-none [&_input]:shadow-none [&_input]:bg-transparent ${errors.contact_phone
+                      ? "border-red-500"
+                      : "border-gray-300 focus-within:ring-green-500"
+                      }`}
                     labels={en}
                   />
                 );
@@ -330,9 +329,8 @@ export default function EditCompanyModal({
                     showSelectedLabel
                     showOptionLabel
                     className="w-full"
-                    selectButtonClassName={`w-full h-12 rounded-lg border px-3 text-left ${
-                      errors.isoCountryCode ? "border-red-500" : "border-neutral-200"
-                    }`}
+                    selectButtonClassName={`w-full h-12 rounded-lg border px-3 text-left ${errors.isoCountryCode ? "border-red-500" : "border-neutral-200"
+                      }`}
                   />
                 );
               }}

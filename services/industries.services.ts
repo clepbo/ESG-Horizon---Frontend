@@ -2,8 +2,11 @@ import api from "@/lib/api/axios";
 
 export interface Industry {
   id: number;
-  sector: string;
-  industry: string;
+  name: string;
+  sector: {
+    id: number;
+    name: string;
+  };
 }
 
 export const industriesService = {
