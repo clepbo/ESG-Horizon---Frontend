@@ -115,7 +115,9 @@ export default function TeamsPage() {
                 <Plus className="h-4 w-4 mr-1" />
                 Invite User
               </button>
-              {!canInvite && <PermissionTooltip message="Only Super Admin can invite platform users" />}
+              {!canInvite && (
+                <PermissionTooltip message="Only Super Admin can invite platform users" />
+              )}
             </div>
           </div>
         </div>

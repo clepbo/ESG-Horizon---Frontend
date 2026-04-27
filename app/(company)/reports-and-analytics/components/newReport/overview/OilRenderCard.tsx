@@ -23,7 +23,8 @@ export default function OilRenderCard({ borderColor, title, sub, amount }: Props
       <p className="text-gray-800 break-words">{title}</p>
       {typeof amount === "number" && amount >= 0 && (
         <p className="font-bold text-3xl break-words">
-          {formatNumberShort(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-gray-700 text-sm font-semibold">{sub}</sub>
+          {formatNumberShort(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+          <sub className="text-gray-700 text-sm font-semibold">{sub}</sub>
         </p>
       )}
 
@@ -44,7 +45,8 @@ export function WaterQualityCard({ title, sub = "", amount, progress }: WaterQua
       <div className={``}>
         <p className="text-gray-800 break-words">{title}</p>
         <p className="font-bold text-3xl break-words">
-          {formatNumberShort(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <sub className="text-sm font-semibold">{sub}</sub>
+          {formatNumberShort(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+          <sub className="text-sm font-semibold">{sub}</sub>
         </p>
       </div>
 

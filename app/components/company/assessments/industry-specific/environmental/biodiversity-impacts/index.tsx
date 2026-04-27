@@ -19,7 +19,12 @@ import EnvironmentalManagementPolicies from "./environmental-managment-policies"
 import HydrocarbonSpills from "./hydrocarbon-spills";
 import ReservesInSensitiveAreas from "./reserves-in-sensitive-areas";
 import { useAssessment } from "@/hooks/useAssessment";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type SHRView =
@@ -70,13 +75,17 @@ const scopeData = [
   },
 ];
 
-export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinueToNextAssessment }: BioDiversityImpactProps) {
+export function BioDiversityImpact({
+  onBack,
+  onBackToHub,
+  initialForm,
+  onContinueToNextAssessment,
+}: BioDiversityImpactProps) {
   const router = useRouter();
   const { state } = useAssessment();
   const [currentView, setCurrentView] = useState<SHRView>(initialForm ?? "overview");
 
   const [showSuccess, setShowSuccess] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
 
   const params = useParams();
 
@@ -93,15 +102,44 @@ export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinu
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Environmental Management Policies": { groupKey: "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies", dataPath: ["environment", "biodiversityImpact", "environmentalManagement", "environmentalManagementPolicies"] },
-    "Hydrocarbon Spills": { groupKey: "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills", dataPath: ["environment", "biodiversityImpact", "environmentalManagement", "hydrocarbonSpills"] },
-    "Reserves in Sensitive Areas": { groupKey: "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas", dataPath: ["environment", "biodiversityImpact", "environmentalManagement", "reservesInSensitiveAreas"] },
+    "Environmental Management Policies": {
+      groupKey:
+        "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+      dataPath: [
+        "environment",
+        "biodiversityImpact",
+        "environmentalManagement",
+        "environmentalManagementPolicies",
+      ],
+    },
+    "Hydrocarbon Spills": {
+      groupKey: "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
+      dataPath: [
+        "environment",
+        "biodiversityImpact",
+        "environmentalManagement",
+        "hydrocarbonSpills",
+      ],
+    },
+    "Reserves in Sensitive Areas": {
+      groupKey: "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
+      dataPath: [
+        "environment",
+        "biodiversityImpact",
+        "environmentalManagement",
+        "reservesInSensitiveAreas",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -173,7 +211,7 @@ export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinu
           setShowSuccess(true);
         }}
         onSubmit={(totals) => {
-          setTotals(totals);
+          void totals;
           setShowSuccess(true);
         }}
         stepIndex={3}
@@ -260,7 +298,10 @@ export function BioDiversityImpact({ onBack, onBackToHub, initialForm, onContinu
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
                           }`}
-                          style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                          style={{
+                            borderLeftWidth: "4px",
+                            borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                          }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

@@ -15,7 +15,11 @@ interface CompanyDetailsModalProps {
   companyId?: string;
 }
 
-export default function CompanyDetailsModal({ open, onClose, onSuspend }: CompanyDetailsModalProps) {
+export default function CompanyDetailsModal({
+  open,
+  onClose,
+  onSuspend,
+}: CompanyDetailsModalProps) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {

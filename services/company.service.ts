@@ -2,6 +2,7 @@ import api from "@/lib/api/axios";
 import { User } from "./user.service";
 import { Department } from "@/services/department.service";
 import { Subsidiary } from "@/services/subsidiaries.service";
+import { Industry } from "./industries.services";
 
 export interface Company {
   id: number;
@@ -9,15 +10,7 @@ export interface Company {
   registration_number: string;
   isinCode?: string | null;
   isoCountryCode?: string;
-  industry?: {
-    id?: number;
-    industry?: string;
-    name: string;
-    sector?: {
-      name: string;
-      id: number;
-    }
-  };
+  industry?: Industry;
   address?: string;
   country?: string;
   contact_email?: string;

@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { Search } from "lucide-react";
-import { industriesService } from "@/services/industries.services";
+import { industriesService, Sector } from "@/services/industries.services";
 
 export default function CompaniesTableSection() {
   const { data: companies = [], isLoading, error } = useCompanies();
@@ -24,7 +24,7 @@ export default function CompaniesTableSection() {
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [industryFilter, setIndustryFilter] = useState("All Sectors");
-  const [industryOptions, setIndustryOptions] = useState<string[]>([]);
+  const [industryOptions, setIndustryOptions] = useState<Sector[]>([]);
 
   useEffect(() => {
     const fetchIndustries = async () => {
@@ -44,7 +44,7 @@ export default function CompaniesTableSection() {
 
       const searchLower = debouncedSearchTerm.toLowerCase();
       const nameMatches = company.name?.toLowerCase().includes(searchLower);
-      const industryMatches = company.industry?.industry?.toLowerCase().includes(searchLower);
+      const industryMatches = company.industry?.name?.toLowerCase().includes(searchLower);
       const emailMatches = company.contact_email?.toLowerCase().includes(searchLower);
 
       return nameMatches || industryMatches || emailMatches;

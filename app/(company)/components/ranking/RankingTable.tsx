@@ -12,7 +12,7 @@ interface Company {
     name: string;
     sector: {
       name: string;
-    }
+    };
   };
   region: string;
   reductionTarget: string;

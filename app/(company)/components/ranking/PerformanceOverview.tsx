@@ -34,8 +34,31 @@ export default function PerformanceOverview({ pair, baselineInfo }: PerformanceO
       {baselineInfo && (baselineInfo.submittedAt || baselineInfo.approvedAt) && (
         <p className="text-xs text-gray-500">
           Baseline assessment ({baselineInfo.startYear})
-          {baselineInfo.submittedAt && <> &middot; Submitted: {new Date(baselineInfo.submittedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</>}
-          {baselineInfo.approvedAt && <> &middot; <span className="text-green-600">Approved: {new Date(baselineInfo.approvedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span></>}
+          {baselineInfo.submittedAt && (
+            <>
+              {" "}
+              &middot; Submitted:{" "}
+              {new Date(baselineInfo.submittedAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </>
+          )}
+          {baselineInfo.approvedAt && (
+            <>
+              {" "}
+              &middot;{" "}
+              <span className="text-green-600">
+                Approved:{" "}
+                {new Date(baselineInfo.approvedAt).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+            </>
+          )}
         </p>
       )}
 

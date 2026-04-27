@@ -36,7 +36,10 @@ export function OffshoreSites({
 }: OffshoreSitesProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("activityMetrics.assetPortfolio.offshoreSites", "foundationalData.activityMetrics.offshoreSites");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "activityMetrics.assetPortfolio.offshoreSites",
+    "foundationalData.activityMetrics.offshoreSites"
+  );
 
   const productionPlatforms = useFormattedNumber("");
   const fpsos = useFormattedNumber("");

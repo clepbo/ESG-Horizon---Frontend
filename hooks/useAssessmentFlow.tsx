@@ -6,7 +6,6 @@ import { useDebouncedCallback } from "use-debounce";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-
 export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) => {
   const { state, dispatch } = useAssessment();
   const queryClient = useQueryClient();
@@ -152,9 +151,8 @@ export const useAssessmentFlow = (currentFormKey: string, groupPath?: string) =>
   const isAssessmentLocked = lockedStatuses.includes(assessmentStatus);
 
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
-  const isPreviouslySubmitted = isAssessmentLocked && groupPath
-    ? submittedGroups.includes(groupPath)
-    : false;
+  const isPreviouslySubmitted =
+    isAssessmentLocked && groupPath ? submittedGroups.includes(groupPath) : false;
   const handleAssignedTaskRedirect = () => {
     if (isAssignedTask) {
       dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });

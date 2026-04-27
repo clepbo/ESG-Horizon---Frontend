@@ -5,7 +5,6 @@ import Header from "@/app/(company)/components/Header";
 import EditCompanyModal from "@/app/components/ui/modals/EditCompany";
 import CompanyInfoCard from "@/app/components/settings/company/CompanyInfoCard";
 import ToggleSwitch from "@/app/components/settings/company/ToggleSwitch";
-import { useAuth } from "@/context/AuthContext";
 import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
 import { useCompanyDetails, useCompanyUsers } from "@/services/hooks/company.hooks";
@@ -23,7 +22,6 @@ export default function CompanyPage() {
   const { data: usersData, isLoading: isUsersLoading } = useCompanyUsers(companyData?.id || "");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user } = useAuth();
   const { isCompanyAdmin, isSuperAdmin } = useRoles();
   const [ifrsIssb] = useState(true);
 
@@ -96,7 +94,10 @@ export default function CompanyPage() {
     >
       <Header />
 
-      <CompanyInfoCard company={companyData} onEdit={canEditProfile ? () => setIsModalOpen(true) : undefined} />
+      <CompanyInfoCard
+        company={companyData}
+        onEdit={canEditProfile ? () => setIsModalOpen(true) : undefined}
+      />
 
       {/* ESG Frameworks */}
       <div className="bg-white p-6 shadow rounded-lg">
@@ -119,7 +120,7 @@ export default function CompanyPage() {
                 Only Company Admin can switch this
               </div>
             )} */}
-              <ToggleSwitch checked={ifrsIssb} onChange={() => { }} disabled={true} />
+              <ToggleSwitch checked={ifrsIssb} onChange={() => {}} disabled={true} />
             </div>
             <div className="absolute right-0 bottom-full mb-2 w-40 p-2 bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
               Coming soon

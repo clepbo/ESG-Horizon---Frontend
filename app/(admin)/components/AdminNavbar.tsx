@@ -34,9 +34,7 @@ export default function AdminNavbar({ title, subtitle }: AdminNavbarProps) {
           </button>
           <div className="min-w-0">
             <h1 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{title}</h1>
-            {subtitle && (
-              <p className="text-xs sm:text-sm text-gray-700 truncate">{subtitle}</p>
-            )}
+            {subtitle && <p className="text-xs sm:text-sm text-gray-700 truncate">{subtitle}</p>}
           </div>
         </div>
 

@@ -4,7 +4,13 @@ import jsPDF from "jspdf";
 import ExportReportContent from "./ExportReportContent";
 import { sectionNames, sectionLabels } from "./ExportReportContent";
 import { drawCoverPage, CoverPageData } from "./coverPage";
-import { waitForCharts, captureSection, addFooter, loadImage, fetchImageAsDataUrl } from "./pdfUtils";
+import {
+  waitForCharts,
+  captureSection,
+  addFooter,
+  loadImage,
+  fetchImageAsDataUrl,
+} from "./pdfUtils";
 import { ReportResponse, ReportEvidence } from "@/types/report/reportResponse";
 import { formatStatus } from "@/lib/utils";
 
@@ -64,9 +70,7 @@ async function renderAndCaptureSections(
 
   // Render all tabs simultaneously
   const root = ReactDOM.createRoot(container);
-  root.render(
-    React.createElement(ExportReportContent, { reportData })
-  );
+  root.render(React.createElement(ExportReportContent, { reportData }));
 
   // Wait for charts to paint
   onProgress?.({ percent: 10, stage: "Waiting for charts to render…" });
@@ -93,9 +97,7 @@ async function renderAndCaptureSections(
     // Multiply by the capture pixel ratio so the y values match the
     // source dimensions of the PNG that captureSection() produces.
     const sectionRect = sectionEl.getBoundingClientRect();
-    const markers = sectionEl.querySelectorAll<HTMLElement>(
-      '[data-pdf-page-break-before="true"]'
-    );
+    const markers = sectionEl.querySelectorAll<HTMLElement>('[data-pdf-page-break-before="true"]');
     const forcedBreaks: number[] = [];
     for (const marker of Array.from(markers)) {
       const markerRect = marker.getBoundingClientRect();
@@ -132,7 +134,12 @@ async function renderAndCaptureSections(
 // Note: callers must create the source canvas with
 // `getContext("2d", { willReadFrequently: true })` so the repeated
 // getImageData() calls below don't trip Chrome's GPU readback warning.
-function isWhiteRow(ctx: CanvasRenderingContext2D, y: number, width: number, threshold = 250): boolean {
+function isWhiteRow(
+  ctx: CanvasRenderingContext2D,
+  y: number,
+  width: number,
+  threshold = 250
+): boolean {
   const step = 10;
   const samples = Math.ceil(width / step);
   const data = ctx.getImageData(0, y, width, 1).data;
@@ -265,10 +272,8 @@ async function sliceImageForPages(
 
     // If a forced break falls within the next page window (or beyond it
     // doesn't matter — we still honour it), use it as the cut point.
-    const nextForced =
-      forcedIdx < sortedForced.length ? sortedForced[forcedIdx] : null;
-    const useForced =
-      nextForced !== null && nextForced > cursor && nextForced <= naturalIdeal;
+    const nextForced = forcedIdx < sortedForced.length ? sortedForced[forcedIdx] : null;
+    const useForced = nextForced !== null && nextForced > cursor && nextForced <= naturalIdeal;
 
     if (useForced) {
       cutPoints.push(nextForced!);
@@ -406,12 +411,7 @@ function drawAppendixPdf(
   // Title underline
   pdf.setDrawColor(40, 40, 40);
   pdf.setLineWidth(0.5);
-  pdf.line(
-    layout.marginSide,
-    cursorY,
-    layout.pageWidth - layout.marginSide,
-    cursorY
-  );
+  pdf.line(layout.marginSide, cursorY, layout.pageWidth - layout.marginSide, cursorY);
   cursorY += 8;
 
   // ─── Per-pillar tables ────────────────────────────────────────────
@@ -429,12 +429,7 @@ function drawAppendixPdf(
 
     pdf.setDrawColor(220, 220, 220);
     pdf.setLineWidth(0.3);
-    pdf.line(
-      layout.marginSide,
-      cursorY,
-      layout.pageWidth - layout.marginSide,
-      cursorY
-    );
+    pdf.line(layout.marginSide, cursorY, layout.pageWidth - layout.marginSide, cursorY);
     cursorY += 4;
 
     // Table column headers
@@ -445,20 +440,11 @@ function drawAppendixPdf(
     pdf.text("#", layout.marginSide, headerY);
     pdf.text("FILE NAME", layout.marginSide + COL_NUM_W, headerY);
     pdf.text("CATEGORY", layout.marginSide + COL_NUM_W + COL_NAME_W, headerY);
-    pdf.text(
-      "LINK",
-      layout.marginSide + COL_NUM_W + COL_NAME_W + COL_SECTION_W,
-      headerY
-    );
+    pdf.text("LINK", layout.marginSide + COL_NUM_W + COL_NAME_W + COL_SECTION_W, headerY);
     cursorY += 5;
 
     pdf.setDrawColor(230, 230, 230);
-    pdf.line(
-      layout.marginSide,
-      cursorY,
-      layout.pageWidth - layout.marginSide,
-      cursorY
-    );
+    pdf.line(layout.marginSide, cursorY, layout.pageWidth - layout.marginSide, cursorY);
     cursorY += 3;
 
     // Rows
@@ -475,23 +461,13 @@ function drawAppendixPdf(
 
       // File name (truncate to fit column)
       pdf.setTextColor(40, 40, 40);
-      const nameLines = pdf.splitTextToSize(
-        file.name || "File",
-        COL_NAME_W - 2
-      );
+      const nameLines = pdf.splitTextToSize(file.name || "File", COL_NAME_W - 2);
       pdf.text(nameLines[0] || "File", layout.marginSide + COL_NUM_W, baselineY);
 
       // Section / category
       pdf.setTextColor(100, 100, 100);
-      const sectionLines = pdf.splitTextToSize(
-        file.section || "",
-        COL_SECTION_W - 2
-      );
-      pdf.text(
-        sectionLines[0] || "",
-        layout.marginSide + COL_NUM_W + COL_NAME_W,
-        baselineY
-      );
+      const sectionLines = pdf.splitTextToSize(file.section || "", COL_SECTION_W - 2);
+      pdf.text(sectionLines[0] || "", layout.marginSide + COL_NUM_W + COL_NAME_W, baselineY);
 
       // Clickable link — render the actual URL (truncated to fit the
       // column with a single-character ellipsis if needed) and overlay a
@@ -503,8 +479,7 @@ function drawAppendixPdf(
         // splitTextToSize wraps to fit, but we only want one line — take
         // line 0 and append an ellipsis if the URL had to be wrapped.
         const urlLines = pdf.splitTextToSize(file.url, COL_LINK_W - 2);
-        const displayUrl =
-          urlLines.length > 1 ? `${urlLines[0]}…` : urlLines[0] || file.url;
+        const displayUrl = urlLines.length > 1 ? `${urlLines[0]}…` : urlLines[0] || file.url;
         pdf.text(displayUrl, linkX, baselineY);
         const linkW = Math.min(pdf.getTextWidth(displayUrl), COL_LINK_W - 2);
         // Click rect sits on top of the rendered text. baselineY - 3 / h 4.5
@@ -803,11 +778,7 @@ async function drawPngCoverPage(
 /**
  * Draws a footer band at the bottom of the PNG canvas.
  */
-function drawPngFooter(
-  ctx: CanvasRenderingContext2D,
-  canvasWidth: number,
-  y: number
-): number {
+function drawPngFooter(ctx: CanvasRenderingContext2D, canvasWidth: number, y: number): number {
   const footerHeight = 60;
   const centerX = canvasWidth / 2;
 

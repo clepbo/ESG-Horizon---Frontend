@@ -17,7 +17,11 @@ import { useSingleReport } from "../service/useReport";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import ReportEmptyState from "../ReportEmptyState";
 import { formatStatus } from "@/lib/utils";
-import { generateReportPDF, generateReportPNG, ExportProgress } from "../pdf-export/generateReportExport";
+import {
+  generateReportPDF,
+  generateReportPNG,
+  ExportProgress,
+} from "../pdf-export/generateReportExport";
 import { AlertTriangle, X } from "lucide-react";
 import { useCompanyDetails } from "@/services/hooks/company.hooks";
 import {
@@ -28,7 +32,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { shortenMonth, useBreadcrumb } from "../../context/ReportBreadcrumbContext";
-
 
 export default function NewReportSummary() {
   // const [view, setView] = useState("overview");
@@ -42,7 +45,9 @@ export default function NewReportSummary() {
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<ExportProgress>({ percent: 0, stage: "" });
-  const [exportError, setExportError] = useState<{ stage: string; format: "pdf" | "png" } | null>(null);
+  const [exportError, setExportError] = useState<{ stage: string; format: "pdf" | "png" } | null>(
+    null
+  );
   // Cancellation flag — checked after each async step in the export flow.
   // We use a ref (not state) so the running async function sees the
   // latest value without needing a re-render.
@@ -193,18 +198,13 @@ export default function NewReportSummary() {
                   <AlertTriangle className="w-6 h-6 text-red-500" />
                 </div>
                 <div className="flex flex-col items-center gap-1 text-center">
-                  <p className="text-base font-semibold text-gray-800">
-                    Report Generation Failed
-                  </p>
+                  <p className="text-base font-semibold text-gray-800">Report Generation Failed</p>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    We couldn&apos;t generate your report. This is usually a
-                    temporary issue — please try again. If it keeps happening,
-                    contact support.
+                    We couldn&apos;t generate your report. This is usually a temporary issue —
+                    please try again. If it keeps happening, contact support.
                   </p>
                   {exportError.stage && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Failed during: {exportError.stage}
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1">Failed during: {exportError.stage}</p>
                   )}
                 </div>
                 <div className="flex w-full gap-3 mt-1">
@@ -227,9 +227,7 @@ export default function NewReportSummary() {
             ) : (
               <>
                 <div className="flex w-full items-center justify-between">
-                  <p className="text-base font-semibold text-gray-800">
-                    Generating Report
-                  </p>
+                  <p className="text-base font-semibold text-gray-800">Generating Report</p>
                   <button
                     type="button"
                     onClick={cancelExport}
@@ -249,7 +247,9 @@ export default function NewReportSummary() {
                   </div>
                   <div className="flex justify-between items-start mt-2 h-5">
                     <p className="text-sm text-gray-600 truncate mr-2">{exportProgress.stage}</p>
-                    <p className="text-sm font-medium text-gray-700 shrink-0">{exportProgress.percent}%</p>
+                    <p className="text-sm font-medium text-gray-700 shrink-0">
+                      {exportProgress.percent}%
+                    </p>
                   </div>
                 </div>
               </>

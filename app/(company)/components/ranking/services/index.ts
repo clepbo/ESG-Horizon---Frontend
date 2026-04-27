@@ -145,7 +145,9 @@ export const useAllTargets = (companyId?: number) => {
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
       const data = await api.get(`/target`);
-      return (Array.isArray(data) ? data : []) as import("@/app/(company)/components/types/target").Target[];
+      return (
+        Array.isArray(data) ? data : []
+      ) as import("@/app/(company)/components/types/target").Target[];
     },
     enabled: !!companyId,
     refetchOnWindowFocus: false,

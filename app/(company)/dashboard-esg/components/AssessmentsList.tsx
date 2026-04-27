@@ -53,9 +53,10 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
 
         {items.map((assessment) => {
           const style = STATUS_STYLES[assessment.status] ?? STATUS_STYLES.in_progress;
-          const period = assessment.startMonth && assessment.startYear
-            ? `${assessment.startMonth} ${assessment.startYear} - ${assessment.endMonth} ${assessment.endYear}`
-            : "";
+          const period =
+            assessment.startMonth && assessment.startYear
+              ? `${assessment.startMonth} ${assessment.startYear} - ${assessment.endMonth} ${assessment.endYear}`
+              : "";
           const progress = COMPLETED_STATUSES.includes(assessment.status)
             ? 100
             : typeof assessment.progress === "number"
@@ -63,10 +64,7 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
               : getAssessmentProgressForTable(assessment);
 
           return (
-            <div
-              key={assessment.id}
-              className="flex items-center gap-4 py-4"
-            >
+            <div key={assessment.id} className="flex items-center gap-4 py-4">
               <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
                 <FileText className="w-5 h-5 text-gray-500" />
               </div>
@@ -79,7 +77,9 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
               </div>
 
               <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                >
                   {style.label}
                 </span>
                 <div className="flex items-center gap-2">

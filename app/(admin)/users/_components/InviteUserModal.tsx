@@ -17,8 +17,19 @@ export interface InvitePayload {
 }
 
 const ROLE_OPTIONS = ["Super Admin", "Sub Admin", "Data Officer", "Viewer"];
-const DEPARTMENT_OPTIONS = ["Administration", "Sustainability", "Digital", "Investment", "Operations"];
-const COMPANY_OPTIONS = ["Teasoo Consulting", "GreenTech Solutions", "Barone LLC", "EcoBuild Limited"];
+const DEPARTMENT_OPTIONS = [
+  "Administration",
+  "Sustainability",
+  "Digital",
+  "Investment",
+  "Operations",
+];
+const COMPANY_OPTIONS = [
+  "Teasoo Consulting",
+  "GreenTech Solutions",
+  "Barone LLC",
+  "EcoBuild Limited",
+];
 
 const EMPTY: InvitePayload = { email: "", role: "", department: "", company: "Teasoo Consulting" };
 
@@ -81,7 +92,11 @@ export default function InviteUserModal({ open, onClose, onSubmit }: InviteUserM
         </div>
 
         <div className="px-6 py-5 space-y-4">
-          <Field label="Email Address" required error={attempted && errors.email ? "Enter a valid email" : null}>
+          <Field
+            label="Email Address"
+            required
+            error={attempted && errors.email ? "Enter a valid email" : null}
+          >
             <input
               type="email"
               value={form.email}
@@ -106,7 +121,11 @@ export default function InviteUserModal({ open, onClose, onSubmit }: InviteUserM
             </select>
           </Field>
 
-          <Field label="Department" required error={attempted && errors.department ? "Select a department" : null}>
+          <Field
+            label="Department"
+            required
+            error={attempted && errors.department ? "Select a department" : null}
+          >
             <select
               value={form.department}
               onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
@@ -121,7 +140,11 @@ export default function InviteUserModal({ open, onClose, onSubmit }: InviteUserM
             </select>
           </Field>
 
-          <Field label="Company" required error={attempted && errors.company ? "Select a company" : null}>
+          <Field
+            label="Company"
+            required
+            error={attempted && errors.company ? "Select a company" : null}
+          >
             <select
               value={form.company}
               onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}

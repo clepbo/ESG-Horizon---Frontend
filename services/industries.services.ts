@@ -9,8 +9,13 @@ export interface Industry {
   };
 }
 
+export interface Sector {
+  id: number;
+  name: string;
+}
+
 export const industriesService = {
-  getSectors: async (): Promise<string[]> => {
+  getSectors: async (): Promise<Sector[]> => {
     const data = await api.get("/industries/sectors");
     return data;
   },

@@ -76,25 +76,25 @@ export default function AirQualityCard({
             {cards.map((card, i) => {
               const status = getFormSectionStatus(submittedGroups, card.groupKey, card.dataPath);
               return (
-              <Card
-                key={i}
-                onClick={handleCardClick}
-                className="cursor-pointer hover:bg-gray-100 max-w-lg shadow"
-                style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(status) }}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h5 className="font-medium text-foreground">{card.title}</h5>
-                        <StatusPill status={status} />
+                <Card
+                  key={i}
+                  onClick={handleCardClick}
+                  className="cursor-pointer hover:bg-gray-100 max-w-lg shadow"
+                  style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(status) }}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-foreground">{card.title}</h5>
+                          <StatusPill status={status} />
+                        </div>
+                        <p className="text-sm text-muted-foreground">{card.subtitle}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{card.subtitle}</p>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 ml-2" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
               );
             })}
           </Card>

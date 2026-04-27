@@ -32,7 +32,7 @@ const MainContentCard = ({ subsidiary, teamMemberCount, onEdit }: MainContentCar
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
         <InfoField label="Subsidiary Name" value={subsidiary.name} />
-        <InfoField label="Industry" value={subsidiary.industry?.industry || "N/A"} />
+        <InfoField label="Industry" value={subsidiary.industry?.name || "N/A"} />
         <InfoField
           label="Subsidiary Lead"
           value={

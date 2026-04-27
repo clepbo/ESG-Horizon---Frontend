@@ -44,7 +44,6 @@ export function TargetTypeSelector({ selectedType, onTypeChange }: TargetTypeSel
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

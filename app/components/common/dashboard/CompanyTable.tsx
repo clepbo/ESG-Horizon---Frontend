@@ -65,7 +65,11 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
     newStatus: Company["status"] | null;
   }>({ open: false, companyId: null, currentStatus: null, newStatus: null });
 
-  const openModal = (companyId: number, currentStatus: Company["status"], newStatus: Company["status"]) => {
+  const openModal = (
+    companyId: number,
+    currentStatus: Company["status"],
+    newStatus: Company["status"]
+  ) => {
     setModalData({ open: true, companyId, currentStatus, newStatus });
   };
 
@@ -158,7 +162,9 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
           <>
             Are you sure you want to{" "}
             <span className="font-bold lowercase">
-              {modalData.currentStatus ? STATUS_ACTIONS[modalData.currentStatus]?.title : modalData.newStatus}
+              {modalData.currentStatus
+                ? STATUS_ACTIONS[modalData.currentStatus]?.title
+                : modalData.newStatus}
             </span>{" "}
             this company?{" "}
             {modalData.newStatus === "suspended"

@@ -24,8 +24,7 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
 
   // Activity Metrics — total production (crude + synthetic oil)
   const oilProd = activity?.productionData?.oilProduction;
-  const totalProduction =
-    (Number(oilProd?.crudeOil) || 0) + (Number(oilProd?.syntheticOil) || 0);
+  const totalProduction = (Number(oilProd?.crudeOil) || 0) + (Number(oilProd?.syntheticOil) || 0);
 
   // Environmental — total emissions
   const totalEmissions = Number(env?.total_emission) || 0;
@@ -61,7 +60,8 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       icon: React.createElement(CiWavePulse1, { className: "w-5 h-5" }),
       metricLabel: "Total Production",
       metricValue: totalProduction > 0 ? formatNumberShort(totalProduction) : "—",
-      metricTooltip: totalProduction > 0 ? `${formatNumberFull(totalProduction)} kbbl/day` : undefined,
+      metricTooltip:
+        totalProduction > 0 ? `${formatNumberFull(totalProduction)} kbbl/day` : undefined,
       metricUnit: "kbbl/day",
       changeText: "",
       changeDirection: "neutral",
@@ -78,11 +78,14 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       metricValue: totalEmissions > 0 ? formatNumberShort(totalEmissions) : "—",
       metricTooltip: totalEmissions > 0 ? `${formatNumberFull(totalEmissions)} tCO₂e` : undefined,
       metricUnit: "tCO₂e",
-      changeText: envChange != null ? `${formatNumberShort(Math.abs(envChange), { maximumFractionDigits: 1 })}%` : "",
-      changeDirection:
-        envChange == null ? "neutral" : envChange <= 0 ? "down" : "up",
+      changeText:
+        envChange != null
+          ? `${formatNumberShort(Math.abs(envChange), { maximumFractionDigits: 1 })}%`
+          : "",
+      changeDirection: envChange == null ? "neutral" : envChange <= 0 ? "down" : "up",
       upIsBad: true,
-      tooltip: "Combined Scope 1, 2, and 3 greenhouse gas emissions (tCO₂e). Change is year-over-year.",
+      tooltip:
+        "Combined Scope 1, 2, and 3 greenhouse gas emissions (tCO₂e). Change is year-over-year.",
     },
     {
       id: "social-capital",
@@ -96,7 +99,8 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeText: "",
       changeDirection: "neutral",
       upIsBad: true,
-      tooltip: "Community operational delay risk level and total incidents from community relations data.",
+      tooltip:
+        "Community operational delay risk level and total incidents from community relations data.",
     },
     {
       id: "human-capital",
@@ -108,9 +112,11 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       metricValue: trir > 0 ? formatNumberShort(trir) : "—",
       metricTooltip: trir > 0 ? `${formatNumberFull(trir)} per 200k hrs` : undefined,
       metricUnit: "per 200k hrs",
-      changeText: humanChange != null ? `${formatNumberShort(Math.abs(humanChange), { maximumFractionDigits: 1 })}%` : "",
-      changeDirection:
-        humanChange == null ? "neutral" : humanChange <= 0 ? "down" : "up",
+      changeText:
+        humanChange != null
+          ? `${formatNumberShort(Math.abs(humanChange), { maximumFractionDigits: 1 })}%`
+          : "",
+      changeDirection: humanChange == null ? "neutral" : humanChange <= 0 ? "down" : "up",
       upIsBad: true,
       tooltip: "Total Recordable Incident Rate per 200,000 work hours. Lower is better.",
     },
@@ -121,21 +127,17 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       iconBg: "#f5e2ff",
       icon: React.createElement(TbBriefcaseFilled, { className: "w-5 h-5" }),
       metricLabel: "Reserves at Risk",
-      metricValue:
-        reservesAtRisk > 0
-          ? `${formatNumberShort(reservesAtRisk)} MMboe`
-          : "—",
+      metricValue: reservesAtRisk > 0 ? `${formatNumberShort(reservesAtRisk)} MMboe` : "—",
       metricTooltip: reservesAtRisk > 0 ? `${formatNumberFull(reservesAtRisk)} MMboe` : undefined,
       metricUnit: renewableInv > 0 ? `${formatCurrencyCompact(renewableInv)} Renewable Inv.` : "",
-      changeText: businessChange != null ? `${formatNumberShort(Math.abs(businessChange), { maximumFractionDigits: 1 })}%` : "",
-      changeDirection:
-        businessChange == null
-          ? "neutral"
-          : businessChange <= 0
-            ? "down"
-            : "up",
+      changeText:
+        businessChange != null
+          ? `${formatNumberShort(Math.abs(businessChange), { maximumFractionDigits: 1 })}%`
+          : "",
+      changeDirection: businessChange == null ? "neutral" : businessChange <= 0 ? "down" : "up",
       upIsBad: true,
-      tooltip: "Total reserves at risk (MMboe) and renewable energy investment from capital expenditure strategy.",
+      tooltip:
+        "Total reserves at risk (MMboe) and renewable energy investment from capital expenditure strategy.",
     },
     {
       id: "leadership-governance",
@@ -150,7 +152,8 @@ export function buildReportMetrics(report: any): ESGReportMetric[] {
       changeText: tierEvents !== "—" ? tierEvents : "",
       changeDirection: "neutral",
       upIsBad: true,
-      tooltip: "Process safety event rate and tier classification from critical incident risk management.",
+      tooltip:
+        "Process safety event rate and tier classification from critical incident risk management.",
     },
   ];
 }

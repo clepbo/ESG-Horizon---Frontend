@@ -68,7 +68,7 @@ export const assessmentService = {
 
   submitForReview: async (
     assessmentId: number,
-    reviewerId?: number,
+    reviewerId?: number
   ): Promise<{ message: string; data: any }> => {
     return api.post(`/assessments/${assessmentId}/submit-for-review`, {
       reviewerId,

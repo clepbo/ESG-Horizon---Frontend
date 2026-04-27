@@ -11,7 +11,6 @@ import { departmentService, Department } from "@/services/department.service";
 import { subsidiariesService, Subsidiary } from "@/services/subsidiaries.service";
 import { toast } from "react-toastify";
 import { formatRoleName } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
 import { useRoles } from "@/lib/roles";
 
 interface EditUserModalProps {
@@ -21,7 +20,6 @@ interface EditUserModalProps {
 }
 
 export default function EditUserModal({ user, onClose, onSave }: EditUserModalProps) {
-  const { user: currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [firstName, setFirstName] = useState(user.first_name || "");
   const [lastName, setLastName] = useState(user.last_name || "");

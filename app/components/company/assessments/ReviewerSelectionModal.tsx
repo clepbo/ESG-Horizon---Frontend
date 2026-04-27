@@ -32,16 +32,13 @@ export default function ReviewerSelectionModal({
   loading = false,
 }: ReviewerSelectionModalProps) {
   const { data: users, isLoading: usersLoading } = useAllUsers();
-  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
-    undefined,
-  );
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined);
 
   if (!open) return null;
 
   const activeUsers =
     (users as any[])?.filter(
-      (u: any) =>
-        u.status === "active" && REVIEWER_ROLES.includes(u.role?.name),
+      (u: any) => u.status === "active" && REVIEWER_ROLES.includes(u.role?.name)
     ) ?? [];
 
   const handleSubmit = () => {
@@ -57,20 +54,17 @@ export default function ReviewerSelectionModal({
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">
-          Submit for Review
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-2">Submit for Review</h2>
         <p className="text-sm text-gray-500 mb-4">
-          Select an administrator to review this assessment. Only users
-          with approval permissions are shown.
+          Select an administrator to review this assessment. Only users with approval permissions
+          are shown.
         </p>
 
         {usersLoading ? (
           <p className="text-sm text-gray-400 py-4">Loading users...</p>
         ) : activeUsers.length === 0 ? (
           <p className="text-sm text-amber-600 py-4">
-            No eligible reviewers found. Only administrators can review
-            assessments.
+            No eligible reviewers found. Only administrators can review assessments.
           </p>
         ) : (
           <Select

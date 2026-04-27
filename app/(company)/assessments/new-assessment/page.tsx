@@ -12,7 +12,6 @@ import { LoadingSpinner } from "@/app/components/ui/loading-spinner";
 import { AssessmentProvider, useAssessment } from "@/hooks/useAssessment";
 import { UserTasksCoordinator } from "@/app/components/company/assessments/UserTasksCoordinator";
 import { useMyTasks } from "@/services/hooks/assignTask.hooks";
-import { useAuth } from "@/context/AuthContext";
 import { getAssessmentProgressForTable } from "@/lib/utils";
 import { useRoles } from "@/lib/roles";
 import PermissionTooltip from "@/app/components/ui/PermissionTooltip";
@@ -30,7 +29,6 @@ function NewAssessmentPage() {
   const hasAssignedTasks = userTasks && userTasks.length > 0;
   const hasAssessments = assessments && assessments.length > 0;
 
-  const { user } = useAuth();
   const { canWriteData, isCompanyAdmin } = useRoles();
   const canCreate = canWriteData;
 

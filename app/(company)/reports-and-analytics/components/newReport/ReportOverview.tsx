@@ -121,51 +121,57 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
 
   const environmentalAmount = (
     <p className="font-bold">
-      {formatNumberShort(environmental?.total_emission ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+      {formatNumberShort(environmental?.total_emission ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}{" "}
       <sub className="text-xs font-normal text-gray-600"> tCO2e</sub>
     </p>
   );
 
-  const environmentalScore = environmental?.changePercentage != null ? (
-    <small className="flex items-center gap-2">
-      <FaArrowDown
-        className={`${environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
-      />
-      {formatNumberFull(Math.abs(environmental.changePercentage), {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}
-      %
-    </small>
-  ) : null;
+  const environmentalScore =
+    environmental?.changePercentage != null ? (
+      <small className="flex items-center gap-2">
+        <FaArrowDown
+          className={`${environmental.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        />
+        {formatNumberFull(Math.abs(environmental.changePercentage), {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+        %
+      </small>
+    ) : null;
 
   const socialCapitalScore = socialCapital?.operationalDelaysLevel ?? "N/A";
 
-  const humanCapitalScore = humanCapital?.changePercentage != null ? (
-    <small className="flex items-center gap-2">
-      <FaArrowDown
-        className={`${humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
-      />
-      {formatNumberFull(Math.abs(humanCapital.changePercentage), {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}
-      %
-    </small>
-  ) : null;
+  const humanCapitalScore =
+    humanCapital?.changePercentage != null ? (
+      <small className="flex items-center gap-2">
+        <FaArrowDown
+          className={`${humanCapital.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        />
+        {formatNumberFull(Math.abs(humanCapital.changePercentage), {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+        %
+      </small>
+    ) : null;
 
-  const businessModelScore = businessModel?.changePercentage != null ? (
-    <small className="flex items-center gap-2">
-      <FaArrowDown
-        className={`${businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
-      />
-      {formatNumberFull(Math.abs(businessModel.changePercentage), {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}
-      %
-    </small>
-  ) : null;
+  const businessModelScore =
+    businessModel?.changePercentage != null ? (
+      <small className="flex items-center gap-2">
+        <FaArrowDown
+          className={`${businessModel.changePercentage > 0 ? "rotate-180 text-red-500" : "text-green-500"}`}
+        />
+        {formatNumberFull(Math.abs(businessModel.changePercentage), {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+        %
+      </small>
+    ) : null;
 
   return (
     <div className="flex flex-col gap-4 lg:gap-10">
@@ -258,7 +264,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           amount={environmentalAmount}
           footer={
             environmental?.changePercentage != null
-              ? `Total emissions ${environmental.changePercentage > 0 ? 'increased' : 'decreased'} by ${formatNumberShort(Math.abs(environmental.changePercentage))}% YoY.`
+              ? `Total emissions ${environmental.changePercentage > 0 ? "increased" : "decreased"} by ${formatNumberShort(Math.abs(environmental.changePercentage))}% YoY.`
               : "On track to meet reduction targets." // A safe generic fallback if no previous data
           }
           icon={<FaLeaf />}
@@ -273,9 +279,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           pillar={"Social Capital"}
           score={socialCapitalScore}
           amount={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} incidents`}
-          footer={
-            `${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0)} incidents recorded. ${socialCapital?.operationalDelaysLevel || 'Low Risk'} observed.`
-          }
+          footer={`${formatNumberShort(socialCapital?.totalNumberOfIncidents ?? 0)} incidents recorded. ${socialCapital?.operationalDelaysLevel || "Low Risk"} observed.`}
           icon={<PiUsersFill />}
           iconBg={"#eff5ff"}
           iconText={"#2570eb"}
@@ -287,9 +291,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           pillar={"Human Capital"}
           score={humanCapitalScore}
           amount={`${formatNumberShort(humanCapital?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per 200k hrs`}
-          footer={
-            `Safety performance ${humanCapital?.changePercentage && humanCapital.changePercentage < 0 ? 'improved' : 'tracked'} YoY. ${humanCapital?.fatalities ?? 0} fatalities recorded.`
-          }
+          footer={`Safety performance ${humanCapital?.changePercentage && humanCapital.changePercentage < 0 ? "improved" : "tracked"} YoY. ${humanCapital?.fatalities ?? 0} fatalities recorded.`}
           icon={<GiHumanPyramid />}
           iconBg={"#ECFDF5"}
           iconText={"#0D9488"}
@@ -301,9 +303,7 @@ export default function ReportOverview({ reportData }: ReportOverviewProps) {
           pillar={"Business Model"}
           score={businessModelScore}
           amount={`${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} bbl`}
-          footer={
-            `Strategic shift towards renewables. ${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0)} bbl reserves modeled at risk.`
-          }
+          footer={`Strategic shift towards renewables. ${formatNumberShort(businessModel?.totalReservesAmountAtRisk ?? 0)} bbl reserves modeled at risk.`}
           icon={<GiHumanPyramid />}
           iconBg={"#f5e2ff"}
           iconText={"#af57db"}

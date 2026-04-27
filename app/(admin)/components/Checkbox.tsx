@@ -48,9 +48,7 @@ export default function Checkbox({
         className={clsx(
           "inline-flex items-center justify-center rounded-[4px] border-2 transition-colors shrink-0",
           box,
-          checked
-            ? "bg-[#119B95] border-[#119B95] text-white"
-            : "bg-white border-[#119B95]"
+          checked ? "bg-[#119B95] border-[#119B95] text-white" : "bg-white border-[#119B95]"
         )}
       >
         {checked && <Check className={clsx(tick, "stroke-[3]")} />}

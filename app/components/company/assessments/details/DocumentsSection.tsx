@@ -9,7 +9,8 @@ interface DocumentsSectionProps {
 function getFileIcon(name: string) {
   const ext = name.split(".").pop()?.toLowerCase();
   if (ext === "pdf") return { bg: "bg-red-50", text: "text-red-500" };
-  if (ext === "xlsx" || ext === "xls" || ext === "csv") return { bg: "bg-teal-50", text: "text-teal-600" };
+  if (ext === "xlsx" || ext === "xls" || ext === "csv")
+    return { bg: "bg-teal-50", text: "text-teal-600" };
   if (ext === "doc" || ext === "docx") return { bg: "bg-indigo-50", text: "text-indigo-500" };
   return { bg: "bg-gray-50", text: "text-gray-500" };
 }

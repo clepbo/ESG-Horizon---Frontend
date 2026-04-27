@@ -24,13 +24,12 @@ interface IndustryOptionsProps {
     name: string;
     sector: {
       name: string;
-    }
-  }
+    };
+  };
 }
 
 export default function SubsidiariesPage() {
   const { data: subsidiariesData, isLoading: subsidiariesLoading } = useCompanySubsidiaries();
-  // Restore local state to support legacy manual updates while syncing with the hook
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
   const [company, setCompany] = useState<
     { id: number; name: string; status?: string } | undefined
@@ -59,7 +58,7 @@ export default function SubsidiariesPage() {
       .then((c) => {
         if (c) setCompany({ id: c.id, name: c.name });
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -98,7 +97,7 @@ export default function SubsidiariesPage() {
 
       const matchesIndustry =
         industryFilter === "All Industries" ||
-        (sub.industry && `${sub.industry.industry} (${sub.industry.sector})` === industryFilter);
+        (sub.industry && `${sub.industry.name} (${sub.industry.sector})` === industryFilter);
 
       return matchesSearch && matchesIndustry;
     });
@@ -164,7 +163,9 @@ export default function SubsidiariesPage() {
               onChange: setIndustryFilter,
               options: [
                 "All Industries",
-                ...industryOptions.map((opt) => `${opt.industry.name} (${opt.industry.sector.name})`),
+                ...industryOptions.map(
+                  (opt) => `${opt.industry.name} (${opt.industry.sector.name})`
+                ),
               ],
             },
           ]}

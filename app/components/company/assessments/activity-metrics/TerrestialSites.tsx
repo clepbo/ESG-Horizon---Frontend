@@ -42,7 +42,10 @@ export function TerrestialSites({
     isLoading: isActionLoading,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("activityMetrics.assetPortfolio.terrestrialSites", "foundationalData.activityMetrics.terrestrialSites");
+  } = useAssessmentFlow(
+    "activityMetrics.assetPortfolio.terrestrialSites",
+    "foundationalData.activityMetrics.terrestrialSites"
+  );
   const hasExistingData = !!state.assessmentData.activityMetrics?.assetPortfolio?.terrestrialSites;
 
   const flowStations = useFormattedNumber("");
@@ -95,11 +98,7 @@ export function TerrestialSites({
     const hasGasProcessing = gasProcessingPlants.rawValue !== "";
     const hasOtherSites = otherTerrestrialSites.rawValue !== "";
     return calculateProgress([hasFlowStations, hasGasProcessing, hasOtherSites]);
-  }, [
-    flowStations.rawValue,
-    gasProcessingPlants.rawValue,
-    otherTerrestrialSites.rawValue,
-  ]);
+  }, [flowStations.rawValue, gasProcessingPlants.rawValue, otherTerrestrialSites.rawValue]);
 
   const getPayload = () => {
     const flowStationsCount = Number(flowStations.rawValue) || 0;

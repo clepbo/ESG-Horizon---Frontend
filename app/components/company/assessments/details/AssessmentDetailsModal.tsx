@@ -81,8 +81,7 @@ export function AssessmentDetailsModal({
   const submitForReviewMutation = useSubmitForReview();
 
   const clearSectionMutation = useMutation({
-    mutationFn: (path: string) =>
-      assessmentService.saveProgress(assessment!.id, path, null),
+    mutationFn: (path: string) => assessmentService.saveProgress(assessment!.id, path, null),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assessment", assessment?.id] });
     },
@@ -114,7 +113,7 @@ export function AssessmentDetailsModal({
           queryClient.invalidateQueries({ queryKey: ["assessment", assessment.id] });
           onClose();
         },
-      },
+      }
     );
   };
 
@@ -128,7 +127,7 @@ export function AssessmentDetailsModal({
           queryClient.invalidateQueries({ queryKey: ["assessment", assessment.id] });
           onClose();
         },
-      },
+      }
     );
   };
 

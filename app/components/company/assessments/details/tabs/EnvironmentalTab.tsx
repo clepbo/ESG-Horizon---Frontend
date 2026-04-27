@@ -1,6 +1,11 @@
 "use client";
 
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/app/components/ui/accordion";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/app/components/ui/accordion";
 import { Leaf, Wind, Droplets, Sprout } from "lucide-react";
 import { formatNumberShort } from "@/lib/numberFormat";
 
@@ -29,7 +34,12 @@ function hasData(obj: any) {
   if (!obj) return false;
   return Object.keys(obj).some((k) => {
     const v = obj[k];
-    return v !== undefined && v !== null && v !== "" && !["filesAndLinks", "files", "additionalFields", "calculated", "percentages"].includes(k);
+    return (
+      v !== undefined &&
+      v !== null &&
+      v !== "" &&
+      !["filesAndLinks", "files", "additionalFields", "calculated", "percentages"].includes(k)
+    );
   });
 }
 
@@ -57,7 +67,9 @@ function DataEntryCard({
   return (
     <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <span className="text-sm font-semibold text-gray-800">{number} {title}</span>
+        <span className="text-sm font-semibold text-gray-800">
+          {number} {title}
+        </span>
         <StatusDot status={effectiveStatus} />
       </div>
       <div className="p-4 flex flex-wrap gap-3">
@@ -68,20 +80,24 @@ function DataEntryCard({
           // existing commas) the same way DataField/DataList do, so every
           // numeric value gets the thousands separators consistently.
           const isNumericLike =
-            f.value != null &&
-            f.value !== "" &&
-            !isNaN(Number(String(f.value).replace(/,/g, "")));
+            f.value != null && f.value !== "" && !isNaN(Number(String(f.value).replace(/,/g, "")));
           const displayVal =
             f.value != null && f.value !== ""
               ? `${isNumericLike ? formatNumberShort(f.value) : f.value}${f.unit ? ` ${f.unit}` : ""}`
               : undefined;
           return f.highlight ? (
-            <div key={i} className="flex flex-col gap-1 p-2.5 rounded-md border border-teal-200 bg-teal-50/50 min-w-[160px] flex-1">
+            <div
+              key={i}
+              className="flex flex-col gap-1 p-2.5 rounded-md border border-teal-200 bg-teal-50/50 min-w-[160px] flex-1"
+            >
               <span className="text-xs text-teal-700 font-semibold">{f.label}</span>
               <span className="text-sm font-bold text-teal-800">{displayVal || "—"}</span>
             </div>
           ) : (
-            <div key={i} className="flex flex-col gap-1 p-2.5 rounded-md border border-gray-100 bg-gray-50/50 min-w-[160px] flex-1">
+            <div
+              key={i}
+              className="flex flex-col gap-1 p-2.5 rounded-md border border-gray-100 bg-gray-50/50 min-w-[160px] flex-1"
+            >
               <span className="text-xs text-gray-600 font-semibold">{f.label}</span>
               <span className="text-sm font-bold text-gray-900">{displayVal || "—"}</span>
             </div>
@@ -94,7 +110,13 @@ function DataEntryCard({
 
 /* ─────────────────────── MAIN COMPONENT ─────────────────────── */
 
-export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileClick, onEditSection, onClearSection }: EnvironmentalTabProps) {
+export function EnvironmentalTab({
+  assessmentData,
+  submittedGroups = [],
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: EnvironmentalTabProps) {
   const env = assessmentData.environment || {};
   const ghg = env.ghg || {};
   const scope1 = ghg.scope1 || {};
@@ -102,19 +124,11 @@ export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileC
   const scope3 = ghg.scope3 || {};
 
   // Totals — backend stores at ghg.scopeX.totalEmission
-  const scope1Total =
-    scope1.totalEmission ??
-    scope1.calculated?.totalScope1Emission ??
-    0;
-  const scope2Total =
-    scope2.totalEmission ??
-    scope2.calculated?.totalScope2Emission ??
-    0;
-  const scope3Total =
-    scope3.totalEmission ??
-    scope3.calculated?.totalScope3Emission ??
-    0;
-  const totalEmission = assessmentData.totalEmission ?? env.totalEmission ?? scope1Total + scope2Total + scope3Total;
+  const scope1Total = scope1.totalEmission ?? scope1.calculated?.totalScope1Emission ?? 0;
+  const scope2Total = scope2.totalEmission ?? scope2.calculated?.totalScope2Emission ?? 0;
+  const scope3Total = scope3.totalEmission ?? scope3.calculated?.totalScope3Emission ?? 0;
+  const totalEmission =
+    assessmentData.totalEmission ?? env.totalEmission ?? scope1Total + scope2Total + scope3Total;
 
   // GHG incomplete count — count major sub-sections with no data
   const ghgHasStationary = !!(
@@ -153,7 +167,15 @@ export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileC
   const ghgHasUpstream = hasData(scope3.upstream || {});
   const ghgHasDownstream = hasData(scope3.downstream || {});
 
-  const ghgSubAreas = [ghgHasStationary, ghgHasMobile, ghgHasProcess, ghgHasLocation, ghgHasMarket, ghgHasUpstream, ghgHasDownstream];
+  const ghgSubAreas = [
+    ghgHasStationary,
+    ghgHasMobile,
+    ghgHasProcess,
+    ghgHasLocation,
+    ghgHasMarket,
+    ghgHasUpstream,
+    ghgHasDownstream,
+  ];
   const ghgIncompleteCount = ghgSubAreas.filter((v) => !v).length;
 
   const GHG_KEYS = [
@@ -168,9 +190,11 @@ export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileC
   ];
   const ghgSubmittedCount = GHG_KEYS.filter((k) => submittedGroups.includes(k)).length;
   const ghgStatus: SectionStatus =
-    ghgSubmittedCount === GHG_KEYS.length ? "submitted"
-    : ghgSubmittedCount > 0 || ghgSubAreas.some(Boolean) ? "in-progress"
-    : "not-started";
+    ghgSubmittedCount === GHG_KEYS.length
+      ? "submitted"
+      : ghgSubmittedCount > 0 || ghgSubAreas.some(Boolean)
+        ? "in-progress"
+        : "not-started";
 
   return (
     <Accordion type="multiple" defaultValue={[]} className="space-y-4">
@@ -192,13 +216,31 @@ export function EnvironmentalTab({ assessmentData, submittedGroups = [], onFileC
       />
 
       {/* ══════════════════ AIR QUALITY ══════════════════ */}
-      <AirQualitySection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
+      <AirQualitySection
+        env={env}
+        submittedGroups={submittedGroups}
+        onFileClick={onFileClick}
+        onEditSection={onEditSection}
+        onClearSection={onClearSection}
+      />
 
       {/* ══════════════════ WATER & WASTEWATER ══════════════════ */}
-      <WaterManagementSection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
+      <WaterManagementSection
+        env={env}
+        submittedGroups={submittedGroups}
+        onFileClick={onFileClick}
+        onEditSection={onEditSection}
+        onClearSection={onClearSection}
+      />
 
       {/* ══════════════════ BIODIVERSITY ══════════════════ */}
-      <BiodiversitySection env={env} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
+      <BiodiversitySection
+        env={env}
+        submittedGroups={submittedGroups}
+        onFileClick={onFileClick}
+        onEditSection={onEditSection}
+        onClearSection={onClearSection}
+      />
     </Accordion>
   );
 }
@@ -281,15 +323,17 @@ function GHGSection({
           className="border border-gray-200 rounded-xl overflow-hidden bg-white"
         >
           <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-gray-50 [&[data-state=open]>svg]:rotate-180">
-            <ScopeHeader
-              label="SCOPE 1"
-              description="Direct Emission"
-              total={scope1Total}
-            />
+            <ScopeHeader label="SCOPE 1" description="Direct Emission" total={scope1Total} />
           </AccordionTrigger>
           <AccordionContent className="px-5 pb-5 pt-0">
             <div className="space-y-6">
-              <Scope1Content scope1={scope1} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
+              <Scope1Content
+                scope1={scope1}
+                submittedGroups={submittedGroups}
+                onFileClick={onFileClick}
+                onEditSection={onEditSection}
+                onClearSection={onClearSection}
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -308,7 +352,13 @@ function GHGSection({
           </AccordionTrigger>
           <AccordionContent className="px-5 pb-5 pt-0">
             <div className="space-y-6">
-              <Scope2Content scope2={scope2} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
+              <Scope2Content
+                scope2={scope2}
+                submittedGroups={submittedGroups}
+                onFileClick={onFileClick}
+                onEditSection={onEditSection}
+                onClearSection={onClearSection}
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -327,7 +377,13 @@ function GHGSection({
           </AccordionTrigger>
           <AccordionContent className="px-5 pb-5 pt-0">
             <div className="space-y-6">
-              <Scope3Content scope3={scope3} submittedGroups={submittedGroups} onFileClick={onFileClick} onEditSection={onEditSection} onClearSection={onClearSection} />
+              <Scope3Content
+                scope3={scope3}
+                submittedGroups={submittedGroups}
+                onFileClick={onFileClick}
+                onEditSection={onEditSection}
+                onClearSection={onClearSection}
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -338,7 +394,19 @@ function GHGSection({
 
 /* ─── Scope 1 ─── */
 
-function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, onClearSection }: { scope1: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
+function Scope1Content({
+  scope1,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: {
+  scope1: any;
+  submittedGroups: string[];
+  onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
+}) {
   const stationary = scope1.stationarySources || {};
   const mobile = scope1.mobileSources || {};
   const process = scope1.processEmissions || {};
@@ -378,15 +446,37 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
   extractFiles(fugitive.ventingNaturalGas, "Fugitive - Venting", fugitiveFiles);
   extractFiles(fugitive.hfcLeaks, "Fugitive - HFC Leaks", fugitiveFiles);
 
-  const hasStationary = dieselGens.length > 0 || gasTurbines.length > 0 || boilers.length > 0 || oilGas.length > 0;
+  const hasStationary =
+    dieselGens.length > 0 || gasTurbines.length > 0 || boilers.length > 0 || oilGas.length > 0;
   const hasMobile =
-    vehicleFleet.length > 0 || carsBuses.length > 0 || forklifts.length > 0 ||
-    heavyDuty.length > 0 || tractors.length > 0 || air.length > 0 || marine.length > 0;
+    vehicleFleet.length > 0 ||
+    carsBuses.length > 0 ||
+    forklifts.length > 0 ||
+    heavyDuty.length > 0 ||
+    tractors.length > 0 ||
+    air.length > 0 ||
+    marine.length > 0;
 
-  const stationaryStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope1.stationarySources", stationary);
-  const mobileStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope1.mobileSources", mobile);
-  const processStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope1.processEmissions", process);
-  const fugitiveStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope1.fugitiveEmissions", fugitive);
+  const stationaryStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope1.stationarySources",
+    stationary
+  );
+  const mobileStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope1.mobileSources",
+    mobile
+  );
+  const processStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope1.processEmissions",
+    process
+  );
+  const fugitiveStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope1.fugitiveEmissions",
+    fugitive
+  );
 
   return (
     <>
@@ -397,7 +487,9 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
         documents={stationaryFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("ghg-stationary-sources"))}
-        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.stationarySources"))}
+        onClear={
+          onClearSection && (() => onClearSection("environment.ghg.scope1.stationarySources"))
+        }
       >
         {!hasStationary ? (
           <EmptyState />
@@ -406,7 +498,9 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
             {/* 1. Electricity & Heat Generation */}
             {(dieselGens.length > 0 || gasTurbines.length > 0) && (
               <div className="space-y-3">
-                <h5 className="text-sm font-semibold text-gray-700">1. Electricity &amp; Heat Generation</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  1. Electricity &amp; Heat Generation
+                </h5>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {dieselGens.map((item: any, i: number) => (
                     <SourceEntryCard
@@ -488,10 +582,22 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
                 <h5 className="text-sm font-semibold text-gray-700">1. Road Transportation</h5>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {vehicleFleet.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `vf-${i}`} number={`1.${i + 1}`} title="Fleet Vehicles for Product Distribution & Logistics" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `vf-${i}`}
+                      number={`1.${i + 1}`}
+                      title="Fleet Vehicles for Product Distribution & Logistics"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                   {carsBuses.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `cb-${i}`} number={`1.${vehicleFleet.length + i + 1}`} title="Company Cars & Buses – Employee Transportation" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `cb-${i}`}
+                      number={`1.${vehicleFleet.length + i + 1}`}
+                      title="Company Cars & Buses – Employee Transportation"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                 </div>
               </div>
@@ -500,16 +606,36 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
             {/* 2. Off-Road Vehicles & Equipment */}
             {(forklifts.length > 0 || heavyDuty.length > 0 || tractors.length > 0) && (
               <div className="space-y-3">
-                <h5 className="text-sm font-semibold text-gray-700">2. Off-Road Vehicles &amp; Equipment</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  2. Off-Road Vehicles &amp; Equipment
+                </h5>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {forklifts.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `fl-${i}`} number={`2.${i + 1}`} title="Forklifts & Machinery" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `fl-${i}`}
+                      number={`2.${i + 1}`}
+                      title="Forklifts & Machinery"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                   {heavyDuty.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `hd-${i}`} number={`2.${forklifts.length + i + 1}`} title="Heavy-Duty Vehicles & Equipment" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `hd-${i}`}
+                      number={`2.${forklifts.length + i + 1}`}
+                      title="Heavy-Duty Vehicles & Equipment"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                   {tractors.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `tr-${i}`} number={`2.${forklifts.length + heavyDuty.length + i + 1}`} title="Tractors & Machinery" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `tr-${i}`}
+                      number={`2.${forklifts.length + heavyDuty.length + i + 1}`}
+                      title="Tractors & Machinery"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                 </div>
               </div>
@@ -521,10 +647,22 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
                 <h5 className="text-sm font-semibold text-gray-700">3. Marine &amp; Aviation</h5>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {air.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `air-${i}`} number={`3.${i + 1}`} title="Helicopters – Personnel & Equipment to Offshore Platforms" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `air-${i}`}
+                      number={`3.${i + 1}`}
+                      title="Helicopters – Personnel & Equipment to Offshore Platforms"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                   {marine.map((item: any, i: number) => (
-                    <SourceEntryCard key={item.id || `mar-${i}`} number={`3.${air.length + i + 1}`} title="Company-Owned Boats & Vessels" data={item} status={mobileStatus === "submitted" ? "submitted" : undefined} />
+                    <SourceEntryCard
+                      key={item.id || `mar-${i}`}
+                      number={`3.${air.length + i + 1}`}
+                      title="Company-Owned Boats & Vessels"
+                      data={item}
+                      status={mobileStatus === "submitted" ? "submitted" : undefined}
+                    />
                   ))}
                 </div>
               </div>
@@ -540,7 +678,9 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
         documents={processEmissionFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("ghg-process-emissions"))}
-        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.processEmissions"))}
+        onClear={
+          onClearSection && (() => onClearSection("environment.ghg.scope1.processEmissions"))
+        }
       >
         {!hasData(process.cementManufacturing) && !hasData(process.gasFlaring) ? (
           <EmptyState />
@@ -552,13 +692,33 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
                 <DataEntryCard
                   number="1.1"
                   title="Cement Manufacturing (Calcination of Limestone)"
-                  status={processStatus === "submitted" ? "submitted" : process.cementManufacturing?.calculated?.emission != null ? "submitted" : "in-progress"}
+                  status={
+                    processStatus === "submitted"
+                      ? "submitted"
+                      : process.cementManufacturing?.calculated?.emission != null
+                        ? "submitted"
+                        : "in-progress"
+                  }
                   fields={[
-                    { label: "Quantity / Mass of Cement Produced", value: process.cementManufacturing?.cementQuantity },
+                    {
+                      label: "Quantity / Mass of Cement Produced",
+                      value: process.cementManufacturing?.cementQuantity,
+                    },
                     { label: "Unit", value: "Metric Tonnes" },
-                    { label: "Process", value: "Clinker Production via Calcination (CaCO₃ → CaO + CO₂)" },
-                    { label: "Emission Factor", value: process.cementManufacturing?.emissionFactor },
-                    { label: "Computed Emissions", value: process.cementManufacturing?.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Process",
+                      value: "Clinker Production via Calcination (CaCO₃ → CaO + CO₂)",
+                    },
+                    {
+                      label: "Emission Factor",
+                      value: process.cementManufacturing?.emissionFactor,
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: process.cementManufacturing?.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -569,13 +729,27 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
                 <DataEntryCard
                   number="2.1"
                   title="Gas Flaring – Deliberate Burning of Associated Gas"
-                  status={processStatus === "submitted" ? "submitted" : process.gasFlaring?.calculated?.emission != null ? "submitted" : "in-progress"}
+                  status={
+                    processStatus === "submitted"
+                      ? "submitted"
+                      : process.gasFlaring?.calculated?.emission != null
+                        ? "submitted"
+                        : "in-progress"
+                  }
                   fields={[
                     { label: "Volume of Gas Flared", value: process.gasFlaring?.gasVolume },
                     { label: "Unit", value: "Standard Cubic Metres (m³)" },
-                    { label: "Carbon Composition of Flared Gas", value: process.gasFlaring?.carbonContent },
+                    {
+                      label: "Carbon Composition of Flared Gas",
+                      value: process.gasFlaring?.carbonContent,
+                    },
                     { label: "Emission Factor", value: process.gasFlaring?.emissionFactor },
-                    { label: "Computed Emissions", value: process.gasFlaring?.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Computed Emissions",
+                      value: process.gasFlaring?.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -591,7 +765,9 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
         documents={fugitiveFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("ghg-fugitive-emissions"))}
-        onClear={onClearSection && (() => onClearSection("environment.ghg.scope1.fugitiveEmissions"))}
+        onClear={
+          onClearSection && (() => onClearSection("environment.ghg.scope1.fugitiveEmissions"))
+        }
       >
         {!hasData(fugitive.ventingNaturalGas) && !hasData(fugitive.hfcLeaks) ? (
           <EmptyState />
@@ -603,39 +779,91 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
                 <DataEntryCard
                   number="1.1"
                   title="Venting from Wells & Processing Facilities"
-                  status={fugitiveStatus === "submitted" ? "submitted" : fugitive.ventingNaturalGas?.calculated?.emission != null ? "submitted" : "in-progress"}
+                  status={
+                    fugitiveStatus === "submitted"
+                      ? "submitted"
+                      : fugitive.ventingNaturalGas?.calculated?.emission != null
+                        ? "submitted"
+                        : "in-progress"
+                  }
                   fields={[
-                    { label: "Volume of Gas Vented", value: fugitive.ventingNaturalGas?.volumeOfGasVented },
+                    {
+                      label: "Volume of Gas Vented",
+                      value: fugitive.ventingNaturalGas?.volumeOfGasVented,
+                    },
                     { label: "Unit", value: "Standard Cubic Metres (m³)" },
-                    { label: "Methane Content", value: fugitive.ventingNaturalGas?.calculated?.methaneContent ?? fugitive.ventingNaturalGas?.methaneContent },
-                    { label: "Methane Density", value: fugitive.ventingNaturalGas?.calculated?.methaneDensity ?? fugitive.ventingNaturalGas?.methaneDensity },
-                    { label: "GWP (AR6, 100-yr)", value: fugitive.ventingNaturalGas?.calculated?.gwp ?? fugitive.ventingNaturalGas?.gwp },
-                    { label: "Computed Emissions", value: fugitive.ventingNaturalGas?.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Methane Content",
+                      value:
+                        fugitive.ventingNaturalGas?.calculated?.methaneContent ??
+                        fugitive.ventingNaturalGas?.methaneContent,
+                    },
+                    {
+                      label: "Methane Density",
+                      value:
+                        fugitive.ventingNaturalGas?.calculated?.methaneDensity ??
+                        fugitive.ventingNaturalGas?.methaneDensity,
+                    },
+                    {
+                      label: "GWP (AR6, 100-yr)",
+                      value:
+                        fugitive.ventingNaturalGas?.calculated?.gwp ??
+                        fugitive.ventingNaturalGas?.gwp,
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: fugitive.ventingNaturalGas?.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
             )}
             {hasData(fugitive.hfcLeaks) && (
               <div className="space-y-3">
-                <h5 className="text-sm font-semibold text-gray-700">2. HFC Leaks from Cooling & Air Conditioning</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  2. HFC Leaks from Cooling & Air Conditioning
+                </h5>
                 <DataEntryCard
                   number="2.1"
                   title="Leaks of HFCs from Cooling / AC Units"
-                  status={fugitiveStatus === "submitted" ? "submitted" : fugitive.hfcLeaks?.calculated?.emission != null ? "submitted" : "in-progress"}
+                  status={
+                    fugitiveStatus === "submitted"
+                      ? "submitted"
+                      : fugitive.hfcLeaks?.calculated?.emission != null
+                        ? "submitted"
+                        : "in-progress"
+                  }
                   fields={[
                     {
                       label: "Type of HFC (Refrigerant)",
-                      value: [
-                        fugitive.hfcLeaks?.R134a && "R-134a",
-                        fugitive.hfcLeaks?.R410A && "R-410A",
-                        fugitive.hfcLeaks?.R404A && "R-404A",
-                        fugitive.hfcLeaks?.R407C && "R-407C",
-                        fugitive.hfcLeaks?.R507A && "R-507A",
-                      ].filter(Boolean).join(", ") || null,
+                      value:
+                        [
+                          fugitive.hfcLeaks?.R134a && "R-134a",
+                          fugitive.hfcLeaks?.R410A && "R-410A",
+                          fugitive.hfcLeaks?.R404A && "R-404A",
+                          fugitive.hfcLeaks?.R407C && "R-407C",
+                          fugitive.hfcLeaks?.R507A && "R-507A",
+                        ]
+                          .filter(Boolean)
+                          .join(", ") || null,
                     },
-                    { label: "Mass of Refrigerant Leaked (kg)", value: fugitive.hfcLeaks?.refrigerantAdded },
-                    { label: "GWP of Refrigerant", value: fugitive.hfcLeaks?.calculated?.gwp ?? "e.g., R-134a = 1,430 (IPCC AR6)" },
-                    { label: "Computed Emissions", value: fugitive.hfcLeaks?.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Mass of Refrigerant Leaked (kg)",
+                      value: fugitive.hfcLeaks?.refrigerantAdded,
+                    },
+                    {
+                      label: "GWP of Refrigerant",
+                      value:
+                        fugitive.hfcLeaks?.calculated?.gwp ?? "e.g., R-134a = 1,430 (IPCC AR6)",
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: fugitive.hfcLeaks?.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -649,7 +877,19 @@ function Scope1Content({ scope1, submittedGroups, onFileClick, onEditSection, on
 
 /* ─── Scope 2 ─── */
 
-function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, onClearSection }: { scope2: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
+function Scope2Content({
+  scope2,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: {
+  scope2: any;
+  submittedGroups: string[];
+  onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
+}) {
   const location = scope2.locationBased || {};
   const market = scope2.marketBased || {};
 
@@ -674,15 +914,26 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
   const residual = market.residual || {};
   const coolingSteam = market.coolingSteam || {};
 
-  const locationStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope2.locationBased", location);
-  const marketStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope2.marketBased", market);
+  const locationStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope2.locationBased",
+    location
+  );
+  const marketStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope2.marketBased",
+    market
+  );
 
   // Card-level status: if parent section is submitted, all cards inherit submitted; else data-based
   const cardStatus = (parentStatus: SectionStatus, obj: any): SectionStatus =>
-    parentStatus === "submitted" ? "submitted"
-    : !hasData(obj) ? "not-started"
-    : obj.calculated?.emission != null ? "submitted"
-    : "in-progress";
+    parentStatus === "submitted"
+      ? "submitted"
+      : !hasData(obj)
+        ? "not-started"
+        : obj.calculated?.emission != null
+          ? "submitted"
+          : "in-progress";
 
   return (
     <>
@@ -704,10 +955,19 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
               title="National Grid (Electricity)"
               status={cardStatus(locationStatus, elec)}
               fields={[
-                { label: "Total Electricity Consumed", value: elec.electricityConsumed, unit: "kWh" },
+                {
+                  label: "Total Electricity Consumed",
+                  value: elec.electricityConsumed,
+                  unit: "kWh",
+                },
                 { label: "Electricity Supplier", value: elec.supplier },
                 { label: "Grid Emission Factor", value: elec.emissionFactor },
-                { label: "Computed Emissions", value: elec.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: elec.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -720,7 +980,11 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
               title="Cooling Energy from Third Parties"
               status={cardStatus(locationStatus, cooling)}
               fields={[
-                { label: "Amount of Cooling Energy Consumed", value: cooling.coolingConsumed, unit: "kWh" },
+                {
+                  label: "Amount of Cooling Energy Consumed",
+                  value: cooling.coolingConsumed,
+                  unit: "kWh",
+                },
                 {
                   label: "Type of Cooling System",
                   value: Array.isArray(cooling.selectedSystems)
@@ -728,7 +992,12 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
                     : cooling.selectedSystems,
                 },
                 { label: "Emission Factor", value: cooling.emissionFactor },
-                { label: "Computed Emissions", value: cooling.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: cooling.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -748,7 +1017,12 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
                     ? steam.selectedSources.join(", ")
                     : steam.selectedSources,
                 },
-                { label: "Computed Emissions", value: steam.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: steam.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -762,9 +1036,18 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
               status={cardStatus(locationStatus, heating)}
               fields={[
                 { label: "Was Heating Energy Purchased?", value: heating.heatingPurchased },
-                { label: "Total Heating Energy Consumed", value: heating.heatingConsumed, unit: "kWh" },
+                {
+                  label: "Total Heating Energy Consumed",
+                  value: heating.heatingConsumed,
+                  unit: "kWh",
+                },
                 { label: "Supplier", value: heating.supplierName },
-                { label: "Computed Emissions", value: heating.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: heating.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -783,32 +1066,54 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* 1. Purchased Electricity from IPPs */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">1. Purchased Electricity from IPPs</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              1. Purchased Electricity from IPPs
+            </h5>
             <DataEntryCard
               number="1.1"
               title="Independent Power Producers (IPPs)"
               status={cardStatus(marketStatus, ipps)}
               fields={[
-                { label: "Total Electricity Consumed", value: ipps.electricityConsumed, unit: "kWh" },
+                {
+                  label: "Total Electricity Consumed",
+                  value: ipps.electricityConsumed,
+                  unit: "kWh",
+                },
                 { label: "Supplier", value: ipps.supplier },
                 { label: "Supplier-Specific Emission Factor", value: ipps.emissionFactor },
-                { label: "Computed Emissions", value: ipps.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: ipps.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
 
           {/* 2. Purchased Electricity with EACs / RECs */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">2. Purchased Electricity with EACs / RECs</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              2. Purchased Electricity with EACs / RECs
+            </h5>
             <DataEntryCard
               number="2.1"
               title="Energy Attribute Certificates (EACs / RECs)"
               status={cardStatus(marketStatus, eac)}
               fields={[
-                { label: "Total Grid Electricity Consumed", value: eac.gridElectricity, unit: "kWh" },
+                {
+                  label: "Total Grid Electricity Consumed",
+                  value: eac.gridElectricity,
+                  unit: "kWh",
+                },
                 { label: "EAC / REC Certificate", value: eac.certificateType ?? eac.eacType },
                 { label: "Emission Factor Applied", value: eac.emissionFactor },
-                { label: "Computed Emissions", value: eac.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: eac.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -821,16 +1126,27 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
               title="Residual Mix Factor"
               status={cardStatus(marketStatus, residual)}
               fields={[
-                { label: "Total Electricity Consumed", value: residual.electricityConsumed, unit: "kWh" },
+                {
+                  label: "Total Electricity Consumed",
+                  value: residual.electricityConsumed,
+                  unit: "kWh",
+                },
                 { label: "Residual Mix Emission Factor", value: residual.emissionFactor },
-                { label: "Computed Emissions", value: residual.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: residual.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
 
           {/* 4. Purchased Cooling / Steam (Market) */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">4. Purchased Cooling / Steam (Market)</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              4. Purchased Cooling / Steam (Market)
+            </h5>
             <DataEntryCard
               number="4.1"
               title="Supplier-Specific Cooling / Steam"
@@ -838,7 +1154,12 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
               fields={[
                 { label: "Quantity Consumed", value: coolingSteam.energyConsumed, unit: "kWh" },
                 { label: "Supplier-Specific Emission Factor", value: coolingSteam.emissionFactor },
-                { label: "Computed Emissions", value: coolingSteam.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: coolingSteam.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -850,7 +1171,19 @@ function Scope2Content({ scope2, submittedGroups, onFileClick, onEditSection, on
 
 /* ─── Scope 3 ─── */
 
-function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, onClearSection }: { scope3: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
+function Scope3Content({
+  scope3,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: {
+  scope3: any;
+  submittedGroups: string[];
+  onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
+}) {
   const upstream = scope3.upstream || {};
   const downstream = scope3.downstream || {};
 
@@ -865,7 +1198,11 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
   extractFiles(upstream.upstreamLeasedAssets, "Upstream Leased", upstreamFiles);
 
   const downstreamFiles: FileWithMeta[] = [];
-  extractFiles(downstream.downstreamTransportationDistribution, "Downstream Transport", downstreamFiles);
+  extractFiles(
+    downstream.downstreamTransportationDistribution,
+    "Downstream Transport",
+    downstreamFiles
+  );
   extractFiles(downstream.processingSoldProducts, "Processing Sold", downstreamFiles);
   extractFiles(downstream.useOfSoldProducts, "Use of Sold Products", downstreamFiles);
   extractFiles(downstream.endOfLifeTreatment, "End of Life", downstreamFiles);
@@ -873,15 +1210,26 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
   extractFiles(downstream.franchises, "Franchises", downstreamFiles);
   extractFiles(downstream.investments, "Investments", downstreamFiles);
 
-  const upstreamStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope3.upstream", upstream);
-  const downstreamStatus = getFormSectionStatus(submittedGroups, "environment.ghg.scope3.downstream", downstream);
+  const upstreamStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope3.upstream",
+    upstream
+  );
+  const downstreamStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.ghg.scope3.downstream",
+    downstream
+  );
 
   // Card-level: inherit parent section's submitted status; else data-based
   const catStatus = (parentStatus: SectionStatus, obj: any): SectionStatus =>
-    parentStatus === "submitted" ? "submitted"
-    : !hasData(obj) ? "not-started"
-    : obj.calculated?.emission != null ? "submitted"
-    : "in-progress";
+    parentStatus === "submitted"
+      ? "submitted"
+      : !hasData(obj)
+        ? "not-started"
+        : obj.calculated?.emission != null
+          ? "submitted"
+          : "in-progress";
 
   const pgs = upstream.purchasedGoodsAndServices || {};
   const cg = upstream.capitalGoods || {};
@@ -904,16 +1252,21 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
         onClear={onClearSection && (() => onClearSection("environment.ghg.scope3.upstream"))}
       >
         <div className="space-y-6">
-
           {/* Cat. 1 – Purchased Goods & Services */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">Cat. 1 – Purchased Goods &amp; Services</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              Cat. 1 – Purchased Goods &amp; Services
+            </h5>
             <DataEntryCard
               number="1.1"
               title="Goods & Services Purchased (Spend-Based)"
               status={catStatus(upstreamStatus, pgs)}
               fields={[
-                { label: "Total Spend on Goods / Services", value: pgs.totalAmountSpent, unit: "$" },
+                {
+                  label: "Total Spend on Goods / Services",
+                  value: pgs.totalAmountSpent,
+                  unit: "$",
+                },
                 { label: "Mass of Goods Purchased", value: pgs.massOfGoods, unit: "kg" },
                 {
                   label: "Category",
@@ -921,7 +1274,12 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                     ? pgs.selectedCategories.join(", ")
                     : pgs.selectedCategories,
                 },
-                { label: "Computed Emissions", value: pgs.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: pgs.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -936,14 +1294,21 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
               fields={[
                 { label: "Total Cost of Capital Goods", value: cg.totalCost, unit: "$" },
                 { label: "Weight of Primary Materials", value: cg.materialWeight, unit: "kg" },
-                { label: "Computed Emissions", value: cg.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: cg.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
 
           {/* Cat. 3 – Fuel & Energy-Related Activities */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">Cat. 3 – Fuel &amp; Energy-Related Activities</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              Cat. 3 – Fuel &amp; Energy-Related Activities
+            </h5>
             <DataEntryCard
               number="3.1"
               title="Upstream Fuel & Energy (Well-to-Tank)"
@@ -951,14 +1316,21 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
               fields={[
                 { label: "Volume of Diesel Consumed", value: fera.fuelVolume, unit: "L" },
                 { label: "Electricity Consumed", value: fera.energyType },
-                { label: "Computed Emissions", value: fera.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: fera.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
 
           {/* Cat. 4 – Upstream Transportation & Distribution */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">Cat. 4 – Upstream Transportation &amp; Distribution</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              Cat. 4 – Upstream Transportation &amp; Distribution
+            </h5>
             <DataEntryCard
               number="4.1"
               title="Upstream Transport of Purchased Inputs"
@@ -968,14 +1340,21 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                 { label: "Distance Travelled", value: utd.distanceTravelled, unit: "km" },
                 { label: "Total Logistics Spend", value: utd.logisticsSpend, unit: "$" },
                 { label: "Emission Factor", value: utd.emissionFactor },
-                { label: "Computed Emissions", value: utd.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: utd.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
 
           {/* Cat. 5 – Waste Generated in Operations */}
           <div className="space-y-2">
-            <h5 className="text-sm font-semibold text-gray-700">Cat. 5 – Waste Generated in Operations</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              Cat. 5 – Waste Generated in Operations
+            </h5>
             <DataEntryCard
               number="5.1"
               title="Operational Waste"
@@ -988,7 +1367,12 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                     ? wgo.selectedMethods.join(", ")
                     : wgo.selectedMethods,
                 },
-                { label: "Computed Emissions", value: wgo.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: wgo.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -1007,24 +1391,41 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                   { label: "Employees Travelling", value: bt.airEmployees },
                   {
                     label: "Class Split",
-                    value: [
-                      bt.economyPercent != null && `Economy: ${bt.economyPercent}%`,
-                      bt.businessPercent != null && `Business: ${bt.businessPercent}%`,
-                      bt.firstClassPercent != null && `First: ${bt.firstClassPercent}%`,
-                    ]
-                      .filter(Boolean)
-                      .join(" / ") || null,
+                    value:
+                      [
+                        bt.economyPercent != null && `Economy: ${bt.economyPercent}%`,
+                        bt.businessPercent != null && `Business: ${bt.businessPercent}%`,
+                        bt.firstClassPercent != null && `First: ${bt.firstClassPercent}%`,
+                      ]
+                        .filter(Boolean)
+                        .join(" / ") || null,
                   },
-                  { label: "Computed Emissions", value: bt.calculated?.emission, unit: "tCO₂e", highlight: true },
+                  {
+                    label: "Computed Emissions",
+                    value: bt.calculated?.emission,
+                    unit: "tCO₂e",
+                    highlight: true,
+                  },
                 ]}
               />
               <DataEntryCard
                 number="6.1.3"
                 title="Accommodation"
-                status={upstreamStatus === "submitted" ? "submitted" : bt.hotelNights != null ? "in-progress" : "not-started"}
+                status={
+                  upstreamStatus === "submitted"
+                    ? "submitted"
+                    : bt.hotelNights != null
+                      ? "in-progress"
+                      : "not-started"
+                }
                 fields={[
                   { label: "Hotel Nights", value: bt.hotelNights },
-                  { label: "Computed Emissions", value: bt.calculated?.hotelEmission, unit: "tCO₂e", highlight: true },
+                  {
+                    label: "Computed Emissions",
+                    value: bt.calculated?.hotelEmission,
+                    unit: "tCO₂e",
+                    highlight: true,
+                  },
                 ]}
               />
             </div>
@@ -1047,7 +1448,12 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                     ? ec.selectedMethods.join(", ")
                     : ec.selectedMethods,
                 },
-                { label: "Computed Emissions", value: ec.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: ec.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -1063,11 +1469,15 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                 { label: "Electricity Consumed", value: ula.electricityConsumed, unit: "kWh" },
                 { label: "Fuel Consumed", value: ula.fuelConsumed, unit: "L" },
                 { label: "Floor Area", value: ula.floorArea, unit: "m²" },
-                { label: "Computed Emissions", value: ula.calculated?.emission, unit: "tCO₂e", highlight: true },
+                {
+                  label: "Computed Emissions",
+                  value: ula.calculated?.emission,
+                  unit: "tCO₂e",
+                  highlight: true,
+                },
               ]}
             />
           </div>
-
         </div>
       </SubMetricSection>
 
@@ -1081,23 +1491,37 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
         onClear={onClearSection && (() => onClearSection("environment.ghg.scope3.downstream"))}
       >
         <div className="space-y-6">
-
           {/* Cat. 9 – Downstream Transportation & Distribution */}
           {(() => {
             const dtd = downstream.downstreamTransportationDistribution || {};
             return (
               <div className="space-y-2">
-                <h5 className="text-sm font-semibold text-gray-700">Cat. 9 – Downstream Transportation &amp; Distribution</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  Cat. 9 – Downstream Transportation &amp; Distribution
+                </h5>
                 <DataEntryCard
                   number="9.1"
                   title="Downstream Distribution Network"
                   status={catStatus(downstreamStatus, dtd)}
                   fields={[
-                    { label: "Mass of Products Sold", value: dtd.massOfProductsSold, unit: "tonnes" },
-                    { label: "Average Distribution Distance", value: dtd.averageDistributionDistance, unit: "km" },
+                    {
+                      label: "Mass of Products Sold",
+                      value: dtd.massOfProductsSold,
+                      unit: "tonnes",
+                    },
+                    {
+                      label: "Average Distribution Distance",
+                      value: dtd.averageDistributionDistance,
+                      unit: "km",
+                    },
                     { label: "Fuel by Downstream Network", value: dtd.fuelConsumedByDistribution },
                     { label: "Emission Factor", value: dtd.emissionFactor },
-                    { label: "Computed Emissions", value: dtd.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Computed Emissions",
+                      value: dtd.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -1109,16 +1533,31 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
             const psp = downstream.processingSoldProducts || {};
             return (
               <div className="space-y-2">
-                <h5 className="text-sm font-semibold text-gray-700">Cat. 10 – Processing of Sold Products</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  Cat. 10 – Processing of Sold Products
+                </h5>
                 <DataEntryCard
                   number="10.1"
                   title="Downstream Processing of Intermediate Products"
                   status={catStatus(downstreamStatus, psp)}
                   fields={[
-                    { label: "Quantity of Intermediate Product Sold", value: psp.processedQuantity, unit: "tonnes" },
+                    {
+                      label: "Quantity of Intermediate Product Sold",
+                      value: psp.processedQuantity,
+                      unit: "tonnes",
+                    },
                     { label: "Fuel Consumed by Downstream Processor", value: psp.fuelConsumed },
-                    { label: "Electricity Consumed by Processor", value: psp.electricityConsumed, unit: "kWh" },
-                    { label: "Computed Emissions", value: psp.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Electricity Consumed by Processor",
+                      value: psp.electricityConsumed,
+                      unit: "kWh",
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: psp.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -1130,17 +1569,35 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
             const usp = downstream.useOfSoldProducts || {};
             return (
               <div className="space-y-2">
-                <h5 className="text-sm font-semibold text-gray-700">Cat. 11 – Use of Sold Products</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  Cat. 11 – Use of Sold Products
+                </h5>
                 <DataEntryCard
                   number="11.1"
                   title="Combustion of Sold Hydrocarbons by Customers"
                   status={catStatus(downstreamStatus, usp)}
                   fields={[
                     { label: "Number of Units Sold", value: usp.unitsSold },
-                    { label: "Expected Lifetime of Product", value: usp.productLifetime, unit: "years" },
-                    { label: "Average Annual Fuel/Energy Consumption", value: usp.averageAnnualConsumption, unit: "per unit" },
-                    { label: "Emission Factor", value: usp.emissionFactor ?? "0.526 kgCO₂e/kWh (if electricity)" },
-                    { label: "Computed Emissions", value: usp.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Expected Lifetime of Product",
+                      value: usp.productLifetime,
+                      unit: "years",
+                    },
+                    {
+                      label: "Average Annual Fuel/Energy Consumption",
+                      value: usp.averageAnnualConsumption,
+                      unit: "per unit",
+                    },
+                    {
+                      label: "Emission Factor",
+                      value: usp.emissionFactor ?? "0.526 kgCO₂e/kWh (if electricity)",
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: usp.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -1158,16 +1615,29 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
               : null;
             return (
               <div className="space-y-2">
-                <h5 className="text-sm font-semibold text-gray-700">Cat. 12 – End-of-Life Treatment of Sold Products</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  Cat. 12 – End-of-Life Treatment of Sold Products
+                </h5>
                 <DataEntryCard
                   number="12.1"
                   title="End-of-Life Disposal"
                   status={catStatus(downstreamStatus, elt)}
                   fields={[
-                    { label: "Total Mass of Products Sold (by material type)", value: elt.products?.length ? `${elt.products.length} product type(s)` : null },
-                    { label: "Disposal Method (Landfill / Recycling / Incineration)", value: disposalMethods ?? elt.otherDisposalMethod },
+                    {
+                      label: "Total Mass of Products Sold (by material type)",
+                      value: elt.products?.length ? `${elt.products.length} product type(s)` : null,
+                    },
+                    {
+                      label: "Disposal Method (Landfill / Recycling / Incineration)",
+                      value: disposalMethods ?? elt.otherDisposalMethod,
+                    },
                     { label: "Emission Factor", value: "IPCC Vol.5 Waste Factors" },
-                    { label: "Computed Emissions", value: elt.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Computed Emissions",
+                      value: elt.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -1179,15 +1649,26 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
             const dla = downstream.downstreamLeasedAssets || {};
             return (
               <div className="space-y-2">
-                <h5 className="text-sm font-semibold text-gray-700">Cat. 13 – Downstream Leased Assets</h5>
+                <h5 className="text-sm font-semibold text-gray-700">
+                  Cat. 13 – Downstream Leased Assets
+                </h5>
                 <DataEntryCard
                   number="13.1"
                   title="Assets Owned & Leased to Tenants"
                   status={catStatus(downstreamStatus, dla)}
                   fields={[
-                    { label: "Total Electricity Consumed by Tenants", value: dla.electricityConsumed, unit: "kWh" },
+                    {
+                      label: "Total Electricity Consumed by Tenants",
+                      value: dla.electricityConsumed,
+                      unit: "kWh",
+                    },
                     { label: "Other Energy Consumed", value: dla.otherEnergyConsumed },
-                    { label: "Computed Emissions", value: dla.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Computed Emissions",
+                      value: dla.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -1206,8 +1687,17 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                   status={catStatus(downstreamStatus, fr)}
                   fields={[
                     { label: "Total Fuel Consumption by Franchisees", value: fr.fuelConsumption },
-                    { label: "Total Electricity by Franchisees", value: fr.electricityConsumption, unit: "kWh" },
-                    { label: "Computed Emissions", value: fr.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Total Electricity by Franchisees",
+                      value: fr.electricityConsumption,
+                      unit: "kWh",
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: fr.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
@@ -1225,15 +1715,27 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
                   title="Financed Emissions (Portfolio Companies)"
                   status={catStatus(downstreamStatus, inv)}
                   fields={[
-                    { label: "Loan / Equity Share in Invested Companies", value: inv.investmentAmount, unit: "%" },
-                    { label: "Reported Scope 1 & 2 of Portfolio Companies", value: inv.portfolioEmissions, unit: "tCO₂e" },
-                    { label: "Computed Emissions", value: inv.calculated?.emission, unit: "tCO₂e", highlight: true },
+                    {
+                      label: "Loan / Equity Share in Invested Companies",
+                      value: inv.investmentAmount,
+                      unit: "%",
+                    },
+                    {
+                      label: "Reported Scope 1 & 2 of Portfolio Companies",
+                      value: inv.portfolioEmissions,
+                      unit: "tCO₂e",
+                    },
+                    {
+                      label: "Computed Emissions",
+                      value: inv.calculated?.emission,
+                      unit: "tCO₂e",
+                      highlight: true,
+                    },
                   ]}
                 />
               </div>
             );
           })()}
-
         </div>
       </SubMetricSection>
     </>
@@ -1244,20 +1746,34 @@ function Scope3Content({ scope3, submittedGroups, onFileClick, onEditSection, on
    AIR QUALITY SECTION
    ═══════════════════════════════════════════════════════════════ */
 
-function AirQualitySection({ env, submittedGroups, onFileClick, onEditSection, onClearSection }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
+function AirQualitySection({
+  env,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: {
+  env: any;
+  submittedGroups: string[];
+  onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
+}) {
   const aq = env.airQuality?.airPollutantEmissions || {};
   const calc = aq.calculated?.breakdown || {};
 
   const nox = calc.oxidesOfNitrogen?.volume ?? aq.oxidesOfNitrogen;
   const sox = calc.oxidesOfSulphur?.volume ?? aq.oxidesOfSulphur ?? aq.oxidesOfSuplphur;
-  const voc = calc.volatileOrganicCompounds?.volume ?? aq.volatileOrganicCompound ?? aq.volatileOrganicCompounds;
+  const voc =
+    calc.volatileOrganicCompounds?.volume ??
+    aq.volatileOrganicCompound ??
+    aq.volatileOrganicCompounds;
   const pm = calc.particulateMatter?.volume ?? aq.particulateMatter;
-  const totalPollutants = aq.calculated?.totalAirPollutantEmissions ?? (
-    [nox, sox, voc, pm].reduce((sum: number, v: any) => sum + (Number(v) || 0), 0)
-  );
+  const totalPollutants =
+    aq.calculated?.totalAirPollutantEmissions ??
+    [nox, sox, voc, pm].reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
 
   const hasAirData = nox != null || sox != null || voc != null || pm != null;
-  const isComplete = hasAirData && nox != null && sox != null && voc != null && pm != null;
 
   const files: FileWithMeta[] = [];
   extractFiles(aq, "Air Pollutant Emissions", files);
@@ -1270,21 +1786,33 @@ function AirQualitySection({ env, submittedGroups, onFileClick, onEditSection, o
       title="Air Quality"
       description="1 form · IFRS: EM-EP-140a.1 – 140a.4"
       badge={hasAirData ? `${formatNumberShort(totalPollutants)} t pollutants` : undefined}
-      status={getFormSectionStatus(submittedGroups, "environment.airQuality.airPollutantEmissions", aq)}
+      status={getFormSectionStatus(
+        submittedGroups,
+        "environment.airQuality.airPollutantEmissions",
+        aq
+      )}
     >
       <SubMetricSection
         title="Air Pollutant Emissions"
-        status={getFormSectionStatus(submittedGroups, "environment.airQuality.airPollutantEmissions", aq)}
+        status={getFormSectionStatus(
+          submittedGroups,
+          "environment.airQuality.airPollutantEmissions",
+          aq
+        )}
         documents={files}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("air-quality"))}
-        onClear={onClearSection && (() => onClearSection("environment.airQuality.airPollutantEmissions"))}
+        onClear={
+          onClearSection && (() => onClearSection("environment.airQuality.airPollutantEmissions"))
+        }
       >
         {!hasAirData ? (
           <EmptyState />
         ) : (
           <div className="space-y-3">
-            <h5 className="text-sm font-semibold text-gray-700">1. Electricity &amp; Heat Generation</h5>
+            <h5 className="text-sm font-semibold text-gray-700">
+              1. Electricity &amp; Heat Generation
+            </h5>
             <DataFieldGrid
               columns={5}
               fields={[
@@ -1292,7 +1820,12 @@ function AirQualitySection({ env, submittedGroups, onFileClick, onEditSection, o
                 { label: "SOx – Oxides of Sulphur (t)", value: sox, unit: "t" },
                 { label: "VOCs – Volatile Organic Compounds (t)", value: voc, unit: "t" },
                 { label: "PM₁₀ – Particulate Matter ≤10μm (t)", value: pm, unit: "t" },
-                { label: "Total Air Pollutant Emissions", value: totalPollutants, unit: "metric tonnes", highlight: true },
+                {
+                  label: "Total Air Pollutant Emissions",
+                  value: totalPollutants,
+                  unit: "metric tonnes",
+                  highlight: true,
+                },
               ]}
             />
           </div>
@@ -1306,7 +1839,19 @@ function AirQualitySection({ env, submittedGroups, onFileClick, onEditSection, o
    WATER & WASTEWATER MANAGEMENT SECTION
    ═══════════════════════════════════════════════════════════════ */
 
-function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSection, onClearSection }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
+function WaterManagementSection({
+  env,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: {
+  env: any;
+  submittedGroups: string[];
+  onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
+}) {
   const wm = env.waterManagement?.waterAndProducedWaterManagement || {};
   const fw = wm.freshwaterWithdrawals || {};
   const pw = wm.producedWaterManagement || {};
@@ -1321,10 +1866,26 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
   const hasWqi = hasData(wqi);
   const incompleteCount = [hasFw, hasPw, hasChem, hasWqi].filter((v) => !v).length;
 
-  const fwStatus = getFormSectionStatus(submittedGroups, "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals", fw);
-  const pwStatus = getFormSectionStatus(submittedGroups, "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement", pw);
-  const chemStatus = getFormSectionStatus(submittedGroups, "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure", chem);
-  const wqiStatus = getFormSectionStatus(submittedGroups, "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts", wqi);
+  const fwStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
+    fw
+  );
+  const pwStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement",
+    pw
+  );
+  const chemStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure",
+    chem
+  );
+  const wqiStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts",
+    wqi
+  );
 
   const WATER_KEYS = [
     "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals",
@@ -1334,9 +1895,11 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
   ];
   const waterSubmittedCount = WATER_KEYS.filter((k) => submittedGroups.includes(k)).length;
   const waterStatus: SectionStatus =
-    waterSubmittedCount === WATER_KEYS.length ? "submitted"
-    : waterSubmittedCount > 0 || (hasFw || hasPw || hasChem || hasWqi) ? "in-progress"
-    : "not-started";
+    waterSubmittedCount === WATER_KEYS.length
+      ? "submitted"
+      : waterSubmittedCount > 0 || hasFw || hasPw || hasChem || hasWqi
+        ? "in-progress"
+        : "not-started";
 
   // Files
   const fwFiles: FileWithMeta[] = [];
@@ -1354,7 +1917,9 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
       icon={Droplets}
       title="Water & Wastewater Management"
       description="4 form · IFRS: EM-EP-140a.1 – 140a.4"
-      badge={totalWithdrawn != null ? `${formatNumberShort(totalWithdrawn)} m³ withdrawn` : undefined}
+      badge={
+        totalWithdrawn != null ? `${formatNumberShort(totalWithdrawn)} m³ withdrawn` : undefined
+      }
       status={waterStatus}
       incompleteCount={incompleteCount > 0 ? incompleteCount : undefined}
     >
@@ -1365,7 +1930,13 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
         documents={fwFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
-        onClear={onClearSection && (() => onClearSection("environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"))}
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.waterManagement.waterAndProducedWaterManagement.freshwaterWithdrawals"
+            ))
+        }
       >
         {!hasFw ? (
           <EmptyState />
@@ -1413,7 +1984,13 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
         documents={pwFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
-        onClear={onClearSection && (() => onClearSection("environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement"))}
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.waterManagement.waterAndProducedWaterManagement.producedWaterManagement"
+            ))
+        }
       >
         {!hasPw ? (
           <EmptyState />
@@ -1456,7 +2033,13 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
         documents={chemFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
-        onClear={onClearSection && (() => onClearSection("environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure"))}
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.waterManagement.hydraulicFracturingImpacts.chemicalDisclosure"
+            ))
+        }
       >
         {!hasChem ? (
           <EmptyState />
@@ -1465,9 +2048,20 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
             <DataFieldGrid
               columns={3}
               fields={[
-                { label: "Operates Hydraulic Fracturing Wells", value: chem.operatesHydraulicFracturingWells },
-                { label: "Total Number of Fractured Wells", value: chem.totalNumberOfFracturedWells, unit: "Wells" },
-                { label: "Wells with Public Disclosure", value: chem.numberOfWellsWithPublicDisclosure, unit: "Wells" },
+                {
+                  label: "Operates Hydraulic Fracturing Wells",
+                  value: chem.operatesHydraulicFracturingWells,
+                },
+                {
+                  label: "Total Number of Fractured Wells",
+                  value: chem.totalNumberOfFracturedWells,
+                  unit: "Wells",
+                },
+                {
+                  label: "Wells with Public Disclosure",
+                  value: chem.numberOfWellsWithPublicDisclosure,
+                  unit: "Wells",
+                },
               ]}
             />
           </div>
@@ -1481,7 +2075,13 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
         documents={wqiFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("water-and-wastewater-management"))}
-        onClear={onClearSection && (() => onClearSection("environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts"))}
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.waterManagement.hydraulicFracturingImpacts.waterQualityImpacts"
+            ))
+        }
       >
         {!hasWqi ? (
           <EmptyState />
@@ -1491,7 +2091,11 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
               columns={2}
               fields={[
                 { label: "Operates Near Water Sources", value: wqi.operatesNearWaterSources },
-                { label: "Water Quality Details", value: wqi.description || wqi.waterQualityDescription, paragraph: true },
+                {
+                  label: "Water Quality Details",
+                  value: wqi.description || wqi.waterQualityDescription,
+                  paragraph: true,
+                },
               ]}
             />
           </div>
@@ -1505,7 +2109,19 @@ function WaterManagementSection({ env, submittedGroups, onFileClick, onEditSecti
    BIODIVERSITY IMPACTS SECTION
    ═══════════════════════════════════════════════════════════════ */
 
-function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection, onClearSection }: { env: any; submittedGroups: string[]; onFileClick: (f: FileWithMeta) => void; onEditSection?: (view: string, step?: string) => void; onClearSection?: (path: string) => void }) {
+function BiodiversitySection({
+  env,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: {
+  env: any;
+  submittedGroups: string[];
+  onFileClick: (f: FileWithMeta) => void;
+  onEditSection?: (view: string, step?: string) => void;
+  onClearSection?: (path: string) => void;
+}) {
   const bio = env.biodiversityImpact?.environmentalManagement || {};
   const policies = bio.environmentalManagementPolicies || {};
   const spills = bio.hydrocarbonSpills || {};
@@ -1516,9 +2132,21 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
   const hasReserves = hasData(reserves);
   const incompleteCount = [hasPolicies, hasSpills, hasReserves].filter((v) => !v).length;
 
-  const policiesStatus = getFormSectionStatus(submittedGroups, "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies", policies);
-  const spillsStatus = getFormSectionStatus(submittedGroups, "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills", spills);
-  const reservesStatus = getFormSectionStatus(submittedGroups, "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas", reserves);
+  const policiesStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
+    policies
+  );
+  const spillsStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills",
+    spills
+  );
+  const reservesStatus = getFormSectionStatus(
+    submittedGroups,
+    "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas",
+    reserves
+  );
 
   const BIO_KEYS = [
     "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies",
@@ -1527,9 +2155,11 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
   ];
   const bioSubmittedCount = BIO_KEYS.filter((k) => submittedGroups.includes(k)).length;
   const biodiversityStatus: SectionStatus =
-    bioSubmittedCount === BIO_KEYS.length ? "submitted"
-    : bioSubmittedCount > 0 || (hasPolicies || hasSpills || hasReserves) ? "in-progress"
-    : "not-started";
+    bioSubmittedCount === BIO_KEYS.length
+      ? "submitted"
+      : bioSubmittedCount > 0 || hasPolicies || hasSpills || hasReserves
+        ? "in-progress"
+        : "not-started";
 
   // Files
   const policyFiles: FileWithMeta[] = [];
@@ -1547,7 +2177,8 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
 
   // Badge: spill count + total volume
   const spillCount = Number(spills.numberOfSpills ?? spills.calculated?.total_spills) || 0;
-  const spillVolume = Number(spills.totalVolumeSpilled ?? spills.calculated?.totalVolumeSpilled?.volume) || 0;
+  const spillVolume =
+    Number(spills.totalVolumeSpilled ?? spills.calculated?.totalVolumeSpilled?.volume) || 0;
   const hasSpillCount = (spills.numberOfSpills ?? spills.calculated?.total_spills) != null;
   const badgeParts: string[] = [];
   if (hasSpillCount) badgeParts.push(`${formatNumberShort(spillCount)} spills`);
@@ -1569,8 +2200,17 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
         status={policiesStatus}
         documents={policyFiles}
         onFileClick={onFileClick}
-        onEdit={onEditSection && (() => onEditSection("biodiversity", "environmental-management-policies"))}
-        onClear={onClearSection && (() => onClearSection("environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"))}
+        onEdit={
+          onEditSection &&
+          (() => onEditSection("biodiversity", "environmental-management-policies"))
+        }
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.biodiversityImpact.environmentalManagement.environmentalManagementPolicies"
+            ))
+        }
       >
         {!hasPolicies ? (
           <EmptyState />
@@ -1603,7 +2243,13 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
         documents={spillFiles}
         onFileClick={onFileClick}
         onEdit={onEditSection && (() => onEditSection("biodiversity", "hydrocarbon-spills"))}
-        onClear={onClearSection && (() => onClearSection("environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills"))}
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills"
+            ))
+        }
       >
         {!hasSpills ? (
           <EmptyState />
@@ -1652,8 +2298,16 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
         status={reservesStatus}
         documents={reserveFiles}
         onFileClick={onFileClick}
-        onEdit={onEditSection && (() => onEditSection("biodiversity", "reserves-in-sensitive-areas"))}
-        onClear={onClearSection && (() => onClearSection("environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas"))}
+        onEdit={
+          onEditSection && (() => onEditSection("biodiversity", "reserves-in-sensitive-areas"))
+        }
+        onClear={
+          onClearSection &&
+          (() =>
+            onClearSection(
+              "environment.biodiversityImpact.environmentalManagement.reservesInSensitiveAreas"
+            ))
+        }
       >
         {!hasReserves ? (
           <EmptyState />
@@ -1679,9 +2333,7 @@ function BiodiversitySection({ env, submittedGroups, onFileClick, onEditSection,
                 },
                 {
                   label: "Total Probable Reserves (MMbbls / BOE)",
-                  value:
-                    reserves.totalProbableReserves ??
-                    reserves.probableReservesVolume,
+                  value: reserves.totalProbableReserves ?? reserves.probableReservesVolume,
                   unit: "MMbbls",
                 },
                 {
