@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 
 interface FilterSelectProps {
   value: string;
@@ -8,21 +14,24 @@ interface FilterSelectProps {
   options: string[];
 }
 
+/**
+ * Filter-bar dropdown used across admin tables. Wraps the shared shadcn
+ * Select so all admin selects share one look. The first option in the list
+ * is treated as the "All …" placeholder.
+ */
 export default function FilterSelect({ value, onChange, options }: FilterSelectProps) {
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-10 pl-3 pr-9 text-sm bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#119B95]/20 text-gray-800"
-      >
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-full">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
         {options.map((o) => (
-          <option key={o} value={o}>
+          <SelectItem key={o} value={o}>
             {o}
-          </option>
+          </SelectItem>
         ))}
-      </select>
-      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" />
-    </div>
+      </SelectContent>
+    </Select>
   );
 }

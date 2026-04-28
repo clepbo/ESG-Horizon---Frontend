@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
 
 interface InviteUserModalProps {
   open: boolean;
@@ -92,47 +99,54 @@ export default function InviteUserModal({ open, onClose, onSubmit }: InviteUserM
           </Field>
 
           <Field label="Role" required error={attempted && errors.role ? "Select a role" : null}>
-            <select
-              value={form.role}
-              onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-              className={selectClass(attempted && errors.role)}
-            >
-              <option value="">Select role</option>
-              {ROLE_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v }))}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent className="z-[70]">
+                {ROLE_OPTIONS.map((o) => (
+                  <SelectItem key={o} value={o}>
+                    {o}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           <Field label="Department" required error={attempted && errors.department ? "Select a department" : null}>
-            <select
+            <Select
               value={form.department}
-              onChange={(e) => setForm((f) => ({ ...f, department: e.target.value }))}
-              className={selectClass(attempted && errors.department)}
+              onValueChange={(v) => setForm((f) => ({ ...f, department: v }))}
             >
-              <option value="">Select department</option>
-              {DEPARTMENT_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select department" />
+              </SelectTrigger>
+              <SelectContent className="z-[70]">
+                {DEPARTMENT_OPTIONS.map((o) => (
+                  <SelectItem key={o} value={o}>
+                    {o}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           <Field label="Company" required error={attempted && errors.company ? "Select a company" : null}>
-            <select
+            <Select
               value={form.company}
-              onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
-              className={selectClass(attempted && errors.company)}
+              onValueChange={(v) => setForm((f) => ({ ...f, company: v }))}
             >
-              {COMPANY_OPTIONS.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select company" />
+              </SelectTrigger>
+              <SelectContent className="z-[70]">
+                {COMPANY_OPTIONS.map((o) => (
+                  <SelectItem key={o} value={o}>
+                    {o}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
         </div>
 
@@ -186,8 +200,3 @@ function inputClass(invalid?: boolean) {
   }`;
 }
 
-function selectClass(invalid?: boolean) {
-  return `w-full h-10 pl-3 pr-9 text-sm bg-white border rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#119B95]/20 text-gray-900 ${
-    invalid ? "border-red-400" : "border-gray-200"
-  }`;
-}

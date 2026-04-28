@@ -8,6 +8,7 @@ import ModulePill from "./ModulePill";
 import ActionStatusPill from "./ActionStatusPill";
 import FilterSelect from "../../components/FilterSelect";
 import Pagination from "../../components/Pagination";
+import RowsPerPageSelect from "../../components/RowsPerPageSelect";
 import { auditEvents } from "../_fixtures/events";
 import type { UserRole } from "../../users/_fixtures/users";
 
@@ -163,20 +164,14 @@ export default function AuditTrailTable() {
       <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-gray-100">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-700">Rows per page</span>
-          <select
+          <RowsPerPageSelect
             value={rowsPerPage}
-            onChange={(e) => {
-              setRowsPerPage(Number(e.target.value));
+            onChange={(n) => {
+              setRowsPerPage(n);
               setPage(1);
             }}
-            className="h-8 pl-2 pr-6 text-sm border border-gray-200 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#119B95]/20"
-          >
-            {ROWS_PER_PAGE_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+            options={ROWS_PER_PAGE_OPTIONS}
+          />
         </div>
 
         <Pagination currentPage={currentPage} totalPages={totalPages} onChange={setPage} />

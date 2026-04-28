@@ -49,7 +49,7 @@ const groups: NavGroup[] = [
     label: "Assessment",
     items: [
       { label: "Algorithm Config", href: "/algorithm-config", icon: Activity },
-      { label: "Assessments", href: "/admin-assessments", icon: FileText },
+      { label: "Assessments", href: "/assessments-config", icon: FileText },
     ],
   },
   {
