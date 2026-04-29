@@ -92,7 +92,7 @@ export default function CompanyInfo({ company, onStatusChange }: Props) {
             />
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <Info label="Company Name" value={company.name} />
-              <Info label="Industry Type" value={company.industry?.industry} />
+              <Info label="Industry Type" value={company.industry?.name} />
               <Info label="Email Address" value={company.contact_email} />
               <Info label="Contact Phone Number" value={company.contact_phone} />
               <Info label="Website Address" value={company.website} />
@@ -119,14 +119,7 @@ export default function CompanyInfo({ company, onStatusChange }: Props) {
           {/* Company Status */}
           <DetailCard
             title="Company Status"
-            icon={
-              <Image
-                src="/icons/company.svg"
-                alt="Company Icon"
-                width={14}
-                height={14}
-              />
-            }
+            icon={<Image src="/icons/company.svg" alt="Company Icon" width={14} height={14} />}
           >
             <div className="flex flex-col gap-3">
               <Info label="Current Status" value={<StatusBadge status={currentStatus} />} />
@@ -149,9 +142,8 @@ export default function CompanyInfo({ company, onStatusChange }: Props) {
         title="Confirm Status Change"
         message={
           <>
-            Are you sure you want to{" "}
-            <span className="font-bold lowercase">{action?.label}</span> this company?{" "}
-            {action?.confirmMessage}
+            Are you sure you want to <span className="font-bold lowercase">{action?.label}</span>{" "}
+            this company? {action?.confirmMessage}
           </>
         }
         onCancel={() => setModalOpen(false)}

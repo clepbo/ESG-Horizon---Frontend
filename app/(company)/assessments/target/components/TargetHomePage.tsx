@@ -55,7 +55,7 @@ export default function TargetHomePage() {
       localStorage.removeItem("_autoOpenTarget");
       openForm(autoOpen);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
@@ -108,10 +108,7 @@ export default function TargetHomePage() {
             {dropdownOpen && (
               <>
                 {/* backdrop */}
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setDropdownOpen(false)}
-                />
+                <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
                 <div className="absolute right-0 z-20 mt-2 w-52 rounded-md border border-gray-100 bg-white shadow-lg">
                   <div className="py-1">
                     <button
@@ -165,11 +162,15 @@ export default function TargetHomePage() {
         <>
           <PerformanceOverview
             targets={allTargets ?? []}
-            baselineInfo={latestBaseline ? {
-              startYear: latestBaseline.startYear,
-              submittedAt: latestBaseline.submittedAt,
-              approvedAt: latestBaseline.approvedAt,
-            } : null}
+            baselineInfo={
+              latestBaseline
+                ? {
+                    startYear: latestBaseline.startYear,
+                    submittedAt: latestBaseline.submittedAt,
+                    approvedAt: latestBaseline.approvedAt,
+                  }
+                : null
+            }
           />
           <TargetLogsTable />
         </>

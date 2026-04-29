@@ -20,7 +20,12 @@ import ReservesSensitivityForm from "./reserves-sensitivity-carbon-pricing";
 import EmbeddedCarbonInReserves from "./embedded-carbon-in-reserves";
 import RenewableEnergyInvestment from "./renewable-energy-investment";
 import CapitalExpenditureStrategy from "./capital-expenditure-strategy";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type RVView =
@@ -95,8 +100,7 @@ export default function ReservesValuationAssessment({
   const params = useParams();
   const [currentView, setCurrentView] = useState<RVView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
@@ -111,16 +115,48 @@ export default function ReservesValuationAssessment({
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Reserves Sensitivity to Carbon Pricing": { groupKey: "businessModel.reservesValuation.reservesSensitivity", dataPath: ["businessInnovation", "reservesValuationAndCapitalExpenditures", "reservesSensitivityToCarbonPricing"] },
-    "Embedded Carbon in Reserves": { groupKey: "businessModel.reservesValuation.embeddedCarbon", dataPath: ["businessInnovation", "reservesValuationAndCapitalExpenditures", "embeddedCarbonInReserves"] },
-    "Renewable Energy Investment": { groupKey: "businessModel.reservesValuation.renewableEnergyInvestment", dataPath: ["businessInnovation", "reservesValuationAndCapitalExpenditures", "renewableEnergyInvestment"] },
-    "Capital Expenditure Strategy": { groupKey: "businessModel.reservesValuation.capitalExpenditureStrategy", dataPath: ["businessInnovation", "reservesValuationAndCapitalExpenditures", "capitalExpenditureStrategy"] },
+    "Reserves Sensitivity to Carbon Pricing": {
+      groupKey: "businessModel.reservesValuation.reservesSensitivity",
+      dataPath: [
+        "businessInnovation",
+        "reservesValuationAndCapitalExpenditures",
+        "reservesSensitivityToCarbonPricing",
+      ],
+    },
+    "Embedded Carbon in Reserves": {
+      groupKey: "businessModel.reservesValuation.embeddedCarbon",
+      dataPath: [
+        "businessInnovation",
+        "reservesValuationAndCapitalExpenditures",
+        "embeddedCarbonInReserves",
+      ],
+    },
+    "Renewable Energy Investment": {
+      groupKey: "businessModel.reservesValuation.renewableEnergyInvestment",
+      dataPath: [
+        "businessInnovation",
+        "reservesValuationAndCapitalExpenditures",
+        "renewableEnergyInvestment",
+      ],
+    },
+    "Capital Expenditure Strategy": {
+      groupKey: "businessModel.reservesValuation.capitalExpenditureStrategy",
+      dataPath: [
+        "businessInnovation",
+        "reservesValuationAndCapitalExpenditures",
+        "capitalExpenditureStrategy",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -207,7 +243,7 @@ export default function ReservesValuationAssessment({
           setShowSuccess(true);
         }}
         onSubmit={(totals) => {
-          setTotals(totals);
+          void totals;
           setShowSuccess(true);
         }}
         stepIndex={4}
@@ -312,7 +348,10 @@ export default function ReservesValuationAssessment({
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
                           }`}
-                          style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                          style={{
+                            borderLeftWidth: "4px",
+                            borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                          }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

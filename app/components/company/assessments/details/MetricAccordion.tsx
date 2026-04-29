@@ -1,9 +1,5 @@
 import { Badge } from "@/app/components/ui/badge";
-import {
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/app/components/ui/accordion";
+import { AccordionItem, AccordionTrigger, AccordionContent } from "@/app/components/ui/accordion";
 import type { SectionStatus } from "@/lib/assessmentStatusUtils";
 import type { LucideIcon } from "lucide-react";
 
@@ -57,12 +53,18 @@ export function MetricAccordion({
               </Badge>
             )}
             {incompleteCount != null && incompleteCount > 0 && (
-              <Badge variant="outline" className="text-xs font-medium border-teal-300 text-teal-700 bg-teal-50">
+              <Badge
+                variant="outline"
+                className="text-xs font-medium border-teal-300 text-teal-700 bg-teal-50"
+              >
                 {incompleteCount} incomplete
               </Badge>
             )}
             {status && (
-              <Badge variant="outline" className={`text-xs font-medium ${statusBadge[status].className}`}>
+              <Badge
+                variant="outline"
+                className={`text-xs font-medium ${statusBadge[status].className}`}
+              >
                 {statusBadge[status].label}
               </Badge>
             )}

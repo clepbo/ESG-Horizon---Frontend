@@ -69,7 +69,9 @@ export function GeneralTargetSummary({
           <CardContent className="space-y-8 pt-6">
             {/* Main Reduction Target */}
             <div className="text-center space-y-4">
-              <TrendIcon className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`} />
+              <TrendIcon
+                className={`justify-self-auto mx-auto ${isReducing ? "text-green-600" : "text-red-600"} font-semibold`}
+              />
               <h6 className="text-2xl md:text-3xl font-semibold text-gray-900">
                 {formatWithCommas(reductionPercentage)}% Reduction Target
               </h6>
@@ -87,7 +89,10 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none">
+                      <TooltipContent
+                        side="top"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
+                      >
                         <p>Your total emissions from the baseline assessment period.</p>
                       </TooltipContent>
                     </Tooltip>
@@ -104,15 +109,23 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent
+                        side="top"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs"
+                      >
                         <p className="font-sans font-medium mb-1">Target Emission</p>
                         <p>= Baseline x (1 - Reduction% / 100)</p>
-                        <p>= {formatWithCommas(baselineEmission)} x (1 - {formatWithCommas(reductionPercentage)} / 100)</p>
+                        <p>
+                          = {formatWithCommas(baselineEmission)} x (1 -{" "}
+                          {formatWithCommas(reductionPercentage)} / 100)
+                        </p>
                         <p className="font-semibold">= {formatWithCommas(targetEmission)} tCO₂e</p>
                       </TooltipContent>
                     </Tooltip>
                   </span>
-                  <span className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}>
+                  <span
+                    className={`font-semibold text-right ${isReducing ? "text-green-600" : "text-red-600"}`}
+                  >
                     {formatWithCommas(targetEmission)} tCO₂e
                   </span>
                 </div>
@@ -136,11 +149,18 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent
+                        side="top"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs"
+                      >
                         <p className="font-sans font-medium mb-1">Timeline</p>
                         <p>= |Target Year - Baseline Year|</p>
-                        <p>= |{targetYear} - {baselineYear}|</p>
-                        <p className="font-semibold">= {yearsDifference} {yearsDifference === 1 ? "year" : "years"}</p>
+                        <p>
+                          = |{targetYear} - {baselineYear}|
+                        </p>
+                        <p className="font-semibold">
+                          = {yearsDifference} {yearsDifference === 1 ? "year" : "years"}
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -157,10 +177,16 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent
+                        side="top"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs"
+                      >
                         <p className="font-sans font-medium mb-1">Total Reduction</p>
                         <p>= Baseline - Target Emission</p>
-                        <p>= {formatWithCommas(baselineEmission)} - {formatWithCommas(targetEmission)}</p>
+                        <p>
+                          = {formatWithCommas(baselineEmission)} -{" "}
+                          {formatWithCommas(targetEmission)}
+                        </p>
                         <p className="font-semibold">= {formatWithCommas(totalReduction)} tCO₂e</p>
                       </TooltipContent>
                     </Tooltip>
@@ -178,10 +204,15 @@ export function GeneralTargetSummary({
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs">
+                      <TooltipContent
+                        side="top"
+                        className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none font-mono text-xs"
+                      >
                         <p className="font-sans font-medium mb-1">Annual Rate</p>
                         <p>= Total Reduction / Timeline</p>
-                        <p>= {formatWithCommas(totalReduction)} / {yearsDifference}</p>
+                        <p>
+                          = {formatWithCommas(totalReduction)} / {yearsDifference}
+                        </p>
                         <p className="font-semibold">= {formattedAnnualRate} tCO₂e/year</p>
                       </TooltipContent>
                     </Tooltip>
@@ -191,7 +222,6 @@ export function GeneralTargetSummary({
                   </div>
                 </div>
               </div>
-
             </div>
           </CardContent>
         </Card>
@@ -209,8 +239,12 @@ export function GeneralTargetSummary({
 
           <CustomButton onClick={onSetTarget} className="">
             {isLoading
-              ? isEdit ? "Updating Target..." : "Setting Target..."
-              : isEdit ? "Update Target" : "Set Target"}
+              ? isEdit
+                ? "Updating Target..."
+                : "Setting Target..."
+              : isEdit
+                ? "Update Target"
+                : "Set Target"}
           </CustomButton>
         </div>
       </div>

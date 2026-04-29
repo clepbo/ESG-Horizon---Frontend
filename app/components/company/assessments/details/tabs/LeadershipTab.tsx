@@ -23,20 +23,33 @@ function hasData(obj: any) {
   if (!obj) return false;
   return Object.keys(obj).some((k) => {
     const v = obj[k];
-    return v !== undefined && v !== null && v !== "" && !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k);
+    return (
+      v !== undefined &&
+      v !== null &&
+      v !== "" &&
+      !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k)
+    );
   });
 }
 
-export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: LeadershipTabProps) {
+export function LeadershipTab({
+  assessmentData,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: LeadershipTabProps) {
   const lg = assessmentData.leadershipGovernance || {};
   const criticalIncident = lg.criticalIncidentRiskManagement || {};
-  const legalReg = lg.managementOfTheLegalAndRegulatoryEnvironment || lg.legalRegulatoryEnvironment || {};
+  const legalReg =
+    lg.managementOfTheLegalAndRegulatoryEnvironment || lg.legalRegulatoryEnvironment || {};
 
   // Subtopics
   const processSafety = criticalIncident.processSafetyEvents || {};
   const catastrophicRisk = criticalIncident.catastrophicRiskManagementSystems || {};
   const publicPolicy = legalReg.publicPolicyEngagement || {};
-  const boardOversight = legalReg.boardAndManagementOversight || legalReg.boardManagementOversight || {};
+  const boardOversight =
+    legalReg.boardAndManagementOversight || legalReg.boardManagementOversight || {};
 
   // Status
   const processStatus = getFormSectionStatus(
@@ -64,21 +77,22 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
   const criticalStatus: SectionStatus = criticalStatuses.every((s) => s === "submitted")
     ? "submitted"
     : criticalStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   const legalStatuses: SectionStatus[] = [policyStatus, boardStatus];
   const legalStatus: SectionStatus = legalStatuses.every((s) => s === "submitted")
     ? "submitted"
     : legalStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   // Critical Incident badge — Tier 1 events + total hours
   const tier1Events = Number(processSafety.numberOfEvents) || 0;
   const totalHours = Number(processSafety.totalHoursWorked) || 0;
   const criticalBadgeParts: string[] = [];
-  if (processSafety.numberOfEvents != null) criticalBadgeParts.push(`${formatNumberShort(tier1Events)} Tier 1 events`);
+  if (processSafety.numberOfEvents != null)
+    criticalBadgeParts.push(`${formatNumberShort(tier1Events)} Tier 1 events`);
   if (totalHours > 0) criticalBadgeParts.push(`${formatNumberShort(totalHours)} hrs worked`);
   const criticalIncomplete = criticalStatuses.filter((s) => s !== "submitted").length;
 
@@ -121,8 +135,17 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
             status={processStatus}
             documents={processFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("critical-incident-risk-management", "process-safety-events"))}
-            onClear={onClearSection && (() => onClearSection("leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("critical-incident-risk-management", "process-safety-events"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "leadershipGovernance.criticalIncidentRiskManagement.processSafetyEvents"
+                ))
+            }
           >
             {!hasData(processSafety) ? (
               <EmptyState />
@@ -156,15 +179,27 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
             status={catastrophicStatus}
             documents={catastrophicFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("critical-incident-risk-management", "catastrophic-risk-management"))}
-            onClear={onClearSection && (() => onClearSection("leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection("critical-incident-risk-management", "catastrophic-risk-management"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "leadershipGovernance.criticalIncidentRiskManagement.catastrophicRiskManagementSystems"
+                ))
+            }
           >
             {!hasData(catastrophicRisk) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Catastrophic Risk Management Systems</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Catastrophic Risk Management Systems
+                  </span>
                   <StatusDot status={catastrophicStatus} />
                 </div>
                 <DataFieldGrid
@@ -204,15 +239,30 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
             status={policyStatus}
             documents={policyFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("management-of-legal-and-regulatory-environment", "public-policy-engagement"))}
-            onClear={onClearSection && (() => onClearSection("leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.publicPolicyEngagement"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection(
+                  "management-of-legal-and-regulatory-environment",
+                  "public-policy-engagement"
+                ))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.publicPolicyEngagement"
+                ))
+            }
           >
             {!hasData(publicPolicy) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Public Policy Engagement</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Public Policy Engagement
+                  </span>
                   <StatusDot status={policyStatus} />
                 </div>
                 <DataFieldGrid
@@ -221,11 +271,13 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
                     {
                       label: "Publicly Discloses Lobbying/Trade Association Contributions?",
                       value:
-                        publicPolicy.disclosesContributions === true || publicPolicy.disclosesContributions === "yes"
+                        publicPolicy.disclosesContributions === true ||
+                        publicPolicy.disclosesContributions === "yes"
                           ? "Yes"
-                          : publicPolicy.disclosesContributions === false || publicPolicy.disclosesContributions === "no"
-                          ? "No"
-                          : publicPolicy.disclosesContributions,
+                          : publicPolicy.disclosesContributions === false ||
+                              publicPolicy.disclosesContributions === "no"
+                            ? "No"
+                            : publicPolicy.disclosesContributions,
                     },
                     {
                       label: "Discussion of Corporate Positions on Policy and Regulation",
@@ -244,15 +296,30 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
             status={boardStatus}
             documents={boardFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("management-of-legal-and-regulatory-environment", "board-management-oversight"))}
-            onClear={onClearSection && (() => onClearSection("leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection(
+                  "management-of-legal-and-regulatory-environment",
+                  "board-management-oversight"
+                ))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "leadershipGovernance.managementOfTheLegalAndRegulatoryEnvironment.boardAndManagementOversight"
+                ))
+            }
           >
             {!hasData(boardOversight) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Board &amp; Management Oversight</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Board &amp; Management Oversight
+                  </span>
                   <StatusDot status={boardStatus} />
                 </div>
                 <DataFieldGrid
@@ -261,11 +328,13 @@ export function LeadershipTab({ assessmentData, submittedGroups, onFileClick, on
                     {
                       label: "Board-Level ESG/Sustainability Committee?",
                       value:
-                        boardOversight.hasBoardCommittee === true || boardOversight.hasBoardCommittee === "yes"
+                        boardOversight.hasBoardCommittee === true ||
+                        boardOversight.hasBoardCommittee === "yes"
                           ? "Yes"
-                          : boardOversight.hasBoardCommittee === false || boardOversight.hasBoardCommittee === "no"
-                          ? "No"
-                          : boardOversight.hasBoardCommittee,
+                          : boardOversight.hasBoardCommittee === false ||
+                              boardOversight.hasBoardCommittee === "no"
+                            ? "No"
+                            : boardOversight.hasBoardCommittee,
                     },
                     {
                       label: "Discussion of Board Oversight and Management's Role",

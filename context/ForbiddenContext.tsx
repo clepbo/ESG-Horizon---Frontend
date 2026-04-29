@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft, ShieldOff } from "lucide-react";
 
@@ -38,8 +31,8 @@ function AccessDeniedScreen() {
         </div>
         <h2 className="text-xl font-bold text-gray-900">Access Denied</h2>
         <p className="text-sm text-gray-900 text-center max-w-md">
-          You do not have enough permission to view this resource. If you think
-          this is a mistake, contact your company or platform admin.
+          You do not have enough permission to view this resource. If you think this is a mistake,
+          contact your company or platform admin.
         </p>
         <button
           onClick={() => router.back()}

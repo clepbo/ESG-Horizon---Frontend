@@ -65,7 +65,11 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
     newStatus: Company["status"] | null;
   }>({ open: false, companyId: null, currentStatus: null, newStatus: null });
 
-  const openModal = (companyId: number, currentStatus: Company["status"], newStatus: Company["status"]) => {
+  const openModal = (
+    companyId: number,
+    currentStatus: Company["status"],
+    newStatus: Company["status"]
+  ) => {
     setModalData({ open: true, companyId, currentStatus, newStatus });
   };
 
@@ -122,7 +126,7 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
               <tr key={id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{name}</td>
                 <td className="px-4 py-3">{registration_number || "N/A"}</td>
-                <td className="px-4 py-3">{industry?.sector || "N/A"}</td>
+                <td className="px-4 py-3">{industry?.sector?.name || "N/A"}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={status} />
                 </td>
@@ -158,7 +162,9 @@ export default function CompanyTable({ companies, loading }: CompanyTableProps) 
           <>
             Are you sure you want to{" "}
             <span className="font-bold lowercase">
-              {modalData.currentStatus ? STATUS_ACTIONS[modalData.currentStatus]?.title : modalData.newStatus}
+              {modalData.currentStatus
+                ? STATUS_ACTIONS[modalData.currentStatus]?.title
+                : modalData.newStatus}
             </span>{" "}
             this company?{" "}
             {modalData.newStatus === "suspended"

@@ -16,17 +16,13 @@ interface OverallProgressCardProps {
 function parseSections(str?: string): { done: number; total: number } {
   if (!str) return { done: 0, total: 0 };
   const match = str.match(/(\d+)\s+of\s+(\d+)/);
-  return match ? { done: parseInt(match[1], 10), total: parseInt(match[2], 10) } : { done: 0, total: 0 };
+  return match
+    ? { done: parseInt(match[1], 10), total: parseInt(match[2], 10) }
+    : { done: 0, total: 0 };
 }
 
-export default function OverallProgressCard({
-  hubStats,
-}: OverallProgressCardProps) {
-  const pillars = [
-    hubStats?.environment,
-    hubStats?.social,
-    hubStats?.governance,
-  ];
+export default function OverallProgressCard({ hubStats }: OverallProgressCardProps) {
+  const pillars = [hubStats?.environment, hubStats?.social, hubStats?.governance];
 
   const completedCount = pillars.filter((p) => p?.status === "completed").length;
   const inProgressCount = pillars.filter((p) => p?.status === "in-progress").length;
@@ -36,14 +32,16 @@ export default function OverallProgressCard({
   const { completedSections, totalSections } = pillars.reduce(
     (acc, p) => {
       const { done, total } = parseSections(p?.completed);
-      return { completedSections: acc.completedSections + done, totalSections: acc.totalSections + total };
+      return {
+        completedSections: acc.completedSections + done,
+        totalSections: acc.totalSections + total,
+      };
     },
     { completedSections: 0, totalSections: 0 }
   );
 
-  const progressPercent = totalSections > 0
-    ? Math.round((completedSections / totalSections) * 100)
-    : 0;
+  const progressPercent =
+    totalSections > 0 ? Math.round((completedSections / totalSections) * 100) : 0;
 
   return (
     <Tooltip>
@@ -86,15 +84,7 @@ export default function OverallProgressCard({
   );
 }
 
-function StatusCounter({
-  label,
-  count,
-  color,
-}: {
-  label: string;
-  count: number;
-  color: string;
-}) {
+function StatusCounter({ label, count, color }: { label: string; count: number; color: string }) {
   return (
     <div className="text-center">
       <p className={`text-xl font-bold ${color}`}>{count}</p>

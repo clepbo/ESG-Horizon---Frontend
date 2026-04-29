@@ -115,18 +115,16 @@ export default function LoginForm() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
           <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-xl px-10 py-12 max-w-md w-full text-center mx-4">
             <Checkmark />
-            <h1 className="text-2xl font-semibold text-esg-green mb-4">
-              Account Under Review
-            </h1>
+            <h1 className="text-2xl font-semibold text-esg-green mb-4">Account Under Review</h1>
             <p className="text-gray-700 mb-3 text-sm leading-relaxed">
-              To ensure platform security, your account is pending a final review
-              by an ESG Horizon administrator.
+              To ensure platform security, your account is pending a final review by an ESG Horizon
+              administrator.
             </p>
             <p className="text-gray-700 mb-8 text-sm leading-relaxed">
-              This is typically completed within one business day. You will be
-              notified via your corporate email as soon as it&apos;s approved. If you
-              have any urgent questions, please contact our support team
-              at <span className="font-medium">support@esghorizon.com</span>.
+              This is typically completed within one business day. You will be notified via your
+              corporate email as soon as it&apos;s approved. If you have any urgent questions,
+              please contact our support team at{" "}
+              <span className="font-medium">support@esghorizon.com</span>.
             </p>
             <button
               onClick={() => setShowApprovalModal(false)}

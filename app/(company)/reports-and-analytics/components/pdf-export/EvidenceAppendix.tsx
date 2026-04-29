@@ -26,9 +26,7 @@ export default function EvidenceAppendix({ evidence }: EvidenceAppendixProps) {
     <div className="bg-white px-6 py-8">
       {/* Title */}
       <div className="mb-6 border-b-2 border-gray-800 pb-3">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Appendix: Supporting Evidence
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900">Appendix: Supporting Evidence</h2>
         <p className="mt-1 text-sm text-gray-500">
           Documents and evidence uploaded during the assessment process
         </p>
@@ -55,10 +53,7 @@ export default function EvidenceAppendix({ evidence }: EvidenceAppendixProps) {
               </thead>
               <tbody>
                 {files.map((file, i) => (
-                  <tr
-                    key={i}
-                    className="border-t border-gray-100"
-                  >
+                  <tr key={i} className="border-t border-gray-100">
                     <td className="py-2 pr-4 text-gray-400">{i + 1}</td>
                     <td className="py-2 pr-4">
                       <div className="flex items-center gap-2">
@@ -68,12 +63,8 @@ export default function EvidenceAppendix({ evidence }: EvidenceAppendixProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">
-                      {file.section}
-                    </td>
-                    <td className="py-2 text-blue-600 truncate max-w-[280px]">
-                      {file.url}
-                    </td>
+                    <td className="py-2 pr-4 text-gray-600">{file.section}</td>
+                    <td className="py-2 text-blue-600 truncate max-w-[280px]">{file.url}</td>
                   </tr>
                 ))}
               </tbody>

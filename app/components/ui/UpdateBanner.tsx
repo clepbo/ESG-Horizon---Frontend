@@ -13,7 +13,7 @@ export default function UpdateBanner() {
       <div className="flex items-center gap-2 min-w-0">
         <RefreshCw className="h-4 w-4 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />
         <span className="truncate">
-          A new version is available. Refresh to get the latest updates.
+          New updates are available. Refresh to apply them.
         </span>
       </div>
       <div className="flex items-center gap-2 shrink-0">

@@ -81,7 +81,11 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
   // Exact counts — evaluate every known group key against submittedGroups + actual data
   const statuses = ALL_GROUP_KEYS.map((key) => {
     const dataPath = BIZ_DATA_PATH_OVERRIDES[key] ?? key;
-    return getFormSectionStatus(submittedGroups, key, resolveDataPath(assessmentData, dataPath.split(".")));
+    return getFormSectionStatus(
+      submittedGroups,
+      key,
+      resolveDataPath(assessmentData, dataPath.split("."))
+    );
   });
   const totalGroups = ALL_GROUP_KEYS.length;
   const completedCount = statuses.filter((s) => s === "submitted").length;
@@ -89,9 +93,10 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
   const notStartedCount = statuses.filter((s) => s === "not-started").length;
 
   // All sections submitted → show 100%; otherwise use the backend-computed weighted value
-  const progressPct = completedCount >= totalGroups
-    ? 100
-    : parseFloat((assessmentData.overallProgress || 0).toFixed(2));
+  const progressPct =
+    completedCount >= totalGroups
+      ? 100
+      : parseFloat((assessmentData.overallProgress || 0).toFixed(2));
 
   // Status config for subsidiary card badge
   const statusConfig = STATUS_CONFIG[fullAssessment.status] || STATUS_CONFIG.in_progress;
@@ -105,12 +110,16 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
   const abbr = (month?: string) => month?.slice(0, 3) ?? "";
 
   return (
-    <div className={`grid grid-cols-1 gap-4 ${showEmissionsCard ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
+    <div
+      className={`grid grid-cols-1 gap-4 ${showEmissionsCard ? "md:grid-cols-4" : "md:grid-cols-3"}`}
+    >
       {/* ── Total Emissions — Environmental tab only ── */}
       {showEmissionsCard && (
         <Card className="bg-[#109b95]/15 border border-[#109b95]/30 shadow-md">
           <CardContent className="px-3.5 py-4">
-            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Emission</p>
+            <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">
+              Total Emission
+            </p>
             <p className="text-3xl font-bold mt-1.5 text-gray-800">
               {formatNumberShort(assessmentData.totalEmission) || "0.00"}
             </p>
@@ -133,7 +142,9 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
       {/* ── Overall Progress ── */}
       <Card className="bg-[#3d9f56]/15 border border-[#3d9f56]/30 shadow-md">
         <CardContent className="px-3.5 py-4">
-          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Overall Progress</p>
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">
+            Overall Progress
+          </p>
           <div className="flex items-center gap-3 mt-1.5">
             <Progress value={progressPct} className="flex-1 [&>div]:bg-[#3d9f56] bg-gray-200" />
             <span className="text-xl font-bold text-gray-800">{formatPercent(progressPct)}</span>
@@ -163,10 +174,13 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
         <CardContent className="px-3.5 py-4">
           <p className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Subsidiary</p>
           <p className="text-lg font-bold mt-1.5 text-gray-800">{fullAssessment.subsidiary}</p>
-          <Badge className={`${statusConfig.color} border-0 text-xs mt-1.5`}>{statusConfig.label}</Badge>
+          <Badge className={`${statusConfig.color} border-0 text-xs mt-1.5`}>
+            {statusConfig.label}
+          </Badge>
           {fullAssessment.reportingLead && (
             <p className="text-sm text-gray-500 mt-2.5">
-              Reporting Lead: <span className="font-medium text-gray-700">{fullAssessment.reportingLead}</span>
+              Reporting Lead:{" "}
+              <span className="font-medium text-gray-700">{fullAssessment.reportingLead}</span>
             </p>
           )}
         </CardContent>
@@ -175,7 +189,9 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
       {/* ── Reporting Period ── */}
       <Card className="bg-[#82898c] text-white border-0 shadow-md">
         <CardContent className="px-3.5 py-4">
-          <p className="text-white/80 text-sm font-semibold uppercase tracking-wider">Reporting Period</p>
+          <p className="text-white/80 text-sm font-semibold uppercase tracking-wider">
+            Reporting Period
+          </p>
           <p className="text-lg font-bold mt-1.5">
             {abbr(fullAssessment.startMonth)} {fullAssessment.startYear} –{" "}
             {abbr(fullAssessment.endMonth)} {fullAssessment.endYear}
@@ -186,7 +202,9 @@ export function InfoCardsRow({ activeTabId, assessmentData, fullAssessment }: In
           {fullAssessment.submissionDeadline && (
             <p className="text-sm text-white/80 mt-1.5">
               Submission Deadline{" "}
-              <span className="text-yellow-200 font-medium">{fullAssessment.submissionDeadline}</span>
+              <span className="text-yellow-200 font-medium">
+                {fullAssessment.submissionDeadline}
+              </span>
             </p>
           )}
         </CardContent>

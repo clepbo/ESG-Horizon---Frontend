@@ -84,7 +84,13 @@ export default function ProductionVolumesChart({
 
       {hasData ? (
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} barGap={4} barCategoryGap="30%" margin={{ top: 20, left: 10 }} style={{ overflow: "visible" }}>
+          <BarChart
+            data={data}
+            barGap={4}
+            barCategoryGap="30%"
+            margin={{ top: 20, left: 10 }}
+            style={{ overflow: "visible" }}
+          >
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="name"

@@ -40,16 +40,10 @@ export function DataField({ label, value, unit, highlight, isBoolean, paragraph 
   return (
     <div
       className={`flex flex-col gap-1 p-3 rounded-lg border ${
-        highlight
-          ? "bg-teal-50 border-teal-200"
-          : "bg-gray-50/50 border-gray-100"
+        highlight ? "bg-teal-50 border-teal-200" : "bg-gray-50/50 border-gray-100"
       }`}
     >
-      <span
-        className={`text-xs font-medium ${
-          highlight ? "text-teal-800" : "text-gray-900"
-        }`}
-      >
+      <span className={`text-xs font-medium ${highlight ? "text-teal-800" : "text-gray-900"}`}>
         {label}
       </span>
       <div className="flex items-center gap-1.5">
@@ -62,17 +56,11 @@ export function DataField({ label, value, unit, highlight, isBoolean, paragraph 
             ) : (
               <Square className="w-4 h-4 text-gray-700 shrink-0" />
             )}
-            <span className="text-sm font-bold text-gray-800">
-              {isTrue ? "Yes" : "No"}
-            </span>
+            <span className="text-sm font-bold text-gray-800">{isTrue ? "Yes" : "No"}</span>
           </>
         ) : (
           <>
-            <span
-              className={`text-sm font-bold ${
-                highlight ? "text-teal-900" : "text-gray-800"
-              }`}
-            >
+            <span className={`text-sm font-bold ${highlight ? "text-teal-900" : "text-gray-800"}`}>
               {isNumeric ? formatNumberShort(value) : value}
             </span>
             {unit && (

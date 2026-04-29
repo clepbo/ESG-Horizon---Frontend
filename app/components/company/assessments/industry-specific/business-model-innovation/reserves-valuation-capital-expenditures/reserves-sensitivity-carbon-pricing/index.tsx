@@ -118,11 +118,7 @@ export default function ReservesSensitivityForm({
     const hasPercentageDecrease = percentageDecrease.rawValue !== "";
     const hasEstimatedDecrease =
       estimatedDecrease.rawValue !== "" && formData.estimatedDecreaseUnit !== "";
-    return calculateProgress([
-      hasCarbonPriceScenario,
-      hasPercentageDecrease,
-      hasEstimatedDecrease,
-    ]);
+    return calculateProgress([hasCarbonPriceScenario, hasPercentageDecrease, hasEstimatedDecrease]);
   }, [
     carbonPriceScenario.rawValue,
     percentageDecrease.rawValue,
