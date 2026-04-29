@@ -2,10 +2,8 @@
 
 import { KpiCard } from "@/app/components/ui/charts/DonoughtChart";
 import TargetTrendChart from "@/app/components/ui/charts/TargetTrendChart";
+import { Target } from "@/app/(company)/components/types/target";
 
-import { TargetPair } from "./services";
-
-// ViewMode kept for backwards compatibility if referenced elsewhere
 export type ViewMode = "general" | "scope";
 
 export interface BaselineInfo {
@@ -15,20 +13,19 @@ export interface BaselineInfo {
 }
 
 interface PerformanceOverviewProps {
-  pair: TargetPair;
+  targets: Target[];
   baselineInfo?: BaselineInfo | null;
 }
 
 /**
- * KPI hub "Net Zero Progress" card. Replaces the previous Highcharts
- * speedometer gauge + tab switcher with a single TargetTrendChart that
- * shows General + every Scope target on one shared year axis. Users no
- * longer need to flip between tabs to compare trajectories.
+ * KPI hub "Reduction Targets Progress" card. Renders every target the
+ * company has set as its own bullet bar, so a viewer sees their full
+ * portfolio in one chart instead of just the latest General + Scope pair.
  */
-export default function PerformanceOverview({ pair, baselineInfo }: PerformanceOverviewProps) {
-  const hasGeneral = !!pair.general;
-  const hasScope = !!pair.scope;
-
+export default function PerformanceOverview({
+  targets,
+  baselineInfo,
+}: PerformanceOverviewProps) {
   return (
     <KpiCard className="space-y-6 w-full">
       {baselineInfo && (baselineInfo.submittedAt || baselineInfo.approvedAt) && (
@@ -62,10 +59,12 @@ export default function PerformanceOverview({ pair, baselineInfo }: PerformanceO
         </p>
       )}
 
-      <p className="text-lg font-semibold text-gray-800">Net Zero Progress (Carbon Footprint)</p>
+      <p className="text-lg font-semibold text-gray-800">
+        Reduction Targets Progress
+      </p>
 
-      {hasGeneral || hasScope ? (
-        <TargetTrendChart general={pair.general} scope={pair.scope} height={360} />
+      {targets.length > 0 ? (
+        <TargetTrendChart targets={targets} height={360} />
       ) : (
         <div className="text-center py-8">
           <p className="text-gray-500">No target data available</p>

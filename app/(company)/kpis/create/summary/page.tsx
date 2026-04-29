@@ -198,7 +198,7 @@ export default function SummaryPage() {
       toast.error("Target year must be after baseline year");
       return;
     }
-    const uniqueName = `Carbon Target ${baselineYear}-${targetData.targetYear} - ${Date.now()}`;
+    const uniqueName = `Carbon Target ${baselineYear}–${targetData.targetYear}`;
 
     try {
       const targetPayload: GeneralTargetPayload = {
