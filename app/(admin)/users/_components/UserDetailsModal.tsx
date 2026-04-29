@@ -27,7 +27,12 @@ interface UserDetailsModalProps {
   userId?: string;
 }
 
-export default function UserDetailsModal({ open, onClose, onSave, onSuspend }: UserDetailsModalProps) {
+export default function UserDetailsModal({
+  open,
+  onClose,
+  onSave,
+  onSuspend,
+}: UserDetailsModalProps) {
   const u = userDetailsFixture;
   const [role, setRole] = useState<UserRole>(u.role);
   const [permissions, setPermissions] = useState<Permission[]>(u.permissions);

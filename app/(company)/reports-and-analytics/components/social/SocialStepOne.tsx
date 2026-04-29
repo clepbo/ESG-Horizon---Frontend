@@ -190,9 +190,7 @@ export default function SocialStepOne({ reportData }: SocialStepOneProps) {
                   )}
                 />
                 <Tooltip cursor={false} content={<CustomTooltip />} />
-                <Legend
-                  content={<CustomLegend />}
-                />
+                <Legend content={<CustomLegend />} />
                 <Bar
                   dataKey="total"
                   name={chart.totalLabel}

@@ -16,7 +16,6 @@ import { TbBriefcaseFilled } from "react-icons/tb";
 import { HardHat } from "lucide-react";
 import { VscLaw } from "react-icons/vsc";
 
-
 // Dashboard components
 import TotalEmissionCard from "./components/TotalEmissionCard";
 import ESGScoreGauge from "./components/ESGScoreGauge";
@@ -28,7 +27,6 @@ import ESGReportGrid from "./components/ESGReportGrid";
 import AssessmentsList from "./components/AssessmentsList";
 import DashboardRecentActivity from "./components/DashboardRecentActivity";
 import { buildReportMetrics, buildEmissionTrend } from "./components/reportHelpers";
-
 
 const ROW_VARIANTS = {
   hidden: { opacity: 0, y: 16 },
@@ -214,18 +212,11 @@ export default function DashboardPage() {
               scope3={totalEmission.scope3}
             />
             <ESGScoreGauge score={dashboard?.esgScore ?? 0} grade={dashboard?.esgGrade} />
-            <OverallProgressCard
-              hubStats={dashboard?.hubStats}
-            />
+            <OverallProgressCard hubStats={dashboard?.hubStats} />
           </motion.div>
 
           {/* Row 2: Pillar Scores */}
-          <motion.div
-            variants={ROW_VARIANTS}
-            initial="hidden"
-            animate="visible"
-            custom={1}
-          >
+          <motion.div variants={ROW_VARIANTS} initial="hidden" animate="visible" custom={1}>
             <PillarScoresRow pillars={pillarScores} />
           </motion.div>
 
@@ -243,21 +234,13 @@ export default function DashboardPage() {
                 Reduction Target Trajectory
               </h3>
               <div className="flex-1">
-                <TargetTrendChart
-                  general={targetPair?.general}
-                  scope={targetPair?.scope}
-                />
+                <TargetTrendChart general={targetPair?.general} scope={targetPair?.scope} />
               </div>
             </div>
           </motion.div>
 
           {/* Row 4: ESG Assessment Report */}
-          <motion.div
-            variants={ROW_VARIANTS}
-            initial="hidden"
-            animate="visible"
-            custom={3}
-          >
+          <motion.div variants={ROW_VARIANTS} initial="hidden" animate="visible" custom={3}>
             <ESGReportGrid metrics={reportMetrics} />
           </motion.div>
 

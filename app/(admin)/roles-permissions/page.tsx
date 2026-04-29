@@ -97,13 +97,9 @@ export default function RolesPermissionsPage() {
           </ul>
         </nav>
 
-        {tab === "Roles" && (
-          <RolesTab onCreateRole={openCreateRole} onEditRole={openEditRole} />
-        )}
+        {tab === "Roles" && <RolesTab onCreateRole={openCreateRole} onEditRole={openEditRole} />}
         {tab === "Permission Matrix" && <PermissionMatrixTab />}
-        {tab === "Permission Groups" && (
-          <PermissionGroupsTab onEditGroup={openEditPermission} />
-        )}
+        {tab === "Permission Groups" && <PermissionGroupsTab onEditGroup={openEditPermission} />}
       </motion.div>
 
       <CreateRoleModal

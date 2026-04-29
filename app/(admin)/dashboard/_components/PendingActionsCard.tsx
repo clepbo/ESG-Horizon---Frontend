@@ -1,6 +1,9 @@
 import { pendingActions, type PendingTone } from "../_fixtures/pendingActions";
 
-const TONE_STYLES: Record<PendingTone, { bg: string; border: string; title: string; subtitle: string }> = {
+const TONE_STYLES: Record<
+  PendingTone,
+  { bg: string; border: string; title: string; subtitle: string }
+> = {
   danger: {
     bg: "bg-red-50",
     border: "border-red-100",

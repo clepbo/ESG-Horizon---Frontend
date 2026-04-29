@@ -49,8 +49,11 @@ export default function CapitalExpenditureStrategy({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy";
-  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } = useAssessmentFlow(current, "businessModel.reservesValuation.capitalExpenditureStrategy");
-  const hasExistingData = !!state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures?.capitalExpenditureStrategy;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(current, "businessModel.reservesValuation.capitalExpenditureStrategy");
+  const hasExistingData =
+    !!state.assessmentData.businessInnovation?.reservesValuationAndCapitalExpenditures
+      ?.capitalExpenditureStrategy;
 
   useEffect(() => {
     const existingData =

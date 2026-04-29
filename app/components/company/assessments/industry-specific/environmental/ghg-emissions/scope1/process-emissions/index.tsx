@@ -24,7 +24,6 @@ export function ProcessEmissionsForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
-  onBackToDisclosureTopics,
 }: ProcessEmissionsFormProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();

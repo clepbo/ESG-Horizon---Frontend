@@ -24,7 +24,8 @@ export const roles: RoleDefinition[] = [
     key: "Super Admin",
     accentColor: "#ef4444",
     status: "Active",
-    description: "Unrestricted platform access. All permissions granted. Assign with extreme caution.",
+    description:
+      "Unrestricted platform access. All permissions granted. Assign with extreme caution.",
     usersAssigned: 1,
     permissionsGranted: TOTAL_PERMISSIONS,
     permissionsTotal: TOTAL_PERMISSIONS,
@@ -38,7 +39,8 @@ export const roles: RoleDefinition[] = [
     key: "Sub Admin",
     accentColor: "#3b82f6",
     status: "Active",
-    description: "Day-to-day admin. Manages orgs, approves submissions, generates reports. No system config access.",
+    description:
+      "Day-to-day admin. Manages orgs, approves submissions, generates reports. No system config access.",
     usersAssigned: 4,
     permissionsGranted: 28,
     permissionsTotal: TOTAL_PERMISSIONS,
@@ -66,7 +68,8 @@ export const roles: RoleDefinition[] = [
     key: "Viewer",
     accentColor: "#111827",
     status: "Active",
-    description: "Read-only access. Ideal for auditors, investors, and board members who need visibility only.",
+    description:
+      "Read-only access. Ideal for auditors, investors, and board members who need visibility only.",
     usersAssigned: 18,
     permissionsGranted: 6,
     permissionsTotal: TOTAL_PERMISSIONS,

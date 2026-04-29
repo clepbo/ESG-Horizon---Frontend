@@ -43,7 +43,12 @@ export interface PermissionPayload {
 
 const EMPTY: PermissionPayload = { key: "", label: "", group: "", roles: [] };
 
-export default function CreatePermissionModal({ open, mode, onClose, onSubmit }: CreatePermissionModalProps) {
+export default function CreatePermissionModal({
+  open,
+  mode,
+  onClose,
+  onSubmit,
+}: CreatePermissionModalProps) {
   const [form, setForm] = useState<PermissionPayload>(EMPTY);
   const [attempted, setAttempted] = useState(false);
 
@@ -108,7 +113,11 @@ export default function CreatePermissionModal({ open, mode, onClose, onSubmit }:
         </div>
 
         <div className="px-6 py-5 space-y-4">
-          <Field label="Permission Key" required error={attempted && errors.key ? "Required" : null}>
+          <Field
+            label="Permission Key"
+            required
+            error={attempted && errors.key ? "Required" : null}
+          >
             <input
               value={form.key}
               onChange={(e) => setForm((f) => ({ ...f, key: e.target.value }))}
@@ -117,7 +126,11 @@ export default function CreatePermissionModal({ open, mode, onClose, onSubmit }:
             />
           </Field>
 
-          <Field label="Display Label" required error={attempted && errors.label ? "Required" : null}>
+          <Field
+            label="Display Label"
+            required
+            error={attempted && errors.label ? "Required" : null}
+          >
             <input
               value={form.label}
               onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}

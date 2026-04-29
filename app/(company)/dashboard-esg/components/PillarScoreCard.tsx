@@ -61,11 +61,15 @@ export default function PillarScoreCard({ pillar }: PillarScoreCardProps) {
           {pillar.icon}
         </div>
 
-        <p className="text-xs sm:text-sm font-semibold text-gray-900 min-w-0 break-words">{pillar.name}</p>
+        <p className="text-xs sm:text-sm font-semibold text-gray-900 min-w-0 break-words">
+          {pillar.name}
+        </p>
       </div>
 
       <div className="mt-2 flex items-baseline gap-1">
-        <span className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{pillar.score}</span>
+        <span className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+          {pillar.score}
+        </span>
         <span className="text-sm sm:text-base text-gray-700">/{pillar.maxScore}</span>
       </div>
 
@@ -81,53 +85,54 @@ export default function PillarScoreCard({ pillar }: PillarScoreCardProps) {
             <HelpCircle className="w-4 h-4" />
           </button>
 
-          {open && createPortal(
-            <>
-              {/* Backdrop */}
-              <div className="fixed inset-0 z-[65]" onClick={() => setOpen(false)} />
-              {/* Dropdown */}
-              <div
-                ref={dropdownRef}
-                className="fixed z-[70] w-72 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
-                style={{ top: pos.top, left: pos.left }}
-              >
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">{pillar.name}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Score breakdown by indicator</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(false)}
-                    className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <div className="px-4 py-2 space-y-2">
-                  {pillar.indicators!.map((ind) => (
-                    <div key={ind.label} className="flex items-center justify-between gap-2 py-1">
-                      <span className="text-xs text-gray-700 flex-1" title={ind.label}>
-                        {ind.label}
-                      </span>
-                      <span
-                        className={`text-xs font-bold px-1.5 py-0.5 rounded ${scoreBg(ind.score)} ${scoreColor(ind.score)}`}
-                      >
-                        {ind.score.toFixed(0)}
-                      </span>
+          {open &&
+            createPortal(
+              <>
+                {/* Backdrop */}
+                <div className="fixed inset-0 z-[65]" onClick={() => setOpen(false)} />
+                {/* Dropdown */}
+                <div
+                  ref={dropdownRef}
+                  className="fixed z-[70] w-72 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
+                  style={{ top: pos.top, left: pos.left }}
+                >
+                  <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">{pillar.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Score breakdown by indicator</p>
                     </div>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      className="p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="px-4 py-2 space-y-2">
+                    {pillar.indicators!.map((ind) => (
+                      <div key={ind.label} className="flex items-center justify-between gap-2 py-1">
+                        <span className="text-xs text-gray-700 flex-1" title={ind.label}>
+                          {ind.label}
+                        </span>
+                        <span
+                          className={`text-xs font-bold px-1.5 py-0.5 rounded ${scoreBg(ind.score)} ${scoreColor(ind.score)}`}
+                        >
+                          {ind.score.toFixed(0)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-700">Pillar Score</span>
+                    <span className={`text-sm font-bold ${scoreColor(pillar.score)}`}>
+                      {pillar.score}/{pillar.maxScore}
+                    </span>
+                  </div>
                 </div>
-                <div className="px-4 py-2 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-700">Pillar Score</span>
-                  <span className={`text-sm font-bold ${scoreColor(pillar.score)}`}>
-                    {pillar.score}/{pillar.maxScore}
-                  </span>
-                </div>
-              </div>
-            </>,
-            document.body
-          )}
+              </>,
+              document.body
+            )}
         </>
       )}
     </div>

@@ -377,7 +377,7 @@ export interface BiodiversityImpactsData {
 }
 
 // Placeholder pillar interfaces (keep for backwards compatibility)
-export interface SocialPillar { }
+export interface SocialPillar {}
 
 /** A company can have BOTH a GENERAL Target row and a SCOPE Target row in
  *  the database. The report response packages them as this pair so the

@@ -62,12 +62,12 @@ export function ESGJourneyChart({ esgJourney = [] }: ESGJoruneyProps) {
       timeRange === "quarterly"
         ? groupAndAverage(
             (d) => `Q${Math.floor(d.getMonth() / 3) + 1} ${d.getFullYear()}`,
-            (d) => new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1),
+            (d) => new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1)
           )
         : timeRange === "yearly"
           ? groupAndAverage(
               (d) => String(d.getFullYear()),
-              (d) => new Date(d.getFullYear(), 0, 1),
+              (d) => new Date(d.getFullYear(), 0, 1)
             )
           : rawData;
 

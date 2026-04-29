@@ -23,11 +23,22 @@ function hasData(obj: any) {
   if (!obj) return false;
   return Object.keys(obj).some((k) => {
     const v = obj[k];
-    return v !== undefined && v !== null && v !== "" && !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k);
+    return (
+      v !== undefined &&
+      v !== null &&
+      v !== "" &&
+      !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k)
+    );
   });
 }
 
-export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: SocialCapitalTabProps) {
+export function SocialCapitalTab({
+  assessmentData,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: SocialCapitalTabProps) {
   const socialCapital = assessmentData.socialCapital || {};
   const communityRelations = socialCapital.communityRelations || {};
   const securityRights = socialCapital.securityRights || socialCapital.securityHumanRights || {};
@@ -39,48 +50,84 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
   const operationalDelays = communityRelations.operationalDelays || {};
 
   // Security & Human Rights subtopics
-  const reservesAreaConflict = securityRights.reservesAreaConflict || securityRights.operationsInConflictZones || {};
-  const reservesIndigenousLand = securityRights.reservesIndigenousLand || securityRights.reservesInNearIndigenousLand || {};
-  const humanRightEngagement = securityRights.humanRightEngagement || securityRights.humanRightsEngagementProcesses || {};
+  const reservesAreaConflict =
+    securityRights.reservesAreaConflict || securityRights.operationsInConflictZones || {};
+  const reservesIndigenousLand =
+    securityRights.reservesIndigenousLand || securityRights.reservesInNearIndigenousLand || {};
+  const humanRightEngagement =
+    securityRights.humanRightEngagement || securityRights.humanRightsEngagementProcesses || {};
 
   // Status checks
-  const communityRiskStatus = getFormSectionStatus(submittedGroups, "socialCapital.communityRelations.communityRiskOpportunityManagement", communityRisk);
-  const hcdtStatus = getFormSectionStatus(submittedGroups, "socialCapital.communityRelations.hcdtContribution", hcdtContribution);
-  const disputeStatus = getFormSectionStatus(submittedGroups, "socialCapital.communityRelations.communityDisputeResolution", disputeResolution);
-  const delaysStatus = getFormSectionStatus(submittedGroups, "socialCapital.communityRelations.operationalDelays", operationalDelays);
+  const communityRiskStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.communityRelations.communityRiskOpportunityManagement",
+    communityRisk
+  );
+  const hcdtStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.communityRelations.hcdtContribution",
+    hcdtContribution
+  );
+  const disputeStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.communityRelations.communityDisputeResolution",
+    disputeResolution
+  );
+  const delaysStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.communityRelations.operationalDelays",
+    operationalDelays
+  );
 
-  const conflictStatus = getFormSectionStatus(submittedGroups, "socialCapital.securityHumanRights.operationsInConflictZones", reservesAreaConflict);
-  const indigenousStatus = getFormSectionStatus(submittedGroups, "socialCapital.securityHumanRights.reservesInNearIndigenousLand", reservesIndigenousLand);
-  const humanRightsStatus = getFormSectionStatus(submittedGroups, "socialCapital.securityHumanRights.humanRightsEngagementProcesses", humanRightEngagement);
+  const conflictStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.securityHumanRights.operationsInConflictZones",
+    reservesAreaConflict
+  );
+  const indigenousStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.securityHumanRights.reservesInNearIndigenousLand",
+    reservesIndigenousLand
+  );
+  const humanRightsStatus = getFormSectionStatus(
+    submittedGroups,
+    "socialCapital.securityHumanRights.humanRightsEngagementProcesses",
+    humanRightEngagement
+  );
 
   // Overall accordion statuses
-  const communityStatuses: SectionStatus[] = [communityRiskStatus, hcdtStatus, disputeStatus, delaysStatus];
+  const communityStatuses: SectionStatus[] = [
+    communityRiskStatus,
+    hcdtStatus,
+    disputeStatus,
+    delaysStatus,
+  ];
   const communityStatus: SectionStatus = communityStatuses.every((s) => s === "submitted")
     ? "submitted"
     : communityStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   const securityStatuses: SectionStatus[] = [conflictStatus, indigenousStatus, humanRightsStatus];
   const securityStatus: SectionStatus = securityStatuses.every((s) => s === "submitted")
     ? "submitted"
     : securityStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   // Community Relations badge — HCDT % of OPEX
   const opex = Number(hcdtContribution.opexAmount) || 0;
   const hcdt = Number(hcdtContribution.hcdtAmount) || 0;
-  const communityBadge = opex > 0 && hcdt > 0
-    ? `${((hcdt / opex) * 100).toFixed(2)}% HCDT/OPEX`
-    : undefined;
+  const communityBadge =
+    opex > 0 && hcdt > 0 ? `${((hcdt / opex) * 100).toFixed(2)}% HCDT/OPEX` : undefined;
   const communityIncomplete = communityStatuses.filter((s) => s !== "submitted").length;
 
   // Security badge — proved reserves in conflict areas
   const conflictReserves = Number(reservesAreaConflict.provedReservesInConflictVolume) || 0;
-  const securityBadge = conflictReserves > 0
-    ? `${formatNumberShort(conflictReserves)} ${reservesAreaConflict.provedReservesInConflictUnit || "MMbbls"} in conflict zones`
-    : undefined;
+  const securityBadge =
+    conflictReserves > 0
+      ? `${formatNumberShort(conflictReserves)} ${reservesAreaConflict.provedReservesInConflictUnit || "MMbbls"} in conflict zones`
+      : undefined;
   const securityIncomplete = securityStatuses.filter((s) => s !== "submitted").length;
 
   // Files
@@ -119,7 +166,10 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             documents={communityRiskFiles}
             onFileClick={onFileClick}
             onEdit={onEditSection && (() => onEditSection("crs", "risk-&-opportunity-management"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.communityRisk"))}
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.communityRelations.communityRisk"))
+            }
           >
             {!hasData(communityRisk) ? (
               <EmptyState />
@@ -135,13 +185,19 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "HCDT Incorporated into Risk Assessment",
                       value:
-                        communityRisk.hcdtIncorporated === true || communityRisk.hcdtIncorporated === "yes"
+                        communityRisk.hcdtIncorporated === true ||
+                        communityRisk.hcdtIncorporated === "yes"
                           ? "Yes"
-                          : communityRisk.hcdtIncorporated === false || communityRisk.hcdtIncorporated === "no"
-                          ? "No"
-                          : communityRisk.hcdtIncorporated,
+                          : communityRisk.hcdtIncorporated === false ||
+                              communityRisk.hcdtIncorporated === "no"
+                            ? "No"
+                            : communityRisk.hcdtIncorporated,
                     },
-                    { label: "Risk Description", value: communityRisk.riskDescription, paragraph: true },
+                    {
+                      label: "Risk Description",
+                      value: communityRisk.riskDescription,
+                      paragraph: true,
+                    },
                   ]}
                 />
               </div>
@@ -154,8 +210,13 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             status={hcdtStatus}
             documents={hcdtFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("crs", "host-community-development-(pia)"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.hcdtContribution"))}
+            onEdit={
+              onEditSection && (() => onEditSection("crs", "host-community-development-(pia)"))
+            }
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.communityRelations.hcdtContribution"))
+            }
           >
             {!hasData(hcdtContribution) ? (
               <EmptyState />
@@ -181,7 +242,9 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "% of OPEX",
                       value:
-                        hcdtContribution.opexAmount && hcdtContribution.hcdtAmount && Number(hcdtContribution.opexAmount) > 0
+                        hcdtContribution.opexAmount &&
+                        hcdtContribution.hcdtAmount &&
+                        Number(hcdtContribution.opexAmount) > 0
                           ? `${((Number(hcdtContribution.hcdtAmount) / Number(hcdtContribution.opexAmount)) * 100).toFixed(2)}%`
                           : "N/A",
                     },
@@ -198,7 +261,10 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             documents={disputeFiles}
             onFileClick={onFileClick}
             onEdit={onEditSection && (() => onEditSection("crs", "community-dispute-resolution"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.disputeResolution"))}
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.communityRelations.disputeResolution"))
+            }
           >
             {!hasData(disputeResolution) ? (
               <EmptyState />
@@ -211,8 +277,16 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                 <DataFieldGrid
                   columns={2}
                   fields={[
-                    { label: "Number of Disputes Referred to Mechanism", value: disputeResolution.disputesReferred, unit: "disputes" },
-                    { label: "Number of Disputes Resolved", value: disputeResolution.disputesResolved, unit: "disputes" },
+                    {
+                      label: "Number of Disputes Referred to Mechanism",
+                      value: disputeResolution.disputesReferred,
+                      unit: "disputes",
+                    },
+                    {
+                      label: "Number of Disputes Resolved",
+                      value: disputeResolution.disputesResolved,
+                      unit: "disputes",
+                    },
                   ]}
                 />
               </div>
@@ -226,7 +300,10 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             documents={delaysFiles}
             onFileClick={onFileClick}
             onEdit={onEditSection && (() => onEditSection("crs", "operational-delays"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.communityRelations.operationalDelays"))}
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.communityRelations.operationalDelays"))
+            }
           >
             {!hasData(operationalDelays) ? (
               <EmptyState />
@@ -241,8 +318,16 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                   <DataFieldGrid
                     columns={2}
                     fields={[
-                      { label: "Number of Delays (Community Protests)", value: operationalDelays.numberOfDelaysCommunityProtests, unit: "delays" },
-                      { label: "Duration of Delays (Days)", value: operationalDelays.durationDelaysCommunityProtests, unit: "days" },
+                      {
+                        label: "Number of Delays (Community Protests)",
+                        value: operationalDelays.numberOfDelaysCommunityProtests,
+                        unit: "delays",
+                      },
+                      {
+                        label: "Duration of Delays (Days)",
+                        value: operationalDelays.durationDelaysCommunityProtests,
+                        unit: "days",
+                      },
                     ]}
                   />
                 </div>
@@ -251,8 +336,16 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                   <DataFieldGrid
                     columns={2}
                     fields={[
-                      { label: "Number of Delays (Other Stakeholder Issues)", value: operationalDelays.numberOfDelaysOtherStakeholder, unit: "delays" },
-                      { label: "Duration of Delays (Days)", value: operationalDelays.durationDelaysOtherIssues, unit: "days" },
+                      {
+                        label: "Number of Delays (Other Stakeholder Issues)",
+                        value: operationalDelays.numberOfDelaysOtherStakeholder,
+                        unit: "delays",
+                      },
+                      {
+                        label: "Duration of Delays (Days)",
+                        value: operationalDelays.durationDelaysOtherIssues,
+                        unit: "days",
+                      },
                     ]}
                   />
                 </div>
@@ -279,15 +372,23 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             status={conflictStatus}
             documents={conflictFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("security-human-rights", "reserves-in-conflict"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.securityRights.reservesAreaConflict"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("security-human-rights", "reserves-in-conflict"))
+            }
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.securityRights.reservesAreaConflict"))
+            }
           >
             {!hasData(reservesAreaConflict) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Reserves in/near Areas of Conflict</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Reserves in/near Areas of Conflict
+                  </span>
                   <StatusDot status={conflictStatus} />
                 </div>
                 <DataFieldGrid
@@ -327,15 +428,23 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             status={indigenousStatus}
             documents={indigenousFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("security-human-rights", "reserves-indigenous-land"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.securityRights.reservesIndigenousLand"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("security-human-rights", "reserves-indigenous-land"))
+            }
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.securityRights.reservesIndigenousLand"))
+            }
           >
             {!hasData(reservesIndigenousLand) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Reserves in/near Indigenous Land</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Reserves in/near Indigenous Land
+                  </span>
                   <StatusDot status={indigenousStatus} />
                 </div>
                 <DataFieldGrid
@@ -375,15 +484,23 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
             status={humanRightsStatus}
             documents={humanRightsFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("security-human-rights", "human-rights-engagement"))}
-            onClear={onClearSection && (() => onClearSection("socialCapital.securityRights.humanRightEngagement"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("security-human-rights", "human-rights-engagement"))
+            }
+            onClear={
+              onClearSection &&
+              (() => onClearSection("socialCapital.securityRights.humanRightEngagement"))
+            }
           >
             {!hasData(humanRightEngagement) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Human Rights Engagement Processes</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Human Rights Engagement Processes
+                  </span>
                   <StatusDot status={humanRightsStatus} />
                 </div>
                 <DataFieldGrid
@@ -392,13 +509,19 @@ export function SocialCapitalTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "Third-Party Grievance Mechanism in Place",
                       value:
-                        humanRightEngagement.hasGrievanceMechanism === true || humanRightEngagement.hasGrievanceMechanism === "yes"
+                        humanRightEngagement.hasGrievanceMechanism === true ||
+                        humanRightEngagement.hasGrievanceMechanism === "yes"
                           ? "Yes"
-                          : humanRightEngagement.hasGrievanceMechanism === false || humanRightEngagement.hasGrievanceMechanism === "no"
-                          ? "No"
-                          : humanRightEngagement.hasGrievanceMechanism,
+                          : humanRightEngagement.hasGrievanceMechanism === false ||
+                              humanRightEngagement.hasGrievanceMechanism === "no"
+                            ? "No"
+                            : humanRightEngagement.hasGrievanceMechanism,
                     },
-                    { label: "Engagement & Due Diligence Description", value: humanRightEngagement.engagementDescription, paragraph: true },
+                    {
+                      label: "Engagement & Due Diligence Description",
+                      value: humanRightEngagement.engagementDescription,
+                      paragraph: true,
+                    },
                   ]}
                 />
               </div>

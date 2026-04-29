@@ -18,9 +18,7 @@ const columns: ColumnDef<Target, any>[] = [
   {
     header: "ID",
     accessorKey: "id",
-    cell: ({ row }) => (
-      <span className="text-sm font-mono text-gray-500">#{row.original.id}</span>
-    ),
+    cell: ({ row }) => <span className="text-sm font-mono text-gray-500">#{row.original.id}</span>,
   },
   {
     header: "Date",
@@ -115,8 +113,7 @@ const columns: ColumnDef<Target, any>[] = [
       if (value == null) return <span className="text-sm text-gray-400">—</span>;
       return (
         <span className="text-sm text-gray-700">
-          {formatNumberFull(value)}{" "}
-          <span className="text-xs text-gray-600">tCO₂e</span>
+          {formatNumberFull(value)} <span className="text-xs text-gray-600">tCO₂e</span>
         </span>
       );
     },
@@ -172,8 +169,7 @@ const columns: ColumnDef<Target, any>[] = [
       if (value == null) return <span className="text-sm text-gray-400">—</span>;
       return (
         <span className="text-sm text-gray-700">
-          {formatNumberFull(value)}{" "}
-          <span className="text-xs text-gray-600">tCO₂e</span>
+          {formatNumberFull(value)} <span className="text-xs text-gray-600">tCO₂e</span>
         </span>
       );
     },
@@ -203,9 +199,15 @@ const columns: ColumnDef<Target, any>[] = [
         const s3 = scopeTargets.find((s) => s.scope.toString() === "SCOPE3");
 
         const scopeLines = [
-          s1 ? { label: "S1", year: s1.targetYear ?? targetYear, reduction: s1.reductionPercentage } : null,
-          s2 ? { label: "S2", year: s2.targetYear ?? targetYear, reduction: s2.reductionPercentage } : null,
-          s3 ? { label: "S3", year: s3.targetYear ?? targetYear, reduction: s3.reductionPercentage } : null,
+          s1
+            ? { label: "S1", year: s1.targetYear ?? targetYear, reduction: s1.reductionPercentage }
+            : null,
+          s2
+            ? { label: "S2", year: s2.targetYear ?? targetYear, reduction: s2.reductionPercentage }
+            : null,
+          s3
+            ? { label: "S3", year: s3.targetYear ?? targetYear, reduction: s3.reductionPercentage }
+            : null,
         ].filter(Boolean) as { label: string; year: number; reduction: number }[];
 
         return (
@@ -258,15 +260,16 @@ export default function TargetLogsTable() {
           <p className="text-xs text-gray-500">
             Latest baseline ({latest.startYear})
             {latest.submittedAt && <> &middot; Submitted: {fmt(latest.submittedAt)}</>}
-            {latest.approvedAt && <> &middot; <span className="text-green-600">Approved: {fmt(latest.approvedAt)}</span></>}
+            {latest.approvedAt && (
+              <>
+                {" "}
+                &middot; <span className="text-green-600">Approved: {fmt(latest.approvedAt)}</span>
+              </>
+            )}
           </p>
         ) : null}
       </div>
-      <DataTable
-        data={sorted}
-        columns={columns}
-        searchPlaceholder="Search targets..."
-      />
+      <DataTable data={sorted} columns={columns} searchPlaceholder="Search targets..." />
     </div>
   );
 }

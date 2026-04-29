@@ -235,13 +235,13 @@ export default function EditCompanyModal({
                     placeholder="Select an industry"
                     options={industryOptions.map((i) => ({
                       value: i.id,
-                      label: `${i.industry} (${i.sector})`,
+                      label: `${i.name} (${i.sector.name})`,
                     }))}
                     value={
                       selectedOption
                         ? {
                             value: selectedOption.id,
-                            label: `${selectedOption.industry} (${selectedOption.sector})`,
+                            label: `${selectedOption.name} (${selectedOption.sector?.name})`,
                           }
                         : null
                     }

@@ -17,9 +17,30 @@ import { FaCaretRight } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 interface ScopeTargetFormData {
-  scope1: { reductionPercentage: number | null; baselineYear: number | null; targetYear: number | null; description: string; targetEmission: number | null; totalReduction: number | null };
-  scope2: { reductionPercentage: number | null; baselineYear: number | null; targetYear: number | null; description: string; targetEmission: number | null; totalReduction: number | null };
-  scope3: { reductionPercentage: number | null; baselineYear: number | null; targetYear: number | null; description: string; targetEmission: number | null; totalReduction: number | null };
+  scope1: {
+    reductionPercentage: number | null;
+    baselineYear: number | null;
+    targetYear: number | null;
+    description: string;
+    targetEmission: number | null;
+    totalReduction: number | null;
+  };
+  scope2: {
+    reductionPercentage: number | null;
+    baselineYear: number | null;
+    targetYear: number | null;
+    description: string;
+    targetEmission: number | null;
+    totalReduction: number | null;
+  };
+  scope3: {
+    reductionPercentage: number | null;
+    baselineYear: number | null;
+    targetYear: number | null;
+    description: string;
+    targetEmission: number | null;
+    totalReduction: number | null;
+  };
 }
 
 interface TargetSettingProps {
@@ -176,7 +197,8 @@ export function TargetSetting({ onSuccess }: TargetSettingProps) {
                 <>
                   <div className="rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm text-teal-700 flex items-center justify-between">
                     <span>
-                      S1 / S2 / S3 scope targets saved — overall target will be derived automatically
+                      S1 / S2 / S3 scope targets saved — overall target will be derived
+                      automatically
                     </span>
                     <button
                       type="button"

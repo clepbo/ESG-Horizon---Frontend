@@ -17,7 +17,11 @@ export default function SecuritySection() {
             <p className="text-sm font-semibold text-gray-900">Two-Factor Authentication</p>
             <p className="text-xs text-gray-700 mt-0.5">Add extra login security</p>
           </div>
-          <Toggle checked={twoFactor} onChange={setTwoFactor} ariaLabel="Two-factor authentication" />
+          <Toggle
+            checked={twoFactor}
+            onChange={setTwoFactor}
+            ariaLabel="Two-factor authentication"
+          />
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
