@@ -278,7 +278,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       "/company",
       "/users",
       "/algorithm-config",
-      "/admin-assessments",
+      "/assessments-config",
       "/roles-permissions",
       "/audit-trail",
       "/reports",
