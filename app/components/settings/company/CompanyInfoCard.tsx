@@ -55,7 +55,8 @@ export default function CompanyInfoCard({
                 </div> */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 w-full">
           <InfoField label="Company Name" value={company.name} />
-          <InfoField label="Industry Type" value={company.industry?.industry || ""} />
+          <InfoField label="Industry Type" value={company.industry?.name || ""} />
+          <InfoField label="Sector" value={company.industry?.sector?.name || ""} />
           <InfoField label="Email Address" value={company.contact_email ?? "N/A"} />
           <InfoField label="Contact Phone Number" value={company.contact_phone ?? "N/A"} />
           <InfoField label="Website Address" value={company.website ?? "N/A"} />

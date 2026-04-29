@@ -25,7 +25,12 @@ import { FrontendTask } from "@/services/assignTask.service";
 import UpstreamEmissionHome from "./scope3/UpstreamEmissionHome";
 import DownstreamEmission from "./scope3/DownstreamEmission";
 import { useAssessment } from "@/hooks/useAssessment";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type GHGView =
@@ -181,20 +186,48 @@ export function GhgEmissionsAssessment({
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Stationary Sources": { groupKey: "environment.ghg.scope1.stationarySources", dataPath: ["environment", "ghg", "scope1", "stationarySources"] },
-    "Mobile Sources": { groupKey: "environment.ghg.scope1.mobileSources", dataPath: ["environment", "ghg", "scope1", "mobileSources"] },
-    "Process Emissions": { groupKey: "environment.ghg.scope1.processEmissions", dataPath: ["environment", "ghg", "scope1", "processEmissions"] },
-    "Fugitive Emissions": { groupKey: "environment.ghg.scope1.fugitiveEmissions", dataPath: ["environment", "ghg", "scope1", "fugitiveEmissions"] },
-    "Location-Based Scope 2 Emissions": { groupKey: "environment.ghg.scope2.locationBased", dataPath: ["environment", "ghg", "scope2", "locationBased"] },
-    "Market-Based Scope 2 Emissions": { groupKey: "environment.ghg.scope2.marketBased", dataPath: ["environment", "ghg", "scope2", "marketBased"] },
-    "Upstream Emissions (Categories 1-8)": { groupKey: "environment.ghg.scope3.upstream", dataPath: ["environment", "ghg", "scope3", "upstream"] },
-    "Downstream Emissions (Categories 9-15)": { groupKey: "environment.ghg.scope3.downstream", dataPath: ["environment", "ghg", "scope3", "downstream"] },
+    "Stationary Sources": {
+      groupKey: "environment.ghg.scope1.stationarySources",
+      dataPath: ["environment", "ghg", "scope1", "stationarySources"],
+    },
+    "Mobile Sources": {
+      groupKey: "environment.ghg.scope1.mobileSources",
+      dataPath: ["environment", "ghg", "scope1", "mobileSources"],
+    },
+    "Process Emissions": {
+      groupKey: "environment.ghg.scope1.processEmissions",
+      dataPath: ["environment", "ghg", "scope1", "processEmissions"],
+    },
+    "Fugitive Emissions": {
+      groupKey: "environment.ghg.scope1.fugitiveEmissions",
+      dataPath: ["environment", "ghg", "scope1", "fugitiveEmissions"],
+    },
+    "Location-Based Scope 2 Emissions": {
+      groupKey: "environment.ghg.scope2.locationBased",
+      dataPath: ["environment", "ghg", "scope2", "locationBased"],
+    },
+    "Market-Based Scope 2 Emissions": {
+      groupKey: "environment.ghg.scope2.marketBased",
+      dataPath: ["environment", "ghg", "scope2", "marketBased"],
+    },
+    "Upstream Emissions (Categories 1-8)": {
+      groupKey: "environment.ghg.scope3.upstream",
+      dataPath: ["environment", "ghg", "scope3", "upstream"],
+    },
+    "Downstream Emissions (Categories 9-15)": {
+      groupKey: "environment.ghg.scope3.downstream",
+      dataPath: ["environment", "ghg", "scope3", "downstream"],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -492,7 +525,10 @@ export function GhgEmissionsAssessment({
                                 ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                                 : "cursor-default"
                             }`}
-                            style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                            style={{
+                              borderLeftWidth: "4px",
+                              borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                            }}
                             onClick={() => card.clickable && handleCardClick(card.title)}
                           >
                             <CardContent className="p-4">

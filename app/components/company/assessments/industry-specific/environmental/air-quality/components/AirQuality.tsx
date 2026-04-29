@@ -6,73 +6,73 @@ import { useRouter, useParams } from "next/navigation";
 import { TotalsResponse } from "@/services/assessment.service";
 
 interface AirQualityProps {
-    backToDisclosureTopics: () => void;
-    backToAssessmentHub: () => void;
-    onContinueToNextAssessment?: () => void;
+  backToDisclosureTopics: () => void;
+  backToAssessmentHub: () => void;
+  onContinueToNextAssessment?: () => void;
 }
 
 export default function AirQuality({
-    backToDisclosureTopics,
-    backToAssessmentHub,
-    onContinueToNextAssessment,
+  backToDisclosureTopics,
+  backToAssessmentHub,
+  onContinueToNextAssessment,
 }: AirQualityProps) {
-    const [step, setStep] = React.useState<number>(0);
-    const [showSuccess, setShowSuccess] = React.useState(false);
-    const [totals, setTotals] = React.useState<TotalsResponse | null>(null);
-    const router = useRouter();
-    const params = useParams();
+  const [step, setStep] = React.useState<number>(0);
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [totals, setTotals] = React.useState<TotalsResponse | null>(null);
+  const router = useRouter();
+  const params = useParams();
 
-    const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
-    const handleViewReport = () => {
-        if (reportId) {
-            router.push(`/reports-and-analytics/${reportId}?tab=environmental`);
-        } else {
-            router.push("/reports-and-analytics");
-        }
-    };
-
-    if (showSuccess) {
-        return (
-            <SuccessScreen
-                assessmentName="Air Quality Assessment"
-                nextAssessment="Water WasteWater Management"
-                totals={totals ?? undefined}
-                metricLabel="Total Air Pollutant Emissions"
-                metricUnit="tonnes"
-                reportId={reportId}
-                onContinue={handleViewReport}
-                onContinueAssessment={onContinueToNextAssessment}
-                onBackToHub={backToDisclosureTopics}
-            />
-        );
+  const handleViewReport = () => {
+    if (reportId) {
+      router.push(`/reports-and-analytics/${reportId}?tab=environmental`);
+    } else {
+      router.push("/reports-and-analytics");
     }
+  };
 
-    if (step === 0) {
-        return (
-            <AirQualityCard
-                backToDisclosureTopics={backToDisclosureTopics}
-                backToAssessmentHub={backToAssessmentHub}
-                handleCardClick={() => setStep(1)}
-            />
-        );
-    }
+  if (showSuccess) {
+    return (
+      <SuccessScreen
+        assessmentName="Air Quality Assessment"
+        nextAssessment="Water WasteWater Management"
+        totals={totals ?? undefined}
+        metricLabel="Total Air Pollutant Emissions"
+        metricUnit="tonnes"
+        reportId={reportId}
+        onContinue={handleViewReport}
+        onContinueAssessment={onContinueToNextAssessment}
+        onBackToHub={backToDisclosureTopics}
+      />
+    );
+  }
 
-    if (step === 1) {
-        return (
-            <div>
-                <AirQualityForm
-                    backToDisclosureTopics={backToDisclosureTopics}
-                    backToAssessmentHub={backToAssessmentHub}
-                    backToAirQualityCard={() => setStep(0)}
-                    onSubmit={(submissionTotals) => {
-                        setTotals(submissionTotals);
-                        setShowSuccess(true);
-                    }}
-                />
-            </div>
-        );
-    }
+  if (step === 0) {
+    return (
+      <AirQualityCard
+        backToDisclosureTopics={backToDisclosureTopics}
+        backToAssessmentHub={backToAssessmentHub}
+        handleCardClick={() => setStep(1)}
+      />
+    );
+  }
 
-    return null;
+  if (step === 1) {
+    return (
+      <div>
+        <AirQualityForm
+          backToDisclosureTopics={backToDisclosureTopics}
+          backToAssessmentHub={backToAssessmentHub}
+          backToAirQualityCard={() => setStep(0)}
+          onSubmit={(submissionTotals) => {
+            setTotals(submissionTotals);
+            setShowSuccess(true);
+          }}
+        />
+      </div>
+    );
+  }
+
+  return null;
 }

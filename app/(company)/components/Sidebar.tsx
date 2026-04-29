@@ -45,10 +45,15 @@ const navItems = [
 
 type RoleFlags = ReturnType<typeof useRoles>;
 
-const assessmentSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
-  { name: "New Assessment", href: "/assessments/new-assessment", roleCheck: (r) => r.canWriteData },
-  { name: "Tasks", href: "/assessments/tasks" },
-];
+const assessmentSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] =
+  [
+    {
+      name: "New Assessment",
+      href: "/assessments/new-assessment",
+      roleCheck: (r) => r.canWriteData,
+    },
+    { name: "Tasks", href: "/assessments/tasks" },
+  ];
 
 const settingsSubLinks: { name: string; href: string; roleCheck?: (r: RoleFlags) => boolean }[] = [
   { name: "My Profile", href: "/settings-esg/account" },

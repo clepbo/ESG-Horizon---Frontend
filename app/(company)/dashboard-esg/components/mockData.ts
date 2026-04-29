@@ -4,10 +4,7 @@ import { PiUsersFill } from "react-icons/pi";
 import { TbBriefcaseFilled } from "react-icons/tb";
 import { HardHat } from "lucide-react";
 import { VscLaw } from "react-icons/vsc";
-import type {
-  PillarScore,
-  EmissionTrendPoint,
-} from "./types";
+import type { PillarScore, EmissionTrendPoint } from "./types";
 
 // TODO: Wire to real endpoint when 5-pillar scoring backend is ready
 export const MOCK_PILLAR_SCORES: PillarScore[] = [

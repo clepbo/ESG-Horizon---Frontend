@@ -67,9 +67,7 @@ export default function BothSummaryPage() {
       if (error._toastShown) return;
       const status = error?.response?.status;
       const serverMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong.";
+        error?.response?.data?.message || error?.message || "Something went wrong.";
       const isOverlapError =
         status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
       if (serverMessage && isOverlapError) {
@@ -95,8 +93,7 @@ export default function BothSummaryPage() {
     }
 
     const uniqueName =
-      generalData.name ||
-      `Combined Target ${baselineYear}-${targetYearVal} - ${Date.now()}`;
+      generalData.name || `Combined Target ${baselineYear}-${targetYearVal} - ${Date.now()}`;
 
     const payload: BothTargetPayload = {
       name: uniqueName,
@@ -177,11 +174,8 @@ export default function BothSummaryPage() {
     );
   }
 
-  const totalReduction =
-    (generalData.baselineEmission || 0) - (generalData.targetEmission || 0);
-  const yearsDiff = Math.abs(
-    (generalData.targetYear || 0) - (generalData.baselineYear || 0)
-  );
+  const totalReduction = (generalData.baselineEmission || 0) - (generalData.targetEmission || 0);
+  const yearsDiff = Math.abs((generalData.targetYear || 0) - (generalData.baselineYear || 0));
   const annualRate = yearsDiff > 0 ? totalReduction / yearsDiff : 0;
 
   return (
@@ -195,7 +189,10 @@ export default function BothSummaryPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => { setCreateError(null); router.push("/kpis/create"); }}
+                onClick={() => {
+                  setCreateError(null);
+                  router.push("/kpis/create");
+                }}
                 className="inline-flex items-center rounded-md bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700"
               >
                 Change years
@@ -240,7 +237,9 @@ export default function BothSummaryPage() {
               </span>
             </div>
             <div className="py-3 flex justify-between text-sm">
-              <span className="text-gray-600 font-medium">Target emission ({generalData.targetYear})</span>
+              <span className="text-gray-600 font-medium">
+                Target emission ({generalData.targetYear})
+              </span>
               <span className="font-semibold text-green-600">
                 {formatWithCommas(generalData.targetEmission || 0)} tCO₂e
               </span>
@@ -283,7 +282,9 @@ export default function BothSummaryPage() {
                 <div className="flex flex-col divide-y divide-gray-100 ml-2">
                   <div className="py-2 flex justify-between text-sm">
                     <span className="text-gray-500">Reduction</span>
-                    <span className="font-semibold">{formatWithCommas(sd.reductionPercentage)}%</span>
+                    <span className="font-semibold">
+                      {formatWithCommas(sd.reductionPercentage)}%
+                    </span>
                   </div>
                   <div className="py-2 flex justify-between text-sm">
                     <span className="text-gray-500">Target year</span>
@@ -320,8 +321,12 @@ export default function BothSummaryPage() {
         </CustomButton>
         <CustomButton onClick={handleSetTarget} disabled={createTarget.isPending}>
           {createTarget.isPending
-            ? isEdit ? "Updating Target..." : "Setting Target..."
-            : isEdit ? "Update Target" : "Set Both Targets"}
+            ? isEdit
+              ? "Updating Target..."
+              : "Setting Target..."
+            : isEdit
+              ? "Update Target"
+              : "Set Both Targets"}
         </CustomButton>
       </div>
 

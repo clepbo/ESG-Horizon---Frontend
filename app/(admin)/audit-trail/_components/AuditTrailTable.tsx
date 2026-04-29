@@ -8,10 +8,19 @@ import ModulePill from "./ModulePill";
 import ActionStatusPill from "./ActionStatusPill";
 import FilterSelect from "../../components/FilterSelect";
 import Pagination from "../../components/Pagination";
+import RowsPerPageSelect from "../../components/RowsPerPageSelect";
 import { auditEvents } from "../_fixtures/events";
 import type { UserRole } from "../../users/_fixtures/users";
 
-const MODULE_OPTIONS = ["All Modules", "Algorithm", "Assessment", "Auth", "Roles", "Reports", "Users"];
+const MODULE_OPTIONS = [
+  "All Modules",
+  "Algorithm",
+  "Assessment",
+  "Auth",
+  "Roles",
+  "Reports",
+  "Users",
+];
 const ACTION_OPTIONS = ["All Actions", "Modified", "Added", "Created", "Submitted", "Failed"];
 const ROWS_PER_PAGE_OPTIONS = [5, 10, 25];
 
@@ -40,7 +49,8 @@ export default function AuditTrailTable() {
         if (!hay.includes(q)) return false;
       }
       if (module !== MODULE_OPTIONS[0] && e.module !== module) return false;
-      if (action !== ACTION_OPTIONS[0] && !e.action.toLowerCase().startsWith(action.toLowerCase())) return false;
+      if (action !== ACTION_OPTIONS[0] && !e.action.toLowerCase().startsWith(action.toLowerCase()))
+        return false;
       return true;
     });
   }, [search, module, action]);
@@ -110,7 +120,9 @@ export default function AuditTrailTable() {
             ) : (
               pageRows.map((e) => {
                 const unknown = e.actor.unknown;
-                const displayName = unknown ? "Unknown" : `${e.actor.firstName} ${e.actor.lastName}`;
+                const displayName = unknown
+                  ? "Unknown"
+                  : `${e.actor.firstName} ${e.actor.lastName}`;
                 return (
                   <tr key={e.id} className="border-b border-gray-100 last:border-b-0 align-top">
                     <td className="px-5 py-4 whitespace-nowrap text-gray-900">{e.timestamp}</td>
@@ -130,7 +142,11 @@ export default function AuditTrailTable() {
                             color={e.actor.color}
                           />
                         )}
-                        <span className={unknown ? "font-medium text-red-600" : "font-medium text-gray-900"}>
+                        <span
+                          className={
+                            unknown ? "font-medium text-red-600" : "font-medium text-gray-900"
+                          }
+                        >
                           {displayName}
                         </span>
                       </div>
@@ -163,20 +179,14 @@ export default function AuditTrailTable() {
       <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-gray-100">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-700">Rows per page</span>
-          <select
+          <RowsPerPageSelect
             value={rowsPerPage}
-            onChange={(e) => {
-              setRowsPerPage(Number(e.target.value));
+            onChange={(n) => {
+              setRowsPerPage(n);
               setPage(1);
             }}
-            className="h-8 pl-2 pr-6 text-sm border border-gray-200 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#119B95]/20"
-          >
-            {ROWS_PER_PAGE_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
+            options={ROWS_PER_PAGE_OPTIONS}
+          />
         </div>
 
         <Pagination currentPage={currentPage} totalPages={totalPages} onChange={setPage} />

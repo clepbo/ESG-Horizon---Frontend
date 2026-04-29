@@ -123,7 +123,9 @@ export default function BillingInfoModal({ open, onClose }: BillingInfoModalProp
           </section>
 
           <section className="rounded-lg border border-gray-100 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Company Billing Information</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">
+              Company Billing Information
+            </h3>
             <dl className="space-y-4 text-sm">
               <div>
                 <dt className="text-xs text-gray-700 mb-1">Company Name</dt>

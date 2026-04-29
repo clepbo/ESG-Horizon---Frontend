@@ -35,10 +35,17 @@ const statusStyles: Record<string, string> = {
 function StatusBadge({ status }: { status: string }) {
   const display = STATUS_DISPLAY[status] || status;
   const baseStyle = "inline-block px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap";
-  return <span className={`${baseStyle} ${statusStyles[display] || "bg-gray-100"}`}>{display}</span>;
+  return (
+    <span className={`${baseStyle} ${statusStyles[display] || "bg-gray-100"}`}>{display}</span>
+  );
 }
 
-function formatPeriod(r: { startMonth?: string; startYear?: string; endMonth?: string; endYear?: string }) {
+function formatPeriod(r: {
+  startMonth?: string;
+  startYear?: string;
+  endMonth?: string;
+  endYear?: string;
+}) {
   if (!r.startMonth || !r.startYear || !r.endMonth || !r.endYear) return "—";
   const abbr = (m: string) => m.slice(0, 3);
   const shortYr = (y: string) => y.slice(-2);
@@ -54,9 +61,8 @@ export default function ReportActivityTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const reportList = Array.isArray(reports) ? reports : [];
-
   const filteredReports = useMemo(() => {
+    const reportList = Array.isArray(reports) ? reports : [];
     return reportList.filter((report: any) => {
       const subsidiary = (report.subsidiary || "").toLowerCase();
       const matchesSearch = subsidiary.includes(search.toLowerCase());
@@ -64,7 +70,7 @@ export default function ReportActivityTable() {
       const matchesStatus = statusFilter === "All Statuses" || displayStatus === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [reportList, search, statusFilter]);
+  }, [reports, search, statusFilter]);
 
   const totalItems = filteredReports.length;
   const paginatedReports = useMemo(() => {

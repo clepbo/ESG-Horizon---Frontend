@@ -76,7 +76,7 @@ export const SignupForm = ({ onSubmitted }: { onSubmitted: () => void }) => {
         setIndustryOptions(
           data.map((i) => ({
             value: i.id.toString(),
-            label: `${i.industry} (${i.sector})`,
+            label: `${i.name} (${i.sector?.name})`,
           }))
         );
       } catch (error) {

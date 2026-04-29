@@ -89,10 +89,7 @@ export function ReportSubmittedChart() {
               />
               <Tooltip
                 cursor={false}
-                formatter={(value) => [
-                  formatNumberFull(Number(value) || 0),
-                  "Score (%)",
-                ]}
+                formatter={(value) => [formatNumberFull(Number(value) || 0), "Score (%)"]}
                 labelStyle={{ color: "#374151" }}
               />
               <Legend

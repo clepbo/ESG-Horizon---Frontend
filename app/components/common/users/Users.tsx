@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/app/components/ui/select";
 import { Search } from "lucide-react";
-import { industriesService } from "@/services/industries.services";
+import { industriesService, Sector } from "@/services/industries.services";
 import Pagination from "../../ui/reusables/Pagination";
 import CardSkeleton from "../../ui/reusables/CardSkeleton";
 
@@ -34,7 +34,7 @@ export default function Companies() {
 
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [industryFilter, setIndustryFilter] = useState("All");
-  const [industryOptions, setIndustryOptions] = useState<string[]>([]);
+  const [industryOptions, setIndustryOptions] = useState<Sector[]>([]);
   const [activePersona, setActivePersona] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -60,7 +60,7 @@ export default function Companies() {
         const searchLower = debouncedSearchTerm.toLowerCase();
         return (
           company.name?.toLowerCase().includes(searchLower) ||
-          company.industry?.industry?.toLowerCase().includes(searchLower) ||
+          company.industry?.name?.toLowerCase().includes(searchLower) ||
           company.contact_email?.toLowerCase().includes(searchLower)
         );
       })();
@@ -70,7 +70,7 @@ export default function Companies() {
         company.status?.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesIndustry =
-        industryFilter === "All" || company?.industry?.sector === industryFilter;
+        industryFilter === "All" || company?.industry?.sector?.name === industryFilter;
 
       const matchesPersona =
         activePersona === "all" || company.company_type?.trim().toLowerCase() === activePersona;
@@ -148,8 +148,8 @@ export default function Companies() {
               <SelectContent className="max-h-[200px] max-w-[250px] overflow-y-auto">
                 <SelectItem value="All">All Sectors</SelectItem>
                 {industryOptions.map((sector) => (
-                  <SelectItem key={sector} value={sector}>
-                    {sector}
+                  <SelectItem key={sector.id} value={sector.name}>
+                    {sector.name}
                   </SelectItem>
                 ))}
               </SelectContent>

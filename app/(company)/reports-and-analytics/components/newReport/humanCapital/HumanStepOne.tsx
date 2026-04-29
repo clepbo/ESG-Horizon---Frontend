@@ -39,7 +39,10 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
   const metrics = [
     {
       title: "Total TRIR",
-      value: formatNumberShort(hc?.totalRecordableIncidentRatePer200kHours ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.totalRecordableIncidentRatePer200kHours ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "per 200k hours",
       change: change,
       isTrir: true,
@@ -47,40 +50,59 @@ export default function HumanStepOne({ reportData }: HumanStepOneProps) {
     },
     {
       title: "Direct TRIR",
-      value: formatNumberShort(direct?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(direct?.trir ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "per 200k hours",
       tooltip: "(Direct Employee Recordable Incidents × 200,000) / Direct employee hours worked",
     },
     {
       title: "Contract TRIR",
-      value: formatNumberShort(contract?.trir ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(contract?.trir ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "per 200k hours",
-      tooltip: "(Contract Employee Recordable Incidents × 200,000) / Contract employee hours worked",
+      tooltip:
+        "(Contract Employee Recordable Incidents × 200,000) / Contract employee hours worked",
     },
     {
       title: "Recordable Incidents",
-      value: formatNumberShort(hc?.recordableIncidents ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.recordableIncidents ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "incidents",
       tooltip: "Total number of work-related injuries or illnesses (direct + contract)",
       subline: breakdown(direct?.recordableIncidents, contract?.recordableIncidents),
     },
     {
       title: "Fatalities",
-      value: formatNumberShort(hc?.fatalities ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.fatalities ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "fatalities",
       tooltip: "Total number of work-related fatalities (direct + contract)",
       subline: breakdown(direct?.fatalities, contract?.fatalities),
     },
     {
       title: "Near Misses",
-      value: formatNumberShort(hc?.nearMisses ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.nearMisses ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "misses",
       tooltip: "Total number of near miss incidents (direct + contract)",
       subline: breakdown(direct?.nearMisses, contract?.nearMisses),
     },
     {
       title: "Avg Safety Training",
-      value: formatNumberShort(hc?.averageSafetyTrainingHoursPerEmployee ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      value: formatNumberShort(hc?.averageSafetyTrainingHoursPerEmployee ?? 0, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
       unit: "hours/employee",
       tooltip: "Total safety training hours / Total number of employees",
     },
@@ -178,7 +200,11 @@ function MetricCard({
         {change !== undefined && change !== null && (
           <div className={cn("flex items-center text-xs font-medium", colorClass)}>
             <Icon className="h-3 w-3 mr-1" />
-            {formatNumberFull(Math.abs(change), { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%<span className="ml-1 text-gray-600 font-normal">vs last year</span>
+            {formatNumberFull(Math.abs(change), {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+            %<span className="ml-1 text-gray-600 font-normal">vs last year</span>
           </div>
         )}
       </div>
@@ -186,9 +212,7 @@ function MetricCard({
         <span className="text-2xl font-bold text-gray-900 sm:text-3xl">{value}</span>
         <span className="text-sm text-gray-600 sm:text-base">{unit}</span>
       </p>
-      {subline && (
-        <p className="mt-1 text-xs text-gray-500">{subline}</p>
-      )}
+      {subline && <p className="mt-1 text-xs text-gray-500">{subline}</p>}
     </div>
   );
 }
