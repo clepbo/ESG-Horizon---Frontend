@@ -381,17 +381,8 @@ export interface SocialPillar { }
 
 /** A company can have BOTH a GENERAL Target row and a SCOPE Target row in
  *  the database. The report response packages them as this pair so the
- *  trend chart can render both at once.
- *
- *  Each row carries date-resolution context that the trend chart uses for
- *  its X axis: `baselineDate` (ISO string) is the FIRST assessment of the
- *  target's baseline year, and `currentDate` is the report's own assessment
- *  date. Falls back to mid-year if no assessment exists for that year. */
+ *  trend chart can render both at once. */
 export interface TargetWithDates extends Target {
-  /** ISO date string of the baseline assessment (or year mid-point fallback). */
-  baselineDate?: string | null;
-  /** ISO date string of the current assessment (or fallback). */
-  currentDate?: string | null;
   /** Year of the latest assessment — used by some legacy callers. */
   currentAssessmentYear?: number | null;
 }

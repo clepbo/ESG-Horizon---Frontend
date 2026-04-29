@@ -17,6 +17,7 @@ export function invalidateAllTargetQueries(queryClient: ReturnType<typeof useQue
   queryClient.invalidateQueries({ queryKey: ["latest-target"] });
   queryClient.invalidateQueries({ queryKey: ["latest-target-pair"] });
   queryClient.invalidateQueries({ queryKey: ["all-targets"] });
+  queryClient.invalidateQueries({ queryKey: ["targets-with-progress"] });
 }
 
 export type UseBaselineOptions = {
@@ -145,6 +146,25 @@ export const useAllTargets = (companyId?: number) => {
     queryFn: async () => {
       if (!companyId) throw new Error("Company ID not available");
       const data = await api.get(`/target`);
+      return (Array.isArray(data) ? data : []) as import("@/app/(company)/components/types/target").Target[];
+    },
+    enabled: !!companyId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * Fetch every target for a company with baseline / current / target emissions
+ * computed live from the latest approved assessments. The endpoint is read-
+ * only — no DB writes — so /kpis, /dashboard-esg, and /reports show the same
+ * numbers no matter which one was viewed last.
+ */
+export const useTargetsWithProgress = (companyId?: number) => {
+  return useQuery({
+    queryKey: ["targets-with-progress", companyId],
+    queryFn: async () => {
+      if (!companyId) throw new Error("Company ID not available");
+      const data = await api.get(`/target/with-progress`);
       return (Array.isArray(data) ? data : []) as import("@/app/(company)/components/types/target").Target[];
     },
     enabled: !!companyId,

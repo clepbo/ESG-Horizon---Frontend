@@ -110,7 +110,7 @@ export default function ScopeSummaryPage() {
       return;
     }
 
-    const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}-${summaryData.scopeTargetData.scope1.targetYear}-${Date.now()}`;
+    const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}–${summaryData.scopeTargetData.scope1.targetYear}`;
 
     const scopes = summaryData.scopeTargetData;
     const invalidScopes = ["scope1", "scope2", "scope3"].filter((key) => {

@@ -194,10 +194,15 @@ export default function ReportEnvironmental({ reportData }: ReportEnvironmentalP
                   </Link>
                 </div>
               ) : (
-                // Single trend chart shows all available targets (General +
-                // up to three Scopes) on one shared year axis. Companies with
-                // BOTH a General row and a Scope row now see both rendered.
-                <TargetTrendChart general={generalTarget} scope={scopeTarget} />
+                // Render every target the company has set, with emissions
+                // already computed against this report's snapshot on the
+                // backend. Same chart component is used by /kpis and
+                // /dashboard-esg so QA sees identical bars across pages.
+                <TargetTrendChart
+                  targets={[generalTarget, scopeTarget].filter(
+                    (t): t is NonNullable<typeof t> => !!t,
+                  )}
+                />
               )}
             </div>
           </div>

@@ -95,8 +95,7 @@ export default function BothSummaryPage() {
     }
 
     const uniqueName =
-      generalData.name ||
-      `Combined Target ${baselineYear}-${targetYearVal} - ${Date.now()}`;
+      generalData.name || `Combined Target ${baselineYear}–${targetYearVal}`;
 
     const payload: BothTargetPayload = {
       name: uniqueName,
