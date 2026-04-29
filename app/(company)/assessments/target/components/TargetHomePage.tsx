@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useLatestTargetPair,
   useBaselineOptions,
+  useTargetsWithProgress,
   invalidateAllTargetQueries,
 } from "@/app/(company)/components/ranking/services";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
@@ -27,6 +28,7 @@ export default function TargetHomePage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { data: pair, isLoading } = useLatestTargetPair(companyId);
+  const { data: allTargets } = useTargetsWithProgress(companyId);
   const { data: baselineOptions } = useBaselineOptions(companyId);
 
   const latestBaseline = baselineOptions?.[0] ?? null;
@@ -53,6 +55,7 @@ export default function TargetHomePage() {
       localStorage.removeItem("_autoOpenTarget");
       openForm(autoOpen);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
@@ -158,7 +161,7 @@ export default function TargetHomePage() {
       {hasAny && !showForm && (
         <>
           <PerformanceOverview
-            pair={pair ?? { general: null, scope: null }}
+            targets={allTargets ?? []}
             baselineInfo={
               latestBaseline
                 ? {

@@ -8,13 +8,14 @@ import { motion } from "framer-motion";
 import { useCompanyDashboard, CompanyDashboardData } from "@/services/hooks/dashboard.hooks";
 import { useAssessments } from "@/services/hooks/assessment.hooks";
 import { useReport } from "@/services/hooks/report.hooks";
-import { useLatestTargetPair } from "@/app/(company)/components/ranking/services";
+import { useTargetsWithProgress } from "@/app/(company)/components/ranking/services";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import { FaLeaf } from "react-icons/fa";
 import { PiUsersFill } from "react-icons/pi";
 import { TbBriefcaseFilled } from "react-icons/tb";
 import { HardHat } from "lucide-react";
 import { VscLaw } from "react-icons/vsc";
+
 
 // Dashboard components
 import TotalEmissionCard from "./components/TotalEmissionCard";
@@ -27,6 +28,7 @@ import ESGReportGrid from "./components/ESGReportGrid";
 import AssessmentsList from "./components/AssessmentsList";
 import DashboardRecentActivity from "./components/DashboardRecentActivity";
 import { buildReportMetrics, buildEmissionTrend } from "./components/reportHelpers";
+
 
 const ROW_VARIANTS = {
   hidden: { opacity: 0, y: 16 },
@@ -81,8 +83,9 @@ export default function DashboardPage() {
   // Fetch the latest assessment's report for ESG Assessment Report cards
   const { data: report } = useReport(dashboard?.latestAssessmentId);
 
-  // Fetch the latest targets for the Reduction Target donut
-  const { data: targetPair } = useLatestTargetPair(user?.company?.id);
+  // Fetch every target with computed progress so the dashboard reflects
+  // the same numbers as /kpis and /reports — single source of truth.
+  const { data: allTargets } = useTargetsWithProgress(user?.company?.id);
 
   // Build report metrics from real data
   const reportMetrics = useMemo(() => buildReportMetrics(report), [report]);
@@ -212,11 +215,18 @@ export default function DashboardPage() {
               scope3={totalEmission.scope3}
             />
             <ESGScoreGauge score={dashboard?.esgScore ?? 0} grade={dashboard?.esgGrade} />
-            <OverallProgressCard hubStats={dashboard?.hubStats} />
+            <OverallProgressCard
+              hubStats={dashboard?.hubStats}
+            />
           </motion.div>
 
           {/* Row 2: Pillar Scores */}
-          <motion.div variants={ROW_VARIANTS} initial="hidden" animate="visible" custom={1}>
+          <motion.div
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={1}
+          >
             <PillarScoresRow pillars={pillarScores} />
           </motion.div>
 
@@ -231,16 +241,21 @@ export default function DashboardPage() {
             <GHGEmissionsTrendChart data={emissionTrend} />
             <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Reduction Target Trajectory
+                Reduction Targets Progress
               </h3>
               <div className="flex-1">
-                <TargetTrendChart general={targetPair?.general} scope={targetPair?.scope} />
+                <TargetTrendChart targets={allTargets ?? []} />
               </div>
             </div>
           </motion.div>
 
           {/* Row 4: ESG Assessment Report */}
-          <motion.div variants={ROW_VARIANTS} initial="hidden" animate="visible" custom={3}>
+          <motion.div
+            variants={ROW_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            custom={3}
+          >
             <ESGReportGrid metrics={reportMetrics} />
           </motion.div>
 
