@@ -11,7 +11,12 @@ import { ProductionVolume } from "./ProductionVolume";
 import { OffshoreSites } from "./OffschoreSites";
 import { TerrestialSites } from "./TerrestialSites";
 import { useAssessment } from "@/hooks/useAssessment";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type ActivityMetricView = "overview" | "production-volume" | "offshore-sites" | "terrestrial-sites";
@@ -68,15 +73,28 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Production Volumes": { groupKey: "foundationalData.activityMetrics.productionVolumes", dataPath: ["activityMetrics", "productionVolume"] },
-    "Offshore Sites": { groupKey: "foundationalData.activityMetrics.offshoreSites", dataPath: ["activityMetrics", "assetPortfolio", "offshoreSites"] },
-    "Terrestrial Sites": { groupKey: "foundationalData.activityMetrics.terrestrialSites", dataPath: ["activityMetrics", "assetPortfolio", "terrestrialSites"] },
+    "Production Volumes": {
+      groupKey: "foundationalData.activityMetrics.productionVolumes",
+      dataPath: ["activityMetrics", "productionVolume"],
+    },
+    "Offshore Sites": {
+      groupKey: "foundationalData.activityMetrics.offshoreSites",
+      dataPath: ["activityMetrics", "assetPortfolio", "offshoreSites"],
+    },
+    "Terrestrial Sites": {
+      groupKey: "foundationalData.activityMetrics.terrestrialSites",
+      dataPath: ["activityMetrics", "assetPortfolio", "terrestrialSites"],
+    },
   };
 
   const getSubCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -221,7 +239,10 @@ export function ActivityMetricHome({ onBack, initialView = "overview" }: Activit
                               ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                               : "cursor-default"
                           }`}
-                          style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(status) }}
+                          style={{
+                            borderLeftWidth: "4px",
+                            borderLeftColor: getSectionBorderColor(status),
+                          }}
                           onClick={() => card.clickable && handleCardClick(card.title)}
                         >
                           <CardContent className="p-4">

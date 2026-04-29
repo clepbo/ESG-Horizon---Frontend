@@ -47,6 +47,8 @@ interface CustomCheckboxProps {
   className?: string;
 }
 
+const ASSIGNABLE_ROLES = ["company_esg_admin", "company_esg_subadmin", "company_esg_data_officer"];
+
 const CustomCheckbox: React.FC<CustomCheckboxProps> = React.forwardRef<
   HTMLDivElement,
   CustomCheckboxProps
@@ -177,17 +179,9 @@ export default function AssignTaskPage() {
   const { data: departments } = useCompanyDepartments(companyId);
 
   // Only show users who can contribute to assessments (exclude viewers)
-  const ASSIGNABLE_ROLES = [
-    "company_esg_admin",
-    "company_esg_subadmin",
-    "company_esg_data_officer",
-  ];
   const assignableMembers = useMemo(
-    () =>
-      teamMembers?.filter(
-        (m: any) => ASSIGNABLE_ROLES.includes(m.role?.name),
-      ) ?? [],
-    [teamMembers],
+    () => teamMembers?.filter((m: any) => ASSIGNABLE_ROLES.includes(m.role?.name)) ?? [],
+    [teamMembers]
   );
 
   const [taskName, setTaskName] = useState("");

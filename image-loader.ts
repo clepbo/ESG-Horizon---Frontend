@@ -10,7 +10,7 @@ export default function myLoader({
   if (!src) return ""; // Prevent crashing on empty src
 
   if (src.includes("cloudinary.com") || src.includes("res.cloudinary.com")) {
-    return src.replace('/upload/', `/upload/w_${width},q_${quality || 'auto'}/`);
+    return src.replace("/upload/", `/upload/w_${width},q_${quality || "auto"}/`);
   }
 
   if (src.startsWith("data:") || src.startsWith("blob:")) {

@@ -42,7 +42,9 @@ export default function AntiCorruptionManagement({
     "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem",
     "businessModel.businessEthics.antiCorruptionManagement"
   );
-  const hasExistingData = !!state.assessmentData.businessInnovation?.businessEthicsAndTransparency?.antiCorruptionManagementSystem;
+  const hasExistingData =
+    !!state.assessmentData.businessInnovation?.businessEthicsAndTransparency
+      ?.antiCorruptionManagementSystem;
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);

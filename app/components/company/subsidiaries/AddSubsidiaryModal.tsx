@@ -50,7 +50,7 @@ export default function AddSubsidiaryModal({
         setIndustryOptions(
           data.map((i) => ({
             value: i.id,
-            label: `${i.industry} (${i.sector})`,
+            label: `${i.name} (${i.sector.name})`,
           }))
         );
       } catch (error) {

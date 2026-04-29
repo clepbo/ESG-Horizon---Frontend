@@ -32,13 +32,19 @@ export default function ESGReportCard({ metric }: ESGReportCardProps) {
 
           <div className="flex items-end justify-between gap-2">
             <div className="min-w-0">
-              <span className="text-2xl font-bold text-gray-900" title={metric.metricTooltip}>{metric.metricValue}</span>
+              <span className="text-2xl font-bold text-gray-900" title={metric.metricTooltip}>
+                {metric.metricValue}
+              </span>
               {metric.metricUnit && (
                 <span className="text-xs text-gray-900 ml-1">{metric.metricUnit}</span>
               )}
             </div>
 
-            <ChangeBadge text={metric.changeText} direction={metric.changeDirection} upIsBad={metric.upIsBad} />
+            <ChangeBadge
+              text={metric.changeText}
+              direction={metric.changeDirection}
+              upIsBad={metric.upIsBad}
+            />
           </div>
         </div>
       </TooltipTrigger>
@@ -64,11 +70,7 @@ function ChangeBadge({
   // upIsBad=true (most ESG): up=red, down=green
   // upIsBad=false (production): up=green, down=red
   const isGood =
-    direction === "neutral"
-      ? null
-      : upIsBad
-        ? direction === "down"
-        : direction === "up";
+    direction === "neutral" ? null : upIsBad ? direction === "down" : direction === "up";
 
   const colorClasses =
     isGood === null
@@ -78,7 +80,9 @@ function ChangeBadge({
         : "text-red-600 bg-red-50";
 
   return (
-    <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${colorClasses}`}>
+    <span
+      className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium ${colorClasses}`}
+    >
       {direction === "up" && <ArrowUp className="w-3 h-3" />}
       {direction === "down" && <ArrowDown className="w-3 h-3" />}
       {text}

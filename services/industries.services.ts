@@ -2,12 +2,20 @@ import api from "@/lib/api/axios";
 
 export interface Industry {
   id: number;
-  sector: string;
-  industry: string;
+  name: string;
+  sector: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface Sector {
+  id: number;
+  name: string;
 }
 
 export const industriesService = {
-  getSectors: async (): Promise<string[]> => {
+  getSectors: async (): Promise<Sector[]> => {
     const data = await api.get("/industries/sectors");
     return data;
   },

@@ -23,12 +23,24 @@ function hasData(obj: any) {
   if (!obj) return false;
   return Object.keys(obj).some((k) => {
     const v = obj[k];
-    return v !== undefined && v !== null && v !== "" && !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k);
+    return (
+      v !== undefined &&
+      v !== null &&
+      v !== "" &&
+      !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k)
+    );
   });
 }
 
-export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: BusinessModelTabProps) {
-  const biz = assessmentData.businessInnovation || assessmentData.environment?.businessInnovation || {};
+export function BusinessModelTab({
+  assessmentData,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: BusinessModelTabProps) {
+  const biz =
+    assessmentData.businessInnovation || assessmentData.environment?.businessInnovation || {};
   const reserves = biz.reservesValuationAndCapitalExpenditures || {};
   const ethics = biz.businessEthicsAndTransparency || {};
 
@@ -39,43 +51,77 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
   const capexStrategy = reserves.capitalExpenditureStrategy || {};
 
   // Ethics subtopics
-  const corruptionRisk = ethics.reservesInCountriesWithHighCorruptionRisk || ethics.reservesCountriesCorruptionRisk || {};
+  const corruptionRisk =
+    ethics.reservesInCountriesWithHighCorruptionRisk ||
+    ethics.reservesCountriesCorruptionRisk ||
+    {};
   const antiCorruption = ethics.antiCorruptionManagementSystem || {};
 
   // Status
-  const carbonStatus = getFormSectionStatus(submittedGroups, "businessModel.reservesValuation.reservesSensitivity", carbonPricing);
-  const embeddedStatus = getFormSectionStatus(submittedGroups, "businessModel.reservesValuation.embeddedCarbon", embeddedCarbon);
-  const renewableStatus = getFormSectionStatus(submittedGroups, "businessModel.reservesValuation.renewableEnergyInvestment", renewableEnergy);
-  const capexStatus = getFormSectionStatus(submittedGroups, "businessModel.reservesValuation.capitalExpenditureStrategy", capexStrategy);
-  const corruptionStatus = getFormSectionStatus(submittedGroups, "businessModel.businessEthics.reservesCountriesCorruptionRisk", corruptionRisk);
-  const antiCorruptionStatus = getFormSectionStatus(submittedGroups, "businessModel.businessEthics.antiCorruptionManagement", antiCorruption);
+  const carbonStatus = getFormSectionStatus(
+    submittedGroups,
+    "businessModel.reservesValuation.reservesSensitivity",
+    carbonPricing
+  );
+  const embeddedStatus = getFormSectionStatus(
+    submittedGroups,
+    "businessModel.reservesValuation.embeddedCarbon",
+    embeddedCarbon
+  );
+  const renewableStatus = getFormSectionStatus(
+    submittedGroups,
+    "businessModel.reservesValuation.renewableEnergyInvestment",
+    renewableEnergy
+  );
+  const capexStatus = getFormSectionStatus(
+    submittedGroups,
+    "businessModel.reservesValuation.capitalExpenditureStrategy",
+    capexStrategy
+  );
+  const corruptionStatus = getFormSectionStatus(
+    submittedGroups,
+    "businessModel.businessEthics.reservesCountriesCorruptionRisk",
+    corruptionRisk
+  );
+  const antiCorruptionStatus = getFormSectionStatus(
+    submittedGroups,
+    "businessModel.businessEthics.antiCorruptionManagement",
+    antiCorruption
+  );
 
-  const reservesStatuses: SectionStatus[] = [carbonStatus, embeddedStatus, renewableStatus, capexStatus];
+  const reservesStatuses: SectionStatus[] = [
+    carbonStatus,
+    embeddedStatus,
+    renewableStatus,
+    capexStatus,
+  ];
   const reservesStatus: SectionStatus = reservesStatuses.every((s) => s === "submitted")
     ? "submitted"
     : reservesStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   const ethicsStatuses: SectionStatus[] = [corruptionStatus, antiCorruptionStatus];
   const ethicsStatus: SectionStatus = ethicsStatuses.every((s) => s === "submitted")
     ? "submitted"
     : ethicsStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   // Reserves badge — embedded CO₂ emissions
   const embeddedEmissions = Number(embeddedCarbon.estimatedEmbeddedEmissions) || 0;
-  const reservesBadge = embeddedEmissions > 0
-    ? `${formatNumberShort(embeddedEmissions)} ${embeddedCarbon.estimatedEmbeddedEmissionsUnit || "MtCO₂e"} embedded`
-    : undefined;
+  const reservesBadge =
+    embeddedEmissions > 0
+      ? `${formatNumberShort(embeddedEmissions)} ${embeddedCarbon.estimatedEmbeddedEmissionsUnit || "MtCO₂e"} embedded`
+      : undefined;
   const reservesIncomplete = reservesStatuses.filter((s) => s !== "submitted").length;
 
   // Ethics badge — reserves in high-risk countries
   const highRiskReserves = Number(corruptionRisk.provedReservesHighRisk) || 0;
-  const ethicsBadge = highRiskReserves > 0
-    ? `${formatNumberShort(highRiskReserves)} ${corruptionRisk.provedReservesHighRiskUnit || "MMbbls"} high-risk`
-    : undefined;
+  const ethicsBadge =
+    highRiskReserves > 0
+      ? `${formatNumberShort(highRiskReserves)} ${corruptionRisk.provedReservesHighRiskUnit || "MMbbls"} high-risk`
+      : undefined;
   const ethicsIncomplete = ethicsStatuses.filter((s) => s !== "submitted").length;
 
   // Docs
@@ -111,15 +157,30 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
             status={carbonStatus}
             documents={carbonFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "reserves-sensitivity-carbon-pricing"))}
-            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection(
+                  "reserves-valuation-capital-expenditures",
+                  "reserves-sensitivity-carbon-pricing"
+                ))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "businessInnovation.reservesValuationAndCapitalExpenditures.reservesSensitivityToCarbonPricing"
+                ))
+            }
           >
             {!hasData(carbonPricing) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Carbon Pricing Sensitivity</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Carbon Pricing Sensitivity
+                  </span>
                   <StatusDot status={carbonStatus} />
                 </div>
                 <DataFieldGrid
@@ -152,8 +213,17 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
             status={embeddedStatus}
             documents={embeddedFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "embedded-carbon"))}
-            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("reserves-valuation-capital-expenditures", "embedded-carbon"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "businessInnovation.reservesValuationAndCapitalExpenditures.embeddedCarbonInReserves"
+                ))
+            }
           >
             {!hasData(embeddedCarbon) ? (
               <EmptyState />
@@ -189,15 +259,30 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
             status={renewableStatus}
             documents={renewableFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "renewable-energy-investment"))}
-            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection(
+                  "reserves-valuation-capital-expenditures",
+                  "renewable-energy-investment"
+                ))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment"
+                ))
+            }
           >
             {!hasData(renewableEnergy) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Renewable Energy Investment</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Renewable Energy Investment
+                  </span>
                   <StatusDot status={renewableStatus} />
                 </div>
                 <DataFieldGrid
@@ -230,15 +315,30 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
             status={capexStatus}
             documents={capexFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("reserves-valuation-capital-expenditures", "capital-expenditure-strategy"))}
-            onClear={onClearSection && (() => onClearSection("businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection(
+                  "reserves-valuation-capital-expenditures",
+                  "capital-expenditure-strategy"
+                ))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "businessInnovation.reservesValuationAndCapitalExpenditures.capitalExpenditureStrategy"
+                ))
+            }
           >
             {!hasData(capexStrategy) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Capital Expenditure Strategy</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Capital Expenditure Strategy
+                  </span>
                   <StatusDot status={capexStatus} />
                 </div>
                 <DataFieldGrid
@@ -279,15 +379,27 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
             status={corruptionStatus}
             documents={corruptionFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("business-ethics-transparency", "reserves-countries-corruption-risk"))}
-            onClear={onClearSection && (() => onClearSection("businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk"))}
+            onEdit={
+              onEditSection &&
+              (() =>
+                onEditSection("business-ethics-transparency", "reserves-countries-corruption-risk"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "businessInnovation.businessEthicsAndTransparency.reservesInCountriesWithHighCorruptionRisk"
+                ))
+            }
           >
             {!hasData(corruptionRisk) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Reserves in High-Risk Countries</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Reserves in High-Risk Countries
+                  </span>
                   <StatusDot status={corruptionStatus} />
                 </div>
                 <DataFieldGrid
@@ -327,15 +439,26 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
             status={antiCorruptionStatus}
             documents={antiCorruptionFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("business-ethics-transparency", "anti-corruption-management"))}
-            onClear={onClearSection && (() => onClearSection("businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("business-ethics-transparency", "anti-corruption-management"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "businessInnovation.businessEthicsAndTransparency.antiCorruptionManagementSystem"
+                ))
+            }
           >
             {!hasData(antiCorruption) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Anti-Corruption Management System</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Anti-Corruption Management System
+                  </span>
                   <StatusDot status={antiCorruptionStatus} />
                 </div>
                 <DataFieldGrid
@@ -344,11 +467,13 @@ export function BusinessModelTab({ assessmentData, submittedGroups, onFileClick,
                     {
                       label: "Anonymous Whistleblower Hotline (Independent Third Party)?",
                       value:
-                        antiCorruption.hasWhistleblowerHotline === true || antiCorruption.hasWhistleblowerHotline === "yes"
+                        antiCorruption.hasWhistleblowerHotline === true ||
+                        antiCorruption.hasWhistleblowerHotline === "yes"
                           ? "Yes"
-                          : antiCorruption.hasWhistleblowerHotline === false || antiCorruption.hasWhistleblowerHotline === "no"
-                          ? "No"
-                          : antiCorruption.hasWhistleblowerHotline,
+                          : antiCorruption.hasWhistleblowerHotline === false ||
+                              antiCorruption.hasWhistleblowerHotline === "no"
+                            ? "No"
+                            : antiCorruption.hasWhistleblowerHotline,
                     },
                     {
                       label: "Description of Anti-Corruption Management System",

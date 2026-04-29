@@ -1,6 +1,9 @@
 "use client";
 
-import { useBaseline, invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
+import {
+  useBaseline,
+  invalidateAllTargetQueries,
+} from "@/app/(company)/components/ranking/services";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api/axios";
@@ -157,9 +160,7 @@ export default function SummaryPage() {
       if (error._toastShown) return;
       const status = error?.response?.status;
       const serverMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong.";
+        error?.response?.data?.message || error?.message || "Something went wrong.";
       const isOverlapError =
         status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
       if (serverMessage && isOverlapError) {
@@ -197,7 +198,7 @@ export default function SummaryPage() {
       toast.error("Target year must be after baseline year");
       return;
     }
-    const uniqueName = `Carbon Target ${baselineYear}-${targetData.targetYear} - ${Date.now()}`;
+    const uniqueName = `Carbon Target ${baselineYear}–${targetData.targetYear}`;
 
     try {
       const targetPayload: GeneralTargetPayload = {

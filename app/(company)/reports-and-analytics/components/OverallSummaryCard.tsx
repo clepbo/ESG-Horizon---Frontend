@@ -104,7 +104,10 @@ export function OverallSummary({ report }: SummaryProps) {
                   <div className="space-y-1">
                     <p className="text-2xl font-semibold">
                       {item.value != null
-                        ? formatNumberFull(item.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        ? formatNumberFull(item.value, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
                         : "0.00"}
                     </p>
                     <p className="text-xs text-muted-foreground">

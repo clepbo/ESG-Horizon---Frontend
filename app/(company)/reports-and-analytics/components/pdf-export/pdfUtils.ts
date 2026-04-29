@@ -42,14 +42,17 @@ const ANIMATION_SAFETY_MARGIN_MS = 200;
 export function waitForCharts(container: HTMLElement): Promise<void> {
   return new Promise((resolve) => {
     // Hard cap covers worst case: 5s for layout + 1.7s for animation settle
-    const deadline = Date.now() + 5000 + RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS;
+    const deadline =
+      Date.now() + 5000 + RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS;
 
     // Force a synchronous layout pass so ResizeObservers fire on mount
     // (offscreen containers don't always trigger them otherwise).
     void container.offsetHeight;
 
     const allChartsSized = () => {
-      const wrappers = container.querySelectorAll(".recharts-wrapper, .recharts-responsive-container");
+      const wrappers = container.querySelectorAll(
+        ".recharts-wrapper, .recharts-responsive-container"
+      );
       if (wrappers.length === 0) return false;
       for (const w of Array.from(wrappers)) {
         const rect = (w as HTMLElement).getBoundingClientRect();
@@ -63,9 +66,7 @@ export function waitForCharts(container: HTMLElement): Promise<void> {
     /** Final settle: wait for animations to finish + 2 frames for paint. */
     const finishWithAnimationSettle = () => {
       setTimeout(() => {
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => resolve())
-        );
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
       }, RECHARTS_ANIMATION_DURATION_MS + ANIMATION_SAFETY_MARGIN_MS);
     };
 
@@ -162,11 +163,7 @@ export function addFooter(
  * Given a section image data URL, adds it to the PDF across one or more pages.
  * Returns the number of pages added.
  */
-export function addSectionToPDF(
-  pdf: jsPDF,
-  imageDataUrl: string,
-  isFirstSection: boolean
-): number {
+export function addSectionToPDF(pdf: jsPDF, imageDataUrl: string, isFirstSection: boolean): number {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const margin = 10;
@@ -188,14 +185,7 @@ export function addSectionToPDF(
     pagesAdded++;
 
     const drawY = pagesAdded === 1 ? margin : margin - (imgHeight - heightLeft);
-    pdf.addImage(
-      imageDataUrl,
-      "PNG",
-      margin,
-      drawY,
-      imgWidth,
-      imgHeight
-    );
+    pdf.addImage(imageDataUrl, "PNG", margin, drawY, imgWidth, imgHeight);
     heightLeft -= usableHeight;
   }
 

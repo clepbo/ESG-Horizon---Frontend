@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useCompanyDashboard, CompanyDashboardData } from "@/services/hooks/dashboard.hooks";
 import { useAssessments } from "@/services/hooks/assessment.hooks";
 import { useReport } from "@/services/hooks/report.hooks";
-import { useLatestTargetPair } from "@/app/(company)/components/ranking/services";
+import { useTargetsWithProgress } from "@/app/(company)/components/ranking/services";
 import PageSkeleton from "@/app/components/ui/reusables/PageSkeleton";
 import { FaLeaf } from "react-icons/fa";
 import { PiUsersFill } from "react-icons/pi";
@@ -83,8 +83,9 @@ export default function DashboardPage() {
   // Fetch the latest assessment's report for ESG Assessment Report cards
   const { data: report } = useReport(dashboard?.latestAssessmentId);
 
-  // Fetch the latest targets for the Reduction Target donut
-  const { data: targetPair } = useLatestTargetPair(user?.company?.id);
+  // Fetch every target with computed progress so the dashboard reflects
+  // the same numbers as /kpis and /reports — single source of truth.
+  const { data: allTargets } = useTargetsWithProgress(user?.company?.id);
 
   // Build report metrics from real data
   const reportMetrics = useMemo(() => buildReportMetrics(report), [report]);
@@ -240,13 +241,10 @@ export default function DashboardPage() {
             <GHGEmissionsTrendChart data={emissionTrend} />
             <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Reduction Target Trajectory
+                Reduction Targets Progress
               </h3>
               <div className="flex-1">
-                <TargetTrendChart
-                  general={targetPair?.general}
-                  scope={targetPair?.scope}
-                />
+                <TargetTrendChart targets={allTargets ?? []} />
               </div>
             </div>
           </motion.div>

@@ -2,7 +2,12 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLatestTargetPair, useBaselineOptions, invalidateAllTargetQueries } from "@/app/(company)/components/ranking/services";
+import {
+  useLatestTargetPair,
+  useBaselineOptions,
+  useTargetsWithProgress,
+  invalidateAllTargetQueries,
+} from "@/app/(company)/components/ranking/services";
 import CardSkeleton from "@/app/components/ui/reusables/CardSkeleton";
 import { useState, useEffect } from "react";
 import { ChevronDown, Edit, Plus } from "lucide-react";
@@ -23,6 +28,7 @@ export default function TargetHomePage() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { data: pair, isLoading } = useLatestTargetPair(companyId);
+  const { data: allTargets } = useTargetsWithProgress(companyId);
   const { data: baselineOptions } = useBaselineOptions(companyId);
 
   const latestBaseline = baselineOptions?.[0] ?? null;
@@ -49,7 +55,7 @@ export default function TargetHomePage() {
       localStorage.removeItem("_autoOpenTarget");
       openForm(autoOpen);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
@@ -102,10 +108,7 @@ export default function TargetHomePage() {
             {dropdownOpen && (
               <>
                 {/* backdrop */}
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setDropdownOpen(false)}
-                />
+                <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
                 <div className="absolute right-0 z-20 mt-2 w-52 rounded-md border border-gray-100 bg-white shadow-lg">
                   <div className="py-1">
                     <button
@@ -158,12 +161,16 @@ export default function TargetHomePage() {
       {hasAny && !showForm && (
         <>
           <PerformanceOverview
-            pair={pair ?? { general: null, scope: null }}
-            baselineInfo={latestBaseline ? {
-              startYear: latestBaseline.startYear,
-              submittedAt: latestBaseline.submittedAt,
-              approvedAt: latestBaseline.approvedAt,
-            } : null}
+            targets={allTargets ?? []}
+            baselineInfo={
+              latestBaseline
+                ? {
+                    startYear: latestBaseline.startYear,
+                    submittedAt: latestBaseline.submittedAt,
+                    approvedAt: latestBaseline.approvedAt,
+                  }
+                : null
+            }
           />
           <TargetLogsTable />
         </>

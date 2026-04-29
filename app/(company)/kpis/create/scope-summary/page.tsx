@@ -79,9 +79,7 @@ export default function ScopeSummaryPage() {
       if (error._toastShown) return;
       const status = error?.response?.status;
       const serverMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong.";
+        error?.response?.data?.message || error?.message || "Something went wrong.";
       const isOverlapError =
         status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
       if (serverMessage && isOverlapError) {
@@ -110,7 +108,7 @@ export default function ScopeSummaryPage() {
       return;
     }
 
-    const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}-${summaryData.scopeTargetData.scope1.targetYear}-${Date.now()}`;
+    const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}–${summaryData.scopeTargetData.scope1.targetYear}`;
 
     const scopes = summaryData.scopeTargetData;
     const invalidScopes = ["scope1", "scope2", "scope3"].filter((key) => {

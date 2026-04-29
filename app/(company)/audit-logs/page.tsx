@@ -35,8 +35,7 @@ const AVATAR_COLORS = [
 
 function getInitials(firstName?: string, lastName?: string): string {
   return (
-    (firstName?.charAt(0)?.toUpperCase() ?? "") +
-    (lastName?.charAt(0)?.toUpperCase() ?? "") || "?"
+    (firstName?.charAt(0)?.toUpperCase() ?? "") + (lastName?.charAt(0)?.toUpperCase() ?? "") || "?"
   );
 }
 
@@ -71,9 +70,7 @@ export default function AuditLogsPage() {
     let items = [...activities];
 
     if (typeFilter !== "all") {
-      items = items.filter(
-        (a) => a.type?.toLowerCase() === typeFilter
-      );
+      items = items.filter((a) => a.type?.toLowerCase() === typeFilter);
     }
 
     if (search.trim()) {
@@ -91,10 +88,7 @@ export default function AuditLogsPage() {
     return items;
   }, [activities, typeFilter, search]);
 
-  const paginated = filtered.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+  const paginated = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   if (isLoading) return <PageSkeleton />;
 
@@ -120,7 +114,9 @@ export default function AuditLogsPage() {
         <div className="flex items-center justify-between mb-6 mt-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Audit Logs</h1>
-            <p className="text-sm text-gray-500 mt-1">Track all user activity across your organization</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Track all user activity across your organization
+            </p>
           </div>
           <Link
             href="/dashboard-esg"
@@ -170,16 +166,22 @@ export default function AuditLogsPage() {
         <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
           {/* Table header */}
           <div className="hidden sm:grid grid-cols-[2fr_3fr_1fr_auto] gap-4 px-6 py-3 bg-gray-50 border-b border-gray-100">
-            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">User</span>
-            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Activity</span>
-            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">Status</span>
-            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider text-right w-28">Date & Time</span>
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+              User
+            </span>
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+              Activity
+            </span>
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+              Status
+            </span>
+            <span className="text-xs font-semibold text-gray-900 uppercase tracking-wider text-right w-28">
+              Date & Time
+            </span>
           </div>
 
           {paginated.length === 0 && (
-            <p className="text-sm text-gray-700 text-center py-12">
-              No activity logs found.
-            </p>
+            <p className="text-sm text-gray-700 text-center py-12">No activity logs found.</p>
           )}
 
           {paginated.map((activity, idx) => (
@@ -207,13 +209,7 @@ export default function AuditLogsPage() {
   );
 }
 
-function ActivityRow({
-  activity,
-  colorIdx,
-}: {
-  activity: ActivityItem;
-  colorIdx: number;
-}) {
+function ActivityRow({ activity, colorIdx }: { activity: ActivityItem; colorIdx: number }) {
   const initials = getInitials(activity.user?.firstName, activity.user?.lastName);
   const colorClass = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
   const userName = activity.user

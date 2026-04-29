@@ -124,7 +124,10 @@ export default function ClimaticImpactOnReserves({ businessModel }: ClimaticImpa
             <ShieldCheck className="h-5 w-5 text-green-600" />
             <p className="text-sm text-gray-700">Independent third party anonymous whistleblower</p>
           </div>
-          <span className="rounded-full px-3 py-1 text-xs font-medium text-white" style={{ backgroundColor: "#109b95" }}>
+          <span
+            className="rounded-full px-3 py-1 text-xs font-medium text-white"
+            style={{ backgroundColor: "#109b95" }}
+          >
             Active
           </span>
         </div>

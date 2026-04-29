@@ -1,14 +1,11 @@
 import api from "@/lib/api/axios";
+import { Industry } from "./industries.services";
 
 export type Subsidiary = {
   id: number;
   name: string;
   industryId?: number;
-  industry?: {
-    id?: number;
-    industry: string;
-    sector?: string;
-  };
+  industry?: Industry;
   address: string;
   status: string;
   teamLead?: {
