@@ -125,6 +125,7 @@ export interface AssessmentData {
           gasFlaring?: {
             gasVolume: number;
             carbonContent: number;
+            emissionFactor?: number | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -132,6 +133,7 @@ export interface AssessmentData {
         fugitiveEmissions?: {
           ventingNaturalGas?: {
             volumeOfGasVented: number;
+            emissionFactor?: number | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -143,6 +145,7 @@ export interface AssessmentData {
             R507A: boolean;
             others: number | string;
             refrigerantAdded: number | string;
+            hfcGwp?: number | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -153,6 +156,7 @@ export interface AssessmentData {
           electricity?: {
             electricityConsumed: string;
             supplier: string;
+            emissionFactor?: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -160,6 +164,7 @@ export interface AssessmentData {
             coolingConsumed: string;
             selectedSystems: string[];
             otherComments: string;
+            emissionFactor?: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -167,6 +172,7 @@ export interface AssessmentData {
             volume: string;
             selectedSources: string[];
             otherComments: string;
+            emissionFactor?: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -174,6 +180,7 @@ export interface AssessmentData {
             heatingPurchased: string;
             heatingConsumed: string;
             supplierName: string;
+            emissionFactor?: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -181,25 +188,25 @@ export interface AssessmentData {
         marketBased?: {
           ipps?: {
             electricityConsumed: string;
-            emissionFactor: string;
+            emissionFactor: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
           eac?: {
             gridElectricity: string;
-            emissionFactor: string;
+            emissionFactor: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
           residual?: {
             electricityConsumed: string;
-            residualMixFactor: string;
+            residualMixFactor: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
           coolingSteam?: {
             energyConsumed: string;
-            emissionFactor: string;
+            emissionFactor: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };

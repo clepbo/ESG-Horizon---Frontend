@@ -26,6 +26,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -57,14 +58,13 @@ export function ResidualForm({
 
   // Use the formatted number hook for electricity consumed
   const electricityConsumed = useFormattedNumber("");
-  const residualMixFactor = useFormattedNumber("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
   const [errors, setErrors] = useState<{
     electricityConsumed?: string;
-    residualMixFactor?: string;
     files?: string;
   }>({});
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
@@ -95,11 +95,13 @@ export function ResidualForm({
           ? existingData.electricityConsumed.toString()
           : ""
       );
-      residualMixFactor.setRawValue(
-        existingData.residualMixFactor !== null && existingData.residualMixFactor !== undefined
-          ? existingData.residualMixFactor.toString()
-          : ""
-      );
+      const ef = existingData.residualMixFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -117,18 +119,8 @@ export function ResidualForm({
       !isNaN(Number(electricityConsumed.rawValue)) &&
       Number(electricityConsumed.rawValue) >= 0;
 
-    const hasFactor =
-      residualMixFactor.rawValue !== "" &&
-      residualMixFactor.rawValue !== null &&
-      residualMixFactor.rawValue !== undefined &&
-      !isNaN(Number(residualMixFactor.rawValue)) &&
-      Number(residualMixFactor.rawValue) >= 0;
-
-    const _hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-
-    return calculateProgress([hasElectricity, hasFactor]);
-  }, [electricityConsumed.rawValue, residualMixFactor.rawValue, files, additionalFields]);
+    return calculateProgress([hasElectricity]);
+  }, [electricityConsumed.rawValue]);
 
   // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
@@ -143,15 +135,6 @@ export function ResidualForm({
     ) {
       newErrors.electricityConsumed =
         "Please enter a valid electricity consumption value (0 or greater).";
-    }
-    if (
-      residualMixFactor.rawValue === "" ||
-      residualMixFactor.rawValue === null ||
-      residualMixFactor.rawValue === undefined ||
-      isNaN(Number(residualMixFactor.rawValue)) ||
-      Number(residualMixFactor.rawValue) < 0
-    ) {
-      newErrors.residualMixFactor = "Please enter a valid emission factor (0 or greater).";
     }
 
     setErrors(newErrors);
@@ -204,9 +187,12 @@ export function ResidualForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("residual")?.factor ?? null;
+
     const payload = {
       electricityConsumed: electricityConsumed.rawValue,
-      residualMixFactor: residualMixFactor.rawValue,
+      residualMixFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -252,11 +238,13 @@ export function ResidualForm({
       toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("residual")?.factor ?? null;
     dispatch({
       type: "UPDATE_MARKET_RESIDUAL",
       payload: {
         electricityConsumed: electricityConsumed.rawValue,
-        residualMixFactor: residualMixFactor.rawValue,
+        residualMixFactor: resolvedFactor,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -391,39 +379,14 @@ export function ResidualForm({
                   error={errors.electricityConsumed}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(residualMixFactor.rawValue) || null}
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
                   }
                 />
               </div>
-            </div>
-
-            {/* Residual Mix Factor */}
-            <div className="ml-6">
-              <Label className="text-base font-medium text-gray-900 mb-2 block ">
-                Residual Mix emission factor applied <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                type="text"
-                step="0.0001"
-                placeholder="Enter factor (kg CO₂e/kWh) based on Nigerian grid residual mix"
-                value={residualMixFactor.displayValue}
-                onChange={(e) => {
-                  residualMixFactor.handleChange(e.target.value);
-                  if (errors.residualMixFactor)
-                    setErrors((prev) => ({
-                      ...prev,
-                      residualMixFactor: undefined,
-                    }));
-                }}
-                className={`w-full border-gray-400 ${
-                  errors.residualMixFactor ? "border-red-500" : ""
-                }`}
-              />
-              {errors.residualMixFactor && (
-                <p className="text-sm text-red-500 mt-1">{errors.residualMixFactor}</p>
-              )}
             </div>
 
             {/* Uploads */}

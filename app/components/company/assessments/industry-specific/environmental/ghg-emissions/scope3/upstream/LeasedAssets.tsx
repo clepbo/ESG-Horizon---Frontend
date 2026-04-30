@@ -25,6 +25,8 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { EmissionFactorBanner } from "@/app/components/company/assessments/EmissionFactorBanner";
+import { SCOPE3_EMISSION_FACTORS } from "@/lib/scope3EmissionFactors";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface LeasedAssetsProps {
@@ -450,6 +452,12 @@ export function LeasedAssets({
                         </Tooltip>
                       </TooltipProvider>
                     </div>
+                    <EmissionFactorBanner
+                      factor={SCOPE3_EMISSION_FACTORS.leasedElectricity.factor}
+                      unit={SCOPE3_EMISSION_FACTORS.leasedElectricity.unit}
+                      source={SCOPE3_EMISSION_FACTORS.leasedElectricity.source}
+                      className="mb-3"
+                    />
                     <SmartInput
                       label=""
                       type="number"
@@ -496,6 +504,12 @@ export function LeasedAssets({
                         </Tooltip>
                       </TooltipProvider>
                     </div>
+                    <EmissionFactorBanner
+                      factor={SCOPE3_EMISSION_FACTORS.leasedFuel.factor}
+                      unit={SCOPE3_EMISSION_FACTORS.leasedFuel.unit}
+                      source={SCOPE3_EMISSION_FACTORS.leasedFuel.source}
+                      className="mb-3"
+                    />
                     <SmartInput
                       label=""
                       type="number"

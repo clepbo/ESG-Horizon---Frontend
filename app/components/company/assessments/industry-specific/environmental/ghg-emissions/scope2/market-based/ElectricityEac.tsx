@@ -26,6 +26,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -57,7 +58,7 @@ export function ElectricityEACForm({
 
   // Use the formatted number hook for grid electricity
   const gridElectricity = useFormattedNumber("");
-  const emissionFactor = useFormattedNumber("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -65,7 +66,6 @@ export function ElectricityEACForm({
 
   const [errors, setErrors] = useState<{
     gridElectricity?: string;
-    emissionFactor?: string;
     files?: string;
   }>({});
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
@@ -97,11 +97,13 @@ export function ElectricityEACForm({
           ? existingData.gridElectricity.toString()
           : ""
       );
-      emissionFactor.setRawValue(
-        existingData.emissionFactor !== null && existingData.emissionFactor !== undefined
-          ? existingData.emissionFactor.toString()
-          : ""
-      );
+      const ef = existingData.emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -119,18 +121,8 @@ export function ElectricityEACForm({
       !isNaN(Number(gridElectricity.rawValue)) &&
       Number(gridElectricity.rawValue) >= 0;
 
-    const hasFactor =
-      emissionFactor.rawValue !== "" &&
-      emissionFactor.rawValue !== null &&
-      emissionFactor.rawValue !== undefined &&
-      !isNaN(Number(emissionFactor.rawValue)) &&
-      Number(emissionFactor.rawValue) >= 0;
-
-    const _hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-
-    return calculateProgress([hasElectricity, hasFactor]);
-  }, [gridElectricity.rawValue, emissionFactor.rawValue, files, additionalFields]);
+    return calculateProgress([hasElectricity]);
+  }, [gridElectricity.rawValue]);
 
   // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
@@ -145,15 +137,6 @@ export function ElectricityEACForm({
     ) {
       newErrors.gridElectricity =
         "Please enter a valid electricity consumption value (0 or greater).";
-    }
-    if (
-      emissionFactor.rawValue === "" ||
-      emissionFactor.rawValue === null ||
-      emissionFactor.rawValue === undefined ||
-      isNaN(Number(emissionFactor.rawValue)) ||
-      Number(emissionFactor.rawValue) < 0
-    ) {
-      newErrors.emissionFactor = "Please enter a valid emission factor (0 or greater).";
     }
 
     setErrors(newErrors);
@@ -206,9 +189,12 @@ export function ElectricityEACForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("electricity")?.factor ?? null;
+
     const payload = {
       gridElectricity: gridElectricity.rawValue,
-      emissionFactor: emissionFactor.rawValue,
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -254,11 +240,13 @@ export function ElectricityEACForm({
       toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("electricity")?.factor ?? null;
     dispatch({
       type: "UPDATE_MARKET_EAC",
       payload: {
         gridElectricity: gridElectricity.rawValue,
-        emissionFactor: emissionFactor.rawValue,
+        emissionFactor: resolvedFactor,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -394,7 +382,9 @@ export function ElectricityEACForm({
                   error={errors.gridElectricity}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(emissionFactor.rawValue) || null}
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, gridElectricity: undefined }))
                   }
@@ -452,32 +442,6 @@ export function ElectricityEACForm({
                   </div>
                 ) : null}
               </Card>
-            </div>
-
-            {/* Emission Factor */}
-            <div className="ml-6">
-              <Label className="text-base font-medium text-gray-900 mb-2 block">
-                Emission Factor Applied <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                type="text"
-                step="0.0001"
-                placeholder="Enter supplier-specific emission factor"
-                value={emissionFactor.displayValue}
-                onChange={(e) => {
-                  emissionFactor.handleChange(e.target.value);
-                  setErrors((prev) => ({
-                    ...prev,
-                    emissionFactor: undefined,
-                  }));
-                }}
-                className={`w-full border-gray-400 ${
-                  errors.emissionFactor ? "border-red-500" : ""
-                }`}
-              />
-              {errors.emissionFactor && (
-                <p className="text-sm text-red-500 mt-1">{errors.emissionFactor}</p>
-              )}
             </div>
 
             {/* Uploads */}
