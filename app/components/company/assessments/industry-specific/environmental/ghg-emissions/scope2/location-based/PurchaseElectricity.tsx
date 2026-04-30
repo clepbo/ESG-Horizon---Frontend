@@ -26,6 +26,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -56,6 +57,7 @@ export function PurchasedElectricityForm({
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const electricityConsumed = useFormattedNumber("");
   const [supplier, setSupplier] = useState("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -94,6 +96,13 @@ export function PurchasedElectricityForm({
           : ""
       );
       setSupplier(existingData.supplier ?? "");
+      const ef = (existingData as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -208,9 +217,13 @@ export function PurchasedElectricityForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("electricity")?.factor ?? null;
+
     const payload = {
       electricityConsumed: electricityConsumed.rawValue,
       supplier,
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -256,11 +269,14 @@ export function PurchasedElectricityForm({
       toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
+    const resolvedNextFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("electricity")?.factor ?? null;
     dispatch({
       type: "UPDATE_LOCATION_ELECTRICITY",
       payload: {
         electricityConsumed: electricityConsumed.rawValue,
         supplier,
+        emissionFactor: resolvedNextFactor,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -391,6 +407,9 @@ export function PurchasedElectricityForm({
                   required={false}
                   error={errors.electricityConsumed}
                   showEmissionFactor
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, electricityConsumed: undefined }))
                   }

@@ -18,14 +18,13 @@ import { formatNumberShort } from "@/lib/numberFormat";
 /**
  * Reduction Targets Progress matrix — every target metric plotted as a dot
  * in a fixed-size scatter. X is % of the target period elapsed; Y is %
- * progress made toward the target. The diagonal y = x is the linear pace
- * reference: dots above are ahead of schedule, dots below are behind, dots
- * in the negative-Y band are backsliding.
+ * progress made toward the target. The shaded band below 0% is the
+ * backsliding zone (current emissions above baseline).
  *
  * Bounded by design — one target or fifty, the chart occupies the same
  * rectangle. Print-friendly. Each dot encodes a target metric:
- *   • Color   = target identity (auto-assigned from palette)
- *   • Glyph   = metric type ("G" general, "1"/"2"/"3" scope)
+ *   • Color   = metric type (General teal, Scope 1/2/3 red/amber/blue)
+ *   • Glyph   = "G" general, "1"/"2"/"3" scope
  *   • Filled  = has current measurement; Hollow = committed, awaiting data
  */
 
@@ -416,7 +415,43 @@ function buildMatrix(targets: TargetLike[], currentYear: number): BuiltMatrix {
     if (seen.has(m.name)) legend.push(m);
   }
 
+  dejitterOverlappingDots(dots);
+
   return { dots, legend, noBaselineMetrics, committed };
+}
+
+/**
+ * Spread dots that land on (approximately) the same coordinates. Common when
+ * multiple targets share a clamped extreme — e.g. two metrics both deeply
+ * backsliding land at (100%, -100%) and stack on top of each other.
+ *
+ * Buckets dots in 5% × 5% cells, then for each cell with 2+ dots distributes
+ * them around a small ring so all are visible. Mutates in place — the
+ * tooltip still reads the underlying baseline / current / target / progress
+ * fields, so the visual offset doesn't lie about the data.
+ */
+function dejitterOverlappingDots(dots: DotDatum[]): void {
+  const buckets = new Map<string, DotDatum[]>();
+  for (const d of dots) {
+    const key = `${Math.round(d.x / 5)},${Math.round(d.y / 5)}`;
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = [];
+      buckets.set(key, bucket);
+    }
+    bucket.push(d);
+  }
+
+  const RADIUS = 5; // % units in data space — roughly one dot diameter
+  for (const bucket of buckets.values()) {
+    if (bucket.length < 2) continue;
+    const n = bucket.length;
+    bucket.forEach((d, i) => {
+      const angle = (i / n) * 2 * Math.PI;
+      d.x = Math.max(X_MIN, Math.min(X_MAX, d.x + RADIUS * Math.cos(angle)));
+      d.y = Math.max(Y_MIN, Math.min(Y_MAX, d.y + RADIUS * Math.sin(angle)));
+    });
+  }
 }
 
 function normalizeProps(props: TargetTrendChartProps): TargetLike[] {
@@ -551,7 +586,7 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
     <div className="flex w-full flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-gray-600">
         <span className="font-medium text-gray-700">
-          On the diagonal = on track · Above = ahead · Below = behind · Below 0% = backsliding
+          Higher = more progress toward target · Below 0% = backsliding (current emissions above baseline)
         </span>
       </div>
 
@@ -601,16 +636,17 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
             />
             {/* ZAxis is required to render Scatter without a default size scale. */}
             <ZAxis range={[120, 120]} />
-            {/* Diagonal y = x: linear pace. Above the line = ahead of plan,
-             *  below = behind. This is the core analytical reference of the
-             *  matrix; without it the dots have no comparative meaning. */}
+            {/* Faint linear-pace guide. Not load-bearing — the on-track /
+             *  behind verdict is computed in the tooltip status. Kept here
+             *  for visual structure when the chart is sparse. */}
             <ReferenceLine
               segment={[
                 { x: 0, y: 0 },
                 { x: 100, y: 100 },
               ]}
-              stroke="#9CA3AF"
-              strokeDasharray="4 4"
+              stroke="#D1D5DB"
+              strokeDasharray="3 6"
+              strokeWidth={1}
               ifOverflow="extendDomain"
             />
             {/* Baseline / 0% line — separates progress from backsliding. */}
@@ -618,6 +654,16 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
             <Tooltip
               content={<MatrixTooltip />}
               cursor={{ stroke: "#E5E7EB", strokeWidth: 1, strokeDasharray: "3 3" }}
+            />
+            {/* Phantom anchor — recharts ScatterChart suppresses its grid
+             *  and reference elements when no real Scatter has data. This
+             *  invisible point keeps the chart frame fully rendered even
+             *  on an empty dataset. */}
+            <Scatter
+              data={[{ x: 50, y: 0 }]}
+              shape={() => <g />}
+              legendType="none"
+              isAnimationActive={false}
             />
             <Scatter data={dots} shape={MatrixDot} isAnimationActive={false} />
           </ScatterChart>

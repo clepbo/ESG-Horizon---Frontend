@@ -123,8 +123,15 @@ function ProductRow({
               placeholder="Enter total weight or quantity"
               value={formatted.displayValue}
               onChange={(e) => {
-                formatted.handleChange(e.target.value);
-                updateProduct(product.id, "weight", formatted.rawValue);
+                const inputValue = e.target.value;
+                const stripped = inputValue.replace(/,/g, "");
+                formatted.handleChange(inputValue);
+                // Use stripped value directly to avoid stale state — reading
+                // formatted.rawValue here would be one keystroke behind because
+                // the formatter's setState hasn't flushed yet.
+                if (/^\d*\.?\d*$/.test(stripped)) {
+                  updateProduct(product.id, "weight", stripped);
+                }
               }}
               onBlur={() => validateProduct(product)}
               className={errors[`${product.id}-weight`] ? "border-destructive" : ""}

@@ -28,6 +28,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -71,6 +72,8 @@ export function GasFlaring({
     handleChange: handleCarbonContentChange,
     setRawValue: setCarbonContentRaw,
   } = useFormattedNumber("");
+
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -121,6 +124,13 @@ export function GasFlaring({
           ? existingData.carbonContent.toString()
           : ""
       );
+      const ef = (existingData as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -252,9 +262,13 @@ export function GasFlaring({
       totalFields: total,
     });
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("gas-volume")?.factor ?? null;
+
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -303,9 +317,13 @@ export function GasFlaring({
       totalFields: total,
     });
 
+    const resolvedSubmitFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("gas-volume")?.factor ?? null;
+
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
+      emissionFactor: resolvedSubmitFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -410,6 +428,9 @@ export function GasFlaring({
                     required={false}
                     error={errors.gasVolume}
                     showEmissionFactor={true}
+                    editableFactor={true}
+                    customEmissionFactor={customEmissionFactor}
+                    onCustomFactorChange={setCustomEmissionFactor}
                     onErrorClear={() => setErrors((prev) => ({ ...prev, gasVolume: undefined }))}
                   />
                 </div>

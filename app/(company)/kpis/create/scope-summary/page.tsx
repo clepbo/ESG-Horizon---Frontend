@@ -66,7 +66,16 @@ export default function ScopeSummaryPage() {
     mutationFn: async (targetData: ScopeTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
       if (targetId) {
-        return await api.patch(`/target/${targetId}`, targetData);
+        try {
+          return await api.patch(`/target/${targetId}`, targetData);
+        } catch (err: any) {
+          // Stale targetId (e.g. after a DB wipe) — fall through to POST.
+          if (err?.response?.status === 404) {
+            setTargetId(null);
+            return await api.post(`/target`, targetData);
+          }
+          throw err;
+        }
       }
       return await api.post(`/target`, targetData);
     },

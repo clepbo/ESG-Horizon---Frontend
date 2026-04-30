@@ -26,6 +26,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { TotalsResponse } from "@/services/assessment.service";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
@@ -60,7 +61,7 @@ export function CoolingSteamForm({
 
   // Use the formatted number hook for energy consumed
   const energyConsumed = useFormattedNumber("");
-  const emissionFactor = useFormattedNumber("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
 
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -68,7 +69,6 @@ export function CoolingSteamForm({
 
   const [errors, setErrors] = useState<{
     energyConsumed?: string;
-    emissionFactor?: string;
     files?: string;
   }>({});
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
@@ -106,11 +106,13 @@ export function CoolingSteamForm({
           ? existingData.energyConsumed.toString()
           : ""
       );
-      emissionFactor.setRawValue(
-        existingData.emissionFactor !== null && existingData.emissionFactor !== undefined
-          ? existingData.emissionFactor.toString()
-          : ""
-      );
+      const ef = existingData.emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
 
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
@@ -129,18 +131,8 @@ export function CoolingSteamForm({
       !isNaN(Number(energyConsumed.rawValue)) &&
       Number(energyConsumed.rawValue) >= 0;
 
-    const hasFactor =
-      emissionFactor.rawValue !== "" &&
-      emissionFactor.rawValue !== null &&
-      emissionFactor.rawValue !== undefined &&
-      !isNaN(Number(emissionFactor.rawValue)) &&
-      Number(emissionFactor.rawValue) >= 0;
-
-    const _hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
-
-    return calculateProgress([hasEnergy, hasFactor]);
-  }, [energyConsumed.rawValue, emissionFactor.rawValue, files, additionalFields]);
+    return calculateProgress([hasEnergy]);
+  }, [energyConsumed.rawValue]);
 
   // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
@@ -154,15 +146,6 @@ export function CoolingSteamForm({
       Number(energyConsumed.rawValue) < 0
     ) {
       newErrors.energyConsumed = "Please enter a valid energy consumption value (0 or greater).";
-    }
-    if (
-      emissionFactor.rawValue === "" ||
-      emissionFactor.rawValue === null ||
-      emissionFactor.rawValue === undefined ||
-      isNaN(Number(emissionFactor.rawValue)) ||
-      Number(emissionFactor.rawValue) < 0
-    ) {
-      newErrors.emissionFactor = "Please enter a valid emission factor (0 or greater).";
     }
 
     setErrors(newErrors);
@@ -214,7 +197,7 @@ export function CoolingSteamForm({
 
   const resetForm = () => {
     energyConsumed.setRawValue("");
-    emissionFactor.setRawValue("");
+    setCustomEmissionFactor(null);
     setFiles(Object.fromEntries(uploadFields.map((field) => [field, null])));
     setAdditionalFields([]);
     setErrors({});
@@ -228,9 +211,12 @@ export function CoolingSteamForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("cooling")?.factor ?? null;
+
     const payload = {
       energyConsumed: energyConsumed.rawValue,
-      emissionFactor: emissionFactor.rawValue,
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -282,9 +268,12 @@ export function CoolingSteamForm({
     const eac = state.assessmentData.environment?.ghg?.scope2?.marketBased?.eac;
     const residual = state.assessmentData.environment?.ghg?.scope2?.marketBased?.residual;
 
+    const resolvedSubmitFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("cooling")?.factor ?? null;
+
     const payload = {
       energyConsumed: energyConsumed.rawValue,
-      emissionFactor: emissionFactor.rawValue,
+      emissionFactor: resolvedSubmitFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -438,33 +427,12 @@ export function CoolingSteamForm({
                   error={errors.energyConsumed}
                   showEmissionFactor={true}
                   isMarketBased={true}
-                  customEmissionFactor={Number(emissionFactor.rawValue) || null}
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() => setErrors((prev) => ({ ...prev, energyConsumed: undefined }))}
                 />
               </div>
-            </div>
-
-            {/* Emission Factor */}
-            <div className="ml-6">
-              <Label className="text-md font-medium mb-2 block">
-                Supplier-specific emission factor applied <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                type="text"
-                step="0.0001"
-                placeholder="Enter supplier-specific emission factor"
-                value={emissionFactor.displayValue}
-                onChange={(e) => {
-                  emissionFactor.handleChange(e.target.value);
-                  setErrors((prev) => ({
-                    ...prev,
-                    emissionFactor: undefined,
-                  }));
-                }}
-              />
-              {errors.emissionFactor && (
-                <p className="text-sm text-red-500 mt-1">{errors.emissionFactor}</p>
-              )}
             </div>
 
             {/* File Uploads */}
