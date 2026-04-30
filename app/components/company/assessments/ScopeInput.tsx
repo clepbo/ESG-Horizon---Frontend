@@ -52,20 +52,25 @@ export function ScopeInput({
 }: ScopeInputProps) {
   const defaultEmissionFactor = getScopeEmissionFactor(category);
 
-  const hasCustomFactor =
-    customEmissionFactor !== null && customEmissionFactor !== undefined;
+  const hasCustomFactor = customEmissionFactor !== null && customEmissionFactor !== undefined;
 
-  const emissionFactor = hasCustomFactor
-    ? defaultEmissionFactor
-      ? { ...defaultEmissionFactor, factor: customEmissionFactor! }
-      : null
-    : defaultEmissionFactor;
+  const emissionFactor = React.useMemo(
+    () =>
+      hasCustomFactor
+        ? defaultEmissionFactor
+          ? { ...defaultEmissionFactor, factor: customEmissionFactor! }
+          : null
+        : defaultEmissionFactor,
+    [hasCustomFactor, defaultEmissionFactor, customEmissionFactor]
+  );
 
   const [isEditing, setIsEditing] = useState(false);
   const [tempFactor, setTempFactor] = useState<number | null>(null);
 
   const handleEditClick = () => {
-    setTempFactor(hasCustomFactor ? customEmissionFactor! : (defaultEmissionFactor?.factor ?? null));
+    setTempFactor(
+      hasCustomFactor ? customEmissionFactor! : (defaultEmissionFactor?.factor ?? null)
+    );
     setIsEditing(true);
   };
 
@@ -134,9 +139,7 @@ export function ScopeInput({
                         step="0.0001"
                         value={tempFactor ?? ""}
                         onChange={(e) =>
-                          setTempFactor(
-                            e.target.value === "" ? null : parseFloat(e.target.value)
-                          )
+                          setTempFactor(e.target.value === "" ? null : parseFloat(e.target.value))
                         }
                         className="pr-8 h-8 text-xs"
                       />
@@ -185,7 +188,9 @@ export function ScopeInput({
                     )}
 
                     {isMarketBased && hasCustomFactor && (
-                      <p className="text-teal-700 mt-1">Custom emission factor applied (Market-Based)</p>
+                      <p className="text-teal-700 mt-1">
+                        Custom emission factor applied (Market-Based)
+                      </p>
                     )}
 
                     {!isMarketBased && hasCustomFactor && (
