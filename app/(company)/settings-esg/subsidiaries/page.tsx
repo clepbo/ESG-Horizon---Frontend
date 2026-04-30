@@ -20,13 +20,16 @@ import TableManagementControls from "@/app/components/company/TableManagementCon
 interface IndustryOptionsProps {
   value: number;
   label: string;
-  industry: string;
-  sector: string;
+  industry: {
+    name: string;
+    sector: {
+      name: string;
+    };
+  };
 }
 
 export default function SubsidiariesPage() {
   const { data: subsidiariesData, isLoading: subsidiariesLoading } = useCompanySubsidiaries();
-  // Restore local state to support legacy manual updates while syncing with the hook
   const [subsidiaries, setSubsidiaries] = useState<Subsidiary[]>([]);
   const [company, setCompany] = useState<
     { id: number; name: string; status?: string } | undefined
@@ -76,9 +79,9 @@ export default function SubsidiariesPage() {
         setIndustryOptions(
           data.map((i) => ({
             value: i.id,
-            label: `${i.industry} (${i.sector})`,
-            sector: i.sector,
-            industry: i.industry,
+            label: `${i.name} (${i.sector.name})`,
+            sector: i.sector.name,
+            industry: i,
           }))
         );
       } catch (error) {
@@ -94,7 +97,7 @@ export default function SubsidiariesPage() {
 
       const matchesIndustry =
         industryFilter === "All Industries" ||
-        (sub.industry && `${sub.industry.industry} (${sub.industry.sector})` === industryFilter);
+        (sub.industry && `${sub.industry.name} (${sub.industry.sector})` === industryFilter);
 
       return matchesSearch && matchesIndustry;
     });
@@ -160,7 +163,9 @@ export default function SubsidiariesPage() {
               onChange: setIndustryFilter,
               options: [
                 "All Industries",
-                ...industryOptions.map((opt) => `${opt.industry} (${opt.sector})`),
+                ...industryOptions.map(
+                  (opt) => `${opt.industry.name} (${opt.industry.sector.name})`
+                ),
               ],
             },
           ]}

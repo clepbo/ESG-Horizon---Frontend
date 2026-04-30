@@ -111,10 +111,10 @@ export default function SubsidiaryTable({
                     <td className="px-4 py-3">
                       <div className="flex flex-col">
                         <span className="font-medium text-gray-900">
-                          {subsidiary.industry?.industry || "-"}
+                          {subsidiary.industry?.name || "-"}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {subsidiary.industry?.sector || "-"}
+                          {subsidiary.industry?.sector?.name || "-"}
                         </span>
                       </div>
                     </td>

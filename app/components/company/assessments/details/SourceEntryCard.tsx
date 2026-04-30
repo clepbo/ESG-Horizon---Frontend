@@ -25,13 +25,16 @@ export function SourceEntryCard({ number, title, data, status }: SourceEntryCard
   const source = data.source || data.emissionFactorSource || "";
   const computedEmission = data.computedEmission ?? data.emission ?? data.calculated?.emission;
 
-  const effectiveStatus: SectionStatus = status ?? (computedEmission != null ? "submitted" : "in-progress");
+  const effectiveStatus: SectionStatus =
+    status ?? (computedEmission != null ? "submitted" : "in-progress");
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <span className="text-sm font-semibold text-gray-800">{number} {title}</span>
+        <span className="text-sm font-semibold text-gray-800">
+          {number} {title}
+        </span>
         <StatusDot status={effectiveStatus} />
       </div>
 
@@ -53,7 +56,9 @@ export function SourceEntryCard({ number, title, data, status }: SourceEntryCard
         />
         <HighlightField
           label="Computed Emissions"
-          value={computedEmission != null ? `${formatNumberShort(computedEmission)} tCO₂e` : undefined}
+          value={
+            computedEmission != null ? `${formatNumberShort(computedEmission)} tCO₂e` : undefined
+          }
         />
       </div>
     </div>

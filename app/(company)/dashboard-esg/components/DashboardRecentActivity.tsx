@@ -58,9 +58,7 @@ function formatTimeAgo(dateStr?: string): string {
   });
 }
 
-export default function DashboardRecentActivity({
-  activities,
-}: DashboardRecentActivityProps) {
+export default function DashboardRecentActivity({ activities }: DashboardRecentActivityProps) {
   const items = activities.slice(0, 5);
 
   return (
@@ -81,10 +79,7 @@ export default function DashboardRecentActivity({
         )}
 
         {items.map((activity, idx) => {
-          const initials = getInitials(
-            activity.user?.firstName,
-            activity.user?.lastName
-          );
+          const initials = getInitials(activity.user?.firstName, activity.user?.lastName);
           const colorClass = AVATAR_COLORS[idx % AVATAR_COLORS.length];
           const userName = activity.user
             ? `${activity.user.firstName} ${activity.user.lastName?.charAt(0)}.`
@@ -103,9 +98,7 @@ export default function DashboardRecentActivity({
                   <span className="font-semibold">{userName}</span>{" "}
                   {activity.description || activity.title}
                 </p>
-                <p className="text-xs text-gray-700 mt-0.5">
-                  {formatTimeAgo(activity.date)}
-                </p>
+                <p className="text-xs text-gray-700 mt-0.5">{formatTimeAgo(activity.date)}</p>
               </div>
             </div>
           );

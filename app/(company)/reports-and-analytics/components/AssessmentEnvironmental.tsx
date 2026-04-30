@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import { GoDotFill } from "react-icons/go";
 import React from "react";
-import { formatNumberFigures } from "../../components/ranking/FormatNumberFigures";
 import { formatNumberFull } from "@/lib/numberFormat";
 
 export function generateAssessmentData(reportData: any) {
@@ -175,7 +174,9 @@ export default function AssessmentEnvironmental({ reportData }: AssessmentAllPro
                       })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {index === 0 ? item.unit : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
+                      {index === 0
+                        ? item.unit
+                        : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
                     </p>
                   </div>
                 </CardContent>
@@ -233,7 +234,9 @@ export function PillarAssessmentCard({
                       })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {index === 0 ? item.unit : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
+                      {index === 0
+                        ? item.unit
+                        : `${formatNumberFull(item.percentage ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% of total emissions`}
                     </p>
                   </div>
                 </CardContent>

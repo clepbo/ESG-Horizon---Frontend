@@ -81,14 +81,22 @@ export function ApproveDeclineActions({
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
           <div className="flex gap-2 items-center">
             <div className="relative group">
-              <Button onClick={canApprove ? handleApprove : undefined} disabled={isActionLoading || !canApprove} className="bg-green-600 text-white">
+              <Button
+                onClick={canApprove ? handleApprove : undefined}
+                disabled={isActionLoading || !canApprove}
+                className="bg-green-600 text-white"
+              >
                 Approve
               </Button>
               {!canApprove && <PermissionTooltip message="Requires Admin or SubAdmin role" />}
             </div>
             {!showDeclineReason && (
               <div className="relative group">
-                <Button onClick={canDecline ? handleOpenDecline : undefined} disabled={isActionLoading || !canDecline} variant="destructive">
+                <Button
+                  onClick={canDecline ? handleOpenDecline : undefined}
+                  disabled={isActionLoading || !canDecline}
+                  variant="destructive"
+                >
                   Decline
                 </Button>
                 {!canDecline && <PermissionTooltip message="Requires Admin or SubAdmin role" />}

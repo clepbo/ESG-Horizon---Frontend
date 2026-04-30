@@ -92,15 +92,13 @@ export function GasFlaring({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const {
-    saveNow,
-    saveAndSubmit,
-    isSaving,
-    isSubmitting,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("ghg-process-emissions-gas-flaring", "environment.ghg.scope1.processEmissions");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "ghg-process-emissions-gas-flaring",
+      "environment.ghg.scope1.processEmissions"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -162,11 +160,11 @@ export function GasFlaring({
       Number(carbonContent) >= 0 &&
       Number(carbonContent) <= 100;
 
-    const hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+    // const hasFiles =
+    //   Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
     return calculateProgress([hasGasVolume, hasCarbonContent]);
-  }, [gasVolume, carbonContent, files, additionalFields]);
+  }, [gasVolume, carbonContent]);
 
   // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
@@ -337,7 +335,10 @@ export function GasFlaring({
     });
 
     try {
-      const res = await saveAndSubmit("environment.ghg.scope1.processEmissions.gasFlaring", payload);
+      const res = await saveAndSubmit(
+        "environment.ghg.scope1.processEmissions.gasFlaring",
+        payload
+      );
       onSubmit(res?.totals ?? null);
       if (!assessmentId && res?.assessment?.id) {
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });

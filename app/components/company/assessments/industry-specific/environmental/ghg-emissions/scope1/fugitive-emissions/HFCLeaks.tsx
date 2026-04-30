@@ -106,8 +106,12 @@ export function HFCLeaks({
     isSubmitting,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("ghg-fugitive-emissions-hfc-leaks", "environment.ghg.scope1.fugitiveEmissions");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.hfcLeaks;
+  } = useAssessmentFlow(
+    "ghg-fugitive-emissions-hfc-leaks",
+    "environment.ghg.scope1.fugitiveEmissions"
+  );
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope1?.fugitiveEmissions?.hfcLeaks;
 
   const formRef = useRef<HTMLDivElement>(null);
 

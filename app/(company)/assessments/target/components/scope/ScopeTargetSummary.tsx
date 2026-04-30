@@ -41,9 +41,7 @@ function ScopeSectionSummary({ scope }: { scope: ScopeData }) {
   return (
     <div className="space-y-4">
       {/* Scope label */}
-      <h6 className="text-sm font-bold tracking-wide text-gray-800 uppercase">
-        {scope.scope}
-      </h6>
+      <h6 className="text-sm font-bold tracking-wide text-gray-800 uppercase">{scope.scope}</h6>
 
       {/* Headline */}
       <div className="text-center space-y-3">
@@ -67,9 +65,7 @@ function ScopeSectionSummary({ scope }: { scope: ScopeData }) {
                   side="top"
                   className="max-w-xs bg-primary text-white p-3 rounded-lg shadow-xl border-none"
                 >
-                  <p>
-                    {scope.scope} baseline emissions from the selected assessment period.
-                  </p>
+                  <p>{scope.scope} baseline emissions from the selected assessment period.</p>
                 </TooltipContent>
               </Tooltip>
             </span>
@@ -95,9 +91,7 @@ function ScopeSectionSummary({ scope }: { scope: ScopeData }) {
                     = {formatWithCommas(scope.baselineEmission)} × (1 −{" "}
                     {formatWithCommas(scope.reductionPercentage)} ÷ 100)
                   </p>
-                  <p className="font-semibold">
-                    = {formatWithCommas(scope.targetEmission)} tCO₂e
-                  </p>
+                  <p className="font-semibold">= {formatWithCommas(scope.targetEmission)} tCO₂e</p>
                 </TooltipContent>
               </Tooltip>
             </span>
@@ -163,9 +157,7 @@ function ScopeSectionSummary({ scope }: { scope: ScopeData }) {
                   = {formatWithCommas(scope.baselineEmission)} −{" "}
                   {formatWithCommas(scope.targetEmission)}
                 </p>
-                <p className="font-semibold">
-                  = {formatWithCommas(scope.totalReduction)} tCO₂e
-                </p>
+                <p className="font-semibold">= {formatWithCommas(scope.totalReduction)} tCO₂e</p>
               </TooltipContent>
             </Tooltip>
           </span>
@@ -191,9 +183,7 @@ function ScopeSectionSummary({ scope }: { scope: ScopeData }) {
                 <p>
                   = {formatWithCommas(scope.totalReduction)} ÷ {scope.timeline}
                 </p>
-                <p className="font-semibold">
-                  = {formatWithCommas(scope.annualRate)} tCO₂e/year
-                </p>
+                <p className="font-semibold">= {formatWithCommas(scope.annualRate)} tCO₂e/year</p>
               </TooltipContent>
             </Tooltip>
           </span>
@@ -226,17 +216,14 @@ export function ScopeSummary({
           <CardContent className="space-y-8 pt-6">
             {baselinePeriodLabel && (
               <p className="text-sm text-gray-700">
-                Baseline period:{" "}
-                <span className="font-semibold">{baselinePeriodLabel}</span>
+                Baseline period: <span className="font-semibold">{baselinePeriodLabel}</span>
               </p>
             )}
 
             {scopes.map((scope, index) => (
               <div key={scope.scope}>
                 <ScopeSectionSummary scope={scope} />
-                {index < scopes.length - 1 && (
-                  <hr className="mt-6 border-gray-200" />
-                )}
+                {index < scopes.length - 1 && <hr className="mt-6 border-gray-200" />}
               </div>
             ))}
           </CardContent>

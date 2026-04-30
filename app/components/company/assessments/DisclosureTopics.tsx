@@ -325,12 +325,18 @@ export function DisclosureTopics({
     "Water and Wastewater Management": ["environment", "waterManagement"],
     "Biodiversity Impact": ["environment", "biodiversityImpact"],
     "Community Relations": ["socialCapital", "communityRelations"],
-    "Security, Human Rights & Rights of Indigenous Peoples": ["socialCapital", "securityHumanRights"],
+    "Security, Human Rights & Rights of Indigenous Peoples": [
+      "socialCapital",
+      "securityHumanRights",
+    ],
     "Workforce Health & Safety": ["humanCapital"],
     "Reserves Valuation & Capital Expenditures": ["businessModel", "reservesValuation"],
     "Business Ethics & Transparency": ["businessModel", "businessEthics"],
     "Critical Incident Risk Management": ["leadershipGovernance", "criticalIncidentRiskManagement"],
-    "Management of the Legal & Regulatory Environment": ["leadershipGovernance", "legalRegulatoryEnvironment"],
+    "Management of the Legal & Regulatory Environment": [
+      "leadershipGovernance",
+      "legalRegulatoryEnvironment",
+    ],
     "Activity Metrics": ["activityMetrics"],
   };
 
@@ -451,12 +457,12 @@ export function DisclosureTopics({
         initialView={
           initialStep && typeof initialStep === "string"
             ? ((initialStep.includes("production")
-              ? "production-volume"
-              : initialStep.includes("offshore")
-                ? "offshore-sites"
-                : initialStep.includes("terrestrial")
-                  ? "terrestrial-sites"
-                  : "overview") as any)
+                ? "production-volume"
+                : initialStep.includes("offshore")
+                  ? "offshore-sites"
+                  : initialStep.includes("terrestrial")
+                    ? "terrestrial-sites"
+                    : "overview") as any)
             : "overview"
         }
       />
@@ -715,7 +721,9 @@ export function DisclosureTopics({
                 {/* Status indication commented out - revisit later (was getActivityMetricsBorderClass()) */}
                 <Card
                   className={`transition-all shadow-sm bg-white rounded-lg max-w-md ${
-                    isLocked ? "opacity-75 cursor-default" : "cursor-pointer hover:bg-accent/50 hover:shadow-md"
+                    isLocked
+                      ? "opacity-75 cursor-default"
+                      : "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                   }`}
                   style={{
                     borderLeftWidth: "4px",
@@ -797,7 +805,10 @@ export function DisclosureTopics({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {section.cards.map((card) => {
-                                const cardStatus = getStatusFromData(card.title, state.assessmentData);
+                                const cardStatus = getStatusFromData(
+                                  card.title,
+                                  state.assessmentData
+                                );
 
                                 return (
                                   <Card

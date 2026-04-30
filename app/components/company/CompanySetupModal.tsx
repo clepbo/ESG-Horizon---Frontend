@@ -122,7 +122,7 @@ export default function CompanySetupModal({
       setIndustryOptions(
         industries.map((i) => ({
           value: i.id,
-          label: `${i.industry} (${i.sector})`,
+          label: `${i.name} (${i.sector?.name})`,
         }))
       );
     }

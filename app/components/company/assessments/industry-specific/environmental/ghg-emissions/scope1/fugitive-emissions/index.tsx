@@ -23,7 +23,6 @@ export function FugitiveEmissionsForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
-  onBackToDisclosureTopics,
 }: FugitiveEmissionsFormProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();

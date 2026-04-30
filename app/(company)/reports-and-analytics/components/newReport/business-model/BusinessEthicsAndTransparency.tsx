@@ -44,7 +44,11 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-gray-50 p-4">
             <p className="text-sm text-gray-600">Carbon Price Scenario</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">
-              $ {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${" "}
+              {formatNumberFull(climateImpact?.carbonPriceScenario ?? 0, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
               <span className="ml-1 text-sm font-normal text-gray-600">/tonne</span>
             </p>
           </div>
@@ -53,7 +57,11 @@ export default function BusinessEthicAndTransparency({
           <div className="rounded-lg bg-red-50 p-4">
             <p className="text-sm font-medium text-red-500">Reserves at Risk</p>
             <p className="mt-2 text-3xl font-bold text-red-500">
-              {formatNumberFull(climateImpact?.reservesAtRiskPercent ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+              {formatNumberFull(climateImpact?.reservesAtRiskPercent ?? 0, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+              %
             </p>
             <p className="text-sm text-red-400">Decrease in Proved Oil</p>
           </div>
@@ -64,7 +72,8 @@ export default function BusinessEthicAndTransparency({
             <span>Total Proved Reserves</span>
             <span className="font-medium text-gray-900">
               {formatNumberShort(climateImpact?.totalProvedReserves ?? 0, {
-                minimumFractionDigits: 2, maximumFractionDigits: 2,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               })}{" "}
               boe
             </span>
@@ -73,7 +82,8 @@ export default function BusinessEthicAndTransparency({
             <span>Estimated Decrease</span>
             <span className="font-medium text-red-600">
               {formatNumberShort(climateImpact?.totalProbableReserves ?? 0, {
-                minimumFractionDigits: 2, maximumFractionDigits: 2,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               })}{" "}
               boe
             </span>
@@ -82,7 +92,8 @@ export default function BusinessEthicAndTransparency({
             <span>Embedded Carbon</span>
             <span className="font-medium text-gray-900">
               {formatNumberShort(climateImpact?.embeddedCarbon ?? 0, {
-                minimumFractionDigits: 2, maximumFractionDigits: 2,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
               })}{" "}
               tCO₂e
             </span>
@@ -98,7 +109,11 @@ export default function BusinessEthicAndTransparency({
         <div className="mb-6 rounded-lg bg-blue-50 p-4">
           <p className="text-sm text-gray-600">% Capex to Transition</p>
           <p className="mt-1 text-3xl font-bold text-blue-600">
-            {formatNumberFull(transitionPercent, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+            {formatNumberFull(transitionPercent, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+            %
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
             Share of current CAPEX allocated to gas, renewable, or other low-carbon projects
@@ -109,13 +124,19 @@ export default function BusinessEthicAndTransparency({
           <div>
             <p className="text-gray-600">Renewable Investment</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrencyCompact(strategicAllocation?.renewableInvestmentAmount, "₦", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
           </div>
           <div className="text-right">
             <p className="text-gray-600">Renewable Revenue</p>
             <p className="text-xl font-bold text-green-600">
-              {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrencyCompact(strategicAllocation?.renewableRevenueAmount, "₦", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
           </div>
         </div>
@@ -135,7 +156,9 @@ export default function BusinessEthicAndTransparency({
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value) => `${formatNumberFull(Number(value) || 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`}
+                formatter={(value) =>
+                  `${formatNumberFull(Number(value) || 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
+                }
               />
             </PieChart>
           </ResponsiveContainer>

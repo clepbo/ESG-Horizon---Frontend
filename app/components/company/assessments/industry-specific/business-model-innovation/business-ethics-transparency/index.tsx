@@ -12,7 +12,12 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useAssessment } from "@/hooks/useAssessment";
 import ReservesCountriesCorruptionRisk from "./reserves-countries-corruption-risk";
 import AntiCorruptionManagement from "./anti-corruption-management";
-import { getFormSectionStatus, getSectionBorderColor, resolveDataPath, type SectionStatus } from "@/lib/assessmentStatusUtils";
+import {
+  getFormSectionStatus,
+  getSectionBorderColor,
+  resolveDataPath,
+  type SectionStatus,
+} from "@/lib/assessmentStatusUtils";
 import { StatusPill } from "@/app/components/ui/StatusPill";
 
 type BEView = "overview" | "reserves-countries-corruption-risk" | "anti-corruption-management";
@@ -65,8 +70,7 @@ export default function BusinessEthicsAssessment({
   const params = useParams();
   const [currentView, setCurrentView] = useState<BEView>(initialForm ?? "overview");
   const [showSuccess, setShowSuccess] = useState(false);
-  const [totals, setTotals] = useState<TotalsResponse | null>(null);
-  const { state, dispatch } = useAssessment();
+  const { state } = useAssessment();
 
   const reportId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
@@ -81,14 +85,32 @@ export default function BusinessEthicsAssessment({
   const submittedGroups: string[] = (state.assessmentData as any)?.submittedGroups || [];
 
   const cardStatusMap: Record<string, { groupKey: string; dataPath: string[] }> = {
-    "Reserves in Countries with High Corruption Risk": { groupKey: "businessModel.businessEthics.reservesCountriesCorruptionRisk", dataPath: ["businessInnovation", "businessEthicsAndTransparency", "reservesInCountriesWithHighCorruptionRisk"] },
-    "Anti-Corruption Management System": { groupKey: "businessModel.businessEthics.antiCorruptionManagement", dataPath: ["businessInnovation", "businessEthicsAndTransparency", "antiCorruptionManagementSystem"] },
+    "Reserves in Countries with High Corruption Risk": {
+      groupKey: "businessModel.businessEthics.reservesCountriesCorruptionRisk",
+      dataPath: [
+        "businessInnovation",
+        "businessEthicsAndTransparency",
+        "reservesInCountriesWithHighCorruptionRisk",
+      ],
+    },
+    "Anti-Corruption Management System": {
+      groupKey: "businessModel.businessEthics.antiCorruptionManagement",
+      dataPath: [
+        "businessInnovation",
+        "businessEthicsAndTransparency",
+        "antiCorruptionManagementSystem",
+      ],
+    },
   };
 
   const getCardStatus = (cardTitle: string): SectionStatus => {
     const info = cardStatusMap[cardTitle];
     if (!info) return "not-started";
-    return getFormSectionStatus(submittedGroups, info.groupKey, resolveDataPath(state.assessmentData, info.dataPath));
+    return getFormSectionStatus(
+      submittedGroups,
+      info.groupKey,
+      resolveDataPath(state.assessmentData, info.dataPath)
+    );
   };
 
   const handleBackToOverview = () => {
@@ -148,7 +170,7 @@ export default function BusinessEthicsAssessment({
           setShowSuccess(true);
         }}
         onSubmit={(totals) => {
-          setTotals(totals);
+          void totals;
           setShowSuccess(true);
         }}
         stepIndex={2}
@@ -239,7 +261,10 @@ export default function BusinessEthicsAssessment({
                             ? "cursor-pointer hover:bg-accent/50 hover:shadow-md"
                             : "cursor-default"
                         }`}
-                        style={{ borderLeftWidth: "4px", borderLeftColor: getSectionBorderColor(getCardStatus(card.title)) }}
+                        style={{
+                          borderLeftWidth: "4px",
+                          borderLeftColor: getSectionBorderColor(getCardStatus(card.title)),
+                        }}
                         onClick={() => card.clickable && handleCardClick(card.title)}
                       >
                         <CardContent className="p-4">

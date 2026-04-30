@@ -48,7 +48,10 @@ export default function RenewableEnergyInvestment({
   const { state, dispatch } = useAssessment();
   const current =
     "businessInnovation.reservesValuationAndCapitalExpenditures.renewableEnergyInvestment";
-  const { saveNow, saveAndSubmit } = useAssessmentFlow(current, "businessModel.reservesValuation.renewableEnergyInvestment");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    current,
+    "businessModel.reservesValuation.renewableEnergyInvestment"
+  );
 
   useEffect(() => {
     const existingData =
@@ -104,11 +107,7 @@ export default function RenewableEnergyInvestment({
     const hasInvestmentAmount = investmentAmount.rawValue !== "";
     const hasRevenueAmount = revenueAmount.rawValue !== "";
     const hasProjectDescription = projectDescription.trim() !== "";
-    return calculateProgress([
-      hasInvestmentAmount,
-      hasRevenueAmount,
-      hasProjectDescription,
-    ]);
+    return calculateProgress([hasInvestmentAmount, hasRevenueAmount, hasProjectDescription]);
   }, [investmentAmount.rawValue, revenueAmount.rawValue, projectDescription]);
 
   // const handleInputChange = (field: string, value: string) => {

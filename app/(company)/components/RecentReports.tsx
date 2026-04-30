@@ -227,7 +227,13 @@ export function RecentReports() {
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">1 - 10 of 25</span>
               <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" disabled title="Coming soon" className="w-8 h-8">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled
+                  title="Coming soon"
+                  className="w-8 h-8"
+                >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 {[1, 2, 3, 4, 5].map((page) => (
@@ -242,7 +248,13 @@ export function RecentReports() {
                     {page}
                   </Button>
                 ))}
-                <Button variant="outline" size="icon" disabled title="Coming soon" className="w-8 h-8">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled
+                  title="Coming soon"
+                  className="w-8 h-8"
+                >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>

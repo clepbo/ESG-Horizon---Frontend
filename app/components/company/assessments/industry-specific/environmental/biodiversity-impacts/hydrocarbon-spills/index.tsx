@@ -42,7 +42,14 @@ export default function HydrocarbonSpills({
   const volumeImpactingShorelines = useFormattedNumber("");
 
   const { state, dispatch } = useAssessment();
-  const { saveNow, saveAndSubmit, isLoading: isActionLoading } = useAssessmentFlow("hydrocarbon-spills", "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills");
+  const {
+    saveNow,
+    saveAndSubmit,
+    isLoading: isActionLoading,
+  } = useAssessmentFlow(
+    "hydrocarbon-spills",
+    "environment.biodiversityImpact.environmentalManagement.hydrocarbonSpills"
+  );
 
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [filesAndLinks, setFilesAndLinks] = useState<FileOrLinkData[]>([]);

@@ -111,7 +111,7 @@ export const useSubmitForReview = () => {
       toast.success(
         status === "submitted_approved"
           ? "Assessment submitted successfully."
-          : "Assessment submitted for review.",
+          : "Assessment submitted for review."
       );
     },
     onError: (error: any) => {

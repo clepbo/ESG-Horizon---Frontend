@@ -116,10 +116,7 @@ const EmissionByScope: React.FC<EmissionByScopeProps> = ({ data }) => {
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
               padding: "10px",
             }}
-            formatter={(value, name) => [
-              formatNumberFigures(Number(value)),
-              name ?? "",
-            ]}
+            formatter={(value, name) => [formatNumberFigures(Number(value)), name ?? ""]}
           />
           <Legend
             iconType="rect"
