@@ -28,6 +28,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -74,6 +75,7 @@ export function PurchasedSteamForm({
   const [additionalFields, setAdditionalFields] = useState<FileData[]>([]);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -114,6 +116,13 @@ export function PurchasedSteamForm({
 
       setSelectedSources(existingData.selectedSources || []);
       setOtherComments(existingData.otherComments || "");
+      const ef = (existingData as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -217,10 +226,14 @@ export function PurchasedSteamForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("steam")?.factor ?? null;
+
     const payload = {
       volume: steamConsumedRaw,
       selectedSources,
       otherComments,
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -265,12 +278,15 @@ export function PurchasedSteamForm({
       toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
+    const resolvedNextFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("steam")?.factor ?? null;
     dispatch({
       type: "UPDATE_LOCATION_STEAM",
       payload: {
         volume: steamConsumedRaw,
         selectedSources,
         otherComments,
+        emissionFactor: resolvedNextFactor,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -398,6 +414,9 @@ export function PurchasedSteamForm({
                   required={false}
                   error={errors.steamConsumed}
                   showEmissionFactor={true}
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() => setErrors((prev) => ({ ...prev, steamConsumed: undefined }))}
                 />
               </div>

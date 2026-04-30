@@ -25,6 +25,8 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { EmissionFactorBanner } from "@/app/components/company/assessments/EmissionFactorBanner";
+import { SCOPE3_EMISSION_FACTORS } from "@/lib/scope3EmissionFactors";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -495,6 +497,12 @@ export function EmployeeCommuting({
             {/* 7.1 Employee Commuting */}
             <div className="space-y-6">
               <Label className="text-md font-medium block">7.1 Employee Commuting</Label>
+
+              <EmissionFactorBanner
+                factor={SCOPE3_EMISSION_FACTORS.employeeCommuting.factor}
+                unit={SCOPE3_EMISSION_FACTORS.employeeCommuting.unit}
+                source={SCOPE3_EMISSION_FACTORS.employeeCommuting.source}
+              />
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-3"></div>

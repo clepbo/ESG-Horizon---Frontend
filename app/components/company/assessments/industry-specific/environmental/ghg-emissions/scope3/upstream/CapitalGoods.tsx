@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { EmissionFactorBanner } from "@/app/components/company/assessments/EmissionFactorBanner";
+import { SCOPE3_EMISSION_FACTORS } from "@/lib/scope3EmissionFactors";
 import { TbCurrencyNaira } from "react-icons/tb";
 import {
   Tooltip,
@@ -420,6 +422,12 @@ export function CapitalGoods({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+                <EmissionFactorBanner
+                  factor={SCOPE3_EMISSION_FACTORS.capitalGoods.factor}
+                  unit={SCOPE3_EMISSION_FACTORS.capitalGoods.unit}
+                  source={SCOPE3_EMISSION_FACTORS.capitalGoods.source}
+                  className="mb-3"
+                />
                 <div className="relative">
                   <SmartInput
                     label=""

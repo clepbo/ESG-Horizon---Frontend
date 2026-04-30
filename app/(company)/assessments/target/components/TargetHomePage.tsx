@@ -32,6 +32,7 @@ export default function TargetHomePage() {
   const { data: baselineOptions } = useBaselineOptions(companyId);
 
   const latestBaseline = baselineOptions?.[0] ?? null;
+  const hasApprovedAssessment = !!baselineOptions?.length;
 
   const hasGeneral = !!pair?.general;
   const hasScope = !!pair?.scope;
@@ -114,7 +115,13 @@ export default function TargetHomePage() {
                     <button
                       type="button"
                       onClick={() => openForm("general")}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      disabled={!hasGeneral && !hasApprovedAssessment}
+                      title={
+                        !hasGeneral && !hasApprovedAssessment
+                          ? "Requires an approved assessment as baseline"
+                          : undefined
+                      }
+                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     >
                       {hasGeneral ? (
                         <Edit className="h-3.5 w-3.5 text-teal-600" />
@@ -126,7 +133,13 @@ export default function TargetHomePage() {
                     <button
                       type="button"
                       onClick={() => openForm("scope")}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      disabled={!hasScope && !hasApprovedAssessment}
+                      title={
+                        !hasScope && !hasApprovedAssessment
+                          ? "Requires an approved assessment as baseline"
+                          : undefined
+                      }
+                      className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     >
                       {hasScope ? (
                         <Edit className="h-3.5 w-3.5 text-purple-600" />
@@ -144,7 +157,12 @@ export default function TargetHomePage() {
       </div>
 
       {/* No targets yet */}
-      {!hasAny && !showForm && <InitialTargetPage onSetTarget={() => openForm("general")} />}
+      {!hasAny && !showForm && (
+        <InitialTargetPage
+          hasApprovedAssessment={hasApprovedAssessment}
+          onSetTarget={(type) => openForm(type)}
+        />
+      )}
 
       {/* Form */}
       {showForm && (

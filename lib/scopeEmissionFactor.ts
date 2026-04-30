@@ -42,6 +42,12 @@ export const SCOPE_EMISSION_FACTORS: Record<string, ScopeEmissionFactor> = {
     unit: "kWh",
     isInTonnes: false,
   },
+  residual: {
+    category: "residual",
+    factor: 0.526,
+    unit: "kWh",
+    isInTonnes: false,
+  },
   cooling: {
     category: "cooling",
     factor: 0.25,
