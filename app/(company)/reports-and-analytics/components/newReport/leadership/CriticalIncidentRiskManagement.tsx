@@ -37,7 +37,13 @@ export default function CriticalIncidentRiskManagement({
         <div className=" items-center flex p-4 justify-between">
           <span className="fflex flex-col items-center">
             <p className="text-center"> Tier 1 Events</p>
-            <p className="text-red-600 text-center font-semibold"> {formatNumberShort(tierOneEvents, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} </p>
+            <p className="text-red-600 text-center font-semibold">
+              {" "}
+              {formatNumberShort(tierOneEvents, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+            </p>
           </span>
           <span>
             <RxDividerVertical className="" />
@@ -46,7 +52,10 @@ export default function CriticalIncidentRiskManagement({
             <p className="text-center"> Total Hours Worked </p>
             <p className="text-green-600 text-center font-semibold">
               {" "}
-              {formatNumberShort(totalHoursWorked, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+              {formatNumberShort(totalHoursWorked, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
             </p>
           </span>
         </div>

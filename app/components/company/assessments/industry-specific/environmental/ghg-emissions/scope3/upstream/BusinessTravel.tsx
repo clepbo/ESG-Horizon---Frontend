@@ -25,6 +25,8 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { EmissionFactorBanner } from "@/app/components/company/assessments/EmissionFactorBanner";
+import { SCOPE3_EMISSION_FACTORS } from "@/lib/scope3EmissionFactors";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface BusinessTravelProps {
@@ -594,6 +596,11 @@ export function BusinessTravel({
                   {/* <Plane className="h-5 w-5 text-gray-600" /> */}
                   <Label className="text-md font-medium">6.1.1 Air Travel</Label>
                 </div>
+                <EmissionFactorBanner
+                  factor={SCOPE3_EMISSION_FACTORS.airTravel.factor}
+                  unit={SCOPE3_EMISSION_FACTORS.airTravel.unit}
+                  source={SCOPE3_EMISSION_FACTORS.airTravel.source}
+                />
 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="flex items-center gap-1 mb-2">
@@ -748,6 +755,11 @@ export function BusinessTravel({
                     6.1.2 Ground Travel (Car/Bus Rentals, Taxis, Company Cars)
                   </Label>
                 </div>
+                <EmissionFactorBanner
+                  factor={SCOPE3_EMISSION_FACTORS.groundTravel.factor}
+                  unit={SCOPE3_EMISSION_FACTORS.groundTravel.unit}
+                  source={SCOPE3_EMISSION_FACTORS.groundTravel.source}
+                />
 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="relative">

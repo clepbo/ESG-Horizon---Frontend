@@ -59,9 +59,22 @@ export function OilGasOperations({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const { saveNow, saveQuiet, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel, isAssignedTask, handleAssignedTaskRedirect } =
-    useAssessmentFlow("ghg-scope1-stationary-oilgasoperations", "environment.ghg.scope1.stationarySources");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
+  const {
+    saveNow,
+    saveQuiet,
+    saveAndSubmit,
+    isSaving,
+    isSubmitting,
+    isPreviouslySubmitted,
+    getSubmitLabel,
+    isAssignedTask,
+    handleAssignedTaskRedirect,
+  } = useAssessmentFlow(
+    "ghg-scope1-stationary-oilgasoperations",
+    "environment.ghg.scope1.stationarySources"
+  );
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope1?.stationarySources?.oilGasOperations;
 
   const [errors, setErrors] = useState<{
     onShoreProduction?: string;
@@ -254,7 +267,10 @@ export function OilGasOperations({
     try {
       // Bulk save all steps in the group before submitting
       if (electricityHeat) {
-        await saveQuiet("environment.ghg.scope1.stationarySources.electricityHeat", electricityHeat);
+        await saveQuiet(
+          "environment.ghg.scope1.stationarySources.electricityHeat",
+          electricityHeat
+        );
       }
       if (industrialProcesses) {
         await saveQuiet(
@@ -262,7 +278,10 @@ export function OilGasOperations({
           industrialProcesses
         );
       }
-      const response = await saveAndSubmit("environment.ghg.scope1.stationarySources.oilGasOperations", payload);
+      const response = await saveAndSubmit(
+        "environment.ghg.scope1.stationarySources.oilGasOperations",
+        payload
+      );
       onSubmit(response?.totals ?? null);
     } catch (err) {
       toast.error("Submission failed");

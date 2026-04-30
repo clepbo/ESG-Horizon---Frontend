@@ -28,6 +28,7 @@ import { TotalsResponse } from "@/services/assessment.service";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -72,6 +73,8 @@ export function GasFlaring({
     setRawValue: setCarbonContentRaw,
   } = useFormattedNumber("");
 
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -89,15 +92,13 @@ export function GasFlaring({
   const [deleting, setDeleting] = useState<{ [key: string]: boolean }>({});
 
   const router = useRouter();
-  const {
-    saveNow,
-    saveAndSubmit,
-    isSaving,
-    isSubmitting,
-    isPreviouslySubmitted,
-    getSubmitLabel,
-  } = useAssessmentFlow("ghg-process-emissions-gas-flaring", "environment.ghg.scope1.processEmissions");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
+  const { saveNow, saveAndSubmit, isSaving, isSubmitting, isPreviouslySubmitted, getSubmitLabel } =
+    useAssessmentFlow(
+      "ghg-process-emissions-gas-flaring",
+      "environment.ghg.scope1.processEmissions"
+    );
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope1?.processEmissions?.gasFlaring;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -123,6 +124,13 @@ export function GasFlaring({
           ? existingData.carbonContent.toString()
           : ""
       );
+      const ef = (existingData as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -152,11 +160,11 @@ export function GasFlaring({
       Number(carbonContent) >= 0 &&
       Number(carbonContent) <= 100;
 
-    const hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
+    // const hasFiles =
+    //   Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
 
     return calculateProgress([hasGasVolume, hasCarbonContent]);
-  }, [gasVolume, carbonContent, files, additionalFields]);
+  }, [gasVolume, carbonContent]);
 
   // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
@@ -254,9 +262,13 @@ export function GasFlaring({
       totalFields: total,
     });
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("gas-volume")?.factor ?? null;
+
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -305,9 +317,13 @@ export function GasFlaring({
       totalFields: total,
     });
 
+    const resolvedSubmitFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("gas-volume")?.factor ?? null;
+
     const payload = {
       gasVolume: Number(gasVolume),
       carbonContent: Number(carbonContent),
+      emissionFactor: resolvedSubmitFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -319,7 +335,10 @@ export function GasFlaring({
     });
 
     try {
-      const res = await saveAndSubmit("environment.ghg.scope1.processEmissions.gasFlaring", payload);
+      const res = await saveAndSubmit(
+        "environment.ghg.scope1.processEmissions.gasFlaring",
+        payload
+      );
       onSubmit(res?.totals ?? null);
       if (!assessmentId && res?.assessment?.id) {
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
@@ -409,6 +428,9 @@ export function GasFlaring({
                     required={false}
                     error={errors.gasVolume}
                     showEmissionFactor={true}
+                    editableFactor={true}
+                    customEmissionFactor={customEmissionFactor}
+                    onCustomFactorChange={setCustomEmissionFactor}
                     onErrorClear={() => setErrors((prev) => ({ ...prev, gasVolume: undefined }))}
                   />
                 </div>

@@ -20,6 +20,8 @@ import { useRouter } from "next/navigation";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { EmissionFactorBanner } from "@/app/components/company/assessments/EmissionFactorBanner";
+import { SCOPE3_EMISSION_FACTORS } from "@/lib/scope3EmissionFactors";
 import { Checkbox } from "@/app/components/ui/checkbox";
 import {
   Tooltip,
@@ -502,6 +504,12 @@ export function PurchasedGoodsAndServices({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+                <EmissionFactorBanner
+                  factor={SCOPE3_EMISSION_FACTORS.goodsAndServices.factor}
+                  unit={SCOPE3_EMISSION_FACTORS.goodsAndServices.unit}
+                  source={SCOPE3_EMISSION_FACTORS.goodsAndServices.source}
+                  className="mb-3"
+                />
                 <SmartInput
                   label=""
                   type="number"

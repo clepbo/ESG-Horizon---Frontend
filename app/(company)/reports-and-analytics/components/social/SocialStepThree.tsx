@@ -39,13 +39,22 @@ function HCDTContributionCard({ hcdtData }: { hcdtData?: any }) {
         <div>
           <p className="text-sm pt-4 text-gray-500">Prior Year OPEX</p>
           <p className="text-lg md:text-xl font-bold text-gray-800">
-            {formatCurrencyCompact(priorYearOpex, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrencyCompact(priorYearOpex, "₦", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Annual Contribution ({formatNumberFull(percentage, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)</p>
+          <p className="text-sm text-gray-500">
+            Annual Contribution (
+            {formatNumberFull(percentage, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)
+          </p>
           <p className="text-xl md:text-2xl font-bold text-gray-800">
-            {formatCurrencyCompact(annualContribution, "₦", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrencyCompact(annualContribution, "₦", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </p>
         </div>
       </div>
@@ -78,10 +87,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
       <div className="flex justify-center gap-6 mt-4">
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 shrink-0"
-              style={{ backgroundColor: entry.color }}
-            />
+            <div className="w-3 h-3 shrink-0" style={{ backgroundColor: entry.color }} />
             <span className="text-sm text-gray-700">{entry.value}</span>
           </div>
         ))}
@@ -108,7 +114,7 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
               outerRadius={75}
               paddingAngle={2}
               stroke="none"
-              label={({ cx, cy, midAngle, outerRadius, value, name }: any) => {
+              label={({ cx, cy, midAngle, outerRadius, value }: any) => {
                 const RADIAN = Math.PI / 180;
                 const radius = (outerRadius ?? 75) + 10;
                 const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
@@ -123,7 +129,10 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
                     fontSize={12}
                     fontWeight={600}
                   >
-                    {formatNumberShort(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    {formatNumberShort(value, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}
                   </text>
                 );
               }}
@@ -133,12 +142,22 @@ function CommunityDisputeCard({ disputeData }: { disputeData?: any }) {
                 <Cell key={i} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip formatter={(value) => formatNumberShort(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+            <Tooltip
+              formatter={(value) =>
+                formatNumberShort(Number(value) || 0, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              }
+            />
             <Legend content={<CustomLegend />} />
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-sm font-medium text-gray-800 pt-2">Total Referred: {formatNumberShort(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+      <p className="text-sm font-medium text-gray-800 pt-2">
+        Total Referred:{" "}
+        {formatNumberShort(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </p>
     </div>
   );
 }
@@ -162,10 +181,7 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
       <div className="flex justify-center gap-6 mt-4">
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 shrink-0"
-              style={{ backgroundColor: entry.color }}
-            />
+            <div className="w-3 h-3 shrink-0" style={{ backgroundColor: entry.color }} />
             <span
               className="text-sm"
               style={
@@ -204,11 +220,18 @@ function OperationalDelaysCard({ delaysData }: { delaysData?: any }) {
               tick={{ fill: "#6B7280", fontSize: 12 }}
               axisLine={{ stroke: "#D1D5DB" }}
               width={48}
-              tickFormatter={(value) => formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              tickFormatter={(value) =>
+                formatNumberShort(value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              }
             />
             <Tooltip
               cursor={false}
-              formatter={(value) => formatNumberShort(Number(value) || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              formatter={(value) =>
+                formatNumberShort(Number(value) || 0, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              }
             />
             <Legend content={<CustomLegend />} />
             <Bar dataKey="count" name="Count" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} />

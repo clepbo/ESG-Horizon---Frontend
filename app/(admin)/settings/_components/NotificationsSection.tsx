@@ -9,9 +9,7 @@ export default function NotificationsSection() {
   const [prefs, setPrefs] = useState(notificationsFixture);
 
   const toggle = (key: string) => {
-    setPrefs((prev) =>
-      prev.map((p) => (p.key === key ? { ...p, enabled: !p.enabled } : p))
-    );
+    setPrefs((prev) => prev.map((p) => (p.key === key ? { ...p, enabled: !p.enabled } : p)));
   };
 
   return (
@@ -23,11 +21,7 @@ export default function NotificationsSection() {
               <p className="text-sm font-semibold text-gray-900">{p.title}</p>
               <p className="text-xs text-gray-700 mt-0.5">{p.subtitle}</p>
             </div>
-            <Toggle
-              checked={p.enabled}
-              onChange={() => toggle(p.key)}
-              ariaLabel={p.title}
-            />
+            <Toggle checked={p.enabled} onChange={() => toggle(p.key)} ariaLabel={p.title} />
           </li>
         ))}
       </ul>

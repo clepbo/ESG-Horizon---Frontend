@@ -16,7 +16,10 @@ export default function SystemHealthCard() {
         {systemHealth.map((row) => {
           const styles = STATUS_STYLES[row.status];
           return (
-            <li key={row.label} className={`flex items-center justify-between py-3 px-4 rounded-md ${styles.bg}`}>
+            <li
+              key={row.label}
+              className={`flex items-center justify-between py-3 px-4 rounded-md ${styles.bg}`}
+            >
               <span className="text-sm text-gray-700">{row.label}</span>
               <span className={`text-xs font-semibold ${styles.text}`}>{row.value}</span>
             </li>

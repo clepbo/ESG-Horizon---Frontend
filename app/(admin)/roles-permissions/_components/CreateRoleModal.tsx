@@ -46,7 +46,13 @@ const EMPTY: RolePayload = {
   permissions: [],
 };
 
-export default function CreateRoleModal({ open, mode, onClose, onSaveDraft, onActivate }: CreateRoleModalProps) {
+export default function CreateRoleModal({
+  open,
+  mode,
+  onClose,
+  onSaveDraft,
+  onActivate,
+}: CreateRoleModalProps) {
   const [form, setForm] = useState<RolePayload>(EMPTY);
   const [attempted, setAttempted] = useState(false);
 
@@ -130,7 +136,10 @@ export default function CreateRoleModal({ open, mode, onClose, onSaveDraft, onAc
             </Field>
 
             <Field label="Status" required error={null}>
-              <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v }))}>
+              <Select
+                value={form.status}
+                onValueChange={(v) => setForm((f) => ({ ...f, status: v }))}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>

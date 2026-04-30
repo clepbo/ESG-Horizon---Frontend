@@ -23,7 +23,9 @@ export function CustomProgress({ value, className, title, total, percent }: Cust
         <small> {title} </small>
         <small>
           {" "}
-          {formatNumberFull(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO<sub>2</sub>e{`(${formatNumberFull(percent, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)`}{" "}
+          {formatNumberFull(total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} tCO
+          <sub>2</sub>e
+          {`(${formatNumberFull(percent, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)`}{" "}
         </small>
       </span>
       <div className={cn("w-full rounded-full bg-green-200 h-2", className)}>

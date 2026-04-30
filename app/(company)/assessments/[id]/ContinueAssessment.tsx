@@ -90,9 +90,7 @@ export default function ContinueAssessment() {
               scope1Base.stationarySources ||
               assessment.assessmentData?.stationarySources,
             mobileSources:
-              mobileSources ||
-              scope1Base.mobileSources ||
-              assessment.assessmentData?.mobileSources,
+              mobileSources || scope1Base.mobileSources || assessment.assessmentData?.mobileSources,
             processEmissions:
               processEmissions ||
               scope1Base.processEmissions ||
@@ -116,9 +114,7 @@ export default function ContinueAssessment() {
           scope3: {
             ...scope3Base,
             upstream:
-              scope3Data?.upstream ||
-              scope3Base.upstream ||
-              assessment.assessmentData?.upstream,
+              scope3Data?.upstream || scope3Base.upstream || assessment.assessmentData?.upstream,
             downstream:
               scope3Data?.downstream ||
               scope3Base.downstream ||
@@ -169,7 +165,15 @@ export default function ContinueAssessment() {
     } else {
       dispatch({ type: "SET_VIEW", payload: "disclosure-topics" });
     }
-  }, [data, dispatch, assessmentId, state.assessmentId, state.currentView, forceDisclosure]);
+  }, [
+    data,
+    dispatch,
+    assessmentId,
+    state.assessmentId,
+    state.currentView,
+    forceDisclosure,
+    searchParams,
+  ]);
 
   if (isLoading) return <div className="p-10">Loading...</div>;
 

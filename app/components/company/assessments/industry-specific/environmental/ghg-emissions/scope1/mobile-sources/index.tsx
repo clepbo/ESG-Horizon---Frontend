@@ -24,7 +24,6 @@ export function MobileSourcesForm({
   onBack,
   onContinueToNextAssessment,
   initialStep,
-  onBackToDisclosureTopics,
 }: MobileSourcesFormProps) {
   const router = useRouter();
   const { state, dispatch } = useAssessment();

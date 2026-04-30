@@ -117,9 +117,7 @@ export default function AssessmentHubCard({
               <span className="font-medium">{progress}%</span>
             </div>
             <Progress value={progress} className="h-2" />
-            {sectionLabel && (
-              <p className="text-xs text-muted-foreground">{sectionLabel}</p>
-            )}
+            {sectionLabel && <p className="text-xs text-muted-foreground">{sectionLabel}</p>}
           </div>
         )}
 

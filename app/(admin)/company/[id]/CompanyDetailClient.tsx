@@ -88,7 +88,7 @@ export default function CompanyDetailsClient({ id }: Props) {
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-bold">{company.name}</h1>
-            <p className="text-gray-600">{company.industry?.sector}</p>
+            <p className="text-gray-600">{company.industry?.sector?.name}</p>
           </div>
         </div>
 
@@ -192,7 +192,7 @@ export default function CompanyDetailsClient({ id }: Props) {
           <CompanySubscriptionTab
             company={{
               company: company.name,
-              industry: company.industry?.industry,
+              industry: company.industry?.name,
             }}
           />
         )}

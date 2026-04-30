@@ -56,9 +56,7 @@ export default function UserPieChart() {
                   <Cell key={`slice-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                formatter={(value) => formatNumberFull(Number(value) || 0)}
-              />
+              <Tooltip formatter={(value) => formatNumberFull(Number(value) || 0)} />
               <Legend layout="horizontal" verticalAlign="bottom" align="center" />
             </PieChart>
           </ResponsiveContainer>

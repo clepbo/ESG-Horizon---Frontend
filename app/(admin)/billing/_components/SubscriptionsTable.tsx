@@ -10,7 +10,14 @@ import FilterSelect from "../../components/FilterSelect";
 import RowsPerPageSelect from "../../components/RowsPerPageSelect";
 
 const CATEGORY_OPTIONS = ["All Categories", "Enterprise", "Premium", "Basic", "Free"];
-const INDUSTRY_OPTIONS = ["All Industry", "Energy", "Renewable Energy", "Manufacturing", "Finance", "Retail"];
+const INDUSTRY_OPTIONS = [
+  "All Industry",
+  "Energy",
+  "Renewable Energy",
+  "Manufacturing",
+  "Finance",
+  "Retail",
+];
 const STATUS_OPTIONS = ["All Statuses", "Active", "Expired", "Pending", "Cancelled"];
 const ROWS_PER_PAGE_OPTIONS = [4, 10, 25];
 
@@ -45,7 +52,7 @@ export default function SubscriptionsTable({ onViewSubscription }: Subscriptions
       // Industry filter is decorative in the fixture — real wiring later
       return true;
     });
-  }, [search, category, industry, status]);
+  }, [search, category, status]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const currentPage = Math.min(page, totalPages);
@@ -166,4 +173,3 @@ export default function SubscriptionsTable({ onViewSubscription }: Subscriptions
     </div>
   );
 }
-

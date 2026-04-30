@@ -37,9 +37,17 @@ export interface GeneralTargetFormProps {
 }
 
 const currentYear = new Date().getFullYear();
-export const years = Array.from({ length: 2060 - (currentYear - 10) + 1 }, (_, i) => currentYear - 10 + i);
+export const years = Array.from(
+  { length: 2060 - (currentYear - 10) + 1 },
+  (_, i) => currentYear - 10 + i
+);
 
-export default function GeneralTargetForm({ data, onChange, onComplete, existingTarget }: GeneralTargetFormProps) {
+export default function GeneralTargetForm({
+  data,
+  onChange,
+  onComplete,
+  existingTarget,
+}: GeneralTargetFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   const companyId = user?.company?.id;
@@ -167,7 +175,13 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
     if (selectedBaselineId && emissionData.startYear > 0 && !emissionData.totals) {
       setShowPrerequisiteModal(true);
     }
-  }, [baselineOptionsQuery.isSuccess, baselineOptionsQuery.data, selectedBaselineId, emissionData.startYear, emissionData.totals]);
+  }, [
+    baselineOptionsQuery.isSuccess,
+    baselineOptionsQuery.data,
+    selectedBaselineId,
+    emissionData.startYear,
+    emissionData.totals,
+  ]);
 
   const handleInputChange = (field: keyof GeneralTargetData, value: string | number) => {
     let processedValue: any = value;
@@ -339,12 +353,18 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
                     );
                     if (!sel?.submittedAt && !sel?.approvedAt) return null;
                     const fmt = (v: string) =>
-                      new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+                      new Date(v).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      });
                     return (
                       <p className="text-xs text-gray-500 mt-1">
                         {sel.submittedAt && <>Submitted: {fmt(sel.submittedAt)}</>}
                         {sel.submittedAt && sel.approvedAt && <> &middot; </>}
-                        {sel.approvedAt && <span className="text-green-600">Approved: {fmt(sel.approvedAt)}</span>}
+                        {sel.approvedAt && (
+                          <span className="text-green-600">Approved: {fmt(sel.approvedAt)}</span>
+                        )}
                       </p>
                     );
                   })()}
@@ -489,8 +509,8 @@ export default function GeneralTargetForm({ data, onChange, onComplete, existing
             <Info className="h-12 w-12 text-amber-500 mx-auto" />
             <h2 className="text-xl font-semibold text-gray-900">Baseline Data Required</h2>
             <p className="text-gray-600 text-sm">
-              To set a reduction target, you need a completed baseline assessment with
-              calculated emissions data. Please ensure the following are in place:
+              To set a reduction target, you need a completed baseline assessment with calculated
+              emissions data. Please ensure the following are in place:
             </p>
             <ul className="text-left text-sm text-gray-600 space-y-1 pl-4">
               <li>&#x2022; At least one approved assessment</li>

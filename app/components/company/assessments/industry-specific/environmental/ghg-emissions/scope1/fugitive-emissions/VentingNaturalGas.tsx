@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -61,6 +62,8 @@ export function VentingNaturalGas({
     ventingNaturalGas?.volumeOfGasVented?.toString() ?? ""
   );
 
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
+
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -95,6 +98,13 @@ export function VentingNaturalGas({
           ? ventingNaturalGas.volumeOfGasVented.toString()
           : ""
       );
+      const ef = (ventingNaturalGas as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       if (ventingNaturalGas.files) setFiles(ventingNaturalGas.files);
       setAdditionalFields(ventingNaturalGas.additionalFields || []);
     }
@@ -110,10 +120,8 @@ export function VentingNaturalGas({
       volumeOfGasVented.rawValue !== undefined &&
       !isNaN(Number(volumeOfGasVented.rawValue)) &&
       Number(volumeOfGasVented.rawValue) >= 0;
-    const hasFiles =
-      Object.values(files).some(Boolean) || additionalFields.some((field) => field.file);
     return calculateProgress([hasVolume]);
-  }, [volumeOfGasVented.rawValue, files, additionalFields]);
+  }, [volumeOfGasVented.rawValue]);
 
   // FIX: Accept 0 and any valid number >= 0
   const validateForm = () => {
@@ -188,8 +196,12 @@ export function VentingNaturalGas({
       totalFields: total,
     });
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("venting-natural-gas")?.factor ?? null;
+
     const payload = {
       volumeOfGasVented: Number(volumeOfGasVented.rawValue),
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -221,11 +233,14 @@ export function VentingNaturalGas({
       toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
+    const resolvedNextFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("venting-natural-gas")?.factor ?? null;
     dispatch({
       type: "UPDATE_FUGITIVE_VENTING",
       payload: {
         // Use rawValue for saving
         volumeOfGasVented: Number(volumeOfGasVented.rawValue),
+        emissionFactor: resolvedNextFactor,
         files,
         additionalFields: additionalFields as FileMetadata[],
       },
@@ -334,6 +349,9 @@ export function VentingNaturalGas({
                   required={false}
                   error={errors.volumeOfGasVented}
                   showEmissionFactor={true}
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() => setErrors((prev) => ({ ...prev, volumeOfGasVented: "" }))}
                 />
               </div>

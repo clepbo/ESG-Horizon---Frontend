@@ -40,7 +40,10 @@ export function ProductionVolume({
     router.push("/assessments/activity-metrics");
   };
   const { state, dispatch } = useAssessment();
-  const { saveNow, saveAndSubmit } = useAssessmentFlow("activityMetrics.productionVolume", "foundationalData.activityMetrics.productionVolumes");
+  const { saveNow, saveAndSubmit } = useAssessmentFlow(
+    "activityMetrics.productionVolume",
+    "foundationalData.activityMetrics.productionVolumes"
+  );
 
   const crudeOilProduction = useFormattedNumber("");
   const naturalGasProduction = useFormattedNumber("");
@@ -111,12 +114,7 @@ export function ProductionVolume({
     const hasNaturalGas = naturalGasProduction.rawValue !== "";
     const hasSyntheticOil = syntheticOilProduction.rawValue !== "";
     const hasSyntheticGas = syntheticGasProduction.rawValue !== "";
-    return calculateProgress([
-      hasCrudeOil,
-      hasNaturalGas,
-      hasSyntheticOil,
-      hasSyntheticGas,
-    ]);
+    return calculateProgress([hasCrudeOil, hasNaturalGas, hasSyntheticOil, hasSyntheticGas]);
   }, [
     crudeOilProduction.rawValue,
     naturalGasProduction.rawValue,

@@ -94,8 +94,7 @@ export default function SetTargetByScope({ existingTarget, onComplete }: SetTarg
     if (!existingTarget || !existingTarget.scopeTargets?.length || didPrepopulate.current) return;
     didPrepopulate.current = true;
 
-    const findScope = (name: string) =>
-      existingTarget.scopeTargets.find((st) => st.scope === name);
+    const findScope = (name: string) => existingTarget.scopeTargets.find((st) => st.scope === name);
 
     const s1 = findScope("SCOPE1");
     const s2 = findScope("SCOPE2");
@@ -477,21 +476,28 @@ export default function SetTargetByScope({ existingTarget, onComplete }: SetTarg
                     readOnly
                     className="w-full bg-gray-50 cursor-not-allowed"
                   />
-                  {scope === "scope1" && (() => {
-                    const sel = baselineOptionsQuery.data?.find(
-                      (o: BaselineOption) => o.assessmentId === selectedBaselineId
-                    );
-                    if (!sel?.submittedAt && !sel?.approvedAt) return null;
-                    const fmt = (v: string) =>
-                      new Date(v).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-                    return (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {sel.submittedAt && <>Submitted: {fmt(sel.submittedAt)}</>}
-                        {sel.submittedAt && sel.approvedAt && <> &middot; </>}
-                        {sel.approvedAt && <span className="text-green-600">Approved: {fmt(sel.approvedAt)}</span>}
-                      </p>
-                    );
-                  })()}
+                  {scope === "scope1" &&
+                    (() => {
+                      const sel = baselineOptionsQuery.data?.find(
+                        (o: BaselineOption) => o.assessmentId === selectedBaselineId
+                      );
+                      if (!sel?.submittedAt && !sel?.approvedAt) return null;
+                      const fmt = (v: string) =>
+                        new Date(v).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        });
+                      return (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {sel.submittedAt && <>Submitted: {fmt(sel.submittedAt)}</>}
+                          {sel.submittedAt && sel.approvedAt && <> &middot; </>}
+                          {sel.approvedAt && (
+                            <span className="text-green-600">Approved: {fmt(sel.approvedAt)}</span>
+                          )}
+                        </p>
+                      );
+                    })()}
                 </>
               )}
             </div>
@@ -642,8 +648,8 @@ export default function SetTargetByScope({ existingTarget, onComplete }: SetTarg
             <Info className="h-12 w-12 text-amber-500 mx-auto" />
             <h2 className="text-xl font-semibold text-gray-900">Baseline Data Required</h2>
             <p className="text-gray-600 text-sm">
-              To set scope-based reduction targets, you need a completed baseline assessment
-              with calculated emissions data. Please ensure the following are in place:
+              To set scope-based reduction targets, you need a completed baseline assessment with
+              calculated emissions data. Please ensure the following are in place:
             </p>
             <ul className="text-left text-sm text-gray-600 space-y-1 pl-4">
               <li>&#x2022; At least one approved assessment</li>

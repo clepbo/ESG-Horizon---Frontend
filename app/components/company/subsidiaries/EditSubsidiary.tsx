@@ -103,9 +103,9 @@ export default function EditSubsidiaryModal({
     label: `${u.first_name || ""} ${u.last_name || ""} (${u.email})`.trim(),
   }));
 
-  const sectors = Array.from(new Set(allIndustries.map((i) => i.sector)));
+  const sectors = Array.from(new Set(allIndustries.map((i) => i.sector?.name).filter(Boolean)));
   const industriesInSelectedSector = allIndustries.filter(
-    (i) => i.sector === formData.industry?.sector
+    (i) => i.sector?.name === formData.industry?.sector?.name
   );
 
   return (
@@ -139,10 +139,10 @@ export default function EditSubsidiaryModal({
           <div>
             <Label>Sector *</Label>
             <ShadcnSelect
-              value={formData.industry?.sector || ""}
+              value={formData.industry?.sector?.name || ""}
               onValueChange={(v) =>
                 setFormData((prev) => {
-                  const newIndustry = allIndustries.find((ind) => ind.sector === v);
+                  const newIndustry = allIndustries.find((ind) => ind.sector?.name === v);
                   return { ...prev, industry: newIndustry };
                 })
               }
@@ -163,10 +163,10 @@ export default function EditSubsidiaryModal({
           <div>
             <Label>Industry *</Label>
             <ShadcnSelect
-              value={formData.industry?.industry || ""}
+              value={formData.industry?.name || ""}
               onValueChange={(v) =>
                 setFormData((prev) => {
-                  const selectedIndustry = allIndustries.find((ind) => ind.industry === v);
+                  const selectedIndustry = allIndustries.find((ind) => ind.name === v);
                   return { ...prev, industry: selectedIndustry };
                 })
               }
@@ -176,8 +176,8 @@ export default function EditSubsidiaryModal({
               </SelectTrigger>
               <SelectContent>
                 {industriesInSelectedSector.map((industry) => (
-                  <SelectItem key={industry.id} value={industry.industry || ""}>
-                    {industry.industry}
+                  <SelectItem key={industry.id} value={industry.name || ""}>
+                    {industry.name}
                   </SelectItem>
                 ))}
               </SelectContent>

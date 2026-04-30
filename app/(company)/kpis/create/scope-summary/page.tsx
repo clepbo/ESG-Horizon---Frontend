@@ -66,7 +66,16 @@ export default function ScopeSummaryPage() {
     mutationFn: async (targetData: ScopeTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
       if (targetId) {
-        return await api.patch(`/target/${targetId}`, targetData);
+        try {
+          return await api.patch(`/target/${targetId}`, targetData);
+        } catch (err: any) {
+          // Stale targetId (e.g. after a DB wipe) — fall through to POST.
+          if (err?.response?.status === 404) {
+            setTargetId(null);
+            return await api.post(`/target`, targetData);
+          }
+          throw err;
+        }
       }
       return await api.post(`/target`, targetData);
     },
@@ -79,9 +88,7 @@ export default function ScopeSummaryPage() {
       if (error._toastShown) return;
       const status = error?.response?.status;
       const serverMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong.";
+        error?.response?.data?.message || error?.message || "Something went wrong.";
       const isOverlapError =
         status === 400 || /already exists|overlapping|cannot create/i.test(String(serverMessage));
       if (serverMessage && isOverlapError) {
@@ -110,7 +117,7 @@ export default function ScopeSummaryPage() {
       return;
     }
 
-    const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}-${summaryData.scopeTargetData.scope1.targetYear}-${Date.now()}`;
+    const uniqueName = `Scope Target ${summaryData.scopeTargetData.scope1.baselineYear}–${summaryData.scopeTargetData.scope1.targetYear}`;
 
     const scopes = summaryData.scopeTargetData;
     const invalidScopes = ["scope1", "scope2", "scope3"].filter((key) => {

@@ -24,7 +24,13 @@ function getOverallStatus(statuses: SectionStatus[]): SectionStatus {
   return "not-started";
 }
 
-export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: ActivityMetricsTabProps) {
+export function ActivityMetricsTab({
+  assessmentData,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: ActivityMetricsTabProps) {
   // Activity metrics may live at foundationalData.activityMetrics (post-migration)
   // or at root activityMetrics (pre-migration / subsequent saves)
   const foundationalAm = assessmentData.foundationalData?.activityMetrics || {};
@@ -44,9 +50,21 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
     rootAm.terrestrialSites ||
     {};
 
-  const pvStatus = getFormSectionStatus(submittedGroups, "foundationalData.activityMetrics.productionVolumes", productionVolume);
-  const offshoreStatus = getFormSectionStatus(submittedGroups, "foundationalData.activityMetrics.offshoreSites", offshore);
-  const terrestrialStatus = getFormSectionStatus(submittedGroups, "foundationalData.activityMetrics.terrestrialSites", terrestrial);
+  const pvStatus = getFormSectionStatus(
+    submittedGroups,
+    "foundationalData.activityMetrics.productionVolumes",
+    productionVolume
+  );
+  const offshoreStatus = getFormSectionStatus(
+    submittedGroups,
+    "foundationalData.activityMetrics.offshoreSites",
+    offshore
+  );
+  const terrestrialStatus = getFormSectionStatus(
+    submittedGroups,
+    "foundationalData.activityMetrics.terrestrialSites",
+    terrestrial
+  );
   const overallStatus = getOverallStatus([pvStatus, offshoreStatus, terrestrialStatus]);
 
   // Badge: total sites
@@ -58,11 +76,16 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
   const hasProdData = productionVolume.crudeOilProductionVolume != null;
 
   const badgeParts: string[] = [];
-  if (hasProdData && crudeOil > 0) badgeParts.push(`${formatNumberShort(crudeOil)} ${productionVolume.crudeOilProductionUnit || "kbl/day"}`);
+  if (hasProdData && crudeOil > 0)
+    badgeParts.push(
+      `${formatNumberShort(crudeOil)} ${productionVolume.crudeOilProductionUnit || "kbl/day"}`
+    );
   if (hasSiteData && totalSites > 0) badgeParts.push(`${formatNumberShort(totalSites)} sites`);
 
   // Incomplete count
-  const incompleteCount = [pvStatus, offshoreStatus, terrestrialStatus].filter((s) => s !== "submitted").length;
+  const incompleteCount = [pvStatus, offshoreStatus, terrestrialStatus].filter(
+    (s) => s !== "submitted"
+  ).length;
 
   // Collect documents
   const pvFiles: FileWithMeta[] = [];
@@ -88,14 +111,19 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
           title="Production Volumes"
           status={pvStatus}
           onEdit={onEditSection && (() => onEditSection("activity-metrics", "production-volume"))}
-          onClear={onClearSection && (() => onClearSection("foundationalData.activityMetrics.productionVolume"))}
+          onClear={
+            onClearSection &&
+            (() => onClearSection("foundationalData.activityMetrics.productionVolume"))
+          }
           documents={pvFiles}
           onFileClick={onFileClick}
         >
           <div className="mb-4">
             <h5 className="text-sm font-semibold text-gray-700">Production Data</h5>
             <div className="flex items-center justify-between mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <span className="text-xs text-gray-700 font-medium">Average Daily Production (Reporting Year)</span>
+              <span className="text-xs text-gray-700 font-medium">
+                Average Daily Production (Reporting Year)
+              </span>
               <StatusDot status={pvStatus} />
             </div>
           </div>
@@ -110,17 +138,22 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
               {
                 label: "Natural Gas Production",
                 value: productionVolume.naturalGasProductionVolume,
-                unit: productionVolume.naturalGasProductionUnit || "Million standard cubic feet/day (mmscfd)",
+                unit:
+                  productionVolume.naturalGasProductionUnit ||
+                  "Million standard cubic feet/day (mmscfd)",
               },
               {
                 label: "Synthetic Oil Production",
                 value: productionVolume.syntheticOilProductionVolume,
-                unit: productionVolume.syntheticOilProductionUnit || "Thousand barrels/day (kbl/day)",
+                unit:
+                  productionVolume.syntheticOilProductionUnit || "Thousand barrels/day (kbl/day)",
               },
               {
                 label: "Synthetic Gas Production",
                 value: productionVolume.syntheticGasProductionVolume,
-                unit: productionVolume.syntheticGasProductionUnit || "Million standard cubic feet/day (mmscfd)",
+                unit:
+                  productionVolume.syntheticGasProductionUnit ||
+                  "Million standard cubic feet/day (mmscfd)",
               },
             ]}
           />
@@ -131,7 +164,10 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
           title="Offshore Sites"
           status={offshoreStatus}
           onEdit={onEditSection && (() => onEditSection("activity-metrics", "offshore-sites"))}
-          onClear={onClearSection && (() => onClearSection("foundationalData.activityMetrics.assetPortfolio.offshoreSites"))}
+          onClear={
+            onClearSection &&
+            (() => onClearSection("foundationalData.activityMetrics.assetPortfolio.offshoreSites"))
+          }
           documents={offshoreFiles}
           onFileClick={onFileClick}
         >
@@ -145,10 +181,18 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
           <DataFieldGrid
             columns={4}
             fields={[
-              { label: "Total Number of Offshore Sites (Calculated)", value: offshore.totalNumber, unit: "sites", highlight: true },
+              {
+                label: "Total Number of Offshore Sites (Calculated)",
+                value: offshore.totalNumber,
+                unit: "sites",
+                highlight: true,
+              },
               { label: "Number of Production Platforms", value: offshore.productionPlatforms },
               { label: "Number of FPSOs", value: offshore.FPSOs },
-              { label: "Number of Other Offshore Sites (FSOs, Drilling Rigs, SBMs)", value: offshore.otherSites },
+              {
+                label: "Number of Other Offshore Sites (FSOs, Drilling Rigs, SBMs)",
+                value: offshore.otherSites,
+              },
             ]}
           />
         </SubMetricSection>
@@ -158,7 +202,11 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
           title="Terrestrial Sites"
           status={terrestrialStatus}
           onEdit={onEditSection && (() => onEditSection("activity-metrics", "terrestrial-sites"))}
-          onClear={onClearSection && (() => onClearSection("foundationalData.activityMetrics.assetPortfolio.terrestrialSites"))}
+          onClear={
+            onClearSection &&
+            (() =>
+              onClearSection("foundationalData.activityMetrics.assetPortfolio.terrestrialSites"))
+          }
           documents={terrestrialFiles}
           onFileClick={onFileClick}
         >
@@ -172,10 +220,18 @@ export function ActivityMetricsTab({ assessmentData, submittedGroups, onFileClic
           <DataFieldGrid
             columns={4}
             fields={[
-              { label: "Total Number of Terrestrial Sites (Calculated)", value: terrestrial.totalNumber, unit: "sites", highlight: true },
+              {
+                label: "Total Number of Terrestrial Sites (Calculated)",
+                value: terrestrial.totalNumber,
+                unit: "sites",
+                highlight: true,
+              },
               { label: "Number of Flow Stations", value: terrestrial.flowStations },
               { label: "Number of Gas Processing Plants", value: terrestrial.gasProcessingPlants },
-              { label: "Number of Other Terrestrial Sites (Terminals, Logistics Bases)", value: terrestrial.otherSites },
+              {
+                label: "Number of Other Terrestrial Sites (Terminals, Logistics Bases)",
+                value: terrestrial.otherSites,
+              },
             ]}
           />
         </SubMetricSection>

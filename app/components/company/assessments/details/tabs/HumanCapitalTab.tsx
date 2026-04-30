@@ -23,11 +23,22 @@ function hasData(obj: any) {
   if (!obj) return false;
   return Object.keys(obj).some((k) => {
     const v = obj[k];
-    return v !== undefined && v !== null && v !== "" && !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k);
+    return (
+      v !== undefined &&
+      v !== null &&
+      v !== "" &&
+      !["filesAndLinks", "files", "additionalFields", "calculated"].includes(k)
+    );
   });
 }
 
-export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, onEditSection, onClearSection }: HumanCapitalTabProps) {
+export function HumanCapitalTab({
+  assessmentData,
+  submittedGroups,
+  onFileClick,
+  onEditSection,
+  onClearSection,
+}: HumanCapitalTabProps) {
   const humanCapital = assessmentData.humanCapital || {};
   const hsp = humanCapital.riskAndOpportunityManagement?.healthAndSafetyPerformance || {};
   const directEmployees = hsp.direct || {};
@@ -63,14 +74,15 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
   const hcStatus: SectionStatus = hcStatuses.every((s) => s === "submitted")
     ? "submitted"
     : hcStatuses.some((s) => s !== "not-started")
-    ? "in-progress"
-    : "not-started";
+      ? "in-progress"
+      : "not-started";
 
   // Badge: total recordable incidents (direct + contract)
   const directIncidents = Number(directEmployees.recordableIncidents) || 0;
   const contractIncidents = Number(contractEmployees.recordableIncidents) || 0;
   const totalIncidents = directIncidents + contractIncidents;
-  const hasIncidentData = directEmployees.recordableIncidents != null || contractEmployees.recordableIncidents != null;
+  const hasIncidentData =
+    directEmployees.recordableIncidents != null || contractEmployees.recordableIncidents != null;
 
   // Badge: total fatalities
   const directFatalities = Number(directEmployees.fatalities) || 0;
@@ -108,15 +120,26 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
             status={hspStatus}
             documents={hspFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("workforce-health-and-safety", "health-safety-performance"))}
-            onClear={onClearSection && (() => onClearSection("humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("workforce-health-and-safety", "health-safety-performance"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "humanCapital.riskAndOpportunityManagement.healthAndSafetyPerformance"
+                ))
+            }
           >
             {!hasData(hsp) ? (
               <EmptyState />
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Health &amp; Safety Performance</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Health &amp; Safety Performance
+                  </span>
                   <StatusDot status={hspStatus} />
                 </div>
 
@@ -164,7 +187,9 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
                   {/* Contract Employees Card */}
                   <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                      <span className="text-sm font-semibold text-gray-800">Contract Employees</span>
+                      <span className="text-sm font-semibold text-gray-800">
+                        Contract Employees
+                      </span>
                       <StatusDot status={contractStatus} />
                     </div>
                     <div className="p-4">
@@ -211,15 +236,26 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
             status={safetyStatus}
             documents={safetyFiles}
             onFileClick={onFileClick}
-            onEdit={onEditSection && (() => onEditSection("workforce-health-and-safety", "safety-management-systems"))}
-            onClear={onClearSection && (() => onClearSection("humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"))}
+            onEdit={
+              onEditSection &&
+              (() => onEditSection("workforce-health-and-safety", "safety-management-systems"))
+            }
+            onClear={
+              onClearSection &&
+              (() =>
+                onClearSection(
+                  "humanCapital.workforceHealthAndSafety.riskAndOpportunityManagement.safetyManagementSystems"
+                ))
+            }
           >
             {!hasData(safetyMgmt) ? (
               <EmptyState />
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="text-xs text-gray-700 font-medium">Safety Management System</span>
+                  <span className="text-xs text-gray-700 font-medium">
+                    Safety Management System
+                  </span>
                   <StatusDot status={safetyStatus} />
                 </div>
                 <DataFieldGrid
@@ -228,11 +264,13 @@ export function HumanCapitalTab({ assessmentData, submittedGroups, onFileClick, 
                     {
                       label: "Executive Remuneration Linked to Safety KPIs?",
                       value:
-                        safetyMgmt.executiveRemunerationLinked === true || safetyMgmt.executiveRemunerationLinked === "yes"
+                        safetyMgmt.executiveRemunerationLinked === true ||
+                        safetyMgmt.executiveRemunerationLinked === "yes"
                           ? "Yes"
-                          : safetyMgmt.executiveRemunerationLinked === false || safetyMgmt.executiveRemunerationLinked === "no"
-                          ? "No"
-                          : safetyMgmt.executiveRemunerationLinked,
+                          : safetyMgmt.executiveRemunerationLinked === false ||
+                              safetyMgmt.executiveRemunerationLinked === "no"
+                            ? "No"
+                            : safetyMgmt.executiveRemunerationLinked,
                     },
                     {
                       label: "Description of Safety Management Systems",

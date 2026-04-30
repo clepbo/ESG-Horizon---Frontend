@@ -122,7 +122,7 @@ export default function ESGCompanyTable({ companies }: CompanyTableProps) {
             <tr key={company.id} className="hover:bg-gray-50">
               <td className="px-4 py-3 font-medium">{company.name}</td>
               <td className="px-4 py-3">
-                {company.industry?.industry} ({company.industry?.sector})
+                {company.industry?.name} ({company.industry?.sector?.name})
               </td>
               <td className="px-4 py-3">{company.contact_email}</td>
               <td className="px-4 py-3">

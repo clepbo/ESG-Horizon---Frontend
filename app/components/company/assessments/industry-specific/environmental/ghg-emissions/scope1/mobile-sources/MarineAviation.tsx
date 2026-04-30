@@ -76,8 +76,12 @@ export function MarineAviation({
     isSubmitting,
     isPreviouslySubmitted,
     getSubmitLabel,
-  } = useAssessmentFlow("ghg-mobile-sources-marine-aviation", "environment.ghg.scope1.mobileSources");
-  const hasExistingData = !!state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
+  } = useAssessmentFlow(
+    "ghg-mobile-sources-marine-aviation",
+    "environment.ghg.scope1.mobileSources"
+  );
+  const hasExistingData =
+    !!state.assessmentData.environment?.ghg?.scope1?.mobileSources?.marineAviation;
 
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -338,7 +342,10 @@ export function MarineAviation({
       if (vehicleEquipment) {
         await saveQuiet("environment.ghg.scope1.mobileSources.vehicleEquipment", vehicleEquipment);
       }
-      const res = await saveAndSubmit("environment.ghg.scope1.mobileSources.marineAviation", payload);
+      const res = await saveAndSubmit(
+        "environment.ghg.scope1.mobileSources.marineAviation",
+        payload
+      );
       if (!assessmentId && res?.assessment?.id)
         dispatch({ type: "SET_ASSESSMENT_ID", payload: res.assessment.id });
       onSubmit(res?.totals ?? null);
