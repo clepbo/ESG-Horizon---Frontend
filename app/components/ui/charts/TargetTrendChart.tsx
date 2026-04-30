@@ -81,7 +81,11 @@ const STATUS_LABEL: Record<DotStatus, string> = {
   behind: "Behind",
   backsliding: "Backsliding",
   achieved: "Achieved",
-  missed: "Missed",
+  // "Below target" rather than "Missed" — the user made some progress (e.g.
+  // 21% of the way to a 25% reduction goal) but didn't reach 100% by the
+  // target year. "Missed" reads punishing for what is actually partial
+  // progress; full red is reserved for Backsliding.
+  missed: "Below target",
   "no-baseline": "No baseline",
 };
 
@@ -91,7 +95,7 @@ const STATUS_TEXT: Record<DotStatus, string> = {
   behind: "text-amber-700",
   backsliding: "text-red-700",
   achieved: "text-emerald-700",
-  missed: "text-red-700",
+  missed: "text-amber-700",
   "no-baseline": "text-gray-600",
 };
 
@@ -194,10 +198,13 @@ function deriveDotStatus(args: {
 }): DotStatus {
   if (!args.hasBaseline) return "no-baseline";
   if (!args.hasCurrent || args.progress == null) return "committed";
+  // Backsliding wins over the past-target-year verdict — a metric that's
+  // catastrophically over baseline (e.g. -6000% progress) shouldn't read
+  // as merely "Missed". The severity matters.
+  if (args.progress < 0) return "backsliding";
   if (args.pastTargetYear) {
     return args.progress >= 100 ? "achieved" : "missed";
   }
-  if (args.progress < 0) return "backsliding";
   if (args.progress >= 100) return "on-track";
   return args.progress >= args.elapsedPct ? "on-track" : "behind";
 }
@@ -501,6 +508,16 @@ interface MatrixTooltipProps {
   payload?: Array<{ payload?: DotDatum }>;
 }
 
+/** Format the actual progress percentage with thousands separators so big
+ *  values stay readable (e.g. 8,978% instead of 8978%). The arrow flags a
+ *  negative value (emissions went up). */
+function formatProgressPct(raw: number | null): string {
+  if (raw == null || !Number.isFinite(raw)) return "—";
+  const arrow = raw < 0 ? "↑" : "";
+  const abs = Math.abs(raw);
+  return `${arrow}${abs.toLocaleString("en-US", { maximumFractionDigits: 0 })}%`;
+}
+
 function MatrixTooltip({ active, payload }: MatrixTooltipProps) {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload;
@@ -527,9 +544,7 @@ function MatrixTooltip({ active, payload }: MatrixTooltipProps) {
         <div className="flex justify-between">
           <span className="text-gray-500">Progress:</span>
           <span className={`font-semibold ${STATUS_TEXT[d.status]}`}>
-            {d.rawProgress != null
-              ? `${d.rawProgress < 0 ? "↑" : ""}${Math.abs(d.rawProgress).toFixed(0)}%`
-              : "—"}
+            {formatProgressPct(d.rawProgress)}
           </span>
         </div>
         <div className="flex justify-between">
