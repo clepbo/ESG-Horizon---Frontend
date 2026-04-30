@@ -145,6 +145,7 @@ export interface AssessmentData {
             R507A: boolean;
             others: number | string;
             refrigerantAdded: number | string;
+            hfcGwp?: number | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };
@@ -155,6 +156,7 @@ export interface AssessmentData {
           electricity?: {
             electricityConsumed: string;
             supplier: string;
+            emissionFactor?: number | string | null;
             files?: { [key: string]: FileMetadata | null };
             additionalFields?: FileMetadata[];
           };

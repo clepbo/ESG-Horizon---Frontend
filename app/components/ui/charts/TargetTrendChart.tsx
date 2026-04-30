@@ -415,7 +415,43 @@ function buildMatrix(targets: TargetLike[], currentYear: number): BuiltMatrix {
     if (seen.has(m.name)) legend.push(m);
   }
 
+  dejitterOverlappingDots(dots);
+
   return { dots, legend, noBaselineMetrics, committed };
+}
+
+/**
+ * Spread dots that land on (approximately) the same coordinates. Common when
+ * multiple targets share a clamped extreme — e.g. two metrics both deeply
+ * backsliding land at (100%, -100%) and stack on top of each other.
+ *
+ * Buckets dots in 5% × 5% cells, then for each cell with 2+ dots distributes
+ * them around a small ring so all are visible. Mutates in place — the
+ * tooltip still reads the underlying baseline / current / target / progress
+ * fields, so the visual offset doesn't lie about the data.
+ */
+function dejitterOverlappingDots(dots: DotDatum[]): void {
+  const buckets = new Map<string, DotDatum[]>();
+  for (const d of dots) {
+    const key = `${Math.round(d.x / 5)},${Math.round(d.y / 5)}`;
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = [];
+      buckets.set(key, bucket);
+    }
+    bucket.push(d);
+  }
+
+  const RADIUS = 5; // % units in data space — roughly one dot diameter
+  for (const bucket of buckets.values()) {
+    if (bucket.length < 2) continue;
+    const n = bucket.length;
+    bucket.forEach((d, i) => {
+      const angle = (i / n) * 2 * Math.PI;
+      d.x = Math.max(X_MIN, Math.min(X_MAX, d.x + RADIUS * Math.cos(angle)));
+      d.y = Math.max(Y_MIN, Math.min(Y_MAX, d.y + RADIUS * Math.sin(angle)));
+    });
+  }
 }
 
 function normalizeProps(props: TargetTrendChartProps): TargetLike[] {

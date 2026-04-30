@@ -26,6 +26,8 @@ import { useAssessment } from "@/hooks/useAssessment";
 import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import SmartInput from "../components/Scope3Input";
+import { EmissionFactorBanner } from "@/app/components/company/assessments/EmissionFactorBanner";
+import { SCOPE3_EMISSION_FACTORS } from "@/lib/scope3EmissionFactors";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
 interface UseOfSoldProductsProps {
@@ -521,6 +523,12 @@ export function UseOfSoldProducts({
                         </Tooltip>
                       </TooltipProvider>
                     </div>
+                    <EmissionFactorBanner
+                      factor={SCOPE3_EMISSION_FACTORS.useOfSoldProducts.factor}
+                      unit={SCOPE3_EMISSION_FACTORS.useOfSoldProducts.unit}
+                      source={SCOPE3_EMISSION_FACTORS.useOfSoldProducts.source}
+                      className="mb-3"
+                    />
                     <SmartInput
                       label=""
                       type="number"

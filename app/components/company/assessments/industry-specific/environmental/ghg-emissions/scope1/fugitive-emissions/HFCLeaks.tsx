@@ -28,6 +28,16 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+
+// Per-refrigerant 100-year GWP (AR5 values, kgCO2e/kg)
+const REFRIGERANT_GWP: Record<string, number> = {
+  R134a: 1430,
+  R410A: 2088,
+  R404A: 3922,
+  R407C: 1774,
+  R507A: 3985,
+};
+const HFC_DEFAULT_GWP = 1300;
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -73,6 +83,9 @@ export function HFCLeaks({
     R507A: Boolean(hfcLeaks?.R507A),
   });
 
+  // User-edited factor (null = use auto-derived from checkbox)
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
+
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(hfcLeaks?.files || {});
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -115,6 +128,23 @@ export function HFCLeaks({
           ? hfcLeaks.refrigerantAdded.toString()
           : ""
       );
+      // Hydrate user-customised GWP if it was saved and differs from the
+      // auto-derived value from saved checkboxes.
+      const savedGwp = (hfcLeaks as any).hfcGwp;
+      if (savedGwp !== null && savedGwp !== undefined && savedGwp !== "") {
+        const num = Number(savedGwp);
+        if (!isNaN(num)) {
+          // Recompute derived from saved checkboxes — only treat saved value
+          // as a custom override when it differs from the auto-derived.
+          const selected = (Object.keys(formState) as Array<keyof typeof formState>).filter(
+            (k) => Boolean((hfcLeaks as any)[k]),
+          );
+          const derived = selected.length
+            ? Math.max(...selected.map((k) => REFRIGERANT_GWP[k] ?? HFC_DEFAULT_GWP))
+            : HFC_DEFAULT_GWP;
+          setCustomEmissionFactor(num !== derived ? num : null);
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hfcLeaks]);
@@ -145,6 +175,39 @@ export function HFCLeaks({
 
     return calculateProgress([hasOthers, hasRefrigerantAdded, hasCheckboxes]);
   }, [formState, files, additionalFields, others.rawValue, refrigerantAdded.rawValue]);
+
+  // Auto-derived GWP from selected refrigerants. When multiple refrigerants
+  // are checked we use the highest GWP (most conservative). User can override
+  // via Edit Factor — that override takes precedence (customEmissionFactor).
+  const derivedGwp = useMemo(() => {
+    const selected = (Object.keys(formState) as Array<keyof typeof formState>).filter(
+      (k) => formState[k]
+    );
+    if (!selected.length) return HFC_DEFAULT_GWP;
+    return Math.max(...selected.map((k) => REFRIGERANT_GWP[k] ?? HFC_DEFAULT_GWP));
+  }, [formState]);
+
+  // Reset user override when refrigerant selection changes — auto-derived
+  // factor should re-take effect until the user explicitly edits again.
+  // Skip on initial mount to preserve hydrated value.
+  const skipNextResetRef = useRef(true);
+  useEffect(() => {
+    if (skipNextResetRef.current) {
+      skipNextResetRef.current = false;
+      return;
+    }
+    setCustomEmissionFactor(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    formState.R134a,
+    formState.R410A,
+    formState.R404A,
+    formState.R407C,
+    formState.R507A,
+  ]);
+
+  // The active factor that drives the banner display + payload save.
+  const activeFactor = customEmissionFactor ?? derivedGwp;
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
@@ -249,6 +312,7 @@ export function HFCLeaks({
       R507A: formState.R507A,
       others: Number(others.rawValue) || 0,
       refrigerantAdded: Number(refrigerantAdded.rawValue),
+      hfcGwp: activeFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -302,6 +366,7 @@ export function HFCLeaks({
       R507A: formState.R507A,
       others: Number(others.rawValue) || 0,
       refrigerantAdded: Number(refrigerantAdded.rawValue),
+      hfcGwp: activeFactor,
       files,
       additionalFields: normalizeFiles(additionalFields),
       progressPercent,
@@ -532,6 +597,9 @@ export function HFCLeaks({
                     required={false}
                     error={errors.refrigerantAdded}
                     showEmissionFactor={true}
+                    editableFactor={true}
+                    customEmissionFactor={activeFactor}
+                    onCustomFactorChange={setCustomEmissionFactor}
                     onErrorClear={() => setErrors((prev) => ({ ...prev, refrigerantAdded: "" }))}
                   />
                 </div>
