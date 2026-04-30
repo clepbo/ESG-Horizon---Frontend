@@ -144,7 +144,17 @@ export default function SummaryPage() {
     mutationFn: async (targetDataPayload: GeneralTargetPayload) => {
       if (!companyId) throw new Error("Company ID not available");
       if (targetId) {
-        return await api.patch(`/target/${targetId}`, targetDataPayload);
+        try {
+          return await api.patch(`/target/${targetId}`, targetDataPayload);
+        } catch (err: any) {
+          // Cached targetId is stale (target was deleted server-side, e.g.
+          // after a DB wipe). Fall through to POST instead of 404-ing.
+          if (err?.response?.status === 404) {
+            setTargetId(null);
+            return await api.post(`/target`, targetDataPayload);
+          }
+          throw err;
+        }
       }
       return await api.post(`/target`, targetDataPayload);
     },

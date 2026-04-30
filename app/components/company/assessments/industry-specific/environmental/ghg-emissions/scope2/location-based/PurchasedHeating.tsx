@@ -28,6 +28,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -70,6 +71,7 @@ export function PurchasedHeatingForm({
   } = useFormattedNumber("");
 
   const [supplierName, setSupplierName] = useState("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -122,6 +124,13 @@ export function PurchasedHeatingForm({
       );
 
       setSupplierName(existingData.supplierName || "");
+      const ef = (existingData as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -190,10 +199,14 @@ export function PurchasedHeatingForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("heating")?.factor ?? null;
+
     const payload = {
       heatingPurchased,
       heatingConsumed: heatingConsumedRaw,
       supplierName,
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -240,10 +253,14 @@ export function PurchasedHeatingForm({
     const cooling = state.assessmentData.environment?.ghg?.scope2?.locationBased?.cooling;
     const steam = state.assessmentData.environment?.ghg?.scope2?.locationBased?.steam;
 
+    const resolvedSubmitFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("heating")?.factor ?? null;
+
     const payload = {
       heatingPurchased,
       heatingConsumed: heatingConsumedRaw,
       supplierName,
+      emissionFactor: resolvedSubmitFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -433,6 +450,9 @@ export function PurchasedHeatingForm({
                     required={heatingPurchased === "yes"}
                     error={errors.heatingConsumed}
                     showEmissionFactor={heatingPurchased === "yes"}
+                    editableFactor={true}
+                    customEmissionFactor={customEmissionFactor}
+                    onCustomFactorChange={setCustomEmissionFactor}
                     onErrorClear={() =>
                       setErrors((prev) => ({ ...prev, heatingConsumed: undefined }))
                     }

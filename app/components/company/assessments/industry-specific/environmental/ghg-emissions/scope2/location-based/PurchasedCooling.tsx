@@ -28,6 +28,7 @@ import { useAssessmentFlow } from "@/hooks/useAssessmentFlow";
 import { useFormattedNumber } from "@/hooks/useNumberFormater";
 import { useRouter } from "next/navigation";
 import { ScopeInput } from "@/app/components/company/assessments/ScopeInput";
+import { getScopeEmissionFactor } from "@/lib/scopeEmissionFactor";
 import { BreadcrumbItemType, CustomBreadcrumbDynamic } from "@/app/components/ui/CustomBreadcrumb";
 import { FilePreview } from "@/app/components/common/FilePreview";
 
@@ -71,6 +72,7 @@ export function PurchasedCoolingForm({
   const coolingConsumed = useFormattedNumber("");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [otherComments, setOtherComments] = useState("");
+  const [customEmissionFactor, setCustomEmissionFactor] = useState<number | null>(null);
   const [files, setFiles] = useState<{ [key: string]: FileMetadata | null }>(
     Object.fromEntries(uploadFields.map((field) => [field, null]))
   );
@@ -110,6 +112,13 @@ export function PurchasedCoolingForm({
       );
       setSelectedSystems(existingData.selectedSystems || []);
       setOtherComments(existingData.otherComments || "");
+      const ef = (existingData as any).emissionFactor;
+      if (ef !== null && ef !== undefined && ef !== "") {
+        const num = Number(ef);
+        setCustomEmissionFactor(isNaN(num) ? null : num);
+      } else {
+        setCustomEmissionFactor(null);
+      }
       setFiles(
         existingData.files ?? Object.fromEntries(uploadFields.map((field) => [field, null]))
       );
@@ -216,10 +225,14 @@ export function PurchasedCoolingForm({
   const saveForm = async (options: { showToast?: boolean; redirect?: boolean } = {}) => {
     const { showToast = true, redirect = true } = options;
 
+    const resolvedFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("cooling")?.factor ?? null;
+
     const payload = {
       coolingConsumed: String(coolingConsumed.rawValue) || "",
       selectedSystems,
       otherComments,
+      emissionFactor: resolvedFactor,
       files,
       additionalFields: additionalFields.map((f) => ({
         name: f.name,
@@ -265,12 +278,15 @@ export function PurchasedCoolingForm({
       toast.error("Fields cannot be empty. Enter 0 if data is unavailable for a specific section.");
       return;
     }
+    const resolvedNextFactor =
+      customEmissionFactor ?? getScopeEmissionFactor("cooling")?.factor ?? null;
     dispatch({
       type: "UPDATE_LOCATION_COOLING",
       payload: {
         coolingConsumed: String(coolingConsumed.rawValue) || "",
         selectedSystems,
         otherComments,
+        emissionFactor: resolvedNextFactor,
         files,
         additionalFields: additionalFields.map((f) => ({
           name: f.name,
@@ -395,6 +411,9 @@ export function PurchasedCoolingForm({
                   required={false}
                   error={errors.coolingConsumed}
                   showEmissionFactor={true}
+                  editableFactor={true}
+                  customEmissionFactor={customEmissionFactor}
+                  onCustomFactorChange={setCustomEmissionFactor}
                   onErrorClear={() =>
                     setErrors((prev) => ({ ...prev, coolingConsumed: undefined }))
                   }

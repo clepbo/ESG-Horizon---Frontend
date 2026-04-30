@@ -48,9 +48,7 @@ export default function GHGEmissionsTrendChart({ data }: GHGEmissionsTrendChartP
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
               className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                activeTab === tab.key
-                  ? "bg-[#119B95] text-white"
-                  : "text-gray-900 hover:text-black"
+                activeTab === tab.key ? "bg-[#119B95] text-white" : "text-gray-900 hover:text-black"
               }`}
             >
               {tab.label}
@@ -64,52 +62,52 @@ export default function GHGEmissionsTrendChart({ data }: GHGEmissionsTrendChartP
           No emissions data available yet.
         </div>
       ) : (
-      <div className="flex-1 min-h-0">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="ghgGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#119B95" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#119B95" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-            <XAxis
-              dataKey="year"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: "#1F2937" }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={formatYAxis}
-              tick={{ fontSize: 12, fill: "#1F2937" }}
-            />
-            <Tooltip
-              formatter={(value: number | undefined) => {
-                const v = value ?? 0;
-                return [
-                  `${formatNumberFull(v)} tCO₂e`,
-                  activeTab === "all" ? "Total" : activeTab.replace("scope", "Scope "),
-                ];
-              }}
-              contentStyle={{
-                borderRadius: "8px",
-                border: "1px solid #E5E7EB",
-                fontSize: "12px",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey={dataKey}
-              stroke="#119B95"
-              strokeWidth={2}
-              fill="url(#ghgGradient)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+        <div className="flex-1 min-h-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="ghgGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#119B95" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#119B95" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+              <XAxis
+                dataKey="year"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: "#1F2937" }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={formatYAxis}
+                tick={{ fontSize: 12, fill: "#1F2937" }}
+              />
+              <Tooltip
+                formatter={(value: number | undefined) => {
+                  const v = value ?? 0;
+                  return [
+                    `${formatNumberFull(v)} tCO₂e`,
+                    activeTab === "all" ? "Total" : activeTab.replace("scope", "Scope "),
+                  ];
+                }}
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "1px solid #E5E7EB",
+                  fontSize: "12px",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey={dataKey}
+                stroke="#119B95"
+                strokeWidth={2}
+                fill="url(#ghgGradient)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

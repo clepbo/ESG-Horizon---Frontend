@@ -59,9 +59,7 @@ export function ScopeInput({
     ? defaultEmissionFactor
       ? { ...defaultEmissionFactor, factor: customEmissionFactor! }
       : null
-    : isMarketBased
-      ? null
-      : defaultEmissionFactor;
+    : defaultEmissionFactor;
 
   const [isEditing, setIsEditing] = useState(false);
   const [tempFactor, setTempFactor] = useState<number | null>(null);
@@ -186,12 +184,6 @@ export function ScopeInput({
                       </p>
                     )}
 
-                    {isMarketBased && !hasCustomFactor && (
-                      <p className="text-red-600 font-medium mt-1">
-                        Enter emission factor for Market-Based method.
-                      </p>
-                    )}
-
                     {isMarketBased && hasCustomFactor && (
                       <p className="text-teal-700 mt-1">Custom emission factor applied (Market-Based)</p>
                     )}
@@ -201,7 +193,7 @@ export function ScopeInput({
                     )}
                   </div>
 
-                  {editableFactor && !isMarketBased && (
+                  {editableFactor && (
                     <Button
                       type="button"
                       variant="ghost"
