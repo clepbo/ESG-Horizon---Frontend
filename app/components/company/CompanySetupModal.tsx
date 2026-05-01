@@ -150,14 +150,22 @@ export default function CompanySetupModal({
         ? allUsers.find((u) => u.email === data.managerEmail)
         : undefined;
 
-      const payload = {
+      const payload: any = {
         name: data.name,
         industryId: data.industryId,
-        leadId: teamLeadUser?.id,
-        teamLead: data.managerEmail ? { email: data.managerEmail } : undefined,
         address: data.address,
         status: "active",
       };
+
+      if (teamLeadUser) {
+        if (teamLeadUser.is_invitation) {
+          payload.teamLead_email = teamLeadUser.email;
+        } else {
+          payload.leadId = teamLeadUser.id;
+        }
+      } else if (data.managerEmail) {
+        payload.teamLead_email = data.managerEmail;
+      }
 
       let res: any;
       if (editingSubId) {
@@ -198,13 +206,21 @@ export default function CompanySetupModal({
     try {
       const selectedSub = companySubsidiaries?.find((s) => s.name === data.subsidiary);
       const selectedUser = allUsers.find((u) => u.email === data.managerEmail);
-      const payload = {
+      const payload: any = {
         name: data.name,
         subsidiaryId: selectedSub?.id,
         subsidiaryName: data.subsidiary || undefined,
-        leadEmail: data.managerEmail || undefined,
-        leadId: selectedUser?.id,
       };
+
+      if (selectedUser) {
+        if (selectedUser.is_invitation) {
+          payload.leadEmail = selectedUser.email;
+        } else {
+          payload.leadId = selectedUser.id;
+        }
+      } else if (data.managerEmail) {
+        payload.leadEmail = data.managerEmail;
+      }
 
       let res: any;
       if (editingDeptId) {

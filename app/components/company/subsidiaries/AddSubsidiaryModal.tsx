@@ -76,15 +76,24 @@ export default function AddSubsidiaryModal({
 
   const onSubmit = async (formData: FormValues) => {
     setAddingSubsidiary(true);
-    const payload = {
+    const payload: any = {
       name: formData.name,
       industryId: Number(formData.industry),
       address: formData.address,
       status: "active",
-      leadId: selectedLead?.id,
-      teamLead_email: leadEmail,
       teamLead_name: leadInput,
     };
+
+    if (selectedLead) {
+      if (selectedLead.is_invitation) {
+        payload.teamLead_email = selectedLead.email;
+      } else {
+        payload.leadId = selectedLead.id;
+        payload.teamLead_email = selectedLead.email;
+      }
+    } else {
+      payload.teamLead_email = leadEmail;
+    }
 
     try {
       const response = await subsidiariesService.createSubsidiary(payload);
