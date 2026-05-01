@@ -85,8 +85,8 @@ export default function GHGEmissionsTrendChart({ data }: GHGEmissionsTrendChartP
                 tick={{ fontSize: 12, fill: "#1F2937" }}
               />
               <Tooltip
-                formatter={(value: number | undefined) => {
-                  const v = value ?? 0;
+                formatter={(value) => {
+                  const v = typeof value === "number" ? value : Number(value) || 0;
                   return [
                     `${formatNumberFull(v)} tCO₂e`,
                     activeTab === "all" ? "Total" : activeTab.replace("scope", "Scope "),
