@@ -1,8 +1,29 @@
 import { toast } from "react-toastify";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { assessmentService } from "@/services/assessment.service";
 import { useAssessment as useAssessmentContext } from "@/hooks/useAssessment";
 import { useEffect } from "react";
+
+/**
+ * Approve / decline / submit all change an assessment's status AND trigger
+ * server-side report regeneration + ESG re-scoring. The dashboard, report
+ * detail, and target progress views are derived from those recomputed values,
+ * so a single ["assessments"] invalidation isn't enough — we also need to
+ * refresh the singular assessment query (used by the details modal) and the
+ * three downstream caches.
+ */
+function invalidateAfterStatusChange(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey: ["assessments"] });
+  queryClient.invalidateQueries({ queryKey: ["assessment"] });
+  queryClient.invalidateQueries({ queryKey: ["company-dashboard"] });
+  queryClient.invalidateQueries({ queryKey: ["report"] });
+  queryClient.invalidateQueries({ queryKey: ["targets-with-progress"] });
+}
 
 export const useAssessments = () => {
   return useQuery({
@@ -64,8 +85,8 @@ export const useApproveAssessment = () => {
   return useMutation<{ message: string }, Error, number>({
     mutationFn: (assessmentId: number) => assessmentService.approveAssessment(assessmentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["assessments"] });
-      toast.success("Assessment approved. Report generation started.");
+      invalidateAfterStatusChange(queryClient);
+      toast.success("Assessment approved and report regenerated.");
     },
     onError: (error: any) => {
       if (error._toastShown) return;
@@ -85,7 +106,7 @@ export const useDeclineAssessment = () => {
     mutationFn: ({ assessmentId, reason }) =>
       assessmentService.declineAssessment(assessmentId, reason),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      invalidateAfterStatusChange(queryClient);
       toast.success("Assessment rejected successfully.");
     },
     onError: (error: any) => {
@@ -106,7 +127,7 @@ export const useSubmitForReview = () => {
     mutationFn: ({ assessmentId, reviewerId }) =>
       assessmentService.submitForReview(assessmentId, reviewerId),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      invalidateAfterStatusChange(queryClient);
       const status = data?.data?.status;
       toast.success(
         status === "submitted_approved"
@@ -127,8 +148,7 @@ export const useGenerateReport = () => {
   return useMutation<{ message: string; data: any }, Error, number>({
     mutationFn: (assessmentId: number) => assessmentService.generateReport(assessmentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["report"] });
-      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      invalidateAfterStatusChange(queryClient);
       toast.success("Report generated successfully.");
     },
     onError: (error: any) => {
