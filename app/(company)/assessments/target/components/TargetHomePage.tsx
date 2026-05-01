@@ -59,7 +59,10 @@ export default function TargetHomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isLoading) {
+  // Show the skeleton while auth is still resolving too — otherwise companyId
+  // is undefined, the targets query is `enabled: false`, isLoading is `false`,
+  // and we'd flash InitialTargetPage for a frame before the real data lands.
+  if (!companyId || isLoading) {
     return (
       <section className="grid gap-4 lg:gap-8 py-4">
         <div className="flex justify-between items-center">
