@@ -31,115 +31,67 @@
     "changePercentage": null,
     "greenhouseGasEmission": {
       "totalEmissions": 28458.14,
-      "totalChange": null,
+      "totalChange": -8.3,
       "totalHistory": [
         {
-          "score": 90932.63,
+          "score": 33973.54,
           "period": "January 2023 - December 2023"
         },
         {
-          "score": 122753.38,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 46860.07,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 31636.56,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 42966.7,
+          "score": 31038.35,
           "period": "January 2024 - December 2024"
         },
         {
           "score": 28458.14,
-          "period": "January 2024 - December 2024"
+          "period": "January 2025 - December 2025"
         }
       ],
       "scope1Emissions": 9399.87,
-      "scope1Change": null,
+      "scope1Change": -8.3,
       "scope1History": [
         {
-          "score": 30729.23,
+          "score": 11180.23,
           "period": "January 2023 - December 2023"
         },
         {
-          "score": 42437.54,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 15775.44,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 10693.65,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 14851.33,
+          "score": 10245.46,
           "period": "January 2024 - December 2024"
         },
         {
           "score": 9399.87,
-          "period": "January 2024 - December 2024"
+          "period": "January 2025 - December 2025"
         }
       ],
       "scope2Emissions": 4081.19,
-      "scope2Change": null,
+      "scope2Change": -11.1,
       "scope2History": [
         {
-          "score": 13352.32,
+          "score": 5142.87,
           "period": "January 2023 - December 2023"
         },
         {
-          "score": 18181.82,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 6733.72,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 4606.22,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 6139.93,
+          "score": 4589.12,
           "period": "January 2024 - December 2024"
         },
         {
           "score": 4081.19,
-          "period": "January 2024 - December 2024"
+          "period": "January 2025 - December 2025"
         }
       ],
       "scope3Emissions": 14977.08,
-      "scope3Change": null,
+      "scope3Change": -7.6,
       "scope3History": [
         {
-          "score": 46851.08,
+          "score": 17650.44,
           "period": "January 2023 - December 2023"
         },
         {
-          "score": 62134.02,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 24350.91,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 16336.69,
-          "period": "January 2023 - December 2023"
-        },
-        {
-          "score": 21975.44,
+          "score": 16203.77,
           "period": "January 2024 - December 2024"
         },
         {
           "score": 14977.08,
-          "period": "January 2024 - December 2024"
+          "period": "January 2025 - December 2025"
         }
       ]
     },

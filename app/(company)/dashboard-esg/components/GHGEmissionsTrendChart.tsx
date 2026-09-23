@@ -38,8 +38,8 @@ export default function GHGEmissionsTrendChart({ data }: GHGEmissionsTrendChartP
   const dataKey = activeTab === "all" ? "total" : activeTab;
 
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col min-h-[360px]">
-      <div className="flex items-center justify-between mb-6 shrink-0">
+    <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col min-h-[280px]">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <h3 className="text-xl font-semibold text-gray-900">GHG Emissions Trend</h3>
 
         <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
