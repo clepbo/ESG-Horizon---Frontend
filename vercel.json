@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "yarn build",
+  "installCommand": "yarn install --immutable",
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_DEMO_MODE": "true",
+      "NEXT_PUBLIC_SUPABASE_URL": "https://demo-placeholder.supabase.co",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "demo-placeholder-anon-key"
+    }
+  }
+}

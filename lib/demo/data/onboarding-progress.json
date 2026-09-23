@@ -1,0 +1,24 @@
+{
+  "message": "Onboarding progress retrieved successfully.",
+  "data": {
+    "progressPercent": 100,
+    "checklist": [
+      {
+        "title": "Complete Organization & Personal Profile",
+        "isCompleted": false
+      },
+      {
+        "title": "Invite Your Teams, Set Up Departments & Subsidiaries",
+        "isCompleted": true
+      },
+      {
+        "title": "Start First Assessment",
+        "isCompleted": true
+      },
+      {
+        "title": "View ESG Dashboard",
+        "isCompleted": true
+      }
+    ]
+  }
+}

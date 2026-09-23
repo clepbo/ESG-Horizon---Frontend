@@ -1,0 +1,383 @@
+{
+  "activityMetrics": {
+    "productionData": {
+      "oilProduction": {
+        "crudeOil": 0,
+        "syntheticOil": 0
+      },
+      "gasProduction": {
+        "naturalGas": 0,
+        "syntheticGas": 0
+      }
+    },
+    "assetPortfolio": {
+      "offshoreSites": {
+        "totalNumber": 0,
+        "productionPlatforms": 0,
+        "FPSOs": 0,
+        "otherSites": 0
+      },
+      "terrestrialSites": {
+        "totalNumber": 0,
+        "flowStations": 0,
+        "gasProcessingPlants": 0,
+        "otherSites": 0
+      }
+    }
+  },
+  "environmental": {
+    "total_emission": 28458.14,
+    "desc": "",
+    "changePercentage": null,
+    "greenhouseGasEmission": {
+      "totalEmissions": 28458.14,
+      "totalChange": null,
+      "totalHistory": [
+        {
+          "score": 90932.63,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 122753.38,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 46860.07,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 31636.56,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 42966.7,
+          "period": "January 2024 - December 2024"
+        },
+        {
+          "score": 28458.14,
+          "period": "January 2024 - December 2024"
+        }
+      ],
+      "scope1Emissions": 9399.87,
+      "scope1Change": null,
+      "scope1History": [
+        {
+          "score": 30729.23,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 42437.54,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 15775.44,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 10693.65,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 14851.33,
+          "period": "January 2024 - December 2024"
+        },
+        {
+          "score": 9399.87,
+          "period": "January 2024 - December 2024"
+        }
+      ],
+      "scope2Emissions": 4081.19,
+      "scope2Change": null,
+      "scope2History": [
+        {
+          "score": 13352.32,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 18181.82,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 6733.72,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 4606.22,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 6139.93,
+          "period": "January 2024 - December 2024"
+        },
+        {
+          "score": 4081.19,
+          "period": "January 2024 - December 2024"
+        }
+      ],
+      "scope3Emissions": 14977.08,
+      "scope3Change": null,
+      "scope3History": [
+        {
+          "score": 46851.08,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 62134.02,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 24350.91,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 16336.69,
+          "period": "January 2023 - December 2023"
+        },
+        {
+          "score": 21975.44,
+          "period": "January 2024 - December 2024"
+        },
+        {
+          "score": 14977.08,
+          "period": "January 2024 - December 2024"
+        }
+      ]
+    },
+    "airQuality": {
+      "totalEmission": 0,
+      "nox": 0,
+      "sox": 0,
+      "voc": 0,
+      "pm10": 0
+    },
+    "waterManagement": {
+      "totalWaterWithdrawal": 0,
+      "totalWaterConsumed": 0,
+      "totalProducedWaterGenerated": 0,
+      "recycledWater": 0,
+      "injectedForDisposal": 0,
+      "dischargedToSurface": 0,
+      "averageHydrocarbonContent": null,
+      "freshwaterWithdrawalBySource": {
+        "surfaceWater": 0,
+        "groundwater": 0,
+        "municipalWater": 0
+      },
+      "hydraulicFracturingChemicalDisclosure": {
+        "wells": {
+          "totalFracturedWells": 0,
+          "numberOfWellsWithPublicDisclosure": 0,
+          "percentageWithDisclosure": 0
+        }
+      },
+      "hydraulicFracturingWaterQualityImpacts": {
+        "sites": {
+          "totalFracturedSitesMonitored": 0,
+          "withDeterioratedWaterQuality": 0,
+          "percentageWithDeterioratedWaterQuality": 0
+        }
+      }
+    },
+    "biodiversityImpact": {
+      "hydrocarbonSpills": {
+        "numberOfSpills": 0,
+        "totalVolumeSpilled": 0,
+        "volumeRecovered": 0,
+        "volumeInArctic": 0,
+        "volumeImpactingSensitiveShorelines": 0
+      },
+      "reservesInSensitiveAreas": {
+        "totalProvedReserves": 0,
+        "provedReserves": 0,
+        "totalProbableReserves": 0,
+        "probableReserves": 0
+      }
+    }
+  },
+  "socialCapital": {
+    "operationalDelaysLevel": "Low Risk",
+    "desc": "",
+    "totalNumberOfIncidents": 0,
+    "securityHumanRightsAndIndigenousPeople": {
+      "operationsInConflictZones": {
+        "totalProvedReserves": 0,
+        "provedReserves": 0,
+        "totalProbableReserves": 0,
+        "probableReserves": 0
+      },
+      "reservesInNearIndigenousLand": {
+        "totalProvedReserves": 0,
+        "provedReserves": 0,
+        "totalProbableReserves": 0,
+        "probableReserves": 0
+      }
+    },
+    "communityRelations": {
+      "hcdtContribution": {
+        "priorYearOpexAmount": 0,
+        "annualContribution": 0,
+        "percentage": 0
+      },
+      "communityDisputeResolution": {
+        "disputesReferred": 0,
+        "disputesResolved": 0
+      },
+      "operationalDelays": {
+        "protests": {
+          "count": 0,
+          "delay": 0
+        },
+        "otherIssues": {
+          "count": 0,
+          "delay": 0
+        }
+      }
+    }
+  },
+  "humanCapital": {
+    "direct": {
+      "recordableIncidents": 0,
+      "fatalities": 0,
+      "nearMisses": 0,
+      "totalHoursWorked": 0,
+      "trir": 0
+    },
+    "contract": {
+      "recordableIncidents": 0,
+      "fatalities": 0,
+      "nearMisses": 0,
+      "totalHoursWorked": 0,
+      "trir": 0
+    },
+    "totalRecordableIncidentRatePer200kHours": 0,
+    "desc": "",
+    "changePercentage": null,
+    "recordableIncidents": 0,
+    "fatalities": 0,
+    "nearMisses": 0,
+    "averageSafetyTrainingHoursPerEmployee": 0,
+    "safetyManagementSystems": [
+      {
+        "title": "Safety Management Systems",
+        "tag": "Safety Management",
+        "description": ""
+      }
+    ]
+  },
+  "businessModel": {
+    "totalReservesAmountAtRisk": 0,
+    "desc": "",
+    "changePercentage": null,
+    "reservesValuationAndCapitalExpenditure": {
+      "climateImpactOnReserves": {
+        "carbonPriceScenario": 0,
+        "reservesAtRiskPercent": 0,
+        "totalProvedReserves": 0,
+        "totalProbableReserves": 0,
+        "embeddedCarbon": 0
+      },
+      "strategicCapitalAllocation": {
+        "renewableInvestmentAmount": 0,
+        "renewableRevenueAmount": 0,
+        "gasProjectsValueCount": 0,
+        "renewableProjectsValueCount": 0,
+        "maintenanceValueCount": 100
+      }
+    },
+    "businessEthicsAndTransparency": {
+      "geopoliticalAndCorruptionRisk": {
+        "proved": {
+          "total": 0,
+          "risk": 0
+        },
+        "probable": {
+          "total": 0,
+          "risk": 0
+        }
+      },
+      "antiCorruptionManagement": ""
+    }
+  },
+  "leadershipAndGovernance": {
+    "processSafetyPercentage": 0,
+    "desc": "",
+    "numberOfTierEventsAndWhatTier": "0",
+    "managementOfLegalAndRegulatoryEnvironment": {
+      "publicPolicyAndLobbying": "",
+      "policyPosition": "",
+      "sustainabilityGovernance": "",
+      "sustainabilityPosition": "",
+      "hasBoardCommittee": ""
+    },
+    "criticalIncidenceRiskManagement": {
+      "processSafetyEvents": {
+        "tierOneEvents": 0,
+        "totalHoursWorked": 0,
+        "rate": 0
+      },
+      "catastrophicEvents": {
+        "lastAssetIntegrityAudit": "",
+        "description": ""
+      }
+    }
+  },
+  "percentage_emission_summary": {
+    "scope1_emission_summary": 33.03051429222009,
+    "scope2_emission_summary": 14.341028612551629,
+    "scope3_emission_summary": 52.628457095228285
+  },
+  "status": "approved",
+  "subsidiary": "Meridian AgriFoods Ltd",
+  "startMonth": "January",
+  "startYear": "2024",
+  "endMonth": "December",
+  "endYear": "2024",
+  "targets": {
+    "general": null,
+    "scope": {
+      "id": 8,
+      "name": "Interim Scope 2 Renewable Target 2027",
+      "companyId": 10,
+      "type": "SCOPE",
+      "description": "Source 40% of group electricity from certified renewable supply by 2027, evidenced through EACs.",
+      "baselineYear": 2023,
+      "targetYear": 2027,
+      "createdAt": "2026-09-21T15:31:53.310Z",
+      "updatedAt": "2026-09-21T15:31:53.310Z",
+      "createdById": 84,
+      "scopeTargets": [
+        {
+          "id": 16,
+          "targetId": 8,
+          "scope": "SCOPE2",
+          "reductionPercentage": 40,
+          "createdAt": "2026-09-21T15:31:53.313Z",
+          "updatedAt": "2026-09-21T15:31:53.313Z",
+          "baselineYearEmission": 0,
+          "targetEmission": 0,
+          "currentEmission": null,
+          "baselineYear": 2023,
+          "targetYear": 2027
+        }
+      ],
+      "generalTarget": null,
+      "currentAssessmentYear": 2024
+    }
+  },
+  "evidence": {
+    "environmental": [],
+    "socialCapital": [],
+    "humanCapital": [],
+    "businessModel": [],
+    "leadershipAndGovernance": []
+  },
+  "esgEvaluation": {
+    "score": 67.5,
+    "grade": "C",
+    "pillars": {
+      "social": 81.6,
+      "governance": 93.1,
+      "environmental": 60
+    }
+  }
+}

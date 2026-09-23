@@ -4,7 +4,10 @@ import withBundleAnalyzer from "@next/bundle-analyzer";
 const isBundleAnalyze = process.env.ANALYZE === "true";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // "standalone" produces a self-contained server bundle for Docker/self-hosting.
+  // Vercel builds and serves Next.js natively and does not use it, so the demo
+  // deployment opts out — keeping it would just add an unused bundle to the build.
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   reactStrictMode: false,
   trailingSlash: true,
 

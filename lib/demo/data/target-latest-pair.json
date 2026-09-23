@@ -1,0 +1,28 @@
+{
+  "general": null,
+  "scope": {
+    "id": 8,
+    "companyId": 10,
+    "name": "Interim Scope 2 Renewable Target 2027",
+    "type": "SCOPE",
+    "createdById": 84,
+    "description": "Source 40% of group electricity from certified renewable supply by 2027, evidenced through EACs.",
+    "baselineYear": 2023,
+    "targetYear": 2027,
+    "currentAssessmentYear": 2024,
+    "scopeTargets": [
+      {
+        "id": 16,
+        "scope": "SCOPE2",
+        "reductionPercentage": 40,
+        "baselineYearEmission": 0,
+        "targetEmission": 0,
+        "currentEmission": null,
+        "baselineYear": 2023,
+        "targetYear": 2027
+      }
+    ],
+    "createdAt": "2026-09-21T15:31:53.310Z",
+    "updatedAt": "2026-09-21T15:31:53.310Z"
+  }
+}

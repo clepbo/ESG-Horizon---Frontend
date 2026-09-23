@@ -1,0 +1,79 @@
+[
+  {
+    "id": 8,
+    "companyId": 10,
+    "name": "Interim Scope 2 Renewable Target 2027",
+    "type": "SCOPE",
+    "createdById": 84,
+    "description": "Source 40% of group electricity from certified renewable supply by 2027, evidenced through EACs.",
+    "baselineYear": 2023,
+    "targetYear": 2027,
+    "currentAssessmentYear": 2025,
+    "scopeTargets": [
+      {
+        "id": 16,
+        "scope": "SCOPE2",
+        "reductionPercentage": 40,
+        "baselineYearEmission": 42874.0,
+        "targetEmission": 25724.4,
+        "currentEmission": 33365.0,
+        "baselineYear": 2023,
+        "targetYear": 2027
+      }
+    ],
+    "createdAt": "2026-09-21T15:31:53.310Z",
+    "updatedAt": "2026-09-21T15:31:53.310Z"
+  },
+  {
+    "id": 7,
+    "companyId": 10,
+    "name": "Group Net-Zero Pathway 2030",
+    "type": "BOTH",
+    "createdById": 84,
+    "description": "Group-wide commitment to halve absolute Scope 1 and 2 emissions against a 2023 baseline, aligned to a 1.5\u00b0C pathway.",
+    "baselineYear": 2023,
+    "targetYear": 2030,
+    "currentAssessmentYear": 2025,
+    "generalTarget": {
+      "id": 4,
+      "reductionPercentage": 50,
+      "baselineYearEmission": 142510.0,
+      "targetEmission": 71255.0,
+      "currentEmission": 114445.0
+    },
+    "scopeTargets": [
+      {
+        "id": 13,
+        "scope": "SCOPE1",
+        "reductionPercentage": 45,
+        "baselineYearEmission": 99636.0,
+        "targetEmission": 54799.8,
+        "currentEmission": 81080.0,
+        "baselineYear": 2023,
+        "targetYear": 2030
+      },
+      {
+        "id": 14,
+        "scope": "SCOPE2",
+        "reductionPercentage": 60,
+        "baselineYearEmission": 42874.0,
+        "targetEmission": 17149.6,
+        "currentEmission": 33365.0,
+        "baselineYear": 2023,
+        "targetYear": 2030
+      },
+      {
+        "id": 15,
+        "scope": "SCOPE3",
+        "reductionPercentage": 30,
+        "baselineYearEmission": 149673.0,
+        "targetEmission": 104771.1,
+        "currentEmission": 133561.0,
+        "baselineYear": 2023,
+        "targetYear": 2030
+      }
+    ],
+    "createdAt": "2026-09-21T15:31:53.295Z",
+    "updatedAt": "2026-09-21T15:31:53.295Z"
+  }
+]

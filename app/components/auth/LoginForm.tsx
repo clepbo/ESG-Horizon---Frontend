@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Checkmark } from "../ui/reusables/CheckMark";
+import { isDemoMode, DEMO_CREDENTIALS } from "@/lib/demo";
 
 // const GoogleIcon = ({ className }: { className?: string }) => (
 //   <svg className={className} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -59,7 +60,11 @@ export default function LoginForm() {
     clearErrors,
     formState: { errors },
   } = useForm<FormFields>({
-    defaultValues: { email: "", password: "" },
+    // In demo mode the credentials are prefilled: a demo should open and
+    // work, not ask the viewer for a password they have to be told.
+    defaultValues: isDemoMode
+      ? { email: DEMO_CREDENTIALS.email, password: DEMO_CREDENTIALS.password }
+      : { email: "", password: "" },
   });
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
@@ -157,6 +162,22 @@ export default function LoginForm() {
           <h2 className="text-left text-xl md:text-2xl font-semibold text-dark-500 mb-4">
             Login to your account
           </h2>
+
+          {isDemoMode && (
+            <div
+              className="mb-5 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3"
+              role="status"
+            >
+              <p className="text-sm font-semibold text-teal-900">
+                Demo environment
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-teal-800">
+                Sample data only &mdash; no real company or client information.
+                Credentials are filled in for you, so just select{" "}
+                <span className="font-medium">Login</span>.
+              </p>
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-neutral-1000">

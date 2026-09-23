@@ -1,12 +1,21 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { triggerLogout } from "../utils";
 import { toast } from "react-toastify";
+import { isDemoMode } from "../demo";
+import { demoAdapter } from "../demo/adapter";
 
 const api = axios.create({
   // baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "https://server.esghorizon.africa",
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
 });
+
+// In demo mode every request is served from a dataset bundled into the build,
+// so the app runs with no backend and no database. The interceptors below still
+// apply — the adapter simply replaces the network layer beneath them.
+if (isDemoMode) {
+  api.defaults.adapter = demoAdapter;
+}
 
 let isRefreshing = false;
 let failedQueue: Array<{
