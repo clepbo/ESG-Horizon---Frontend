@@ -59,23 +59,23 @@ export default function LoginPage() {
         }}
         className="flex flex-1 items-center justify-center px-6 py-12 md:px-12 bg-white overflow-y-auto h-full"
       >
-        <div className="flex flex-1 flex-col px-6 py-12 md:px-12 bg-white overflow-y-auto">
-          <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center">
-            <div className="fixed top-0">
-              <Image
-                src="/Logo.svg"
-                alt="ESG Horizon Logo"
-                width={30}
-                height={30}
-                className="h-40 w-auto object-contain"
-                priority
-              />
-            </div>
-
-            <div className="bg-white ">
-              <LoginForm />
-            </div>
-          </div>
+        {/*
+          The logo used to be `fixed top-0`, which pinned it to the viewport
+          rather than this panel: it sat outside the flow, overlapped the form
+          column, and left a ~114px dead band above the heading. Placing it in
+          flow at the top of the same max-w-md column lets the column centre as
+          a whole, so the logo and form read as one block.
+        */}
+        <div className="w-full max-w-md">
+          <Image
+            src="/Logo.svg"
+            alt="ESG Horizon Logo"
+            width={120}
+            height={128}
+            className="mb-8 h-32 w-auto object-contain"
+            priority
+          />
+          <LoginForm />
         </div>
       </motion.div>
     </div>

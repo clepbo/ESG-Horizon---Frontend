@@ -113,8 +113,11 @@ export default function LoginForm() {
   //   }
   // };
 
+  // The wrapper previously carried mt-36 to push the form clear of the
+  // viewport-fixed logo on the login page. The logo sits in normal flow now,
+  // so that margin was pure dead space above the heading.
   return (
-    <div className="relative mt-36">
+    <div className="relative">
       {/* Awaiting Approval Modal */}
       {showApprovalModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">

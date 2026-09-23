@@ -2,7 +2,7 @@
   "message": "Company dashboard data retrieved successfully.",
   "data": {
     "esgScore": 75.1,
-    "esgGrade": "B",
+    "esgGrade": "B+",
     "overallProgress": {
       "count": "33 of 38 sections",
       "percentage": 87
