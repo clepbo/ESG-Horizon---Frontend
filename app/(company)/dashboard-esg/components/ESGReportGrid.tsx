@@ -10,7 +10,7 @@ interface ESGReportGridProps {
 export default function ESGReportGrid({ metrics }: ESGReportGridProps) {
   return (
     <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-3">ESG Assessment Report</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-3">ESG Assessment Report</h2>
       {metrics.length === 0 ? (
         <div className="rounded-2xl bg-white p-8 shadow-sm text-center">
           <p className="text-sm text-gray-900">No approved assessment report available yet.</p>

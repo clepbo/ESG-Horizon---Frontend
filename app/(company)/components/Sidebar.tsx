@@ -161,7 +161,9 @@ export default function Sidebar() {
                 width={140}
                 height={60}
                 priority
-                className="hidden md:block object-contain"
+                /* Constrain the rendered height explicitly. Without it the mark
+                   rendered 140px tall — over half the width of a 270px rail. */
+                className="hidden md:block object-contain h-16 w-auto"
               />
               <Image
                 src="/iconlogo.png"

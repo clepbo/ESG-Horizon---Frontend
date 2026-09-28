@@ -37,7 +37,7 @@ export default function AssessmentsList({ assessments }: AssessmentsListProps) {
   return (
     <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-gray-900">Assessments</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Assessments</h3>
         <Link
           href="/assessments"
           className="text-sm font-medium text-[#119B95] hover:underline inline-flex items-center gap-1"

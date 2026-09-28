@@ -67,7 +67,7 @@ export default function PillarScoreCard({ pillar }: PillarScoreCardProps) {
       </div>
 
       <div className="mt-2 flex items-baseline gap-1">
-        <span className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
+        <span className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
           {pillar.score}
         </span>
         <span className="text-sm sm:text-base text-gray-700">/{pillar.maxScore}</span>

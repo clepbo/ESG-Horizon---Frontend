@@ -16,6 +16,7 @@ import onboardingProgress from "./data/onboarding-progress.json";
 import industries from "./data/industries.json";
 import sectors from "./data/sectors.json";
 import audit from "./data/audit.json";
+import userRoles from "./data/user-roles.json";
 import auditKpis from "./data/audit-kpis.json";
 
 /**
@@ -24,6 +25,7 @@ import auditKpis from "./data/audit-kpis.json";
  */
 const ROUTES: Record<string, unknown> = {
   "GET /users/me": user,
+  "GET /users/user-roles": userRoles,
   "GET /auth/status": { authenticated: true, user },
 
   "GET /company/esg/dashboard": dashboard,
@@ -85,6 +87,28 @@ function respond(
 /** A touch of latency so loading states are visible rather than flashing. */
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * The value returned for a read with no fixture.
+ *
+ * Shape matters more than it looks. Services here return the response body
+ * straight through, and callers then use it either as a list (`roles.filter`,
+ * `industries.map`) or as an envelope (`res.data`). An object broke the first
+ * group — a real crash on /settings-esg/subsidiaries, where a modal called
+ * `.filter` on it — and a bare array would break the second.
+ *
+ * So the fallback is an empty array that also answers `.data` (with itself)
+ * and `.message`. Both access patterns then get something valid, and a screen
+ * with no fixture renders its empty state instead of white-screening mid-demo.
+ */
+function emptyPayload(): unknown[] {
+  const empty: unknown[] = [];
+  Object.defineProperties(empty, {
+    data: { value: empty, enumerable: false },
+    message: { value: "No demo data for this view.", enumerable: false },
+  });
+  return empty;
+}
+
 export const demoAdapter: AxiosAdapter = async (config) => {
   await delay(120 + Math.random() * 180);
 
@@ -136,12 +160,10 @@ export const demoAdapter: AxiosAdapter = async (config) => {
   // --- Reads -----------------------------------------------------------------
   if (method === "GET") {
     if (key in ROUTES) return respond(config, ROUTES[key]);
-    // Unknown read: an empty success keeps a screen rendering its empty state
-    // rather than throwing an error banner over the demo.
     if (process.env.NODE_ENV !== "production") {
       console.info(`[demo] no fixture for ${key} — returning empty payload`);
     }
-    return respond(config, { message: "No demo data for this view.", data: [] });
+    return respond(config, emptyPayload());
   }
 
   // --- Writes ----------------------------------------------------------------

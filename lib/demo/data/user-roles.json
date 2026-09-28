@@ -1,0 +1,10 @@
+[
+  { "id": 1, "name": "super_admin", "description": "Full authority over the platform." },
+  { "id": 2, "name": "platform_subadmin", "description": "Day-to-day administrative and content oversight." },
+  { "id": 3, "name": "platform_data_officer", "description": "Submits ESG data and monitors performance." },
+  { "id": 4, "name": "platform_viewer", "description": "Read-only access across the platform." },
+  { "id": 5, "name": "company_esg_admin", "description": "Manages users, settings and ESG data for their company." },
+  { "id": 6, "name": "company_esg_subadmin", "description": "Reviews, edits and approves their company's submissions." },
+  { "id": 7, "name": "company_esg_data_officer", "description": "Day-to-day entry and management of ESG data." },
+  { "id": 8, "name": "company_esg_viewer", "description": "Read-only access to their company's dashboards and reports." }
+]

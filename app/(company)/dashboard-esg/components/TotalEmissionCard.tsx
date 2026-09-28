@@ -25,7 +25,7 @@ export default function TotalEmissionCard({
           </p>
 
           <div className="mt-3">
-            <span className="text-4xl font-bold" title={`${formatNumberFull(total)} tCO₂e`}>
+            <span className="text-3xl font-bold" title={`${formatNumberFull(total)} tCO₂e`}>
               {formatNumberShort(total)}
             </span>
             <span className="text-lg ml-2 text-white">tCO₂e</span>

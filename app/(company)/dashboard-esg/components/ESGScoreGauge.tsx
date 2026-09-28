@@ -169,7 +169,7 @@ export default function ESGScoreGauge({ score, maxScore = 100, grade }: ESGScore
         </PieChart>
 
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-center">
-          <span className="text-3xl font-bold text-gray-900">{score}</span>
+          <span className="text-2xl font-bold text-gray-900">{score}</span>
           <span className="text-base text-gray-700">/{maxScore}</span>
         </div>
       </div>

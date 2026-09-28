@@ -200,7 +200,7 @@ export default function DashboardPage() {
       >
         {/* Header */}
         <div className="flex gap-2 mb-6">
-          <h1 className="hidden lg:block text-2xl font-bold">Dashboard</h1>
+          <h1 className="hidden lg:block text-xl font-bold">Dashboard</h1>
           <Header showSearchBar={false} />
         </div>
 
@@ -245,7 +245,7 @@ export default function DashboardPage() {
           >
             <GHGEmissionsTrendChart data={emissionTrend} />
             <div className="rounded-2xl bg-white p-6 shadow-sm h-full flex flex-col">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Reduction Targets Progress
               </h3>
               <div className="flex-1">
