@@ -2,7 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "yarn build",
-  "installCommand": "yarn install --immutable",
   "build": {
     "env": {
       "NEXT_PUBLIC_DEMO_MODE": "true",

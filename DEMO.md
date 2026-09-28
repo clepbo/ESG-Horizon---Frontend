@@ -26,6 +26,32 @@ The Supabase values are placeholders because `lib/supabase.ts` throws at import
 time without them, which breaks the build. Supabase only backs social login,
 which the demo does not use.
 
+### Make sure Vercel builds the right branch
+
+Vercel deploys whichever branch the project has set as its production branch —
+`main` by default. Demo mode lives on its own branch, so either merge it into
+the branch Vercel builds, or point the project at it under
+**Settings → Git → Production Branch**. A build of a branch without demo mode
+fails with `Missing Supabase environment variables`, because the placeholders
+above are what stop `lib/supabase.ts` throwing during prerender.
+
+### Yarn version on Vercel (optional but recommended)
+
+Vercel defaults to **Yarn 1**, ignoring the `packageManager` field pinning
+Yarn 4. It still builds, but Yarn 1 cannot read a Yarn 4 lockfile, so it
+regenerates one and resolves dependencies afresh — meaning the deployed tree can
+differ from a local install.
+
+To build with the pinned version instead, add an environment variable to the
+Vercel project:
+
+    ENABLE_EXPERIMENTAL_COREPACK = 1
+
+Corepack then honours `packageManager` and the committed `yarn.lock` is used as
+written. Note that Yarn 1 runs `prebuild` automatically while Yarn 4 does not —
+`build` invokes `scripts/generate-build-version.js` explicitly for that reason,
+so `public/version.json` is generated either way.
+
 ## Running it locally
 
 ```bash
