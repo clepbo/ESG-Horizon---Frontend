@@ -584,6 +584,28 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
     [props, currentYear]
   );
 
+  /**
+   * Clip the y-axis to the data.
+   *
+   * The -100% floor exists so backsliding is visible, but when nothing is
+   * backsliding it hands half the plot to an empty red band and squashes the
+   * real points into the top half — which reads as alarming even when every
+   * target is on track. So the floor drops to 0 when all points are positive,
+   * and otherwise sits just below the worst one, snapped to a 25% step.
+   */
+  const yFloor = useMemo(() => {
+    const ys = dots.map((d) => d.y).filter((v) => Number.isFinite(v));
+    if (ys.length === 0) return 0;
+    const min = Math.min(...ys);
+    if (min >= 0) return 0;
+    return Math.max(Y_MIN, Math.floor((min - 10) / 25) * 25);
+  }, [dots]);
+
+  const yTicks = useMemo(
+    () => [-100, -75, -50, -25, 0, 25, 50, 75, 100].filter((t) => t >= yFloor),
+    [yFloor]
+  );
+
   if (dots.length === 0 && committed.length === 0 && noBaselineMetrics.length === 0) {
     return (
       <div className="flex h-full min-h-[200px] flex-col items-center justify-center gap-2 rounded-2xl bg-white p-6 text-center">
@@ -595,7 +617,7 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
     );
   }
 
-  const chartHeight = props.height ?? 360;
+  const chartHeight = props.height ?? 240;
 
   return (
     <div className="flex w-full flex-col gap-3">
@@ -609,8 +631,10 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 12, right: 24, bottom: 36, left: 36 }}>
             <CartesianGrid stroke="#E5E7EB" strokeDasharray="3 3" />
-            {/* Backsliding zone — shaded */}
-            <ReferenceArea y1={Y_MIN} y2={0} fill="#FEE2E2" fillOpacity={0.45} stroke="none" />
+            {/* Backsliding zone — only drawn when something is actually below 0 */}
+            {yFloor < 0 && (
+              <ReferenceArea y1={yFloor} y2={0} fill="#FEE2E2" fillOpacity={0.45} stroke="none" />
+            )}
             <XAxis
               type="number"
               dataKey="x"
@@ -630,8 +654,8 @@ export default function TargetTrendChart(props: TargetTrendChartProps) {
             <YAxis
               type="number"
               dataKey="y"
-              domain={[Y_MIN, Y_MAX]}
-              ticks={[-100, -50, 0, 25, 50, 75, 100]}
+              domain={[yFloor, Y_MAX]}
+              ticks={yTicks}
               tick={{ fill: "#374151", fontSize: 11 }}
               tickFormatter={(v) => `${v}%`}
               axisLine={{ stroke: "#D1D5DB" }}

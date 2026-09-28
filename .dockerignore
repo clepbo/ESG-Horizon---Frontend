@@ -1,4 +1,11 @@
-tsconfig.tsbuildinfo
 node_modules
 .next
 .git
+.env
+.env.*
+!.env.example
+*.log
+.yarn/cache
+.yarn/install-state.gz
+coverage
+__tests__

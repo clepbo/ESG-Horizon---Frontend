@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Header from "../components/Header";
 import ESGTour from "@/app/components/company/ESGTour";
+import { isDemoMode } from "@/lib/demo";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
 import { useCompanyDashboard, CompanyDashboardData } from "@/services/hooks/dashboard.hooks";
@@ -42,6 +43,10 @@ const ROW_VARIANTS = {
 export default function DashboardPage() {
   const [showTour, setShowTour] = useState(() => {
     if (typeof window === "undefined") return false;
+    // The demo should open on the dashboard itself. The welcome tour is a
+    // setup checklist for a brand new account, which is the wrong first
+    // impression when the whole point is to show a populated platform.
+    if (isDemoMode) return false;
     return localStorage.getItem("esg-tour-completed") !== "true";
   });
 
